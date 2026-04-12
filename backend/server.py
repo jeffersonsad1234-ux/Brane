@@ -1413,15 +1413,15 @@ async def startup():
                 {"name": "Gratis", "price": 0, "days": "7-15 dias uteis", "enabled": True},
                 {"name": "Normal", "price": 15.90, "days": "5-8 dias uteis", "enabled": True},
                 {"name": "Expresso", "price": 29.90, "days": "2-3 dias uteis", "enabled": True}
-            ]
-        }})
-    try:
-        init_storage()
-        logger.info("Object storage initialized")
-    except Exception as e:
-        logger.error(f"Storage init failed: {e}")
-    logger.info("BRANE Marketplace started!")
+            #]
+        #})
+    #try:
+        #init_storage()
+       # logger.info("Object storage initialized")
+  #  except Exception as e:
+       # logger.error(f"Storage init failed: {e}")
+   # logger.info("BRANE Marketplace started!")
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+#@app.on_event("shutdown")
+#async def shutdown_db_client():
+  #  client.close()
