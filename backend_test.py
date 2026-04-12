@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 class BRANEAPITester:
-    def __init__(self, base_url: str = "https://brane-exchange.preview.emergentagent.com"):
+    def __init__(self, base_url: str = "https://account-change-guide.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.admin_token = None
