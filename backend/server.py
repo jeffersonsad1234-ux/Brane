@@ -256,7 +256,7 @@ async def require_seller(request: Request) -> dict:
     #return None
 
 def put_object(path: str, data: bytes, content_type: str) -> dict:
-    key = init_storage()
+    key = None
     if not key:
         raise HTTPException(status_code=500, detail="Storage unavailable")
     resp = http_requests.put(
@@ -268,7 +268,7 @@ def put_object(path: str, data: bytes, content_type: str) -> dict:
     return resp.json()
 
 def get_object(path: str):
-    key = init_storage()
+    key = None
     if not key:
         raise HTTPException(status_code=500, detail="Storage unavailable")
     resp = http_requests.get(
