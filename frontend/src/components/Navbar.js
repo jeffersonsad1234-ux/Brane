@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Search, ShoppingCart, Bell, User, LogOut, ChevronDown, Menu, X } from 'lucide-react';
+import { Search, ShoppingCart, Bell, User, LogOut, ChevronDown, Menu, X, Wallet, Package, Settings, HelpCircle, Shield } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger
@@ -29,6 +29,7 @@ export default function Navbar({ onSearch }) {
   };
 
   const roleLabels = { buyer: 'Comprador', seller: 'Vendedor', affiliate: 'Afiliado', admin: 'Admin (CEO)' };
+  const roleColors = { buyer: 'text-blue-400', seller: 'text-green-400', affiliate: 'text-purple-400', admin: 'text-[#B38B36]' };
 
   const getInitials = (name) => name ? name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) : '?';
 
@@ -76,47 +77,77 @@ export default function Navbar({ onSearch }) {
                       <ChevronDown className="w-3 h-3" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 bg-[#1A1A1A] border-[#2A2A2A]">
-                    <div className="px-3 py-2 border-b border-[#2A2A2A] flex items-center gap-3">
-                      <div className="profile-avatar-sm shrink-0">
-                        {user.picture ? <img src={user.picture} alt={user.name} /> : <span>{getInitials(user.name)}</span>}
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm text-white">{user.name}</p>
-                        <p className="text-xs text-[#888]">{roleLabels[user.role] || user.role}</p>
+                  <DropdownMenuContent align="end" className="w-64 bg-[#1A1A1A] border-[#2A2A2A]">
+                    {/* User Info Header */}
+                    <div className="px-3 py-3 border-b border-[#2A2A2A]">
+                      <div className="flex items-center gap-3">
+                        <div className="profile-avatar-sm shrink-0">
+                          {user.picture ? <img src={user.picture} alt={user.name} /> : <span>{getInitials(user.name)}</span>}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm text-white truncate">{user.name}</p>
+                          <p className={`text-xs ${roleColors[user.role] || 'text-[#888]'}`}>{roleLabels[user.role] || user.role}</p>
+                        </div>
                       </div>
                     </div>
-                    <DropdownMenuItem onClick={() => navigate('/profile')} className="text-[#CCC] hover:text-white focus:text-white focus:bg-[#2A2A2A]" data-testid="menu-profile">
-                      Meu Perfil
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/dashboard')} className="text-[#CCC] hover:text-white focus:text-white focus:bg-[#2A2A2A]" data-testid="menu-dashboard">
-                      Painel
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/wallet')} className="text-[#CCC] hover:text-white focus:text-white focus:bg-[#2A2A2A]" data-testid="menu-wallet">
-                      Carteira
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/orders')} className="text-[#CCC] hover:text-white focus:text-white focus:bg-[#2A2A2A]" data-testid="menu-orders">
-                      Meus Pedidos
-                    </DropdownMenuItem>
-                    {user.role === 'admin' && (
-                      <DropdownMenuItem onClick={() => navigate('/admin')} className="text-[#CCC] hover:text-white focus:text-white focus:bg-[#2A2A2A]" data-testid="menu-admin">
-                        Painel Admin
+                    
+                    {/* Main Menu Items */}
+                    <div className="py-1">
+                      <DropdownMenuItem onClick={() => navigate('/profile')} className="text-[#CCC] hover:text-white focus:text-white focus:bg-[#2A2A2A] py-2.5" data-testid="menu-profile">
+                        <User className="w-4 h-4 mr-3 text-[#666]" /> Meu Perfil
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/dashboard')} className="text-[#CCC] hover:text-white focus:text-white focus:bg-[#2A2A2A] py-2.5" data-testid="menu-dashboard">
+                        <Settings className="w-4 h-4 mr-3 text-[#666]" /> Painel
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/wallet')} className="text-[#CCC] hover:text-white focus:text-white focus:bg-[#2A2A2A] py-2.5" data-testid="menu-wallet">
+                        <Wallet className="w-4 h-4 mr-3 text-[#666]" /> Carteira
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/orders')} className="text-[#CCC] hover:text-white focus:text-white focus:bg-[#2A2A2A] py-2.5" data-testid="menu-orders">
+                        <Package className="w-4 h-4 mr-3 text-[#666]" /> Meus Pedidos
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate('/notifications')} className="text-[#CCC] hover:text-white focus:text-white focus:bg-[#2A2A2A] py-2.5 sm:hidden" data-testid="menu-notifications">
+                        <Bell className="w-4 h-4 mr-3 text-[#666]" /> Notificações
+                      </DropdownMenuItem>
+                    </div>
+
+                    {user.role === 'admin' && (
+                      <>
+                        <DropdownMenuSeparator className="bg-[#2A2A2A]" />
+                        <DropdownMenuItem onClick={() => navigate('/admin')} className="text-[#B38B36] hover:text-[#B38B36] focus:text-[#B38B36] focus:bg-[#2A2A2A] py-2.5" data-testid="menu-admin">
+                          <Shield className="w-4 h-4 mr-3" /> Painel Admin
+                        </DropdownMenuItem>
+                      </>
                     )}
-                    <DropdownMenuSeparator className="bg-[#2A2A2A]" />
+
+                    {/* Role Switching */}
                     {user.role !== 'admin' && (
-                      <div className="px-2 py-1.5">
-                        <p className="text-xs text-[#666] mb-1 px-2">Trocar papel:</p>
-                        {['buyer', 'seller', 'affiliate'].filter(r => r !== user.role).map(r => (
-                          <DropdownMenuItem key={r} onClick={() => handleRoleSwitch(r)} className="text-[#B38B36] hover:text-[#B38B36] focus:text-[#B38B36] focus:bg-[#2A2A2A]" data-testid={`switch-role-${r}`}>
-                            {roleLabels[r]}
-                          </DropdownMenuItem>
-                        ))}
-                      </div>
+                      <>
+                        <DropdownMenuSeparator className="bg-[#2A2A2A]" />
+                        <div className="px-3 py-2">
+                          <p className="text-xs text-[#555] mb-2">Trocar para:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {['buyer', 'seller', 'affiliate'].filter(r => r !== user.role).map(r => (
+                              <button 
+                                key={r} 
+                                onClick={() => handleRoleSwitch(r)} 
+                                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${r === 'buyer' ? 'border-blue-500/30 text-blue-400 hover:bg-blue-500/10' : r === 'seller' ? 'border-green-500/30 text-green-400 hover:bg-green-500/10' : 'border-purple-500/30 text-purple-400 hover:bg-purple-500/10'}`}
+                                data-testid={`switch-role-${r}`}
+                              >
+                                {roleLabels[r]}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </>
                     )}
+
+                    {/* Help & Logout */}
                     <DropdownMenuSeparator className="bg-[#2A2A2A]" />
-                    <DropdownMenuItem onClick={logout} className="text-red-400 hover:text-red-300 focus:text-red-300 focus:bg-[#2A2A2A]" data-testid="menu-logout">
-                      <LogOut className="w-4 h-4 mr-2" /> Sair
+                    <DropdownMenuItem onClick={() => navigate('/pages/faq')} className="text-[#888] hover:text-white focus:text-white focus:bg-[#2A2A2A] py-2.5">
+                      <HelpCircle className="w-4 h-4 mr-3" /> Ajuda
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={logout} className="text-red-400 hover:text-red-300 focus:text-red-300 focus:bg-[#2A2A2A] py-2.5" data-testid="menu-logout">
+                      <LogOut className="w-4 h-4 mr-3" /> Sair
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

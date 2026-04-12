@@ -70,8 +70,23 @@ class CartItemAdd(BaseModel):
     product_id: str
     quantity: int = 1
 
+class ShippingAddress(BaseModel):
+    name: str
+    cpf: str
+    phone: str
+    street: str
+    number: str
+    complement: Optional[str] = ""
+    neighborhood: str
+    city: str
+    state: str
+    zip_code: str
+
 class OrderCreate(BaseModel):
     affiliate_code: Optional[str] = None
+    shipping_address: Optional[ShippingAddress] = None
+    shipping_option: Optional[str] = "standard"
+    coupon_code: Optional[str] = None
 
 class WithdrawalRequest(BaseModel):
     amount: float
@@ -117,6 +132,18 @@ class FinancialSettings(BaseModel):
     paypal_enabled: bool = False
     pix_enabled: bool = True
     ted_enabled: bool = True
+
+class ShippingOption(BaseModel):
+    name: str
+    price: float
+    days: str
+    enabled: bool = True
+
+class ShippingSettings(BaseModel):
+    options: List[ShippingOption] = []
+
+class SellerTermsAccept(BaseModel):
+    accepted: bool = True
 
 # ==================== HELPERS ====================
 def hash_password(password: str) -> str:
@@ -514,37 +541,84 @@ async def create_order(data: OrderCreate, request: Request):
     cart_items = await db.cart_items.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(100)
     if not cart_items:
         raise HTTPException(status_code=400, detail="Carrinho vazio")
+    
+    # Validate shipping address
+    if not data.shipping_address:
+        raise HTTPException(status_code=400, detail="Endereco de entrega obrigatorio")
+    
     settings = await db.platform_settings.find_one({"key": "commissions"}, {"_id": 0})
     platform_rate = settings["value"]["platform_commission"] if settings else 0.09
     affiliate_rate = settings["value"]["affiliate_commission"] if settings else 0.065
+    
+    # Get shipping settings
+    shipping_settings = await db.platform_settings.find_one({"key": "shipping"}, {"_id": 0})
+    shipping_cost = 0.0
+    shipping_name = "Padrao"
+    if shipping_settings and data.shipping_option:
+        for opt in shipping_settings["value"].get("options", []):
+            if opt["name"].lower().replace(" ", "_") == data.shipping_option and opt.get("enabled", True):
+                shipping_cost = opt["price"]
+                shipping_name = opt["name"]
+                break
+    
+    # Check for coupon discount
+    discount = 0.0
+    coupon_applied = None
+    if data.coupon_code:
+        coupon = await db.coupons.find_one({"code": data.coupon_code.upper(), "active": True}, {"_id": 0})
+        if coupon:
+            coupon_applied = coupon["code"]
+            if coupon.get("type") == "percentage":
+                discount = coupon.get("value", 0)
+            else:
+                discount = coupon.get("value", 0)
+    
     order_items = []
-    total = 0.0
+    subtotal = 0.0
     sellers = {}
     for ci in cart_items:
         product = await db.products.find_one({"product_id": ci["product_id"]}, {"_id": 0})
         if not product:
             continue
-        subtotal = product["price"] * ci["quantity"]
-        total += subtotal
+        item_subtotal = product["price"] * ci["quantity"]
+        subtotal += item_subtotal
         order_items.append({
             "product_id": product["product_id"], "title": product["title"],
             "price": product["price"], "quantity": ci["quantity"],
-            "subtotal": subtotal, "seller_id": product["seller_id"],
+            "subtotal": item_subtotal, "seller_id": product["seller_id"],
             "image": product["images"][0] if product.get("images") else ""
         })
-        sellers[product["seller_id"]] = sellers.get(product["seller_id"], 0) + subtotal
+        sellers[product["seller_id"]] = sellers.get(product["seller_id"], 0) + item_subtotal
+    
+    # Calculate final total
+    if coupon_applied and discount > 0:
+        if discount <= 1:  # percentage
+            discount_value = subtotal * discount
+        else:
+            discount_value = min(discount, subtotal)
+    else:
+        discount_value = 0
+    
+    total = subtotal - discount_value + shipping_cost
+    
     affiliate_id = None
     if data.affiliate_code:
         link = await db.affiliate_links.find_one({"code": data.affiliate_code}, {"_id": 0})
         if link:
             affiliate_id = link["affiliate_id"]
             await db.affiliate_links.update_one({"code": data.affiliate_code}, {"$inc": {"conversions": 1}})
+    
     order_id = f"order_{uuid.uuid4().hex[:12]}"
     order = {
         "order_id": order_id, "buyer_id": user["user_id"], "buyer_name": user["name"],
-        "items": order_items, "total": total,
-        "platform_commission": total * platform_rate,
-        "affiliate_commission": total * affiliate_rate if affiliate_id else 0,
+        "buyer_email": user.get("email", ""),
+        "items": order_items, "subtotal": subtotal,
+        "shipping_cost": shipping_cost, "shipping_option": shipping_name,
+        "discount": discount_value, "coupon_code": coupon_applied,
+        "total": total,
+        "shipping_address": data.shipping_address.model_dump() if data.shipping_address else {},
+        "platform_commission": subtotal * platform_rate,
+        "affiliate_commission": subtotal * affiliate_rate if affiliate_id else 0,
         "affiliate_id": affiliate_id, "status": "pending",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
@@ -924,6 +998,100 @@ async def update_contact_settings(request: Request):
     await db.platform_settings.update_one({"key": "contact"}, {"$set": {"key": "contact", "value": body}}, upsert=True)
     return {"message": "Configuracoes de contato atualizadas"}
 
+# ==================== SHIPPING SETTINGS ====================
+@api_router.get("/shipping/options")
+async def get_shipping_options():
+    s = await db.platform_settings.find_one({"key": "shipping"}, {"_id": 0})
+    if s:
+        return {"options": [opt for opt in s["value"].get("options", []) if opt.get("enabled", True)]}
+    return {"options": [
+        {"name": "Gratis", "price": 0, "days": "7-15 dias uteis", "enabled": True},
+        {"name": "Normal", "price": 15.90, "days": "5-8 dias uteis", "enabled": True},
+        {"name": "Expresso", "price": 29.90, "days": "2-3 dias uteis", "enabled": True}
+    ]}
+
+@api_router.get("/admin/shipping-settings")
+async def admin_get_shipping_settings(request: Request):
+    await require_admin(request)
+    s = await db.platform_settings.find_one({"key": "shipping"}, {"_id": 0})
+    if s:
+        return s["value"]
+    return {"options": [
+        {"name": "Gratis", "price": 0, "days": "7-15 dias uteis", "enabled": True},
+        {"name": "Normal", "price": 15.90, "days": "5-8 dias uteis", "enabled": True},
+        {"name": "Expresso", "price": 29.90, "days": "2-3 dias uteis", "enabled": True}
+    ]}
+
+@api_router.put("/admin/shipping-settings")
+async def admin_update_shipping_settings(request: Request):
+    await require_admin(request)
+    body = await request.json()
+    await db.platform_settings.update_one(
+        {"key": "shipping"},
+        {"$set": {"key": "shipping", "value": body}},
+        upsert=True
+    )
+    return {"message": "Configuracoes de frete atualizadas"}
+
+# ==================== SELLER TERMS ====================
+@api_router.get("/seller/terms-status")
+async def get_seller_terms_status(request: Request):
+    user = await get_current_user(request)
+    return {"accepted": user.get("seller_terms_accepted", False)}
+
+@api_router.post("/seller/accept-terms")
+async def accept_seller_terms(request: Request):
+    user = await get_current_user(request)
+    await db.users.update_one(
+        {"user_id": user["user_id"]},
+        {"$set": {"seller_terms_accepted": True, "seller_terms_accepted_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    return {"message": "Termos aceitos com sucesso"}
+
+@api_router.get("/seller/has-products")
+async def seller_has_products(request: Request):
+    user = await get_current_user(request)
+    count = await db.products.count_documents({"seller_id": user["user_id"]})
+    return {"has_products": count > 0, "count": count}
+
+# ==================== COUPONS ====================
+@api_router.get("/admin/coupons")
+async def admin_list_coupons(request: Request):
+    await require_admin(request)
+    coupons = await db.coupons.find({}, {"_id": 0}).to_list(100)
+    return {"coupons": coupons}
+
+@api_router.post("/admin/coupons")
+async def admin_create_coupon(request: Request):
+    await require_admin(request)
+    body = await request.json()
+    coupon = {
+        "coupon_id": f"coupon_{uuid.uuid4().hex[:12]}",
+        "code": body.get("code", "").upper(),
+        "type": body.get("type", "fixed"),  # fixed or percentage
+        "value": body.get("value", 0),
+        "active": body.get("active", True),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.coupons.insert_one(coupon)
+    return {k: v for k, v in coupon.items() if k != "_id"}
+
+@api_router.delete("/admin/coupons/{coupon_id}")
+async def admin_delete_coupon(coupon_id: str, request: Request):
+    await require_admin(request)
+    await db.coupons.delete_one({"coupon_id": coupon_id})
+    return {"message": "Cupom removido"}
+
+@api_router.post("/coupons/validate")
+async def validate_coupon(request: Request):
+    await get_current_user(request)
+    body = await request.json()
+    code = body.get("code", "").upper()
+    coupon = await db.coupons.find_one({"code": code, "active": True}, {"_id": 0})
+    if not coupon:
+        raise HTTPException(status_code=404, detail="Cupom invalido ou expirado")
+    return {"valid": True, "type": coupon["type"], "value": coupon["value"], "code": coupon["code"]}
+
 # Include router
 app.include_router(api_router)
 
@@ -951,6 +1119,16 @@ async def startup():
     comm = await db.platform_settings.find_one({"key": "commissions"})
     if not comm:
         await db.platform_settings.insert_one({"key": "commissions", "value": {"platform_commission": 0.09, "affiliate_commission": 0.065}})
+    # Initialize shipping settings
+    shipping = await db.platform_settings.find_one({"key": "shipping"})
+    if not shipping:
+        await db.platform_settings.insert_one({"key": "shipping", "value": {
+            "options": [
+                {"name": "Gratis", "price": 0, "days": "7-15 dias uteis", "enabled": True},
+                {"name": "Normal", "price": 15.90, "days": "5-8 dias uteis", "enabled": True},
+                {"name": "Expresso", "price": 29.90, "days": "2-3 dias uteis", "enabled": True}
+            ]
+        }})
     try:
         init_storage()
         logger.info("Object storage initialized")

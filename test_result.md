@@ -101,3 +101,178 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: |
+  Melhorias no BRANE Marketplace:
+  1. Sistema de saque para vendedor/afiliado
+  2. Fluxo de compra completo com dados de entrega, frete e cupom
+  3. Sistema de saldo retido até liberação do admin
+  4. Termo de aceite no primeiro anúncio do vendedor
+  5. Esconder "Criar Conta" quando logado na home
+  6. Melhorar design dos produtos (transparente com borda)
+  7. Melhorar menu do usuário
+  8. Botão de suporte no footer
+
+backend:
+  - task: "API de opções de frete"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Implementado GET /shipping/options e endpoints admin para configuração"
+
+  - task: "API de checkout com endereço e frete"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Endpoint POST /orders atualizado com shipping_address, shipping_option, coupon_code"
+
+  - task: "API de termos do vendedor"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Implementado GET /seller/terms-status, POST /seller/accept-terms, GET /seller/has-products"
+
+  - task: "API de cupons"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Implementado endpoints de cupons para admin e validação"
+
+frontend:
+  - task: "Página de checkout completa"
+    implemented: true
+    working: true
+    file: "CheckoutPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Nova página com 3 etapas: endereço, frete, pagamento"
+
+  - task: "Botões Comprar Agora e Continuar Comprando"
+    implemented: true
+    working: true
+    file: "ProductDetailPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Adicionado botões e seletor de quantidade"
+
+  - task: "Esconder Criar Conta quando logado"
+    implemented: true
+    working: true
+    file: "HomePage.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Condicional {!user && ...} para mostrar/esconder botão"
+
+  - task: "Design dos produtos transparente com borda"
+    implemented: true
+    working: true
+    file: "HomePage.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Cards com bg-transparent e border hover animado"
+
+  - task: "Menu do usuário melhorado"
+    implemented: true
+    working: true
+    file: "Navbar.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Menu expandido com ícones, cores por papel, seção de ajuda"
+
+  - task: "Footer com suporte"
+    implemented: true
+    working: true
+    file: "Footer.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Banner de suporte, features, links organizados, ícones sociais"
+
+  - task: "Aba de Frete no Admin"
+    implemented: true
+    working: true
+    file: "AdminPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Nova aba Frete para configurar opções de envio"
+
+  - task: "Modal de termos do vendedor"
+    implemented: true
+    working: true
+    file: "DashboardPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Modal aparece no primeiro anúncio explicando saldo retido"
+
+metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Checkout flow"
+    - "Admin shipping settings"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Implementadas todas as melhorias solicitadas: checkout completo, configuração de frete admin, termo vendedor, UI melhorada"

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Star, Smartphone, Shirt, Sparkles, Home, Watch, Dumbbell, Palette, Building, Car, ArrowRight, Store, Zap, MapPin } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Star, Smartphone, Shirt, Sparkles, Home, Watch, Dumbbell, Palette, Building, Car, ArrowRight, Store, Zap, MapPin, TrendingUp, Shield, Users } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 
@@ -25,26 +26,31 @@ function ProductCard({ product }) {
     ? (product.images[0].startsWith('http') ? product.images[0] : `${API}/files/${product.images[0]}`)
     : null;
   return (
-    <Link to={`/products/${product.product_id}`} className="card-hover dark-card rounded-xl overflow-hidden block" data-testid={`product-card-${product.product_id}`}>
-      <div className="aspect-square bg-[#1A1A1A] relative overflow-hidden">
-        {imgUrl ? (
-          <img src={imgUrl} alt={product.title} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-[#444]">
-            <Store className="w-10 h-10" />
-          </div>
-        )}
-      </div>
-      <div className="p-4">
-        <h3 className="font-semibold text-sm text-white line-clamp-2 mb-1">{product.title}</h3>
-        {product.city && <p className="text-xs text-[#888] mb-1">{product.city}</p>}
-        <p className="text-lg font-bold text-[#B38B36]">R$ {product.price?.toFixed(2)}</p>
+    <Link to={`/products/${product.product_id}`} className="group block" data-testid={`product-card-${product.product_id}`}>
+      <div className="relative bg-transparent border border-[#2A2A2A] rounded-xl overflow-hidden transition-all duration-300 hover:border-[#B38B36]/50 hover:shadow-lg hover:shadow-[#B38B36]/10 hover:-translate-y-1">
+        <div className="aspect-square bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D] relative overflow-hidden">
+          {imgUrl ? (
+            <img src={imgUrl} alt={product.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-[#333]">
+              <Store className="w-10 h-10" />
+            </div>
+          )}
+          {/* Overlay on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        </div>
+        <div className="p-4 bg-transparent">
+          <h3 className="font-semibold text-sm text-white line-clamp-2 mb-1 group-hover:text-[#B38B36] transition-colors">{product.title}</h3>
+          {product.city && <p className="text-xs text-[#666] mb-1 flex items-center gap-1"><MapPin className="w-3 h-3" />{product.city}</p>}
+          <p className="text-lg font-bold text-[#B38B36]">R$ {product.price?.toFixed(2)}</p>
+        </div>
       </div>
     </Link>
   );
 }
 
 export default function HomePage() {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('loja');
   const [products, setProducts] = useState([]);
   const [cityFilter, setCityFilter] = useState('');
@@ -76,11 +82,20 @@ export default function HomePage() {
                 Explorar <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
-            <Link to="/auth" data-testid="create-account-btn">
-              <Button variant="outline" className="gold-btn-outline rounded-lg px-8 py-5 text-sm font-semibold uppercase tracking-wider border-[#B38B36] text-[#B38B36] hover:bg-[#B38B36]/10">
-                Criar Conta
-              </Button>
-            </Link>
+            {!user && (
+              <Link to="/auth" data-testid="create-account-btn">
+                <Button variant="outline" className="gold-btn-outline rounded-lg px-8 py-5 text-sm font-semibold uppercase tracking-wider border-[#B38B36] text-[#B38B36] hover:bg-[#B38B36]/10">
+                  Criar Conta
+                </Button>
+              </Link>
+            )}
+            {user && (
+              <Link to="/dashboard" data-testid="dashboard-btn">
+                <Button variant="outline" className="gold-btn-outline rounded-lg px-8 py-5 text-sm font-semibold uppercase tracking-wider border-[#B38B36] text-[#B38B36] hover:bg-[#B38B36]/10">
+                  Meu Painel
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </section>

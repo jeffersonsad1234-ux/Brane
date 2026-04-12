@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-import { BarChart3, Users, ShoppingBag, CreditCard, Settings, MessageSquare, FileText, DollarSign, Check, X, Ban } from 'lucide-react';
+import { BarChart3, Users, ShoppingBag, CreditCard, Settings, MessageSquare, FileText, DollarSign, Check, X, Ban, Truck } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -205,6 +205,110 @@ function FinancialSettingsTab({ token }) {
   );
 }
 
+function ShippingTab({ token }) {
+  const [options, setOptions] = useState([]);
+  const h = { Authorization: `Bearer ${token}` };
+  
+  useEffect(() => { 
+    axios.get(`${API}/admin/shipping-settings`, { headers: h, withCredentials: true })
+      .then(r => setOptions(r.data.options || []))
+      .catch(() => setOptions([
+        { name: 'Gratis', price: 0, days: '7-15 dias uteis', enabled: true },
+        { name: 'Normal', price: 15.90, days: '5-8 dias uteis', enabled: true },
+        { name: 'Expresso', price: 29.90, days: '2-3 dias uteis', enabled: true }
+      ])); 
+  }, []);
+
+  const updateOption = (index, field, value) => {
+    const newOptions = [...options];
+    newOptions[index][field] = value;
+    setOptions(newOptions);
+  };
+
+  const addOption = () => {
+    setOptions([...options, { name: '', price: 0, days: '', enabled: true }]);
+  };
+
+  const removeOption = (index) => {
+    setOptions(options.filter((_, i) => i !== index));
+  };
+
+  const save = async () => { 
+    await axios.put(`${API}/admin/shipping-settings`, { options }, { headers: h, withCredentials: true }); 
+    toast.success('Opcoes de frete atualizadas'); 
+  };
+
+  return (
+    <div className="dark-card rounded-xl p-6" data-testid="admin-shipping-tab">
+      <h3 className="font-bold mb-4 font-['Outfit'] text-white">Opcoes de Frete</h3>
+      <p className="text-sm text-[#888] mb-4">Configure as opcoes de frete disponiveis para os compradores.</p>
+      
+      <div className="space-y-4 mb-6">
+        {options.map((opt, i) => (
+          <div key={i} className="bg-[#111] rounded-xl p-4 border border-[#2A2A2A]">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <div>
+                <Label className="text-[#888] text-xs">Nome</Label>
+                <Input 
+                  value={opt.name} 
+                  onChange={e => updateOption(i, 'name', e.target.value)} 
+                  placeholder="Ex: Expresso"
+                  className="bg-[#1A1A1A] border-[#2A2A2A] text-white"
+                />
+              </div>
+              <div>
+                <Label className="text-[#888] text-xs">Preco (R$)</Label>
+                <Input 
+                  type="number" 
+                  step="0.01" 
+                  value={opt.price} 
+                  onChange={e => updateOption(i, 'price', parseFloat(e.target.value) || 0)} 
+                  className="bg-[#1A1A1A] border-[#2A2A2A] text-white"
+                />
+              </div>
+              <div>
+                <Label className="text-[#888] text-xs">Prazo</Label>
+                <Input 
+                  value={opt.days} 
+                  onChange={e => updateOption(i, 'days', e.target.value)} 
+                  placeholder="Ex: 3-5 dias"
+                  className="bg-[#1A1A1A] border-[#2A2A2A] text-white"
+                />
+              </div>
+              <div className="flex items-end gap-2">
+                <div className="flex items-center gap-2">
+                  <Switch 
+                    checked={opt.enabled} 
+                    onCheckedChange={v => updateOption(i, 'enabled', v)} 
+                  />
+                  <span className="text-xs text-[#888]">{opt.enabled ? 'Ativo' : 'Inativo'}</span>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="text-red-400 hover:text-red-300"
+                  onClick={() => removeOption(i)}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <div className="flex gap-3">
+        <Button variant="outline" className="border-[#2A2A2A] text-[#CCC]" onClick={addOption}>
+          + Adicionar Opcao
+        </Button>
+        <Button className="gold-btn rounded-lg" onClick={save} data-testid="save-shipping-btn">
+          Salvar Frete
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const { token } = useAuth();
   return (
@@ -218,6 +322,7 @@ export default function AdminPage() {
             <TabsTrigger value="users" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-users"><Users className="w-4 h-4 mr-1" /> Usuarios</TabsTrigger>
             <TabsTrigger value="withdrawals" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-withdrawals"><CreditCard className="w-4 h-4 mr-1" /> Saques</TabsTrigger>
             <TabsTrigger value="commissions" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-commissions"><DollarSign className="w-4 h-4 mr-1" /> Comissoes</TabsTrigger>
+            <TabsTrigger value="shipping" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-shipping"><Truck className="w-4 h-4 mr-1" /> Frete</TabsTrigger>
             <TabsTrigger value="support" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-support"><MessageSquare className="w-4 h-4 mr-1" /> Suporte</TabsTrigger>
             <TabsTrigger value="pages" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-pages"><FileText className="w-4 h-4 mr-1" /> Paginas</TabsTrigger>
             <TabsTrigger value="financial" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-financial"><Settings className="w-4 h-4 mr-1" /> Financeiro</TabsTrigger>
@@ -227,6 +332,7 @@ export default function AdminPage() {
           <TabsContent value="users"><UsersTab token={token} /></TabsContent>
           <TabsContent value="withdrawals"><WithdrawalsTab token={token} /></TabsContent>
           <TabsContent value="commissions"><CommissionsTab token={token} /></TabsContent>
+          <TabsContent value="shipping"><ShippingTab token={token} /></TabsContent>
           <TabsContent value="support"><SupportTab token={token} /></TabsContent>
           <TabsContent value="pages"><PagesTab token={token} /></TabsContent>
           <TabsContent value="financial"><FinancialSettingsTab token={token} /></TabsContent>

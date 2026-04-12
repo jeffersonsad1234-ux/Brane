@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Share2, MapPin, User, Copy, Check, Store } from 'lucide-react';
+import { ShoppingCart, Share2, MapPin, User, Copy, Check, Store, Zap, ArrowRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 
@@ -15,8 +15,10 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [buyingNow, setBuyingNow] = useState(false);
   const [affiliateCode, setAffiliateCode] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     axios.get(`${API}/products/${id}`)
@@ -25,14 +27,19 @@ export default function ProductDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const addToCart = async () => {
+  const addToCart = async (goToCheckout = false) => {
     if (!user) { navigate('/auth'); return; }
-    setAddingToCart(true);
+    if (goToCheckout) setBuyingNow(true);
+    else setAddingToCart(true);
     try {
-      await axios.post(`${API}/cart`, { product_id: id }, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
-      toast.success('Adicionado ao carrinho!');
+      await axios.post(`${API}/cart`, { product_id: id, quantity }, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
+      if (goToCheckout) {
+        navigate('/checkout');
+      } else {
+        toast.success('Adicionado ao carrinho!');
+      }
     } catch { toast.error('Erro ao adicionar ao carrinho'); }
-    finally { setAddingToCart(false); }
+    finally { setAddingToCart(false); setBuyingNow(false); }
   };
 
   const generateAffiliateLink = async () => {
@@ -75,6 +82,7 @@ export default function ProductDetailPage() {
             )}
             <p className="text-3xl font-bold text-[#B38B36] mb-4" data-testid="product-price">R$ {product.price?.toFixed(2)}</p>
             <p className="text-[#999] mb-6 leading-relaxed" data-testid="product-description">{product.description}</p>
+            
             {product.seller && (
               <div className="flex items-center gap-3 mb-6 p-3 dark-card rounded-lg">
                 <User className="w-8 h-8 text-[#B38B36]" />
@@ -84,10 +92,54 @@ export default function ProductDetailPage() {
                 </div>
               </div>
             )}
+
+            {/* Quantity Selector */}
+            <div className="flex items-center gap-4 mb-4">
+              <span className="text-[#888] text-sm">Quantidade:</span>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="w-8 h-8 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A] text-white hover:border-[#B38B36] transition-colors"
+                >-</button>
+                <span className="w-10 text-center text-white font-medium">{quantity}</span>
+                <button 
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-8 h-8 rounded-lg bg-[#1A1A1A] border border-[#2A2A2A] text-white hover:border-[#B38B36] transition-colors"
+                >+</button>
+              </div>
+            </div>
+
             <div className="space-y-3">
-              <Button className="w-full gold-btn rounded-lg py-6 text-base" onClick={addToCart} disabled={addingToCart} data-testid="add-to-cart-btn">
+              {/* Buy Now Button */}
+              <Button 
+                className="w-full bg-gradient-to-r from-[#B38B36] to-[#D4A84B] hover:from-[#9A752B] hover:to-[#B38B36] text-white rounded-lg py-6 text-base font-semibold shadow-lg shadow-[#B38B36]/20" 
+                onClick={() => addToCart(true)} 
+                disabled={buyingNow}
+                data-testid="buy-now-btn"
+              >
+                <Zap className="w-5 h-5 mr-2" /> {buyingNow ? 'Processando...' : 'Comprar Agora'}
+              </Button>
+              
+              {/* Add to Cart Button */}
+              <Button 
+                variant="outline"
+                className="w-full rounded-lg py-6 text-base border-[#B38B36] text-[#B38B36] hover:bg-[#B38B36]/10" 
+                onClick={() => addToCart(false)} 
+                disabled={addingToCart} 
+                data-testid="add-to-cart-btn"
+              >
                 <ShoppingCart className="w-5 h-5 mr-2" /> {addingToCart ? 'Adicionando...' : 'Adicionar ao Carrinho'}
               </Button>
+
+              {/* Continue Shopping */}
+              <Button 
+                variant="ghost"
+                className="w-full text-[#888] hover:text-white"
+                onClick={() => navigate('/products')}
+              >
+                Continuar Comprando <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+
               {user?.role === 'affiliate' && (
                 !affiliateCode ? (
                   <Button variant="outline" className="w-full rounded-lg border-[#2A2A2A] text-[#B38B36]" onClick={generateAffiliateLink} data-testid="generate-affiliate-link">
