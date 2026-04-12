@@ -1410,6 +1410,15 @@ async def startup():
     if not shipping:
       await db.platform_settings.insert_one({
     "key": "shipping",
+    "value": {
+        "options": [
+            {"name": "Gratis", "price": 0, "days": "7-15 dias uteis", "enabled": True},
+            {"name": "Normal", "price": 15.90, "days": "5-8 dias uteis", "enabled": True},
+            {"name": "Expresso", "price": 29.90, "days": "2-3 dias uteis", "enabled": True}
+        ]
+    }
+})
+    "key": "shipping",
     "value": {}
 await db.platform_settings.insert_one({
     "key": "shipping",
