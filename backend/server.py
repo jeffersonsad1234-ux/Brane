@@ -1413,7 +1413,8 @@ async def startup():
                 {"name": "Gratis", "price": 0, "days": "7-15 dias uteis", "enabled": True},
                 {"name": "Normal", "price": 15.90, "days": "5-8 dias uteis", "enabled": True},
                 {"name": "Expresso", "price": 29.90, "days": "2-3 dias uteis", "enabled": True}
-            #]
+            
+           ]
         #})
     #try:
         #init_storage()
