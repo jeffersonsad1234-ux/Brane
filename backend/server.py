@@ -1378,16 +1378,15 @@ async def validate_coupon(request: Request):
         raise HTTPException(status_code=404, detail="Cupom invalido ou expirado")
     return {"valid": True, "type": coupon["type"], "value": coupon["value"], "code": coupon["code"]}
 
-# Include router
-app.include_router(api_router)
-
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-   allow_origins=["https://brane-nine.vercel.app"],
+    allow_origins=["https://brane-nine.vercel.app"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(api_router)
 
 @app.on_event("startup")
 async def startup():
