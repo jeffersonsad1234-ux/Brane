@@ -239,7 +239,7 @@ async def require_seller(request: Request) -> dict:
 
 
   #return storage_key
-    try:
+  
 
   #resp = http_requests.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30)
   
