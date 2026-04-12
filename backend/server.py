@@ -1408,7 +1408,10 @@ async def startup():
     # Initialize shipping settings
     shipping = await db.platform_settings.find_one({"key": "shipping"})
     if not shipping:
-        await db.platform_settings.insert_one({"key": "shipping", "value": {
+      await db.platform_settings.insert_one({
+    "key": "shipping",
+    "value": {}
+})
             "options": [
                 {"name": "Gratis", "price": 0, "days": "7-15 dias uteis", "enabled": True},
                 {"name": "Normal", "price": 15.90, "days": "5-8 dias uteis", "enabled": True},
