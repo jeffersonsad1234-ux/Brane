@@ -42,6 +42,7 @@ class UserRegister(BaseModel):
     name: str
     email: str
     password: str
+    role: Optional[str] = "buyer"
 
 class UserLogin(BaseModel):
     email: str
@@ -98,6 +99,14 @@ class SupportMessage(BaseModel):
 
 class SupportReply(BaseModel):
     reply: str
+
+class PasswordReset(BaseModel):
+    email: str
+
+class PasswordResetVerify(BaseModel):
+    email: str
+    code: str
+    new_password: str
 
 class FinancialSettings(BaseModel):
     paypal_email: Optional[str] = None
@@ -209,15 +218,16 @@ async def register(data: UserRegister):
     if existing:
         raise HTTPException(status_code=400, detail="Email ja cadastrado")
     user_id = f"user_{uuid.uuid4().hex[:12]}"
+    register_role = data.role if data.role in ("buyer", "seller", "affiliate") else "buyer"
     user = {
         "user_id": user_id, "name": data.name, "email": data.email,
-        "password_hash": hash_password(data.password), "role": "buyer",
+        "password_hash": hash_password(data.password), "role": register_role,
         "picture": "", "bank_details": {}, "is_blocked": False,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.users.insert_one(user)
     await db.wallets.insert_one({"user_id": user_id, "available": 0.0, "held": 0.0})
-    token = create_jwt(user_id, data.email, "buyer")
+    token = create_jwt(user_id, data.email, register_role)
     return {"token": token, "user": clean_user(user)}
 
 @api_router.post("/auth/login")
@@ -290,6 +300,36 @@ async def logout(request: Request):
     response = JSONResponse(content={"message": "Logout realizado"})
     response.delete_cookie("session_token", path="/")
     return response
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(data: PasswordReset):
+    user = await db.users.find_one({"email": data.email}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="Email nao encontrado")
+    import random
+    code = str(random.randint(100000, 999999))
+    await db.password_resets.delete_many({"email": data.email})
+    await db.password_resets.insert_one({
+        "email": data.email, "code": code,
+        "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=15)).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    logger.info(f"Password reset code for {data.email}: {code}")
+    return {"message": "Codigo de recuperacao enviado", "code": code}
+
+@api_router.post("/auth/reset-password")
+async def reset_password(data: PasswordResetVerify):
+    reset = await db.password_resets.find_one({"email": data.email, "code": data.code}, {"_id": 0})
+    if not reset:
+        raise HTTPException(status_code=400, detail="Codigo invalido")
+    expires = datetime.fromisoformat(reset["expires_at"])
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    if expires < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Codigo expirado")
+    await db.users.update_one({"email": data.email}, {"$set": {"password_hash": hash_password(data.new_password)}})
+    await db.password_resets.delete_many({"email": data.email})
+    return {"message": "Senha alterada com sucesso"}
 
 # ==================== USER ROUTES ====================
 @api_router.get("/users/profile")
