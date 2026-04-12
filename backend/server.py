@@ -1381,7 +1381,8 @@ async def validate_coupon(request: Request):
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=["https://brane-nine.vercel.app"],
+   allow_origins=["*"]
+
     allow_methods=["*"],
     allow_headers=["*"],
 )
