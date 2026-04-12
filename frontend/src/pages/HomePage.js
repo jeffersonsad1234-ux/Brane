@@ -327,7 +327,7 @@ export default function HomePage() {
                 Cadastre-se gratuitamente e alcance milhares de compradores interessados nos seus produtos.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/auth">
+                <Link to="/create-store">
                   <Button className="bg-gradient-to-r from-[#8B6914] to-[#B38B36] hover:from-[#6B5010] hover:to-[#9A752B] text-white rounded-xl px-8 py-5 font-semibold shadow-lg shadow-[#B38B36]/20">
                     Criar Minha Loja
                   </Button>

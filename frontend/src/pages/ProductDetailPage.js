@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Share2, MapPin, User, Copy, Check, Store, Zap, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Share2, MapPin, User, Copy, Check, Store, Zap, ArrowRight, ExternalLink } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 
@@ -84,13 +84,25 @@ export default function ProductDetailPage() {
             <p className="text-[#999] mb-6 leading-relaxed" data-testid="product-description">{product.description}</p>
             
             {product.seller && (
-              <div className="flex items-center gap-3 mb-6 p-3 dark-card rounded-lg">
-                <User className="w-8 h-8 text-[#B38B36]" />
-                <div>
-                  <p className="font-medium text-sm text-white">{product.seller.name}</p>
-                  <p className="text-xs text-[#888]">Vendedor</p>
+              <Link 
+                to={product.seller.store_slug ? `/stores/${product.seller.store_slug}` : '#'} 
+                className="flex items-center justify-between gap-3 mb-6 p-4 dark-card rounded-lg hover:border-[#B38B36]/50 transition-colors group"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#B38B36]/20 to-[#B38B36]/5 flex items-center justify-center">
+                    <Store className="w-5 h-5 text-[#B38B36]" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-white group-hover:text-[#B38B36] transition-colors">{product.seller.name}</p>
+                    <p className="text-xs text-[#888]">
+                      {product.seller.store_slug ? 'Ver loja do vendedor' : 'Vendedor'}
+                    </p>
+                  </div>
                 </div>
-              </div>
+                {product.seller.store_slug && (
+                  <ExternalLink className="w-4 h-4 text-[#666] group-hover:text-[#B38B36] transition-colors" />
+                )}
+              </Link>
             )}
 
             {/* Quantity Selector */}

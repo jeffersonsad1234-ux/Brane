@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-import { BarChart3, Users, ShoppingBag, CreditCard, Settings, MessageSquare, FileText, DollarSign, Check, X, Ban, Truck } from 'lucide-react';
+import { BarChart3, Users, ShoppingBag, CreditCard, Settings, MessageSquare, FileText, DollarSign, Check, X, Ban, Truck, Store, Megaphone, Crown, Zap, Image, Link as LinkIcon, Eye, MousePointer } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Switch } from '../components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { toast } from 'sonner';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
@@ -309,6 +310,334 @@ function ShippingTab({ token }) {
   );
 }
 
+// ==================== STORES TAB ====================
+function StoresTab({ token }) {
+  const [stores, setStores] = useState([]);
+  const h = { Authorization: `Bearer ${token}` };
+  
+  const fetchStores = () => {
+    axios.get(`${API}/admin/stores`, { headers: h, withCredentials: true })
+      .then(r => setStores(r.data.stores))
+      .catch(() => {});
+  };
+  
+  useEffect(() => { fetchStores(); }, []);
+
+  const toggleApproval = async (storeId, approved) => {
+    try {
+      await axios.put(`${API}/admin/stores/${storeId}/approve`, { approved }, { headers: h, withCredentials: true });
+      toast.success(approved ? 'Loja aprovada!' : 'Aprovação removida');
+      fetchStores();
+    } catch { toast.error('Erro ao atualizar loja'); }
+  };
+
+  const changePlan = async (storeId, plan) => {
+    try {
+      await axios.put(`${API}/admin/stores/${storeId}/plan`, { plan }, { headers: h, withCredentials: true });
+      toast.success(`Plano alterado para ${plan.toUpperCase()}`);
+      fetchStores();
+    } catch { toast.error('Erro ao alterar plano'); }
+  };
+
+  const PLAN_COLORS = {
+    free: 'text-[#666]',
+    pro: 'text-blue-400',
+    premium: 'text-[#B38B36]'
+  };
+
+  return (
+    <div data-testid="admin-stores-tab">
+      <h3 className="font-bold mb-4 font-['Outfit'] text-white flex items-center gap-2">
+        <Store className="w-5 h-5 text-[#B38B36]" /> Gerenciar Lojas
+      </h3>
+      <p className="text-sm text-[#888] mb-4">
+        Aprove lojas PRO/PREMIUM para aparecerem na seção "Lojas" da plataforma.
+      </p>
+      
+      {stores.length === 0 ? (
+        <div className="text-center py-12 dark-card rounded-xl">
+          <Store className="w-12 h-12 text-[#333] mx-auto mb-3" />
+          <p className="text-[#888]">Nenhuma loja cadastrada</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {stores.map(store => (
+            <div key={store.store_id} className="dark-card rounded-xl p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-[#111] border border-[#2A2A2A] overflow-hidden flex items-center justify-center">
+                    {store.logo ? (
+                      <img src={store.logo.startsWith('http') ? store.logo : `${API}/files/${store.logo}`} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <Store className="w-5 h-5 text-[#555]" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-white">{store.name}</p>
+                      <span className={`text-xs font-bold ${PLAN_COLORS[store.plan]}`}>
+                        {store.plan.toUpperCase()}
+                      </span>
+                      {store.is_approved && (
+                        <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">
+                          Aprovada
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#888]">
+                      {store.owner_name} • {store.products_count || 0} produtos • Comissão: {(store.plan_commission * 100).toFixed(0)}%
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <Select value={store.plan} onValueChange={v => changePlan(store.store_id, v)}>
+                    <SelectTrigger className="w-[110px] bg-[#111] border-[#2A2A2A] text-white text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#1A1A1A] border-[#2A2A2A]">
+                      <SelectItem value="free">Grátis (9%)</SelectItem>
+                      <SelectItem value="pro">PRO (2%)</SelectItem>
+                      <SelectItem value="premium">PREMIUM (1%)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  {store.plan !== 'free' && (
+                    <Button
+                      size="sm"
+                      variant={store.is_approved ? "outline" : "default"}
+                      className={store.is_approved ? "border-red-500/50 text-red-400 hover:bg-red-500/10" : "gold-btn"}
+                      onClick={() => toggleApproval(store.store_id, !store.is_approved)}
+                    >
+                      {store.is_approved ? 'Remover' : 'Aprovar'}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ==================== ADS TAB ====================
+function AdsTab({ token }) {
+  const [ads, setAds] = useState([]);
+  const [showCreate, setShowCreate] = useState(false);
+  const [form, setForm] = useState({ title: '', image: '', link: '', position: 'between_products' });
+  const [uploading, setUploading] = useState(false);
+  const h = { Authorization: `Bearer ${token}` };
+  
+  const fetchAds = () => {
+    axios.get(`${API}/admin/ads`, { headers: h, withCredentials: true })
+      .then(r => setAds(r.data.ads))
+      .catch(() => {});
+  };
+  
+  useEffect(() => { fetchAds(); }, []);
+
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await axios.post(`${API}/upload`, fd, { headers: h, withCredentials: true });
+      setForm({ ...form, image: res.data.path });
+      toast.success('Imagem enviada!');
+    } catch { toast.error('Erro ao enviar imagem'); }
+    finally { setUploading(false); }
+  };
+
+  const createAd = async () => {
+    if (!form.title || !form.image || !form.link) {
+      toast.error('Preencha todos os campos');
+      return;
+    }
+    try {
+      await axios.post(`${API}/ads`, form, { headers: h, withCredentials: true });
+      toast.success('Anúncio criado!');
+      setShowCreate(false);
+      setForm({ title: '', image: '', link: '', position: 'between_products' });
+      fetchAds();
+    } catch (err) { toast.error(err.response?.data?.detail || 'Erro ao criar anúncio'); }
+  };
+
+  const toggleAd = async (adId, active) => {
+    try {
+      await axios.put(`${API}/admin/ads/${adId}`, { active }, { headers: h, withCredentials: true });
+      toast.success(active ? 'Anúncio ativado' : 'Anúncio desativado');
+      fetchAds();
+    } catch { toast.error('Erro ao atualizar anúncio'); }
+  };
+
+  const deleteAd = async (adId) => {
+    try {
+      await axios.delete(`${API}/admin/ads/${adId}`, { headers: h, withCredentials: true });
+      toast.success('Anúncio removido');
+      fetchAds();
+    } catch { toast.error('Erro ao remover anúncio'); }
+  };
+
+  const POSITION_LABELS = {
+    top: 'Topo',
+    between_products: 'Entre Produtos',
+    sidebar: 'Lateral'
+  };
+
+  return (
+    <div data-testid="admin-ads-tab">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="font-bold font-['Outfit'] text-white flex items-center gap-2">
+            <Megaphone className="w-5 h-5 text-[#B38B36]" /> Gerenciar Anúncios
+          </h3>
+          <p className="text-sm text-[#888]">Crie e gerencie anúncios dentro da plataforma.</p>
+        </div>
+        <Button className="gold-btn rounded-lg" onClick={() => setShowCreate(!showCreate)}>
+          {showCreate ? 'Cancelar' : '+ Criar Anúncio'}
+        </Button>
+      </div>
+
+      {/* Create Form */}
+      {showCreate && (
+        <div className="dark-card rounded-xl p-6 mb-6 animate-fadeIn">
+          <h4 className="font-semibold text-white mb-4">Novo Anúncio</h4>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-[#CCC]">Título</Label>
+              <Input
+                value={form.title}
+                onChange={e => setForm({ ...form, title: e.target.value })}
+                placeholder="Ex: Super Promoção"
+                className="bg-[#111] border-[#2A2A2A] text-white"
+              />
+            </div>
+            <div>
+              <Label className="text-[#CCC]">Link de Destino</Label>
+              <Input
+                value={form.link}
+                onChange={e => setForm({ ...form, link: e.target.value })}
+                placeholder="https://..."
+                className="bg-[#111] border-[#2A2A2A] text-white"
+              />
+            </div>
+            <div>
+              <Label className="text-[#CCC]">Posição</Label>
+              <Select value={form.position} onValueChange={v => setForm({ ...form, position: v })}>
+                <SelectTrigger className="bg-[#111] border-[#2A2A2A] text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#1A1A1A] border-[#2A2A2A]">
+                  <SelectItem value="top">Topo da Página</SelectItem>
+                  <SelectItem value="between_products">Entre Produtos</SelectItem>
+                  <SelectItem value="sidebar">Barra Lateral</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-[#CCC]">Imagem do Banner</Label>
+              <div className="flex items-center gap-2 mt-1">
+                {form.image && (
+                  <div className="w-20 h-12 rounded bg-[#111] overflow-hidden">
+                    <img src={form.image.startsWith('http') ? form.image : `${API}/files/${form.image}`} alt="" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <label className="flex-1">
+                  <div className="flex items-center gap-2 px-4 py-3 rounded-lg border border-dashed border-[#2A2A2A] hover:border-[#B38B36] cursor-pointer transition-colors">
+                    {uploading ? (
+                      <div className="w-4 h-4 border-2 border-[#B38B36] border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Image className="w-4 h-4 text-[#666]" />
+                    )}
+                    <span className="text-sm text-[#888]">Enviar imagem</span>
+                  </div>
+                  <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
+                </label>
+              </div>
+            </div>
+          </div>
+          <Button className="gold-btn rounded-lg mt-4" onClick={createAd}>
+            Criar Anúncio
+          </Button>
+        </div>
+      )}
+
+      {/* Ads List */}
+      {ads.length === 0 ? (
+        <div className="text-center py-12 dark-card rounded-xl">
+          <Megaphone className="w-12 h-12 text-[#333] mx-auto mb-3" />
+          <p className="text-[#888]">Nenhum anúncio criado</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {ads.map(ad => (
+            <div key={ad.ad_id} className="dark-card rounded-xl p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-24 h-14 rounded-lg bg-[#111] overflow-hidden">
+                    {ad.image ? (
+                      <img src={ad.image.startsWith('http') ? ad.image : `${API}/files/${ad.image}`} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Image className="w-6 h-6 text-[#555]" />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium text-white">{ad.title}</p>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${ad.active ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                        {ad.active ? 'Ativo' : 'Inativo'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#888] flex items-center gap-3 mt-1">
+                      <span className="flex items-center gap-1">
+                        <LinkIcon className="w-3 h-3" /> {ad.link?.slice(0, 30)}...
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Eye className="w-3 h-3" /> {ad.views || 0} views
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <MousePointer className="w-3 h-3" /> {ad.clicks || 0} clicks
+                      </span>
+                    </p>
+                    <p className="text-xs text-[#666] mt-1">
+                      Posição: {POSITION_LABELS[ad.position] || ad.position}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className={ad.active ? "border-red-500/50 text-red-400" : "border-green-500/50 text-green-400"}
+                    onClick={() => toggleAd(ad.ad_id, !ad.active)}
+                  >
+                    {ad.active ? 'Desativar' : 'Ativar'}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-red-400 hover:text-red-300"
+                    onClick={() => deleteAd(ad.ad_id)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const { token } = useAuth();
   return (
@@ -320,6 +649,8 @@ export default function AdminPage() {
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-dashboard"><BarChart3 className="w-4 h-4 mr-1" /> Dashboard</TabsTrigger>
             <TabsTrigger value="orders" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-orders"><ShoppingBag className="w-4 h-4 mr-1" /> Pedidos</TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-users"><Users className="w-4 h-4 mr-1" /> Usuarios</TabsTrigger>
+            <TabsTrigger value="stores" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-stores"><Store className="w-4 h-4 mr-1" /> Lojas</TabsTrigger>
+            <TabsTrigger value="ads" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-ads"><Megaphone className="w-4 h-4 mr-1" /> Anuncios</TabsTrigger>
             <TabsTrigger value="withdrawals" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-withdrawals"><CreditCard className="w-4 h-4 mr-1" /> Saques</TabsTrigger>
             <TabsTrigger value="commissions" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-commissions"><DollarSign className="w-4 h-4 mr-1" /> Comissoes</TabsTrigger>
             <TabsTrigger value="shipping" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-shipping"><Truck className="w-4 h-4 mr-1" /> Frete</TabsTrigger>
@@ -330,6 +661,8 @@ export default function AdminPage() {
           <TabsContent value="dashboard"><DashboardTab token={token} /></TabsContent>
           <TabsContent value="orders"><OrdersTab token={token} /></TabsContent>
           <TabsContent value="users"><UsersTab token={token} /></TabsContent>
+          <TabsContent value="stores"><StoresTab token={token} /></TabsContent>
+          <TabsContent value="ads"><AdsTab token={token} /></TabsContent>
           <TabsContent value="withdrawals"><WithdrawalsTab token={token} /></TabsContent>
           <TabsContent value="commissions"><CommissionsTab token={token} /></TabsContent>
           <TabsContent value="shipping"><ShippingTab token={token} /></TabsContent>

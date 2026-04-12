@@ -18,6 +18,9 @@ import OrdersPage from "./pages/OrdersPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import ProfilePage from "./pages/ProfilePage";
 import StaticPage from "./pages/StaticPage";
+import StoresPage from "./pages/StoresPage";
+import StoreDetailPage from "./pages/StoreDetailPage";
+import CreateStorePage from "./pages/CreateStorePage";
 import { Toaster } from "./components/ui/sonner";
 
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -51,6 +54,9 @@ function AppRouter() {
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
+            <Route path="/stores" element={<StoresPage />} />
+            <Route path="/stores/:slug" element={<StoreDetailPage />} />
+            <Route path="/create-store" element={<ProtectedRoute><CreateStorePage /></ProtectedRoute>} />
             <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
             <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />

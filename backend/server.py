@@ -145,6 +145,37 @@ class ShippingSettings(BaseModel):
 class SellerTermsAccept(BaseModel):
     accepted: bool = True
 
+# ==================== STORE MODELS ====================
+class StoreCreate(BaseModel):
+    name: str
+    description: Optional[str] = ""
+    logo: Optional[str] = ""
+    banner: Optional[str] = ""
+    category: Optional[str] = ""
+
+class StoreUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    logo: Optional[str] = None
+    banner: Optional[str] = None
+    category: Optional[str] = None
+
+class PlanUpgrade(BaseModel):
+    plan: str  # 'free', 'pro', 'premium'
+
+class AdCreate(BaseModel):
+    title: str
+    image: str
+    link: str
+    position: Optional[str] = "between_products"  # 'top', 'between_products', 'sidebar'
+
+class AdUpdate(BaseModel):
+    title: Optional[str] = None
+    image: Optional[str] = None
+    link: Optional[str] = None
+    position: Optional[str] = None
+    active: Optional[bool] = None
+
 # ==================== HELPERS ====================
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
@@ -417,6 +448,11 @@ async def get_product(product_id: str):
     if not product:
         raise HTTPException(status_code=404, detail="Produto nao encontrado")
     seller = await db.users.find_one({"user_id": product["seller_id"]}, {"_id": 0, "password_hash": 0})
+    # Get seller's store slug if exists
+    store = await db.stores.find_one({"owner_id": product["seller_id"]}, {"_id": 0})
+    if seller and store:
+        seller["store_slug"] = store.get("slug")
+        seller["store_name"] = store.get("name")
     return {**product, "seller": seller}
 
 @api_router.post("/products")
@@ -433,6 +469,11 @@ async def create_product(data: ProductCreate, request: Request):
         "status": "active", "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.products.insert_one(product)
+    # Update store products count
+    await db.stores.update_one(
+        {"owner_id": user["user_id"]},
+        {"$inc": {"products_count": 1}}
+    )
     return {k: v for k, v in product.items() if k != "_id"}
 
 @api_router.put("/products/{product_id}")
@@ -464,6 +505,239 @@ async def get_my_products(request: Request):
     user = await require_seller(request)
     products = await db.products.find({"seller_id": user["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return {"products": products}
+
+# ==================== STORE ROUTES ====================
+@api_router.post("/stores")
+async def create_store(data: StoreCreate, request: Request):
+    user = await get_current_user(request)
+    # Check if user already has a store
+    existing = await db.stores.find_one({"owner_id": user["user_id"]}, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=400, detail="Voce ja possui uma loja")
+    
+    store_id = f"store_{uuid.uuid4().hex[:12]}"
+    slug = data.name.lower().replace(" ", "-").replace(".", "")[:30] + f"-{store_id[-6:]}"
+    
+    store = {
+        "store_id": store_id,
+        "owner_id": user["user_id"],
+        "owner_name": user["name"],
+        "name": data.name,
+        "slug": slug,
+        "description": data.description or "",
+        "logo": data.logo or "",
+        "banner": data.banner or "",
+        "category": data.category or "",
+        "plan": "free",  # free, pro, premium
+        "plan_commission": 0.09,  # 9% for free
+        "is_featured": False,  # Only PRO/PREMIUM can be featured
+        "is_approved": False,  # Admin must approve to show in Stores section
+        "ads_per_day": 0,  # 0 for free, 2 for PRO/PREMIUM
+        "products_count": 0,
+        "total_sales": 0,
+        "rating": 0,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.stores.insert_one(store)
+    
+    # Update user to be a seller
+    await db.users.update_one(
+        {"user_id": user["user_id"]}, 
+        {"$set": {"role": "seller", "store_id": store_id}}
+    )
+    
+    return {k: v for k, v in store.items() if k != "_id"}
+
+@api_router.get("/stores")
+async def list_stores(featured_only: bool = False, limit: int = 20, page: int = 1):
+    query = {}
+    if featured_only:
+        query = {"is_approved": True, "plan": {"$in": ["pro", "premium"]}}
+    skip = (page - 1) * limit
+    stores = await db.stores.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.stores.count_documents(query)
+    return {"stores": stores, "total": total, "page": page}
+
+@api_router.get("/stores/my")
+async def get_my_store(request: Request):
+    user = await get_current_user(request)
+    store = await db.stores.find_one({"owner_id": user["user_id"]}, {"_id": 0})
+    if not store:
+        return {"store": None}
+    return {"store": store}
+
+@api_router.get("/stores/{store_id}")
+async def get_store(store_id: str):
+    # Support both store_id and slug
+    store = await db.stores.find_one(
+        {"$or": [{"store_id": store_id}, {"slug": store_id}]}, 
+        {"_id": 0}
+    )
+    if not store:
+        raise HTTPException(status_code=404, detail="Loja nao encontrada")
+    # Get store products
+    products = await db.products.find({"seller_id": store["owner_id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    return {**store, "products": products}
+
+@api_router.put("/stores/{store_id}")
+async def update_store(store_id: str, data: StoreUpdate, request: Request):
+    user = await get_current_user(request)
+    store = await db.stores.find_one({"store_id": store_id}, {"_id": 0})
+    if not store:
+        raise HTTPException(status_code=404, detail="Loja nao encontrada")
+    if store["owner_id"] != user["user_id"] and user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Sem permissao")
+    
+    updates = {k: v for k, v in data.model_dump(exclude_none=True).items()}
+    if updates:
+        await db.stores.update_one({"store_id": store_id}, {"$set": updates})
+    return await db.stores.find_one({"store_id": store_id}, {"_id": 0})
+
+@api_router.post("/stores/upgrade")
+async def upgrade_store_plan(data: PlanUpgrade, request: Request):
+    user = await get_current_user(request)
+    store = await db.stores.find_one({"owner_id": user["user_id"]}, {"_id": 0})
+    if not store:
+        raise HTTPException(status_code=404, detail="Voce nao possui uma loja")
+    
+    plans = {
+        "free": {"commission": 0.09, "ads_per_day": 0, "price": 0},
+        "pro": {"commission": 0.02, "ads_per_day": 2, "price": 99},
+        "premium": {"commission": 0.01, "ads_per_day": 2, "price": 199}
+    }
+    
+    if data.plan not in plans:
+        raise HTTPException(status_code=400, detail="Plano invalido")
+    
+    plan_info = plans[data.plan]
+    await db.stores.update_one(
+        {"store_id": store["store_id"]},
+        {"$set": {
+            "plan": data.plan,
+            "plan_commission": plan_info["commission"],
+            "ads_per_day": plan_info["ads_per_day"],
+            "is_featured": data.plan in ["pro", "premium"]
+        }}
+    )
+    
+    return {"message": f"Plano atualizado para {data.plan.upper()}", "plan": data.plan}
+
+# ==================== ADMIN STORE ROUTES ====================
+@api_router.get("/admin/stores")
+async def admin_list_stores(request: Request):
+    await require_admin(request)
+    stores = await db.stores.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return {"stores": stores}
+
+@api_router.put("/admin/stores/{store_id}/approve")
+async def admin_approve_store(store_id: str, request: Request):
+    await require_admin(request)
+    body = await request.json()
+    approved = body.get("approved", True)
+    await db.stores.update_one(
+        {"store_id": store_id},
+        {"$set": {"is_approved": approved}}
+    )
+    return {"message": "Loja aprovada" if approved else "Aprovacao removida"}
+
+@api_router.put("/admin/stores/{store_id}/plan")
+async def admin_set_store_plan(store_id: str, request: Request):
+    await require_admin(request)
+    body = await request.json()
+    plan = body.get("plan", "free")
+    
+    plans = {
+        "free": {"commission": 0.09, "ads_per_day": 0},
+        "pro": {"commission": 0.02, "ads_per_day": 2},
+        "premium": {"commission": 0.01, "ads_per_day": 2}
+    }
+    
+    if plan not in plans:
+        raise HTTPException(status_code=400, detail="Plano invalido")
+    
+    plan_info = plans[plan]
+    await db.stores.update_one(
+        {"store_id": store_id},
+        {"$set": {
+            "plan": plan,
+            "plan_commission": plan_info["commission"],
+            "ads_per_day": plan_info["ads_per_day"],
+            "is_featured": plan in ["pro", "premium"]
+        }}
+    )
+    return {"message": f"Plano alterado para {plan.upper()}"}
+
+# ==================== ADS ROUTES ====================
+@api_router.get("/ads")
+async def list_ads(position: Optional[str] = None):
+    query = {"active": True}
+    if position:
+        query["position"] = position
+    ads = await db.ads.find(query, {"_id": 0}).sort("created_at", -1).to_list(50)
+    return {"ads": ads}
+
+@api_router.post("/ads")
+async def create_ad(data: AdCreate, request: Request):
+    user = await get_current_user(request)
+    
+    # Check if user can create ads
+    if user["role"] != "admin":
+        store = await db.stores.find_one({"owner_id": user["user_id"]}, {"_id": 0})
+        if not store:
+            raise HTTPException(status_code=403, detail="Voce precisa ter uma loja para criar anuncios")
+        if store["plan"] not in ["pro", "premium"]:
+            raise HTTPException(status_code=403, detail="Apenas planos PRO e PREMIUM podem criar anuncios")
+        
+        # Check daily ad limit
+        today = datetime.now(timezone.utc).date().isoformat()
+        ads_today = await db.ads.count_documents({
+            "owner_id": user["user_id"],
+            "created_at": {"$regex": f"^{today}"}
+        })
+        if ads_today >= store["ads_per_day"]:
+            raise HTTPException(status_code=400, detail="Limite diario de anuncios atingido")
+    
+    ad_id = f"ad_{uuid.uuid4().hex[:12]}"
+    ad = {
+        "ad_id": ad_id,
+        "owner_id": user["user_id"],
+        "owner_name": user["name"],
+        "title": data.title,
+        "image": data.image,
+        "link": data.link,
+        "position": data.position or "between_products",
+        "active": True if user["role"] == "admin" else False,  # Admin ads active immediately
+        "clicks": 0,
+        "views": 0,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.ads.insert_one(ad)
+    return {k: v for k, v in ad.items() if k != "_id"}
+
+@api_router.get("/admin/ads")
+async def admin_list_ads(request: Request):
+    await require_admin(request)
+    ads = await db.ads.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return {"ads": ads}
+
+@api_router.put("/admin/ads/{ad_id}")
+async def admin_update_ad(ad_id: str, data: AdUpdate, request: Request):
+    await require_admin(request)
+    updates = {k: v for k, v in data.model_dump(exclude_none=True).items()}
+    if updates:
+        await db.ads.update_one({"ad_id": ad_id}, {"$set": updates})
+    return await db.ads.find_one({"ad_id": ad_id}, {"_id": 0})
+
+@api_router.delete("/admin/ads/{ad_id}")
+async def admin_delete_ad(ad_id: str, request: Request):
+    await require_admin(request)
+    await db.ads.delete_one({"ad_id": ad_id})
+    return {"message": "Anuncio removido"}
+
+@api_router.post("/ads/{ad_id}/click")
+async def track_ad_click(ad_id: str):
+    await db.ads.update_one({"ad_id": ad_id}, {"$inc": {"clicks": 1}})
+    return {"message": "Click registrado"}
 
 # ==================== UPLOAD ROUTES ====================
 @api_router.post("/upload")

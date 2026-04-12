@@ -58,6 +58,9 @@ export default function Navbar({ onSearch }) {
             <Link to="/products" className="text-sm text-[#888] hover:text-[#B38B36] hidden md:block px-3 py-2" data-testid="nav-products">
               Produtos
             </Link>
+            <Link to="/stores" className="text-sm text-[#888] hover:text-[#B38B36] hidden md:block px-3 py-2" data-testid="nav-stores">
+              Lojas
+            </Link>
 
             {user ? (
               <>
