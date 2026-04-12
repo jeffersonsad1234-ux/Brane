@@ -24,10 +24,10 @@ JWT_SECRET = os.environ.get('JWT_SECRET', 'brane-secret-key')
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_HOURS = 72
 
-STORAGE_URL = "https://integrations.emergentagent.com/objstore/api/v1/storage"
-EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
-APP_NAME = "brane-marketplace"
-storage_key = None
+#STORAGE_URL = "https://integrations.emergentagent.com/objstore/api/v1/storage"
+#EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
+#APP_NAME = "brane-marketplace"
+#storage_key = None
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -230,18 +230,30 @@ async def require_seller(request: Request) -> dict:
         raise HTTPException(status_code=403, detail="Acesso de vendedor necessario")
     return user
 
-def init_storage():
-    global storage_key
-    if storage_key:
-        return storage_key
+
+#def init_storage():
+
+#global storage_key
+
+#if storage_key:
+
+
+  #return storage_key
     try:
-        resp = http_requests.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30)
-        resp.raise_for_status()
-        storage_key = resp.json()["storage_key"]
-        return storage_key
-    except Exception as e:
-        logger.error(f"Storage init failed: {e}")
-        return None
+
+  #resp = http_requests.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30)
+  
+ #resp.raise_for_status()
+
+       #storage_key = resp.json()["storage_key"]
+
+       #return storage_key
+
+  #except Exception as e:
+ 
+   #logger.error(f"Storage init failed: {e}")
+ 
+    #return None
 
 def put_object(path: str, data: bytes, content_type: str) -> dict:
     key = init_storage()
