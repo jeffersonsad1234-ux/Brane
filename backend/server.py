@@ -38,7 +38,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "debug": "v1"} 
 # ==================== MODELS ====================
 class UserRegister(BaseModel):
     name: str
