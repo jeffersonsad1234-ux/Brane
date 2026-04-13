@@ -1369,12 +1369,25 @@ async def validate_coupon(request: Request):
 # Include router
 app.include_router(api_router)
 
+# CORS Configuration - Allow frontend origins
+ALLOWED_ORIGINS = [
+    "https://brane-nine.vercel.app",
+    "https://brane.vercel.app",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+# Add any custom origins from environment
+if os.environ.get('CORS_ORIGINS'):
+    custom_origins = os.environ.get('CORS_ORIGINS').split(',')
+    ALLOWED_ORIGINS.extend([o.strip() for o in custom_origins if o.strip()])
+
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 @app.on_event("startup")
