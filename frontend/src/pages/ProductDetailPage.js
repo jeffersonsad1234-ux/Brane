@@ -60,8 +60,14 @@ export default function ProductDetailPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center carbon-bg"><div className="w-8 h-8 border-4 border-[#B38B36] border-t-transparent rounded-full animate-spin" /></div>;
   if (!product) return <div className="min-h-screen flex items-center justify-center carbon-bg"><p className="text-[#888]">Produto nao encontrado</p></div>;
 
-  const imgUrl = product.images?.[0] ? (product.images[0].startsWith('http') ? product.images[0] : `${API}/files/${product.images[0]}`) : null;
+const img = product.images?.[0];
 
+const imgUrl =
+  img?.startsWith('http')
+    ? img
+    : img
+      ? ${API}/files/${img}
+      : null;
   return (
     <div className="min-h-screen carbon-bg py-8" data-testid="product-detail-page">
       <div className="max-w-5xl mx-auto px-4">
