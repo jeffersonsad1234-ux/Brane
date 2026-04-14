@@ -26,7 +26,7 @@ JWT_EXPIRY_HOURS = 72
 
 #STORAGE_URL = "https://integrations.emergentagent.com/objstore/api/v1/storage"
 #EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
-#APP_NAME = "brane-marketplace"
+APP_NAME = "brane-marketplace"
 #storage_key = None
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
