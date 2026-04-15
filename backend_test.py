@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 class BRANEAPITester:
-    def __init__(self, base_url: str = "https://account-change-guide.preview.emergentagent.com"):
+    def __init__(self, base_url: str = "https://product-upload-issue.preview.emergentagent.com"):
         self.base_url = base_url
         self.api_url = f"{base_url}/api"
         self.admin_token = None
@@ -19,6 +19,7 @@ class BRANEAPITester:
         self.test_user_id = None
         self.test_product_id = None
         self.test_order_id = None
+        self.uploaded_file_path = None
         self.tests_run = 0
         self.tests_passed = 0
         self.failed_tests = []
@@ -308,6 +309,73 @@ class BRANEAPITester:
             self.log_test("Admin Users", False, f"Response: {data}")
             return False
 
+    def test_file_upload(self):
+        """Test file upload functionality"""
+        if not self.admin_token:
+            self.log_test("File Upload", False, "No admin token")
+            return False
+            
+        # Create a test image file (small PNG)
+        test_image_data = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\tpHYs\x00\x00\x0b\x13\x00\x00\x0b\x13\x01\x00\x9a\x9c\x18\x00\x00\x00\x12IDATx\x9cc```bPPP\x00\x02\xac\xea\x05\x1b\x00\x00\x00\x00IEND\xaeB`\x82'
+        
+        try:
+            # Prepare multipart form data
+            files = {'file': ('test_image.png', test_image_data, 'image/png')}
+            headers = {'Authorization': f'Bearer {self.admin_token}'}
+            
+            # Make upload request
+            url = f"{self.api_url}/upload"
+            response = requests.post(url, files=files, headers=headers, timeout=30)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if 'path' in data and 'url' in data:
+                    self.uploaded_file_path = data['path']
+                    self.log_test("File Upload", True)
+                    return True
+                else:
+                    self.log_test("File Upload", False, f"Missing path/url in response: {data}")
+                    return False
+            else:
+                try:
+                    error_data = response.json()
+                except:
+                    error_data = {"status_code": response.status_code, "text": response.text[:200]}
+                self.log_test("File Upload", False, f"Status {response.status_code}: {error_data}")
+                return False
+                
+        except Exception as e:
+            self.log_test("File Upload", False, f"Exception: {str(e)}")
+            return False
+
+    def test_file_retrieval(self):
+        """Test file retrieval functionality"""
+        if not hasattr(self, 'uploaded_file_path') or not self.uploaded_file_path:
+            self.log_test("File Retrieval", False, "No uploaded file path")
+            return False
+            
+        try:
+            # Make file retrieval request
+            url = f"{self.api_url}/files/{self.uploaded_file_path}"
+            response = requests.get(url, timeout=30)
+            
+            if response.status_code == 200:
+                # Check if content type is appropriate for an image
+                content_type = response.headers.get('content-type', '')
+                if 'image' in content_type or 'application/octet-stream' in content_type:
+                    self.log_test("File Retrieval", True)
+                    return True
+                else:
+                    self.log_test("File Retrieval", False, f"Unexpected content type: {content_type}")
+                    return False
+            else:
+                self.log_test("File Retrieval", False, f"Status {response.status_code}: {response.text[:200]}")
+                return False
+                
+        except Exception as e:
+            self.log_test("File Retrieval", False, f"Exception: {str(e)}")
+            return False
+
     def run_all_tests(self):
         """Run comprehensive API test suite"""
         print("🚀 Starting BRANE Marketplace API Tests")
@@ -339,6 +407,11 @@ class BRANEAPITester:
         self.test_admin_dashboard()
         self.test_admin_orders()
         self.test_admin_users()
+        
+        # File Upload Tests
+        print("\n📁 File Upload Tests")
+        self.test_file_upload()
+        self.test_file_retrieval()
         
         # Results Summary
         print("\n" + "=" * 60)

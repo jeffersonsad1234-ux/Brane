@@ -234,32 +234,22 @@ async def require_seller(request: Request) -> dict:
     return user
 
 
-#def init_storage():
-
-#global storage_key
-
-#if storage_key:
-
-
-  #return storage_key
-  
-
-  #resp = http_requests.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30)
-  
- #resp.raise_for_status()
-
-       #storage_key = resp.json()["storage_key"]
-
-       #return storage_key
-
-  #except Exception as e:
- 
-   #logger.error(f"Storage init failed: {e}")
- 
-    #return None
+def init_storage():
+    global storage_key
+    if storage_key:
+        return storage_key
+    try:
+        resp = http_requests.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30)
+        resp.raise_for_status()
+        storage_key = resp.json()["storage_key"]
+        logger.info("Storage initialized successfully")
+        return storage_key
+    except Exception as e:
+        logger.error(f"Storage init failed: {e}")
+        return None
 
 def put_object(path: str, data: bytes, content_type: str) -> dict:
-    key = None
+    key = init_storage()
     if not key:
         raise HTTPException(status_code=500, detail="Storage unavailable")
     resp = http_requests.put(
@@ -271,7 +261,7 @@ def put_object(path: str, data: bytes, content_type: str) -> dict:
     return resp.json()
 
 def get_object(path: str):
-    key = None
+    key = init_storage()
     if not key:
         raise HTTPException(status_code=500, detail="Storage unavailable")
     resp = http_requests.get(
@@ -1429,14 +1419,13 @@ async def startup():
         ]
     }
 })
-        #})
-    #try:
-        #init_storage()
-       # logger.info("Object storage initialized")
-  #  except Exception as e:
-       # logger.error(f"Storage init failed: {e}")
-   # logger.info("BRANE Marketplace started!")
+    try:
+        init_storage()
+        logger.info("Object storage initialized")
+    except Exception as e:
+        logger.error(f"Storage init failed: {e}")
+    logger.info("BRANE Marketplace started!")
 
-#@app.on_event("shutdown")
-#async def shutdown_db_client():
-  #  client.close()
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    client.close()

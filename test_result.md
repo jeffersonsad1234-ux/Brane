@@ -273,6 +273,28 @@ test_plan:
   test_all: false
   test_priority: "high_first"
 
+  - task: "Upload de imagens de produtos"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "Usuário reportou erro ao enviar imagem de produtos"
+      - working: true
+        agent: "main"
+        comment: "Corrigido: init_storage() estava comentada e put_object/get_object tinham key=None. Restaurado init_storage com chamada ao Emergent storage API, e ambas funções agora usam a chave correta."
+      - working: true
+        agent: "testing"
+        comment: "CONFIRMADO: Upload de imagens funcionando corretamente. Testado POST /api/upload e GET /api/files/{path} com autenticação admin e seller. Ambos endpoints retornam respostas corretas com campos 'path' e 'url'. Storage Emergent inicializado com sucesso. Arquivos são armazenados e recuperados corretamente com content-type apropriado."
+
 agent_communication:
   - agent: "main"
     message: "Implementadas todas as melhorias solicitadas: checkout completo, configuração de frete admin, termo vendedor, UI melhorada"
+  - agent: "main"
+    message: "Corrigido bug de upload de imagens. A função init_storage() estava comentada e put_object/get_object tinham key=None. Restaurado o fluxo de inicialização do storage com a API Emergent."
+  - agent: "testing"
+    message: "Upload de imagens testado e FUNCIONANDO PERFEITAMENTE. Testei com admin e seller - ambos conseguem fazer upload e recuperar arquivos. O fix do main agent foi bem-sucedido. Storage Emergent está inicializando corretamente e todas as funções de upload/download estão operacionais."
