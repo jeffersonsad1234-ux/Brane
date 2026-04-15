@@ -761,10 +761,10 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
     ext = file.filename.split(".")[-1] if "." in file.filename else "bin"
     path = f"{APP_NAME}/uploads/{user['user_id']}/{uuid.uuid4()}.{ext}"
 
-    data = await file.read()
+   data = await file.read()
 
-    try:
-    result = put_object(path, data, file.content_type or "application/octet-stream")
+   try:
+       result = put_object(path, data, file.content_type or "application/octet-stream")
 except Exception as e:
     print("ERRO UPLOAD:", str(e))
     raise
