@@ -756,16 +756,18 @@ async def track_ad_click(ad_id: str):
 
 # ==================== UPLOAD ROUTES ====================
 @api_router.post("/upload")
-async def upload_file(file: UploadFile = File(...), request: Request = None):
+async def upload_file(file: UploadFile = File(...), request: Request):
     user = await get_current_user(request)
     ext = file.filename.split(".")[-1] if "." in file.filename else "bin"
     path = f"{APP_NAME}/uploads/{user['user_id']}/{uuid.uuid4()}.{ext}"
-data = await file.read()
-try:
-    result = put_object(path, data, file.content_type or "application/octet-stream")
-except Exception as e:
-    print("🔥 ERRO REAL DO UPLOAD:", str(e))
-    raise
+
+    data = await file.read()
+
+    try:
+        result = put_object(path, data, file.content_type or "application/octet-stream")
+    except Exception as e:
+        print("🔥 ERRO REAL DO UPLOAD:", str(e))
+        raise
     await db.files.insert_one({
         "file_id": str(uuid.uuid4()), "storage_path": result["path"],
         "original_filename": file.filename, "content_type": file.content_type,
