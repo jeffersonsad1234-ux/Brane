@@ -779,6 +779,20 @@ function AdsTab({ token }) {
 
 export default function AdminPage() {
   const { token } = useAuth();
+  const [counts, setCounts] = useState({});
+
+  useEffect(() => {
+    if (token) {
+      axios.get(`${API}/admin/notification-counts`, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true })
+        .then(r => setCounts(r.data))
+        .catch(() => {});
+    }
+  }, [token]);
+
+  const Badge = ({ count }) => count > 0 ? (
+    <span className="ml-1 min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center text-[10px] font-bold bg-red-500 text-white rounded-full">{count > 99 ? '99+' : count}</span>
+  ) : null;
+
   return (
     <div className="min-h-screen carbon-bg py-8" data-testid="admin-page">
       <div className="max-w-6xl mx-auto px-4">
@@ -786,14 +800,14 @@ export default function AdminPage() {
         <Tabs defaultValue="dashboard" className="w-full">
           <TabsList className="flex flex-wrap gap-1 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-1 mb-6 h-auto">
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-dashboard"><BarChart3 className="w-4 h-4 mr-1" /> Dashboard</TabsTrigger>
-            <TabsTrigger value="orders" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-orders"><ShoppingBag className="w-4 h-4 mr-1" /> Pedidos</TabsTrigger>
-            <TabsTrigger value="users" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-users"><Users className="w-4 h-4 mr-1" /> Usuarios</TabsTrigger>
-            <TabsTrigger value="stores" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-stores"><Store className="w-4 h-4 mr-1" /> Lojas</TabsTrigger>
+            <TabsTrigger value="orders" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-orders"><ShoppingBag className="w-4 h-4 mr-1" /> Pedidos<Badge count={counts.orders} /></TabsTrigger>
+            <TabsTrigger value="users" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-users"><Users className="w-4 h-4 mr-1" /> Usuarios<Badge count={counts.users} /></TabsTrigger>
+            <TabsTrigger value="stores" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-stores"><Store className="w-4 h-4 mr-1" /> Lojas<Badge count={counts.stores} /></TabsTrigger>
             <TabsTrigger value="ads" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-ads"><Megaphone className="w-4 h-4 mr-1" /> Anuncios</TabsTrigger>
-            <TabsTrigger value="withdrawals" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-withdrawals"><CreditCard className="w-4 h-4 mr-1" /> Saques</TabsTrigger>
+            <TabsTrigger value="withdrawals" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-withdrawals"><CreditCard className="w-4 h-4 mr-1" /> Saques<Badge count={counts.withdrawals} /></TabsTrigger>
             <TabsTrigger value="commissions" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-commissions"><DollarSign className="w-4 h-4 mr-1" /> Comissoes</TabsTrigger>
             <TabsTrigger value="shipping" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-shipping"><Truck className="w-4 h-4 mr-1" /> Frete</TabsTrigger>
-            <TabsTrigger value="support" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-support"><MessageSquare className="w-4 h-4 mr-1" /> Suporte</TabsTrigger>
+            <TabsTrigger value="support" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-support"><MessageSquare className="w-4 h-4 mr-1" /> Suporte<Badge count={counts.support} /></TabsTrigger>
             <TabsTrigger value="pages" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-pages"><FileText className="w-4 h-4 mr-1" /> Paginas</TabsTrigger>
             <TabsTrigger value="financial" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-financial"><Settings className="w-4 h-4 mr-1" /> Financeiro</TabsTrigger>
           </TabsList>

@@ -1297,25 +1297,23 @@ async def get_payment_methods():
     s = await db.platform_settings.find_one({"key": "financial"}, {"_id": 0})
     settings = s["value"] if s else {}
     methods = []
-    if settings.get("pix_enabled") and settings.get("pix_key"):
+    if settings.get("pix_enabled", True):
         methods.append({
             "id": "pix",
             "name": "PIX",
             "description": "Pagamento instantaneo via PIX",
-            "instructions": f"Faca um PIX para a chave abaixo:",
+            "configured": bool(settings.get("pix_key")),
             "details": {
                 "pix_key": settings.get("pix_key", ""),
-                "pix_key_type": settings.get("pix_key_type", "")
+                "pix_key_type": settings.get("pix_key_type", "cpf")
             }
         })
-    if (settings.get("ted_enabled") and settings.get("bank_name") and 
-        settings.get("bank_branch") and settings.get("bank_account_name") and 
-        settings.get("bank_account_number")):
+    if settings.get("ted_enabled", True):
         methods.append({
             "id": "ted",
             "name": "Transferencia Bancaria",
             "description": "Transferencia via TED/DOC",
-            "instructions": "Faca uma transferencia para a conta abaixo:",
+            "configured": bool(settings.get("bank_name") and settings.get("bank_account_number")),
             "details": {
                 "bank_name": settings.get("bank_name", ""),
                 "bank_branch": settings.get("bank_branch", ""),
@@ -1323,17 +1321,34 @@ async def get_payment_methods():
                 "account_number": settings.get("bank_account_number", "")
             }
         })
-    if settings.get("paypal_enabled") and settings.get("paypal_email"):
+    if settings.get("paypal_enabled", False):
         methods.append({
             "id": "paypal",
             "name": "PayPal",
             "description": "Pagamento via PayPal",
-            "instructions": "Envie o pagamento para o email PayPal abaixo:",
+            "configured": bool(settings.get("paypal_email")),
             "details": {
                 "paypal_email": settings.get("paypal_email", "")
             }
         })
     return {"methods": methods}
+
+# ==================== ADMIN NOTIFICATION COUNTS ====================
+@api_router.get("/admin/notification-counts")
+async def get_admin_notification_counts(request: Request):
+    await require_admin(request)
+    pending_orders = await db.orders.count_documents({"status": {"$in": ["pending", "awaiting_payment"]}})
+    pending_withdrawals = await db.withdrawals.count_documents({"status": "pending"})
+    pending_support = await db.support_messages.count_documents({"status": {"$in": ["pending", "open"]}})
+    pending_stores = await db.stores.count_documents({"is_approved": False})
+    new_users_24h = await db.users.count_documents({})  # total users as badge
+    return {
+        "orders": pending_orders,
+        "withdrawals": pending_withdrawals,
+        "support": pending_support,
+        "stores": pending_stores,
+        "users": new_users_24h
+    }
 
 @api_router.get("/admin/contact-settings")
 async def get_contact_settings(request: Request):
