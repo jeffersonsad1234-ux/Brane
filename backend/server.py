@@ -756,7 +756,7 @@ async def track_ad_click(ad_id: str):
 
 # ==================== UPLOAD ROUTES ====================
 @api_router.post("/upload")
-async def upload_file(file: UploadFile = File(...), request: Request):
+async def upload_file(request: Request, file: UploadFile = File(...)):
     user = await get_current_user(request)
     ext = file.filename.split(".")[-1] if "." in file.filename else "bin"
     path = f"{APP_NAME}/uploads/{user['user_id']}/{uuid.uuid4()}.{ext}"
