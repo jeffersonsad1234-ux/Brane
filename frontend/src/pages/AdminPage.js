@@ -45,17 +45,19 @@ function OrdersTab({ token }) {
   useEffect(() => { f(); }, []);
   const approve = async (id) => { await axios.put(`${API}/admin/orders/${id}/approve`, {}, { headers: h, withCredentials: true }); toast.success('Pagamento confirmado!'); f(); };
   const reject = async (id) => { await axios.put(`${API}/admin/orders/${id}/reject`, {}, { headers: h, withCredentials: true }); toast.success('Pedido rejeitado'); f(); };
+  const ship = async (id) => { await axios.put(`${API}/admin/orders/${id}/ship`, {}, { headers: h, withCredentials: true }); toast.success('Pedido enviado!'); f(); };
+  const deliver = async (id) => { await axios.put(`${API}/admin/orders/${id}/deliver`, {}, { headers: h, withCredentials: true }); toast.success('Pedido entregue!'); f(); };
 
   const statusLabels = {
-    'awaiting_payment': 'Aguardando Pagamento',
-    'pending': 'Pendente',
-    'approved': 'Aprovado',
-    'rejected': 'Rejeitado'
+    'awaiting_payment': 'Aguardando Pagamento', 'pending': 'Pendente', 'approved': 'Aprovado',
+    'shipped': 'Enviado', 'delivered': 'Entregue', 'rejected': 'Rejeitado'
   };
   const statusColors = {
     'awaiting_payment': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
     'pending': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
     'approved': 'bg-green-500/20 text-green-400 border-green-500/30',
+    'shipped': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
+    'delivered': 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
     'rejected': 'bg-red-500/20 text-red-400 border-red-500/30'
   };
   const methodLabels = { pix: 'PIX', ted: 'Transferencia Bancaria', paypal: 'PayPal' };
@@ -73,23 +75,27 @@ function OrdersTab({ token }) {
           <p className="text-sm text-[#888]">Comprador: {o.buyer_name}</p>
           <p className="text-lg font-bold text-[#B38B36]">R$ {o.total?.toFixed(2)}</p>
           <div className="flex items-center gap-2 mt-1">
-            {o.payment_method && (
-              <span className="text-xs px-2 py-0.5 rounded bg-[#1A1A1A] text-[#B38B36] border border-[#B38B36]/30">
-                {methodLabels[o.payment_method] || o.payment_method}
-              </span>
-            )}
+            {o.payment_method && <span className="text-xs px-2 py-0.5 rounded bg-[#1A1A1A] text-[#B38B36] border border-[#B38B36]/30">{methodLabels[o.payment_method] || o.payment_method}</span>}
             <span className="text-xs text-[#666]">{new Date(o.created_at).toLocaleDateString('pt-BR')}</span>
           </div>
-          {(o.status === 'pending' || o.status === 'awaiting_payment') && (
-            <div className="flex gap-2 mt-3">
-              <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white rounded-lg" onClick={() => approve(o.order_id)} data-testid={`approve-order-${o.order_id}`}>
-                <Check className="w-4 h-4 mr-1" /> Confirmar Pagamento
+          <div className="flex flex-wrap gap-2 mt-3">
+            {(o.status === 'pending' || o.status === 'awaiting_payment') && (
+              <>
+                <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white rounded-lg" onClick={() => approve(o.order_id)}><Check className="w-4 h-4 mr-1" /> Confirmar Pagamento</Button>
+                <Button size="sm" variant="destructive" className="rounded-lg" onClick={() => reject(o.order_id)}><X className="w-4 h-4 mr-1" /> Rejeitar</Button>
+              </>
+            )}
+            {o.status === 'approved' && (
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg" onClick={() => ship(o.order_id)}>
+                <Truck className="w-4 h-4 mr-1" /> Marcar como Enviado
               </Button>
-              <Button size="sm" variant="destructive" className="rounded-lg" onClick={() => reject(o.order_id)} data-testid={`reject-order-${o.order_id}`}>
-                <X className="w-4 h-4 mr-1" /> Rejeitar
+            )}
+            {o.status === 'shipped' && (
+              <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg" onClick={() => deliver(o.order_id)}>
+                <Check className="w-4 h-4 mr-1" /> Marcar como Entregue
               </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       ))}
     </div>

@@ -105,7 +105,7 @@ function SellerDashboard({ token }) {
   const [showTerms, setShowTerms] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(true);
   const [hasProducts, setHasProducts] = useState(true);
-  const [form, setForm] = useState({ title: '', description: '', price: '', category: '', city: '', location: '', images: [] });
+  const [form, setForm] = useState({ title: '', description: '', price: '', category: '', city: '', location: '', images: [], product_type: 'store', condition: 'new' });
   const [uploading, setUploading] = useState(false);
   const headers = { Authorization: `Bearer ${token}` };
 
@@ -215,6 +215,25 @@ function SellerDashboard({ token }) {
                 <div><Label className="text-[#CCC]">Localizacao</Label><Input value={form.location} onChange={e => setForm({...form, location: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white" data-testid="product-location-input" /></div>
               </div>
             )}
+            <div className="grid grid-cols-2 gap-3">
+              <div><Label className="text-[#CCC]">Tipo</Label>
+                <select value={form.product_type} onChange={e => setForm({...form, product_type: e.target.value})} className="w-full h-10 px-3 rounded-md bg-[#111] border border-[#2A2A2A] text-white text-sm">
+                  <option value="store">Loja (Normal)</option>
+                  <option value="unique">Unico</option>
+                  <option value="secondhand">Segunda Mao</option>
+                </select>
+              </div>
+              {(form.product_type === 'unique' || form.product_type === 'secondhand') && (
+                <div><Label className="text-[#CCC]">Condicao</Label>
+                  <select value={form.condition} onChange={e => setForm({...form, condition: e.target.value})} className="w-full h-10 px-3 rounded-md bg-[#111] border border-[#2A2A2A] text-white text-sm">
+                    <option value="new">Novo</option>
+                    <option value="like_new">Seminovo</option>
+                    <option value="good">Bom Estado</option>
+                    <option value="fair">Usado</option>
+                  </select>
+                </div>
+              )}
+            </div>
             {!needsCity && <div><Label className="text-[#CCC]">Cidade (opcional)</Label><Input value={form.city} onChange={e => setForm({...form, city: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white" data-testid="product-city-input" /></div>}
             <div>
               <Label className="text-[#CCC]">Imagens</Label>

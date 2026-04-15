@@ -5,6 +5,7 @@ import AuthCallback from "./components/AuthCallback";
 import AnimatedBackground from "./components/AnimatedBackground";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import FloatingSupport from "./components/FloatingSupport";
 import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import ProductsPage from "./pages/ProductsPage";
@@ -21,6 +22,9 @@ import StaticPage from "./pages/StaticPage";
 import StoresPage from "./pages/StoresPage";
 import StoreDetailPage from "./pages/StoreDetailPage";
 import CreateStorePage from "./pages/CreateStorePage";
+import SupportPage from "./pages/SupportPage";
+import DesapegaPage from "./pages/DesapegaPage";
+import BraneCoinsPage from "./pages/BraneCoinsPage";
 import { Toaster } from "./components/ui/sonner";
 
 function ProtectedRoute({ children, adminOnly = false }) {
@@ -39,7 +43,6 @@ function ProtectedRoute({ children, adminOnly = false }) {
 
 function AppRouter() {
   const location = useLocation();
-  // Check URL fragment for session_id synchronously during render
   if (location.hash?.includes('session_id=')) {
     return <AuthCallback />;
   }
@@ -56,6 +59,7 @@ function AppRouter() {
             <Route path="/products/:id" element={<ProductDetailPage />} />
             <Route path="/stores" element={<StoresPage />} />
             <Route path="/stores/:slug" element={<StoreDetailPage />} />
+            <Route path="/desapega" element={<DesapegaPage />} />
             <Route path="/create-store" element={<ProtectedRoute><CreateStorePage /></ProtectedRoute>} />
             <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
             <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
@@ -64,11 +68,14 @@ function AppRouter() {
             <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
             <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/support" element={<ProtectedRoute><SupportPage /></ProtectedRoute>} />
+            <Route path="/brane-coins" element={<ProtectedRoute><BraneCoinsPage /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>} />
             <Route path="/pages/:slug" element={<StaticPage />} />
           </Routes>
         </main>
         <Footer />
+        <FloatingSupport />
         <div className="brane-watermark">BRANE MARKETPLACE</div>
       </div>
       <Toaster position="top-right" />

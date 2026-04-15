@@ -60,6 +60,8 @@ class ProductCreate(BaseModel):
     city: Optional[str] = None
     location: Optional[str] = None
     images: List[str] = []
+    product_type: Optional[str] = "store"  # store, unique, secondhand
+    condition: Optional[str] = None  # new, like_new, good, fair
 
 class ProductUpdate(BaseModel):
     title: Optional[str] = None
@@ -69,6 +71,8 @@ class ProductUpdate(BaseModel):
     city: Optional[str] = None
     location: Optional[str] = None
     images: Optional[List[str]] = None
+    product_type: Optional[str] = None
+    condition: Optional[str] = None
 
 class CartItemAdd(BaseModel):
     product_id: str
@@ -281,6 +285,7 @@ async def register(data: UserRegister):
         "user_id": user_id, "name": data.name, "email": data.email,
         "password_hash": hash_password(data.password), "role": register_role,
         "picture": "", "bank_details": {}, "is_blocked": False,
+        "brane_coins": 0, "is_vip": False,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.users.insert_one(user)
@@ -334,6 +339,7 @@ async def exchange_session(request: Request):
             "user_id": user_id, "name": name, "email": email,
             "password_hash": "", "role": "buyer", "picture": picture,
             "bank_details": {}, "is_blocked": False,
+            "brane_coins": 0, "is_vip": False,
             "created_at": datetime.now(timezone.utc).isoformat()
         })
         await db.wallets.insert_one({"user_id": user_id, "available": 0.0, "held": 0.0})
@@ -465,6 +471,8 @@ async def create_product(data: ProductCreate, request: Request):
         "product_id": product_id, "title": data.title, "description": data.description,
         "price": data.price, "category": data.category, "city": data.city or "",
         "location": data.location or "", "images": data.images,
+        "product_type": data.product_type or "store",
+        "condition": data.condition or "new",
         "seller_id": user["user_id"], "seller_name": user["name"],
         "status": "active", "created_at": datetime.now(timezone.utc).isoformat()
     }
@@ -891,11 +899,26 @@ async def create_order(data: OrderCreate, request: Request):
     total = subtotal - discount_value + shipping_cost
     
     affiliate_id = None
+    # Smart Margin System - Anti-Loss
+    # Platform: 9%, Affiliate: up to 6.5%
+    # Total commissions never exceed safe margin
+    max_affiliate_rate = affiliate_rate  # 6.5% default
     if data.affiliate_code:
         link = await db.affiliate_links.find_one({"code": data.affiliate_code}, {"_id": 0})
         if link:
             affiliate_id = link["affiliate_id"]
             await db.affiliate_links.update_one({"code": data.affiliate_code}, {"$inc": {"conversions": 1}})
+            # Smart margin check: ensure platform + affiliate doesn't exceed safe threshold
+            total_commission = platform_rate + max_affiliate_rate
+            if total_commission > 0.15:  # Safety cap at 15%
+                max_affiliate_rate = max(0, 0.15 - platform_rate)
+            # For very low margin products, reduce or disable affiliate
+            for ci in cart_items:
+                product = await db.products.find_one({"product_id": ci["product_id"]}, {"_id": 0})
+                if product and product["price"] < 10:  # Critical low price products
+                    max_affiliate_rate = min(max_affiliate_rate, 0.03)  # Cap at 3%
+    
+    actual_affiliate_rate = max_affiliate_rate if affiliate_id else 0
     
     order_id = f"order_{uuid.uuid4().hex[:12]}"
     
@@ -921,15 +944,20 @@ async def create_order(data: OrderCreate, request: Request):
         "total": total,
         "shipping_address": data.shipping_address.model_dump() if data.shipping_address else {},
         "platform_commission": subtotal * platform_rate,
-        "affiliate_commission": subtotal * affiliate_rate if affiliate_id else 0,
+        "affiliate_commission": subtotal * actual_affiliate_rate if affiliate_id else 0,
+        "affiliate_rate_applied": actual_affiliate_rate,
         "affiliate_id": affiliate_id, "status": "awaiting_payment",
         "payment_method": payment_method,
         "payment_info": payment_info,
+        "tracking": [
+            {"status": "created", "label": "Pedido Criado", "date": datetime.now(timezone.utc).isoformat()},
+            {"status": "awaiting_payment", "label": "Aguardando Pagamento", "date": datetime.now(timezone.utc).isoformat()}
+        ],
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.orders.insert_one(order)
     for seller_id, amount in sellers.items():
-        aff_rate = affiliate_rate if affiliate_id else 0
+        aff_rate = actual_affiliate_rate if affiliate_id else 0
         seller_share = amount * (1 - platform_rate - aff_rate)
         await db.wallets.update_one({"user_id": seller_id}, {"$inc": {"held": seller_share}})
         await db.wallet_transactions.insert_one({
@@ -944,7 +972,7 @@ async def create_order(data: OrderCreate, request: Request):
             "read": False, "created_at": datetime.now(timezone.utc).isoformat()
         })
     if affiliate_id:
-        aff_amount = total * affiliate_rate
+        aff_amount = total * actual_affiliate_rate
         await db.wallets.update_one({"user_id": affiliate_id}, {"$inc": {"held": aff_amount}})
         await db.wallet_transactions.insert_one({
             "tx_id": f"tx_{uuid.uuid4().hex[:12]}", "user_id": affiliate_id,
@@ -1130,17 +1158,27 @@ async def admin_approve_order(order_id: str, request: Request):
     order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Pedido nao encontrado")
-    await db.orders.update_one({"order_id": order_id}, {"$set": {"status": "approved", "payment_confirmed": True}})
+    now = datetime.now(timezone.utc).isoformat()
+    tracking = order.get("tracking", [])
+    tracking.append({"status": "payment_confirmed", "label": "Pagamento Confirmado", "date": now})
+    tracking.append({"status": "approved", "label": "Pedido Aprovado", "date": now})
+    await db.orders.update_one({"order_id": order_id}, {"$set": {"status": "approved", "payment_confirmed": True, "tracking": tracking}})
     # Move held to available for related transactions
     await db.wallet_transactions.update_many({"order_id": order_id, "status": "held"}, {"$set": {"status": "available"}})
-    # Update wallets - find all held transactions for this order
     txs = await db.wallet_transactions.find({"order_id": order_id}, {"_id": 0}).to_list(100)
     for tx in txs:
         await db.wallets.update_one({"user_id": tx["user_id"]}, {"$inc": {"held": -tx["amount"], "available": tx["amount"]}})
+    # Award 1 Brane Coin to buyer
+    await db.users.update_one({"user_id": order["buyer_id"]}, {"$inc": {"brane_coins": 1}})
+    await db.brane_coins_history.insert_one({
+        "tx_id": f"coin_{uuid.uuid4().hex[:12]}", "user_id": order["buyer_id"],
+        "amount": 1, "type": "earned", "reason": f"Compra #{order_id[:16]}",
+        "created_at": now
+    })
     await db.notifications.insert_one({
         "notification_id": f"notif_{uuid.uuid4().hex[:12]}", "user_id": order["buyer_id"],
-        "type": "order", "message": f"Pagamento confirmado! Seu pedido #{order_id[:16]} foi aprovado!",
-        "read": False, "created_at": datetime.now(timezone.utc).isoformat()
+        "type": "order", "message": f"Pagamento confirmado! Seu pedido #{order_id[:16]} foi aprovado! Voce ganhou 1 Brane Coin!",
+        "read": False, "created_at": now
     })
     return {"message": "Pagamento confirmado e pedido aprovado"}
 
@@ -1162,6 +1200,173 @@ async def admin_reject_order(order_id: str, request: Request):
         "read": False, "created_at": datetime.now(timezone.utc).isoformat()
     })
     return {"message": "Pedido rejeitado"}
+
+# ==================== ADMIN ORDER TRACKING ====================
+@api_router.put("/admin/orders/{order_id}/ship")
+async def admin_ship_order(order_id: str, request: Request):
+    await require_admin(request)
+    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
+    now = datetime.now(timezone.utc).isoformat()
+    tracking = order.get("tracking", [])
+    tracking.append({"status": "shipped", "label": "Enviado", "date": now})
+    await db.orders.update_one({"order_id": order_id}, {"$set": {"status": "shipped", "tracking": tracking}})
+    await db.notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}", "user_id": order["buyer_id"],
+        "type": "order", "message": f"Seu pedido #{order_id[:16]} foi enviado!",
+        "read": False, "created_at": now
+    })
+    return {"message": "Pedido enviado"}
+
+@api_router.put("/admin/orders/{order_id}/deliver")
+async def admin_deliver_order(order_id: str, request: Request):
+    await require_admin(request)
+    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
+    now = datetime.now(timezone.utc).isoformat()
+    tracking = order.get("tracking", [])
+    tracking.append({"status": "delivered", "label": "Entregue", "date": now})
+    await db.orders.update_one({"order_id": order_id}, {"$set": {"status": "delivered", "tracking": tracking}})
+    await db.notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}", "user_id": order["buyer_id"],
+        "type": "order", "message": f"Seu pedido #{order_id[:16]} foi entregue!",
+        "read": False, "created_at": now
+    })
+    return {"message": "Pedido entregue"}
+
+# ==================== BRANE COINS & REWARDS ====================
+@api_router.get("/brane-coins")
+async def get_brane_coins(request: Request):
+    user = await get_current_user(request)
+    coins = user.get("brane_coins", 0)
+    is_vip = user.get("is_vip", False)
+    history = await db.brane_coins_history.find({"user_id": user["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    # Available rewards
+    rewards = []
+    if coins >= 5:
+        rewards.append({"id": "coupon_5pct", "name": "Cupom 5% OFF", "cost": 5, "description": "5% de desconto na proxima compra"})
+        rewards.append({"id": "coupon_3eur", "name": "Cupom R$3 OFF", "cost": 5, "description": "R$3 de desconto na proxima compra"})
+    if coins >= 50 and not is_vip:
+        rewards.append({"id": "vip_access", "name": "Acesso VIP Brane", "cost": 50, "description": "Promocoes exclusivas, descontos especiais e ofertas antecipadas"})
+    return {"coins": coins, "is_vip": is_vip, "history": history, "available_rewards": rewards}
+
+@api_router.post("/brane-coins/redeem")
+async def redeem_brane_coins(request: Request):
+    user = await get_current_user(request)
+    body = await request.json()
+    reward_id = body.get("reward_id")
+    coins = user.get("brane_coins", 0)
+    now = datetime.now(timezone.utc).isoformat()
+    
+    if reward_id == "coupon_5pct" and coins >= 5:
+        code = f"BRANE5-{uuid.uuid4().hex[:6].upper()}"
+        await db.coupons.insert_one({
+            "coupon_id": f"coupon_{uuid.uuid4().hex[:12]}", "code": code,
+            "type": "percentage", "value": 0.05, "max_uses": 1, "uses": 0,
+            "is_active": True, "user_id": user["user_id"],
+            "created_at": now
+        })
+        await db.users.update_one({"user_id": user["user_id"]}, {"$inc": {"brane_coins": -5}})
+        await db.brane_coins_history.insert_one({"tx_id": f"coin_{uuid.uuid4().hex[:12]}", "user_id": user["user_id"], "amount": -5, "type": "redeemed", "reason": f"Cupom 5% OFF: {code}", "created_at": now})
+        return {"message": f"Cupom {code} criado!", "coupon_code": code}
+    elif reward_id == "coupon_3eur" and coins >= 5:
+        code = f"BRANE3-{uuid.uuid4().hex[:6].upper()}"
+        await db.coupons.insert_one({
+            "coupon_id": f"coupon_{uuid.uuid4().hex[:12]}", "code": code,
+            "type": "fixed", "value": 3.0, "max_uses": 1, "uses": 0,
+            "is_active": True, "user_id": user["user_id"],
+            "created_at": now
+        })
+        await db.users.update_one({"user_id": user["user_id"]}, {"$inc": {"brane_coins": -5}})
+        await db.brane_coins_history.insert_one({"tx_id": f"coin_{uuid.uuid4().hex[:12]}", "user_id": user["user_id"], "amount": -5, "type": "redeemed", "reason": f"Cupom R$3 OFF: {code}", "created_at": now})
+        return {"message": f"Cupom {code} criado!", "coupon_code": code}
+    elif reward_id == "vip_access" and coins >= 50:
+        await db.users.update_one({"user_id": user["user_id"]}, {"$set": {"is_vip": True, "vip_since": now}, "$inc": {"brane_coins": -50}})
+        await db.brane_coins_history.insert_one({"tx_id": f"coin_{uuid.uuid4().hex[:12]}", "user_id": user["user_id"], "amount": -50, "type": "redeemed", "reason": "Acesso VIP Brane", "created_at": now})
+        return {"message": "VIP Brane ativado!"}
+    else:
+        raise HTTPException(status_code=400, detail="Coins insuficientes ou recompensa invalida")
+
+# ==================== BUYER WALLET ====================
+@api_router.get("/buyer-wallet")
+async def get_buyer_wallet(request: Request):
+    user = await get_current_user(request)
+    coins = user.get("brane_coins", 0)
+    is_vip = user.get("is_vip", False)
+    orders_count = await db.orders.count_documents({"buyer_id": user["user_id"], "status": "approved"})
+    # Get user coupons
+    coupons = await db.coupons.find({"user_id": user["user_id"], "is_active": True}, {"_id": 0}).to_list(20)
+    active_coupons = [c for c in coupons if c.get("uses", 0) < c.get("max_uses", 1)]
+    return {
+        "coins": coins, "is_vip": is_vip, "orders_count": orders_count,
+        "active_coupons": active_coupons,
+        "next_reward_at": 5 - (coins % 5) if coins % 5 != 0 else 0
+    }
+
+# ==================== DESAPEGA (UNIQUE/SECONDHAND PRODUCTS) ====================
+@api_router.get("/desapega")
+async def list_desapega_products(skip: int = 0, limit: int = 20):
+    products = await db.products.find(
+        {"product_type": {"$in": ["unique", "secondhand"]}, "is_deleted": {"$ne": True}},
+        {"_id": 0}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    for p in products:
+        seller = await db.users.find_one({"user_id": p["seller_id"]}, {"_id": 0, "password_hash": 0})
+        p["seller_name"] = seller["name"] if seller else "Vendedor"
+    return {"products": products, "total": await db.products.count_documents({"product_type": {"$in": ["unique", "secondhand"]}, "is_deleted": {"$ne": True}})}
+
+# ==================== SUPPORT CHAT ====================
+@api_router.post("/support/message")
+async def send_support_message(request: Request):
+    user = await get_current_user(request)
+    body = await request.json()
+    msg = body.get("message", "").strip()
+    if not msg:
+        raise HTTPException(status_code=400, detail="Mensagem vazia")
+    msg_doc = {
+        "message_id": f"msg_{uuid.uuid4().hex[:12]}", "user_id": user["user_id"],
+        "user_name": user["name"], "user_role": user["role"],
+        "message": msg, "is_admin_reply": False, "status": "open",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.support_messages.insert_one(msg_doc)
+    return {"message": "Mensagem enviada!", "message_id": msg_doc["message_id"]}
+
+@api_router.get("/support/messages")
+async def get_support_messages(request: Request):
+    user = await get_current_user(request)
+    messages = await db.support_messages.find({"user_id": user["user_id"]}, {"_id": 0}).sort("created_at", 1).to_list(100)
+    return {"messages": messages}
+
+@api_router.get("/admin/support/messages")
+async def admin_get_support_messages(request: Request):
+    await require_admin(request)
+    messages = await db.support_messages.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
+    return {"messages": messages}
+
+@api_router.post("/admin/support/reply")
+async def admin_reply_support(request: Request):
+    await require_admin(request)
+    body = await request.json()
+    user_id = body.get("user_id")
+    msg = body.get("message", "").strip()
+    if not msg or not user_id:
+        raise HTTPException(status_code=400, detail="Dados incompletos")
+    msg_doc = {
+        "message_id": f"msg_{uuid.uuid4().hex[:12]}", "user_id": user_id,
+        "user_name": "Suporte BRANE", "user_role": "admin",
+        "message": msg, "is_admin_reply": True, "status": "replied",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.support_messages.insert_one(msg_doc)
+    await db.notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}", "user_id": user_id,
+        "type": "support", "message": "Voce recebeu uma resposta do suporte!",
+        "read": False, "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    return {"message": "Resposta enviada"}
 
 @api_router.get("/admin/users")
 async def admin_list_users(request: Request):

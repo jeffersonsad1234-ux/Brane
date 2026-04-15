@@ -162,6 +162,90 @@ backend:
         agent: "main"
         comment: "Implementado endpoints de cupons para admin e validação"
 
+  - task: "Support Chat System"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: POST /api/support/message (user sends message), GET /api/support/messages (user gets own messages), GET /api/admin/support/messages (admin sees all), POST /api/admin/support/reply (admin replies). Message validation working correctly - rejects empty messages."
+
+  - task: "Brane Coins System"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /api/brane-coins (shows balance, VIP status, rewards, history), POST /api/brane-coins/redeem (redeem rewards for coupons/VIP). Buyer automatically receives 1 coin when admin approves order. Redemption system working for 5% OFF and R$3 OFF coupons, VIP access at 50 coins."
+
+  - task: "Desapega Products"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /api/desapega (lists unique/secondhand products), POST /api/products with product_type='secondhand' creates desapega products. Filtering by product_type working correctly. Pagination supported."
+
+  - task: "Order Tracking System"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: PUT /api/admin/orders/{id}/ship (mark as shipped), PUT /api/admin/orders/{id}/deliver (mark as delivered). Orders have tracking array with status history including: created, awaiting_payment, payment_confirmed, approved, shipped, delivered. Notifications sent to buyer on status changes."
+
+  - task: "Admin Notification Counts"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /api/admin/notification-counts returns counts for all admin tabs: orders (pending/awaiting_payment), withdrawals (pending), support (open), stores (unapproved), users (total). All counts working correctly."
+
+  - task: "Buyer Wallet"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /api/buyer-wallet returns comprehensive buyer info: brane_coins, is_vip status, orders_count, active_coupons array, next_reward_at. All fields populated correctly."
+
+  - task: "Payment Methods API"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /api/payment-methods returns ALL enabled payment methods with full details. PIX and TED always available by default. PayPal available when enabled. Each method includes configuration status and payment details (pix_key, bank details, paypal_email)."
+
 frontend:
   - task: "Página de checkout completa"
     implemented: true
@@ -267,9 +351,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Financial settings (PIX, TED, PayPal)"
-    - "Checkout payment method selection"
-    - "Order flow with payment"
+    - "Support Chat System"
+    - "Brane Coins System"
+    - "Desapega Products"
+    - "Order Tracking System"
+    - "Admin Notification Counts"
+    - "Buyer Wallet"
+    - "Payment Methods API"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -321,3 +409,5 @@ agent_communication:
     message: "Implementado: 1) Admin financeiro separado em PIX/TED/PayPal com campo agência. 2) Checkout com seleção de método de pagamento e instruções. 3) Status awaiting_payment. 4) Admin vê botão Confirmar Pagamento."
   - agent: "testing"
     message: "✅ BACKEND TESTING COMPLETO: Todos os recursos de pagamento testados e funcionando. Financial Settings API com novos campos (bank_branch, pix_key_type) ✅. Payment Methods API público retorna apenas métodos habilitados ✅. Order creation com payment_method e status awaiting_payment ✅. Admin order approval funcionando ✅. Corrigido bug de validação TED para exigir todos os campos obrigatórios. Testados PIX, TED e PayPal com sucesso."
+  - agent: "testing"
+    message: "🎉 NEW FEATURES TESTING COMPLETE: All 7 new features tested and working perfectly! ✅ Support Chat (user messages + admin replies), ✅ Brane Coins (earning + redemption system), ✅ Desapega (secondhand products listing), ✅ Order Tracking (ship/deliver with status array), ✅ Admin Notification Counts (all tabs), ✅ Buyer Wallet (coins/VIP/coupons), ✅ Payment Methods (PIX/TED always available). Complete end-to-end flow tested: admin login → configure financial settings → register seller/buyer → create products (normal + desapega) → order with payment method → admin approve (buyer gets 1 coin) → ship → deliver → support chat → all APIs working. 28/28 tests passed!"

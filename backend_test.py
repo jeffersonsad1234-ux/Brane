@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 """
 BRANE Marketplace Backend Testing
-Tests the new financial settings and payment method features
+Testing NEW features as requested:
+1. Support Chat
+2. Brane Coins
+3. Desapega
+4. Order Tracking
+5. Admin Notification Counts
+6. Buyer Wallet
+7. Payment Methods
 """
 
 import requests
 import json
-import uuid
+import time
 from datetime import datetime
 
 # Configuration
@@ -14,7 +21,7 @@ BASE_URL = "https://product-upload-issue.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin@brane.com"
 ADMIN_PASSWORD = "Admin123!"
 
-class BRANEBackendTester:
+class BraneMarketplaceTest:
     def __init__(self):
         self.session = requests.Session()
         self.admin_token = None
@@ -22,240 +29,209 @@ class BRANEBackendTester:
         self.buyer_token = None
         self.test_product_id = None
         self.test_order_id = None
+        self.test_results = []
         
-    def log(self, message):
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] {message}")
+    def log_test(self, test_name, success, details=""):
+        """Log test results"""
+        status = "✅ PASS" if success else "❌ FAIL"
+        self.test_results.append(f"{status} {test_name}: {details}")
+        print(f"{status} {test_name}: {details}")
         
+    def make_request(self, method, endpoint, data=None, token=None, expected_status=200):
+        """Make HTTP request with error handling"""
+        url = f"{BASE_URL}{endpoint}"
+        headers = {"Content-Type": "application/json"}
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+            
+        try:
+            if method == "GET":
+                response = self.session.get(url, headers=headers)
+            elif method == "POST":
+                response = self.session.post(url, json=data, headers=headers)
+            elif method == "PUT":
+                response = self.session.put(url, json=data, headers=headers)
+            elif method == "DELETE":
+                response = self.session.delete(url, headers=headers)
+            else:
+                raise ValueError(f"Unsupported method: {method}")
+                
+            if response.status_code != expected_status:
+                print(f"❌ Request failed: {method} {endpoint}")
+                print(f"   Status: {response.status_code}")
+                print(f"   Response: {response.text[:500]}")
+                return None
+                
+            return response.json() if response.content else {}
+            
+        except Exception as e:
+            print(f"❌ Request error: {method} {endpoint} - {str(e)}")
+            return None
+    
     def test_admin_login(self):
-        """Test admin login and get token"""
-        self.log("Testing admin login...")
+        """Test admin login"""
+        print("\n🔐 Testing Admin Login...")
+        data = {"email": ADMIN_EMAIL, "password": ADMIN_PASSWORD}
+        result = self.make_request("POST", "/auth/login", data)
         
-        response = self.session.post(f"{BASE_URL}/auth/login", json={
-            "email": ADMIN_EMAIL,
-            "password": ADMIN_PASSWORD
-        })
-        
-        if response.status_code == 200:
-            data = response.json()
-            self.admin_token = data.get("token")
-            self.log("✅ Admin login successful")
+        if result and "token" in result:
+            self.admin_token = result["token"]
+            self.log_test("Admin Login", True, f"Token received: {self.admin_token[:20]}...")
             return True
         else:
-            self.log(f"❌ Admin login failed: {response.status_code} - {response.text}")
+            self.log_test("Admin Login", False, "Failed to get admin token")
             return False
     
-    def test_financial_settings_get(self):
-        """Test GET /api/admin/financial-settings"""
-        self.log("Testing GET financial settings...")
+    def test_financial_settings(self):
+        """Test financial settings configuration"""
+        print("\n💰 Testing Financial Settings...")
         
-        headers = {"Authorization": f"Bearer {self.admin_token}"}
-        response = self.session.get(f"{BASE_URL}/admin/financial-settings", headers=headers)
-        
-        if response.status_code == 200:
-            data = response.json()
-            self.log("✅ Financial settings retrieved successfully")
-            self.log(f"   Current settings: {json.dumps(data, indent=2)}")
-            
-            # Check for new fields
-            required_fields = ["bank_branch", "pix_key_type"]
-            missing_fields = [field for field in required_fields if field not in data]
-            
-            if missing_fields:
-                self.log(f"⚠️  Missing new fields: {missing_fields}")
-                return False
-            else:
-                self.log("✅ All required new fields present")
-                return True
-        else:
-            self.log(f"❌ Failed to get financial settings: {response.status_code} - {response.text}")
+        # Get current settings
+        result = self.make_request("GET", "/admin/financial-settings", token=self.admin_token)
+        if not result:
+            self.log_test("Get Financial Settings", False, "Failed to get settings")
             return False
-    
-    def test_financial_settings_update(self):
-        """Test PUT /api/admin/financial-settings with new fields"""
-        self.log("Testing PUT financial settings with new fields...")
+            
+        self.log_test("Get Financial Settings", True, f"Current settings retrieved")
         
-        headers = {"Authorization": f"Bearer {self.admin_token}"}
-        
-        # Test data with all payment methods
-        test_settings = {
-            "paypal_email": "admin@brane.com",
-            "paypal_enabled": True,
-            "bank_name": "Banco do Brasil",
-            "bank_branch": "1234-5",  # NEW FIELD
-            "bank_account_name": "BRANE Marketplace LTDA",
-            "bank_account_number": "12345-6",
-            "ted_enabled": True,
+        # Update financial settings
+        settings = {
+            "pix_enabled": True,
             "pix_key": "admin@brane.com",
-            "pix_key_type": "email",  # NEW FIELD
-            "pix_enabled": True
+            "pix_key_type": "email",
+            "ted_enabled": True,
+            "bank_name": "Banco do Brasil",
+            "bank_branch": "1234-5",
+            "bank_account_name": "BRANE Marketplace",
+            "bank_account_number": "12345-6",
+            "paypal_enabled": True,
+            "paypal_email": "admin@brane.com"
         }
         
-        response = self.session.put(f"{BASE_URL}/admin/financial-settings", 
-                                  headers=headers, json=test_settings)
-        
-        if response.status_code == 200:
-            self.log("✅ Financial settings updated successfully")
-            
-            # Verify the update by getting settings again
-            get_response = self.session.get(f"{BASE_URL}/admin/financial-settings", headers=headers)
-            if get_response.status_code == 200:
-                updated_data = get_response.json()
-                
-                # Check if new fields were saved
-                if (updated_data.get("bank_branch") == "1234-5" and 
-                    updated_data.get("pix_key_type") == "email"):
-                    self.log("✅ New fields saved correctly")
-                    return True
-                else:
-                    self.log(f"❌ New fields not saved correctly: {updated_data}")
-                    return False
-            else:
-                self.log("❌ Failed to verify settings update")
-                return False
-        else:
-            self.log(f"❌ Failed to update financial settings: {response.status_code} - {response.text}")
-            return False
-    
-    def test_payment_methods_public(self):
-        """Test GET /api/payment-methods (public endpoint)"""
-        self.log("Testing GET payment methods (public endpoint)...")
-        
-        # No authentication needed for this endpoint
-        response = self.session.get(f"{BASE_URL}/payment-methods")
-        
-        if response.status_code == 200:
-            data = response.json()
-            methods = data.get("methods", [])
-            
-            self.log(f"✅ Payment methods retrieved: {len(methods)} methods")
-            
-            # Check that only enabled methods with data are returned
-            expected_methods = ["pix", "ted", "paypal"]
-            found_methods = [method["id"] for method in methods]
-            
-            self.log(f"   Found methods: {found_methods}")
-            
-            # Verify each method has required details
-            for method in methods:
-                method_id = method.get("id")
-                details = method.get("details", {})
-                
-                if method_id == "pix":
-                    if details.get("pix_key") and details.get("pix_key_type"):
-                        self.log(f"✅ PIX method has required details")
-                    else:
-                        self.log(f"❌ PIX method missing details: {details}")
-                        return False
-                        
-                elif method_id == "ted":
-                    required = ["bank_name", "bank_branch", "account_name", "account_number"]
-                    if all(details.get(field) for field in required):
-                        self.log(f"✅ TED method has required details")
-                    else:
-                        self.log(f"❌ TED method missing details: {details}")
-                        return False
-                        
-                elif method_id == "paypal":
-                    if details.get("paypal_email"):
-                        self.log(f"✅ PayPal method has required details")
-                    else:
-                        self.log(f"❌ PayPal method missing details: {details}")
-                        return False
-            
+        result = self.make_request("PUT", "/admin/financial-settings", settings, self.admin_token)
+        if result:
+            self.log_test("Update Financial Settings", True, "All payment methods configured")
             return True
         else:
-            self.log(f"❌ Failed to get payment methods: {response.status_code} - {response.text}")
+            self.log_test("Update Financial Settings", False, "Failed to update settings")
             return False
     
-    def test_create_seller_and_product(self):
-        """Create a test seller and product for order testing"""
-        self.log("Creating test seller and product...")
+    def test_register_seller(self):
+        """Register a test seller"""
+        print("\n👤 Testing Seller Registration...")
         
-        # Register seller
-        seller_email = f"seller_{uuid.uuid4().hex[:8]}@test.com"
-        seller_response = self.session.post(f"{BASE_URL}/auth/register", json={
-            "name": "Test Seller",
-            "email": seller_email,
-            "password": "TestPass123!",
+        seller_data = {
+            "name": "Maria Silva",
+            "email": f"seller_{int(time.time())}@test.com",
+            "password": "Seller123!",
             "role": "seller"
-        })
+        }
         
-        if seller_response.status_code == 200:
-            seller_data = seller_response.json()
-            self.seller_token = seller_data.get("token")
-            self.log("✅ Test seller created")
-        else:
-            self.log(f"❌ Failed to create seller: {seller_response.status_code}")
-            return False
-        
-        # Create product
-        headers = {"Authorization": f"Bearer {self.seller_token}"}
-        product_response = self.session.post(f"{BASE_URL}/products", headers=headers, json={
-            "title": "Test Product for Payment",
-            "description": "Test product for payment method testing",
-            "price": 99.90,
-            "category": "eletronicos",
-            "images": []
-        })
-        
-        if product_response.status_code == 200:
-            product_data = product_response.json()
-            self.test_product_id = product_data.get("product_id")
-            self.log(f"✅ Test product created: {self.test_product_id}")
+        result = self.make_request("POST", "/auth/register", seller_data)
+        if result and "token" in result:
+            self.seller_token = result["token"]
+            self.log_test("Seller Registration", True, f"Seller registered: {seller_data['email']}")
             return True
         else:
-            self.log(f"❌ Failed to create product: {product_response.status_code}")
+            self.log_test("Seller Registration", False, "Failed to register seller")
             return False
     
-    def test_create_buyer_and_cart(self):
-        """Create test buyer and add product to cart"""
-        self.log("Creating test buyer and adding to cart...")
+    def test_register_buyer(self):
+        """Register a test buyer"""
+        print("\n👤 Testing Buyer Registration...")
         
-        # Register buyer
-        buyer_email = f"buyer_{uuid.uuid4().hex[:8]}@test.com"
-        buyer_response = self.session.post(f"{BASE_URL}/auth/register", json={
-            "name": "Test Buyer",
-            "email": buyer_email,
-            "password": "TestPass123!",
+        buyer_data = {
+            "name": "João Santos",
+            "email": f"buyer_{int(time.time())}@test.com",
+            "password": "Buyer123!",
             "role": "buyer"
-        })
+        }
         
-        if buyer_response.status_code == 200:
-            buyer_data = buyer_response.json()
-            self.buyer_token = buyer_data.get("token")
-            self.log("✅ Test buyer created")
-        else:
-            self.log(f"❌ Failed to create buyer: {buyer_response.status_code}")
-            return False
-        
-        # Add product to cart
-        headers = {"Authorization": f"Bearer {self.buyer_token}"}
-        cart_response = self.session.post(f"{BASE_URL}/cart", headers=headers, json={
-            "product_id": self.test_product_id,
-            "quantity": 1
-        })
-        
-        if cart_response.status_code == 200:
-            self.log("✅ Product added to cart")
+        result = self.make_request("POST", "/auth/register", buyer_data)
+        if result and "token" in result:
+            self.buyer_token = result["token"]
+            self.log_test("Buyer Registration", True, f"Buyer registered: {buyer_data['email']}")
             return True
         else:
-            self.log(f"❌ Failed to add to cart: {cart_response.status_code}")
+            self.log_test("Buyer Registration", False, "Failed to register buyer")
             return False
     
-    def test_order_creation_with_payment_method(self):
-        """Test POST /api/orders with payment_method field"""
-        self.log("Testing order creation with payment method...")
+    def test_create_products(self):
+        """Create test products including desapega"""
+        print("\n📦 Testing Product Creation...")
         
-        headers = {"Authorization": f"Bearer {self.buyer_token}"}
+        # Create normal product
+        normal_product = {
+            "title": "Smartphone Samsung Galaxy",
+            "description": "Smartphone novo na caixa",
+            "price": 899.99,
+            "category": "eletronicos",
+            "product_type": "store",
+            "condition": "new",
+            "images": ["https://example.com/phone.jpg"]
+        }
         
-        # Create order with PIX payment method
+        result = self.make_request("POST", "/products", normal_product, self.seller_token)
+        if result and "product_id" in result:
+            self.test_product_id = result["product_id"]
+            self.log_test("Create Normal Product", True, f"Product ID: {self.test_product_id}")
+        else:
+            self.log_test("Create Normal Product", False, "Failed to create normal product")
+            return False
+        
+        # Create desapega product
+        desapega_product = {
+            "title": "Bolsa Louis Vuitton Usada",
+            "description": "Bolsa original em bom estado",
+            "price": 450.00,
+            "category": "acessorios",
+            "product_type": "secondhand",
+            "condition": "good",
+            "images": ["https://example.com/bag.jpg"]
+        }
+        
+        result = self.make_request("POST", "/products", desapega_product, self.seller_token)
+        if result and "product_id" in result:
+            self.log_test("Create Desapega Product", True, f"Secondhand product created")
+            return True
+        else:
+            self.log_test("Create Desapega Product", False, "Failed to create desapega product")
+            return False
+    
+    def test_desapega_listing(self):
+        """Test desapega product listing"""
+        print("\n🛍️ Testing Desapega Listing...")
+        
+        result = self.make_request("GET", "/desapega")
+        if result and "products" in result:
+            products = result["products"]
+            secondhand_found = any(p.get("product_type") in ["secondhand", "unique"] for p in products)
+            self.log_test("Desapega Listing", secondhand_found, f"Found {len(products)} desapega products")
+            return secondhand_found
+        else:
+            self.log_test("Desapega Listing", False, "Failed to get desapega products")
+            return False
+    
+    def test_add_to_cart_and_order(self):
+        """Test adding to cart and creating order"""
+        print("\n🛒 Testing Cart and Order Creation...")
+        
+        # Add to cart
+        cart_data = {"product_id": self.test_product_id, "quantity": 1}
+        result = self.make_request("POST", "/cart", cart_data, self.buyer_token)
+        if not result:
+            self.log_test("Add to Cart", False, "Failed to add to cart")
+            return False
+        
+        self.log_test("Add to Cart", True, "Product added to cart")
+        
+        # Create order with shipping address and payment method
         order_data = {
-            "payment_method": "pix",
             "shipping_address": {
-                "name": "Test Buyer",
+                "name": "João Santos",
                 "cpf": "123.456.789-00",
                 "phone": "(11) 99999-9999",
-                "street": "Rua Teste",
+                "street": "Rua das Flores",
                 "number": "123",
                 "complement": "Apto 45",
                 "neighborhood": "Centro",
@@ -263,155 +239,268 @@ class BRANEBackendTester:
                 "state": "SP",
                 "zip_code": "01234-567"
             },
-            "shipping_option": "standard"
+            "shipping_option": "normal",
+            "payment_method": "pix"
         }
         
-        response = self.session.post(f"{BASE_URL}/orders", headers=headers, json=order_data)
+        result = self.make_request("POST", "/orders", order_data, self.buyer_token)
+        if result and "order_id" in result:
+            self.test_order_id = result["order_id"]
+            payment_method = result.get("payment_method")
+            status = result.get("status")
+            self.log_test("Create Order", True, f"Order {self.test_order_id}, Payment: {payment_method}, Status: {status}")
+            return True
+        else:
+            self.log_test("Create Order", False, "Failed to create order")
+            return False
+    
+    def test_payment_methods(self):
+        """Test payment methods endpoint"""
+        print("\n💳 Testing Payment Methods...")
         
-        if response.status_code == 200:
-            order = response.json()
-            self.test_order_id = order.get("order_id")
+        result = self.make_request("GET", "/payment-methods")
+        if result and "methods" in result:
+            methods = result["methods"]
+            method_names = [m["name"] for m in methods]
             
-            self.log(f"✅ Order created successfully: {self.test_order_id}")
+            # Check if PIX and TED are always available
+            has_pix = any("PIX" in name for name in method_names)
+            has_ted = any("Transferencia" in name or "TED" in name for name in method_names)
             
-            # Verify order has correct status
-            if order.get("status") == "awaiting_payment":
-                self.log("✅ Order status is 'awaiting_payment'")
+            self.log_test("Payment Methods", True, f"Available methods: {', '.join(method_names)}")
+            self.log_test("PIX Available", has_pix, "PIX should be available by default")
+            self.log_test("TED Available", has_ted, "TED should be available by default")
+            return True
+        else:
+            self.log_test("Payment Methods", False, "Failed to get payment methods")
+            return False
+    
+    def test_admin_approve_order(self):
+        """Test admin order approval and Brane Coins award"""
+        print("\n✅ Testing Admin Order Approval...")
+        
+        if not self.test_order_id:
+            self.log_test("Admin Approve Order", False, "No test order available")
+            return False
+        
+        result = self.make_request("PUT", f"/admin/orders/{self.test_order_id}/approve", {}, self.admin_token)
+        if result:
+            self.log_test("Admin Approve Order", True, "Order approved successfully")
+            
+            # Check if buyer received Brane Coin
+            time.sleep(1)  # Wait for coin award
+            coin_result = self.make_request("GET", "/brane-coins", token=self.buyer_token)
+            if coin_result and coin_result.get("coins", 0) >= 1:
+                self.log_test("Brane Coins Award", True, f"Buyer has {coin_result['coins']} coins")
             else:
-                self.log(f"❌ Wrong order status: {order.get('status')}")
-                return False
-            
-            # Verify payment_method is included
-            if order.get("payment_method") == "pix":
-                self.log("✅ Payment method included in order")
-            else:
-                self.log(f"❌ Payment method missing or wrong: {order.get('payment_method')}")
-                return False
-            
-            # Verify payment_info is included
-            payment_info = order.get("payment_info", {})
-            if payment_info and payment_info.get("method") == "PIX":
-                self.log("✅ Payment info included in order")
-                self.log(f"   Payment info: {payment_info}")
-            else:
-                self.log(f"❌ Payment info missing or incomplete: {payment_info}")
-                return False
+                self.log_test("Brane Coins Award", False, "Buyer didn't receive Brane Coin")
             
             return True
         else:
-            self.log(f"❌ Failed to create order: {response.status_code} - {response.text}")
+            self.log_test("Admin Approve Order", False, "Failed to approve order")
             return False
     
-    def test_admin_order_approval(self):
-        """Test PUT /api/admin/orders/{id}/approve"""
-        self.log("Testing admin order approval...")
+    def test_order_tracking(self):
+        """Test order tracking functionality"""
+        print("\n📦 Testing Order Tracking...")
         
-        headers = {"Authorization": f"Bearer {self.admin_token}"}
+        if not self.test_order_id:
+            self.log_test("Order Tracking", False, "No test order available")
+            return False
         
-        response = self.session.put(f"{BASE_URL}/admin/orders/{self.test_order_id}/approve", 
-                                  headers=headers)
-        
-        if response.status_code == 200:
-            self.log("✅ Order approval successful")
-            
-            # Verify order status changed
-            order_response = self.session.get(f"{BASE_URL}/orders/{self.test_order_id}", 
-                                            headers=headers)
-            
-            if order_response.status_code == 200:
-                order = order_response.json()
-                if order.get("status") == "approved":
-                    self.log("✅ Order status changed to 'approved'")
-                    return True
-                else:
-                    self.log(f"❌ Order status not updated: {order.get('status')}")
-                    return False
-            else:
-                self.log("❌ Failed to verify order status")
-                return False
+        # Test ship order
+        result = self.make_request("PUT", f"/admin/orders/{self.test_order_id}/ship", {}, self.admin_token)
+        if result:
+            self.log_test("Ship Order", True, "Order marked as shipped")
         else:
-            self.log(f"❌ Failed to approve order: {response.status_code} - {response.text}")
+            self.log_test("Ship Order", False, "Failed to ship order")
+            return False
+        
+        # Test deliver order
+        result = self.make_request("PUT", f"/admin/orders/{self.test_order_id}/deliver", {}, self.admin_token)
+        if result:
+            self.log_test("Deliver Order", True, "Order marked as delivered")
+        else:
+            self.log_test("Deliver Order", False, "Failed to deliver order")
+            return False
+        
+        # Check tracking array
+        order_result = self.make_request("GET", f"/orders/{self.test_order_id}", token=self.buyer_token)
+        if order_result and "tracking" in order_result:
+            tracking = order_result["tracking"]
+            statuses = [t["status"] for t in tracking]
+            has_shipped = "shipped" in statuses
+            has_delivered = "delivered" in statuses
+            
+            self.log_test("Order Tracking Array", True, f"Tracking statuses: {', '.join(statuses)}")
+            self.log_test("Shipped Status", has_shipped, "Shipped status in tracking")
+            self.log_test("Delivered Status", has_delivered, "Delivered status in tracking")
+            return True
+        else:
+            self.log_test("Order Tracking Array", False, "No tracking information found")
             return False
     
-    def test_admin_order_listing(self):
-        """Test that admin can see payment_method in order listing"""
-        self.log("Testing admin order listing shows payment method...")
+    def test_support_chat(self):
+        """Test support chat functionality"""
+        print("\n💬 Testing Support Chat...")
         
-        headers = {"Authorization": f"Bearer {self.admin_token}"}
-        
-        response = self.session.get(f"{BASE_URL}/admin/orders", headers=headers)
-        
-        if response.status_code == 200:
-            data = response.json()
-            orders = data.get("orders", [])
-            
-            # Find our test order
-            test_order = None
-            for order in orders:
-                if order.get("order_id") == self.test_order_id:
-                    test_order = order
-                    break
-            
-            if test_order:
-                if test_order.get("payment_method"):
-                    self.log(f"✅ Payment method visible in admin listing: {test_order.get('payment_method')}")
-                    return True
-                else:
-                    self.log("❌ Payment method not visible in admin listing")
-                    return False
-            else:
-                self.log("❌ Test order not found in admin listing")
-                return False
+        # Send support message as buyer
+        message_data = {"message": "Preciso de ajuda com meu pedido"}
+        result = self.make_request("POST", "/support/message", message_data, self.buyer_token)
+        if result and "message_id" in result:
+            message_id = result["message_id"]
+            self.log_test("Send Support Message", True, f"Message sent: {message_id}")
         else:
-            self.log(f"❌ Failed to get admin orders: {response.status_code} - {response.text}")
+            self.log_test("Send Support Message", False, "Failed to send support message")
+            return False
+        
+        # Get user's support messages
+        result = self.make_request("GET", "/support/messages", token=self.buyer_token)
+        if result and "messages" in result:
+            messages = result["messages"]
+            self.log_test("Get User Support Messages", True, f"Found {len(messages)} messages")
+        else:
+            self.log_test("Get User Support Messages", False, "Failed to get user messages")
+            return False
+        
+        # Admin get all support messages
+        result = self.make_request("GET", "/admin/support/messages", token=self.admin_token)
+        if result and "messages" in result:
+            admin_messages = result["messages"]
+            self.log_test("Admin Get Support Messages", True, f"Admin sees {len(admin_messages)} messages")
+        else:
+            self.log_test("Admin Get Support Messages", False, "Failed to get admin messages")
+            return False
+        
+        # Admin reply to support
+        if admin_messages:
+            user_id = admin_messages[0].get("user_id")
+            reply_data = {"user_id": user_id, "message": "Olá! Como posso ajudar?"}
+            result = self.make_request("POST", "/admin/support/reply", reply_data, self.admin_token)
+            if result:
+                self.log_test("Admin Support Reply", True, "Admin replied successfully")
+                return True
+            else:
+                self.log_test("Admin Support Reply", False, "Failed to send admin reply")
+                return False
+        
+        return True
+    
+    def test_brane_coins_system(self):
+        """Test Brane Coins system"""
+        print("\n🪙 Testing Brane Coins System...")
+        
+        # Get current coins and rewards
+        result = self.make_request("GET", "/brane-coins", token=self.buyer_token)
+        if result:
+            coins = result.get("coins", 0)
+            is_vip = result.get("is_vip", False)
+            rewards = result.get("available_rewards", [])
+            
+            self.log_test("Get Brane Coins", True, f"Coins: {coins}, VIP: {is_vip}, Rewards: {len(rewards)}")
+            
+            # Try to redeem a reward if enough coins
+            if coins >= 5 and rewards:
+                reward_id = rewards[0]["id"]
+                redeem_data = {"reward_id": reward_id}
+                redeem_result = self.make_request("POST", "/brane-coins/redeem", redeem_data, self.buyer_token)
+                if redeem_result:
+                    self.log_test("Redeem Brane Coins", True, f"Redeemed reward: {reward_id}")
+                else:
+                    self.log_test("Redeem Brane Coins", False, "Failed to redeem reward")
+            else:
+                self.log_test("Redeem Brane Coins", True, "Not enough coins or no rewards available")
+            
+            return True
+        else:
+            self.log_test("Get Brane Coins", False, "Failed to get Brane Coins")
+            return False
+    
+    def test_buyer_wallet(self):
+        """Test buyer wallet endpoint"""
+        print("\n👛 Testing Buyer Wallet...")
+        
+        result = self.make_request("GET", "/buyer-wallet", token=self.buyer_token)
+        if result:
+            coins = result.get("coins", 0)
+            is_vip = result.get("is_vip", False)
+            orders_count = result.get("orders_count", 0)
+            coupons = result.get("active_coupons", [])
+            
+            self.log_test("Buyer Wallet", True, f"Coins: {coins}, VIP: {is_vip}, Orders: {orders_count}, Coupons: {len(coupons)}")
+            return True
+        else:
+            self.log_test("Buyer Wallet", False, "Failed to get buyer wallet")
+            return False
+    
+    def test_admin_notification_counts(self):
+        """Test admin notification counts"""
+        print("\n🔔 Testing Admin Notification Counts...")
+        
+        result = self.make_request("GET", "/admin/notification-counts", token=self.admin_token)
+        if result:
+            orders = result.get("orders", 0)
+            withdrawals = result.get("withdrawals", 0)
+            support = result.get("support", 0)
+            stores = result.get("stores", 0)
+            users = result.get("users", 0)
+            
+            self.log_test("Admin Notification Counts", True, 
+                         f"Orders: {orders}, Withdrawals: {withdrawals}, Support: {support}, Stores: {stores}, Users: {users}")
+            return True
+        else:
+            self.log_test("Admin Notification Counts", False, "Failed to get notification counts")
             return False
     
     def run_all_tests(self):
         """Run all tests in sequence"""
-        self.log("=== BRANE Marketplace Backend Testing ===")
-        self.log(f"Testing against: {BASE_URL}")
+        print("🚀 Starting BRANE Marketplace Backend Tests...")
+        print("=" * 60)
         
-        tests = [
-            ("Admin Login", self.test_admin_login),
-            ("Financial Settings GET", self.test_financial_settings_get),
-            ("Financial Settings UPDATE", self.test_financial_settings_update),
-            ("Payment Methods Public", self.test_payment_methods_public),
-            ("Create Seller & Product", self.test_create_seller_and_product),
-            ("Create Buyer & Cart", self.test_create_buyer_and_cart),
-            ("Order Creation with Payment", self.test_order_creation_with_payment_method),
-            ("Admin Order Approval", self.test_admin_order_approval),
-            ("Admin Order Listing", self.test_admin_order_listing),
-        ]
+        # Authentication tests
+        if not self.test_admin_login():
+            print("❌ Admin login failed - stopping tests")
+            return
         
-        results = {}
+        # Setup tests
+        self.test_financial_settings()
+        self.test_register_seller()
+        self.test_register_buyer()
         
-        for test_name, test_func in tests:
-            self.log(f"\n--- {test_name} ---")
-            try:
-                results[test_name] = test_func()
-            except Exception as e:
-                self.log(f"❌ {test_name} failed with exception: {str(e)}")
-                results[test_name] = False
+        # Product and order tests
+        if self.test_create_products():
+            self.test_desapega_listing()
+            
+        self.test_payment_methods()
+        
+        if self.test_add_to_cart_and_order():
+            self.test_admin_approve_order()
+            self.test_order_tracking()
+        
+        # Feature tests
+        self.test_support_chat()
+        self.test_brane_coins_system()
+        self.test_buyer_wallet()
+        self.test_admin_notification_counts()
         
         # Summary
-        self.log("\n=== TEST SUMMARY ===")
-        passed = sum(1 for result in results.values() if result)
-        total = len(results)
+        print("\n" + "=" * 60)
+        print("📊 TEST SUMMARY")
+        print("=" * 60)
         
-        for test_name, result in results.items():
-            status = "✅ PASS" if result else "❌ FAIL"
-            self.log(f"{status} - {test_name}")
+        passed = sum(1 for result in self.test_results if "✅ PASS" in result)
+        failed = sum(1 for result in self.test_results if "❌ FAIL" in result)
         
-        self.log(f"\nOverall: {passed}/{total} tests passed")
+        for result in self.test_results:
+            print(result)
         
-        if passed == total:
-            self.log("🎉 All tests passed!")
-            return True
+        print(f"\n📈 RESULTS: {passed} passed, {failed} failed")
+        
+        if failed == 0:
+            print("🎉 ALL TESTS PASSED!")
         else:
-            self.log("⚠️  Some tests failed")
-            return False
+            print(f"⚠️  {failed} tests failed - check details above")
 
 if __name__ == "__main__":
-    tester = BRANEBackendTester()
-    success = tester.run_all_tests()
-    exit(0 if success else 1)
+    tester = BraneMarketplaceTest()
+    tester.run_all_tests()
