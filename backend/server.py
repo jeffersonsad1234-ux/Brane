@@ -7,6 +7,7 @@ import os
 import logging
 import uuid
 import requests as http_requests
+import base64
 from pathlib import Path
 from pydantic import BaseModel
 from typing import List, Optional
@@ -235,41 +236,32 @@ async def require_seller(request: Request) -> dict:
 
 
 def init_storage():
-    global storage_key
-    if storage_key:
-        return storage_key
-    try:
-        resp = http_requests.post(f"{STORAGE_URL}/init", json={"emergent_key": EMERGENT_KEY}, timeout=30)
-        resp.raise_for_status()
-        storage_key = resp.json()["storage_key"]
-        logger.info("Storage initialized successfully")
-        return storage_key
-    except Exception as e:
-        logger.error(f"Storage init failed: {e}")
-        return None
+    # Storage agora usa MongoDB - nenhuma inicializacao externa necessaria
+    return True
 
-def put_object(path: str, data: bytes, content_type: str) -> dict:
-    key = init_storage()
-    if not key:
-        raise HTTPException(status_code=500, detail="Storage unavailable")
-    resp = http_requests.put(
-        f"{STORAGE_URL}/objects/{path}",
-        headers={"X-Storage-Key": key, "Content-Type": content_type},
-        data=data, timeout=120
+async def put_object_mongo(db_ref, path: str, data: bytes, content_type: str) -> dict:
+    """Salva arquivo diretamente no MongoDB como base64"""
+    encoded = base64.b64encode(data).decode('utf-8')
+    await db_ref.file_storage.update_one(
+        {"path": path},
+        {"$set": {
+            "path": path,
+            "data": encoded,
+            "content_type": content_type,
+            "size": len(data),
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }},
+        upsert=True
     )
-    resp.raise_for_status()
-    return resp.json()
+    return {"path": path, "size": len(data)}
 
-def get_object(path: str):
-    key = init_storage()
-    if not key:
-        raise HTTPException(status_code=500, detail="Storage unavailable")
-    resp = http_requests.get(
-        f"{STORAGE_URL}/objects/{path}",
-        headers={"X-Storage-Key": key}, timeout=60
-    )
-    resp.raise_for_status()
-    return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
+async def get_object_mongo(db_ref, path: str):
+    """Recupera arquivo do MongoDB"""
+    doc = await db_ref.file_storage.find_one({"path": path})
+    if not doc:
+        return None, None
+    data = base64.b64decode(doc["data"])
+    return data, doc.get("content_type", "application/octet-stream")
 
 def clean_user(user: dict) -> dict:
     return {k: v for k, v in user.items() if k not in ("password_hash", "_id")}
@@ -753,15 +745,16 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
 
     data = await file.read()
 
+    # Limitar tamanho do arquivo (10MB)
+    if len(data) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Arquivo muito grande (max 10MB)")
+
     try:
-        result = put_object(
-            path,
-            data,
-            file.content_type or "application/octet-stream"
-        )
+        result = await put_object_mongo(db, path, data, file.content_type or "application/octet-stream")
     except Exception as e:
         print("ERRO UPLOAD:", str(e))
-        raise
+        raise HTTPException(status_code=500, detail="Erro ao salvar arquivo")
+
     await db.files.insert_one({
         "file_id": str(uuid.uuid4()), "storage_path": result["path"],
         "original_filename": file.filename, "content_type": file.content_type,
@@ -773,8 +766,12 @@ async def upload_file(request: Request, file: UploadFile = File(...)):
 @api_router.get("/files/{path:path}")
 async def get_file(path: str):
     try:
-        data, content_type = get_object(path)
+        data, content_type = await get_object_mongo(db, path)
+        if data is None:
+            raise HTTPException(status_code=404, detail="Arquivo nao encontrado")
         return Response(content=data, media_type=content_type)
+    except HTTPException:
+        raise
     except Exception:
         raise HTTPException(status_code=404, detail="Arquivo nao encontrado")
 
@@ -1421,7 +1418,7 @@ async def startup():
 })
     try:
         init_storage()
-        logger.info("Object storage initialized")
+        logger.info("MongoDB storage ready - no external storage needed")
     except Exception as e:
         logger.error(f"Storage init failed: {e}")
     logger.info("BRANE Marketplace started!")
