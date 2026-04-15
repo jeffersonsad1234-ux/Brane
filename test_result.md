@@ -267,8 +267,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Checkout flow"
-    - "Admin shipping settings"
+    - "Financial settings (PIX, TED, PayPal)"
+    - "Checkout payment method selection"
+    - "Order flow with payment"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -281,20 +282,42 @@ test_plan:
     priority: "high"
     needs_retesting: false
     status_history:
-      - working: false
-        agent: "user"
-        comment: "Usuário reportou erro ao enviar imagem de produtos"
       - working: true
         agent: "main"
-        comment: "Corrigido: init_storage() estava comentada e put_object/get_object tinham key=None. Restaurado init_storage com chamada ao Emergent storage API, e ambas funções agora usam a chave correta."
+        comment: "Corrigido: storage agora usa MongoDB diretamente (base64), sem dependência de API externa"
+
+  - task: "Configuracoes financeiras separadas (PIX, TED, PayPal)"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "Model atualizado com bank_branch, pix_key_type. Novo endpoint GET /api/payment-methods retorna métodos ativos com detalhes."
       - working: true
         agent: "testing"
-        comment: "CONFIRMADO: Upload de imagens funcionando corretamente. Testado POST /api/upload e GET /api/files/{path} com autenticação admin e seller. Ambos endpoints retornam respostas corretas com campos 'path' e 'url'. Storage Emergent inicializado com sucesso. Arquivos são armazenados e recuperados corretamente com content-type apropriado."
+        comment: "✅ TESTED: GET/PUT /api/admin/financial-settings com novos campos bank_branch e pix_key_type funcionando. GET /api/payment-methods retorna apenas métodos habilitados com dados completos. Validação corrigida para TED exigir todos os campos obrigatórios."
+
+  - task: "Checkout com selecao de metodo de pagamento"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "OrderCreate inclui payment_method. Status awaiting_payment. payment_info com dados bancários."
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: POST /api/orders com payment_method (pix/ted/paypal) funcionando. Status 'awaiting_payment' correto. payment_info incluído com detalhes bancários. PUT /api/admin/orders/{id}/approve muda status para 'approved'. Admin vê payment_method na listagem."
 
 agent_communication:
   - agent: "main"
-    message: "Implementadas todas as melhorias solicitadas: checkout completo, configuração de frete admin, termo vendedor, UI melhorada"
-  - agent: "main"
-    message: "Corrigido bug de upload de imagens. A função init_storage() estava comentada e put_object/get_object tinham key=None. Restaurado o fluxo de inicialização do storage com a API Emergent."
+    message: "Implementado: 1) Admin financeiro separado em PIX/TED/PayPal com campo agência. 2) Checkout com seleção de método de pagamento e instruções. 3) Status awaiting_payment. 4) Admin vê botão Confirmar Pagamento."
   - agent: "testing"
-    message: "Upload de imagens testado e FUNCIONANDO PERFEITAMENTE. Testei com admin e seller - ambos conseguem fazer upload e recuperar arquivos. O fix do main agent foi bem-sucedido. Storage Emergent está inicializando corretamente e todas as funções de upload/download estão operacionais."
+    message: "✅ BACKEND TESTING COMPLETO: Todos os recursos de pagamento testados e funcionando. Financial Settings API com novos campos (bank_branch, pix_key_type) ✅. Payment Methods API público retorna apenas métodos habilitados ✅. Order creation com payment_method e status awaiting_payment ✅. Admin order approval funcionando ✅. Corrigido bug de validação TED para exigir todos os campos obrigatórios. Testados PIX, TED e PayPal com sucesso."

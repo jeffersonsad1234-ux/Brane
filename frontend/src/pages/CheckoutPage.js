@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
-import { ArrowLeft, Truck, Tag, MapPin, User, CreditCard, CheckCircle, Gift, Zap, Package } from 'lucide-react';
+import { ArrowLeft, Truck, Tag, MapPin, User, CreditCard, CheckCircle, Gift, Zap, Package, DollarSign, Copy, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -24,6 +24,9 @@ export default function CheckoutPage() {
   const [selectedShipping, setSelectedShipping] = useState('gratis');
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [selectedPayment, setSelectedPayment] = useState('');
+  const [orderComplete, setOrderComplete] = useState(null);
   const [address, setAddress] = useState({
     name: user?.name || '',
     cpf: '',
@@ -43,8 +46,9 @@ export default function CheckoutPage() {
     if (!user) { navigate('/auth'); return; }
     Promise.all([
       axios.get(`${API}/cart`, { headers, withCredentials: true }),
-      axios.get(`${API}/shipping/options`)
-    ]).then(([cartRes, shippingRes]) => {
+      axios.get(`${API}/shipping/options`),
+      axios.get(`${API}/payment-methods`)
+    ]).then(([cartRes, shippingRes, paymentRes]) => {
       if (cartRes.data.items.length === 0) {
         toast.error('Carrinho vazio');
         navigate('/cart');
@@ -54,6 +58,11 @@ export default function CheckoutPage() {
       setShippingOptions(shippingRes.data.options || []);
       if (shippingRes.data.options?.length > 0) {
         setSelectedShipping(shippingRes.data.options[0].name.toLowerCase().replace(' ', '_'));
+      }
+      const methods = paymentRes.data.methods || [];
+      setPaymentMethods(methods);
+      if (methods.length > 0) {
+        setSelectedPayment(methods[0].id);
       }
     }).catch(() => toast.error('Erro ao carregar checkout'))
     .finally(() => setLoading(false));
@@ -70,7 +79,7 @@ export default function CheckoutPage() {
       const res = await axios.post(`${API}/coupons/validate`, { code: couponCode }, { headers, withCredentials: true });
       setAppliedCoupon(res.data);
       toast.success(`Cupom ${res.data.code} aplicado!`);
-    } catch { toast.error('Cupom inválido ou expirado'); }
+    } catch { toast.error('Cupom invalido ou expirado'); }
   };
 
   const formatCPF = (v) => v.replace(/\D/g, '').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2').slice(0, 14);
@@ -93,31 +102,137 @@ export default function CheckoutPage() {
       }
     }
     if (address.cpf.replace(/\D/g, '').length !== 11) {
-      toast.error('CPF inválido');
+      toast.error('CPF invalido');
       return false;
     }
     return true;
   };
 
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text).then(() => toast.success('Copiado!')).catch(() => {});
+  };
+
   const handleCheckout = async () => {
     if (!validateAddress()) return;
+    if (!selectedPayment) {
+      toast.error('Selecione um metodo de pagamento');
+      return;
+    }
     setOrdering(true);
     try {
       const urlParams = new URLSearchParams(location.search);
-      await axios.post(`${API}/orders`, {
+      const res = await axios.post(`${API}/orders`, {
         affiliate_code: urlParams.get('ref') || null,
         shipping_address: address,
         shipping_option: selectedShipping,
-        coupon_code: appliedCoupon?.code || null
+        coupon_code: appliedCoupon?.code || null,
+        payment_method: selectedPayment
       }, { headers, withCredentials: true });
-      toast.success('Pedido realizado com sucesso!');
-      navigate('/orders');
+      setOrderComplete(res.data);
+      toast.success('Pedido realizado! Faca o pagamento para confirmar.');
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Erro ao finalizar pedido');
     } finally { setOrdering(false); }
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center carbon-bg"><div className="w-8 h-8 border-4 border-[#B38B36] border-t-transparent rounded-full animate-spin" /></div>;
+
+  // Order complete - show payment instructions
+  if (orderComplete) {
+    const paymentInfo = orderComplete.payment_info || {};
+    return (
+      <div className="min-h-screen carbon-bg py-8">
+        <div className="max-w-2xl mx-auto px-4">
+          <div className="dark-card rounded-xl p-8 text-center animate-fadeIn">
+            <div className="w-16 h-16 rounded-full bg-[#B38B36]/20 flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-[#B38B36]" />
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-2">Pedido Realizado!</h1>
+            <p className="text-[#888] mb-6">Pedido #{orderComplete.order_id?.slice(0, 16)}</p>
+
+            {/* Payment Instructions */}
+            <div className="bg-[#111] rounded-xl p-6 text-left mb-6 border border-[#B38B36]/30">
+              <div className="flex items-center gap-2 mb-4">
+                <AlertCircle className="w-5 h-5 text-[#B38B36]" />
+                <h3 className="font-bold text-[#B38B36]">Instrucoes de Pagamento</h3>
+              </div>
+
+              <p className="text-lg font-bold text-white mb-4">
+                Total: R$ {orderComplete.total?.toFixed(2)}
+              </p>
+
+              {paymentInfo.method === 'PIX' && (
+                <div className="space-y-3">
+                  <p className="text-[#CCC]">Faca um PIX para a chave abaixo:</p>
+                  <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#2A2A2A]">
+                    <p className="text-xs text-[#888] mb-1">Tipo: {paymentInfo.pix_key_type === 'cpf' ? 'CPF/CNPJ' : paymentInfo.pix_key_type === 'email' ? 'E-mail' : paymentInfo.pix_key_type === 'phone' ? 'Telefone' : 'Chave Aleatoria'}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-white font-mono text-lg">{paymentInfo.pix_key}</p>
+                      <button onClick={() => copyToClipboard(paymentInfo.pix_key)} className="text-[#B38B36] hover:text-[#D4A842] p-2">
+                        <Copy className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {paymentInfo.method === 'Transferencia Bancaria' && (
+                <div className="space-y-3">
+                  <p className="text-[#CCC]">Faca uma transferencia para a conta abaixo:</p>
+                  <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#2A2A2A] space-y-2">
+                    <div className="flex justify-between"><span className="text-[#888] text-sm">Banco:</span><span className="text-white font-medium">{paymentInfo.bank_name}</span></div>
+                    <div className="flex justify-between"><span className="text-[#888] text-sm">Titular:</span><span className="text-white font-medium">{paymentInfo.account_name}</span></div>
+                    <div className="flex justify-between"><span className="text-[#888] text-sm">Agencia:</span><span className="text-white font-medium">{paymentInfo.bank_branch}</span></div>
+                    <div className="flex justify-between"><span className="text-[#888] text-sm">Conta:</span><span className="text-white font-medium">{paymentInfo.account_number}</span></div>
+                  </div>
+                </div>
+              )}
+
+              {paymentInfo.method === 'PayPal' && (
+                <div className="space-y-3">
+                  <p className="text-[#CCC]">Envie o pagamento para o email PayPal:</p>
+                  <div className="bg-[#0A0A0A] rounded-lg p-4 border border-[#2A2A2A]">
+                    <div className="flex items-center justify-between">
+                      <p className="text-white font-medium">{paymentInfo.paypal_email}</p>
+                      <button onClick={() => copyToClipboard(paymentInfo.paypal_email)} className="text-[#B38B36] hover:text-[#D4A842] p-2">
+                        <Copy className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                <p className="text-yellow-400 text-sm">
+                  Apos realizar o pagamento, seu pedido sera confirmado automaticamente pelo administrador.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <Button onClick={() => navigate('/orders')} className="flex-1 gold-btn rounded-lg py-5">
+                Ver Meus Pedidos
+              </Button>
+              <Button onClick={() => navigate('/')} variant="outline" className="flex-1 border-[#2A2A2A] text-[#888] hover:text-white rounded-lg py-5">
+                Continuar Comprando
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const paymentMethodIcons = {
+    pix: <Zap className="w-5 h-5" />,
+    ted: <CreditCard className="w-5 h-5" />,
+    paypal: <DollarSign className="w-5 h-5" />
+  };
+  const paymentMethodColors = {
+    pix: { bg: 'bg-green-500/20', text: 'text-green-400', border: 'border-green-500' },
+    ted: { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500' },
+    paypal: { bg: 'bg-[#0070BA]/20', text: 'text-[#0070BA]', border: 'border-[#0070BA]' }
+  };
 
   return (
     <div className="min-h-screen carbon-bg py-8" data-testid="checkout-page">
@@ -130,7 +245,7 @@ export default function CheckoutPage() {
 
         {/* Progress Steps */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          {[{n:1,icon:MapPin,label:'Endereço'},{n:2,icon:Truck,label:'Frete'},{n:3,icon:CreditCard,label:'Pagamento'}].map((s, i) => (
+          {[{n:1,icon:MapPin,label:'Endereco'},{n:2,icon:Truck,label:'Frete'},{n:3,icon:CreditCard,label:'Pagamento'}].map((s, i) => (
             <div key={s.n} className="flex items-center">
               <button 
                 onClick={() => s.n < step && setStep(s.n)}
@@ -188,7 +303,7 @@ export default function CheckoutPage() {
                       className="bg-[#111] border-[#2A2A2A] text-white" placeholder="Nome da rua" />
                   </div>
                   <div>
-                    <Label className="text-[#CCC]">Número *</Label>
+                    <Label className="text-[#CCC]">Numero *</Label>
                     <Input value={address.number} onChange={e => handleAddressChange('number', e.target.value)}
                       className="bg-[#111] border-[#2A2A2A] text-white" placeholder="123" />
                   </div>
@@ -218,7 +333,7 @@ export default function CheckoutPage() {
             {step === 2 && (
               <div className="dark-card rounded-xl p-6 animate-fadeIn">
                 <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                  <Truck className="w-5 h-5 text-[#B38B36]" /> Opções de Frete
+                  <Truck className="w-5 h-5 text-[#B38B36]" /> Opcoes de Frete
                 </h2>
                 <div className="space-y-3">
                   {shippingOptions.map(opt => {
@@ -239,7 +354,7 @@ export default function CheckoutPage() {
                         </div>
                         <div className="text-right">
                           {opt.price === 0 ? (
-                            <span className="text-green-400 font-bold">GRÁTIS</span>
+                            <span className="text-green-400 font-bold">GRATIS</span>
                           ) : (
                             <span className="text-[#B38B36] font-bold">R$ {opt.price.toFixed(2)}</span>
                           )}
@@ -278,7 +393,7 @@ export default function CheckoutPage() {
                       <Input 
                         value={couponCode} 
                         onChange={e => setCouponCode(e.target.value.toUpperCase())}
-                        placeholder="Digite o código" 
+                        placeholder="Digite o codigo" 
                         className="pl-10 bg-[#111] border-[#2A2A2A] text-white uppercase"
                         disabled={!!appliedCoupon}
                       />
@@ -298,8 +413,53 @@ export default function CheckoutPage() {
                   )}
                 </div>
 
+                {/* Payment Method Selection */}
+                <div className="mb-6">
+                  <Label className="text-[#CCC] mb-3 block text-base font-semibold">Como deseja pagar?</Label>
+                  {paymentMethods.length === 0 ? (
+                    <div className="bg-[#111] rounded-lg p-4 border border-[#2A2A2A] text-center">
+                      <p className="text-[#888]">Nenhum metodo de pagamento disponivel no momento.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {paymentMethods.map(pm => {
+                        const isSelected = selectedPayment === pm.id;
+                        const colors = paymentMethodColors[pm.id] || { bg: 'bg-[#333]/20', text: 'text-[#B38B36]', border: 'border-[#B38B36]' };
+                        return (
+                          <button
+                            key={pm.id}
+                            onClick={() => setSelectedPayment(pm.id)}
+                            className={`w-full p-4 rounded-xl border-2 transition-all flex items-center gap-4 text-left ${isSelected ? `${colors.border} bg-[#1A1A1A]` : 'border-[#2A2A2A] hover:border-[#444]'}`}
+                          >
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isSelected ? colors.bg : 'bg-[#2A2A2A]'}`}>
+                              <span className={isSelected ? colors.text : 'text-[#888]'}>
+                                {paymentMethodIcons[pm.id] || <CreditCard className="w-5 h-5" />}
+                              </span>
+                            </div>
+                            <div className="flex-1">
+                              <p className={`font-semibold ${isSelected ? 'text-white' : 'text-[#CCC]'}`}>{pm.name}</p>
+                              <p className="text-sm text-[#888]">{pm.description}</p>
+                            </div>
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? `${colors.border} ${colors.bg}` : 'border-[#555]'}`}>
+                              {isSelected && <CheckCircle className="w-3 h-3 text-white" />}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
+                {/* Selected Payment Details Preview */}
+                {selectedPayment && paymentMethods.find(m => m.id === selectedPayment) && (
+                  <div className="bg-[#111] rounded-lg p-4 mb-6 border border-[#2A2A2A]">
+                    <p className="text-sm text-[#888] mb-2">Apos confirmar, voce recebera as instrucoes de pagamento via:</p>
+                    <p className="text-white font-medium">{paymentMethods.find(m => m.id === selectedPayment)?.name}</p>
+                  </div>
+                )}
+
                 {/* Address Summary */}
-                <div className="bg-[#111] rounded-lg p-4 mb-6">
+                <div className="bg-[#111] rounded-lg p-4 mb-6 border border-[#2A2A2A]">
                   <p className="text-sm text-[#888] mb-2">Entregar em:</p>
                   <p className="text-white font-medium">{address.name}</p>
                   <p className="text-[#CCC] text-sm">{address.street}, {address.number} {address.complement && `- ${address.complement}`}</p>
@@ -307,17 +467,16 @@ export default function CheckoutPage() {
                   <p className="text-[#CCC] text-sm">CEP: {address.zip_code}</p>
                 </div>
 
-                <p className="text-[#888] text-sm mb-4">
-                  Ao finalizar, o pedido será enviado para análise do administrador. 
-                  Você receberá uma notificação quando o pagamento for confirmado.
-                </p>
-
                 <div className="flex gap-3">
                   <Button variant="outline" onClick={() => setStep(2)} className="flex-1 border-[#2A2A2A] text-[#888] hover:text-white">
                     Voltar
                   </Button>
-                  <Button onClick={handleCheckout} disabled={ordering} className="flex-1 gold-btn rounded-lg py-5">
-                    {ordering ? 'Processando...' : `Finalizar Pedido - R$ ${total.toFixed(2)}`}
+                  <Button 
+                    onClick={handleCheckout} 
+                    disabled={ordering || !selectedPayment || paymentMethods.length === 0} 
+                    className="flex-1 gold-btn rounded-lg py-5"
+                  >
+                    {ordering ? 'Processando...' : `Confirmar Pedido - R$ ${total.toFixed(2)}`}
                   </Button>
                 </div>
               </div>
@@ -356,7 +515,7 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-[#888]">Frete</span>
                   <span className={shippingCost === 0 ? 'text-green-400' : 'text-white'}>
-                    {shippingCost === 0 ? 'GRÁTIS' : `R$ ${shippingCost.toFixed(2)}`}
+                    {shippingCost === 0 ? 'GRATIS' : `R$ ${shippingCost.toFixed(2)}`}
                   </span>
                 </div>
                 {discount > 0 && (

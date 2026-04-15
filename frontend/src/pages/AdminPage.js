@@ -43,23 +43,51 @@ function OrdersTab({ token }) {
   const h = { Authorization: `Bearer ${token}` };
   const f = () => axios.get(`${API}/admin/orders`, { headers: h, withCredentials: true }).then(r => setOrders(r.data.orders)).catch(() => {});
   useEffect(() => { f(); }, []);
-  const approve = async (id) => { await axios.put(`${API}/admin/orders/${id}/approve`, {}, { headers: h, withCredentials: true }); toast.success('Pedido aprovado'); f(); };
+  const approve = async (id) => { await axios.put(`${API}/admin/orders/${id}/approve`, {}, { headers: h, withCredentials: true }); toast.success('Pagamento confirmado!'); f(); };
   const reject = async (id) => { await axios.put(`${API}/admin/orders/${id}/reject`, {}, { headers: h, withCredentials: true }); toast.success('Pedido rejeitado'); f(); };
+
+  const statusLabels = {
+    'awaiting_payment': 'Aguardando Pagamento',
+    'pending': 'Pendente',
+    'approved': 'Aprovado',
+    'rejected': 'Rejeitado'
+  };
+  const statusColors = {
+    'awaiting_payment': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    'pending': 'bg-orange-500/20 text-orange-400 border-orange-500/30',
+    'approved': 'bg-green-500/20 text-green-400 border-green-500/30',
+    'rejected': 'bg-red-500/20 text-red-400 border-red-500/30'
+  };
+  const methodLabels = { pix: 'PIX', ted: 'Transferencia Bancaria', paypal: 'PayPal' };
+
   return (
     <div className="space-y-3" data-testid="admin-orders-tab">
       {orders.length === 0 ? <p className="text-[#888] text-center py-8">Nenhum pedido</p> : orders.map(o => (
         <div key={o.order_id} className="dark-card rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-white">#{o.order_id?.slice(0, 16)}</span>
-            <span className={`status-badge status-${o.status}`}>{o.status}</span>
+            <span className={`text-xs px-3 py-1 rounded-full border ${statusColors[o.status] || 'bg-[#333] text-[#888] border-[#444]'}`}>
+              {statusLabels[o.status] || o.status}
+            </span>
           </div>
           <p className="text-sm text-[#888]">Comprador: {o.buyer_name}</p>
           <p className="text-lg font-bold text-[#B38B36]">R$ {o.total?.toFixed(2)}</p>
-          <p className="text-xs text-[#666] mb-2">{new Date(o.created_at).toLocaleDateString('pt-BR')}</p>
-          {o.status === 'pending' && (
-            <div className="flex gap-2">
-              <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white rounded-lg" onClick={() => approve(o.order_id)} data-testid={`approve-order-${o.order_id}`}><Check className="w-4 h-4 mr-1" /> Aprovar</Button>
-              <Button size="sm" variant="destructive" className="rounded-lg" onClick={() => reject(o.order_id)} data-testid={`reject-order-${o.order_id}`}><X className="w-4 h-4 mr-1" /> Rejeitar</Button>
+          <div className="flex items-center gap-2 mt-1">
+            {o.payment_method && (
+              <span className="text-xs px-2 py-0.5 rounded bg-[#1A1A1A] text-[#B38B36] border border-[#B38B36]/30">
+                {methodLabels[o.payment_method] || o.payment_method}
+              </span>
+            )}
+            <span className="text-xs text-[#666]">{new Date(o.created_at).toLocaleDateString('pt-BR')}</span>
+          </div>
+          {(o.status === 'pending' || o.status === 'awaiting_payment') && (
+            <div className="flex gap-2 mt-3">
+              <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white rounded-lg" onClick={() => approve(o.order_id)} data-testid={`approve-order-${o.order_id}`}>
+                <Check className="w-4 h-4 mr-1" /> Confirmar Pagamento
+              </Button>
+              <Button size="sm" variant="destructive" className="rounded-lg" onClick={() => reject(o.order_id)} data-testid={`reject-order-${o.order_id}`}>
+                <X className="w-4 h-4 mr-1" /> Rejeitar
+              </Button>
             </div>
           )}
         </div>
@@ -182,26 +210,137 @@ function PagesTab({ token }) {
 }
 
 function FinancialSettingsTab({ token }) {
-  const [data, setData] = useState({ paypal_email: '', bank_name: '', bank_account_name: '', bank_account_number: '', pix_key: '', paypal_enabled: false, pix_enabled: true, ted_enabled: true });
+  const [data, setData] = useState({
+    paypal_email: '', paypal_enabled: false,
+    bank_name: '', bank_branch: '', bank_account_name: '', bank_account_number: '', ted_enabled: true,
+    pix_key: '', pix_key_type: 'cpf', pix_enabled: true
+  });
+  const [saving, setSaving] = useState(false);
   const h = { Authorization: `Bearer ${token}` };
-  useEffect(() => { axios.get(`${API}/admin/financial-settings`, { headers: h, withCredentials: true }).then(r => setData(r.data)).catch(() => {}); }, []);
-  const save = async () => { await axios.put(`${API}/admin/financial-settings`, data, { headers: h, withCredentials: true }); toast.success('Configuracoes salvas'); };
+  useEffect(() => { axios.get(`${API}/admin/financial-settings`, { headers: h, withCredentials: true }).then(r => setData(prev => ({...prev, ...r.data}))).catch(() => {}); }, []);
+  const save = async () => {
+    setSaving(true);
+    try {
+      await axios.put(`${API}/admin/financial-settings`, data, { headers: h, withCredentials: true });
+      toast.success('Configuracoes salvas!');
+    } catch { toast.error('Erro ao salvar'); }
+    finally { setSaving(false); }
+  };
+
+  const PIX_TYPES = [
+    { value: 'cpf', label: 'CPF/CNPJ' },
+    { value: 'email', label: 'E-mail' },
+    { value: 'phone', label: 'Telefone' },
+    { value: 'random', label: 'Chave Aleatoria' }
+  ];
+
   return (
-    <div className="dark-card rounded-xl p-6 max-w-lg" data-testid="admin-financial-tab">
-      <h3 className="font-bold mb-4 font-['Outfit'] text-white">Configuracoes Financeiras</h3>
-      <div className="space-y-4">
-        <div><Label className="text-[#CCC]">Email PayPal</Label><Input value={data.paypal_email} onChange={e => setData({...data, paypal_email: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white" data-testid="paypal-email-input" /></div>
-        <div><Label className="text-[#CCC]">Nome do Banco</Label><Input value={data.bank_name} onChange={e => setData({...data, bank_name: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white" data-testid="bank-name-input" /></div>
-        <div><Label className="text-[#CCC]">Titular da Conta</Label><Input value={data.bank_account_name} onChange={e => setData({...data, bank_account_name: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white" data-testid="bank-account-name-input" /></div>
-        <div><Label className="text-[#CCC]">Numero da Conta</Label><Input value={data.bank_account_number} onChange={e => setData({...data, bank_account_number: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white" data-testid="bank-account-number-input" /></div>
-        <div><Label className="text-[#CCC]">Chave PIX</Label><Input value={data.pix_key} onChange={e => setData({...data, pix_key: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white" data-testid="pix-key-input" /></div>
-        <div className="space-y-3 pt-2 border-t border-[#2A2A2A]">
-          <div className="flex items-center justify-between"><Label className="text-[#CCC]">PayPal Ativo</Label><Switch checked={data.paypal_enabled} onCheckedChange={v => setData({...data, paypal_enabled: v})} data-testid="paypal-switch" /></div>
-          <div className="flex items-center justify-between"><Label className="text-[#CCC]">Pix Ativo</Label><Switch checked={data.pix_enabled} onCheckedChange={v => setData({...data, pix_enabled: v})} data-testid="pix-switch" /></div>
-          <div className="flex items-center justify-between"><Label className="text-[#CCC]">TED Ativo</Label><Switch checked={data.ted_enabled} onCheckedChange={v => setData({...data, ted_enabled: v})} data-testid="ted-switch" /></div>
+    <div className="max-w-2xl space-y-6" data-testid="admin-financial-tab">
+      {/* PIX Section */}
+      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+              <Zap className="w-5 h-5 text-green-400" />
+            </div>
+            <div>
+              <h3 className="font-bold text-white font-['Outfit']">PIX</h3>
+              <p className="text-xs text-[#888]">Pagamento instantaneo</p>
+            </div>
+          </div>
+          <Switch checked={data.pix_enabled} onCheckedChange={v => setData({...data, pix_enabled: v})} data-testid="pix-switch" />
         </div>
-        <Button className="gold-btn rounded-lg" onClick={save} data-testid="save-financial-btn">Salvar</Button>
+        {data.pix_enabled && (
+          <div className="space-y-4 pt-4 border-t border-[#2A2A2A]">
+            <div>
+              <Label className="text-[#CCC]">Tipo da Chave PIX</Label>
+              <select
+                value={data.pix_key_type || 'cpf'}
+                onChange={e => setData({...data, pix_key_type: e.target.value})}
+                className="w-full h-10 px-3 mt-1 rounded-md bg-[#111] border border-[#2A2A2A] text-white"
+              >
+                {PIX_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <Label className="text-[#CCC]">Chave PIX</Label>
+              <Input
+                value={data.pix_key}
+                onChange={e => setData({...data, pix_key: e.target.value})}
+                className="bg-[#111] border-[#2A2A2A] text-white mt-1"
+                placeholder={data.pix_key_type === 'cpf' ? '000.000.000-00' : data.pix_key_type === 'email' ? 'seu@email.com' : data.pix_key_type === 'phone' ? '(00) 00000-0000' : 'Chave aleatoria'}
+                data-testid="pix-key-input"
+              />
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Bank Transfer Section */}
+      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+              <CreditCard className="w-5 h-5 text-blue-400" />
+            </div>
+            <div>
+              <h3 className="font-bold text-white font-['Outfit']">Transferencia Bancaria</h3>
+              <p className="text-xs text-[#888]">TED / DOC</p>
+            </div>
+          </div>
+          <Switch checked={data.ted_enabled} onCheckedChange={v => setData({...data, ted_enabled: v})} data-testid="ted-switch" />
+        </div>
+        {data.ted_enabled && (
+          <div className="space-y-4 pt-4 border-t border-[#2A2A2A]">
+            <div>
+              <Label className="text-[#CCC]">Nome do Banco</Label>
+              <Input value={data.bank_name} onChange={e => setData({...data, bank_name: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white mt-1" placeholder="Ex: Nubank, Bradesco, Itau..." data-testid="bank-name-input" />
+            </div>
+            <div>
+              <Label className="text-[#CCC]">Titular da Conta</Label>
+              <Input value={data.bank_account_name} onChange={e => setData({...data, bank_account_name: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white mt-1" placeholder="Nome completo do titular" data-testid="bank-account-name-input" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-[#CCC]">Agencia</Label>
+                <Input value={data.bank_branch} onChange={e => setData({...data, bank_branch: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white mt-1" placeholder="0001" data-testid="bank-branch-input" />
+              </div>
+              <div>
+                <Label className="text-[#CCC]">Numero da Conta</Label>
+                <Input value={data.bank_account_number} onChange={e => setData({...data, bank_account_number: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white mt-1" placeholder="00000-0" data-testid="bank-account-number-input" />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* PayPal Section */}
+      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-[#0070BA]/20 flex items-center justify-center">
+              <DollarSign className="w-5 h-5 text-[#0070BA]" />
+            </div>
+            <div>
+              <h3 className="font-bold text-white font-['Outfit']">PayPal</h3>
+              <p className="text-xs text-[#888]">Pagamento internacional</p>
+            </div>
+          </div>
+          <Switch checked={data.paypal_enabled} onCheckedChange={v => setData({...data, paypal_enabled: v})} data-testid="paypal-switch" />
+        </div>
+        {data.paypal_enabled && (
+          <div className="space-y-4 pt-4 border-t border-[#2A2A2A]">
+            <div>
+              <Label className="text-[#CCC]">Email do PayPal</Label>
+              <Input value={data.paypal_email} onChange={e => setData({...data, paypal_email: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white mt-1" placeholder="seu@email.com" data-testid="paypal-email-input" />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <Button className="gold-btn rounded-lg w-full py-5 text-base" onClick={save} disabled={saving} data-testid="save-financial-btn">
+        {saving ? 'Salvando...' : 'Salvar Configuracoes de Pagamento'}
+      </Button>
     </div>
   );
 }

@@ -22,7 +22,7 @@ function ProductCard({ product }) {
 const imgUrl = img
   ? (img.startsWith('http')
       ? img
-      : ${API}/files/${img})
+      : `${API}/files/${img}`)
   : null;
   return (
     <Link to={`/products/${product.product_id}`} className="card-hover dark-card rounded-xl overflow-hidden block" data-testid={`product-card-${product.product_id}`}>

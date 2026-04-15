@@ -66,7 +66,7 @@ const imgUrl =
   img?.startsWith('http')
     ? img
     : img
-      ? ${API}/files/${img}
+      ? `${API}/files/${img}`
       : null;
   return (
     <div className="min-h-screen carbon-bg py-8" data-testid="product-detail-page">

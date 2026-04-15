@@ -91,6 +91,7 @@ class OrderCreate(BaseModel):
     shipping_address: Optional[ShippingAddress] = None
     shipping_option: Optional[str] = "standard"
     coupon_code: Optional[str] = None
+    payment_method: Optional[str] = "pix"  # pix, ted, paypal
 
 class WithdrawalRequest(BaseModel):
     amount: float
@@ -129,13 +130,15 @@ class PasswordResetVerify(BaseModel):
 
 class FinancialSettings(BaseModel):
     paypal_email: Optional[str] = None
+    paypal_enabled: bool = False
     bank_name: Optional[str] = None
+    bank_branch: Optional[str] = None
     bank_account_name: Optional[str] = None
     bank_account_number: Optional[str] = None
-    pix_key: Optional[str] = None
-    paypal_enabled: bool = False
-    pix_enabled: bool = True
     ted_enabled: bool = True
+    pix_key: Optional[str] = None
+    pix_key_type: Optional[str] = None  # cpf, email, phone, random
+    pix_enabled: bool = True
 
 class ShippingOption(BaseModel):
     name: str
@@ -895,6 +898,20 @@ async def create_order(data: OrderCreate, request: Request):
             await db.affiliate_links.update_one({"code": data.affiliate_code}, {"$inc": {"conversions": 1}})
     
     order_id = f"order_{uuid.uuid4().hex[:12]}"
+    
+    # Get payment instructions based on method
+    payment_method = data.payment_method or "pix"
+    fin_settings = await db.platform_settings.find_one({"key": "financial"}, {"_id": 0})
+    payment_info = {}
+    if fin_settings:
+        fs = fin_settings.get("value", {})
+        if payment_method == "pix":
+            payment_info = {"method": "PIX", "pix_key": fs.get("pix_key", ""), "pix_key_type": fs.get("pix_key_type", "")}
+        elif payment_method == "ted":
+            payment_info = {"method": "Transferencia Bancaria", "bank_name": fs.get("bank_name", ""), "bank_branch": fs.get("bank_branch", ""), "account_name": fs.get("bank_account_name", ""), "account_number": fs.get("bank_account_number", "")}
+        elif payment_method == "paypal":
+            payment_info = {"method": "PayPal", "paypal_email": fs.get("paypal_email", "")}
+    
     order = {
         "order_id": order_id, "buyer_id": user["user_id"], "buyer_name": user["name"],
         "buyer_email": user.get("email", ""),
@@ -905,7 +922,9 @@ async def create_order(data: OrderCreate, request: Request):
         "shipping_address": data.shipping_address.model_dump() if data.shipping_address else {},
         "platform_commission": subtotal * platform_rate,
         "affiliate_commission": subtotal * affiliate_rate if affiliate_id else 0,
-        "affiliate_id": affiliate_id, "status": "pending",
+        "affiliate_id": affiliate_id, "status": "awaiting_payment",
+        "payment_method": payment_method,
+        "payment_info": payment_info,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.orders.insert_one(order)
@@ -1086,7 +1105,7 @@ async def admin_dashboard(request: Request):
     total_users = await db.users.count_documents({})
     total_products = await db.products.count_documents({})
     total_orders = await db.orders.count_documents({})
-    pending_orders = await db.orders.count_documents({"status": "pending"})
+    pending_orders = await db.orders.count_documents({"status": {"$in": ["pending", "awaiting_payment"]}})
     pending_withdrawals = await db.withdrawals.count_documents({"status": "pending"})
     orders = await db.orders.find({}, {"_id": 0, "total": 1, "platform_commission": 1}).to_list(10000)
     total_sales = sum(o.get("total", 0) for o in orders)
@@ -1111,7 +1130,7 @@ async def admin_approve_order(order_id: str, request: Request):
     order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Pedido nao encontrado")
-    await db.orders.update_one({"order_id": order_id}, {"$set": {"status": "approved"}})
+    await db.orders.update_one({"order_id": order_id}, {"$set": {"status": "approved", "payment_confirmed": True}})
     # Move held to available for related transactions
     await db.wallet_transactions.update_many({"order_id": order_id, "status": "held"}, {"$set": {"status": "available"}})
     # Update wallets - find all held transactions for this order
@@ -1120,10 +1139,10 @@ async def admin_approve_order(order_id: str, request: Request):
         await db.wallets.update_one({"user_id": tx["user_id"]}, {"$inc": {"held": -tx["amount"], "available": tx["amount"]}})
     await db.notifications.insert_one({
         "notification_id": f"notif_{uuid.uuid4().hex[:12]}", "user_id": order["buyer_id"],
-        "type": "order", "message": f"Seu pedido #{order_id[:16]} foi aprovado!",
+        "type": "order", "message": f"Pagamento confirmado! Seu pedido #{order_id[:16]} foi aprovado!",
         "read": False, "created_at": datetime.now(timezone.utc).isoformat()
     })
-    return {"message": "Pedido aprovado"}
+    return {"message": "Pagamento confirmado e pedido aprovado"}
 
 @api_router.put("/admin/orders/{order_id}/reject")
 async def admin_reject_order(order_id: str, request: Request):
@@ -1263,13 +1282,58 @@ async def admin_update_page(slug: str, data: PageUpdate, request: Request):
 async def get_financial_settings(request: Request):
     await require_admin(request)
     s = await db.platform_settings.find_one({"key": "financial"}, {"_id": 0})
-    return s["value"] if s else {"paypal_email": "", "bank_name": "", "bank_account_name": "", "bank_account_number": "", "pix_key": "", "paypal_enabled": False, "pix_enabled": True, "ted_enabled": True}
+    return s["value"] if s else {"paypal_email": "", "bank_name": "", "bank_branch": "", "bank_account_name": "", "bank_account_number": "", "pix_key": "", "pix_key_type": "cpf", "paypal_enabled": False, "pix_enabled": True, "ted_enabled": True}
 
 @api_router.put("/admin/financial-settings")
 async def update_financial_settings(data: FinancialSettings, request: Request):
     await require_admin(request)
     await db.platform_settings.update_one({"key": "financial"}, {"$set": {"key": "financial", "value": data.model_dump()}}, upsert=True)
     return {"message": "Configuracoes financeiras atualizadas"}
+
+# ==================== PAYMENT METHODS (PUBLIC) ====================
+@api_router.get("/payment-methods")
+async def get_payment_methods():
+    """Retorna metodos de pagamento ativos com detalhes para o comprador"""
+    s = await db.platform_settings.find_one({"key": "financial"}, {"_id": 0})
+    settings = s["value"] if s else {}
+    methods = []
+    if settings.get("pix_enabled") and settings.get("pix_key"):
+        methods.append({
+            "id": "pix",
+            "name": "PIX",
+            "description": "Pagamento instantaneo via PIX",
+            "instructions": f"Faca um PIX para a chave abaixo:",
+            "details": {
+                "pix_key": settings.get("pix_key", ""),
+                "pix_key_type": settings.get("pix_key_type", "")
+            }
+        })
+    if (settings.get("ted_enabled") and settings.get("bank_name") and 
+        settings.get("bank_branch") and settings.get("bank_account_name") and 
+        settings.get("bank_account_number")):
+        methods.append({
+            "id": "ted",
+            "name": "Transferencia Bancaria",
+            "description": "Transferencia via TED/DOC",
+            "instructions": "Faca uma transferencia para a conta abaixo:",
+            "details": {
+                "bank_name": settings.get("bank_name", ""),
+                "bank_branch": settings.get("bank_branch", ""),
+                "account_name": settings.get("bank_account_name", ""),
+                "account_number": settings.get("bank_account_number", "")
+            }
+        })
+    if settings.get("paypal_enabled") and settings.get("paypal_email"):
+        methods.append({
+            "id": "paypal",
+            "name": "PayPal",
+            "description": "Pagamento via PayPal",
+            "instructions": "Envie o pagamento para o email PayPal abaixo:",
+            "details": {
+                "paypal_email": settings.get("paypal_email", "")
+            }
+        })
+    return {"methods": methods}
 
 @api_router.get("/admin/contact-settings")
 async def get_contact_settings(request: Request):
