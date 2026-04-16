@@ -6,7 +6,7 @@ import { Tag, MapPin, Star, Search } from 'lucide-react';
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 const conditionLabels = { new: 'Novo', like_new: 'Seminovo', good: 'Bom Estado', fair: 'Usado' };
-const conditionColors = { new: 'bg-green-500/20 text-green-400', like_new: 'bg-blue-500/20 text-blue-400', good: 'bg-yellow-500/20 text-yellow-400', fair: 'bg-orange-500/20 text-orange-400' };
+const conditionColors = { new: 'bg-green-100 text-green-700', like_new: 'bg-blue-100 text-blue-700', good: 'bg-yellow-100 text-yellow-700', fair: 'bg-orange-100 text-orange-700' };
 
 export default function DesapegaPage() {
   const [products, setProducts] = useState([]);
@@ -46,26 +46,34 @@ export default function DesapegaPage() {
             <p className="text-[#666] text-sm mt-1">Seja o primeiro a vender algo unico!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
             {filtered.map(p => {
               const img = p.images?.[0];
               const imgUrl = img ? (img.startsWith('http') ? img : `${API}/files/${img}`) : null;
+              const priceWhole = Math.floor(p.price || 0);
+              const priceCents = Math.round(((p.price || 0) - priceWhole) * 100).toString().padStart(2, '0');
               return (
-                <Link to={`/products/${p.product_id}`} key={p.product_id} className="dark-card rounded-xl overflow-hidden hover:border-orange-500/50 border border-[#2A2A2A] transition-all hover:-translate-y-1">
-                  <div className="aspect-square bg-[#111] relative">
-                    {imgUrl ? <img src={imgUrl} alt={p.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[#333] text-4xl">📦</div>}
-                    <div className="absolute top-2 left-2">
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${conditionColors[p.condition] || conditionColors.good}`}>
+                <Link to={`/products/${p.product_id}`} key={p.product_id} className="group block bg-white rounded-lg border border-[#E0E0E0] hover:shadow-lg transition-all overflow-hidden">
+                  <div className="aspect-[4/3] bg-white relative overflow-hidden flex items-center justify-center p-3">
+                    {imgUrl ? <img src={imgUrl} alt={p.title} className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform" /> : <div className="w-full h-full flex items-center justify-center text-gray-300 text-4xl">📦</div>}
+                    <div className="absolute top-2 left-2 flex gap-1">
+                      <span className={`text-[10px] px-2 py-0.5 rounded font-bold text-white ${p.product_type === 'unique' ? 'bg-purple-600' : 'bg-orange-500'}`}>
+                        {p.product_type === 'unique' ? 'UNICO' : 'USADO'}
+                      </span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded font-medium ${conditionColors[p.condition] || 'bg-gray-100 text-gray-600'}`}>
                         {conditionLabels[p.condition] || 'Usado'}
                       </span>
                     </div>
-                    {p.product_type === 'unique' && <div className="absolute top-2 right-2"><span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 font-medium">Unico</span></div>}
                   </div>
-                  <div className="p-3">
-                    <h3 className="text-white text-sm font-medium truncate">{p.title}</h3>
-                    <p className="text-[#888] text-xs truncate mt-0.5">{p.seller_name}</p>
-                    {p.city && <p className="text-[#666] text-xs flex items-center gap-1 mt-1"><MapPin className="w-3 h-3" />{p.city}</p>}
-                    <p className="text-[#B38B36] font-bold mt-2">R$ {p.price?.toFixed(2)}</p>
+                  <div className="px-3 pb-3 pt-1">
+                    <h3 className="text-[13px] text-[#0F1111] leading-tight line-clamp-2 mb-1 group-hover:text-[#C7511F]">{p.title}</h3>
+                    <p className="text-[10px] text-[#565959] mb-1">{p.seller_name}</p>
+                    {p.city && <p className="text-[10px] text-[#565959] flex items-center gap-1 mb-1"><MapPin className="w-3 h-3" />{p.city}</p>}
+                    <div>
+                      <span className="text-[11px] text-[#565959]">R$ </span>
+                      <span className="text-[22px] font-bold text-[#0F1111] leading-none">{priceWhole}</span>
+                      <span className="text-[12px] text-[#0F1111] align-super font-bold">,{priceCents}</span>
+                    </div>
                   </div>
                 </Link>
               );
