@@ -1,6 +1,7 @@
 import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import AuthCallback from "./components/AuthCallback";
 import AnimatedBackground from "./components/AnimatedBackground";
 import Navbar from "./components/Navbar";
@@ -87,7 +88,9 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRouter />
+        <ThemeProvider>
+          <AppRouter />
+        </ThemeProvider>
       </AuthProvider>
     </BrowserRouter>
   );

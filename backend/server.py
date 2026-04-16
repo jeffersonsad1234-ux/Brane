@@ -1368,6 +1368,123 @@ async def admin_reply_support(request: Request):
     })
     return {"message": "Resposta enviada"}
 
+# ==================== ADMIN PLATFORM CUSTOMIZATION ====================
+@api_router.get("/admin/theme")
+async def get_theme_settings(request: Request):
+    await require_admin(request)
+    s = await db.platform_settings.find_one({"key": "theme"}, {"_id": 0})
+    defaults = {
+        "primary_color": "#B38B36",
+        "price_color": "#0F1111",
+        "price_cents_color": "#0F1111",
+        "button_color": "#F0C14B",
+        "button_text_color": "#0F1111",
+        "buy_now_color": "#FF8C00",
+        "star_color": "#FFA41C",
+        "free_shipping_color": "#067D62",
+        "navbar_bg": "#0A0A0A",
+        "navbar_text": "#FFFFFF",
+        "card_bg": "#FFFFFF",
+        "card_border": "#E0E0E0",
+        "page_bg": "#EAEDED",
+        "platform_name": "BRANE",
+        "platform_slogan": "Marketplace Premium",
+        "show_stars": True,
+        "show_free_shipping": True,
+        "show_installments": True,
+        "installment_count": 12
+    }
+    return {**defaults, **(s["value"] if s else {})}
+
+@api_router.put("/admin/theme")
+async def update_theme_settings(request: Request):
+    await require_admin(request)
+    body = await request.json()
+    await db.platform_settings.update_one(
+        {"key": "theme"},
+        {"$set": {"key": "theme", "value": body}},
+        upsert=True
+    )
+    return {"message": "Tema atualizado"}
+
+# Public theme endpoint (no auth needed)
+@api_router.get("/theme")
+async def get_public_theme():
+    s = await db.platform_settings.find_one({"key": "theme"}, {"_id": 0})
+    defaults = {
+        "primary_color": "#B38B36",
+        "price_color": "#0F1111",
+        "price_cents_color": "#0F1111",
+        "button_color": "#F0C14B",
+        "button_text_color": "#0F1111",
+        "buy_now_color": "#FF8C00",
+        "star_color": "#FFA41C",
+        "free_shipping_color": "#067D62",
+        "navbar_bg": "#0A0A0A",
+        "navbar_text": "#FFFFFF",
+        "card_bg": "#FFFFFF",
+        "card_border": "#E0E0E0",
+        "page_bg": "#EAEDED",
+        "platform_name": "BRANE",
+        "platform_slogan": "Marketplace Premium",
+        "show_stars": True,
+        "show_free_shipping": True,
+        "show_installments": True,
+        "installment_count": 12
+    }
+    return {**defaults, **(s["value"] if s else {})}
+
+# ==================== ADMIN PRODUCTS MANAGEMENT ====================
+@api_router.get("/admin/products")
+async def admin_list_products(request: Request, skip: int = 0, limit: int = 50):
+    await require_admin(request)
+    products = await db.products.find({"is_deleted": {"$ne": True}}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.products.count_documents({"is_deleted": {"$ne": True}})
+    return {"products": products, "total": total}
+
+@api_router.post("/admin/products")
+async def admin_create_product(request: Request):
+    await require_admin(request)
+    body = await request.json()
+    product_id = f"prod_{uuid.uuid4().hex[:12]}"
+    product = {
+        "product_id": product_id,
+        "title": body.get("title", ""),
+        "description": body.get("description", ""),
+        "price": float(body.get("price", 0)),
+        "category": body.get("category", ""),
+        "city": body.get("city", ""),
+        "location": body.get("location", ""),
+        "images": body.get("images", []),
+        "product_type": body.get("product_type", "store"),
+        "condition": body.get("condition", "new"),
+        "seller_id": "platform",
+        "seller_name": "BRANE Oficial",
+        "status": "active",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.products.insert_one(product)
+    return {"product_id": product_id, "message": "Produto criado"}
+
+@api_router.put("/admin/products/{product_id}")
+async def admin_update_product(product_id: str, request: Request):
+    await require_admin(request)
+    body = await request.json()
+    update = {}
+    for field in ["title", "description", "price", "category", "city", "location", "images", "product_type", "condition", "status"]:
+        if field in body:
+            update[field] = body[field]
+    if update:
+        await db.products.update_one({"product_id": product_id}, {"$set": update})
+    return {"message": "Produto atualizado"}
+
+@api_router.delete("/admin/products/{product_id}")
+async def admin_delete_product(product_id: str, request: Request):
+    await require_admin(request)
+    await db.products.update_one({"product_id": product_id}, {"$set": {"is_deleted": True}})
+    return {"message": "Produto removido"}
+
+
 @api_router.get("/admin/users")
 async def admin_list_users(request: Request):
     await require_admin(request)

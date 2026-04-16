@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import axios from 'axios';
-import { BarChart3, Users, ShoppingBag, CreditCard, Settings, MessageSquare, FileText, DollarSign, Check, X, Ban, Truck, Store, Megaphone, Crown, Zap, Image, Link as LinkIcon, Eye, MousePointer } from 'lucide-react';
+import { BarChart3, Users, ShoppingBag, CreditCard, Settings, MessageSquare, FileText, DollarSign, Check, X, Ban, Truck, Store, Megaphone, Crown, Zap, Image, Link as LinkIcon, Eye, MousePointer, Palette, Package, Trash2, Edit, Plus, Save } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -783,6 +784,277 @@ function AdsTab({ token }) {
   );
 }
 
+// ==================== THEME CUSTOMIZATION TAB ====================
+function ThemeTab({ token }) {
+  const { refreshTheme } = useTheme();
+  const [t, setT] = useState({});
+  const [saving, setSaving] = useState(false);
+  const h = { Authorization: `Bearer ${token}` };
+
+  useEffect(() => {
+    axios.get(`${API}/admin/theme`, { headers: h, withCredentials: true }).then(r => setT(r.data)).catch(() => {});
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await axios.put(`${API}/admin/theme`, t, { headers: h, withCredentials: true });
+      refreshTheme();
+      toast.success('Tema atualizado!');
+    } catch { toast.error('Erro ao salvar'); }
+    finally { setSaving(false); }
+  };
+
+  const ColorInput = ({ label, field }) => (
+    <div className="flex items-center gap-3">
+      <input type="color" value={t[field] || '#000000'} onChange={e => setT({...t, [field]: e.target.value})} className="w-10 h-10 rounded cursor-pointer border border-[#2A2A2A]" />
+      <div className="flex-1">
+        <Label className="text-[#CCC] text-xs">{label}</Label>
+        <Input value={t[field] || ''} onChange={e => setT({...t, [field]: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white h-8 text-xs mt-0.5" />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="max-w-3xl space-y-6" data-testid="admin-theme-tab">
+      {/* Platform Info */}
+      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
+        <h3 className="font-bold text-white mb-4 flex items-center gap-2"><Palette className="w-5 h-5 text-[#B38B36]" /> Informacoes da Plataforma</h3>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div><Label className="text-[#CCC]">Nome da Plataforma</Label><Input value={t.platform_name || ''} onChange={e => setT({...t, platform_name: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white mt-1" /></div>
+          <div><Label className="text-[#CCC]">Slogan</Label><Input value={t.platform_slogan || ''} onChange={e => setT({...t, platform_slogan: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white mt-1" /></div>
+        </div>
+      </div>
+
+      {/* Main Colors */}
+      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
+        <h3 className="font-bold text-white mb-4">Cores Principais</h3>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <ColorInput label="Cor Primaria (botoes, destaques)" field="primary_color" />
+          <ColorInput label="Cor de Fundo da Navbar" field="navbar_bg" />
+          <ColorInput label="Cor do Texto da Navbar" field="navbar_text" />
+          <ColorInput label="Cor de Fundo da Pagina" field="page_bg" />
+        </div>
+      </div>
+
+      {/* Product Card Colors */}
+      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
+        <h3 className="font-bold text-white mb-4">Cores dos Produtos</h3>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <ColorInput label="Cor do Preco" field="price_color" />
+          <ColorInput label="Cor dos Centavos" field="price_cents_color" />
+          <ColorInput label="Cor das Estrelas" field="star_color" />
+          <ColorInput label="Cor Frete Gratis" field="free_shipping_color" />
+          <ColorInput label="Fundo do Card" field="card_bg" />
+          <ColorInput label="Borda do Card" field="card_border" />
+        </div>
+      </div>
+
+      {/* Button Colors */}
+      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
+        <h3 className="font-bold text-white mb-4">Cores dos Botoes</h3>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <ColorInput label="Botao Adicionar Carrinho" field="button_color" />
+          <ColorInput label="Texto do Botao" field="button_text_color" />
+          <ColorInput label="Botao Comprar Agora" field="buy_now_color" />
+        </div>
+      </div>
+
+      {/* Display Options */}
+      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
+        <h3 className="font-bold text-white mb-4">Opcoes de Exibicao</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label className="text-[#CCC]">Mostrar Estrelas nos Produtos</Label>
+            <Switch checked={t.show_stars !== false} onCheckedChange={v => setT({...t, show_stars: v})} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-[#CCC]">Mostrar "Frete Gratis"</Label>
+            <Switch checked={t.show_free_shipping !== false} onCheckedChange={v => setT({...t, show_free_shipping: v})} />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-[#CCC]">Mostrar Parcelamento</Label>
+            <Switch checked={t.show_installments !== false} onCheckedChange={v => setT({...t, show_installments: v})} />
+          </div>
+          {t.show_installments !== false && (
+            <div className="flex items-center gap-3">
+              <Label className="text-[#CCC]">Parcelas:</Label>
+              <select value={t.installment_count || 12} onChange={e => setT({...t, installment_count: Number(e.target.value)})}
+                className="h-8 px-3 rounded bg-[#111] border border-[#2A2A2A] text-white text-sm">
+                {[3,6,10,12].map(n => <option key={n} value={n}>{n}x</option>)}
+              </select>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Preview */}
+      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
+        <h3 className="font-bold text-white mb-4">Pre-visualizacao</h3>
+        <div className="p-4 rounded-lg" style={{ backgroundColor: t.page_bg || '#EAEDED' }}>
+          <div className="max-w-[200px] rounded-lg border overflow-hidden" style={{ backgroundColor: t.card_bg || '#FFF', borderColor: t.card_border || '#E0E0E0' }}>
+            <div className="aspect-[4/3] bg-gray-50 flex items-center justify-center"><Package className="w-8 h-8 text-gray-300" /></div>
+            <div className="p-3">
+              <p className="text-sm font-medium" style={{ color: t.price_color || '#0F1111' }}>Produto Exemplo</p>
+              {t.show_stars !== false && (
+                <div className="flex gap-0.5 my-1">{[1,2,3,4,5].map(i => <span key={i} className="text-sm" style={{ color: i <= 4 ? (t.star_color || '#FFA41C') : '#ddd' }}>★</span>)}</div>
+              )}
+              <div>
+                <span className="text-xs" style={{ color: '#565959' }}>R$ </span>
+                <span className="text-xl font-bold" style={{ color: t.price_color || '#0F1111' }}>99</span>
+                <span className="text-xs align-super font-bold" style={{ color: t.price_cents_color || '#0F1111' }}>,90</span>
+              </div>
+              {t.show_free_shipping !== false && <p className="text-xs mt-1">Frete <span className="font-bold" style={{ color: t.free_shipping_color || '#067D62' }}>GRATIS</span></p>}
+              <button className="w-full mt-2 py-1.5 rounded-full text-xs font-medium border" style={{ backgroundColor: t.button_color || '#F0C14B', color: t.button_text_color || '#0F1111', borderColor: t.button_color || '#A88734' }}>Adicionar ao Carrinho</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Button className="gold-btn rounded-lg w-full py-5 text-base" onClick={save} disabled={saving}>
+        <Save className="w-5 h-5 mr-2" /> {saving ? 'Salvando...' : 'Salvar Personalizacao'}
+      </Button>
+    </div>
+  );
+}
+
+// ==================== ADMIN PRODUCTS MANAGEMENT TAB ====================
+function AdminProductsTab({ token }) {
+  const [products, setProducts] = useState([]);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ title: '', description: '', price: '', category: '', product_type: 'store', condition: 'new', images: [] });
+  const [showAdd, setShowAdd] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const h = { Authorization: `Bearer ${token}` };
+
+  const f = () => axios.get(`${API}/admin/products`, { headers: h, withCredentials: true }).then(r => setProducts(r.data.products)).catch(() => {});
+  useEffect(() => { f(); }, []);
+
+  const handleUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData(); fd.append('file', file);
+      const res = await axios.post(`${API}/upload`, fd, { headers: { ...h, 'Content-Type': 'multipart/form-data' }, withCredentials: true });
+      setForm(prev => ({ ...prev, images: [...prev.images, res.data.path] }));
+      toast.success('Imagem enviada');
+    } catch { toast.error('Erro no upload'); }
+    finally { setUploading(false); }
+  };
+
+  const saveProduct = async () => {
+    const data = { ...form, price: parseFloat(form.price) || 0 };
+    try {
+      if (editing) {
+        await axios.put(`${API}/admin/products/${editing}`, data, { headers: h, withCredentials: true });
+        toast.success('Produto atualizado!');
+      } else {
+        await axios.post(`${API}/admin/products`, data, { headers: h, withCredentials: true });
+        toast.success('Produto criado!');
+      }
+      setEditing(null); setShowAdd(false);
+      setForm({ title: '', description: '', price: '', category: '', product_type: 'store', condition: 'new', images: [] });
+      f();
+    } catch { toast.error('Erro ao salvar'); }
+  };
+
+  const deleteProduct = async (id) => {
+    if (!window.confirm('Remover este produto?')) return;
+    try {
+      await axios.delete(`${API}/admin/products/${id}`, { headers: h, withCredentials: true });
+      toast.success('Produto removido!'); f();
+    } catch { toast.error('Erro ao remover'); }
+  };
+
+  const startEdit = (p) => {
+    setEditing(p.product_id);
+    setForm({ title: p.title, description: p.description, price: String(p.price), category: p.category, product_type: p.product_type || 'store', condition: p.condition || 'new', images: p.images || [] });
+    setShowAdd(true);
+  };
+
+  const categories = ['eletronicos','roupas','cosmeticos','casa','acessorios','esportes','arte','imoveis','automoveis'];
+
+  return (
+    <div data-testid="admin-products-tab">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-white text-lg">{products.length} Produtos</h3>
+        <Button className="gold-btn rounded-lg" onClick={() => { setEditing(null); setForm({ title: '', description: '', price: '', category: '', product_type: 'store', condition: 'new', images: [] }); setShowAdd(!showAdd); }}>
+          <Plus className="w-4 h-4 mr-1" /> {showAdd ? 'Cancelar' : 'Adicionar Produto'}
+        </Button>
+      </div>
+
+      {/* Add/Edit Form */}
+      {showAdd && (
+        <div className="dark-card rounded-xl p-6 mb-4 border border-[#B38B36]/30">
+          <h4 className="font-bold text-white mb-4">{editing ? 'Editar Produto' : 'Novo Produto'}</h4>
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div className="sm:col-span-2"><Label className="text-[#CCC]">Titulo</Label><Input value={form.title} onChange={e => setForm({...form, title: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white mt-1" /></div>
+            <div className="sm:col-span-2"><Label className="text-[#CCC]">Descricao</Label><Textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white mt-1" rows={3} /></div>
+            <div><Label className="text-[#CCC]">Preco (R$)</Label><Input type="number" step="0.01" value={form.price} onChange={e => setForm({...form, price: e.target.value})} className="bg-[#111] border-[#2A2A2A] text-white mt-1" /></div>
+            <div><Label className="text-[#CCC]">Categoria</Label>
+              <select value={form.category} onChange={e => setForm({...form, category: e.target.value})} className="w-full h-10 px-3 mt-1 rounded-md bg-[#111] border border-[#2A2A2A] text-white text-sm">
+                <option value="">Selecione</option>{categories.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div><Label className="text-[#CCC]">Tipo</Label>
+              <select value={form.product_type} onChange={e => setForm({...form, product_type: e.target.value})} className="w-full h-10 px-3 mt-1 rounded-md bg-[#111] border border-[#2A2A2A] text-white text-sm">
+                <option value="store">Loja</option><option value="unique">Unico</option><option value="secondhand">Segunda Mao</option>
+              </select>
+            </div>
+            <div><Label className="text-[#CCC]">Condicao</Label>
+              <select value={form.condition} onChange={e => setForm({...form, condition: e.target.value})} className="w-full h-10 px-3 mt-1 rounded-md bg-[#111] border border-[#2A2A2A] text-white text-sm">
+                <option value="new">Novo</option><option value="like_new">Seminovo</option><option value="good">Bom</option><option value="fair">Usado</option>
+              </select>
+            </div>
+            <div className="sm:col-span-2">
+              <Label className="text-[#CCC]">Imagens</Label>
+              <div className="flex gap-2 mt-1 flex-wrap">
+                {form.images.map((img, i) => (
+                  <div key={i} className="relative w-16 h-16 rounded border border-[#2A2A2A] overflow-hidden">
+                    <img src={img.startsWith('http') ? img : `${process.env.REACT_APP_BACKEND_URL}/api/files/${img}`} alt="" className="w-full h-full object-cover" />
+                    <button onClick={() => setForm({...form, images: form.images.filter((_, j) => j !== i)})} className="absolute top-0 right-0 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center">×</button>
+                  </div>
+                ))}
+                <label className="w-16 h-16 rounded border-2 border-dashed border-[#2A2A2A] flex items-center justify-center cursor-pointer hover:border-[#B38B36]">
+                  <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
+                  {uploading ? <div className="w-4 h-4 border-2 border-[#B38B36] border-t-transparent rounded-full animate-spin" /> : <Plus className="w-5 h-5 text-[#555]" />}
+                </label>
+              </div>
+            </div>
+          </div>
+          <Button className="gold-btn rounded-lg mt-4" onClick={saveProduct}><Save className="w-4 h-4 mr-1" /> {editing ? 'Atualizar' : 'Criar Produto'}</Button>
+        </div>
+      )}
+
+      {/* Products List */}
+      <div className="space-y-2">
+        {products.map(p => {
+          const img = p.images?.[0];
+          const imgUrl = img ? (img.startsWith('http') ? img : `${process.env.REACT_APP_BACKEND_URL}/api/files/${img}`) : null;
+          return (
+            <div key={p.product_id} className="dark-card rounded-xl p-3 flex items-center gap-3">
+              <div className="w-14 h-14 rounded-lg bg-[#111] overflow-hidden shrink-0">
+                {imgUrl ? <img src={imgUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[#333]">📦</div>}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-white font-medium truncate">{p.title}</p>
+                <p className="text-xs text-[#888]">{p.seller_name} | {p.category}</p>
+                <p className="text-sm text-[#B38B36] font-bold">R$ {p.price?.toFixed(2)}</p>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <span className={`text-[10px] px-2 py-0.5 rounded ${p.status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>{p.status}</span>
+                <Button size="sm" variant="ghost" onClick={() => startEdit(p)} className="text-[#888] hover:text-white h-8 w-8 p-0"><Edit className="w-4 h-4" /></Button>
+                <Button size="sm" variant="ghost" onClick={() => deleteProduct(p.product_id)} className="text-red-400 hover:text-red-300 h-8 w-8 p-0"><Trash2 className="w-4 h-4" /></Button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const { token } = useAuth();
   const [counts, setCounts] = useState({});
@@ -806,6 +1078,8 @@ export default function AdminPage() {
         <Tabs defaultValue="dashboard" className="w-full">
           <TabsList className="flex flex-wrap gap-1 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-1 mb-6 h-auto">
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-dashboard"><BarChart3 className="w-4 h-4 mr-1" /> Dashboard</TabsTrigger>
+            <TabsTrigger value="theme" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-theme"><Palette className="w-4 h-4 mr-1" /> Personalizar</TabsTrigger>
+            <TabsTrigger value="admin-products" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-products"><Package className="w-4 h-4 mr-1" /> Produtos</TabsTrigger>
             <TabsTrigger value="orders" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-orders"><ShoppingBag className="w-4 h-4 mr-1" /> Pedidos<Badge count={counts.orders} /></TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-users"><Users className="w-4 h-4 mr-1" /> Usuarios<Badge count={counts.users} /></TabsTrigger>
             <TabsTrigger value="stores" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-stores"><Store className="w-4 h-4 mr-1" /> Lojas<Badge count={counts.stores} /></TabsTrigger>
@@ -818,6 +1092,8 @@ export default function AdminPage() {
             <TabsTrigger value="financial" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-financial"><Settings className="w-4 h-4 mr-1" /> Financeiro</TabsTrigger>
           </TabsList>
           <TabsContent value="dashboard"><DashboardTab token={token} /></TabsContent>
+          <TabsContent value="theme"><ThemeTab token={token} /></TabsContent>
+          <TabsContent value="admin-products"><AdminProductsTab token={token} /></TabsContent>
           <TabsContent value="orders"><OrdersTab token={token} /></TabsContent>
           <TabsContent value="users"><UsersTab token={token} /></TabsContent>
           <TabsContent value="stores"><StoresTab token={token} /></TabsContent>
