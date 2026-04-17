@@ -155,7 +155,17 @@ class ShippingSettings(BaseModel):
 
 class SellerTermsAccept(BaseModel):
     accepted: bool = True
+class SellerTermsAccept(BaseModel):
+    accepted: bool = True
 
+
+class Sale(BaseModel):
+    sale_id: Optional[str] = None
+    user_id: str
+    customer_name: str
+    value: float
+    status: str = "pending"
+    created_at: Optional[str] = None
 # ==================== STORE MODELS ====================
 class StoreCreate(BaseModel):
     name: str
