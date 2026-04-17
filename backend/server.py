@@ -535,6 +535,30 @@ async def get_my_products(request: Request):
 async def test_sales():
     sales = await db.sales.find({}, {"_id": 0}).to_list(100)
     return sales
+@api_router.post("/admin/sales/test-create")
+async def create_test_sale(request: Request):
+    await require_admin(request)
+
+    sale = {
+        "sale_id": f"sale_{uuid.uuid4().hex[:10]}",
+        "buyer_id": "test_buyer",
+        "seller_id": "test_seller",
+        "product_id": "test_product",
+        "amount": 100.0,
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+
+    await db.sales.insert_one(sale)
+
+    # simula dinheiro preso no vendedor
+    await db.wallets.update_one(
+        {"user_id": "test_seller"},
+        {"$inc": {"held": 100.0}},
+        upsert=True
+    )
+
+    return {"message": "Venda de teste criada", "sale": sale}    
 # ==================== STORE ROUTES ====================
 @api_router.post("/stores")
 async def create_store(data: StoreCreate, request: Request):
