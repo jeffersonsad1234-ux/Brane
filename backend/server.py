@@ -1001,6 +1001,20 @@ async def create_order(data: OrderCreate, request: Request):
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.orders.insert_one(order)
+    
+    # Criar notificacao para admin (nova venda)
+    await db.admin_notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "type": "new_sale",
+        "message": f"Nova venda #{order_id[:16]} - {user['name']} comprou de {', '.join([item.get('seller_id', '')[:8] for item in order_items[:2]])}",
+        "order_id": order_id,
+        "buyer_id": user["user_id"],
+        "buyer_name": user["name"],
+        "total": total,
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
     for seller_id, amount in sellers.items():
         aff_rate = actual_affiliate_rate if affiliate_id else 0
         seller_share = amount * (1 - platform_rate - aff_rate)
@@ -1823,6 +1837,393 @@ async def validate_coupon(request: Request):
     if not coupon:
         raise HTTPException(status_code=404, detail="Cupom invalido ou expirado")
     return {"valid": True, "type": coupon["type"], "value": coupon["value"], "code": coupon["code"]}
+
+# ==================== 1. GESTÃO DE SALDO (ADMIN) ====================
+@api_router.post("/admin/wallet/add-balance")
+async def admin_add_balance(request: Request):
+    """Admin adiciona saldo manualmente na carteira de vendedor/afiliado"""
+    await require_admin(request)
+    body = await request.json()
+    user_id = body.get("user_id")
+    amount = float(body.get("amount", 0))
+    balance_type = body.get("balance_type", "available")  # available ou held
+    
+    if not user_id or amount <= 0:
+        raise HTTPException(status_code=400, detail="user_id e amount obrigatorios")
+    
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario nao encontrado")
+    
+    # Atualizar wallet
+    if balance_type == "held":
+        await db.wallets.update_one({"user_id": user_id}, {"$inc": {"held": amount}}, upsert=True)
+    else:
+        await db.wallets.update_one({"user_id": user_id}, {"$inc": {"available": amount}}, upsert=True)
+    
+    # Registrar transacao
+    await db.wallet_transactions.insert_one({
+        "tx_id": f"tx_{uuid.uuid4().hex[:12]}",
+        "user_id": user_id,
+        "type": "admin_credit",
+        "amount": amount,
+        "status": balance_type,
+        "description": f"Credito manual do admin ({balance_type})",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Notificar usuario
+    await db.notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "user_id": user_id,
+        "type": "wallet",
+        "message": f"R$ {amount:.2f} adicionado a sua carteira!",
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    wallet = await db.wallets.find_one({"user_id": user_id}, {"_id": 0})
+    return {"message": "Saldo adicionado com sucesso", "wallet": wallet}
+
+# ==================== 2. SISTEMA DE LIBERAÇÃO DE SALDO (ESCROW) ====================
+@api_router.post("/admin/wallet/release-held")
+async def admin_release_held_balance(request: Request):
+    """Admin libera saldo retido (held -> available)"""
+    await require_admin(request)
+    body = await request.json()
+    user_id = body.get("user_id")
+    amount = body.get("amount")  # Optional: se None, libera tudo
+    order_id = body.get("order_id")  # Optional: liberar por pedido especifico
+    
+    if not user_id:
+        raise HTTPException(status_code=400, detail="user_id obrigatorio")
+    
+    wallet = await db.wallets.find_one({"user_id": user_id}, {"_id": 0})
+    if not wallet:
+        raise HTTPException(status_code=404, detail="Carteira nao encontrada")
+    
+    held_balance = wallet.get("held", 0)
+    if held_balance <= 0:
+        raise HTTPException(status_code=400, detail="Nenhum saldo retido para liberar")
+    
+    # Se amount nao especificado, libera tudo
+    release_amount = float(amount) if amount else held_balance
+    
+    if release_amount > held_balance:
+        raise HTTPException(status_code=400, detail="Valor maior que saldo retido")
+    
+    # Transferir de held para available
+    await db.wallets.update_one(
+        {"user_id": user_id},
+        {"$inc": {"held": -release_amount, "available": release_amount}}
+    )
+    
+    # Atualizar transacoes relacionadas ao pedido
+    if order_id:
+        await db.wallet_transactions.update_many(
+            {"user_id": user_id, "order_id": order_id, "status": "held"},
+            {"$set": {"status": "available", "released_at": datetime.now(timezone.utc).isoformat()}}
+        )
+    
+    # Registrar liberacao
+    await db.wallet_transactions.insert_one({
+        "tx_id": f"tx_{uuid.uuid4().hex[:12]}",
+        "user_id": user_id,
+        "type": "admin_release",
+        "amount": release_amount,
+        "status": "available",
+        "description": f"Liberacao manual de saldo retido" + (f" (Pedido #{order_id[:16]})" if order_id else ""),
+        "order_id": order_id,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Notificar usuario
+    await db.notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "user_id": user_id,
+        "type": "wallet",
+        "message": f"R$ {release_amount:.2f} liberado e disponivel para saque!",
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    updated_wallet = await db.wallets.find_one({"user_id": user_id}, {"_id": 0})
+    return {"message": "Saldo liberado com sucesso", "released": release_amount, "wallet": updated_wallet}
+
+# ==================== 3. CONTROLE DE AFILIADOS ====================
+@api_router.put("/admin/users/{user_id}/affiliate-settings")
+async def admin_update_affiliate_settings(user_id: str, request: Request):
+    """Admin ativa/desativa ganhos de afiliado"""
+    await require_admin(request)
+    body = await request.json()
+    affiliate_earnings_enabled = body.get("affiliate_earnings_enabled", True)
+    
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario nao encontrado")
+    
+    await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": {"affiliate_earnings_enabled": affiliate_earnings_enabled}}
+    )
+    
+    return {"message": "Configuracoes de afiliado atualizadas", "affiliate_earnings_enabled": affiliate_earnings_enabled}
+
+@api_router.post("/admin/affiliate/release-commission")
+async def admin_release_affiliate_commission(request: Request):
+    """Admin libera comissao de afiliado manualmente"""
+    await require_admin(request)
+    body = await request.json()
+    affiliate_id = body.get("affiliate_id")
+    order_id = body.get("order_id")
+    
+    if not affiliate_id or not order_id:
+        raise HTTPException(status_code=400, detail="affiliate_id e order_id obrigatorios")
+    
+    # Buscar transacao de comissao
+    tx = await db.wallet_transactions.find_one(
+        {"user_id": affiliate_id, "order_id": order_id, "type": "affiliate_commission"},
+        {"_id": 0}
+    )
+    
+    if not tx:
+        raise HTTPException(status_code=404, detail="Comissao nao encontrada")
+    
+    if tx.get("status") == "available":
+        raise HTTPException(status_code=400, detail="Comissao ja liberada")
+    
+    amount = tx["amount"]
+    
+    # Transferir de held para available
+    await db.wallets.update_one(
+        {"user_id": affiliate_id},
+        {"$inc": {"held": -amount, "available": amount}}
+    )
+    
+    # Atualizar transacao
+    await db.wallet_transactions.update_one(
+        {"tx_id": tx["tx_id"]},
+        {"$set": {"status": "available", "released_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    # Notificar afiliado
+    await db.notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "user_id": affiliate_id,
+        "type": "wallet",
+        "message": f"Comissao de R$ {amount:.2f} liberada!",
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {"message": "Comissao liberada", "amount": amount}
+
+# ==================== 4. PAINEL DE VENDAS MELHORADO ====================
+@api_router.get("/admin/sales/dashboard")
+async def admin_sales_dashboard(request: Request):
+    """Dashboard completo de vendas com detalhes de comprador, vendedor, produto"""
+    await require_admin(request)
+    
+    orders = await db.orders.find({}, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
+    
+    sales_data = []
+    for order in orders:
+        buyer = await db.users.find_one({"user_id": order["buyer_id"]}, {"_id": 0, "password_hash": 0})
+        
+        for item in order.get("items", []):
+            seller = await db.users.find_one({"user_id": item["seller_id"]}, {"_id": 0, "password_hash": 0})
+            product = await db.products.find_one({"product_id": item["product_id"]}, {"_id": 0})
+            
+            sales_data.append({
+                "order_id": order["order_id"],
+                "buyer": {
+                    "user_id": order["buyer_id"],
+                    "name": order.get("buyer_name", ""),
+                    "email": order.get("buyer_email", "")
+                },
+                "seller": {
+                    "user_id": item["seller_id"],
+                    "name": seller.get("name", "") if seller else "",
+                    "email": seller.get("email", "") if seller else ""
+                },
+                "product": {
+                    "product_id": item["product_id"],
+                    "title": item.get("title", ""),
+                    "price": item.get("price", 0),
+                    "quantity": item.get("quantity", 1),
+                    "image": item.get("image", "")
+                },
+                "value": item.get("subtotal", 0),
+                "total": order.get("total", 0),
+                "status": order.get("status", "pending"),
+                "payment_method": order.get("payment_method", "pix"),
+                "tracking_code": order.get("tracking_code", ""),
+                "created_at": order.get("created_at", ""),
+                "shipping_address": order.get("shipping_address", {})
+            })
+    
+    return {"sales": sales_data, "total_sales": len(sales_data)}
+
+# ==================== 5. NOTIFICAÇÕES AUTOMÁTICAS DE VENDAS ====================
+@api_router.get("/admin/notifications")
+async def admin_get_notifications(request: Request):
+    """Obter notificacoes do admin (vendas, etc)"""
+    await require_admin(request)
+    
+    notifications = await db.admin_notifications.find({}, {"_id": 0}).sort("created_at", -1).limit(50).to_list(50)
+    unread_count = await db.admin_notifications.count_documents({"read": False})
+    
+    return {"notifications": notifications, "unread_count": unread_count}
+
+@api_router.put("/admin/notifications/{notification_id}/read")
+async def admin_mark_notification_read(notification_id: str, request: Request):
+    """Marcar notificacao como lida"""
+    await require_admin(request)
+    
+    await db.admin_notifications.update_one(
+        {"notification_id": notification_id},
+        {"$set": {"read": True}}
+    )
+    
+    return {"message": "Notificacao marcada como lida"}
+
+# ==================== 6. RASTREAMENTO DE PEDIDOS ====================
+@api_router.put("/admin/orders/{order_id}/tracking")
+async def admin_update_tracking_code(order_id: str, request: Request):
+    """Admin/Vendedor adiciona codigo de rastreio"""
+    user = await get_current_user(request)
+    body = await request.json()
+    tracking_code = body.get("tracking_code", "").strip()
+    
+    if not tracking_code:
+        raise HTTPException(status_code=400, detail="Codigo de rastreio obrigatorio")
+    
+    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
+    
+    # Verificar permissao (admin ou vendedor do pedido)
+    is_seller = any(item["seller_id"] == user["user_id"] for item in order.get("items", []))
+    if user.get("role") != "admin" and not is_seller:
+        raise HTTPException(status_code=403, detail="Sem permissao")
+    
+    # Atualizar codigo de rastreio
+    await db.orders.update_one(
+        {"order_id": order_id},
+        {"$set": {"tracking_code": tracking_code, "tracking_updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    # Notificar comprador
+    await db.notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "user_id": order["buyer_id"],
+        "type": "order",
+        "message": f"Codigo de rastreio adicionado: {tracking_code}",
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {"message": "Codigo de rastreio atualizado", "tracking_code": tracking_code}
+
+@api_router.get("/orders/{order_id}/tracking")
+async def get_order_tracking(order_id: str, request: Request):
+    """Obter informacoes de rastreio do pedido"""
+    user = await get_current_user(request)
+    
+    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+    if not order:
+        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
+    
+    # Verificar se usuario tem permissao
+    is_buyer = order["buyer_id"] == user["user_id"]
+    is_seller = any(item["seller_id"] == user["user_id"] for item in order.get("items", []))
+    is_admin = user.get("role") == "admin"
+    
+    if not (is_buyer or is_seller or is_admin):
+        raise HTTPException(status_code=403, detail="Sem permissao")
+    
+    return {
+        "order_id": order["order_id"],
+        "tracking_code": order.get("tracking_code", ""),
+        "status": order.get("status", "pending"),
+        "tracking": order.get("tracking", []),
+        "created_at": order.get("created_at", "")
+    }
+
+# ==================== 7. PERSONALIZAÇÃO DO PAINEL ADMIN ====================
+@api_router.get("/admin/customization")
+async def get_admin_customization(request: Request):
+    """Obter configuracoes de personalizacao do admin"""
+    await require_admin(request)
+    
+    custom = await db.admin_customization.find_one({"key": "settings"}, {"_id": 0})
+    
+    defaults = {
+        "dashboard_bg_color": "#F3F4F6",
+        "sidebar_bg_color": "#1F2937",
+        "sidebar_text_color": "#FFFFFF",
+        "header_bg_color": "#FFFFFF",
+        "header_text_color": "#111827",
+        "button_primary_color": "#3B82F6",
+        "button_primary_text_color": "#FFFFFF",
+        "card_bg_color": "#FFFFFF",
+        "card_border_color": "#E5E7EB",
+        "text_primary_color": "#111827",
+        "text_secondary_color": "#6B7280",
+        "success_color": "#10B981",
+        "warning_color": "#F59E0B",
+        "danger_color": "#EF4444",
+        "category_text_color": "#111827",
+        "category_bg_color": "#FFFFFF"
+    }
+    
+    return {**defaults, **(custom["value"] if custom else {})}
+
+@api_router.put("/admin/customization")
+async def update_admin_customization(request: Request):
+    """Atualizar configuracoes de personalizacao"""
+    await require_admin(request)
+    body = await request.json()
+    
+    await db.admin_customization.update_one(
+        {"key": "settings"},
+        {"$set": {"key": "settings", "value": body, "updated_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True
+    )
+    
+    return {"message": "Personalizacao atualizada", "settings": body}
+
+@api_router.get("/admin/layout-settings")
+async def get_admin_layout_settings(request: Request):
+    """Obter configuracoes de layout do painel"""
+    await require_admin(request)
+    
+    layout = await db.admin_customization.find_one({"key": "layout"}, {"_id": 0})
+    
+    defaults = {
+        "buyer_profile_layout": "default",
+        "seller_profile_layout": "default",
+        "admin_dashboard_layout": "default",
+        "show_sidebar": True,
+        "sidebar_collapsed": False,
+        "theme_mode": "light"
+    }
+    
+    return {**defaults, **(layout["value"] if layout else {})}
+
+@api_router.put("/admin/layout-settings")
+async def update_admin_layout_settings(request: Request):
+    """Atualizar configuracoes de layout"""
+    await require_admin(request)
+    body = await request.json()
+    
+    await db.admin_customization.update_one(
+        {"key": "layout"},
+        {"$set": {"key": "layout", "value": body, "updated_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True
+    )
+    
+    return {"message": "Layout atualizado", "settings": body}
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://brane-nine.vercel.app"],

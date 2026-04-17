@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import axios from 'axios';
-import { BarChart3, Users, ShoppingBag, CreditCard, Settings, MessageSquare, FileText, DollarSign, Check, X, Ban, Truck, Store, Megaphone, Crown, Zap, Image, Link as LinkIcon, Eye, MousePointer, Palette, Package, Trash2, Edit, Plus, Save } from 'lucide-react';
+import { BarChart3, Users, ShoppingBag, CreditCard, Settings, MessageSquare, FileText, DollarSign, Check, X, Ban, Truck, Store, Megaphone, Crown, Zap, Image, Link as LinkIcon, Eye, MousePointer, Palette, Package, Trash2, Edit, Plus, Save, Wallet, UnlockKeyhole, UserCog, Bell, TrendingUp } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -1055,6 +1055,555 @@ function AdminProductsTab({ token }) {
   );
 }
 
+  );
+}
+
+// ==================== 1. GESTÃO DE SALDO TAB ====================
+function WalletManagementTab({ token }) {
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [amount, setAmount] = useState('');
+  const [balanceType, setBalanceType] = useState('available');
+  const [loading, setLoading] = useState(false);
+  const h = { Authorization: `Bearer ${token}` };
+
+  useEffect(() => {
+    axios.get(`${API}/admin/users`, { headers: h, withCredentials: true })
+      .then(r => setUsers(r.data.users.filter(u => u.role === 'seller' || u.role === 'affiliate')))
+      .catch(() => {});
+  }, []);
+
+  const addBalance = async () => {
+    if (!selectedUser || !amount || parseFloat(amount) <= 0) {
+      toast.error('Selecione um usuario e informe um valor valido');
+      return;
+    }
+    setLoading(true);
+    try {
+      await axios.post(`${API}/admin/wallet/add-balance`, {
+        user_id: selectedUser,
+        amount: parseFloat(amount),
+        balance_type: balanceType
+      }, { headers: h, withCredentials: true });
+      toast.success('Saldo adicionado com sucesso!');
+      setAmount('');
+      setSelectedUser(null);
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Erro ao adicionar saldo');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl" data-testid="admin-wallet-tab">
+      <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
+        <Wallet className="w-5 h-5 text-[#B38B36]" /> Gestão de Saldo Manual
+      </h3>
+      <p className="text-sm text-[#888] mb-6">
+        Adicione saldo manualmente na carteira de vendedores ou afiliados.
+      </p>
+
+      <div className="dark-card rounded-xl p-6 space-y-4">
+        <div>
+          <Label className="text-[#CCC]">Selecionar Usuario (Vendedor/Afiliado)</Label>
+          <select 
+            value={selectedUser || ''} 
+            onChange={e => setSelectedUser(e.target.value)}
+            className="w-full h-10 px-3 mt-1 rounded-md bg-[#111] border border-[#2A2A2A] text-white"
+          >
+            <option value="">Selecione um usuario...</option>
+            {users.map(u => (
+              <option key={u.user_id} value={u.user_id}>
+                {u.name} ({u.email}) - {u.role}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <Label className="text-[#CCC]">Valor (R$)</Label>
+          <Input 
+            type="number" 
+            step="0.01" 
+            value={amount} 
+            onChange={e => setAmount(e.target.value)}
+            placeholder="0.00"
+            className="bg-[#111] border-[#2A2A2A] text-white mt-1"
+          />
+        </div>
+
+        <div>
+          <Label className="text-[#CCC]">Tipo de Saldo</Label>
+          <select 
+            value={balanceType} 
+            onChange={e => setBalanceType(e.target.value)}
+            className="w-full h-10 px-3 mt-1 rounded-md bg-[#111] border border-[#2A2A2A] text-white"
+          >
+            <option value="available">Disponivel (pode sacar)</option>
+            <option value="held">Retido (aguardando liberacao)</option>
+          </select>
+        </div>
+
+        <Button 
+          className="gold-btn rounded-lg w-full" 
+          onClick={addBalance} 
+          disabled={loading}
+        >
+          {loading ? 'Adicionando...' : 'Adicionar Saldo'}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ==================== 2. LIBERAÇÃO DE SALDO (ESCROW) TAB ====================
+function EscrowTab({ token }) {
+  const [users, setUsers] = useState([]);
+  const [wallets, setWallets] = useState({});
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [amount, setAmount] = useState('');
+  const [releaseAll, setReleaseAll] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const h = { Authorization: `Bearer ${token}` };
+
+  const fetchUsers = async () => {
+    const res = await axios.get(`${API}/admin/users`, { headers: h, withCredentials: true });
+    const sellersAffiliates = res.data.users.filter(u => u.role === 'seller' || u.role === 'affiliate');
+    setUsers(sellersAffiliates);
+    
+    // Buscar saldos
+    for (const user of sellersAffiliates) {
+      try {
+        const walletRes = await axios.get(`${API}/wallet`, { 
+          headers: { ...h, 'X-User-ID': user.user_id }, 
+          withCredentials: true 
+        });
+        setWallets(prev => ({ ...prev, [user.user_id]: walletRes.data }));
+      } catch {}
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const releaseBalance = async () => {
+    if (!selectedUser) {
+      toast.error('Selecione um usuario');
+      return;
+    }
+    
+    const wallet = wallets[selectedUser];
+    if (!wallet || wallet.held <= 0) {
+      toast.error('Usuario nao tem saldo retido');
+      return;
+    }
+
+    if (!releaseAll && (!amount || parseFloat(amount) <= 0)) {
+      toast.error('Informe um valor valido');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await axios.post(`${API}/admin/wallet/release-held`, {
+        user_id: selectedUser,
+        amount: releaseAll ? null : parseFloat(amount)
+      }, { headers: h, withCredentials: true });
+      toast.success('Saldo liberado com sucesso!');
+      setAmount('');
+      setSelectedUser(null);
+      fetchUsers();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Erro ao liberar saldo');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const selectedWallet = selectedUser ? wallets[selectedUser] : null;
+
+  return (
+    <div className="max-w-2xl" data-testid="admin-escrow-tab">
+      <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
+        <UnlockKeyhole className="w-5 h-5 text-[#B38B36]" /> Sistema de Liberacao de Saldo (Escrow)
+      </h3>
+      <p className="text-sm text-[#888] mb-6">
+        Libere saldo retido (held) para disponivel (available) dos vendedores/afiliados.
+      </p>
+
+      <div className="dark-card rounded-xl p-6 space-y-4">
+        <div>
+          <Label className="text-[#CCC]">Selecionar Usuario</Label>
+          <select 
+            value={selectedUser || ''} 
+            onChange={e => setSelectedUser(e.target.value)}
+            className="w-full h-10 px-3 mt-1 rounded-md bg-[#111] border border-[#2A2A2A] text-white"
+          >
+            <option value="">Selecione um usuario...</option>
+            {users.map(u => {
+              const w = wallets[u.user_id];
+              return (
+                <option key={u.user_id} value={u.user_id}>
+                  {u.name} - Retido: R$ {w?.held?.toFixed(2) || '0.00'}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+
+        {selectedWallet && (
+          <div className="bg-[#111] rounded-lg p-4 space-y-2">
+            <div className="flex justify-between">
+              <span className="text-[#888]">Saldo Retido:</span>
+              <span className="text-yellow-400 font-bold">R$ {selectedWallet.held?.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[#888]">Saldo Disponivel:</span>
+              <span className="text-green-400 font-bold">R$ {selectedWallet.available?.toFixed(2)}</span>
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2">
+          <Switch checked={releaseAll} onCheckedChange={setReleaseAll} />
+          <Label className="text-[#CCC]">Liberar todo saldo retido</Label>
+        </div>
+
+        {!releaseAll && (
+          <div>
+            <Label className="text-[#CCC]">Valor a Liberar (R$)</Label>
+            <Input 
+              type="number" 
+              step="0.01" 
+              value={amount} 
+              onChange={e => setAmount(e.target.value)}
+              placeholder="0.00"
+              className="bg-[#111] border-[#2A2A2A] text-white mt-1"
+              max={selectedWallet?.held || 0}
+            />
+          </div>
+        )}
+
+        <Button 
+          className="gold-btn rounded-lg w-full" 
+          onClick={releaseBalance} 
+          disabled={loading || !selectedUser}
+        >
+          {loading ? 'Liberando...' : 'Liberar Saldo'}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ==================== 3. CONTROLE DE AFILIADOS TAB ====================
+function AffiliateControlTab({ token }) {
+  const [affiliates, setAffiliates] = useState([]);
+  const h = { Authorization: `Bearer ${token}` };
+
+  const fetchAffiliates = () => {
+    axios.get(`${API}/admin/users`, { headers: h, withCredentials: true })
+      .then(r => setAffiliates(r.data.users.filter(u => u.role === 'affiliate')))
+      .catch(() => {});
+  };
+
+  useEffect(() => { fetchAffiliates(); }, []);
+
+  const toggleEarnings = async (userId, enabled) => {
+    try {
+      await axios.put(`${API}/admin/users/${userId}/affiliate-settings`, {
+        affiliate_earnings_enabled: enabled
+      }, { headers: h, withCredentials: true });
+      toast.success(enabled ? 'Ganhos ativados' : 'Ganhos desativados');
+      fetchAffiliates();
+    } catch (err) {
+      toast.error('Erro ao atualizar');
+    }
+  };
+
+  return (
+    <div data-testid="admin-affiliate-control-tab">
+      <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
+        <UserCog className="w-5 h-5 text-[#B38B36]" /> Controle de Afiliados
+      </h3>
+      <p className="text-sm text-[#888] mb-6">
+        Ative ou desative ganhos de comissao para afiliados especificos.
+      </p>
+
+      {affiliates.length === 0 ? (
+        <div className="dark-card rounded-xl p-12 text-center">
+          <UserCog className="w-12 h-12 text-[#333] mx-auto mb-3" />
+          <p className="text-[#888]">Nenhum afiliado cadastrado</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {affiliates.map(aff => (
+            <div key={aff.user_id} className="dark-card rounded-xl p-4 flex items-center justify-between">
+              <div>
+                <p className="font-medium text-white">{aff.name}</p>
+                <p className="text-xs text-[#888]">{aff.email}</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-[#888]">
+                  Ganhos: {aff.affiliate_earnings_enabled !== false ? (
+                    <span className="text-green-400 font-bold">Ativado</span>
+                  ) : (
+                    <span className="text-red-400 font-bold">Desativado</span>
+                  )}
+                </span>
+                <Switch 
+                  checked={aff.affiliate_earnings_enabled !== false} 
+                  onCheckedChange={v => toggleEarnings(aff.user_id, v)}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ==================== 4. PAINEL DE VENDAS MELHORADO TAB ====================
+function SalesDashboardTab({ token }) {
+  const [sales, setSales] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const h = { Authorization: `Bearer ${token}` };
+
+  useEffect(() => {
+    axios.get(`${API}/admin/sales/dashboard`, { headers: h, withCredentials: true })
+      .then(r => { setSales(r.data.sales); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const statusColors = {
+    'awaiting_payment': 'bg-yellow-500/20 text-yellow-400',
+    'pending': 'bg-orange-500/20 text-orange-400',
+    'approved': 'bg-green-500/20 text-green-400',
+    'shipped': 'bg-blue-500/20 text-blue-400',
+    'delivered': 'bg-emerald-500/20 text-emerald-400',
+    'rejected': 'bg-red-500/20 text-red-400'
+  };
+
+  if (loading) return <div className="text-center py-8 text-[#888]">Carregando...</div>;
+
+  return (
+    <div data-testid="admin-sales-dashboard-tab">
+      <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
+        <TrendingUp className="w-5 h-5 text-[#B38B36]" /> Painel de Vendas Detalhado
+      </h3>
+      <p className="text-sm text-[#888] mb-6">
+        Visualize todas as vendas com informacoes completas de comprador, vendedor e produto.
+      </p>
+
+      {sales.length === 0 ? (
+        <div className="dark-card rounded-xl p-12 text-center">
+          <ShoppingBag className="w-12 h-12 text-[#333] mx-auto mb-3" />
+          <p className="text-[#888]">Nenhuma venda registrada</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {sales.map((sale, idx) => (
+            <div key={idx} className="dark-card rounded-xl p-4">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <p className="text-xs text-[#666]">#{sale.order_id?.slice(0, 16)}</p>
+                  <p className="text-lg font-bold text-[#B38B36]">R$ {sale.value?.toFixed(2)}</p>
+                </div>
+                <span className={`text-xs px-3 py-1 rounded-full ${statusColors[sale.status] || 'bg-[#333] text-[#888]'}`}>
+                  {sale.status}
+                </span>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4 text-sm">
+                <div className="bg-[#111] rounded-lg p-3">
+                  <p className="text-[#666] text-xs mb-1">COMPRADOR</p>
+                  <p className="text-white font-medium">{sale.buyer?.name}</p>
+                  <p className="text-[#888] text-xs">{sale.buyer?.email}</p>
+                </div>
+
+                <div className="bg-[#111] rounded-lg p-3">
+                  <p className="text-[#666] text-xs mb-1">VENDEDOR</p>
+                  <p className="text-white font-medium">{sale.seller?.name}</p>
+                  <p className="text-[#888] text-xs">{sale.seller?.email}</p>
+                </div>
+
+                <div className="bg-[#111] rounded-lg p-3">
+                  <p className="text-[#666] text-xs mb-1">PRODUTO</p>
+                  <p className="text-white font-medium truncate">{sale.product?.title}</p>
+                  <p className="text-[#888] text-xs">Qtd: {sale.product?.quantity} x R$ {sale.product?.price?.toFixed(2)}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4 mt-3 text-xs text-[#666]">
+                <span>Pagamento: {sale.payment_method?.toUpperCase()}</span>
+                {sale.tracking_code && <span>Rastreio: {sale.tracking_code}</span>}
+                <span>{new Date(sale.created_at).toLocaleString('pt-BR')}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ==================== 5. NOTIFICAÇÕES ADMIN TAB ====================
+function AdminNotificationsTab({ token }) {
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const h = { Authorization: `Bearer ${token}` };
+
+  const fetchNotifications = () => {
+    axios.get(`${API}/admin/notifications`, { headers: h, withCredentials: true })
+      .then(r => {
+        setNotifications(r.data.notifications);
+        setUnreadCount(r.data.unread_count);
+      })
+      .catch(() => {});
+  };
+
+  useEffect(() => { fetchNotifications(); }, []);
+
+  const markAsRead = async (notifId) => {
+    try {
+      await axios.put(`${API}/admin/notifications/${notifId}/read`, {}, { headers: h, withCredentials: true });
+      fetchNotifications();
+    } catch {}
+  };
+
+  return (
+    <div data-testid="admin-notifications-tab">
+      <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
+        <Bell className="w-5 h-5 text-[#B38B36]" /> Notificacoes do Admin
+        {unreadCount > 0 && <span className="text-xs px-2 py-1 bg-red-500 text-white rounded-full">{unreadCount}</span>}
+      </h3>
+
+      {notifications.length === 0 ? (
+        <div className="dark-card rounded-xl p-12 text-center">
+          <Bell className="w-12 h-12 text-[#333] mx-auto mb-3" />
+          <p className="text-[#888]">Nenhuma notificacao</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {notifications.map(notif => (
+            <div 
+              key={notif.notification_id} 
+              className={`dark-card rounded-xl p-4 cursor-pointer transition-all ${notif.read ? 'opacity-60' : 'border-l-4 border-[#B38B36]'}`}
+              onClick={() => !notif.read && markAsRead(notif.notification_id)}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <p className="text-sm text-white font-medium">{notif.message}</p>
+                  {notif.buyer_name && (
+                    <p className="text-xs text-[#888] mt-1">
+                      Comprador: {notif.buyer_name} | Total: R$ {notif.total?.toFixed(2)}
+                    </p>
+                  )}
+                  <p className="text-xs text-[#666] mt-1">
+                    {new Date(notif.created_at).toLocaleString('pt-BR')}
+                  </p>
+                </div>
+                {!notif.read && (
+                  <span className="w-2 h-2 bg-[#B38B36] rounded-full shrink-0"></span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ==================== 6. TRACKING TAB (RASTREAMENTO) ====================
+function TrackingTab({ token }) {
+  const [orders, setOrders] = useState([]);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [trackingCode, setTrackingCode] = useState('');
+  const h = { Authorization: `Bearer ${token}` };
+
+  const fetchOrders = () => {
+    axios.get(`${API}/admin/orders`, { headers: h, withCredentials: true })
+      .then(r => setOrders(r.data.orders.filter(o => o.status !== 'rejected')))
+      .catch(() => {});
+  };
+
+  useEffect(() => { fetchOrders(); }, []);
+
+  const updateTracking = async () => {
+    if (!selectedOrder || !trackingCode.trim()) {
+      toast.error('Selecione um pedido e informe o codigo');
+      return;
+    }
+
+    try {
+      await axios.put(`${API}/admin/orders/${selectedOrder}/tracking`, {
+        tracking_code: trackingCode
+      }, { headers: h, withCredentials: true });
+      toast.success('Codigo de rastreio atualizado!');
+      setTrackingCode('');
+      setSelectedOrder(null);
+      fetchOrders();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Erro ao atualizar');
+    }
+  };
+
+  return (
+    <div className="max-w-3xl" data-testid="admin-tracking-tab">
+      <h3 className="font-bold text-white text-lg mb-4 flex items-center gap-2">
+        <Truck className="w-5 h-5 text-[#B38B36]" /> Rastreamento de Pedidos
+      </h3>
+
+      <div className="dark-card rounded-xl p-6 mb-6">
+        <Label className="text-[#CCC]">Adicionar/Atualizar Codigo de Rastreio</Label>
+        <div className="grid md:grid-cols-2 gap-3 mt-3">
+          <select 
+            value={selectedOrder || ''} 
+            onChange={e => setSelectedOrder(e.target.value)}
+            className="h-10 px-3 rounded-md bg-[#111] border border-[#2A2A2A] text-white"
+          >
+            <option value="">Selecione um pedido...</option>
+            {orders.map(o => (
+              <option key={o.order_id} value={o.order_id}>
+                #{o.order_id?.slice(0, 16)} - {o.buyer_name} - R$ {o.total?.toFixed(2)}
+              </option>
+            ))}
+          </select>
+          <Input 
+            value={trackingCode} 
+            onChange={e => setTrackingCode(e.target.value)}
+            placeholder="Codigo de rastreio (ex: BR123456789)"
+            className="bg-[#111] border-[#2A2A2A] text-white"
+          />
+        </div>
+        <Button className="gold-btn rounded-lg mt-3" onClick={updateTracking}>
+          Atualizar Rastreio
+        </Button>
+      </div>
+
+      <div className="space-y-3">
+        {orders.filter(o => o.tracking_code).map(o => (
+          <div key={o.order_id} className="dark-card rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-white">#{o.order_id?.slice(0, 16)}</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-blue-500/20 text-blue-400">{o.status}</span>
+            </div>
+            <p className="text-sm text-[#888]">{o.buyer_name}</p>
+            <div className="bg-[#111] rounded-lg p-3 mt-2">
+              <p className="text-xs text-[#666] mb-1">CODIGO DE RASTREIO</p>
+              <p className="text-sm text-[#B38B36] font-mono font-bold">{o.tracking_code}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const { token } = useAuth();
   const [counts, setCounts] = useState({});
@@ -1078,29 +1627,41 @@ export default function AdminPage() {
         <Tabs defaultValue="dashboard" className="w-full">
           <TabsList className="flex flex-wrap gap-1 bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-1 mb-6 h-auto">
             <TabsTrigger value="dashboard" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-dashboard"><BarChart3 className="w-4 h-4 mr-1" /> Dashboard</TabsTrigger>
-            <TabsTrigger value="theme" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-theme"><Palette className="w-4 h-4 mr-1" /> Personalizar</TabsTrigger>
-            <TabsTrigger value="admin-products" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-products"><Package className="w-4 h-4 mr-1" /> Produtos</TabsTrigger>
+            <TabsTrigger value="sales" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-sales"><TrendingUp className="w-4 h-4 mr-1" /> Vendas</TabsTrigger>
             <TabsTrigger value="orders" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-orders"><ShoppingBag className="w-4 h-4 mr-1" /> Pedidos<Badge count={counts.orders} /></TabsTrigger>
+            <TabsTrigger value="wallet-manage" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-wallet"><Wallet className="w-4 h-4 mr-1" /> Saldo</TabsTrigger>
+            <TabsTrigger value="escrow" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-escrow"><UnlockKeyhole className="w-4 h-4 mr-1" /> Escrow</TabsTrigger>
+            <TabsTrigger value="tracking" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-tracking"><Truck className="w-4 h-4 mr-1" /> Rastreio</TabsTrigger>
+            <TabsTrigger value="affiliate-control" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-affiliate"><UserCog className="w-4 h-4 mr-1" /> Afiliados</TabsTrigger>
+            <TabsTrigger value="notifications" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-notif"><Bell className="w-4 h-4 mr-1" /> Notif</TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-users"><Users className="w-4 h-4 mr-1" /> Usuarios<Badge count={counts.users} /></TabsTrigger>
             <TabsTrigger value="stores" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-stores"><Store className="w-4 h-4 mr-1" /> Lojas<Badge count={counts.stores} /></TabsTrigger>
-            <TabsTrigger value="ads" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-ads"><Megaphone className="w-4 h-4 mr-1" /> Anuncios</TabsTrigger>
+            <TabsTrigger value="admin-products" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-products"><Package className="w-4 h-4 mr-1" /> Produtos</TabsTrigger>
             <TabsTrigger value="withdrawals" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-withdrawals"><CreditCard className="w-4 h-4 mr-1" /> Saques<Badge count={counts.withdrawals} /></TabsTrigger>
             <TabsTrigger value="commissions" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-commissions"><DollarSign className="w-4 h-4 mr-1" /> Comissoes</TabsTrigger>
             <TabsTrigger value="shipping" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-shipping"><Truck className="w-4 h-4 mr-1" /> Frete</TabsTrigger>
+            <TabsTrigger value="theme" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-theme"><Palette className="w-4 h-4 mr-1" /> Personalizar</TabsTrigger>
+            <TabsTrigger value="ads" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-ads"><Megaphone className="w-4 h-4 mr-1" /> Anuncios</TabsTrigger>
             <TabsTrigger value="support" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-support"><MessageSquare className="w-4 h-4 mr-1" /> Suporte<Badge count={counts.support} /></TabsTrigger>
             <TabsTrigger value="pages" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-pages"><FileText className="w-4 h-4 mr-1" /> Paginas</TabsTrigger>
             <TabsTrigger value="financial" className="data-[state=active]:bg-[#B38B36] data-[state=active]:text-white text-[#888]" data-testid="admin-tab-financial"><Settings className="w-4 h-4 mr-1" /> Financeiro</TabsTrigger>
           </TabsList>
           <TabsContent value="dashboard"><DashboardTab token={token} /></TabsContent>
-          <TabsContent value="theme"><ThemeTab token={token} /></TabsContent>
-          <TabsContent value="admin-products"><AdminProductsTab token={token} /></TabsContent>
+          <TabsContent value="sales"><SalesDashboardTab token={token} /></TabsContent>
           <TabsContent value="orders"><OrdersTab token={token} /></TabsContent>
+          <TabsContent value="wallet-manage"><WalletManagementTab token={token} /></TabsContent>
+          <TabsContent value="escrow"><EscrowTab token={token} /></TabsContent>
+          <TabsContent value="tracking"><TrackingTab token={token} /></TabsContent>
+          <TabsContent value="affiliate-control"><AffiliateControlTab token={token} /></TabsContent>
+          <TabsContent value="notifications"><AdminNotificationsTab token={token} /></TabsContent>
           <TabsContent value="users"><UsersTab token={token} /></TabsContent>
           <TabsContent value="stores"><StoresTab token={token} /></TabsContent>
-          <TabsContent value="ads"><AdsTab token={token} /></TabsContent>
+          <TabsContent value="admin-products"><AdminProductsTab token={token} /></TabsContent>
           <TabsContent value="withdrawals"><WithdrawalsTab token={token} /></TabsContent>
           <TabsContent value="commissions"><CommissionsTab token={token} /></TabsContent>
           <TabsContent value="shipping"><ShippingTab token={token} /></TabsContent>
+          <TabsContent value="theme"><ThemeTab token={token} /></TabsContent>
+          <TabsContent value="ads"><AdsTab token={token} /></TabsContent>
           <TabsContent value="support"><SupportTab token={token} /></TabsContent>
           <TabsContent value="pages"><PagesTab token={token} /></TabsContent>
           <TabsContent value="financial"><FinancialSettingsTab token={token} /></TabsContent>

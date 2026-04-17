@@ -9,7 +9,7 @@ from datetime import datetime
 
 def test_seller_file_upload():
     """Test file upload functionality with seller credentials"""
-    base_url = "https://product-upload-issue.preview.emergentagent.com"
+    base_url = "https://platform-admin-6.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     print("🔐 Testing File Upload with Seller Account")
