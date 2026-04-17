@@ -523,7 +523,10 @@ async def get_my_products(request: Request):
     user = await require_seller(request)
     products = await db.products.find({"seller_id": user["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return {"products": products}
-
+@api_router.get("/sales/test")
+async def test_sales():
+    sales = await db.sales.find({}, {"_id": 0}).to_list(100)
+    return sales
 # ==================== STORE ROUTES ====================
 @api_router.post("/stores")
 async def create_store(data: StoreCreate, request: Request):
