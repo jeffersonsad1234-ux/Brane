@@ -158,14 +158,22 @@ class SellerTermsAccept(BaseModel):
 class SellerTermsAccept(BaseModel):
     accepted: bool = True
 
-
 class Sale(BaseModel):
     sale_id: Optional[str] = None
     user_id: str
     customer_name: str
     value: float
     status: str = "pending"
-    created_at: Optional[str] = None
+    created_at: Optional[str] = None 
+    
+class Sale(BaseModel):
+    sale_id: str
+    buyer_id: str
+    seller_id: str
+    product_id: str
+    amount: float
+    status: str  # "pending" | "released"
+    created_at: datetime    
 # ==================== STORE MODELS ====================
 class StoreCreate(BaseModel):
     name: str
