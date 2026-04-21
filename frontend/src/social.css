@@ -1,0 +1,251 @@
+/* BRANE Social - Dark premium social network */
+
+.social-shell {
+  background: var(--social-bg, #0A0A0F);
+  color: var(--social-text, #F5F5FA);
+  min-height: 100vh;
+  position: relative;
+}
+
+.social-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(124, 58, 237, 0.12), transparent 45%),
+    radial-gradient(ellipse at 80% 80%, rgba(168, 85, 247, 0.08), transparent 45%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.social-shell > * { position: relative; z-index: 1; }
+
+.social-surface {
+  background: var(--social-surface, #14141F);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+  border-radius: 16px;
+  backdrop-filter: blur(14px);
+}
+
+.social-card {
+  background: linear-gradient(145deg, rgba(20,20,31,0.9), rgba(14,14,20,0.7));
+  border: 1px solid rgba(124, 58, 237, 0.18);
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.social-card:hover {
+  border-color: rgba(168, 85, 247, 0.45);
+}
+
+.social-btn {
+  background: linear-gradient(135deg, var(--social-primary, #7C3AED), var(--social-accent, #A855F7));
+  color: var(--social-button-text, #FFFFFF);
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3);
+}
+
+.social-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
+}
+
+.social-btn-ghost {
+  background: rgba(124, 58, 237, 0.12);
+  color: var(--social-accent, #C4B5FD);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.social-btn-ghost:hover {
+  background: rgba(124, 58, 237, 0.2);
+  border-color: rgba(168, 85, 247, 0.5);
+}
+
+.social-input {
+  background: rgba(10, 10, 15, 0.6);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  color: var(--social-text, #F5F5FA);
+  border-radius: 12px;
+  transition: border-color 0.2s;
+}
+
+.social-input:focus {
+  outline: none;
+  border-color: var(--social-accent, #A855F7);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15);
+}
+
+.username {
+  color: var(--username-color, #A855F7);
+  font-weight: 600;
+}
+
+.social-title {
+  color: var(--title-color, #F5F5FA);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+}
+
+.social-menu-link {
+  color: var(--menu-color, #C4B5FD);
+  transition: color 0.2s;
+}
+
+.social-menu-link:hover {
+  color: var(--social-accent, #A855F7);
+}
+
+.story-ring {
+  padding: 3px;
+  background: linear-gradient(135deg, #7C3AED, #A855F7, #EC4899);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.story-ring:hover { transform: scale(1.06); }
+
+.story-ring.viewed {
+  background: rgba(124, 58, 237, 0.3);
+}
+
+.story-inner {
+  background: var(--social-surface, #14141F);
+  padding: 2px;
+  border-radius: 50%;
+}
+
+.story-avatar {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #1f1f2f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #A855F7;
+  font-weight: 700;
+}
+
+.story-avatar img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+.entry-gradient {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(124, 58, 237, 0.35), transparent 55%),
+    radial-gradient(ellipse at 70% 80%, rgba(236, 72, 153, 0.25), transparent 55%),
+    linear-gradient(135deg, #0a0a0f 0%, #1a0a2e 50%, #0a0a0f 100%);
+}
+
+.entry-card {
+  background: linear-gradient(145deg, rgba(30, 20, 50, 0.7), rgba(10, 10, 15, 0.8));
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.entry-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: rgba(168, 85, 247, 0.6);
+  box-shadow: 0 20px 60px rgba(124, 58, 237, 0.3);
+}
+
+.entry-card-social:hover { box-shadow: 0 20px 60px rgba(168, 85, 247, 0.4); }
+.entry-card-market:hover { box-shadow: 0 20px 60px rgba(179, 139, 54, 0.4); }
+
+/* Feed post animations */
+@keyframes likePulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+
+.heart-pulse { animation: likePulse 0.4s ease; }
+
+.social-ad-badge {
+  background: linear-gradient(135deg, #B38B36, #D4A84B);
+  color: #000;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.marketplace-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--products-per-row, 4), minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 640px) {
+  .marketplace-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Profile hero */
+.profile-hero {
+  position: relative;
+  height: 220px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--profile-accent, #A855F7), #7C3AED);
+}
+
+.profile-avatar-lg {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  border: 5px solid var(--social-bg, #0A0A0F);
+  overflow: hidden;
+  background: #1f1f2f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--profile-accent, #A855F7);
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.profile-avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Chat bubble */
+.chat-bubble {
+  padding: 10px 14px;
+  border-radius: 18px;
+  max-width: 75%;
+  word-wrap: break-word;
+}
+
+.chat-bubble-me {
+  background: linear-gradient(135deg, #7C3AED, #A855F7);
+  color: #fff;
+  margin-left: auto;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble-them {
+  background: var(--social-surface, #14141F);
+  color: var(--social-text, #F5F5FA);
+  border: 1px solid rgba(124, 58, 237, 0.15);
+  border-bottom-left-radius: 4px;
+}
+
+/* Scrollbar */
+.social-scroll::-webkit-scrollbar { width: 8px; }
+.social-scroll::-webkit-scrollbar-track { background: transparent; }
+.social-scroll::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.3);
+  border-radius: 4px;
+}
+.social-scroll::-webkit-scrollbar-thumb:hover { background: rgba(168, 85, 247, 0.5); }
