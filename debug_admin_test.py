@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BASE_URL = "https://platform-admin-6.preview.emergentagent.com/api"
+BASE_URL = "https://brane-dual-system.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin@brane.com"
 ADMIN_PASSWORD = "Admin123!"
 

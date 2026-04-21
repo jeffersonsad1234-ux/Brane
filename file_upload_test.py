@@ -9,7 +9,7 @@ import sys
 
 def test_file_upload():
     """Test file upload functionality with admin credentials"""
-    base_url = "https://platform-admin-6.preview.emergentagent.com"
+    base_url = "https://brane-dual-system.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     print("🔐 Testing File Upload Functionality")
