@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { splitPrice } from '../lib/price';
 import { Star, Smartphone, Shirt, Sparkles, Home, Watch, Dumbbell, Palette, Building, Car, ArrowRight, Store, Zap, MapPin, TrendingUp, Shield, Users, ChevronRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -25,8 +27,7 @@ function ProductCard({ product }) {
   const imgUrl = product.images?.[0]
     ? (product.images[0].startsWith('http') ? product.images[0] : `${API}/files/${product.images[0]}`)
     : null;
-  const priceWhole = Math.floor(product.price || 0);
-  const priceCents = Math.round(((product.price || 0) - priceWhole) * 100).toString().padStart(2, '0');
+  const { whole: priceWhole, cents: priceCents } = splitPrice(product.price);
   const rating = 3.5 + Math.random() * 1.5;
   const stars = Math.round(rating * 2) / 2;
   return (
@@ -100,13 +101,44 @@ function AnimatedBackground3D() {
 
 export default function HomePage() {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState('loja');
   const [products, setProducts] = useState([]);
   const [cityFilter, setCityFilter] = useState('');
+  const [adsTop, setAdsTop] = useState([]);
+  const [adsMiddle, setAdsMiddle] = useState([]);
+  const [adsFooter, setAdsFooter] = useState([]);
 
   useEffect(() => {
     axios.get(`${API}/products?limit=8`).then(r => setProducts(r.data.products)).catch(() => {});
+    // Load ads for different positions
+    axios.get(`${API}/ads?position=top`).then(r => setAdsTop(r.data.ads || [])).catch(() => {});
+    axios.get(`${API}/ads?position=between_products`).then(r => setAdsMiddle(r.data.ads || [])).catch(() => {});
+    axios.get(`${API}/ads?position=sidebar`).then(r => setAdsFooter(r.data.ads || [])).catch(() => {});
   }, []);
+
+  const handleAdClick = (ad) => {
+    axios.post(`${API}/ads/${ad.ad_id}/click`).catch(() => {});
+  };
+
+  const AdBanner = ({ ad }) => (
+    <a
+      href={ad.link}
+      target="_blank"
+      rel="noreferrer"
+      onClick={() => handleAdClick(ad)}
+      className="block rounded-xl overflow-hidden border border-[#2A2A2A] hover:border-[#B38B36]/50 transition-all group relative"
+      data-testid={`ad-${ad.ad_id}`}
+    >
+      <div className="absolute top-2 right-2 z-10 px-2 py-0.5 rounded bg-black/70 text-[9px] text-[#B38B36] font-bold tracking-wider">ANÚNCIO</div>
+      <img src={ad.image.startsWith('http') ? ad.image : `${API}/files/${ad.image}`} alt={ad.title} className="w-full h-auto object-cover group-hover:scale-[1.02] transition-transform" />
+      {ad.title && (
+        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+          <p className="text-sm font-semibold text-white">{ad.title}</p>
+        </div>
+      )}
+    </a>
+  );
 
   return (
     <div className="carbon-bg min-h-screen" data-testid="home-page">
@@ -231,22 +263,38 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Ads Top Banner */}
+      {adsTop.length > 0 && (
+        <section className="py-4">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              {adsTop.slice(0, 2).map(ad => <AdBanner key={ad.ad_id} ad={ad} />)}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Categories Section */}
       <section className="py-8">
         <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-xl font-bold font-['Outfit'] mb-6">
-            <span className="bg-gradient-to-r from-[#8B6914] to-[#B38B36] bg-clip-text text-transparent">Categorias</span>
+          <h2 className="text-xl font-bold font-['Outfit'] mb-6" style={{ color: theme.title_color || '#B38B36' }}>
+            Categorias
           </h2>
           <div className="flex flex-wrap gap-3">
             {categories.map(cat => (
               <Link 
                 key={cat.id} 
                 to={`/products?category=${cat.id}`}
-                className="group flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1A1A1A] border border-[#2A2A2A] hover:border-[#B38B36]/30 transition-all duration-300 hover:-translate-y-1"
+                className="group flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all duration-300 hover:-translate-y-1"
+                style={{
+                  backgroundColor: theme.category_bg_color || '#1A1A1A',
+                  borderColor: '#2A2A2A',
+                  color: theme.category_text_color || '#B38B36'
+                }}
                 data-testid={`category-${cat.id}`}
               >
                 <cat.icon className="w-4 h-4 transition-colors duration-300" style={{ color: cat.color }} />
-                <span className="text-sm text-[#888] group-hover:text-[#B38B36] transition-colors">{cat.name}</span>
+                <span className="text-sm transition-colors" style={{ color: theme.category_text_color || '#B38B36' }}>{cat.name}</span>
               </Link>
             ))}
           </div>
@@ -310,6 +358,17 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Ads Middle */}
+      {adsMiddle.length > 0 && (
+        <section className="py-8">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="grid md:grid-cols-3 gap-4">
+              {adsMiddle.slice(0, 3).map(ad => <AdBanner key={ad.ad_id} ad={ad} />)}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* CTA Section */}
       <section className="py-16">
         <div className="max-w-4xl mx-auto px-4">
@@ -343,6 +402,18 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Ads Footer */}
+      {adsFooter.length > 0 && (
+        <section className="py-8 border-t border-[#1A1A1A]">
+          <div className="max-w-7xl mx-auto px-4">
+            <p className="text-xs text-[#555] text-center mb-4 tracking-widest">PARCEIROS</p>
+            <div className="grid md:grid-cols-4 gap-4">
+              {adsFooter.slice(0, 4).map(ad => <AdBanner key={ad.ad_id} ad={ad} />)}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

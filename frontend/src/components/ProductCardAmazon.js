@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Star, Truck, Store } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { splitPrice } from '../lib/price';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -11,8 +12,7 @@ export default function ProductCardAmazon({ product }) {
     ? (img.startsWith('http') ? img : `${API}/files/${img}`)
     : null;
 
-  const priceWhole = Math.floor(product.price || 0);
-  const priceCents = Math.round(((product.price || 0) - priceWhole) * 100).toString().padStart(2, '0');
+  const { whole: priceWhole, cents: priceCents } = splitPrice(product.price);
   const rating = product.rating || (3.5 + Math.random() * 1.5);
   const ratingCount = product.rating_count || Math.floor(Math.random() * 500 + 10);
   const stars = Math.round(rating * 2) / 2;

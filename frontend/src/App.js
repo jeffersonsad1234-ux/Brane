@@ -7,6 +7,8 @@ import AnimatedBackground from "./components/AnimatedBackground";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FloatingSupport from "./components/FloatingSupport";
+import EntryPage from "./pages/EntryPage";
+import SocialPage from "./pages/SocialPage";
 import HomePage from "./pages/HomePage";
 import AuthPage from "./pages/AuthPage";
 import ProductsPage from "./pages/ProductsPage";
@@ -47,14 +49,31 @@ function AppRouter() {
   if (location.hash?.includes('session_id=')) {
     return <AuthCallback />;
   }
+  // Entry page has no navbar/footer - it's the fullscreen landing
+  const isEntry = location.pathname === '/' || location.pathname === '/entry';
+  const isSocial = location.pathname.startsWith('/social');
+
+  if (isEntry) {
+    return (
+      <>
+        <Routes>
+          <Route path="/" element={<EntryPage />} />
+          <Route path="/entry" element={<EntryPage />} />
+        </Routes>
+        <Toaster position="top-right" />
+      </>
+    );
+  }
+
   return (
     <>
-      <AnimatedBackground />
+      {!isSocial && <AnimatedBackground />}
       <div className="relative z-10">
         <Navbar />
         <main className="min-h-screen">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/social" element={<SocialPage />} />
+            <Route path="/market" element={<HomePage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/:id" element={<ProductDetailPage />} />
@@ -73,11 +92,12 @@ function AppRouter() {
             <Route path="/brane-coins" element={<ProtectedRoute><BraneCoinsPage /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute adminOnly><AdminPage /></ProtectedRoute>} />
             <Route path="/pages/:slug" element={<StaticPage />} />
+            <Route path="*" element={<Navigate to="/entry" replace />} />
           </Routes>
         </main>
-        <Footer />
+        {!isSocial && <Footer />}
         <FloatingSupport />
-        <div className="brane-watermark">BRANE MARKETPLACE</div>
+        <div className="brane-watermark">BRANE</div>
       </div>
       <Toaster position="top-right" />
     </>

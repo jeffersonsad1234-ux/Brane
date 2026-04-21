@@ -48,6 +48,20 @@ class UserRegister(BaseModel):
     password: str
     role: Optional[str] = "buyer"
 
+class EmailVerifyRequest(BaseModel):
+    email: str
+
+class EmailVerifyConfirm(BaseModel):
+    email: str
+    code: str
+
+class SocialPostCreate(BaseModel):
+    content: str
+    image: Optional[str] = None
+
+class SocialCommentCreate(BaseModel):
+    content: str
+
 class UserLogin(BaseModel):
     email: str
     password: str
@@ -291,29 +305,137 @@ async def get_object_mongo(db_ref, path: str):
 def clean_user(user: dict) -> dict:
     return {k: v for k, v in user.items() if k not in ("password_hash", "_id")}
 
+
+# ==================== EMAIL VALIDATION ====================
+import re
+
+# Blocked disposable/temporary email domains (most common ones)
+DISPOSABLE_EMAIL_DOMAINS = {
+    "tempmail.com", "10minutemail.com", "guerrillamail.com", "mailinator.com",
+    "throwawaymail.com", "trashmail.com", "yopmail.com", "temp-mail.org",
+    "fakeinbox.com", "sharklasers.com", "getnada.com", "maildrop.cc",
+    "mohmal.com", "dispostable.com", "mailnesia.com", "emailondeck.com",
+    "spambox.us", "mytrashmail.com", "tempinbox.com", "tempmail.net",
+    "tempmailaddress.com", "minuteinbox.com", "disposablemail.com",
+    "mintemail.com", "mailcatch.com", "fake-mail.net",
+}
+
+EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+
+def validate_email_strict(email: str) -> tuple[bool, str]:
+    """Validate email format and check against disposable domains.
+    Returns (is_valid, error_message)"""
+    if not email or len(email) > 254:
+        return False, "Email invalido"
+    email = email.strip().lower()
+    if not EMAIL_REGEX.match(email):
+        return False, "Formato de email invalido"
+    try:
+        domain = email.split("@")[1]
+    except IndexError:
+        return False, "Email invalido"
+    if domain in DISPOSABLE_EMAIL_DOMAINS:
+        return False, "Emails temporarios/descartaveis nao sao permitidos"
+    # Block obviously fake patterns
+    local_part = email.split("@")[0]
+    if len(local_part) < 2:
+        return False, "Email muito curto"
+    # Block emails with only numbers in local part (suspicious)
+    if local_part.isdigit() and len(local_part) < 4:
+        return False, "Email suspeito, use um email real"
+    return True, ""
+
 # ==================== AUTH ROUTES ====================
 @api_router.post("/auth/register")
 async def register(data: UserRegister):
-    existing = await db.users.find_one({"email": data.email}, {"_id": 0})
+    # Strict email validation
+    ok, err = validate_email_strict(data.email)
+    if not ok:
+        raise HTTPException(status_code=400, detail=err)
+    email_normalized = data.email.strip().lower()
+    existing = await db.users.find_one({"email": email_normalized}, {"_id": 0})
     if existing:
         raise HTTPException(status_code=400, detail="Email ja cadastrado")
+    # Validate password strength
+    if len(data.password) < 6:
+        raise HTTPException(status_code=400, detail="Senha deve ter no minimo 6 caracteres")
+    if not data.name or len(data.name.strip()) < 2:
+        raise HTTPException(status_code=400, detail="Nome invalido")
+
     user_id = f"user_{uuid.uuid4().hex[:12]}"
     register_role = data.role if data.role in ("buyer", "seller", "affiliate") else "buyer"
     user = {
-        "user_id": user_id, "name": data.name, "email": data.email,
+        "user_id": user_id, "name": data.name.strip(), "email": email_normalized,
         "password_hash": hash_password(data.password), "role": register_role,
-        "picture": "", "bank_details": {}, "is_blocked": False,
+        "picture": "", "bio": "", "cover_photo": "",
+        "bank_details": {}, "is_blocked": False,
+        "email_verified": False,
         "brane_coins": 0, "is_vip": False,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.users.insert_one(user)
     await db.wallets.insert_one({"user_id": user_id, "available": 0.0, "held": 0.0})
-    token = create_jwt(user_id, data.email, register_role)
-    return {"token": token, "user": clean_user(user)}
+
+    # Generate verification code (dev mode: returned in response)
+    import random
+    code = str(random.randint(100000, 999999))
+    await db.email_verifications.delete_many({"email": email_normalized})
+    await db.email_verifications.insert_one({
+        "email": email_normalized, "code": code, "user_id": user_id,
+        "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=30)).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    logger.info(f"Email verification code for {email_normalized}: {code}")
+
+    token = create_jwt(user_id, email_normalized, register_role)
+    return {
+        "token": token,
+        "user": clean_user(user),
+        "verification_required": True,
+        "verification_code": code  # DEV MODE: sent to frontend for display
+    }
+
+@api_router.post("/auth/send-verification")
+async def send_verification(data: EmailVerifyRequest, request: Request):
+    """Resend verification code for current user"""
+    email_normalized = data.email.strip().lower()
+    user = await db.users.find_one({"email": email_normalized}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="Email nao encontrado")
+    if user.get("email_verified"):
+        return {"message": "Email ja verificado", "already_verified": True}
+    import random
+    code = str(random.randint(100000, 999999))
+    await db.email_verifications.delete_many({"email": email_normalized})
+    await db.email_verifications.insert_one({
+        "email": email_normalized, "code": code, "user_id": user["user_id"],
+        "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=30)).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    logger.info(f"Re-sent verification code for {email_normalized}: {code}")
+    return {"message": "Codigo reenviado", "verification_code": code}
+
+@api_router.post("/auth/verify-email")
+async def verify_email(data: EmailVerifyConfirm):
+    """Confirm email with 6-digit code"""
+    email_normalized = data.email.strip().lower()
+    record = await db.email_verifications.find_one({"email": email_normalized, "code": data.code}, {"_id": 0})
+    if not record:
+        raise HTTPException(status_code=400, detail="Codigo invalido")
+    expires = datetime.fromisoformat(record["expires_at"])
+    if expires.tzinfo is None:
+        expires = expires.replace(tzinfo=timezone.utc)
+    if expires < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Codigo expirado, solicite um novo")
+    await db.users.update_one({"email": email_normalized}, {"$set": {"email_verified": True}})
+    await db.email_verifications.delete_many({"email": email_normalized})
+    updated = await db.users.find_one({"email": email_normalized}, {"_id": 0})
+    return {"message": "Email verificado com sucesso", "user": clean_user(updated)}
 
 @api_router.post("/auth/login")
 async def login(data: UserLogin):
-    user = await db.users.find_one({"email": data.email}, {"_id": 0})
+    email_normalized = data.email.strip().lower()
+    user = await db.users.find_one({"email": email_normalized}, {"_id": 0})
     if not user or not verify_password(data.password, user.get("password_hash", "")):
         raise HTTPException(status_code=401, detail="Email ou senha incorretos")
     if user.get("is_blocked"):
@@ -447,6 +569,128 @@ async def update_bank_details(data: BankDetails, request: Request):
     user = await get_current_user(request)
     await db.users.update_one({"user_id": user["user_id"]}, {"$set": {"bank_details": data.model_dump()}})
     return {"message": "Dados bancarios atualizados"}
+
+@api_router.put("/users/profile-extended")
+async def update_profile_extended(request: Request):
+    """Update extended profile fields: bio, cover_photo, phone"""
+    user = await get_current_user(request)
+    body = await request.json()
+    allowed = {"bio", "cover_photo", "phone", "name", "picture"}
+    updates = {k: v for k, v in body.items() if k in allowed}
+    if updates:
+        await db.users.update_one({"user_id": user["user_id"]}, {"$set": updates})
+    updated = await db.users.find_one({"user_id": user["user_id"]}, {"_id": 0})
+    return clean_user(updated)
+
+@api_router.get("/users/public/{user_id}")
+async def get_public_user_profile(user_id: str):
+    """Public user profile for social network"""
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="Perfil nao encontrado")
+    # Return only public fields
+    return {
+        "user_id": user["user_id"],
+        "name": user.get("name", ""),
+        "picture": user.get("picture", ""),
+        "cover_photo": user.get("cover_photo", ""),
+        "bio": user.get("bio", ""),
+        "role": user.get("role", "buyer"),
+        "created_at": user.get("created_at", "")
+    }
+
+# ==================== BRANE SOCIAL ROUTES ====================
+@api_router.post("/social/posts")
+async def create_social_post(data: SocialPostCreate, request: Request):
+    user = await get_current_user(request)
+    if not data.content or len(data.content.strip()) < 1:
+        raise HTTPException(status_code=400, detail="Conteudo vazio")
+    post_id = f"post_{uuid.uuid4().hex[:12]}"
+    post = {
+        "post_id": post_id,
+        "user_id": user["user_id"],
+        "user_name": user.get("name", ""),
+        "user_picture": user.get("picture", ""),
+        "content": data.content.strip()[:2000],
+        "image": data.image or "",
+        "likes": [],
+        "likes_count": 0,
+        "comments_count": 0,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.social_posts.insert_one(post)
+    return {k: v for k, v in post.items() if k != "_id"}
+
+@api_router.get("/social/posts")
+async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[str] = None):
+    query = {}
+    if user_id:
+        query["user_id"] = user_id
+    skip = (page - 1) * limit
+    posts = await db.social_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.social_posts.count_documents(query)
+    return {"posts": posts, "total": total, "page": page}
+
+@api_router.post("/social/posts/{post_id}/like")
+async def like_social_post(post_id: str, request: Request):
+    user = await get_current_user(request)
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post nao encontrado")
+    likes = post.get("likes", [])
+    if user["user_id"] in likes:
+        # Unlike
+        await db.social_posts.update_one(
+            {"post_id": post_id},
+            {"$pull": {"likes": user["user_id"]}, "$inc": {"likes_count": -1}}
+        )
+        return {"liked": False, "likes_count": max(0, post.get("likes_count", 1) - 1)}
+    else:
+        await db.social_posts.update_one(
+            {"post_id": post_id},
+            {"$push": {"likes": user["user_id"]}, "$inc": {"likes_count": 1}}
+        )
+        return {"liked": True, "likes_count": post.get("likes_count", 0) + 1}
+
+@api_router.delete("/social/posts/{post_id}")
+async def delete_social_post(post_id: str, request: Request):
+    user = await get_current_user(request)
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post nao encontrado")
+    if post["user_id"] != user["user_id"] and user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Sem permissao")
+    await db.social_posts.delete_one({"post_id": post_id})
+    await db.social_comments.delete_many({"post_id": post_id})
+    return {"message": "Post removido"}
+
+@api_router.post("/social/posts/{post_id}/comments")
+async def create_comment(post_id: str, data: SocialCommentCreate, request: Request):
+    user = await get_current_user(request)
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post nao encontrado")
+    if not data.content.strip():
+        raise HTTPException(status_code=400, detail="Comentario vazio")
+    comment_id = f"cmt_{uuid.uuid4().hex[:12]}"
+    comment = {
+        "comment_id": comment_id,
+        "post_id": post_id,
+        "user_id": user["user_id"],
+        "user_name": user.get("name", ""),
+        "user_picture": user.get("picture", ""),
+        "content": data.content.strip()[:500],
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.social_comments.insert_one(comment)
+    await db.social_posts.update_one({"post_id": post_id}, {"$inc": {"comments_count": 1}})
+    return {k: v for k, v in comment.items() if k != "_id"}
+
+@api_router.get("/social/posts/{post_id}/comments")
+async def list_comments(post_id: str):
+    comments = await db.social_comments.find({"post_id": post_id}, {"_id": 0}).sort("created_at", 1).to_list(200)
+    return {"comments": comments}
+
 
 # ==================== PRODUCT ROUTES ====================
 @api_router.get("/products")
@@ -1446,6 +1690,13 @@ async def get_theme_settings(request: Request):
         "card_bg": "#FFFFFF",
         "card_border": "#E0E0E0",
         "page_bg": "#EAEDED",
+        "category_text_color": "#B38B36",
+        "category_bg_color": "#1A1A1A",
+        "menu_text_color": "#CCCCCC",
+        "nav_link_color": "#888888",
+        "nav_link_hover_color": "#B38B36",
+        "title_color": "#B38B36",
+        "product_card_size": "medium",
         "platform_name": "BRANE",
         "platform_slogan": "Marketplace Premium",
         "show_stars": True,
@@ -1484,6 +1735,13 @@ async def get_public_theme():
         "card_bg": "#FFFFFF",
         "card_border": "#E0E0E0",
         "page_bg": "#EAEDED",
+        "category_text_color": "#B38B36",
+        "category_bg_color": "#1A1A1A",
+        "menu_text_color": "#CCCCCC",
+        "nav_link_color": "#888888",
+        "nav_link_hover_color": "#B38B36",
+        "title_color": "#B38B36",
+        "product_card_size": "medium",
         "platform_name": "BRANE",
         "platform_slogan": "Marketplace Premium",
         "show_stars": True,

@@ -114,6 +114,66 @@ user_problem_statement: |
   8. Botão de suporte no footer
 
 backend:
+  - task: "BRANE Auth Registration with Email Validation"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: POST /api/auth/register with strict email validation. Rejects invalid formats (teste@, semarroba), disposable emails (mailinator.com), accepts valid emails with verification_required=true, email_verified=false, 6-digit code. Prevents duplicate registrations. Wallet auto-created."
+
+  - task: "BRANE Email Verification System"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: POST /api/auth/verify-email confirms email with 6-digit code, sets email_verified=true. POST /api/auth/send-verification resends codes for valid emails, returns 404 for non-existent emails. Code expiration and validation working correctly."
+
+  - task: "BRANE Social Posts System"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Complete social network functionality. POST /api/social/posts creates posts (rejects empty content), GET /api/social/posts lists posts (no auth), POST /api/social/posts/{id}/like toggles likes, POST /api/social/posts/{id}/comments adds comments, GET /api/social/posts/{id}/comments lists comments, DELETE /api/social/posts/{id} removes posts (owner only). All endpoints working perfectly."
+
+  - task: "BRANE Public User Profiles"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /api/users/public/{user_id} returns only public fields (name, picture, bio, cover_photo, role, created_at). Correctly excludes private fields (password_hash, bank_details, email). Security validation passed."
+
+  - task: "BRANE Theme Configuration"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: GET /api/theme (public) and GET /api/admin/theme both return new theme fields: category_text_color, category_bg_color, menu_text_color, nav_link_color, nav_link_hover_color, title_color, product_card_size. All new customization options available."
+
   - task: "API de opções de frete"
     implemented: true
     working: true
@@ -411,3 +471,5 @@ agent_communication:
     message: "✅ BACKEND TESTING COMPLETO: Todos os recursos de pagamento testados e funcionando. Financial Settings API com novos campos (bank_branch, pix_key_type) ✅. Payment Methods API público retorna apenas métodos habilitados ✅. Order creation com payment_method e status awaiting_payment ✅. Admin order approval funcionando ✅. Corrigido bug de validação TED para exigir todos os campos obrigatórios. Testados PIX, TED e PayPal com sucesso."
   - agent: "testing"
     message: "🎉 NEW FEATURES TESTING COMPLETE: All 7 new features tested and working perfectly! ✅ Support Chat (user messages + admin replies), ✅ Brane Coins (earning + redemption system), ✅ Desapega (secondhand products listing), ✅ Order Tracking (ship/deliver with status array), ✅ Admin Notification Counts (all tabs), ✅ Buyer Wallet (coins/VIP/coupons), ✅ Payment Methods (PIX/TED always available). Complete end-to-end flow tested: admin login → configure financial settings → register seller/buyer → create products (normal + desapega) → order with payment method → admin approve (buyer gets 1 coin) → ship → deliver → support chat → all APIs working. 28/28 tests passed!"
+  - agent: "testing"
+    message: "🚀 BRANE NEW ENDPOINTS TESTING COMPLETE: All 5 new endpoint groups tested successfully! ✅ Auth Registration (strict email validation, disposable email blocking, verification codes), ✅ Email Verification (6-digit codes, resend functionality), ✅ Social Posts (create/list/like/comment/delete), ✅ Public User Profiles (security-compliant public fields only), ✅ Theme Configuration (all new customization fields). 21/21 tests passed with 100% success rate. All endpoints working as specified in requirements."

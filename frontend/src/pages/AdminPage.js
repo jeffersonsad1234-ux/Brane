@@ -849,6 +849,53 @@ function ThemeTab({ token }) {
         </div>
       </div>
 
+      {/* Categories & Menu Text Colors (NEW) */}
+      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
+        <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+          <Palette className="w-5 h-5 text-[#B38B36]" /> Cores de Texto (Categorias e Menus)
+        </h3>
+        <p className="text-xs text-[#888] mb-4">Ajuste as cores dos textos que aparecem em categorias, menus de navegação e títulos</p>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <ColorInput label="Texto das Categorias" field="category_text_color" />
+          <ColorInput label="Fundo das Categorias" field="category_bg_color" />
+          <ColorInput label="Texto do Menu (Profile)" field="menu_text_color" />
+          <ColorInput label="Links de Navegação" field="nav_link_color" />
+          <ColorInput label="Hover dos Links" field="nav_link_hover_color" />
+          <ColorInput label="Cor dos Títulos" field="title_color" />
+        </div>
+        {/* Preview */}
+        <div className="mt-4 p-4 rounded-lg border border-[#2A2A2A]" style={{ backgroundColor: '#0A0A0A' }}>
+          <p className="text-sm font-bold mb-2" style={{ color: t.title_color || '#B38B36' }}>Categorias (Preview)</p>
+          <div className="flex flex-wrap gap-2">
+            {['Eletrônicos', 'Moda', 'Beleza', 'Casa'].map(c => (
+              <span key={c} className="text-xs px-3 py-1.5 rounded-lg border border-[#2A2A2A]" style={{ backgroundColor: t.category_bg_color || '#1A1A1A', color: t.category_text_color || '#B38B36' }}>
+                {c}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Product Card Size */}
+      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
+        <h3 className="font-bold text-white mb-4">Tamanho dos Produtos</h3>
+        <div className="flex gap-3">
+          {[
+            { v: 'small', l: 'Pequeno' },
+            { v: 'medium', l: 'Médio' },
+            { v: 'large', l: 'Grande' }
+          ].map(s => (
+            <button
+              key={s.v}
+              onClick={() => setT({ ...t, product_card_size: s.v })}
+              className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${t.product_card_size === s.v ? 'border-[#B38B36] bg-[#B38B36]/20 text-[#B38B36]' : 'border-[#2A2A2A] text-[#888] hover:border-[#B38B36]/50'}`}
+            >
+              {s.l}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Button Colors */}
       <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
         <h3 className="font-bold text-white mb-4">Cores dos Botoes</h3>

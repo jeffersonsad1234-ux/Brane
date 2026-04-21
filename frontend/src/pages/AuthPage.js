@@ -7,7 +7,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, Mail, Shield, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const LOGO_URL = 'https://customer-assets.emergentagent.com/job_brane-exchange/artifacts/wiagamwr_IMG_20260412_043249_662.jpg';
@@ -38,6 +38,101 @@ function PasswordInput({ value, onChange, placeholder, testId, ...props }) {
   );
 }
 
+// Email verification modal/flow - after registration
+function EmailVerificationStep({ email, initialCode, onVerified, onCancel }) {
+  const [code, setCode] = useState('');
+  const [displayCode, setDisplayCode] = useState(initialCode || '');
+  const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+
+  const verifyCode = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await axios.post(`${API}/auth/verify-email`, { email, code });
+      toast.success('Email verificado com sucesso!');
+      onVerified(res.data.user);
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Código inválido');
+    } finally { setLoading(false); }
+  };
+
+  const resendCode = async () => {
+    setResending(true);
+    try {
+      const res = await axios.post(`${API}/auth/send-verification`, { email });
+      if (res.data.already_verified) {
+        toast.success('Email já verificado!');
+        return;
+      }
+      setDisplayCode(res.data.verification_code || '');
+      toast.success('Novo código enviado!');
+    } catch {
+      toast.error('Erro ao reenviar código');
+    } finally { setResending(false); }
+  };
+
+  return (
+    <div>
+      <button onClick={onCancel} className="flex items-center gap-1 text-sm text-[#B38B36] mb-4 hover:text-[#9A752B]" data-testid="back-to-auth">
+        <ArrowLeft className="w-4 h-4" /> Voltar
+      </button>
+
+      <div className="text-center mb-6">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#B38B36]/20 to-[#8B6914]/10 border border-[#B38B36]/40 flex items-center justify-center mx-auto mb-4">
+          <Mail className="w-8 h-8 text-[#B38B36]" />
+        </div>
+        <h3 className="font-bold text-xl text-white font-['Outfit'] mb-2">Verifique seu email</h3>
+        <p className="text-xs text-[#888] leading-relaxed">
+          Enviamos um código de 6 dígitos para<br />
+          <span className="text-[#B38B36] font-semibold">{email}</span>
+        </p>
+      </div>
+
+      {/* DEV MODE: show code on screen */}
+      {displayCode && (
+        <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/30 rounded-xl p-4 mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Shield className="w-4 h-4 text-amber-400" />
+            <p className="text-xs font-semibold text-amber-300">Modo desenvolvimento</p>
+          </div>
+          <p className="text-[10px] text-amber-200/70 mb-2">Servidor SMTP ainda não configurado. Seu código:</p>
+          <p className="text-3xl font-bold text-white text-center font-mono tracking-[0.5em] py-2">{displayCode}</p>
+        </div>
+      )}
+
+      <form onSubmit={verifyCode} className="space-y-4">
+        <div>
+          <Label className="text-[#CCC]">Código de verificação</Label>
+          <Input
+            value={code}
+            onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+            required
+            className="bg-[#111] border-[#2A2A2A] text-white text-center text-2xl tracking-[0.5em] font-mono"
+            placeholder="000000"
+            maxLength={6}
+            data-testid="verify-code-input"
+          />
+        </div>
+        <Button type="submit" className="w-full gold-btn rounded-lg gap-2" disabled={loading || code.length !== 6} data-testid="verify-submit-btn">
+          {loading ? 'Verificando...' : <>Confirmar <CheckCircle2 className="w-4 h-4" /></>}
+        </Button>
+      </form>
+
+      <div className="text-center mt-4">
+        <button
+          onClick={resendCode}
+          disabled={resending}
+          className="text-xs text-[#B38B36] hover:text-[#9A752B] disabled:opacity-50"
+          data-testid="resend-code-btn"
+        >
+          {resending ? 'Reenviando...' : 'Não recebeu? Reenviar código'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ForgotPasswordForm({ onBack }) {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
@@ -52,10 +147,10 @@ function ForgotPasswordForm({ onBack }) {
     try {
       const res = await axios.post(`${API}/auth/forgot-password`, { email });
       setSentCode(res.data.code);
-      toast.success(`Codigo enviado: ${res.data.code}`);
+      toast.success('Código enviado!');
       setStep(2);
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Email nao encontrado');
+      toast.error(err.response?.data?.detail || 'Email não encontrado');
     } finally { setLoading(false); }
   };
 
@@ -67,7 +162,7 @@ function ForgotPasswordForm({ onBack }) {
       toast.success('Senha alterada com sucesso!');
       onBack();
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Codigo invalido');
+      toast.error(err.response?.data?.detail || 'Código inválido');
     } finally { setLoading(false); }
   };
 
@@ -86,17 +181,17 @@ function ForgotPasswordForm({ onBack }) {
               className="bg-[#111] border-[#2A2A2A] text-white" placeholder="seu@email.com" data-testid="forgot-email" />
           </div>
           <Button type="submit" className="w-full gold-btn rounded-lg" disabled={loading} data-testid="send-code-btn">
-            {loading ? 'Enviando...' : 'Enviar Codigo'}
+            {loading ? 'Enviando...' : 'Enviar Código'}
           </Button>
         </form>
       ) : (
         <form onSubmit={resetPassword} className="space-y-4">
           <div className="bg-[#111] rounded-lg p-3 border border-[#B38B36]/30 mb-2">
-            <p className="text-xs text-[#B38B36]">Codigo enviado para {email}</p>
+            <p className="text-xs text-[#B38B36]">Código enviado para {email}</p>
             <p className="text-lg font-bold text-white font-mono tracking-wider mt-1">{sentCode}</p>
           </div>
           <div>
-            <Label className="text-[#CCC]">Codigo de verificacao</Label>
+            <Label className="text-[#CCC]">Código de verificação</Label>
             <Input value={code} onChange={e => setCode(e.target.value)} required
               className="bg-[#111] border-[#2A2A2A] text-white text-center text-lg tracking-widest" placeholder="000000" maxLength={6} data-testid="reset-code" />
           </div>
@@ -114,14 +209,17 @@ function ForgotPasswordForm({ onBack }) {
 }
 
 export default function AuthPage() {
-  const { login, register, loginWithGoogle, user } = useAuth();
+  const { login, loginWithGoogle, user, setUser, setToken } = useAuth();
   const navigate = useNavigate();
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [regData, setRegData] = useState({ name: '', email: '', password: '', role: 'buyer' });
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
+  // Verification state
+  const [verifyingEmail, setVerifyingEmail] = useState(null);
+  const [verificationCode, setVerificationCode] = useState('');
 
-  if (user) {
+  if (user && !verifyingEmail) {
     navigate(user.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
     return null;
   }
@@ -142,12 +240,35 @@ export default function AuthPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await register(regData.name, regData.email, regData.password, regData.role);
-      toast.success('Conta criada com sucesso!');
-      navigate('/dashboard');
+      const res = await axios.post(`${API}/auth/register`, regData);
+      // Store token so user is authenticated (verification is for email only)
+      localStorage.setItem('brane_token', res.data.token);
+      if (setToken) setToken(res.data.token);
+      if (setUser) setUser(res.data.user);
+
+      if (res.data.verification_required) {
+        setVerifyingEmail(regData.email.trim().toLowerCase());
+        setVerificationCode(res.data.verification_code || '');
+        toast.success('Conta criada! Verifique seu email.');
+      } else {
+        toast.success('Conta criada com sucesso!');
+        navigate('/dashboard');
+      }
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Erro ao criar conta');
     } finally { setLoading(false); }
+  };
+
+  const onEmailVerified = (verifiedUser) => {
+    if (setUser) setUser(verifiedUser);
+    toast.success('Bem-vindo ao BRANE!');
+    navigate('/dashboard');
+  };
+
+  const cancelVerification = () => {
+    // User can proceed without verifying, but they can verify later from profile
+    setVerifyingEmail(null);
+    navigate('/dashboard');
   };
 
   const roleLabels = { buyer: 'Comprador', seller: 'Vendedor', affiliate: 'Afiliado' };
@@ -162,7 +283,14 @@ export default function AuthPage() {
         </div>
 
         <div className="dark-card rounded-xl p-6">
-          {showForgot ? (
+          {verifyingEmail ? (
+            <EmailVerificationStep
+              email={verifyingEmail}
+              initialCode={verificationCode}
+              onVerified={onEmailVerified}
+              onCancel={cancelVerification}
+            />
+          ) : showForgot ? (
             <ForgotPasswordForm onBack={() => setShowForgot(false)} />
           ) : (
             <>
@@ -199,12 +327,13 @@ export default function AuthPage() {
                     <div>
                       <Label className="text-[#CCC]">Nome completo</Label>
                       <Input value={regData.name} onChange={e => setRegData({...regData, name: e.target.value})}
-                        required className="bg-[#111] border-[#2A2A2A] text-white" placeholder="Seu nome" data-testid="register-name" />
+                        required minLength={2} className="bg-[#111] border-[#2A2A2A] text-white" placeholder="Seu nome" data-testid="register-name" />
                     </div>
                     <div>
                       <Label className="text-[#CCC]">Email</Label>
                       <Input type="email" value={regData.email} onChange={e => setRegData({...regData, email: e.target.value})}
                         required className="bg-[#111] border-[#2A2A2A] text-white" placeholder="seu@email.com" data-testid="register-email" />
+                      <p className="text-xs text-[#555] mt-1">Emails temporários não são aceitos. Você receberá um código.</p>
                     </div>
                     <div>
                       <Label className="text-[#CCC]">Senha</Label>
@@ -217,20 +346,14 @@ export default function AuthPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-[#1A1A1A] border-[#2A2A2A]">
-                          <SelectItem value="buyer">
-                            <span className="flex items-center gap-2">Comprador</span>
-                          </SelectItem>
-                          <SelectItem value="seller">
-                            <span className="flex items-center gap-2">Vendedor</span>
-                          </SelectItem>
-                          <SelectItem value="affiliate">
-                            <span className="flex items-center gap-2">Afiliado</span>
-                          </SelectItem>
+                          <SelectItem value="buyer"><span className="flex items-center gap-2">Comprador</span></SelectItem>
+                          <SelectItem value="seller"><span className="flex items-center gap-2">Vendedor</span></SelectItem>
+                          <SelectItem value="affiliate"><span className="flex items-center gap-2">Afiliado</span></SelectItem>
                         </SelectContent>
                       </Select>
                       <p className="text-xs text-[#555] mt-1">
                         {regData.role === 'seller' ? 'Venda seus produtos na plataforma' :
-                         regData.role === 'affiliate' ? 'Ganhe comissoes indicando produtos' :
+                         regData.role === 'affiliate' ? 'Ganhe comissões indicando produtos' :
                          'Compre produtos na plataforma'}
                       </p>
                     </div>
