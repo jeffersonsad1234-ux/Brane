@@ -1055,9 +1055,6 @@ function AdminProductsTab({ token }) {
   );
 }
 
-  );
-}
-
 // ==================== 1. GESTÃO DE SALDO TAB ====================
 function WalletManagementTab({ token }) {
   const [users, setUsers] = useState([]);
