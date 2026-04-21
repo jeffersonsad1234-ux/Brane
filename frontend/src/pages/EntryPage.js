@@ -53,7 +53,7 @@ export default function EntryPage() {
               </div>
 
               <h2 className="text-3xl font-bold text-white mb-3" style={{ fontFamily: "'Outfit', sans-serif" }}>
-                BRANE Social
+                BRANE
               </h2>
               <p className="text-sm text-purple-100/70 leading-relaxed mb-6">
                 Conecte-se, compartilhe momentos e construa sua rede. Feed, grupos e chat privado com experiência premium.

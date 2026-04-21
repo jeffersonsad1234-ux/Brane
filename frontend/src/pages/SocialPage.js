@@ -272,7 +272,7 @@ export default function SocialPage() {
               <Users className="w-4 h-4 text-white" />
             </div>
             <h1 className="text-lg font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              BRANE <span className="text-pink-400">Social</span>
+              BRANE
             </h1>
           </div>
           <div className="flex items-center gap-2">
