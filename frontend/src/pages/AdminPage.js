@@ -466,8 +466,7 @@ function StoresTab({ token }) {
       .then(r => setStores(r.data.stores))
       .catch(() => {});
   };
-  
-  useEffect(() => { fetchStores(); }, []);
+  useEffect(() => { fetchStores(); }, [fetchStores])
 
   const toggleApproval = async (storeId, approved) => {
     try {
