@@ -124,7 +124,7 @@ export default function AuthPage() {
   // Redirect if already logged in (in effect, not render)
   useEffect(() => {
     if (user) {
-      navigate(user.role === 'admin' ? '/admin' : '/social', { replace: true });
+      navigate(user.role === 'admin' ? '/admin' : '/market', { replace: true });
     }
   }, [user, navigate]);
 
@@ -134,7 +134,7 @@ export default function AuthPage() {
     try {
       const res = await login(loginData.email, loginData.password);
       toast.success('Bem-vindo ao BRANE!');
-      navigate(res.user.role === 'admin' ? '/admin' : '/social');
+      navigate(res.user.role === 'admin' ? '/admin' : '/market');
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Email ou senha incorretos');
     } finally { setLoading(false); }
@@ -146,7 +146,7 @@ export default function AuthPage() {
     try {
       await register(regData.name, regData.email, regData.password, 'buyer');
       toast.success('Conta criada com sucesso!');
-      navigate('/social');
+      navigate('/market');
     } catch (err) {
       toast.error(err.response?.data?.detail || 'Erro ao criar conta');
     } finally { setLoading(false); }

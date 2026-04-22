@@ -934,68 +934,6 @@ function ThemeTab({ token }) {
         </div>
       </div>
 
-      {/* SOCIAL PAGE CUSTOMIZATION (DM) */}
-      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]" data-testid="admin-social-customization">
-        <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-          <Users className="w-5 h-5 text-pink-400" /> Personalização do Social (DM)
-        </h3>
-        <p className="text-xs text-[#888] mb-4">Personalize as cores, tamanhos e layout da página BRANE Social (feed de posts)</p>
-
-        <div className="grid sm:grid-cols-2 gap-4 mb-4">
-          <ColorInput label="Fundo da página Social" field="social_bg_color" />
-          <ColorInput label="Cor de destaque (acentos)" field="social_accent_color" />
-          <ColorInput label="Fundo dos cards de post" field="social_card_bg" />
-          <ColorInput label="Borda dos cards" field="social_card_border" />
-          <ColorInput label="Texto do post" field="social_text_color" />
-          <ColorInput label="Texto secundário" field="social_muted_color" />
-        </div>
-
-        <div className="space-y-3">
-          <div>
-            <Label className="text-[#CCC] text-xs">Largura máxima do feed</Label>
-            <select value={t.social_feed_width || 'medium'} onChange={e => setT({...t, social_feed_width: e.target.value})}
-              className="w-full h-9 px-3 rounded bg-[#111] border border-[#2A2A2A] text-white text-sm mt-1">
-              <option value="narrow">Estreito (compacto)</option>
-              <option value="medium">Médio (padrão)</option>
-              <option value="wide">Largo (expandido)</option>
-            </select>
-          </div>
-          <div>
-            <Label className="text-[#CCC] text-xs">Raio dos cantos dos cards</Label>
-            <select value={t.social_card_radius || 'xl'} onChange={e => setT({...t, social_card_radius: e.target.value})}
-              className="w-full h-9 px-3 rounded bg-[#111] border border-[#2A2A2A] text-white text-sm mt-1">
-              <option value="none">Reto</option>
-              <option value="md">Suave</option>
-              <option value="xl">Arredondado (padrão)</option>
-              <option value="2xl">Muito arredondado</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Social preview */}
-        <div className="mt-5 p-4 rounded-xl" style={{ backgroundColor: t.social_bg_color || '#1a0033' }}>
-          <p className="text-[10px] text-[#888] mb-2 tracking-widest">PREVIEW</p>
-          <div className="p-4 rounded-2xl border"
-               style={{
-                 backgroundColor: t.social_card_bg || '#1a1028',
-                 borderColor: t.social_card_border || 'rgba(168,85,247,0.25)'
-               }}>
-            <div className="flex gap-3 items-center mb-3">
-              <div className="w-9 h-9 rounded-full" style={{ background: `linear-gradient(135deg, ${t.social_accent_color || '#ec4899'}, #a855f7)` }} />
-              <div>
-                <p className="text-sm font-semibold" style={{ color: t.social_text_color || '#ffffff' }}>Usuário BRANE</p>
-                <p className="text-[10px]" style={{ color: t.social_muted_color || 'rgba(216,180,254,0.6)' }}>agora</p>
-              </div>
-            </div>
-            <p className="text-sm" style={{ color: t.social_text_color || '#ffffff' }}>Preview do post com suas configurações aplicadas ✨</p>
-            <button className="mt-3 px-4 py-1.5 rounded-full text-xs text-white"
-                    style={{ background: `linear-gradient(135deg, ${t.social_accent_color || '#ec4899'}, #a855f7)` }}>
-              Publicar
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Preview */}
       <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
         <h3 className="font-bold text-white mb-4">Pre-visualizacao</h3>

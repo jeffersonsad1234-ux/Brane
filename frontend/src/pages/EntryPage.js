@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, Zap, Heart, Users } from 'lucide-react';
+import { ArrowRight, Sparkles, Zap, ShoppingBag, Shield } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function EntryPage() {
@@ -58,7 +58,7 @@ export default function EntryPage() {
         {/* Main CTA button */}
         <div className="flex flex-col items-center gap-5 animate-fadeIn" style={{ animationDelay: '0.25s' }}>
           <Link
-            to={user ? '/social' : '/auth'}
+            to={user ? '/market' : '/auth'}
             className="group relative inline-flex items-center gap-3 px-12 py-5 rounded-full text-white font-semibold text-base tracking-wide overflow-hidden transition-all duration-300 hover:scale-[1.03]"
             style={{
               background: 'linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #8b5cf6 100%)',
