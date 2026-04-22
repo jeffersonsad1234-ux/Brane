@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, Zap, ShoppingBag, Shield } from 'lucide-react';
+import { ArrowRight, Sparkles, Zap, ShoppingBag, Shield, Users, Heart } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function EntryPage() {
