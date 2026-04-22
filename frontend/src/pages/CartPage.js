@@ -16,16 +16,16 @@ export default function CartPage() {
   const headers = { Authorization: `Bearer ${token}` };
 
   const fetchCart = async () => {
-    try { const res = await axios.get(`${API}/cart`, { headers, withCredentials: true }); setItems(res.data.items); }
+    try { const res = await axios.get(`${API}/cart`, { headers }); setItems(res.data.items); }
     catch {} finally { setLoading(false); }
   };
   useEffect(() => { fetchCart(); }, []);
 
   const updateQty = async (itemId, qty) => {
-    try { await axios.put(`${API}/cart/${itemId}`, { quantity: qty }, { headers, withCredentials: true }); fetchCart(); } catch {}
+    try { await axios.put(`${API}/cart/${itemId}`, { quantity: qty }, { headers }); fetchCart(); } catch {}
   };
   const removeItem = async (itemId) => {
-    try { await axios.delete(`${API}/cart/${itemId}`, { headers, withCredentials: true }); fetchCart(); toast.success('Item removido'); } catch {}
+    try { await axios.delete(`${API}/cart/${itemId}`, { headers }); fetchCart(); toast.success('Item removido'); } catch {}
   };
 
   const total = items.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);

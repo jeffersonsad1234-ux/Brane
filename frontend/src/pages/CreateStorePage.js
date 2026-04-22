@@ -68,7 +68,7 @@ export default function CreateStorePage() {
       return;
     }
     // Check if user already has a store
-    axios.get(`${API}/stores/my`, { headers, withCredentials: true })
+    axios.get(`${API}/stores/my`, { headers })
       .then(res => {
         if (res.data.store) {
           setExistingStore(res.data.store);
@@ -85,7 +85,7 @@ export default function CreateStorePage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await axios.post(`${API}/upload`, fd, { headers, withCredentials: true });
+      const res = await axios.post(`${API}/upload`, fd, { headers });
       setForm(prev => ({ ...prev, [field]: res.data.path }));
       toast.success('Imagem enviada!');
     } catch {
@@ -104,11 +104,11 @@ export default function CreateStorePage() {
     setLoading(true);
     try {
       // Create store
-      const res = await axios.post(`${API}/stores`, form, { headers, withCredentials: true });
+      const res = await axios.post(`${API}/stores`, form, { headers });
       
       // If not free plan, upgrade
       if (selectedPlan !== 'free') {
-        await axios.post(`${API}/stores/upgrade`, { plan: selectedPlan }, { headers, withCredentials: true });
+        await axios.post(`${API}/stores/upgrade`, { plan: selectedPlan }, { headers });
       }
       
       toast.success('Loja criada com sucesso!');

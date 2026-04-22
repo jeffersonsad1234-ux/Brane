@@ -31,9 +31,9 @@ export default function WalletPage() {
   const refresh = async () => {
     try {
       const [walletRes, historyRes, profileRes] = await Promise.all([
-        axios.get(`${API}/wallet`, { headers, withCredentials: true }),
-        axios.get(`${API}/wallet/history`, { headers, withCredentials: true }),
-        axios.get(`${API}/users/profile`, { headers, withCredentials: true })
+        axios.get(`${API}/wallet`, { headers }),
+        axios.get(`${API}/wallet/history`, { headers }),
+        axios.get(`${API}/users/profile`, { headers })
       ]);
       setWallet(walletRes.data);
       setTransactions(historyRes.data.transactions);
@@ -56,7 +56,7 @@ export default function WalletPage() {
       return;
     }
     try {
-      await axios.post(`${API}/wallet/withdraw`, { amount: parseFloat(wdAmount), method: wdMethod }, { headers, withCredentials: true });
+      await axios.post(`${API}/wallet/withdraw`, { amount: parseFloat(wdAmount), method: wdMethod }, { headers });
       toast.success('Solicitação de saque enviada! Aguarde aprovação do admin.');
       setWdAmount('');
       refresh();
@@ -66,7 +66,7 @@ export default function WalletPage() {
   const saveBankDetails = async () => {
     setSavingBank(true);
     try {
-      await axios.put(`${API}/users/bank-details`, bankDetails, { headers, withCredentials: true });
+      await axios.put(`${API}/users/bank-details`, bankDetails, { headers });
       toast.success('Dados bancários salvos!');
       setEditingBank(false);
     } catch { toast.error('Erro ao salvar dados bancários'); }

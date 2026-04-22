@@ -18,7 +18,7 @@ export default function Footer() {
                 <p className="text-[#888] text-xs">Nossa equipe está pronta para te atender</p>
               </div>
             </div>
-            <Link to="/profile">
+            <Link to="/support">
               <Button className="gold-btn rounded-lg px-6 py-2 text-sm font-medium">
                 <MessageCircle className="w-4 h-4 mr-2" /> Falar com Suporte
               </Button>

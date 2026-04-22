@@ -36,7 +36,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (!user) { navigate('/auth'); return; }
     Promise.all([
-      axios.get(`${API}/cart`, { headers, withCredentials: true }),
+      axios.get(`${API}/cart`, { headers }),
       axios.get(`${API}/shipping/options`),
       axios.get(`${API}/payment-methods`)
     ]).then(([cartRes, shippingRes, paymentRes]) => {
@@ -58,7 +58,7 @@ export default function CheckoutPage() {
   const validateCoupon = async () => {
     if (!couponCode.trim()) return;
     try {
-      const res = await axios.post(`${API}/coupons/validate`, { code: couponCode }, { headers, withCredentials: true });
+      const res = await axios.post(`${API}/coupons/validate`, { code: couponCode }, { headers });
       setAppliedCoupon(res.data);
       toast.success(`Cupom ${res.data.code} aplicado!`);
     } catch { toast.error('Cupom invalido ou expirado'); }
@@ -100,7 +100,7 @@ export default function CheckoutPage() {
         shipping_option: selectedShipping,
         coupon_code: appliedCoupon?.code || null,
         payment_method: selectedPayment
-      }, { headers, withCredentials: true });
+      }, { headers });
       setOrderComplete(res.data);
       toast.success('Pedido confirmado! Realize o pagamento.');
     } catch (err) {

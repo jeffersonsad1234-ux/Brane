@@ -369,30 +369,17 @@ async def register(data: UserRegister):
         "password_hash": hash_password(data.password), "role": register_role,
         "picture": "", "bio": "", "cover_photo": "",
         "bank_details": {}, "is_blocked": False,
-        "email_verified": False,
+        "email_verified": True,  # Auto-verified (no SMTP configured)
         "brane_coins": 0, "is_vip": False,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.users.insert_one(user)
     await db.wallets.insert_one({"user_id": user_id, "available": 0.0, "held": 0.0})
 
-    # Generate verification code (dev mode: returned in response)
-    import random
-    code = str(random.randint(100000, 999999))
-    await db.email_verifications.delete_many({"email": email_normalized})
-    await db.email_verifications.insert_one({
-        "email": email_normalized, "code": code, "user_id": user_id,
-        "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=30)).isoformat(),
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    logger.info(f"Email verification code for {email_normalized}: {code}")
-
     token = create_jwt(user_id, email_normalized, register_role)
     return {
         "token": token,
-        "user": clean_user(user),
-        "verification_required": True,
-        "verification_code": code  # DEV MODE: sent to frontend for display
+        "user": clean_user(user)
     }
 
 @api_router.post("/auth/send-verification")
@@ -1697,8 +1684,17 @@ async def get_theme_settings(request: Request):
         "nav_link_hover_color": "#B38B36",
         "title_color": "#B38B36",
         "product_card_size": "medium",
+        # Social page customization (DM)
+        "social_bg_color": "#0a0014",
+        "social_accent_color": "#ec4899",
+        "social_card_bg": "#1a1028",
+        "social_card_border": "rgba(168,85,247,0.25)",
+        "social_text_color": "#ffffff",
+        "social_muted_color": "rgba(216,180,254,0.6)",
+        "social_feed_width": "medium",
+        "social_card_radius": "xl",
         "platform_name": "BRANE",
-        "platform_slogan": "Marketplace Premium",
+        "platform_slogan": "Sua nova experiência social",
         "show_stars": True,
         "show_free_shipping": True,
         "show_installments": True,
@@ -1742,8 +1738,16 @@ async def get_public_theme():
         "nav_link_hover_color": "#B38B36",
         "title_color": "#B38B36",
         "product_card_size": "medium",
+        "social_bg_color": "#0a0014",
+        "social_accent_color": "#ec4899",
+        "social_card_bg": "#1a1028",
+        "social_card_border": "rgba(168,85,247,0.25)",
+        "social_text_color": "#ffffff",
+        "social_muted_color": "rgba(216,180,254,0.6)",
+        "social_feed_width": "medium",
+        "social_card_radius": "xl",
         "platform_name": "BRANE",
-        "platform_slogan": "Marketplace Premium",
+        "platform_slogan": "Sua nova experiência social",
         "show_stars": True,
         "show_free_shipping": True,
         "show_installments": True,
@@ -2484,7 +2488,7 @@ async def update_admin_layout_settings(request: Request):
     return {"message": "Layout atualizado", "settings": body}
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://brane-nine.vercel.app"],
+    allow_origin_regex=r"https?://(.*\.vercel\.app|.*\.emergentagent\.com|localhost(:\d+)?)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

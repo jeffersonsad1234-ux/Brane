@@ -22,7 +22,7 @@ export default function OrdersPage() {
   const [expandedOrder, setExpandedOrder] = useState(null);
 
   useEffect(() => {
-    axios.get(`${API}/orders`, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true })
+    axios.get(`${API}/orders`, { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setOrders(res.data.orders)).catch(() => {}).finally(() => setLoading(false));
   }, [token]);
 

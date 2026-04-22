@@ -18,7 +18,7 @@ export default function SupportPage() {
 
   const fetchMessages = () => {
     if (!token) return;
-    axios.get(`${API}/support/messages`, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true })
+    axios.get(`${API}/support/messages`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => setMessages(r.data.messages))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -31,7 +31,7 @@ export default function SupportPage() {
     if (!msg.trim()) return;
     setSending(true);
     try {
-      await axios.post(`${API}/support/message`, { message: msg }, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
+      await axios.post(`${API}/support/message`, { message: msg }, { headers: { Authorization: `Bearer ${token}` } });
       setMsg('');
       fetchMessages();
     } catch { toast.error('Erro ao enviar'); }

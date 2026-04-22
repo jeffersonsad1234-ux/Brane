@@ -13,12 +13,12 @@ export default function NotificationsPage() {
   const headers = { Authorization: `Bearer ${token}` };
 
   const fetch_ = async () => {
-    try { const res = await axios.get(`${API}/notifications`, { headers, withCredentials: true }); setNotifications(res.data.notifications); }
+    try { const res = await axios.get(`${API}/notifications`, { headers }); setNotifications(res.data.notifications); }
     catch {} finally { setLoading(false); }
   };
   useEffect(() => { fetch_(); }, []);
-  const markRead = async (id) => { await axios.put(`${API}/notifications/${id}/read`, {}, { headers, withCredentials: true }); fetch_(); };
-  const markAllRead = async () => { await axios.put(`${API}/notifications/read-all`, {}, { headers, withCredentials: true }); fetch_(); };
+  const markRead = async (id) => { await axios.put(`${API}/notifications/${id}/read`, {}, { headers }); fetch_(); };
+  const markAllRead = async () => { await axios.put(`${API}/notifications/read-all`, {}, { headers }); fetch_(); };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center carbon-bg"><div className="w-8 h-8 border-4 border-[#B38B36] border-t-transparent rounded-full animate-spin" /></div>;
 

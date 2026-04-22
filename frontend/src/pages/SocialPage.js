@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
-import { Heart, MessageCircle, Send, Image as ImageIcon, X, Trash2, User, Users, Home, Compass, Bell, MessageSquare } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { Heart, MessageCircle, Send, Image as ImageIcon, X, Trash2, Users, MessageSquare } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 
@@ -168,6 +169,7 @@ function PostCard({ post, currentUser, onLike, onDelete, onCommentAdded }) {
 
 export default function SocialPage() {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -178,6 +180,19 @@ export default function SocialPage() {
 
   const token = localStorage.getItem('brane_token');
   const headers = { Authorization: `Bearer ${token}` };
+
+  // Derived theme values (with fallbacks)
+  const bgColor = theme?.social_bg_color || '#0a0014';
+  const cardBg = theme?.social_card_bg || '#1a1028';
+  const cardBorder = theme?.social_card_border || 'rgba(168,85,247,0.25)';
+  const textColor = theme?.social_text_color || '#ffffff';
+  const mutedColor = theme?.social_muted_color || 'rgba(216,180,254,0.6)';
+  const accentColor = theme?.social_accent_color || '#ec4899';
+  const feedWidth = theme?.social_feed_width || 'medium';
+  const cardRadius = theme?.social_card_radius || 'xl';
+
+  const maxWidthClass = feedWidth === 'narrow' ? 'max-w-xl' : feedWidth === 'wide' ? 'max-w-3xl' : 'max-w-2xl';
+  const radiusClass = cardRadius === 'none' ? 'rounded-none' : cardRadius === 'md' ? 'rounded-md' : cardRadius === '2xl' ? 'rounded-3xl' : 'rounded-2xl';
 
   useEffect(() => {
     loadPosts();
@@ -262,35 +277,15 @@ export default function SocialPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, #0a0014 0%, #1a0033 100%)' }} data-testid="social-page">
-      {/* Social Top Bar */}
-      <div className="sticky top-16 z-40 backdrop-blur-xl bg-[#0a0014]/80 border-b border-purple-900/30">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                 style={{ background: 'linear-gradient(135deg, #ec4899, #a855f7)' }}>
-              <Users className="w-4 h-4 text-white" />
-            </div>
-            <h1 className="text-lg font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              BRANE
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <Link to="/market" className="text-xs text-purple-300/70 hover:text-pink-300 px-3 py-1.5 rounded-lg border border-purple-900/40 hover:border-pink-500/40 transition-all">
-              Ir ao Market →
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-2xl mx-auto px-4 py-6">
+    <div className="min-h-screen" style={{ background: `linear-gradient(180deg, ${bgColor} 0%, ${bgColor === '#0a0014' ? '#1a0033' : bgColor} 100%)` }} data-testid="social-page">
+      <div className={`${maxWidthClass} mx-auto px-4 py-6`}>
         {/* Composer */}
         {user ? (
-          <div className="bg-[#1a1028] border border-purple-900/40 rounded-2xl p-4 mb-6">
+          <div className={`${radiusClass} p-4 mb-6 border`} style={{ backgroundColor: cardBg, borderColor: cardBorder }}>
             <form onSubmit={submitPost}>
               <div className="flex gap-3">
                 <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold shrink-0"
-                     style={{ background: 'linear-gradient(135deg, #ec4899, #a855f7)' }}>
+                     style={{ background: `linear-gradient(135deg, ${accentColor}, #a855f7)` }}>
                   {user.picture ? <img src={user.picture} alt={user.name} className="w-full h-full rounded-full object-cover" /> : getInitials(user.name)}
                 </div>
                 <div className="flex-1">
@@ -298,7 +293,8 @@ export default function SocialPage() {
                     value={newPost}
                     onChange={e => setNewPost(e.target.value)}
                     placeholder={`No que está pensando, ${user.name?.split(' ')[0] || 'você'}?`}
-                    className="w-full bg-transparent text-white placeholder:text-purple-300/40 resize-none focus:outline-none text-sm"
+                    className="w-full bg-transparent resize-none focus:outline-none text-sm"
+                    style={{ color: textColor }}
                     rows={3}
                     maxLength={2000}
                     data-testid="post-content-input"
@@ -313,8 +309,8 @@ export default function SocialPage() {
                   </button>
                 </div>
               )}
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-purple-900/40">
-                <label className="cursor-pointer flex items-center gap-2 text-xs text-purple-300 hover:text-pink-300 transition-colors" data-testid="add-image-btn">
+              <div className="flex items-center justify-between mt-3 pt-3 border-t" style={{ borderColor: cardBorder }}>
+                <label className="cursor-pointer flex items-center gap-2 text-xs hover:opacity-80 transition-opacity" style={{ color: mutedColor }} data-testid="add-image-btn">
                   <ImageIcon className="w-4 h-4" />
                   Adicionar foto
                   <input type="file" accept="image/*" onChange={handleImageSelect} className="hidden" />
@@ -323,7 +319,7 @@ export default function SocialPage() {
                   type="submit"
                   disabled={!newPost.trim() || submitting}
                   className="rounded-full px-6 text-white"
-                  style={{ background: 'linear-gradient(135deg, #ec4899, #a855f7)' }}
+                  style={{ background: `linear-gradient(135deg, ${accentColor}, #a855f7)` }}
                   data-testid="submit-post-btn"
                 >
                   {submitting ? 'Publicando...' : 'Publicar'}
@@ -332,12 +328,12 @@ export default function SocialPage() {
             </form>
           </div>
         ) : (
-          <div className="bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/30 rounded-2xl p-6 mb-6 text-center">
-            <Users className="w-10 h-10 text-pink-400 mx-auto mb-3" />
+          <div className={`${radiusClass} p-6 mb-6 text-center border`} style={{ background: `linear-gradient(135deg, ${accentColor}22, #a855f722)`, borderColor: `${accentColor}55` }}>
+            <Users className="w-10 h-10 mx-auto mb-3" style={{ color: accentColor }} />
             <p className="text-white font-semibold mb-2">Entre para começar a postar</p>
-            <p className="text-xs text-purple-200/60 mb-4">Conecte-se com outras pessoas na comunidade BRANE</p>
+            <p className="text-xs mb-4" style={{ color: mutedColor }}>Conecte-se com outras pessoas na comunidade BRANE</p>
             <Link to="/auth">
-              <Button className="rounded-full px-6 text-white" style={{ background: 'linear-gradient(135deg, #ec4899, #a855f7)' }}>
+              <Button className="rounded-full px-6 text-white" style={{ background: `linear-gradient(135deg, ${accentColor}, #a855f7)` }}>
                 Entrar / Criar Conta
               </Button>
             </Link>
@@ -348,13 +344,13 @@ export default function SocialPage() {
         <div className="space-y-4">
           {loading ? (
             <div className="text-center py-20">
-              <div className="w-8 h-8 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto" />
+              <div className="w-8 h-8 border-4 border-t-transparent rounded-full animate-spin mx-auto" style={{ borderColor: accentColor, borderTopColor: 'transparent' }} />
             </div>
           ) : posts.length === 0 ? (
-            <div className="text-center py-20 bg-[#1a1028] border border-purple-900/40 rounded-2xl">
-              <MessageSquare className="w-12 h-12 text-purple-500/50 mx-auto mb-3" />
-              <p className="text-purple-200/70">Nenhum post ainda.</p>
-              <p className="text-xs text-purple-300/40 mt-2">Seja o primeiro a publicar!</p>
+            <div className={`${radiusClass} text-center py-20 border`} style={{ backgroundColor: cardBg, borderColor: cardBorder }}>
+              <MessageSquare className="w-12 h-12 mx-auto mb-3" style={{ color: mutedColor }} />
+              <p style={{ color: mutedColor }}>Nenhum post ainda.</p>
+              <p className="text-xs mt-2" style={{ color: mutedColor, opacity: 0.7 }}>Seja o primeiro a publicar!</p>
             </div>
           ) : (
             posts.map(p => (

@@ -33,7 +33,7 @@ export default function ProductDetailPage() {
     if (goToCheckout) setBuyingNow(true);
     else setAddingToCart(true);
     try {
-      await axios.post(`${API}/cart`, { product_id: id, quantity }, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
+      await axios.post(`${API}/cart`, { product_id: id, quantity }, { headers: { Authorization: `Bearer ${token}` } });
       if (goToCheckout) navigate('/checkout');
       else toast.success('Adicionado ao carrinho!');
     } catch { toast.error('Erro ao adicionar'); }
@@ -43,7 +43,7 @@ export default function ProductDetailPage() {
   const generateAffiliateLink = async () => {
     if (!user) { navigate('/auth'); return; }
     try {
-      const res = await axios.post(`${API}/affiliates/link`, { product_id: id }, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
+      const res = await axios.post(`${API}/affiliates/link`, { product_id: id }, { headers: { Authorization: `Bearer ${token}` } });
       setAffiliateCode(res.data.code);
       toast.success('Link de afiliado criado!');
     } catch { toast.error('Erro ao criar link'); }

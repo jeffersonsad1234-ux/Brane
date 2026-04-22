@@ -110,14 +110,14 @@ function SellerDashboard({ token }) {
   const headers = { Authorization: `Bearer ${token}` };
 
   const fetchProducts = async () => {
-    try { const res = await axios.get(`${API}/products/seller/mine`, { headers, withCredentials: true }); setProducts(res.data.products); } catch {}
+    try { const res = await axios.get(`${API}/products/seller/mine`, { headers }); setProducts(res.data.products); } catch {}
   };
   
   const checkTermsStatus = async () => {
     try {
       const [termsRes, productsRes] = await Promise.all([
-        axios.get(`${API}/seller/terms-status`, { headers, withCredentials: true }),
-        axios.get(`${API}/seller/has-products`, { headers, withCredentials: true })
+        axios.get(`${API}/seller/terms-status`, { headers }),
+        axios.get(`${API}/seller/has-products`, { headers })
       ]);
       setTermsAccepted(termsRes.data.accepted);
       setHasProducts(productsRes.data.has_products);
@@ -137,7 +137,7 @@ function SellerDashboard({ token }) {
 
   const handleTermsAccept = async () => {
     try {
-      await axios.post(`${API}/seller/accept-terms`, {}, { headers, withCredentials: true });
+      await axios.post(`${API}/seller/accept-terms`, {}, { headers });
       setTermsAccepted(true);
       setShowTerms(false);
       setShowAdd(true);
@@ -153,7 +153,7 @@ function SellerDashboard({ token }) {
     setUploading(true);
     try {
       const fd = new FormData(); fd.append('file', file);
-      const res = await axios.post(`${API}/upload`, fd, { headers, withCredentials: true });
+      const res = await axios.post(`${API}/upload`, fd, { headers });
       setForm(prev => ({ ...prev, images: [...prev.images, res.data.path] }));
       toast.success('Imagem enviada!');
     } catch { toast.error('Erro ao enviar imagem'); }
@@ -163,7 +163,7 @@ function SellerDashboard({ token }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API}/products`, { ...form, price: parseFloat(form.price) }, { headers, withCredentials: true });
+      await axios.post(`${API}/products`, { ...form, price: parseFloat(form.price) }, { headers });
       toast.success('Produto criado!');
       setShowAdd(false);
       setForm({ title: '', description: '', price: '', category: '', city: '', location: '', images: [] });
@@ -173,7 +173,7 @@ function SellerDashboard({ token }) {
   };
 
   const handleDelete = async (pid) => {
-    try { await axios.delete(`${API}/products/${pid}`, { headers, withCredentials: true }); toast.success('Produto removido'); fetchProducts(); }
+    try { await axios.delete(`${API}/products/${pid}`, { headers }); toast.success('Produto removido'); fetchProducts(); }
     catch { toast.error('Erro ao remover'); }
   };
 
@@ -286,7 +286,7 @@ function SellerDashboard({ token }) {
 function BuyerDashboard({ token }) {
   const [orders, setOrders] = useState([]);
   useEffect(() => {
-    axios.get(`${API}/orders`, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }).then(res => setOrders(res.data.orders)).catch(() => {});
+    axios.get(`${API}/orders`, { headers: { Authorization: `Bearer ${token}` } }).then(res => setOrders(res.data.orders)).catch(() => {});
   }, [token]);
   return (
     <div data-testid="buyer-dashboard">
@@ -314,7 +314,7 @@ function BuyerDashboard({ token }) {
 function AffiliateDashboard({ token }) {
   const [data, setData] = useState({ links: [], transactions: [], total_earnings: 0 });
   useEffect(() => {
-    axios.get(`${API}/affiliates/earnings`, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }).then(res => setData(res.data)).catch(() => {});
+    axios.get(`${API}/affiliates/earnings`, { headers: { Authorization: `Bearer ${token}` } }).then(res => setData(res.data)).catch(() => {});
   }, [token]);
   return (
     <div data-testid="affiliate-dashboard">

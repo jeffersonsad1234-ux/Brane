@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await axios.get(`${API}/auth/me`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-        withCredentials: true
+        
       });
       setUser(res.data);
     } catch {
@@ -69,14 +69,14 @@ export function AuthProvider({ children }) {
   };
 
   const exchangeSession = async (sessionId) => {
-    const res = await axios.post(`${API}/auth/session`, { session_id: sessionId }, { withCredentials: true });
+    const res = await axios.post(`${API}/auth/session`, { session_id: sessionId }, {  });
     setUser(res.data);
     return res.data;
   };
 
   const logout = async () => {
     try {
-      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+      await axios.post(`${API}/auth/logout`, {}, {  });
     } catch {}
     setUser(null);
     setToken(null);
@@ -85,7 +85,7 @@ export function AuthProvider({ children }) {
 
   const switchRole = async (role) => {
     const res = await axios.put(`${API}/users/role`, { role }, {
-      headers: getHeaders(), withCredentials: true
+      headers: getHeaders()
     });
     setToken(res.data.token);
     setUser(res.data.user);

@@ -19,7 +19,7 @@ export default function FloatingSupport() {
     if (!user) { navigate('/auth'); return; }
     setSending(true);
     try {
-      await axios.post(`${API}/support/message`, { message: msg }, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
+      await axios.post(`${API}/support/message`, { message: msg }, { headers: { Authorization: `Bearer ${token}` } });
       toast.success('Mensagem enviada ao suporte!');
       setMsg('');
       setOpen(false);

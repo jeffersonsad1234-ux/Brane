@@ -16,7 +16,7 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 function DashboardTab({ token }) {
   const [data, setData] = useState(null);
-  useEffect(() => { axios.get(`${API}/admin/dashboard`, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }).then(r => setData(r.data)).catch(() => {}); }, []);
+  useEffect(() => { axios.get(`${API}/admin/dashboard`, { headers: { Authorization: `Bearer ${token}` } }).then(r => setData(r.data)).catch(() => {}); }, []);
   if (!data) return <div className="py-8 text-center text-[#888]">Carregando...</div>;
   const stats = [
     { label: 'Usuarios', value: data.total_users, icon: Users, color: '#3B82F6' },
@@ -42,12 +42,12 @@ function DashboardTab({ token }) {
 function OrdersTab({ token }) {
   const [orders, setOrders] = useState([]);
   const h = { Authorization: `Bearer ${token}` };
-  const f = () => axios.get(`${API}/admin/orders`, { headers: h, withCredentials: true }).then(r => setOrders(r.data.orders)).catch(() => {});
+  const f = () => axios.get(`${API}/admin/orders`, { headers: h }).then(r => setOrders(r.data.orders)).catch(() => {});
   useEffect(() => { f(); }, []);
-  const approve = async (id) => { await axios.put(`${API}/admin/orders/${id}/approve`, {}, { headers: h, withCredentials: true }); toast.success('Pagamento confirmado!'); f(); };
-  const reject = async (id) => { await axios.put(`${API}/admin/orders/${id}/reject`, {}, { headers: h, withCredentials: true }); toast.success('Pedido rejeitado'); f(); };
-  const ship = async (id) => { await axios.put(`${API}/admin/orders/${id}/ship`, {}, { headers: h, withCredentials: true }); toast.success('Pedido enviado!'); f(); };
-  const deliver = async (id) => { await axios.put(`${API}/admin/orders/${id}/deliver`, {}, { headers: h, withCredentials: true }); toast.success('Pedido entregue!'); f(); };
+  const approve = async (id) => { await axios.put(`${API}/admin/orders/${id}/approve`, {}, { headers: h }); toast.success('Pagamento confirmado!'); f(); };
+  const reject = async (id) => { await axios.put(`${API}/admin/orders/${id}/reject`, {}, { headers: h }); toast.success('Pedido rejeitado'); f(); };
+  const ship = async (id) => { await axios.put(`${API}/admin/orders/${id}/ship`, {}, { headers: h }); toast.success('Pedido enviado!'); f(); };
+  const deliver = async (id) => { await axios.put(`${API}/admin/orders/${id}/deliver`, {}, { headers: h }); toast.success('Pedido entregue!'); f(); };
 
   const statusLabels = {
     'awaiting_payment': 'Aguardando Pagamento', 'pending': 'Pendente', 'approved': 'Aprovado',
@@ -106,9 +106,9 @@ function OrdersTab({ token }) {
 function UsersTab({ token }) {
   const [users, setUsers] = useState([]);
   const h = { Authorization: `Bearer ${token}` };
-  const f = () => axios.get(`${API}/admin/users`, { headers: h, withCredentials: true }).then(r => setUsers(r.data.users)).catch(() => {});
+  const f = () => axios.get(`${API}/admin/users`, { headers: h }).then(r => setUsers(r.data.users)).catch(() => {});
   useEffect(() => { f(); }, []);
-  const toggleBlock = async (uid) => { await axios.put(`${API}/admin/users/${uid}/block`, {}, { headers: h, withCredentials: true }); toast.success('Status alterado'); f(); };
+  const toggleBlock = async (uid) => { await axios.put(`${API}/admin/users/${uid}/block`, {}, { headers: h }); toast.success('Status alterado'); f(); };
   const roleLabels = { buyer: 'Comprador', seller: 'Vendedor', affiliate: 'Afiliado', admin: 'Admin' };
   return (
     <div className="space-y-3" data-testid="admin-users-tab">
@@ -128,10 +128,10 @@ function UsersTab({ token }) {
 function WithdrawalsTab({ token }) {
   const [wds, setWds] = useState([]);
   const h = { Authorization: `Bearer ${token}` };
-  const f = () => axios.get(`${API}/admin/withdrawals`, { headers: h, withCredentials: true }).then(r => setWds(r.data.withdrawals)).catch(() => {});
+  const f = () => axios.get(`${API}/admin/withdrawals`, { headers: h }).then(r => setWds(r.data.withdrawals)).catch(() => {});
   useEffect(() => { f(); }, []);
-  const approve = async (id) => { await axios.put(`${API}/admin/withdrawals/${id}/approve`, {}, { headers: h, withCredentials: true }); toast.success('Saque aprovado'); f(); };
-  const reject = async (id) => { await axios.put(`${API}/admin/withdrawals/${id}/reject`, {}, { headers: h, withCredentials: true }); toast.success('Saque rejeitado'); f(); };
+  const approve = async (id) => { await axios.put(`${API}/admin/withdrawals/${id}/approve`, {}, { headers: h }); toast.success('Saque aprovado'); f(); };
+  const reject = async (id) => { await axios.put(`${API}/admin/withdrawals/${id}/reject`, {}, { headers: h }); toast.success('Saque rejeitado'); f(); };
   return (
     <div className="space-y-3" data-testid="admin-withdrawals-tab">
       {wds.length === 0 ? <p className="text-[#888] text-center py-8">Nenhum saque</p> : wds.map(w => (
@@ -154,8 +154,8 @@ function WithdrawalsTab({ token }) {
 function CommissionsTab({ token }) {
   const [data, setData] = useState({ platform_commission: 0.09, affiliate_commission: 0.065 });
   const h = { Authorization: `Bearer ${token}` };
-  useEffect(() => { axios.get(`${API}/admin/commissions`, { headers: h, withCredentials: true }).then(r => setData(r.data)).catch(() => {}); }, []);
-  const save = async () => { await axios.put(`${API}/admin/commissions`, data, { headers: h, withCredentials: true }); toast.success('Comissoes atualizadas'); };
+  useEffect(() => { axios.get(`${API}/admin/commissions`, { headers: h }).then(r => setData(r.data)).catch(() => {}); }, []);
+  const save = async () => { await axios.put(`${API}/admin/commissions`, data, { headers: h }); toast.success('Comissoes atualizadas'); };
   return (
     <div className="dark-card rounded-xl p-6 max-w-md" data-testid="admin-commissions-tab">
       <h3 className="font-bold mb-4 font-['Outfit'] text-white">Taxas de Comissao</h3>
@@ -173,9 +173,9 @@ function SupportTab({ token }) {
   const [reply, setReply] = useState('');
   const [replyTo, setReplyTo] = useState(null);
   const h = { Authorization: `Bearer ${token}` };
-  const f = () => axios.get(`${API}/admin/support`, { headers: h, withCredentials: true }).then(r => setMsgs(r.data.messages)).catch(() => {});
+  const f = () => axios.get(`${API}/admin/support`, { headers: h }).then(r => setMsgs(r.data.messages)).catch(() => {});
   useEffect(() => { f(); }, []);
-  const sendReply = async (msgId) => { await axios.post(`${API}/admin/support/${msgId}/reply`, { reply }, { headers: h, withCredentials: true }); toast.success('Resposta enviada'); setReply(''); setReplyTo(null); f(); };
+  const sendReply = async (msgId) => { await axios.post(`${API}/admin/support/${msgId}/reply`, { reply }, { headers: h }); toast.success('Resposta enviada'); setReply(''); setReplyTo(null); f(); };
   return (
     <div className="space-y-3" data-testid="admin-support-tab">
       {msgs.length === 0 ? <p className="text-[#888] text-center py-8">Nenhuma mensagem</p> : msgs.map(m => (
@@ -203,8 +203,8 @@ function PagesTab({ token }) {
   const [content, setContent] = useState('');
   const h = { Authorization: `Bearer ${token}` };
   const pages = ['about', 'faq', 'contato', 'termos', 'privacidade'];
-  useEffect(() => { axios.get(`${API}/admin/pages/${slug}`, { headers: h, withCredentials: true }).then(r => setContent(r.data.content || '')).catch(() => {}); }, [slug]);
-  const save = async () => { await axios.put(`${API}/admin/pages/${slug}`, { content }, { headers: h, withCredentials: true }); toast.success('Pagina atualizada'); };
+  useEffect(() => { axios.get(`${API}/admin/pages/${slug}`, { headers: h }).then(r => setContent(r.data.content || '')).catch(() => {}); }, [slug]);
+  const save = async () => { await axios.put(`${API}/admin/pages/${slug}`, { content }, { headers: h }); toast.success('Pagina atualizada'); };
   return (
     <div className="dark-card rounded-xl p-6" data-testid="admin-pages-tab">
       <div className="flex gap-2 mb-4 flex-wrap">
@@ -224,11 +224,11 @@ function FinancialSettingsTab({ token }) {
   });
   const [saving, setSaving] = useState(false);
   const h = { Authorization: `Bearer ${token}` };
-  useEffect(() => { axios.get(`${API}/admin/financial-settings`, { headers: h, withCredentials: true }).then(r => setData(prev => ({...prev, ...r.data}))).catch(() => {}); }, []);
+  useEffect(() => { axios.get(`${API}/admin/financial-settings`, { headers: h }).then(r => setData(prev => ({...prev, ...r.data}))).catch(() => {}); }, []);
   const save = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/admin/financial-settings`, data, { headers: h, withCredentials: true });
+      await axios.put(`${API}/admin/financial-settings`, data, { headers: h });
       toast.success('Configuracoes salvas!');
     } catch { toast.error('Erro ao salvar'); }
     finally { setSaving(false); }
@@ -357,7 +357,7 @@ function ShippingTab({ token }) {
   const h = { Authorization: `Bearer ${token}` };
   
   useEffect(() => { 
-    axios.get(`${API}/admin/shipping-settings`, { headers: h, withCredentials: true })
+    axios.get(`${API}/admin/shipping-settings`, { headers: h })
       .then(r => setOptions(r.data.options || []))
       .catch(() => setOptions([
         { name: 'Gratis', price: 0, days: '7-15 dias uteis', enabled: true },
@@ -381,7 +381,7 @@ function ShippingTab({ token }) {
   };
 
   const save = async () => { 
-    await axios.put(`${API}/admin/shipping-settings`, { options }, { headers: h, withCredentials: true }); 
+    await axios.put(`${API}/admin/shipping-settings`, { options }, { headers: h }); 
     toast.success('Opcoes de frete atualizadas'); 
   };
 
@@ -462,7 +462,7 @@ function StoresTab({ token }) {
   const h = { Authorization: `Bearer ${token}` };
   
   const fetchStores = () => {
-    axios.get(`${API}/admin/stores`, { headers: h, withCredentials: true })
+    axios.get(`${API}/admin/stores`, { headers: h })
       .then(r => setStores(r.data.stores))
       .catch(() => {});
   };
@@ -470,7 +470,7 @@ function StoresTab({ token }) {
 
   const toggleApproval = async (storeId, approved) => {
     try {
-      await axios.put(`${API}/admin/stores/${storeId}/approve`, { approved }, { headers: h, withCredentials: true });
+      await axios.put(`${API}/admin/stores/${storeId}/approve`, { approved }, { headers: h });
       toast.success(approved ? 'Loja aprovada!' : 'Aprovação removida');
       fetchStores();
     } catch { toast.error('Erro ao atualizar loja'); }
@@ -478,7 +478,7 @@ function StoresTab({ token }) {
 
   const changePlan = async (storeId, plan) => {
     try {
-      await axios.put(`${API}/admin/stores/${storeId}/plan`, { plan }, { headers: h, withCredentials: true });
+      await axios.put(`${API}/admin/stores/${storeId}/plan`, { plan }, { headers: h });
       toast.success(`Plano alterado para ${plan.toUpperCase()}`);
       fetchStores();
     } catch { toast.error('Erro ao alterar plano'); }
@@ -576,7 +576,7 @@ function AdsTab({ token }) {
   const h = { Authorization: `Bearer ${token}` };
   
   const fetchAds = () => {
-    axios.get(`${API}/admin/ads`, { headers: h, withCredentials: true })
+    axios.get(`${API}/admin/ads`, { headers: h })
       .then(r => setAds(r.data.ads))
       .catch(() => {});
   };
@@ -590,7 +590,7 @@ function AdsTab({ token }) {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await axios.post(`${API}/upload`, fd, { headers: h, withCredentials: true });
+      const res = await axios.post(`${API}/upload`, fd, { headers: h });
       setForm({ ...form, image: res.data.path });
       toast.success('Imagem enviada!');
     } catch { toast.error('Erro ao enviar imagem'); }
@@ -603,7 +603,7 @@ function AdsTab({ token }) {
       return;
     }
     try {
-      await axios.post(`${API}/ads`, form, { headers: h, withCredentials: true });
+      await axios.post(`${API}/ads`, form, { headers: h });
       toast.success('Anúncio criado!');
       setShowCreate(false);
       setForm({ title: '', image: '', link: '', position: 'between_products' });
@@ -613,7 +613,7 @@ function AdsTab({ token }) {
 
   const toggleAd = async (adId, active) => {
     try {
-      await axios.put(`${API}/admin/ads/${adId}`, { active }, { headers: h, withCredentials: true });
+      await axios.put(`${API}/admin/ads/${adId}`, { active }, { headers: h });
       toast.success(active ? 'Anúncio ativado' : 'Anúncio desativado');
       fetchAds();
     } catch { toast.error('Erro ao atualizar anúncio'); }
@@ -621,7 +621,7 @@ function AdsTab({ token }) {
 
   const deleteAd = async (adId) => {
     try {
-      await axios.delete(`${API}/admin/ads/${adId}`, { headers: h, withCredentials: true });
+      await axios.delete(`${API}/admin/ads/${adId}`, { headers: h });
       toast.success('Anúncio removido');
       fetchAds();
     } catch { toast.error('Erro ao remover anúncio'); }
@@ -791,13 +791,13 @@ function ThemeTab({ token }) {
   const h = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
-    axios.get(`${API}/admin/theme`, { headers: h, withCredentials: true }).then(r => setT(r.data)).catch(() => {});
+    axios.get(`${API}/admin/theme`, { headers: h }).then(r => setT(r.data)).catch(() => {});
   }, []);
 
   const save = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/admin/theme`, t, { headers: h, withCredentials: true });
+      await axios.put(`${API}/admin/theme`, t, { headers: h });
       refreshTheme();
       toast.success('Tema atualizado!');
     } catch { toast.error('Erro ao salvar'); }
@@ -934,6 +934,68 @@ function ThemeTab({ token }) {
         </div>
       </div>
 
+      {/* SOCIAL PAGE CUSTOMIZATION (DM) */}
+      <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]" data-testid="admin-social-customization">
+        <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+          <Users className="w-5 h-5 text-pink-400" /> Personalização do Social (DM)
+        </h3>
+        <p className="text-xs text-[#888] mb-4">Personalize as cores, tamanhos e layout da página BRANE Social (feed de posts)</p>
+
+        <div className="grid sm:grid-cols-2 gap-4 mb-4">
+          <ColorInput label="Fundo da página Social" field="social_bg_color" />
+          <ColorInput label="Cor de destaque (acentos)" field="social_accent_color" />
+          <ColorInput label="Fundo dos cards de post" field="social_card_bg" />
+          <ColorInput label="Borda dos cards" field="social_card_border" />
+          <ColorInput label="Texto do post" field="social_text_color" />
+          <ColorInput label="Texto secundário" field="social_muted_color" />
+        </div>
+
+        <div className="space-y-3">
+          <div>
+            <Label className="text-[#CCC] text-xs">Largura máxima do feed</Label>
+            <select value={t.social_feed_width || 'medium'} onChange={e => setT({...t, social_feed_width: e.target.value})}
+              className="w-full h-9 px-3 rounded bg-[#111] border border-[#2A2A2A] text-white text-sm mt-1">
+              <option value="narrow">Estreito (compacto)</option>
+              <option value="medium">Médio (padrão)</option>
+              <option value="wide">Largo (expandido)</option>
+            </select>
+          </div>
+          <div>
+            <Label className="text-[#CCC] text-xs">Raio dos cantos dos cards</Label>
+            <select value={t.social_card_radius || 'xl'} onChange={e => setT({...t, social_card_radius: e.target.value})}
+              className="w-full h-9 px-3 rounded bg-[#111] border border-[#2A2A2A] text-white text-sm mt-1">
+              <option value="none">Reto</option>
+              <option value="md">Suave</option>
+              <option value="xl">Arredondado (padrão)</option>
+              <option value="2xl">Muito arredondado</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Social preview */}
+        <div className="mt-5 p-4 rounded-xl" style={{ backgroundColor: t.social_bg_color || '#1a0033' }}>
+          <p className="text-[10px] text-[#888] mb-2 tracking-widest">PREVIEW</p>
+          <div className="p-4 rounded-2xl border"
+               style={{
+                 backgroundColor: t.social_card_bg || '#1a1028',
+                 borderColor: t.social_card_border || 'rgba(168,85,247,0.25)'
+               }}>
+            <div className="flex gap-3 items-center mb-3">
+              <div className="w-9 h-9 rounded-full" style={{ background: `linear-gradient(135deg, ${t.social_accent_color || '#ec4899'}, #a855f7)` }} />
+              <div>
+                <p className="text-sm font-semibold" style={{ color: t.social_text_color || '#ffffff' }}>Usuário BRANE</p>
+                <p className="text-[10px]" style={{ color: t.social_muted_color || 'rgba(216,180,254,0.6)' }}>agora</p>
+              </div>
+            </div>
+            <p className="text-sm" style={{ color: t.social_text_color || '#ffffff' }}>Preview do post com suas configurações aplicadas ✨</p>
+            <button className="mt-3 px-4 py-1.5 rounded-full text-xs text-white"
+                    style={{ background: `linear-gradient(135deg, ${t.social_accent_color || '#ec4899'}, #a855f7)` }}>
+              Publicar
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Preview */}
       <div className="dark-card rounded-xl p-6 border border-[#2A2A2A]">
         <h3 className="font-bold text-white mb-4">Pre-visualizacao</h3>
@@ -973,7 +1035,7 @@ function AdminProductsTab({ token }) {
   const [uploading, setUploading] = useState(false);
   const h = { Authorization: `Bearer ${token}` };
 
-  const f = () => axios.get(`${API}/admin/products`, { headers: h, withCredentials: true }).then(r => setProducts(r.data.products)).catch(() => {});
+  const f = () => axios.get(`${API}/admin/products`, { headers: h }).then(r => setProducts(r.data.products)).catch(() => {});
   useEffect(() => { f(); }, []);
 
   const handleUpload = async (e) => {
@@ -982,7 +1044,7 @@ function AdminProductsTab({ token }) {
     setUploading(true);
     try {
       const fd = new FormData(); fd.append('file', file);
-      const res = await axios.post(`${API}/upload`, fd, { headers: { ...h, 'Content-Type': 'multipart/form-data' }, withCredentials: true });
+      const res = await axios.post(`${API}/upload`, fd, { headers: { ...h, 'Content-Type': 'multipart/form-data' } });
       setForm(prev => ({ ...prev, images: [...prev.images, res.data.path] }));
       toast.success('Imagem enviada');
     } catch { toast.error('Erro no upload'); }
@@ -993,10 +1055,10 @@ function AdminProductsTab({ token }) {
     const data = { ...form, price: parseFloat(form.price) || 0 };
     try {
       if (editing) {
-        await axios.put(`${API}/admin/products/${editing}`, data, { headers: h, withCredentials: true });
+        await axios.put(`${API}/admin/products/${editing}`, data, { headers: h });
         toast.success('Produto atualizado!');
       } else {
-        await axios.post(`${API}/admin/products`, data, { headers: h, withCredentials: true });
+        await axios.post(`${API}/admin/products`, data, { headers: h });
         toast.success('Produto criado!');
       }
       setEditing(null); setShowAdd(false);
@@ -1008,7 +1070,7 @@ function AdminProductsTab({ token }) {
   const deleteProduct = async (id) => {
     if (!window.confirm('Remover este produto?')) return;
     try {
-      await axios.delete(`${API}/admin/products/${id}`, { headers: h, withCredentials: true });
+      await axios.delete(`${API}/admin/products/${id}`, { headers: h });
       toast.success('Produto removido!'); f();
     } catch { toast.error('Erro ao remover'); }
   };
@@ -1111,7 +1173,7 @@ function WalletManagementTab({ token }) {
   const h = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
-    axios.get(`${API}/admin/users`, { headers: h, withCredentials: true })
+    axios.get(`${API}/admin/users`, { headers: h })
       .then(r => setUsers(r.data.users.filter(u => u.role === 'seller' || u.role === 'affiliate')))
       .catch(() => {});
   }, []);
@@ -1127,7 +1189,7 @@ function WalletManagementTab({ token }) {
         user_id: selectedUser,
         amount: parseFloat(amount),
         balance_type: balanceType
-      }, { headers: h, withCredentials: true });
+      }, { headers: h });
       toast.success('Saldo adicionado com sucesso!');
       setAmount('');
       setSelectedUser(null);
@@ -1211,7 +1273,7 @@ function EscrowTab({ token }) {
   const h = { Authorization: `Bearer ${token}` };
 
   const fetchUsers = async () => {
-    const res = await axios.get(`${API}/admin/users`, { headers: h, withCredentials: true });
+    const res = await axios.get(`${API}/admin/users`, { headers: h });
     const sellersAffiliates = res.data.users.filter(u => u.role === 'seller' || u.role === 'affiliate');
     setUsers(sellersAffiliates);
     
@@ -1220,7 +1282,7 @@ function EscrowTab({ token }) {
       try {
         const walletRes = await axios.get(`${API}/wallet`, { 
           headers: { ...h, 'X-User-ID': user.user_id }, 
-          withCredentials: true 
+           
         });
         setWallets(prev => ({ ...prev, [user.user_id]: walletRes.data }));
       } catch {}
@@ -1253,7 +1315,7 @@ function EscrowTab({ token }) {
       await axios.post(`${API}/admin/wallet/release-held`, {
         user_id: selectedUser,
         amount: releaseAll ? null : parseFloat(amount)
-      }, { headers: h, withCredentials: true });
+      }, { headers: h });
       toast.success('Saldo liberado com sucesso!');
       setAmount('');
       setSelectedUser(null);
@@ -1347,7 +1409,7 @@ function AffiliateControlTab({ token }) {
   const h = { Authorization: `Bearer ${token}` };
 
   const fetchAffiliates = () => {
-    axios.get(`${API}/admin/users`, { headers: h, withCredentials: true })
+    axios.get(`${API}/admin/users`, { headers: h })
       .then(r => setAffiliates(r.data.users.filter(u => u.role === 'affiliate')))
       .catch(() => {});
   };
@@ -1358,7 +1420,7 @@ function AffiliateControlTab({ token }) {
     try {
       await axios.put(`${API}/admin/users/${userId}/affiliate-settings`, {
         affiliate_earnings_enabled: enabled
-      }, { headers: h, withCredentials: true });
+      }, { headers: h });
       toast.success(enabled ? 'Ganhos ativados' : 'Ganhos desativados');
       fetchAffiliates();
     } catch (err) {
@@ -1416,7 +1478,7 @@ function SalesDashboardTab({ token }) {
   const h = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
-    axios.get(`${API}/admin/sales/dashboard`, { headers: h, withCredentials: true })
+    axios.get(`${API}/admin/sales/dashboard`, { headers: h })
       .then(r => { setSales(r.data.sales); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
@@ -1500,7 +1562,7 @@ function AdminNotificationsTab({ token }) {
   const h = { Authorization: `Bearer ${token}` };
 
   const fetchNotifications = () => {
-    axios.get(`${API}/admin/notifications`, { headers: h, withCredentials: true })
+    axios.get(`${API}/admin/notifications`, { headers: h })
       .then(r => {
         setNotifications(r.data.notifications);
         setUnreadCount(r.data.unread_count);
@@ -1512,7 +1574,7 @@ function AdminNotificationsTab({ token }) {
 
   const markAsRead = async (notifId) => {
     try {
-      await axios.put(`${API}/admin/notifications/${notifId}/read`, {}, { headers: h, withCredentials: true });
+      await axios.put(`${API}/admin/notifications/${notifId}/read`, {}, { headers: h });
       fetchNotifications();
     } catch {}
   };
@@ -1569,7 +1631,7 @@ function TrackingTab({ token }) {
   const h = { Authorization: `Bearer ${token}` };
 
   const fetchOrders = () => {
-    axios.get(`${API}/admin/orders`, { headers: h, withCredentials: true })
+    axios.get(`${API}/admin/orders`, { headers: h })
       .then(r => setOrders(r.data.orders.filter(o => o.status !== 'rejected')))
       .catch(() => {});
   };
@@ -1585,7 +1647,7 @@ function TrackingTab({ token }) {
     try {
       await axios.put(`${API}/admin/orders/${selectedOrder}/tracking`, {
         tracking_code: trackingCode
-      }, { headers: h, withCredentials: true });
+      }, { headers: h });
       toast.success('Codigo de rastreio atualizado!');
       setTrackingCode('');
       setSelectedOrder(null);
@@ -1653,7 +1715,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (token) {
-      axios.get(`${API}/admin/notification-counts`, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true })
+      axios.get(`${API}/admin/notification-counts`, { headers: { Authorization: `Bearer ${token}` } })
         .then(r => setCounts(r.data))
         .catch(() => {});
     }

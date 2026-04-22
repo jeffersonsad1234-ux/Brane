@@ -30,7 +30,7 @@ export default function ProfilePage() {
   const headers = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
-    axios.get(`${API}/users/profile`, { headers, withCredentials: true })
+    axios.get(`${API}/users/profile`, { headers })
       .then(res => {
         setProfile(res.data);
         setForm({ name: res.data.name || '', picture: res.data.picture || '' });
@@ -47,11 +47,11 @@ export default function ProfilePage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const res = await axios.post(`${API}/upload`, fd, { headers, withCredentials: true });
+      const res = await axios.post(`${API}/upload`, fd, { headers });
       const picUrl = `${API}/files/${res.data.path}`;
       setForm(prev => ({ ...prev, picture: picUrl }));
       // Save immediately
-      await axios.put(`${API}/users/profile`, { picture: picUrl }, { headers, withCredentials: true });
+      await axios.put(`${API}/users/profile`, { picture: picUrl }, { headers });
       setProfile(prev => ({ ...prev, picture: picUrl }));
       if (setUser) setUser(prev => ({ ...prev, picture: picUrl }));
       toast.success('Foto atualizada!');
@@ -65,7 +65,7 @@ export default function ProfilePage() {
   const saveProfile = async () => {
     setSaving(true);
     try {
-      const res = await axios.put(`${API}/users/profile`, { name: form.name }, { headers, withCredentials: true });
+      const res = await axios.put(`${API}/users/profile`, { name: form.name }, { headers });
       setProfile(prev => ({ ...prev, ...res.data }));
       if (setUser) setUser(prev => ({ ...prev, name: form.name }));
       toast.success('Perfil atualizado!');
@@ -79,7 +79,7 @@ export default function ProfilePage() {
   const saveBankDetails = async () => {
     setSaving(true);
     try {
-      await axios.put(`${API}/users/bank-details`, bankForm, { headers, withCredentials: true });
+      await axios.put(`${API}/users/bank-details`, bankForm, { headers });
       toast.success('Dados bancarios atualizados!');
     } catch {
       toast.error('Erro ao salvar');

@@ -16,7 +16,7 @@ export default function BraneCoinsPage() {
   const [redeeming, setRedeeming] = useState('');
 
   const fetchData = () => {
-    axios.get(`${API}/brane-coins`, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true })
+    axios.get(`${API}/brane-coins`, { headers: { Authorization: `Bearer ${token}` } })
       .then(r => setData(r.data)).catch(() => {}).finally(() => setLoading(false));
   };
   useEffect(() => { fetchData(); }, [token]);
@@ -24,7 +24,7 @@ export default function BraneCoinsPage() {
   const redeem = async (rewardId) => {
     setRedeeming(rewardId);
     try {
-      const res = await axios.post(`${API}/brane-coins/redeem`, { reward_id: rewardId }, { headers: { Authorization: `Bearer ${token}` }, withCredentials: true });
+      const res = await axios.post(`${API}/brane-coins/redeem`, { reward_id: rewardId }, { headers: { Authorization: `Bearer ${token}` } });
       toast.success(res.data.message);
       if (res.data.coupon_code) toast.success(`Seu cupom: ${res.data.coupon_code}`);
       fetchData();

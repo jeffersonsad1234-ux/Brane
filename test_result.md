@@ -464,6 +464,18 @@ test_plan:
         agent: "testing"
         comment: "✅ TESTED: POST /api/orders com payment_method (pix/ted/paypal) funcionando. Status 'awaiting_payment' correto. payment_info incluído com detalhes bancários. PUT /api/admin/orders/{id}/approve muda status para 'approved'. Admin vê payment_method na listagem."
 
+  - task: "BRANE Simplified Auth Registration & Social Theme Fields"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "✅ TESTED: Simplified auth registration working perfectly. POST /api/auth/register accepts {name, email, password} without role requirement, auto-verifies emails (email_verified: true), no verification_code returned. Registration with explicit role works. Disposable email validation blocks fake emails. Login/auth/me endpoints working. Social posts creation/listing working. Theme APIs include all new social fields (social_bg_color, social_accent_color, etc.). CORS accepts requests from different origins. Theme updates working - social_accent_color successfully changed. 12/12 tests passed."
+
 agent_communication:
   - agent: "main"
     message: "Implementado: 1) Admin financeiro separado em PIX/TED/PayPal com campo agência. 2) Checkout com seleção de método de pagamento e instruções. 3) Status awaiting_payment. 4) Admin vê botão Confirmar Pagamento."
@@ -473,3 +485,5 @@ agent_communication:
     message: "🎉 NEW FEATURES TESTING COMPLETE: All 7 new features tested and working perfectly! ✅ Support Chat (user messages + admin replies), ✅ Brane Coins (earning + redemption system), ✅ Desapega (secondhand products listing), ✅ Order Tracking (ship/deliver with status array), ✅ Admin Notification Counts (all tabs), ✅ Buyer Wallet (coins/VIP/coupons), ✅ Payment Methods (PIX/TED always available). Complete end-to-end flow tested: admin login → configure financial settings → register seller/buyer → create products (normal + desapega) → order with payment method → admin approve (buyer gets 1 coin) → ship → deliver → support chat → all APIs working. 28/28 tests passed!"
   - agent: "testing"
     message: "🚀 BRANE NEW ENDPOINTS TESTING COMPLETE: All 5 new endpoint groups tested successfully! ✅ Auth Registration (strict email validation, disposable email blocking, verification codes), ✅ Email Verification (6-digit codes, resend functionality), ✅ Social Posts (create/list/like/comment/delete), ✅ Public User Profiles (security-compliant public fields only), ✅ Theme Configuration (all new customization fields). 21/21 tests passed with 100% success rate. All endpoints working as specified in requirements."
+  - agent: "testing"
+    message: "🎯 SIMPLIFIED AUTH & SOCIAL THEME TESTING COMPLETE: All critical endpoints tested after simplification! ✅ POST /api/auth/register now accepts simple registration {name, email, password} without role requirement and auto-verifies emails (email_verified: true), no verification_code returned ✅ Registration with explicit role works ✅ Disposable email validation still blocks fake emails ✅ POST /api/auth/login and GET /api/auth/me working ✅ Social posts (POST/GET /api/social/posts) working ✅ Theme APIs (GET /api/theme, GET/PUT /api/admin/theme) include all new social fields: social_bg_color, social_accent_color, social_card_bg, social_card_border, social_text_color, social_muted_color, social_feed_width, social_card_radius ✅ CORS configuration accepts requests from different origins (Vercel, emergentagent.com, localhost) ✅ Theme update verified - social_accent_color successfully changed to #ff0066. 12/12 tests passed with 100% success rate!"
