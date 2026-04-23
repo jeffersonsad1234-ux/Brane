@@ -2488,10 +2488,11 @@ async def update_admin_layout_settings(request: Request):
     return {"message": "Layout atualizado", "settings": body}
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=r"https?://(.*\.vercel\.app|.*\.emergentagent\.com|localhost(:\d+)?)",
+    allow_origin_regex=r".*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 app.include_router(api_router)
