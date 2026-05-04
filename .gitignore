@@ -1,133 +1,48 @@
-# Environment variables
+# --- Ambiente (nunca commitar segredos) ---
 .env
+.env.*
+*.env
 .env.local
 backend/.env
 frontend/.env.local
 
-# Python
+# --- Python ---
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 *.egg-info/
-dist/
-build/
 venv/
 env/
 
-# Node
+# --- Node (global + CRA no frontend) ---
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnp.js
-frontend/build/
 
-# IDEs
+# --- Build / artefatos (o código em frontend/ NÃO é ignorado) ---
+/build/
+frontend/build/
+dist/
+
+# --- IDEs e SO ---
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-
-# OS
 .DS_Store
 Thumbs.db
 
-# Logs
+# --- Logs e dados locais ---
 *.log
 logs/
-
-# Database
 *.db
 *.sqlite
-
-# Temporary
 tmp/
 temp/
 *.tmp
-
-# MongoDB
 data/
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
--e 
-# Environment and credential files
-.env
-.env.*
-*.env
-credentials.json
-*.pem
-*.key
-.credentials
