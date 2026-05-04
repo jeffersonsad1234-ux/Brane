@@ -1579,10 +1579,17 @@ export default function SocialPage() {
 
                     <button
                       type="button"
-                      onClick={() => {
-                        if (!requireAuth()) return;
-                        setUseAI(true);
-                        setComposerOpen(true);
+                     onClick={() => {
+                     const ok = requireAuth();
+
+                     if (!ok) {
+                     setShowAuth(true);
+                     return;
+                     }
+
+                     setUseAI(true);
+                     setComposerOpen(true);
+                     }}
                       }}
                       className="w-full rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black py-3"
                     >
