@@ -1,0 +1,4 @@
+# Cloudflare Pages (monorepo): output estático após `npm run build` na raiz.
+# Ver: https://developers.cloudflare.com/pages/configuration/monorepos/
+name = "brane"
+pages_build_output_dir = "./frontend/build"
