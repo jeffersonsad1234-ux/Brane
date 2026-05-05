@@ -84,12 +84,59 @@ const extractPrice = (parts) => {
 };
 
 // Detecta estado do produto em qualquer parte
-const productConditionKeywords = ["novo", "usado", "seminovo", "em bom estado", "com detalhes", "para retirada de peças"];
+const CONDITION_OPTIONS = ["Novo", "Seminovo", "Usado", "Pouco usado", "Em boas condições", "Com marcas de uso", "Precisa de reparo"];
+const CONDITION_MAP = {
+  "novo": "Novo",
+  "seminovo": "Seminovo",
+  "usado": "Usado",
+  "pouco usado": "Pouco usado",
+  "em boas condições": "Em boas condições",
+  "em bom estado": "Em boas condições",
+  "com marcas de uso": "Com marcas de uso",
+  "com detalhes": "Com marcas de uso",
+  "precisa de reparo": "Precisa de reparo",
+  "para retirada de peças": "Precisa de reparo"
+};
+
+// Detecta disponibilidade no texto livre
+const AVAILABILITY_OPTIONS = ["Item único", "Tenho várias unidades", "Sob demanda", "Serviço", "Produto personalizado"];
+const AVAILABILITY_MAP = {
+  "item único": "Item único",
+  "unico": "Item único",
+  "único": "Item único",
+  "várias unidades": "Tenho várias unidades",
+  "varias unidades": "Tenho várias unidades",
+  "vários": "Tenho várias unidades",
+  "varios": "Tenho várias unidades",
+  "sob demanda": "Sob demanda",
+  "encomenda": "Sob demanda",
+  "serviço": "Serviço",
+  "servico": "Serviço",
+  "personalizado": "Produto personalizado",
+  "produto personalizado": "Produto personalizado"
+};
+
+const detectAvailabilityInText = (text) => {
+  const t = text.toLowerCase();
+  for (const [key, val] of Object.entries(AVAILABILITY_MAP)) {
+    if (t.includes(key)) return val;
+  }
+  return null;
+};
+
 const extractCondition = (parts) => {
+  // Tenta detectar em partes individuais
   for (let i = 0; i < parts.length; i++) {
     const p = parts[i].trim().toLowerCase();
-    if (productConditionKeywords.includes(p)) {
-      return { condition: parts[i].trim(), index: i };
+    if (CONDITION_MAP[p]) {
+      return { condition: CONDITION_MAP[p], index: i };
+    }
+  }
+  // Tenta detectar em pares de partes adjacentes (ex: "pouco" + "usado")
+  for (let i = 0; i < parts.length - 1; i++) {
+    const pair = (parts[i] + " " + parts[i + 1]).trim().toLowerCase();
+    if (CONDITION_MAP[pair]) {
+      return { condition: CONDITION_MAP[pair], index: i, extraIndex: i + 1 };
     }
   }
   return null;
@@ -138,7 +185,8 @@ const extractByPosition = (text) => {
     description,
     price,
     city,
-    category: detectCategory(text)
+    category: detectCategory(text),
+    availability: detectAvailabilityInText(text) || ""
   };
 };
 
@@ -156,6 +204,8 @@ export default function AIAssistantPanelSocial({
   const [input, setInput] = useState("");
   const [localAd, setLocalAd] = useState(null);
   const [photosCount, setPhotosCount] = useState(0);
+  // Controla etapa de seleção guiada: null = nenhuma pendente, 'condition' ou 'availability'
+  const [pendingStep, setPendingStep] = useState(null);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -214,7 +264,6 @@ export default function AIAssistantPanelSocial({
 
     const missing = [];
     if (!merged.title) missing.push("produto");
-    if (!merged.product_condition) missing.push("estado (novo, usado ou seminovo)");
     if (!merged.description) missing.push("detalhes/descrição");
     if (!merged.price) missing.push("preço");
     if (!merged.city) missing.push("cidade");
@@ -225,6 +274,27 @@ export default function AIAssistantPanelSocial({
         { id: prev.length + 1, from: "system", text: `Legal! Agora me informe o ${missing[0]}.` }
       ]);
       setLocalAd(merged);
+      return;
+    }
+
+    // Verifica campos de seleção guiada (estado e disponibilidade)
+    if (!merged.product_condition) {
+      setLocalAd(merged);
+      setPendingStep("condition");
+      setMessages((prev) => [
+        ...prev,
+        { id: prev.length + 1, from: "system", text: "Qual é o estado do produto? Selecione uma opção:" }
+      ]);
+      return;
+    }
+
+    if (!merged.availability) {
+      setLocalAd(merged);
+      setPendingStep("availability");
+      setMessages((prev) => [
+        ...prev,
+        { id: prev.length + 1, from: "system", text: "Qual é a disponibilidade do produto? Selecione uma opção:" }
+      ]);
       return;
     }
 
@@ -251,8 +321,26 @@ export default function AIAssistantPanelSocial({
   };
 
   useEffect(() => {
-    if (photosCount > 0 && localAd && !localAd.ready && localAd.title && localAd.price && localAd.city && localAd.product_condition) {
-      // Enriquece a descrição quando as fotos chegam (prévia inicial já vem com emojis)
+    if (photosCount > 0 && localAd && !localAd.ready && localAd.title && localAd.price && localAd.city) {
+      // Se ainda falta estado do produto, pede seleção guiada
+      if (!localAd.product_condition) {
+        setPendingStep("condition");
+        setMessages((prev) => [
+          ...prev,
+          { id: prev.length + 1, from: "system", text: "Qual é o estado do produto? Selecione uma opção:" }
+        ]);
+        return;
+      }
+      // Se ainda falta disponibilidade, pede seleção guiada
+      if (!localAd.availability) {
+        setPendingStep("availability");
+        setMessages((prev) => [
+          ...prev,
+          { id: prev.length + 1, from: "system", text: "Qual é a disponibilidade do produto? Selecione uma opção:" }
+        ]);
+        return;
+      }
+      // Tudo preenchido: enriquece a descrição e gera prévia
       improveIndex = 0;
       const rawDesc = localAd._rawDescription || localAd.description || localAd.title || "";
       const enriched = { ...localAd, ready: true, _rawDescription: rawDesc };
@@ -281,10 +369,54 @@ export default function AIAssistantPanelSocial({
     onFillForm(improved);
   };
 
+  // Trata seleção de opção guiada (estado ou disponibilidade)
+  const handleSelectOption = (field, value) => {
+    const updated = { ...(localAd || defaultAd), [field]: value };
+    setLocalAd(updated);
+    setPendingStep(null);
+    setMessages((prev) => [
+      ...prev,
+      { id: prev.length + 1, from: "user", text: value }
+    ]);
+
+    // Verifica o próximo passo pendente
+    if (field === "product_condition" && !updated.availability) {
+      setPendingStep("availability");
+      setMessages((prev) => [
+        ...prev,
+        { id: prev.length + 1, from: "system", text: "Qual é a disponibilidade do produto? Selecione uma opção:" }
+      ]);
+      return;
+    }
+
+    // Ambos preenchidos: verifica fotos
+    if (photosCount === 0) {
+      setMessages((prev) => [
+        ...prev,
+        { id: prev.length + 1, from: "system", text: "Agora envie pelo menos 1 foto do produto para eu preparar o anúncio." }
+      ]);
+      return;
+    }
+
+    // Tudo pronto: gera prévia enriquecida
+    improveIndex = 0;
+    const enriched = { ...updated, _rawDescription: updated.description || updated.title };
+    enriched.description = buildRichDescription(enriched, improveIndex);
+    const final = { ...enriched, ready: true };
+    setLocalAd(final);
+    onGenerateAd(final);
+    onFillForm(final);
+    setMessages((prev) => [
+      ...prev,
+      { id: prev.length + 1, from: "system", text: "Tudo pronto! Confira a prévia do seu anúncio abaixo." }
+    ]);
+  };
+
   const handleReset = () => {
     setInput("");
     setLocalAd(null);
     setPhotosCount(0);
+    setPendingStep(null);
     setMessages([{
       id: 1,
       from: "system",
@@ -319,6 +451,42 @@ export default function AIAssistantPanelSocial({
             {message.text}
           </div>
         ))}
+
+        {/* Seleção guiada: estado do produto */}
+        {pendingStep === "condition" && (
+          <div className="mr-auto w-full max-w-[95%] space-y-2">
+            <div className="flex flex-wrap gap-2">
+              {CONDITION_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => handleSelectOption("product_condition", opt)}
+                  className="rounded-xl border border-[#D4A24C]/50 bg-[#D4A24C]/10 px-3 py-2 text-xs font-semibold text-[#F1D28A] hover:bg-[#D4A24C]/30 transition-all"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Seleção guiada: disponibilidade */}
+        {pendingStep === "availability" && (
+          <div className="mr-auto w-full max-w-[95%] space-y-2">
+            <div className="flex flex-wrap gap-2">
+              {AVAILABILITY_OPTIONS.map((opt) => (
+                <button
+                  key={opt}
+                  type="button"
+                  onClick={() => handleSelectOption("availability", opt)}
+                  className="rounded-xl border border-[#D4A24C]/50 bg-[#D4A24C]/10 px-3 py-2 text-xs font-semibold text-[#F1D28A] hover:bg-[#D4A24C]/30 transition-all"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {isGenerating && (
           <div className="mr-auto flex items-center gap-2 rounded-2xl bg-white/5 px-4 py-2.5 text-sm text-white/60 border border-white/5">
@@ -384,6 +552,12 @@ export default function AIAssistantPanelSocial({
                   <p className="text-[10px] uppercase font-bold text-white/40">Categoria</p>
                   <p className="text-xs text-white/80 font-medium">📁 {ad.category}</p>
                 </div>
+                {ad.availability && (
+                  <div className="space-y-0.5">
+                    <p className="text-[10px] uppercase font-bold text-white/40">Disponibilidade</p>
+                    <p className="text-xs text-white/80 font-medium">📦 {ad.availability}</p>
+                  </div>
+                )}
               </div>
               
               <div className="pt-2 border-t border-white/5">

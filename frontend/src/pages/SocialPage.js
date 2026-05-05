@@ -1223,6 +1223,12 @@ export default function SocialPage() {
                       </p>
                     )}
 
+                    {selectedPost.availability && selectedPost.availability !== "Item único" && (
+                      <p className="text-sm text-[#606875] mt-1">
+                        📦 {selectedPost.availability}
+                      </p>
+                    )}
+
                     <div className="mt-4 border-t border-[#E5E7EB] pt-4">
                       <p className="text-sm whitespace-pre-wrap text-[#3F4652]">
                         {selectedPost.content}
