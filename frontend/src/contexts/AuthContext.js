@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import axios from 'axios';
 
-const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || "https://8000-ibhroccxo5evuk8kvugfo-77ac4084.us1.manus.computer").trim().replace(/\/$/, "");
+const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app").trim().replace(/\/$/, "");
 const API = `${BACKEND_URL}/api`;
 
 const AuthContext = createContext(null);
