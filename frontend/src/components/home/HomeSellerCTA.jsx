@@ -5,14 +5,14 @@ export default function HomeSellerCTA({ user }) {
   return (
     <>
       <section className="max-w-7xl mx-auto px-4 py-5 bg-transparent">
-        <div className="rounded-[26px] bg-[#0F1117] text-white border border-[#1E2230] px-5 py-4 grid md:grid-cols-2 gap-4">
+        <div className="rounded-[26px] bg-[#1C202B] text-white border border-[#1E2230] px-5 py-4 grid md:grid-cols-2 gap-4">
           <Info title="Compra garantida" text="Proteção do início ao fim" />
           <Info title="Frete para todo o Brasil" text="Com rastreio em tempo real" />
         </div>
       </section>
 
       <section className="max-w-7xl mx-auto px-4 pb-10 bg-transparent">
-        <div className="rounded-[30px] bg-[#0F1117] border border-[#1E2230] p-6 md:p-7 flex flex-col md:flex-row items-center justify-between gap-5">
+        <div className="rounded-[30px] bg-[#1C202B] border border-[#1E2230] p-6 md:p-7 flex flex-col md:flex-row items-center justify-between gap-5">
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#D4A24C] mb-2">
               Para vendedores

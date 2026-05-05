@@ -20,8 +20,8 @@ export default function HomeHero({
   const navigate = useNavigate();
 
   return (
-    <section className="relative overflow-hidden border-b border-[#1E2230] bg-gradient-to-b from-[#0F1117] to-[#0A0B0F]">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0F1117] to-[#0A0B0F]" />
+    <section className="relative overflow-hidden border-b border-[#1E2230] bg-gradient-to-b from-[#151821] to-[#0E1016]">
+      <div className="absolute inset-0 bg-gradient-to-b from-[#151821] to-[#0E1016]" />
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4A24C]/5 to-transparent" />
 
       <div

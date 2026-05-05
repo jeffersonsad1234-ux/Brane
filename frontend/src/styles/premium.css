@@ -5,10 +5,10 @@
 
 :root {
   /* ----- Backgrounds ----- */
-  --brane-bg: #050608;
-  --brane-bg-card: #0B0D12;
-  --brane-bg-soft: #11131A;
-  --brane-bg-deep: #08090D;
+  --brane-bg: #0C0D12;
+  --brane-bg-card: #151821;
+  --brane-bg-soft: #1C202B;
+  --brane-bg-deep: #0E1016;
 
   /* ----- Borders ----- */
   --brane-border: #1E2230;
@@ -631,18 +631,19 @@ body[data-card-shape="minimal"] .theme-product-card:hover {
 /* ---------- Theme-aware Grid (dynamic columns) ---------- */
 .theme-product-grid {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.5rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 @media (min-width: 640px) {
-  .theme-product-grid { gap: 1rem; }
+  .theme-product-grid { gap: 0.6rem; }
   body[data-grid-cols="2"] .theme-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   body[data-grid-cols="3"] .theme-product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  body[data-grid-cols="4"] .theme-product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  body[data-grid-cols="5"] .theme-product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  body[data-grid-cols="6"] .theme-product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  body[data-grid-cols="4"] .theme-product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  body[data-grid-cols="5"] .theme-product-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  body[data-grid-cols="6"] .theme-product-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
 @media (min-width: 1024px) {
+  .theme-product-grid { gap: 0.75rem; }
   body[data-grid-cols="2"] .theme-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   body[data-grid-cols="3"] .theme-product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   body[data-grid-cols="4"] .theme-product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }

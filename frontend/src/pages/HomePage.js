@@ -384,8 +384,13 @@ export default function HomePage() {
     setTimeout(scrollToProducts, 80);
   };
 
+  useEffect(() => {
+    document.body.setAttribute('data-grid-cols', '6');
+    return () => document.body.removeAttribute('data-grid-cols');
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0A0B0F] via-[#0F1117] to-[#0A0B0F] text-[#F7F7FA]" data-testid="home-page">
+    <div className="min-h-screen bg-gradient-to-b from-[#0E1016] via-[#151821] to-[#0E1016] text-[#F7F7FA]" data-testid="home-page">
       <HomeCompactBar show={showCompactBar} onGoProducts={scrollToProducts} />
 
       <HomeHero

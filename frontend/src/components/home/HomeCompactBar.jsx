@@ -4,7 +4,7 @@ export default function HomeCompactBar({ show, onGoProducts }) {
   if (!show) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-[#0A0B0F] border-b border-[#1E2230] shadow-[0_8px_26px_rgba(0,0,0,0.4)]">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-[#151821] border-b border-[#1E2230] shadow-[0_8px_26px_rgba(0,0,0,0.4)]">
       <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
         <div>
           <p className="text-sm md:text-base font-black text-white leading-tight">

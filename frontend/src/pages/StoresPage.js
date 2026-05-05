@@ -27,14 +27,14 @@ export default function StoresPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0E1016] flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-[#D4A24C] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] py-12" data-testid="stores-page">
+    <div className="min-h-screen bg-gradient-to-b from-[#0E1016] via-[#151821] to-[#0E1016] py-12 text-white" data-testid="stores-page">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-10">
@@ -42,10 +42,10 @@ export default function StoresPage() {
             <Store className="w-4 h-4 text-[#B98228]" />
             <span className="text-sm text-[#B98228] font-medium">Lojas Verificadas</span>
           </div>
-          <h1 className="text-4xl font-black font-['Outfit'] mb-3 text-[#111318]">
+          <h1 className="text-4xl font-black font-['Outfit'] mb-3 text-white">
             Descubra Lojas Incríveis
           </h1>
-          <p className="text-[#606875] max-w-lg mx-auto mb-6">
+          <p className="text-[#A6A8B3] max-w-lg mx-auto mb-6">
             Explore lojas verificadas, conheça produtos exclusivos e converse diretamente com os vendedores.
           </p>
 
@@ -69,7 +69,7 @@ export default function StoresPage() {
               placeholder="Buscar lojas..." 
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="pl-10 bg-white border-[#E5E7EB] text-[#111318]"
+              className="pl-10 bg-[#1C202B] border-[#1E2230] text-white"
             />
           </div>
         </div>
@@ -93,9 +93,9 @@ export default function StoresPage() {
 
         {/* Info Box */}
         {user && user.role === 'seller' && (
-          <div className="mt-12 max-w-3xl mx-auto p-6 bg-white rounded-[20px] border border-[#E5E7EB] shadow-[0_10px_22px_rgba(70,50,25,0.06)]">
-            <h3 className="text-lg font-semibold text-[#111318] mb-3">💡 Quer aparecer aqui?</h3>
-            <p className="text-[#606875] mb-4">
+          <div className="mt-12 max-w-3xl mx-auto p-6 bg-[#1C202B] rounded-[20px] border border-[#1E2230] shadow-[0_10px_22px_rgba(0,0,0,0.4)]">
+            <h3 className="text-lg font-semibold text-white mb-3">💡 Quer aparecer aqui?</h3>
+            <p className="text-[#A6A8B3] mb-4">
               Crie sua loja e comece a vender na BRANE! Sua loja aparecerá nesta seção após aprovação do admin.
             </p>
             <ul className="text-sm text-[#8A6326] space-y-1 mb-4">
