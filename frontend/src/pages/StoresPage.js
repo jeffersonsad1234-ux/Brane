@@ -34,7 +34,7 @@ export default function StoresPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0E1016] via-[#151821] to-[#0E1016] py-12 text-white" data-testid="stores-page">
+    <div className="min-h-screen bg-[#1C202B] py-12 text-white" data-testid="stores-page">
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-10">

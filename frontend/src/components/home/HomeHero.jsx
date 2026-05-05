@@ -20,8 +20,8 @@ export default function HomeHero({
   const navigate = useNavigate();
 
   return (
-    <section className="relative overflow-hidden border-b border-[#1E2230] bg-gradient-to-b from-[#151821] to-[#0E1016]">
-      <div className="absolute inset-0 bg-gradient-to-b from-[#151821] to-[#0E1016]" />
+    <section className="relative overflow-hidden border-b border-[#1E2230] bg-[#1C202B]">
+      <div className="absolute inset-0 bg-[#1C202B]" />
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4A24C]/5 to-transparent" />
 
       <div
@@ -152,7 +152,7 @@ export default function HomeHero({
             <button
               type="button"
               onClick={() => navigate('/stores')}
-              className="relative flex-1 rounded-[24px] bg-[#1A1715] p-4 text-left"
+              className="relative flex-1 rounded-[24px] bg-[#2A2E3B] border border-[#3A3F4E] shadow-lg p-4 text-left hover:bg-[#323746] transition-colors"
             >
               <h3 className="text-white font-black">
                 Lojas parceiras
