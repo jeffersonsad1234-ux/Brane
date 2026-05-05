@@ -1,34 +1,36 @@
 import { useEffect, useRef, useState } from "react";
 import { ImagePlus, Send, RefreshCw, CheckCircle2, Camera } from "lucide-react";
 
-// Conjuntos de emojis e frases para variar a cada clique em "Melhorar"
-const IMPROVE_VARIANTS = [
-  {
-    opener: ["🌟", "✨", "💫"],
-    footer: (city) => `📍 ${city}\n\n📲 Entre em contato para fechar negócio!`
-  },
-  {
-    opener: ["🔥", "⚡", "💥"],
-    footer: (city) => `📍 ${city}\n\n👉 Chama no chat e garanta o seu!`
-  },
-  {
-    opener: ["💎", "🏆", "⭐"],
-    footer: (city) => `📍 ${city}\n\n💬 Fale comigo e feche hoje mesmo!`
-  },
-  {
-    opener: ["🎯", "🚀", "💡"],
-    footer: (city) => `📍 ${city}\n\n🤝 Negociamos! Manda mensagem.`
-  }
+// Variantes de CTA para o botão "Melhorar" — cada clique substitui a versão anterior
+// O CTA é contextual ao produto e nunca repete cidade nem frases anteriores
+const buildCTA = (ad, index) => {
+  const title = (ad.title || "produto").toLowerCase();
+  const variants = [
+    `Chame no chat e garante o seu ${title} hoje mesmo.`,
+    `Entre em contato para combinar a entrega e garantir o melhor preço.`,
+    `Interessou? Manda mensagem e fechamos negócio rapidinho.`,
+    `Aproveite essa oportunidade — manda mensagem antes que acabe.`
+  ];
+  return variants[index % variants.length];
+};
+
+const OPENER_SETS = [
+  ["🌟", "✨", "💫"],
+  ["🔥", "⚡", "💥"],
+  ["💎", "🏆", "⭐"],
+  ["🎯", "🚀", "💡"]
 ];
 
 let improveIndex = 0;
 
-// Monta descrição enriquecida a partir dos dados brutos do cliente
+// Monta descrição enriquecida.
+// SEMPRE usa _rawDescription como base para nunca acumular versões anteriores.
 const buildRichDescription = (ad, variantIndex) => {
-  const v = IMPROVE_VARIANTS[variantIndex % IMPROVE_VARIANTS.length];
-  const emojis = v.opener.join(" ");
-  const rawDesc = (ad.description || ad.title || "").trim();
-  return `${emojis} ${rawDesc}\n\n${v.footer(ad.city)}`;
+  const emojis = OPENER_SETS[variantIndex % OPENER_SETS.length].join(" ");
+  // Usa _rawDescription (descrição pura do cliente) como base
+  const rawDesc = (ad._rawDescription || "").trim() || (ad.title || "").trim();
+  const cta = buildCTA(ad, variantIndex);
+  return `${emojis} ${rawDesc}\n\n${cta}`;
 };
 
 const defaultAd = {
@@ -259,7 +261,8 @@ export default function AIAssistantPanelSocial({
       description: extracted.description || currentBase.description,
       price: extracted.price || currentBase.price,
       city: extracted.city || currentBase.city,
-      category: extracted.category || currentBase.category
+      category: extracted.category || currentBase.category,
+      availability: extracted.availability || currentBase.availability || ""
     };
 
     const missing = [];
@@ -357,11 +360,13 @@ export default function AIAssistantPanelSocial({
 
   const handleImprove = () => {
     if (!ad) return;
-    // Avança para o próximo variant e reconstrói a descrição do zero (sem acumular)
-    improveIndex = (improveIndex + 1) % IMPROVE_VARIANTS.length;
-    // Usa a descrição bruta original (sem emojis/rodapé anteriores)
-    const rawDesc = (ad._rawDescription || ad.description || ad.title || "").trim();
+    // Avança para o próximo variant
+    improveIndex = (improveIndex + 1) % OPENER_SETS.length;
+    // _rawDescription é sempre a descrição pura do cliente — nunca a versão enriquecida
+    // Garante que _rawDescription está preservado antes de reescrever
+    const rawDesc = (ad._rawDescription || "").trim() || (ad.title || "").trim();
     const adBase = { ...ad, _rawDescription: rawDesc };
+    // buildRichDescription usa _rawDescription internamente, nunca description
     const improvedDescription = buildRichDescription(adBase, improveIndex);
     const improved = { ...adBase, description: improvedDescription };
     setLocalAd(improved);
