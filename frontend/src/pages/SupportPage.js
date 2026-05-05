@@ -73,8 +73,8 @@ export default function SupportPage() {
                 <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl ${
                   m.is_admin_reply
                     ? 'bg-[#11131A] text-white border border-[#1E2230] rounded-bl-sm'
-                    : 'text-white rounded-br-sm'
-                }`} style={!m.is_admin_reply ? { background: 'linear-gradient(135deg, #5B1CB5 0%, #6D28D9 100%)' } : {}}>
+                    : 'bg-[#D4A24C]/15 text-[#111318] border border-[#D4A24C]/30 rounded-br-sm'
+                }`}>
                   <p className="text-sm">{m.message}</p>
                   <p className="text-[10px] opacity-70 mt-1">{new Date(m.created_at).toLocaleString('pt-BR')}</p>
                 </div>
@@ -90,8 +90,7 @@ export default function SupportPage() {
               data-testid="support-message-input"
             />
             <button onClick={sendMsg} disabled={sending || !msg.trim()}
-              className="px-5 py-2.5 rounded-xl text-white disabled:opacity-50 transition"
-              style={{ background: 'linear-gradient(135deg, #5B1CB5 0%, #6D28D9 100%)' }}
+              className="px-5 py-2.5 rounded-xl bg-[#111318] text-white hover:bg-[#252832] disabled:opacity-50 transition font-medium"
               data-testid="support-send-btn">
               <Send className="w-4 h-4" />
             </button>

@@ -47,12 +47,7 @@ const benefits = [
   { title: 'Suporte real', text: 'atendimento humano', icon: Headphones }
 ];
 
-const bottomBanners = [
-  { title: 'Ofertas relâmpago', text: 'Termina em', value: '02:45:18', icon: Zap, tone: 'from-[#0B0D12] to-[#2B1608]' },
-  { title: 'Venda na BRANE', text: 'Transforme o que você não usa em dinheiro.', value: 'Começar agora', icon: Package, tone: 'from-[#2B1A08] to-[#A46E24]' },
-  { title: 'Clube BRANE', text: 'Ofertas exclusivas, frete grátis e muito mais.', value: 'Seja membro', icon: Crown, tone: 'from-[#09090D] to-[#3B2505]' },
-  { title: 'Cupons exclusivos', text: 'Descontos selecionados para você.', value: 'Ver cupons', icon: Percent, tone: 'from-[#1A1025] to-[#6D28D9]' }
-];
+const bottomBanners = [];
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -236,7 +231,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-[#12141A]" data-testid="home-page">
+    <div className="min-h-screen bg-[#f5f5f7] text-[#12141A]" data-testid="home-page">
       <HomeCompactBar show={showCompactBar} onGoProducts={scrollToProducts} />
 
       <HomeHero
@@ -261,7 +256,7 @@ export default function HomePage() {
         setPage={setPage}
       />
 
-      <HomeBanners banners={bottomBanners} onGoProducts={scrollToProducts} />
+      {bottomBanners.length > 0 && <HomeBanners banners={bottomBanners} onGoProducts={scrollToProducts} />}
 
       <HomeSellerCTA user={user} />
     </div>

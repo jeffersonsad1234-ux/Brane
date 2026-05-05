@@ -10,7 +10,7 @@ export default function HomeProducts({
   setPage
 }) {
   return (
-    <section ref={productsRef} className="max-w-7xl mx-auto px-4 pt-5 scroll-mt-20 bg-white">
+    <section ref={productsRef} className="max-w-7xl mx-auto px-4 pt-5 scroll-mt-20 bg-[#f5f5f7]">
       {loadingProducts && products.length === 0 ? (
         <div className="theme-product-grid">
           {Array.from({ length: 12 }, (_, i) => (

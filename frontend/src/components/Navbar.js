@@ -111,7 +111,7 @@ export default function Navbar({ onSearch }) {
             <div className="flex items-center gap-1.5 ml-auto">
               {user ? (
                 <>
-                  <Link to="/support" className="brane-nav-icon-btn purple hidden sm:inline-flex" title="Mensagens" data-testid="nav-messages">
+                  <Link to="/support" className="brane-nav-icon-btn hidden sm:inline-flex" title="Mensagens" data-testid="nav-messages">
                     <MessageSquare className="w-[20px] h-[20px]" />
                   </Link>
 
@@ -120,7 +120,7 @@ export default function Navbar({ onSearch }) {
                     {cartCount > 0 && <span className="badge">{cartCount}</span>}
                   </Link>
 
-                  <Link to="/market?favorites=1" className="brane-nav-icon-btn purple hidden sm:inline-flex" title="Favoritos" data-testid="nav-favorites">
+                  <Link to="/market?favorites=1" className="brane-nav-icon-btn hidden sm:inline-flex" title="Favoritos" data-testid="nav-favorites">
                     <Heart className="w-[20px] h-[20px]" />
                   </Link>
 

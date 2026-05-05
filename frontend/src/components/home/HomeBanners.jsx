@@ -1,6 +1,6 @@
 export default function HomeBanners({ banners, onGoProducts }) {
   return (
-    <section className="max-w-7xl mx-auto px-4 pt-8 bg-white">
+    <section className="max-w-7xl mx-auto px-4 pt-8 bg-[#f5f5f7]">
       <div className="grid md:grid-cols-4 gap-4">
         {banners.map((banner) => {
           const Icon = banner.icon;

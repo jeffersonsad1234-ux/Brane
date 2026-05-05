@@ -20,8 +20,8 @@ export default function HomeHero({
   const navigate = useNavigate();
 
   return (
-    <section className="relative overflow-hidden border-b border-[#E5E7EB] bg-white">
-      <div className="absolute inset-0 bg-white" />
+    <section className="relative overflow-hidden border-b border-[#E5E7EB] bg-[#f5f5f7]">
+      <div className="absolute inset-0 bg-[#f5f5f7]" />
 
       <div
         className={
@@ -123,7 +123,7 @@ export default function HomeHero({
                 </p>
 
                 <h2 className="text-2xl font-black text-white">
-                  Compre direto de fornecedores
+                  Compre direto de fábricas e distribuidoras
                 </h2>
 
                 <p className="text-white/70 text-xs mt-2">
