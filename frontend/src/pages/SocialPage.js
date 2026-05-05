@@ -215,13 +215,6 @@ export default function SocialPage() {
           interests: statsRes.value.data.interests || 0,
           my_ads: statsRes.value.data.my_ads || 0
         });
-      } else {
-        // Fallback para estatísticas se a API falhar
-        setSocialStats({
-          views: 1240,
-          interests: 85,
-          my_ads: 0
-        });
       }
 
       if (notificationsRes.status === "fulfilled") {
@@ -261,45 +254,7 @@ export default function SocialPage() {
       if (list.length < PAGE_SIZE) setHasMore(false);
     } catch (error) {
       console.error("Erro ao carregar posts:", error);
-      if (!append) {
-        // Fallback para dados mockados se a API falhar no carregamento inicial
-        const mockPosts = [
-          {
-            id: "mock-1",
-            title: "iPhone 13 Pro Max 256GB",
-            price: "4.500",
-            content: "iPhone 13 Pro Max 256GB\nR$ 4.500\nCelulares\nNovo\nSão Paulo - SP\nItem único\nExcelente estado, sem marcas de uso.",
-            image: "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?auto=format&fit=crop&w=800&q=80",
-            city: "São Paulo",
-            state: "SP",
-            category: "Celulares",
-            product_condition: "Novo"
-          },
-          {
-            id: "mock-2",
-            title: "Cadeira Gamer Profissional",
-            price: "890",
-            content: "Cadeira Gamer Profissional\nR$ 890\nCasa e móveis\nUsado\nRio de Janeiro - RJ\nItem único\nMuito confortável, pouco tempo de uso.",
-            image: "https://images.unsplash.com/photo-1598550476439-6847785fce66?auto=format&fit=crop&w=800&q=80",
-            city: "Rio de Janeiro",
-            state: "RJ",
-            category: "Casa e móveis",
-            product_condition: "Usado"
-          },
-          {
-            id: "mock-3",
-            title: "PlayStation 5 com 2 Controles",
-            price: "3.200",
-            content: "PlayStation 5 com 2 Controles\nR$ 3.200\nOutros\nEm bom estado\nCuritiba - PR\nItem único\nAcompanha 3 jogos físicos.",
-            image: "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=800&q=80",
-            city: "Curitiba",
-            state: "PR",
-            category: "Outros",
-            product_condition: "Em bom estado"
-          }
-        ];
-        setPosts(mockPosts);
-      }
+      if (!append) setPosts([]);
       setHasMore(false);
     } finally {
       setLoading(false);
