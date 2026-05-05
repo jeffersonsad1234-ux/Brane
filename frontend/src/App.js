@@ -95,10 +95,10 @@ function AppRouter() {
     <>
       <AnimatedBackground />
 
-      <div className="relative z-10">
+      <div className={`relative z-10${isAdmin ? ' h-screen overflow-hidden' : ''}`}>
         {!isAdmin && !isSocial && <Navbar />}
 
-        <main className="min-h-screen">
+        <main className={isAdmin ? 'h-screen overflow-hidden' : 'min-h-screen'}>
           <Routes>
             <Route path="/" element={<Navigate to="/market" replace />} />
             <Route path="/market" element={<HomePage />} />
