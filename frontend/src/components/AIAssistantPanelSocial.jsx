@@ -25,15 +25,89 @@ const detectCategory = (text) => {
   return "Outros";
 };
 
+// Detecta preço em qualquer parte do texto.
+// Trata o caso em que o split por vírgula quebra "18,99" em ["18", "99"].
+const extractPrice = (parts) => {
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i].trim();
+    // Padrão completo: R$ 1.500,00 ou R$1500 ou 1500 ou 1.500
+    if (/^R?\$?\s*\d{1,3}(?:\.\d{3})*(?:,\d{2})?$/.test(p.replace(/\s/g, "")) ||
+        /^R?\$?\s*\d{1,3}(?:,\d{3})*(?:\.\d{2})?$/.test(p.replace(/\s/g, ""))) {
+      return { price: p, index: i };
+    }
+    // Detecta quando a vírgula quebrou o preço decimal em duas partes:
+    // parte atual é só número (ex: "18" ou "R$ 18") E próxima é exatamente 2 dígitos (ex: "99")
+    const pClean = p.replace(/^R?\$?\s*/i, "");
+    if (/^\d{1,4}$/.test(pClean) && i + 1 < parts.length && /^\d{2}$/.test(parts[i + 1].trim())) {
+      const joined = p + "," + parts[i + 1].trim();
+      return { price: joined, index: i, extraIndex: i + 1 };
+    }
+    // Detecta número inteiro simples como preço (ex: "18" sozinho, sem parte decimal depois)
+    if (/^R?\$?\s*\d+$/.test(p.replace(/\s/g, "")) && (i + 1 >= parts.length || !/^\d{2}$/.test(parts[i + 1]?.trim()))) {
+      // Só aceita como preço se não for a primeira parte (título) e não for a última (cidade)
+      if (i > 0 && i < parts.length - 1) {
+        return { price: p, index: i };
+      }
+    }
+  }
+  return null;
+};
+
+// Detecta estado do produto em qualquer parte
+const productConditionKeywords = ["novo", "usado", "seminovo", "em bom estado", "com detalhes", "para retirada de peças"];
+const extractCondition = (parts) => {
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i].trim().toLowerCase();
+    if (productConditionKeywords.includes(p)) {
+      return { condition: parts[i].trim(), index: i };
+    }
+  }
+  return null;
+};
+
 const extractByPosition = (text) => {
-  const parts = text.split(",").map(p => p.trim());
-  
+  // Pré-processamento: une preços decimais que seriam quebrados pelo split
+  // Ex: "18,99" -> "18.99" (usa ponto como separador temporário)
+  // Padrão: número seguido de vírgula seguido de exatamente 2 dígitos
+  const preprocessed = text.replace(/((?:R\$\s*)?\d{1,4}),(\d{2})(?=[,\s]|$)/gi, "$1.$2");
+  const rawParts = preprocessed.split(",").map(p => p.trim()).filter(Boolean);
+
+  // Detecta preço e estado em qualquer posição
+  const priceResult = extractPrice(rawParts);
+  const conditionResult = extractCondition(rawParts);
+
+  // Índices a remover (preço e estado já identificados)
+  const usedIndices = new Set();
+  let price = "";
+  let product_condition = "";
+
+  if (priceResult) {
+    price = priceResult.price;
+    usedIndices.add(priceResult.index);
+    if (priceResult.extraIndex !== undefined) usedIndices.add(priceResult.extraIndex);
+  }
+  if (conditionResult) {
+    product_condition = conditionResult.condition;
+    usedIndices.add(conditionResult.index);
+  }
+
+  // Partes restantes (sem preço e sem estado)
+  const remaining = rawParts.filter((_, i) => !usedIndices.has(i));
+
+  // Primeira parte sempre é o título
+  const title = remaining[0] || "";
+  // Última parte restante tende a ser a cidade
+  const city = remaining.length > 1 ? remaining[remaining.length - 1] : "";
+  // O meio é a descrição (excluindo título e cidade)
+  const descParts = remaining.slice(1, remaining.length > 1 ? remaining.length - 1 : 1);
+  const description = descParts.join(", ");
+
   return {
-    title: parts[0] || "",
-    product_condition: parts[1] || "",
-    description: parts[2] || "",
-    price: parts[3] || "",
-    city: parts[4] || "",
+    title,
+    product_condition,
+    description,
+    price,
+    city,
     category: detectCategory(text)
   };
 };
@@ -157,7 +231,8 @@ export default function AIAssistantPanelSocial({
 
   const handleImprove = () => {
     if (!ad) return;
-    const improvedDescription = `✨ Oportunidade: ${ad.title}\n\nProduto em estado ${ad.product_condition?.toLowerCase() || 'excelente'}. ${ad.description}\n\n📍 Localização: ${ad.city}\n💰 Preço: ${ad.price}\n📁 Categoria: ${ad.category}\n\nEntre em contato para fechar negócio!`;
+    // Monta descrição melhorada sem repetir preço nem estado (já ficam nos campos próprios)
+    const improvedDescription = `✨ ${ad.description || ad.title}\n\n📍 ${ad.city}\n\nEntre em contato para fechar negócio!`;
     
     const improved = {
       ...ad,
