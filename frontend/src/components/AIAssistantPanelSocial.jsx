@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ImagePlus, Send, Sparkles, RefreshCw, CheckCircle2, Camera } from "lucide-react";
+import { ImagePlus, Send, RefreshCw, CheckCircle2, Camera } from "lucide-react";
 
 const defaultAd = {
   title: "",
@@ -19,40 +19,22 @@ const detectCategory = (text) => {
   const t = text.toLowerCase();
   if (t.includes("iphone") || t.includes("celular") || t.includes("samsung") || t.includes("xiaomi")) return "Celulares";
   if (t.includes("cadeira") || t.includes("mesa") || t.includes("sofa") || t.includes("armario")) return "Casa e móveis";
+  if (t.includes("removedor") || t.includes("limpeza") || t.includes("detergente") || t.includes("sabao")) return "Casa e limpeza";
   if (t.includes("ps5") || t.includes("xbox") || t.includes("game") || t.includes("nintendo")) return "Games";
   if (t.includes("carro") || t.includes("moto") || t.includes("veiculo")) return "Veículos";
   return "Outros";
 };
 
-const extractData = (text) => {
-  const t = safe(text);
-  const lines = t.split("\n").map(l => l.trim()).filter(Boolean);
+const extractByPosition = (text) => {
+  const parts = text.split(",").map(p => p.trim());
   
-  // Preço
-  const priceMatch = t.match(/r\$\s*(\d+[.,]?\d*)/i) || t.match(/(\d+[.,]?\d*)\s*reais/i);
-  const price = priceMatch ? priceMatch[1] : "";
-
-  // Cidade/Localização
-  const cityMatch = t.match(/em\s+([^,.]+)/i) || t.match(/,\s*([^,]+)$/);
-  const city = cityMatch ? cityMatch[1].trim() : "";
-
-  // Estado do produto
-  let condition = "";
-  if (t.toLowerCase().includes("novo")) condition = "Novo";
-  else if (t.toLowerCase().includes("seminovo")) condition = "Seminovo";
-  else if (t.toLowerCase().includes("usado")) condition = "Usado";
-
-  // Título (não usar a mensagem toda)
-  let title = lines[0] || "";
-  if (title.length > 40) title = title.substring(0, 37) + "...";
-
   return {
-    title,
-    price,
-    city,
-    product_condition: condition,
-    category: detectCategory(t),
-    description: t
+    title: parts[0] || "",
+    product_condition: parts[1] || "",
+    description: parts[2] || "",
+    price: parts[3] || "",
+    city: parts[4] || "",
+    category: detectCategory(text)
   };
 };
 
@@ -73,7 +55,7 @@ export default function AIAssistantPanelSocial({
     {
       id: 1,
       from: "system",
-      text: "Descreva tudo em uma mensagem: produto, estado, preço, cidade e detalhes. Depois envie pelo menos 1 foto. Ex: iPhone 12, usado, 128GB, Guarulhos, R$1500."
+      text: "Descreva em uma única mensagem, separando por vírgulas: produto, estado, detalhes, preço, cidade. Depois envie pelo menos 1 foto. Ex: iPhone 12, usado, 128GB bateria 86%, R$1500, Guarulhos-SP."
     }
   ]);
   const fileRef = useRef(null);
@@ -104,18 +86,33 @@ export default function AIAssistantPanelSocial({
     setMessages((prev) => [...prev, { id: prev.length + 1, from: "user", text }]);
     setInput("");
 
-    const extracted = extractData(text);
-    const missing = [];
+    const extracted = extractByPosition(text);
     
-    if (!extracted.price) missing.push("preço");
-    if (!extracted.city) missing.push("cidade");
-    if (!extracted.product_condition) missing.push("estado do produto (novo, usado ou seminovo)");
+    // Se o usuário estiver respondendo a uma pergunta específica, mescla com o que já temos
+    const currentBase = localAd || defaultAd;
+    const merged = {
+      ...currentBase,
+      title: extracted.title || currentBase.title,
+      product_condition: extracted.product_condition || currentBase.product_condition,
+      description: extracted.description || currentBase.description,
+      price: extracted.price || currentBase.price,
+      city: extracted.city || currentBase.city,
+      category: extracted.category || currentBase.category
+    };
+
+    const missing = [];
+    if (!merged.title) missing.push("produto");
+    if (!merged.product_condition) missing.push("estado (novo, usado ou seminovo)");
+    if (!merged.description) missing.push("detalhes/descrição");
+    if (!merged.price) missing.push("preço");
+    if (!merged.city) missing.push("cidade");
     
     if (missing.length > 0) {
       setMessages((prev) => [
         ...prev, 
-        { id: prev.length + 1, from: "system", text: `Legal! Para continuar, me informe o ${missing.join(", ")}.` }
+        { id: prev.length + 1, from: "system", text: `Legal! Agora me informe o ${missing[0]}.` }
       ]);
+      setLocalAd(merged);
       return;
     }
 
@@ -124,24 +121,21 @@ export default function AIAssistantPanelSocial({
         ...prev, 
         { id: prev.length + 1, from: "system", text: "Agora envie pelo menos 1 foto do produto para eu preparar o anúncio." }
       ]);
-      // Salva o rascunho parcial para quando a foto chegar
-      setLocalAd({ ...defaultAd, ...extracted });
+      setLocalAd(merged);
       return;
     }
 
-    const finalAd = { ...defaultAd, ...extracted };
-    setLocalAd(finalAd);
-    onGenerateAd(finalAd);
-    onFillForm(finalAd);
+    setLocalAd(merged);
+    onGenerateAd(merged);
+    onFillForm(merged);
     setMessages((prev) => [
       ...prev,
       { id: prev.length + 1, from: "system", text: "Tudo pronto! Confira a prévia do seu anúncio abaixo." }
     ]);
   };
 
-  // Efeito para gerar o anúncio assim que a primeira foto for enviada se já houver dados
   useEffect(() => {
-    if (photosCount > 0 && localAd && !localAd.ready && localAd.title) {
+    if (photosCount > 0 && localAd && !localAd.ready && localAd.title && localAd.price && localAd.city && localAd.product_condition) {
       const finalAd = { ...localAd, ready: true };
       setLocalAd(finalAd);
       onGenerateAd(finalAd);
@@ -155,7 +149,7 @@ export default function AIAssistantPanelSocial({
 
   const handleImprove = () => {
     if (!ad) return;
-    const improvedDescription = `✨ Oportunidade Imperdível: ${ad.title}\n\nEste produto está em estado ${ad.product_condition?.toLowerCase() || 'excelente'} e é perfeito para quem busca qualidade com o melhor custo-benefício de ${ad.city || 'sua região'}.\n\n✅ Destaques:\n- Categoria: ${ad.category}\n- Localização: ${ad.city}\n- Condição: ${ad.product_condition}\n\nEntre em contato agora para garantir!`;
+    const improvedDescription = `✨ Oportunidade: ${ad.title}\n\nProduto em estado ${ad.product_condition?.toLowerCase() || 'excelente'}. ${ad.description}\n\n📍 Localização: ${ad.city}\n💰 Preço: ${ad.price}\n📁 Categoria: ${ad.category}\n\nEntre em contato para fechar negócio!`;
     
     const improved = {
       ...ad,
@@ -173,7 +167,7 @@ export default function AIAssistantPanelSocial({
     setMessages([{
       id: 1,
       from: "system",
-      text: "Descreva tudo em uma mensagem: produto, estado, preço, cidade e detalhes. Depois envie pelo menos 1 foto. Ex: iPhone 12, usado, 128GB, Guarulhos, R$1500."
+      text: "Descreva em uma única mensagem, separando por vírgulas: produto, estado, detalhes, preço, cidade. Depois envie pelo menos 1 foto. Ex: iPhone 12, usado, 128GB bateria 86%, R$1500, Guarulhos-SP."
     }]);
     onGenerateNew();
     onFillForm(defaultAd);
@@ -212,7 +206,7 @@ export default function AIAssistantPanelSocial({
           </div>
         )}
 
-        {ad && photosCount > 0 && !isGenerating && (
+        {ad && photosCount > 0 && !isGenerating && ad.title && ad.price && ad.city && (
           <div className="mx-auto w-full max-w-[95%] rounded-2xl border border-[#D4A24C]/40 bg-gradient-to-b from-[#D4A24C]/10 to-transparent p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <span className="text-[10px] font-black uppercase tracking-widest text-[#F1D28A]">Prévia do Anúncio</span>
@@ -224,22 +218,22 @@ export default function AIAssistantPanelSocial({
             
             <div className="space-y-4">
               <div className="space-y-1">
-                <h4 className="text-lg font-bold text-white leading-tight">{ad.title || "Sem título"}</h4>
-                <p className="text-xl font-black text-[#D4A24C]">R$ {ad.price || "---"}</p>
+                <h4 className="text-lg font-bold text-white leading-tight">{ad.title}</h4>
+                <p className="text-xl font-black text-[#D4A24C]">{ad.price.startsWith('R$') ? ad.price : `R$ ${ad.price}`}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-0.5">
                   <p className="text-[10px] uppercase font-bold text-white/40">Localização</p>
-                  <p className="text-xs text-white/80 font-medium">📍 {ad.city || "Não informada"}</p>
+                  <p className="text-xs text-white/80 font-medium">📍 {ad.city}</p>
                 </div>
                 <div className="space-y-0.5">
                   <p className="text-[10px] uppercase font-bold text-white/40">Estado</p>
-                  <p className="text-xs text-white/80 font-medium">🏷️ {ad.product_condition || "Não informado"}</p>
+                  <p className="text-xs text-white/80 font-medium">🏷️ {ad.product_condition}</p>
                 </div>
                 <div className="space-y-0.5">
                   <p className="text-[10px] uppercase font-bold text-white/40">Categoria</p>
-                  <p className="text-xs text-white/80 font-medium">📁 {ad.category || "Outros"}</p>
+                  <p className="text-xs text-white/80 font-medium">📁 {ad.category}</p>
                 </div>
               </div>
               
@@ -247,7 +241,7 @@ export default function AIAssistantPanelSocial({
                 <p className="text-[10px] uppercase font-bold text-white/40 mb-1">Descrição</p>
                 <div className="rounded-xl bg-black/20 p-3 border border-white/5">
                   <p className="text-xs text-white/80 leading-relaxed whitespace-pre-wrap">
-                    {ad.description || "Nenhuma descrição gerada."}
+                    {ad.description}
                   </p>
                 </div>
               </div>
@@ -286,7 +280,7 @@ export default function AIAssistantPanelSocial({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
-              placeholder="Descreva seu produto..."
+              placeholder="Produto, estado, detalhes, preço, cidade..."
               className="h-11 w-full rounded-xl border border-white/10 bg-black/40 px-4 text-sm text-white outline-none focus:border-[#D4A24C]/50 transition-all"
             />
           </div>
@@ -308,7 +302,7 @@ export default function AIAssistantPanelSocial({
             disabled={!ad || isGenerating || photosCount === 0}
             className="flex flex-col items-center justify-center rounded-xl border border-white/10 bg-white/5 py-2 text-[10px] font-bold text-white/80 hover:bg-white/10 disabled:opacity-30 transition-all"
           >
-            <Sparkles size={14} className="mb-1 text-[#F1D28A]" />
+            <RefreshCw size={14} className="mb-1 text-[#F1D28A]" />
             Melhorar
           </button>
           <button
@@ -322,7 +316,7 @@ export default function AIAssistantPanelSocial({
           <button
             type="button"
             onClick={() => ad && onPublishAd(ad)}
-            disabled={!ad || isGenerating || photosCount === 0}
+            disabled={!ad || isGenerating || photosCount === 0 || !ad.title || !ad.price}
             className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-br from-[#D4A24C] to-[#B98228] py-2 text-[10px] font-black text-black hover:brightness-110 disabled:opacity-30 transition-all shadow-lg shadow-[#D4A24C]/10"
           >
             <CheckCircle2 size={14} className="mb-1" />
