@@ -96,6 +96,8 @@ export default function SocialPage() {
   const [reportMotivo, setReportMotivo] = useState("");
   const [reportDescricao, setReportDescricao] = useState("");
   const [sendingReport, setSendingReport] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [contactData, setContactData] = useState(null);
 
   const REPORT_MOTIVOS = [
     "Produto falso ou golpe",
@@ -108,6 +110,11 @@ export default function SocialPage() {
 
   const openReportModal = (tipo, post_id = null, reported_user_id = null) => {
     if (!requireAuth()) return;
+    if (tipo === "contato") {
+      setContactData(post_id); // post_id aqui contém os dados de contato
+      setShowContactModal(true);
+      return;
+    }
     setReportTarget({ tipo, post_id, reported_user_id });
     setReportMotivo("");
     setReportDescricao("");
@@ -1253,8 +1260,54 @@ export default function SocialPage() {
   </div>
 )}
 
+      {/* Modal de Contato */}
+      {showContactModal && contactData && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+          <div className="w-full max-w-[360px] rounded-[28px] border border-[#D4A24C]/25 bg-[#0B0B12] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.62)]">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-black text-lg text-white">Entrar em contato</h2>
+              <button onClick={() => setShowContactModal(false)} className="w-9 h-9 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#C9CBD6]">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {contactData.contact_whatsapp && (
+                <a
+                  href={`https://wa.me/${contactData.contact_whatsapp.replace(/\D/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-green-500 text-white font-black py-3 hover:bg-green-600 transition-all"
+                >
+                  📲 Abrir WhatsApp
+                </a>
+              )}
+              {contactData.contact_phone && (
+                <div className="space-y-2">
+                  <a
+                    href={`tel:${contactData.contact_phone.replace(/\D/g, '')}`}
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl bg-blue-500 text-white font-black py-3 hover:bg-blue-600 transition-all"
+                  >
+                    📞 Ligar
+                  </a>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(contactData.contact_phone);
+                      alert("Número copiado!");
+                    }}
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] text-white font-black py-3 hover:bg-white/[0.08] transition-all"
+                  >
+                    📋 Copiar número
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal de Denúncia */}
-      {showReportModal && (
+      {showReportModal && reportTarget?.tipo !== "contato" && (
         <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
           <div className="w-full max-w-[480px] rounded-[28px] border border-red-500/25 bg-[#0B0B12] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.62)]">
             <div className="flex items-center justify-between mb-4">
@@ -1392,24 +1445,33 @@ export default function SocialPage() {
                       </p>
                     </div>
 
-                    {/* Exibição de contato */}
+                    {/* Botão de contato */}
                     {(selectedPost.contact_phone || selectedPost.contact_whatsapp) && (
                       <div className="mt-4 border-t border-[#E5E7EB] pt-4">
-                        <p className="text-sm font-semibold text-[#111318]">
-                          {selectedPost.contact_phone && selectedPost.contact_whatsapp
-                            ? "📲 WhatsApp ou 📞 ligação — escolha como preferir"
-                            : selectedPost.contact_whatsapp
-                            ? "📲 Me chama no WhatsApp"
-                            : "📞 Entre em contato por ligação"}
-                        </p>
+                        <button
+                          onClick={() => openReportModal("contato", {
+                            contact_phone: selectedPost.contact_phone,
+                            contact_whatsapp: selectedPost.contact_whatsapp
+                          })}
+                          className="w-full rounded-2xl bg-[#111318] text-white font-bold py-2 text-sm hover:bg-[#1a1a1f] transition-all"
+                        >
+                          Entrar em contato
+                        </button>
                       </div>
                     )}
 
-                    {/* Botão denunciar anúncio */}
-                    <div className="mt-4 border-t border-[#E5E7EB] pt-3">
+                    {/* Botões de ação */}
+                    <div className="mt-4 border-t border-[#E5E7EB] pt-3 space-y-2">
+                      <button
+                        onClick={() => openReportModal("usuario", null, selectedPost.user_id)}
+                        className="w-full flex items-center justify-center gap-1.5 text-xs text-[#9CA3AF] hover:text-red-400 transition-colors border border-[#E5E7EB] rounded-lg py-2"
+                      >
+                        <Flag size={13} />
+                        Denunciar usuário
+                      </button>
                       <button
                         onClick={() => openReportModal("anuncio", getPostKey(selectedPost), selectedPost.user_id)}
-                        className="flex items-center gap-1.5 text-xs text-[#9CA3AF] hover:text-red-400 transition-colors"
+                        className="w-full flex items-center justify-center gap-1.5 text-xs text-[#9CA3AF] hover:text-red-400 transition-colors border border-[#E5E7EB] rounded-lg py-2"
                       >
                         <Flag size={13} />
                         Denunciar anúncio

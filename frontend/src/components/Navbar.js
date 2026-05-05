@@ -12,7 +12,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from '../components/ui/dropdown-menu';
 
-export const BRANE_LOGO_URL = 'https://customer-assets.emergentagent.com/job_c29d4fb0-b06c-446b-816c-e3c5d6b5dce5/artifacts/1ed42si8_WhatsApp%20Image%202026-04-24%20at%2019.18.26.jpeg';
+export const BRANE_LOGO_URL = '/brand/logo-3d.png';
 
 const API = process.env.REACT_APP_BACKEND_URL + '/api';
 
