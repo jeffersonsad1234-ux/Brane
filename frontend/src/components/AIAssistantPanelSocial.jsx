@@ -281,23 +281,16 @@ export default function AIAssistantPanelSocial({
     }
 
     // Verifica campos de seleção guiada (estado e disponibilidade)
+    // Não usa chat — exibe painel visual de botões na UI
     if (!merged.product_condition) {
       setLocalAd(merged);
       setPendingStep("condition");
-      setMessages((prev) => [
-        ...prev,
-        { id: prev.length + 1, from: "system", text: "Qual é o estado do produto? Selecione uma opção:" }
-      ]);
       return;
     }
 
     if (!merged.availability) {
       setLocalAd(merged);
       setPendingStep("availability");
-      setMessages((prev) => [
-        ...prev,
-        { id: prev.length + 1, from: "system", text: "Qual é a disponibilidade do produto? Selecione uma opção:" }
-      ]);
       return;
     }
 
@@ -325,22 +318,14 @@ export default function AIAssistantPanelSocial({
 
   useEffect(() => {
     if (photosCount > 0 && localAd && !localAd.ready && localAd.title && localAd.price && localAd.city) {
-      // Se ainda falta estado do produto, pede seleção guiada
+      // Se ainda falta estado do produto, exibe painel visual (sem mensagem no chat)
       if (!localAd.product_condition) {
         setPendingStep("condition");
-        setMessages((prev) => [
-          ...prev,
-          { id: prev.length + 1, from: "system", text: "Qual é o estado do produto? Selecione uma opção:" }
-        ]);
         return;
       }
-      // Se ainda falta disponibilidade, pede seleção guiada
+      // Se ainda falta disponibilidade, exibe painel visual (sem mensagem no chat)
       if (!localAd.availability) {
         setPendingStep("availability");
-        setMessages((prev) => [
-          ...prev,
-          { id: prev.length + 1, from: "system", text: "Qual é a disponibilidade do produto? Selecione uma opção:" }
-        ]);
         return;
       }
       // Tudo preenchido: enriquece a descrição e gera prévia
@@ -375,22 +360,15 @@ export default function AIAssistantPanelSocial({
   };
 
   // Trata seleção de opção guiada (estado ou disponibilidade)
+  // Não adiciona mensagens no chat — apenas avança o fluxo visualmente
   const handleSelectOption = (field, value) => {
     const updated = { ...(localAd || defaultAd), [field]: value };
     setLocalAd(updated);
     setPendingStep(null);
-    setMessages((prev) => [
-      ...prev,
-      { id: prev.length + 1, from: "user", text: value }
-    ]);
 
-    // Verifica o próximo passo pendente
+    // Verifica o próximo passo pendente (sem mensagem no chat)
     if (field === "product_condition" && !updated.availability) {
       setPendingStep("availability");
-      setMessages((prev) => [
-        ...prev,
-        { id: prev.length + 1, from: "system", text: "Qual é a disponibilidade do produto? Selecione uma opção:" }
-      ]);
       return;
     }
 
@@ -457,16 +435,23 @@ export default function AIAssistantPanelSocial({
           </div>
         ))}
 
-        {/* Seleção guiada: estado do produto */}
+        {/* Painel visual de seleção de ESTADO DO PRODUTO */}
         {pendingStep === "condition" && (
-          <div className="mr-auto w-full max-w-[95%] space-y-2">
+          <div className="mx-auto w-full max-w-[95%] rounded-2xl border border-[#D4A24C]/40 bg-gradient-to-b from-[#D4A24C]/10 to-transparent p-4 space-y-3">
+            <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+              <span className="text-base">🏷️</span>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#F1D28A]">Estado do produto</p>
+                <p className="text-xs text-white/50">Selecione uma opção para continuar</p>
+              </div>
+            </div>
             <div className="flex flex-wrap gap-2">
               {CONDITION_OPTIONS.map((opt) => (
                 <button
                   key={opt}
                   type="button"
                   onClick={() => handleSelectOption("product_condition", opt)}
-                  className="rounded-xl border border-[#D4A24C]/50 bg-[#D4A24C]/10 px-3 py-2 text-xs font-semibold text-[#F1D28A] hover:bg-[#D4A24C]/30 transition-all"
+                  className="rounded-xl border border-[#D4A24C]/50 bg-black/30 px-3 py-2 text-xs font-semibold text-white/80 hover:bg-[#D4A24C]/20 hover:border-[#D4A24C] hover:text-[#F1D28A] active:scale-95 transition-all"
                 >
                   {opt}
                 </button>
@@ -475,16 +460,23 @@ export default function AIAssistantPanelSocial({
           </div>
         )}
 
-        {/* Seleção guiada: disponibilidade */}
+        {/* Painel visual de seleção de DISPONIBILIDADE */}
         {pendingStep === "availability" && (
-          <div className="mr-auto w-full max-w-[95%] space-y-2">
+          <div className="mx-auto w-full max-w-[95%] rounded-2xl border border-[#D4A24C]/40 bg-gradient-to-b from-[#D4A24C]/10 to-transparent p-4 space-y-3">
+            <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+              <span className="text-base">📦</span>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#F1D28A]">Disponibilidade</p>
+                <p className="text-xs text-white/50">Selecione uma opção para continuar</p>
+              </div>
+            </div>
             <div className="flex flex-wrap gap-2">
               {AVAILABILITY_OPTIONS.map((opt) => (
                 <button
                   key={opt}
                   type="button"
                   onClick={() => handleSelectOption("availability", opt)}
-                  className="rounded-xl border border-[#D4A24C]/50 bg-[#D4A24C]/10 px-3 py-2 text-xs font-semibold text-[#F1D28A] hover:bg-[#D4A24C]/30 transition-all"
+                  className="rounded-xl border border-[#D4A24C]/50 bg-black/30 px-3 py-2 text-xs font-semibold text-white/80 hover:bg-[#D4A24C]/20 hover:border-[#D4A24C] hover:text-[#F1D28A] active:scale-95 transition-all"
                 >
                   {opt}
                 </button>
