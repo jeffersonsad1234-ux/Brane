@@ -51,7 +51,10 @@ export default function BLivreAuthModal({ isOpen, onClose, onAuthSuccess }) {
         err?.response?.data?.error ||
         "";
 
-      if (apiMessage) {
+      const detail = err?.response?.data?.detail;
+      if (detail) {
+        setError(detail);
+      } else if (apiMessage) {
         setError(apiMessage);
       } else if (isLogin) {
         setError("Email ou senha incorretos.");

@@ -92,7 +92,7 @@ export default function SocialPage() {
     name: "",
     city: "",
     state: "",
-    avatar: ""
+    picture: ""
   });
 
   const [form, setForm] = useState({
@@ -111,8 +111,10 @@ export default function SocialPage() {
   const getPostImages = (post) => {
     if (!post || !post.image) return [];
 
+    if (Array.isArray(post.image)) return post.image.filter(Boolean);
+
     try {
-      const parsed = JSON.parse(post.image);
+      const parsed = typeof post.image === 'string' ? JSON.parse(post.image) : post.image;
       if (Array.isArray(parsed)) return parsed.filter(Boolean);
     } catch {}
 
@@ -313,12 +315,10 @@ export default function SocialPage() {
     if (!file) return;
 
     const base64 = await fileToBase64(file);
-    setProfileForm((prev) => ({ ...prev, avatar: base64 }));
+    setProfileForm((prev) => ({ ...prev, picture: base64 }));
 
     if (avatarInputRef.current) avatarInputRef.current.value = "";
-  };
-
-  const removeImageAt = (indexToRemove) => {
+   const removeImageAt = (indexToRemove) => {
     setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
@@ -331,7 +331,7 @@ export default function SocialPage() {
   };
 
   const buildContent = (sourceForm = form) => {
-    return [
+    const lines = [
       sourceForm.title,
       sourceForm.price ? "R$ " + sourceForm.price : "",
       sourceForm.category,
@@ -339,7 +339,8 @@ export default function SocialPage() {
       sourceForm.city || sourceForm.state ? [sourceForm.city, sourceForm.state].filter(Boolean).join(" - ") : "",
       sourceForm.availability,
       sourceForm.description
-    ].filter(Boolean).join("\n");
+    ];
+    return lines.filter(line => line !== undefined && line !== null && String(line).trim() !== "").join("\n");
   };
 
   const createPost = async (sourceForm = form, sourceImages = images) => {
@@ -510,8 +511,8 @@ export default function SocialPage() {
 
     if (activeFilter === "mine" && !isMine(post)) return false;
     if (activeFilter === "favorites" && !favorites.includes(key)) return false;
-    if (activeFilter === "messages") return false;
-    if (selectedCategory && category !== selectedCategory) return false;
+    if (activeFilter === "messages") return true;
+    if (selectedCategory && category.toLowerCase() !== selectedCategory.toLowerCase()) return false;
 
     if (activeFilter === "near") {
       const userCity = String(user?.city || "").toLowerCase();
@@ -560,6 +561,7 @@ export default function SocialPage() {
         if (res.data.favorited) return [...prev, key];
         return prev.filter((item) => item !== key);
       });
+      loadSocialData();
     } catch (err) {
       console.error(err);
       alert("Erro ao favoritar.");
@@ -572,11 +574,15 @@ export default function SocialPage() {
     try {
       setSavingProfile(true);
 
-      await axios.put(
+      const res = await axios.put(
         API + "/social/profile",
         profileForm,
         { headers: authHeaders }
       );
+      
+      if (typeof setUser === "function") {
+        setUser(prev => ({ ...prev, ...profileForm }));
+      }
 
       setShowSettings(false);
       alert("Perfil atualizado.");
@@ -823,10 +829,10 @@ export default function SocialPage() {
 
             <div className="flex items-center gap-4 mb-5">
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[2px]">
-                <div className="w-full h-full rounded-full bg-[#0B0B0F] overflow-hidden flex items-center justify-center">
-                  {profileForm.avatar ? (
+                    <div className="w-full h-full rounded-full bg-[#0B0B0F] overflow-hidden flex items-center justify-center">
+                  {(profileForm.picture || profileForm.avatar) ? (
                     <img
-                      src={profileForm.avatar}
+                      src={profileForm.picture || profileForm.avatar}
                       alt="Perfil"
                       className="w-full h-full object-cover"
                     />
@@ -940,7 +946,7 @@ export default function SocialPage() {
       </div>
 
       {!editingPost ? (
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 overflow-y-auto">
           <AIAssistantPanelSocial
             onPhotoUpload={async (files) => {
               const fileList = Array.from(files || []);
@@ -955,7 +961,7 @@ export default function SocialPage() {
                 photos: images.length > 0 ? images : data.photos || []
               };
 
-              setForm({
+              const newForm = {
                 category: finalData.category || "",
                 title: finalData.title || finalData.productName || "",
                 price: String(finalData.price || "").replace(/^R\$\s*/i, ""),
@@ -964,10 +970,14 @@ export default function SocialPage() {
                 productCondition: finalData.condition || finalData.productCondition || "",
                 description: finalData.description || "",
                 availability: finalData.availability || "Item único"
-              });
+              };
 
+              setForm(newForm);
               setGeneratedAd(finalData);
               setIsGeneratingAd(false);
+              if (finalData.photos && finalData.photos.length > 0 && images.length === 0) {
+                setImages(finalData.photos);
+              }
             }}
             onImproveAd={(improvedAd) => {
               const finalData = {
@@ -975,18 +985,22 @@ export default function SocialPage() {
                 photos: images.length > 0 ? images : improvedAd.photos || []
               };
 
-              setForm({
-                category: finalData.category || form.category,
-                title: finalData.title || form.title,
-                price: String(finalData.price || form.price || "").replace(/^R\$\s*/i, ""),
-                state: finalData.state || form.state,
-                city: finalData.city || form.city,
-                productCondition: finalData.condition || finalData.productCondition || form.productCondition,
-                description: finalData.description || form.description,
-                availability: finalData.availability || form.availability
-              });
+              setForm(prev => ({
+                ...prev,
+                category: finalData.category || prev.category,
+                title: finalData.title || prev.title,
+                price: String(finalData.price || prev.price || "").replace(/^R\$\s*/i, ""),
+                state: finalData.state || prev.state,
+                city: finalData.city || prev.city,
+                productCondition: finalData.condition || finalData.productCondition || prev.productCondition,
+                description: finalData.description || prev.description,
+                availability: finalData.availability || prev.availability
+              }));
 
               setGeneratedAd(finalData);
+              if (finalData.photos && finalData.photos.length > 0 && images.length === 0) {
+                setImages(finalData.photos);
+              }
             }}
             onGenerateNew={() => {
               setGeneratedAd(null);
@@ -1278,7 +1292,7 @@ export default function SocialPage() {
                     name: user?.name || "",
                     city: user?.city || "",
                     state: user?.state || "",
-                    avatar: user?.avatar || user?.photo || ""
+                    picture: user?.picture || user?.avatar || ""
                   });
                   setShowSettings(true);
                 }}
@@ -1306,10 +1320,21 @@ export default function SocialPage() {
               }
             >
               <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5">
-                <h3 className="font-black text-lg flex items-center gap-2">
-                  {user && user.name ? user.name : "Usuário B Livre"}
-                  <BadgeCheck size={17} className="text-[#D4A24C]" />
-                </h3>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1px]">
+                    <div className="w-full h-full rounded-full bg-[#09090D] overflow-hidden flex items-center justify-center">
+                      {user?.picture || user?.avatar ? (
+                        <img src={user.picture || user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={20} className="text-[#F1D28A]" />
+                      )}
+                    </div>
+                  </div>
+                  <h3 className="font-black text-lg flex items-center gap-2">
+                    {user && user.name ? user.name : "Usuário B Livre"}
+                    <BadgeCheck size={17} className="text-[#D4A24C]" />
+                  </h3>
+                </div>
 
                 <div className="mt-5 space-y-2">
                   {[
@@ -1579,17 +1604,10 @@ export default function SocialPage() {
 
                     <button
                       type="button"
-                     onClick={() => {
-                     const ok = requireAuth();
-
-                     if (!ok) {
-                     setShowAuth(true);
-                     return;
-                     }
-
-                     setUseAI(true);
-                     setComposerOpen(true);
-                     
+                      onClick={() => {
+                        if (!requireAuth()) return;
+                        setUseAI(true);
+                        setComposerOpen(true);
                       }}
                       className="w-full rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black py-3"
                     >
