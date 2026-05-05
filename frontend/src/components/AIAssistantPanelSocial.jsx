@@ -1,6 +1,36 @@
 import { useEffect, useRef, useState } from "react";
 import { ImagePlus, Send, RefreshCw, CheckCircle2, Camera } from "lucide-react";
 
+// Conjuntos de emojis e frases para variar a cada clique em "Melhorar"
+const IMPROVE_VARIANTS = [
+  {
+    opener: ["🌟", "✨", "💫"],
+    footer: (city) => `📍 ${city}\n\n📲 Entre em contato para fechar negócio!`
+  },
+  {
+    opener: ["🔥", "⚡", "💥"],
+    footer: (city) => `📍 ${city}\n\n👉 Chama no chat e garanta o seu!`
+  },
+  {
+    opener: ["💎", "🏆", "⭐"],
+    footer: (city) => `📍 ${city}\n\n💬 Fale comigo e feche hoje mesmo!`
+  },
+  {
+    opener: ["🎯", "🚀", "💡"],
+    footer: (city) => `📍 ${city}\n\n🤝 Negociamos! Manda mensagem.`
+  }
+];
+
+let improveIndex = 0;
+
+// Monta descrição enriquecida a partir dos dados brutos do cliente
+const buildRichDescription = (ad, variantIndex) => {
+  const v = IMPROVE_VARIANTS[variantIndex % IMPROVE_VARIANTS.length];
+  const emojis = v.opener.join(" ");
+  const rawDesc = (ad.description || ad.title || "").trim();
+  return `${emojis} ${rawDesc}\n\n${v.footer(ad.city)}`;
+};
+
 const defaultAd = {
   title: "",
   price: "",
@@ -207,9 +237,13 @@ export default function AIAssistantPanelSocial({
       return;
     }
 
-    setLocalAd(merged);
-    onGenerateAd(merged);
-    onFillForm(merged);
+    // Enriquece a descrição já na geração inicial (prévia já vem com emojis)
+    improveIndex = 0;
+    const enriched = { ...merged, _rawDescription: merged.description };
+    enriched.description = buildRichDescription(enriched, improveIndex);
+    setLocalAd(enriched);
+    onGenerateAd(enriched);
+    onFillForm(enriched);
     setMessages((prev) => [
       ...prev,
       { id: prev.length + 1, from: "system", text: "Tudo pronto! Confira a prévia do seu anúncio abaixo." }
@@ -218,10 +252,14 @@ export default function AIAssistantPanelSocial({
 
   useEffect(() => {
     if (photosCount > 0 && localAd && !localAd.ready && localAd.title && localAd.price && localAd.city && localAd.product_condition) {
-      const finalAd = { ...localAd, ready: true };
-      setLocalAd(finalAd);
-      onGenerateAd(finalAd);
-      onFillForm(finalAd);
+      // Enriquece a descrição quando as fotos chegam (prévia inicial já vem com emojis)
+      improveIndex = 0;
+      const rawDesc = localAd._rawDescription || localAd.description || localAd.title || "";
+      const enriched = { ...localAd, ready: true, _rawDescription: rawDesc };
+      enriched.description = buildRichDescription(enriched, improveIndex);
+      setLocalAd(enriched);
+      onGenerateAd(enriched);
+      onFillForm(enriched);
       setMessages((prev) => [
         ...prev,
         { id: prev.length + 1, from: "system", text: "Fotos recebidas! Aqui está a prévia do seu anúncio." }
@@ -231,13 +269,13 @@ export default function AIAssistantPanelSocial({
 
   const handleImprove = () => {
     if (!ad) return;
-    // Monta descrição melhorada sem repetir preço nem estado (já ficam nos campos próprios)
-    const improvedDescription = `✨ ${ad.description || ad.title}\n\n📍 ${ad.city}\n\nEntre em contato para fechar negócio!`;
-    
-    const improved = {
-      ...ad,
-      description: improvedDescription
-    };
+    // Avança para o próximo variant e reconstrói a descrição do zero (sem acumular)
+    improveIndex = (improveIndex + 1) % IMPROVE_VARIANTS.length;
+    // Usa a descrição bruta original (sem emojis/rodapé anteriores)
+    const rawDesc = (ad._rawDescription || ad.description || ad.title || "").trim();
+    const adBase = { ...ad, _rawDescription: rawDesc };
+    const improvedDescription = buildRichDescription(adBase, improveIndex);
+    const improved = { ...adBase, description: improvedDescription };
     setLocalAd(improved);
     onImproveAd(improved);
     onFillForm(improved);
