@@ -24,7 +24,7 @@ const states = [
 const productConditions = ["Novo", "Usado", "Em bom estado", "Com detalhes", "Para retirada de peças"];
 
 export default function SocialPage() {
-  const { user, token, API: AUTH_API } = useAuth();
+  const { user, token, API: AUTH_API, setUser } = useAuth();
   const API = AUTH_API || `${process.env.REACT_APP_BACKEND_URL || ""}/api`;
 
   const authHeaders = token
@@ -318,7 +318,9 @@ export default function SocialPage() {
     setProfileForm((prev) => ({ ...prev, picture: base64 }));
 
     if (avatarInputRef.current) avatarInputRef.current.value = "";
-   const removeImageAt = (indexToRemove) => {
+  };
+
+  const removeImageAt = (indexToRemove) => {
     setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
@@ -1655,5 +1657,4 @@ export default function SocialPage() {
       />
     </div>
   );
-}
 }
