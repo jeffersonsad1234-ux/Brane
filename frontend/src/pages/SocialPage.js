@@ -10,6 +10,7 @@ import { useAuth } from "../contexts/AuthContext";
 import ProductImageZoom from "../components/ProductImageZoom";
 import AIAssistantPanelSocial from "../components/AIAssistantPanelSocial";
 import BLivreAuthModal from "../components/BLivreAuthModal";
+import { BRANE_LOGO_URL } from "../components/Navbar";
 const PAGE_SIZE = 24;
 
 const categories = ["Celulares", "Veículos", "Imóveis", "Casa e móveis", "Moda", "Serviços", "Outros"];
@@ -1508,8 +1509,8 @@ export default function SocialPage() {
           <div className="max-w-[1600px] mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1px]">
-                <div className="w-full h-full rounded-2xl bg-[#09090D] flex items-center justify-center">
-                  <span className="text-[#F1D28A] font-black text-xl">B</span>
+                <div className="w-full h-full rounded-2xl bg-[#09090D] overflow-hidden flex items-center justify-center">
+                  <img src={BRANE_LOGO_URL} alt="B Livre" className="w-full h-full object-cover" />
                 </div>
               </div>
 
