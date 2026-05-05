@@ -951,12 +951,13 @@ export default function SocialPage() {
       {!editingPost ? (
         <div className="flex-1 min-h-0 overflow-y-auto">
           <AIAssistantPanelSocial
+            uploadedPhotos={images}
             onPhotoUpload={async (files) => {
               const fileList = Array.from(files || []);
               const base64List = await Promise.all(
                 fileList.slice(0, 5).map((file) => fileToBase64(file))
               );
-              setImages(base64List);
+              setImages((prev) => [...prev, ...base64List].slice(0, 5));
             }}
             onGenerateAd={(data) => {
               const finalData = {
@@ -970,7 +971,7 @@ export default function SocialPage() {
                 price: String(finalData.price || "").replace(/^R\$\s*/i, ""),
                 state: finalData.state || "",
                 city: finalData.city || "",
-                productCondition: finalData.condition || finalData.productCondition || "",
+                productCondition: finalData.condition || finalData.productCondition || finalData.product_condition || "",
                 description: finalData.description || "",
                 availability: finalData.availability || "Item único"
               };
@@ -995,7 +996,7 @@ export default function SocialPage() {
                 price: String(finalData.price || prev.price || "").replace(/^R\$\s*/i, ""),
                 state: finalData.state || prev.state,
                 city: finalData.city || prev.city,
-                productCondition: finalData.condition || finalData.productCondition || prev.productCondition,
+                productCondition: finalData.condition || finalData.productCondition || finalData.product_condition || prev.productCondition,
                 description: finalData.description || prev.description,
                 availability: finalData.availability || prev.availability
               }));
@@ -1026,7 +1027,7 @@ export default function SocialPage() {
                 price: String(data.price || "").replace(/^R\$\s*/i, ""),
                 state: data.state || "",
                 city: data.city || "",
-                productCondition: data.condition || data.productCondition || "",
+                productCondition: data.condition || data.productCondition || data.product_condition || "",
                 description: data.description || "",
                 availability: data.availability || "Item único"
               });
@@ -1038,7 +1039,7 @@ export default function SocialPage() {
                 price: String(ad.price || "").replace(/^R\$\s*/i, ""),
                 state: ad.state || "",
                 city: ad.city || "",
-                productCondition: ad.condition || ad.productCondition || "",
+                productCondition: ad.condition || ad.productCondition || ad.product_condition || "",
                 description: ad.description || "",
                 availability: ad.availability || "Item único"
               };

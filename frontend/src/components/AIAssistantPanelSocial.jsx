@@ -46,7 +46,8 @@ export default function AIAssistantPanelSocial({
   onFillForm = () => {},
   onPublishAd = () => {},
   generatedAd = null,
-  isGenerating = false
+  isGenerating = false,
+  uploadedPhotos = []
 }) {
   const [input, setInput] = useState("");
   const [localAd, setLocalAd] = useState(null);
@@ -62,6 +63,13 @@ export default function AIAssistantPanelSocial({
   const endRef = useRef(null);
 
   const ad = generatedAd || localAd;
+
+  // Sincroniza photosCount com o array real de fotos recebido do pai
+  useEffect(() => {
+    if (uploadedPhotos.length !== photosCount) {
+      setPhotosCount(uploadedPhotos.length);
+    }
+  }, [uploadedPhotos]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -215,6 +223,34 @@ export default function AIAssistantPanelSocial({
                 <span className="text-[10px] font-bold">{photosCount} foto(s)</span>
               </div>
             </div>
+
+            {uploadedPhotos.length > 0 && (
+              <div className="space-y-2">
+                <div className="w-full aspect-[4/3] rounded-xl overflow-hidden bg-black/30 border border-white/10">
+                  <img
+                    src={uploadedPhotos[0]}
+                    alt="Foto principal"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                {uploadedPhotos.length > 1 && (
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {uploadedPhotos.slice(1).map((src, idx) => (
+                      <div
+                        key={idx}
+                        className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border border-white/10 bg-black/30"
+                      >
+                        <img
+                          src={src}
+                          alt={`Foto ${idx + 2}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             
             <div className="space-y-4">
               <div className="space-y-1">
