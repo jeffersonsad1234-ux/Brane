@@ -42,7 +42,9 @@ const defaultAd = {
   state: "",
   availability: "",  // vazio para forçar seleção guiada; o payload usa "Item único" como fallback
   description: "",
-  photos: []
+  photos: [],
+  contact_phone: "",
+  contact_whatsapp: ""
 };
 
 const safe = (value) => String(value || "").trim();
@@ -213,6 +215,8 @@ export default function AIAssistantPanelSocial({
   const [photosCount, setPhotosCount] = useState(0);
   // Controla etapa de seleção guiada: null = nenhuma pendente, 'condition' ou 'availability'
   const [pendingStep, setPendingStep] = useState(null);
+  const [contactOptions, setContactOptions] = useState({ phone: false, whatsapp: false });
+  const [contactNumber, setContactNumber] = useState("");
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -299,6 +303,13 @@ export default function AIAssistantPanelSocial({
       return;
     }
 
+    // Mostra painel de contato opcional antes da foto
+    if (merged._contactStepDone === undefined) {
+      setLocalAd({ ...merged, _contactStepDone: false });
+      setPendingStep("contact");
+      return;
+    }
+
     if (photosCount === 0) {
       setMessages((prev) => [
         ...prev, 
@@ -331,6 +342,12 @@ export default function AIAssistantPanelSocial({
       // Se ainda falta disponibilidade, exibe painel visual (sem mensagem no chat)
       if (!localAd.availability) {
         setPendingStep("availability");
+        return;
+      }
+      // Mostra painel de contato opcional antes da foto
+      if (localAd._contactStepDone === undefined) {
+        setLocalAd(prev => ({ ...prev, _contactStepDone: false }));
+        setPendingStep("contact");
         return;
       }
       // Tudo preenchido: enriquece a descrição e gera prévia
@@ -379,7 +396,13 @@ export default function AIAssistantPanelSocial({
       return;
     }
 
-    // Ambos preenchidos: verifica fotos
+    // Após disponibilidade: mostra painel de contato opcional
+    if (field === "availability") {
+      setPendingStep("contact");
+      return;
+    }
+
+    // Após contato (ou pulo): verifica fotos
     if (photosCount === 0) {
       setMessages((prev) => [
         ...prev,
@@ -402,11 +425,41 @@ export default function AIAssistantPanelSocial({
     ]);
   };
 
+  // Confirma contato e avança para foto
+  const handleConfirmContact = () => {
+    const phone = contactOptions.phone ? contactNumber : "";
+    const whatsapp = contactOptions.whatsapp ? contactNumber : "";
+    const updated = { ...(localAd || defaultAd), contact_phone: phone, contact_whatsapp: whatsapp, _contactStepDone: true };
+    setLocalAd(updated);
+    setPendingStep(null);
+    if (photosCount === 0) {
+      setMessages((prev) => [
+        ...prev,
+        { id: prev.length + 1, from: "system", text: "Agora envie pelo menos 1 foto do produto para eu preparar o anúncio." }
+      ]);
+      return;
+    }
+    // Tudo pronto: gera prévia
+    improveIndex = 0;
+    const enriched = { ...updated, _rawDescription: updated.description || updated.title };
+    enriched.description = buildRichDescription(enriched, improveIndex);
+    const final = { ...enriched, ready: true };
+    setLocalAd(final);
+    onGenerateAd(final);
+    onFillForm(final);
+    setMessages((prev) => [
+      ...prev,
+      { id: prev.length + 1, from: "system", text: "Tudo pronto! Confira a prévia do seu anúncio abaixo." }
+    ]);
+  };
+
   const handleReset = () => {
     setInput("");
     setLocalAd(null);
     setPhotosCount(0);
     setPendingStep(null);
+    setContactOptions({ phone: false, whatsapp: false });
+    setContactNumber("");
     setMessages([{
       id: 1,
       from: "system",
@@ -464,6 +517,58 @@ export default function AIAssistantPanelSocial({
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Painel visual de CONTATO OPCIONAL */}
+        {pendingStep === "contact" && (
+          <div className="mx-auto w-full max-w-[95%] rounded-2xl border border-[#D4A24C]/40 bg-gradient-to-b from-[#D4A24C]/10 to-transparent p-4 space-y-3">
+            <div className="flex items-center gap-2 border-b border-white/10 pb-3">
+              <span className="text-base">📞</span>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#F1D28A]">Contato (opcional)</p>
+                <p className="text-xs text-white/50">Deseja adicionar um contato ao anúncio?</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setContactOptions(prev => ({ ...prev, phone: !prev.phone }))}
+                className={`rounded-xl border px-3 py-2 text-xs font-semibold transition-all ${
+                  contactOptions.phone
+                    ? "border-[#D4A24C] bg-[#D4A24C]/20 text-[#F1D28A]"
+                    : "border-[#D4A24C]/50 bg-black/30 text-white/80 hover:bg-[#D4A24C]/20 hover:border-[#D4A24C] hover:text-[#F1D28A]"
+                }`}
+              >
+                📞 Número para contato
+              </button>
+              <button
+                type="button"
+                onClick={() => setContactOptions(prev => ({ ...prev, whatsapp: !prev.whatsapp }))}
+                className={`rounded-xl border px-3 py-2 text-xs font-semibold transition-all ${
+                  contactOptions.whatsapp
+                    ? "border-[#D4A24C] bg-[#D4A24C]/20 text-[#F1D28A]"
+                    : "border-[#D4A24C]/50 bg-black/30 text-white/80 hover:bg-[#D4A24C]/20 hover:border-[#D4A24C] hover:text-[#F1D28A]"
+                }`}
+              >
+                📲 WhatsApp
+              </button>
+            </div>
+            {(contactOptions.phone || contactOptions.whatsapp) && (
+              <input
+                value={contactNumber}
+                onChange={(e) => setContactNumber(e.target.value)}
+                placeholder="Ex: (11) 99999-9999"
+                className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-[#D4A24C]/50"
+              />
+            )}
+            <button
+              type="button"
+              onClick={handleConfirmContact}
+              className="w-full rounded-xl bg-gradient-to-br from-[#D4A24C] to-[#B98228] py-2 text-xs font-black text-black hover:brightness-110 transition-all"
+            >
+              {contactOptions.phone || contactOptions.whatsapp ? "Confirmar contato" : "Continuar sem contato"}
+            </button>
           </div>
         )}
 

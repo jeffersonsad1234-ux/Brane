@@ -3,7 +3,8 @@ import axios from "axios";
 import {
   Image, Send, User, Bell, Search, MessageSquare,
   Settings, BadgeCheck, Package, MapPin, Tags,
-  Heart, X, ChevronLeft, ChevronRight, Globe, Camera
+  Heart, X, ChevronLeft, ChevronRight, Globe, Camera,
+  Phone, LogOut, ShoppingBag, Flag
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import ProductImageZoom from "../components/ProductImageZoom";
@@ -89,11 +90,58 @@ export default function SocialPage() {
     return true;
   };
 
+  // Estado para denúncias
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportTarget, setReportTarget] = useState(null); // { tipo, post_id, reported_user_id }
+  const [reportMotivo, setReportMotivo] = useState("");
+  const [reportDescricao, setReportDescricao] = useState("");
+  const [sendingReport, setSendingReport] = useState(false);
+
+  const REPORT_MOTIVOS = [
+    "Produto falso ou golpe",
+    "Conteúdo ofensivo",
+    "Preço enganoso",
+    "Vendedor desrespeitoso",
+    "Produto proibido",
+    "Outro"
+  ];
+
+  const openReportModal = (tipo, post_id = null, reported_user_id = null) => {
+    if (!requireAuth()) return;
+    setReportTarget({ tipo, post_id, reported_user_id });
+    setReportMotivo("");
+    setReportDescricao("");
+    setShowReportModal(true);
+  };
+
+  const sendReport = async () => {
+    if (!reportMotivo) { alert("Selecione um motivo."); return; }
+    try {
+      setSendingReport(true);
+      await axios.post(
+        `${API}/social/reports`,
+        { ...reportTarget, motivo: reportMotivo, descricao: reportDescricao },
+        { headers: authHeaders }
+      );
+      setShowReportModal(false);
+      alert("Denúncia enviada. Obrigado por ajudar a manter a comunidade segura.");
+    } catch (err) {
+      console.error(err);
+      alert("Erro ao enviar denúncia.");
+    } finally {
+      setSendingReport(false);
+    }
+  };
+
+  const { logout } = useAuth();
+
   const [profileForm, setProfileForm] = useState({
     name: "",
     city: "",
     state: "",
-    picture: ""
+    picture: "",
+    phone: "",
+    bio: ""
   });
 
   const [form, setForm] = useState({
@@ -104,7 +152,9 @@ export default function SocialPage() {
     city: "",
     productCondition: "",
     description: "",
-    availability: "Item único"
+    availability: "Item único",
+    contact_phone: "",
+    contact_whatsapp: ""
   });
 
   const getPostKey = (post) => String(post?.post_id || post?.id || post?.created_at || JSON.stringify(post));
@@ -153,34 +203,51 @@ export default function SocialPage() {
     );
   };
 
+  // Faz upload real do arquivo e retorna URL. Se falhar, usa base64 como fallback.
   const fileToBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
       const img = new window.Image();
-
-      reader.onload = () => {
-        img.src = reader.result;
-      };
-
+      reader.onload = () => { img.src = reader.result; };
       reader.onerror = reject;
       img.onerror = reject;
-
       img.onload = () => {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
-
         const maxWidth = 900;
         const scale = Math.min(1, maxWidth / img.width);
-
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
-
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         resolve(canvas.toDataURL("image/jpeg", 0.68));
       };
-
       reader.readAsDataURL(file);
     });
+
+  // Upload real: envia o arquivo para /api/upload e retorna a URL
+  const uploadFileToServer = async (file) => {
+    if (!token) return null;
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await axios.post(`${API}/upload`, fd, {
+        headers: { ...authHeaders, "Content-Type": "multipart/form-data" }
+      });
+      const path = res.data?.path;
+      if (path) return `${API}/files/${path}`;
+      return null;
+    } catch (err) {
+      console.warn("Upload falhou, usando base64:", err);
+      return null;
+    }
+  };
+
+  // Converte arquivo para URL (upload real) ou base64 como fallback
+  const fileToUrl = async (file) => {
+    const url = await uploadFileToServer(file);
+    if (url) return url;
+    return fileToBase64(file);
+  };
 
   const mergePosts = (oldPosts, newPosts) => {
     const map = new Map();
@@ -302,11 +369,11 @@ export default function SocialPage() {
     const availableSlots = Math.max(0, 5 - images.length);
     const selectedFiles = files.slice(0, availableSlots);
 
-    const base64List = await Promise.all(
-      selectedFiles.map((file) => fileToBase64(file))
+    const urlList = await Promise.all(
+      selectedFiles.map((file) => fileToUrl(file))
     );
 
-    setImages((prev) => [...prev, ...base64List].slice(0, 5));
+    setImages((prev) => [...prev, ...urlList].slice(0, 5));
 
     if (imageInputRef.current) imageInputRef.current.value = "";
   };
@@ -315,8 +382,8 @@ export default function SocialPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const base64 = await fileToBase64(file);
-    setProfileForm((prev) => ({ ...prev, picture: base64 }));
+    const url = await fileToUrl(file);
+    setProfileForm((prev) => ({ ...prev, picture: url }));
 
     if (avatarInputRef.current) avatarInputRef.current.value = "";
   };
@@ -379,7 +446,9 @@ export default function SocialPage() {
           city: sourceForm.city,
           product_condition: sourceForm.productCondition,
           description: sourceForm.description,
-          availability: sourceForm.availability
+          availability: sourceForm.availability,
+          contact_phone: sourceForm.contact_phone || "",
+          contact_whatsapp: sourceForm.contact_whatsapp || ""
         },
         { headers: authHeaders }
       );
@@ -577,8 +646,8 @@ export default function SocialPage() {
     try {
       setSavingProfile(true);
 
-      const res = await axios.put(
-        `${API}/social/profile`,
+      await axios.put(
+        `${API}/users/profile-extended`,
         profileForm,
         { headers: authHeaders }
       );
@@ -813,48 +882,31 @@ export default function SocialPage() {
 
       {showSettings && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-[620px] rounded-[28px] border border-[#D4A24C]/25 bg-[#0B0B12] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.62)]">
+          <div className="w-full max-w-[620px] max-h-[92vh] overflow-y-auto rounded-[28px] border border-[#D4A24C]/25 bg-[#0B0B12] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.62)]">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="font-black text-lg text-white">Editar perfil</h2>
-                <p className="text-xs text-[#8C8F9A] mt-1">
-                  Atualize sua foto, nome e localização.
-                </p>
+                <p className="text-xs text-[#8C8F9A] mt-1">Atualize suas informações pessoais.</p>
               </div>
-
-              <button
-                onClick={() => setShowSettings(false)}
-                className="w-9 h-9 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#C9CBD6]"
-              >
+              <button onClick={() => setShowSettings(false)} className="w-9 h-9 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#C9CBD6]">
                 <X size={18} />
               </button>
             </div>
 
             <div className="flex items-center gap-4 mb-5">
               <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[2px]">
-                    <div className="w-full h-full rounded-full bg-[#0B0B0F] overflow-hidden flex items-center justify-center">
+                <div className="w-full h-full rounded-full bg-[#0B0B0F] overflow-hidden flex items-center justify-center">
                   {(profileForm.picture || profileForm.avatar) ? (
-                    <img
-                      src={profileForm.picture || profileForm.avatar}
-                      alt="Perfil"
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={profileForm.picture || profileForm.avatar} alt="Perfil" className="w-full h-full object-cover" />
                   ) : (
                     <User className="text-[#F1D28A]" size={34} />
                   )}
                 </div>
               </div>
-
               <label className="inline-flex items-center gap-2 px-4 py-3 rounded-2xl border border-[#D4A24C]/25 bg-[#D4A24C]/10 text-[#F1D28A] text-sm font-bold cursor-pointer">
                 <Camera size={17} />
                 Trocar foto
-                <input
-                  ref={avatarInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAvatarImage}
-                />
+                <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarImage} />
               </label>
             </div>
 
@@ -867,6 +919,30 @@ export default function SocialPage() {
                   className="mt-1.5 w-full p-3 rounded-2xl bg-black/30 border border-white/10 text-white outline-none"
                   placeholder="Seu nome"
                 />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="text-xs text-[#8C8F9A] font-bold">Bio / Sobre você</label>
+                <textarea
+                  value={profileForm.bio}
+                  onChange={(e) => setProfileForm((prev) => ({ ...prev, bio: e.target.value }))}
+                  rows={3}
+                  className="mt-1.5 w-full p-3 rounded-2xl bg-black/30 border border-white/10 text-white outline-none resize-none"
+                  placeholder="Conte um pouco sobre você..."
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="text-xs text-[#8C8F9A] font-bold">Telefone (opcional)</label>
+                <div className="mt-1.5 flex items-center gap-2 w-full p-3 rounded-2xl bg-black/30 border border-white/10">
+                  <Phone size={15} className="text-[#8C8F9A] flex-shrink-0" />
+                  <input
+                    value={profileForm.phone}
+                    onChange={(e) => setProfileForm((prev) => ({ ...prev, phone: e.target.value }))}
+                    className="flex-1 bg-transparent text-white outline-none"
+                    placeholder="(11) 99999-9999"
+                  />
+                </div>
               </div>
 
               <div>
@@ -901,6 +977,23 @@ export default function SocialPage() {
             >
               {savingProfile ? "Salvando..." : "Salvar perfil"}
             </button>
+
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => { setShowSettings(false); setActiveFilter("mine"); }}
+                className="flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] text-white/80 font-bold py-3 text-sm hover:bg-white/10 transition-all"
+              >
+                <ShoppingBag size={16} />
+                Meus anúncios
+              </button>
+              <button
+                onClick={() => { logout(); setShowSettings(false); }}
+                className="flex items-center justify-center gap-2 rounded-2xl border border-red-500/30 bg-red-500/10 text-red-400 font-bold py-3 text-sm hover:bg-red-500/20 transition-all"
+              >
+                <LogOut size={16} />
+                Sair da conta
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -973,7 +1066,9 @@ export default function SocialPage() {
                 city: finalData.city || "",
                 productCondition: finalData.condition || finalData.productCondition || finalData.product_condition || "",
                 description: finalData.description || "",
-                availability: finalData.availability || "Item único"
+                availability: finalData.availability || "Item único",
+                contact_phone: finalData.contact_phone || "",
+                contact_whatsapp: finalData.contact_whatsapp || ""
               };
 
               setForm(newForm);
@@ -1041,7 +1136,9 @@ export default function SocialPage() {
                 city: ad.city || "",
                 productCondition: ad.condition || ad.productCondition || ad.product_condition || "",
                 description: ad.description || "",
-                availability: ad.availability || "Item único"
+                availability: ad.availability || "Item único",
+                contact_phone: ad.contact_phone || "",
+                contact_whatsapp: ad.contact_whatsapp || ""
               };
               setForm(nextForm);
 
@@ -1156,6 +1253,66 @@ export default function SocialPage() {
   </div>
 )}
 
+      {/* Modal de Denúncia */}
+      {showReportModal && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+          <div className="w-full max-w-[480px] rounded-[28px] border border-red-500/25 bg-[#0B0B12] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.62)]">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="font-black text-lg text-white">
+                  {reportTarget?.tipo === "usuario" ? "Denunciar usuário" : "Denunciar anúncio"}
+                </h2>
+                <p className="text-xs text-[#8C8F9A] mt-1">Selecione o motivo da denúncia.</p>
+              </div>
+              <button onClick={() => setShowReportModal(false)} className="w-9 h-9 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#C9CBD6]">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="flex flex-wrap gap-2 mb-4">
+              {REPORT_MOTIVOS.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setReportMotivo(m)}
+                  className={`rounded-xl border px-3 py-2 text-xs font-semibold transition-all ${
+                    reportMotivo === m
+                      ? "border-red-400 bg-red-500/20 text-red-300"
+                      : "border-white/10 bg-white/5 text-white/70 hover:border-red-400/50 hover:text-red-300"
+                  }`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              value={reportDescricao}
+              onChange={(e) => setReportDescricao(e.target.value)}
+              rows={3}
+              placeholder="Descrição adicional (opcional)..."
+              className="w-full p-3 rounded-2xl bg-black/30 border border-white/10 text-white outline-none resize-none text-sm mb-4"
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowReportModal(false)}
+                className="flex-1 rounded-2xl border border-white/10 bg-white/[0.04] text-white/80 font-bold py-3 text-sm hover:bg-white/10 transition-all"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={sendReport}
+                disabled={sendingReport || !reportMotivo}
+                className="flex-1 rounded-2xl bg-red-500 text-white font-black py-3 text-sm hover:bg-red-600 disabled:opacity-50 transition-all"
+              >
+                {sendingReport ? "Enviando..." : "Enviar denúncia"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {selectedPost && (
         <div className="fixed inset-0 z-[90] bg-black/75 backdrop-blur-xl flex items-center justify-center px-4">
           <button
@@ -1234,6 +1391,30 @@ export default function SocialPage() {
                         {selectedPost.content}
                       </p>
                     </div>
+
+                    {/* Exibição de contato */}
+                    {(selectedPost.contact_phone || selectedPost.contact_whatsapp) && (
+                      <div className="mt-4 border-t border-[#E5E7EB] pt-4">
+                        <p className="text-sm font-semibold text-[#111318]">
+                          {selectedPost.contact_phone && selectedPost.contact_whatsapp
+                            ? "📲 WhatsApp ou 📞 ligação — escolha como preferir"
+                            : selectedPost.contact_whatsapp
+                            ? "📲 Me chama no WhatsApp"
+                            : "📞 Entre em contato por ligação"}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Botão denunciar anúncio */}
+                    <div className="mt-4 border-t border-[#E5E7EB] pt-3">
+                      <button
+                        onClick={() => openReportModal("anuncio", getPostKey(selectedPost), selectedPost.user_id)}
+                        className="flex items-center gap-1.5 text-xs text-[#9CA3AF] hover:text-red-400 transition-colors"
+                      >
+                        <Flag size={13} />
+                        Denunciar anúncio
+                      </button>
+                    </div>
                   </div>
 
                   <div className="px-5 pb-4 pt-3 border-t border-[#E5E7EB]">
@@ -1302,7 +1483,9 @@ export default function SocialPage() {
                     name: user?.name || "",
                     city: user?.city || "",
                     state: user?.state || "",
-                    picture: user?.picture || user?.avatar || ""
+                    picture: user?.picture || user?.avatar || "",
+                    phone: user?.phone || "",
+                    bio: user?.bio || ""
                   });
                   setShowSettings(true);
                 }}

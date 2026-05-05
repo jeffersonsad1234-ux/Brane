@@ -95,8 +95,20 @@ class MockDB:
     def __getattr__(self, name):
         return self.__getitem__(name)
 
-# Forcing MockDB for sandbox environment to ensure 100% availability
-db = MockDB()
+# Use MongoDB Atlas if MONGO_URL is set, otherwise fallback to MockDB
+_use_mongo = bool(mongo_url and mongo_url != "mongodb://127.0.0.1:27017")
+if _use_mongo:
+    try:
+        client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=_mongo_timeout_ms)
+        db = client[db_name]
+        logging.info(f"Using MongoDB Atlas: {db_name}")
+    except Exception as _e:
+        logging.warning(f"MongoDB connection failed ({_e}), falling back to MockDB")
+        db = MockDB()
+        client = None
+else:
+    db = MockDB()
+    client = None
 
 # Seed initial data for sandbox
 def seed_data():
@@ -164,9 +176,12 @@ def seed_data():
     ]
     db['social_posts'].data.extend(seeds)
 
-seed_data()
-client = None # Define client to avoid NameError in shutdown
-logging.info("Using MockDB for sandbox environment")
+# Seed apenas para MockDB (em memória)
+if isinstance(db, MockDB):
+    seed_data()
+    logging.info("Using MockDB for sandbox environment")
+else:
+    logging.info("Using MongoDB Atlas — skipping in-memory seed")
 JWT_SECRET = os.environ.get('JWT_SECRET', 'brane-secret-key')
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_HOURS = 72
@@ -235,6 +250,15 @@ class SocialPostCreate(BaseModel):
     product_condition: Optional[str] = None
     description: Optional[str] = None
     availability: Optional[str] = None
+    contact_phone: Optional[str] = None
+    contact_whatsapp: Optional[str] = None
+
+class ReportCreate(BaseModel):
+    tipo: str  # 'anuncio' ou 'usuario'
+    post_id: Optional[str] = None
+    reported_user_id: Optional[str] = None
+    motivo: str
+    descricao: Optional[str] = None
 
 class SocialCommentCreate(BaseModel):
     content: str
@@ -715,7 +739,7 @@ async def get_profile(request: Request):
 async def update_profile(request: Request):
     user = await get_current_user(request)
     body = await request.json()
-    updates = {k: v for k, v in body.items() if k in {"name", "picture"}}
+    updates = {k: v for k, v in body.items() if k in {"name", "picture", "phone", "bio", "city", "state"}}
     if updates:
         await db.users.update_one({"user_id": user["user_id"]}, {"$set": updates})
     updated = await db.users.find_one({"user_id": user["user_id"]}, {"_id": 0})
@@ -744,7 +768,7 @@ async def update_profile_extended(request: Request):
     """Update extended profile fields: bio, cover_photo, phone"""
     user = await get_current_user(request)
     body = await request.json()
-    allowed = {"bio", "cover_photo", "phone", "name", "picture"}
+    allowed = {"bio", "cover_photo", "phone", "name", "picture", "city", "state"}
     updates = {k: v for k, v in body.items() if k in allowed}
     if updates:
         await db.users.update_one({"user_id": user["user_id"]}, {"$set": updates})
@@ -764,6 +788,9 @@ async def get_public_user_profile(user_id: str):
         "picture": user.get("picture", ""),
         "cover_photo": user.get("cover_photo", ""),
         "bio": user.get("bio", ""),
+        "phone": user.get("phone", ""),
+        "city": user.get("city", ""),
+        "state": user.get("state", ""),
         "role": user.get("role", "buyer"),
         "created_at": user.get("created_at", "")
     }
@@ -794,6 +821,8 @@ async def create_social_post(data: SocialPostCreate, request: Request):
         "product_condition": data.product_condition,
         "description": data.description,
         "availability": data.availability,
+        "contact_phone": data.contact_phone or "",
+        "contact_whatsapp": data.contact_whatsapp or "",
         "likes": [],
         "likes_count": 0,
         "comments_count": 0,
@@ -844,7 +873,8 @@ async def update_social_post(post_id: str, data: dict, request: Request):
     
     allowed_fields = {
         "content", "image", "title", "price", "category", 
-        "state", "city", "product_condition", "description", "availability"
+        "state", "city", "product_condition", "description", "availability",
+        "contact_phone", "contact_whatsapp"
     }
     updates = {k: v for k, v in data.items() if k in allowed_fields}
     
@@ -932,21 +962,18 @@ async def get_favorites(request: Request):
 # =========================
 
 @api_router.put("/social/profile")
-async def update_profile(data: dict, request: Request):
+async def update_social_profile(data: dict, request: Request):
     user = await get_current_user(request)
-
-    await db.users.update_one(
-        {"user_id": user["user_id"]},
-        {"$set": {
-            "name": data.get("name", ""),
-            "city": data.get("city", ""),
-            "state": data.get("state", ""),
-            "avatar": data.get("avatar", "")
-        }},
-        upsert=True
-    )
-
-    return {"ok": True}
+    allowed = {"name", "city", "state", "avatar", "picture", "phone", "bio"}
+    updates = {k: v for k, v in data.items() if k in allowed}
+    if updates:
+        await db.users.update_one(
+            {"user_id": user["user_id"]},
+            {"$set": updates},
+            upsert=True
+        )
+    updated = await db.users.find_one({"user_id": user["user_id"]}, {"_id": 0})
+    return clean_user(updated) if updated else {"ok": True}
 
 
 # =========================
@@ -1052,38 +1079,47 @@ async def get_notifications(request: Request):
 # PERFIL
 # =========================
 @api_router.get("/social/profile")
-async def get_social_profile(request: Request):
+async def get_social_profile_auth(request: Request):
     user = await get_current_user(request)
-
-    profile = await db.users.find_one(
-        {"user_id": user["user_id"]},
-        {"_id": 0}
-    )
-
+    profile = await db.users.find_one({"user_id": user["user_id"]}, {"_id": 0})
     if not profile:
-        profile = {
-            "user_id": user["user_id"],
-            "name": user.get("name", ""),
-            "city": user.get("city", ""),
-            "state": user.get("state", ""),
-            "avatar": user.get("avatar", user.get("picture", ""))
-        }
+        profile = user
+    return clean_user(profile)
 
-    return {"profile": profile}
-@api_router.put("/social/profile")
-async def update_profile(data: dict, request: Request):
+# =========================
+# DENÚNCIAS
+# =========================
+
+@api_router.post("/social/reports")
+async def create_report(data: ReportCreate, request: Request):
     user = await get_current_user(request)
+    report_id = f"report_{uuid.uuid4().hex[:12]}"
+    report = {
+        "report_id": report_id,
+        "tipo": data.tipo,
+        "post_id": data.post_id or "",
+        "reported_user_id": data.reported_user_id or "",
+        "reporter_id": user["user_id"],
+        "motivo": data.motivo,
+        "descricao": data.descricao or "",
+        "status": "pendente",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.reports.insert_one(report)
+    return {k: v for k, v in report.items() if k != "_id"}
 
-    await db.users.update_one(
-        {"user_id": user["user_id"]},
-        {"$set": {
-            "name": data.get("name"),
-            "city": data.get("city"),
-            "state": data.get("state"),
-            "avatar": data.get("avatar")
-        }}
-    )
+@api_router.get("/admin/reports")
+async def list_reports(request: Request):
+    await require_admin(request)
+    items = await db.reports.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
+    return {"reports": items, "total": len(items)}
 
+@api_router.put("/admin/reports/{report_id}")
+async def update_report_status(report_id: str, request: Request):
+    await require_admin(request)
+    body = await request.json()
+    status = body.get("status", "resolvido")
+    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": status}})
     return {"ok": True}
 
 # ==================== PRODUCT ROUTES ====================
