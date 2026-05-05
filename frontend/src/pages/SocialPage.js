@@ -24,8 +24,7 @@ const states = [
 const productConditions = ["Novo", "Usado", "Em bom estado", "Com detalhes", "Para retirada de peças"];
 
 export default function SocialPage() {
-  const { user, token, API: AUTH_API, setUser } = useAuth();
-  const API = AUTH_API || `${process.env.REACT_APP_BACKEND_URL || ""}/api`;
+  const { user, token, API, setUser } = useAuth();
 
   const authHeaders = token
     ? { Authorization: "Bearer " + token }
@@ -200,10 +199,10 @@ export default function SocialPage() {
     try {
       const [favoritesRes, statsRes, notificationsRes, messagesRes] =
         await Promise.allSettled([
-          axios.get(API + "/social/favorites", { headers: authHeaders }),
-          axios.get(API + "/social/stats", { headers: authHeaders }),
-          axios.get(API + "/notifications", { headers: authHeaders }),
-          axios.get(API + "/social/messages", { headers: authHeaders })
+          axios.get(`${API}/social/favorites`, { headers: authHeaders }),
+          axios.get(`${API}/social/stats`, { headers: authHeaders }),
+          axios.get(`${API}/notifications`, { headers: authHeaders }),
+          axios.get(`${API}/social/messages`, { headers: authHeaders })
         ]);
 
       if (favoritesRes.status === "fulfilled") {
@@ -243,7 +242,7 @@ export default function SocialPage() {
       else setLoading(true);
 
       const res = await axios.get(
-        API + "/social/posts?limit=" + PAGE_SIZE + "&page=" + pageNumber
+        `${API}/social/posts?limit=${PAGE_SIZE}&page=${pageNumber}`
       );
 
       const list = res.data.posts || [];
@@ -414,7 +413,7 @@ export default function SocialPage() {
       setPosting(true);
 
       await axios.post(
-        API + "/social/posts",
+        `${API}/social/posts`,
         {
           content: buildContent(sourceForm),
           image: JSON.stringify(sourceImages),
@@ -477,7 +476,7 @@ export default function SocialPage() {
 
       const key = getPostKey(editingPost);
       await axios.put(
-        API + "/social/posts/" + key,
+        `${API}/social/posts/${key}`,
         {
           content: buildContent(),
           image: JSON.stringify(images),
@@ -534,7 +533,7 @@ export default function SocialPage() {
 
     try {
       await axios.post(
-        API + "/social/messages",
+        `${API}/social/messages`,
         {
           post_id: getPostKey(selectedPost),
           message
@@ -601,7 +600,7 @@ export default function SocialPage() {
 
     try {
       const res = await axios.post(
-        API + "/social/favorites/" + key,
+        `${API}/social/favorites/${key}`,
         {},
         { headers: authHeaders }
       );
@@ -624,7 +623,7 @@ export default function SocialPage() {
       setSavingProfile(true);
 
       const res = await axios.put(
-        API + "/social/profile",
+        `${API}/social/profile`,
         profileForm,
         { headers: authHeaders }
       );
@@ -675,7 +674,7 @@ export default function SocialPage() {
 
     try {
       await axios.post(
-        API + "/social/messages",
+        `${API}/social/messages`,
         {
           post_id: selectedChat.post_id,
           message: chatMessage
@@ -714,7 +713,7 @@ export default function SocialPage() {
     const key = getPostKey(post);
 
     try {
-      await axios.delete(API + "/social/posts/" + key, {
+      await axios.delete(`${API}/social/posts/${key}`, {
         headers: authHeaders
       });
 

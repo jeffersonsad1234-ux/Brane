@@ -55,7 +55,12 @@ export function AuthProvider({ children }) {
   };
 
   const register = async (name, email, password, role = 'buyer') => {
-    const res = await axios.post(`${API}/auth/register`, { name, email, password, role });
+    const res = await axios.post(`${API}/auth/register`, { 
+      name: name.trim(), 
+      email: email.trim().toLowerCase(), 
+      password, 
+      role 
+    });
     setToken(res.data.token);
     setUser(res.data.user);
     localStorage.setItem('brane_token', res.data.token);

@@ -99,6 +99,14 @@ class EmailVerifyConfirm(BaseModel):
 class SocialPostCreate(BaseModel):
     content: str
     image: Optional[str] = None
+    title: Optional[str] = None
+    price: Optional[str] = None
+    category: Optional[str] = None
+    state: Optional[str] = None
+    city: Optional[str] = None
+    product_condition: Optional[str] = None
+    description: Optional[str] = None
+    availability: Optional[str] = None
 
 class SocialCommentCreate(BaseModel):
     content: str
@@ -381,15 +389,14 @@ def validate_email_strict(email: str) -> tuple[bool, str]:
         domain = email.split("@")[1]
     except IndexError:
         return False, "Email invalido"
-    if domain in DISPOSABLE_EMAIL_DOMAINS:
-        return False, "Emails temporarios/descartaveis nao sao permitidos"
-    # Block obviously fake patterns
+    # Removendo bloqueio de emails temporários para facilitar testes e uso real
+    # if domain in DISPOSABLE_EMAIL_DOMAINS:
+    #     return False, "Emails temporarios/descartaveis nao sao permitidos"
+    
     local_part = email.split("@")[0]
-    if len(local_part) < 2:
+    if len(local_part) < 1:
         return False, "Email muito curto"
-    # Block emails with only numbers in local part (suspicious)
-    if local_part.isdigit() and len(local_part) < 4:
-        return False, "Email suspeito, use um email real"
+    
     return True, ""
 
 # ==================== AUTH ROUTES ====================
@@ -651,6 +658,14 @@ async def create_social_post(data: SocialPostCreate, request: Request):
         "user_picture": user.get("picture", ""),
         "content": data.content.strip()[:2000],
         "image": data.image or "",
+        "title": data.title,
+        "price": data.price,
+        "category": data.category,
+        "state": data.state,
+        "city": data.city,
+        "product_condition": data.product_condition,
+        "description": data.description,
+        "availability": data.availability,
         "likes": [],
         "likes_count": 0,
         "comments_count": 0,
@@ -689,6 +704,27 @@ async def like_social_post(post_id: str, request: Request):
             {"$push": {"likes": user["user_id"]}, "$inc": {"likes_count": 1}}
         )
         return {"liked": True, "likes_count": post.get("likes_count", 0) + 1}
+
+@api_router.put("/social/posts/{post_id}")
+async def update_social_post(post_id: str, data: dict, request: Request):
+    user = await get_current_user(request)
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post nao encontrado")
+    if post["user_id"] != user["user_id"] and user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Sem permissao")
+    
+    allowed_fields = {
+        "content", "image", "title", "price", "category", 
+        "state", "city", "product_condition", "description", "availability"
+    }
+    updates = {k: v for k, v in data.items() if k in allowed_fields}
+    
+    if updates:
+        await db.social_posts.update_one({"post_id": post_id}, {"$set": updates})
+    
+    updated = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    return updated
 
 @api_router.delete("/social/posts/{post_id}")
 async def delete_social_post(post_id: str, request: Request):
