@@ -2,9 +2,9 @@ import { ChevronRight, Grid3X3, Sparkles } from 'lucide-react';
 
 export default function HomeCategories({ environments, category, selectCategory }) {
   return (
-    <section className="max-w-7xl mx-auto px-4 pt-4 bg-[#f5f5f7]">
+    <section className="max-w-7xl mx-auto px-4 pt-4 bg-transparent">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-base md:text-lg font-black text-[#111318] flex items-center gap-2">
+        <h2 className="text-base md:text-lg font-black text-white flex items-center gap-2">
           <Sparkles className="text-[#C4892F]" size={17} />
           Navegue por ambientes
         </h2>

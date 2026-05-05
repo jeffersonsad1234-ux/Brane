@@ -86,7 +86,7 @@ export default function Navbar({ onSearch }) {
   return (
     <>
       <nav className="sticky top-0 z-50 border-b border-[#1E2230] backdrop-blur-xl theme-aware-navbar" data-testid="navbar">
-        <div className="max-w-[1400px] mx-auto px-5" style={{ height: 76 }}>
+        <div className="max-w-[1400px] mx-auto px-5" style={{ height: 60 }}>
           <div className="h-full flex items-center gap-5">
             <Link to="/market" className="flex items-center shrink-0 group" data-testid="navbar-logo">
               <div className="relative w-11 h-11 rounded-xl overflow-hidden ring-1 ring-[#D4A24C]/30 group-hover:ring-[#D4A24C]/70 transition">

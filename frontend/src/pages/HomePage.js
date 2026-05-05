@@ -231,7 +231,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] text-[#12141A]" data-testid="home-page">
+    <div className="min-h-screen bg-gradient-to-b from-[#0A0B0F] via-[#0F1117] to-[#0A0B0F] text-[#F7F7FA]" data-testid="home-page">
       <HomeCompactBar show={showCompactBar} onGoProducts={scrollToProducts} />
 
       <HomeHero

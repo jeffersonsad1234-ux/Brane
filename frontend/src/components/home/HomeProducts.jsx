@@ -10,7 +10,7 @@ export default function HomeProducts({
   setPage
 }) {
   return (
-    <section ref={productsRef} className="max-w-7xl mx-auto px-4 pt-5 scroll-mt-20 bg-[#f5f5f7]">
+    <section ref={productsRef} className="max-w-7xl mx-auto px-4 pt-5 scroll-mt-20 bg-transparent">
       {loadingProducts && products.length === 0 ? (
         <div className="theme-product-grid">
           {Array.from({ length: 12 }, (_, i) => (
@@ -80,8 +80,8 @@ export default function HomeProducts({
         </>
       ) : (
         <div className="py-14 text-center">
-          <StoreIcon className="w-10 h-10 text-[#B7A88D] mx-auto mb-3" />
-          <p className="text-[#6F6659]">Nenhum produto encontrado.</p>
+          <StoreIcon className="w-10 h-10 text-[#4F525B] mx-auto mb-3" />
+          <p className="text-[#A6A8B3]">Nenhum produto encontrado.</p>
         </div>
       )}
     </section>

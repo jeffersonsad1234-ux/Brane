@@ -20,8 +20,9 @@ export default function HomeHero({
   const navigate = useNavigate();
 
   return (
-    <section className="relative overflow-hidden border-b border-[#E5E7EB] bg-[#f5f5f7]">
-      <div className="absolute inset-0 bg-[#f5f5f7]" />
+    <section className="relative overflow-hidden border-b border-[#1E2230] bg-gradient-to-b from-[#0F1117] to-[#0A0B0F]">
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0F1117] to-[#0A0B0F]" />
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#D4A24C]/5 to-transparent" />
 
       <div
         className={
@@ -45,7 +46,7 @@ export default function HomeHero({
                 : 'rounded-[26px] p-4 md:p-5 flex flex-col justify-center'
             }
           >
-            <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-[#B98228] mb-2">
+            <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-[#D4A24C] mb-2">
               <Sparkles size={13} />
               Marketplace premium
             </p>
@@ -53,16 +54,16 @@ export default function HomeHero({
             <h1
               className={
                 compactHero
-                  ? 'text-xl md:text-2xl font-black leading-[1.02] tracking-tight text-[#111318]'
-                  : 'text-2xl md:text-3xl font-black leading-[1.02] tracking-tight text-[#111318]'
+                  ? 'text-xl md:text-2xl font-black leading-[1.02] tracking-tight text-white'
+                  : 'text-2xl md:text-3xl font-black leading-[1.02] tracking-tight text-white'
               }
             >
               O futuro das compras
-              <span className="block text-[#C4892F]">é BRANE.</span>
+              <span className="block text-[#D4A24C]">é BRANE.</span>
             </h1>
 
             {!compactHero && (
-              <p className="mt-3 text-sm text-[#3F4652] max-w-md leading-relaxed">
+              <p className="mt-3 text-sm text-[#A6A8B3] max-w-md leading-relaxed">
                 Tecnologia, segurança e milhares de produtos em uma vitrine premium.
               </p>
             )}

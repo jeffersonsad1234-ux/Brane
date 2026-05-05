@@ -4,13 +4,13 @@ export default function HomeCompactBar({ show, onGoProducts }) {
   if (!show) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-[#f5f5f7] border-b border-[#E5E7EB] shadow-[0_8px_26px_rgba(17,19,24,0.06)]">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-[#0A0B0F] border-b border-[#1E2230] shadow-[0_8px_26px_rgba(0,0,0,0.4)]">
       <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm md:text-base font-black text-[#111318] leading-tight">
+          <p className="text-sm md:text-base font-black text-white leading-tight">
             BRANE
           </p>
-          <p className="text-[11px] text-[#8A6326] font-bold">
+          <p className="text-[11px] text-[#D4A24C] font-bold">
             Produtos em destaque
           </p>
         </div>
