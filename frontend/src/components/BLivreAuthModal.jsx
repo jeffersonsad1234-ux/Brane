@@ -59,7 +59,7 @@ export default function BLivreAuthModal({ isOpen, onClose, onAuthSuccess }) {
       } else if (isLogin) {
         setError("Email ou senha incorretos.");
       } else {
-        setError("Erro de conexão. Tente novamente.");
+        setError(err.message || "Erro de conexão. Tente novamente.");
       }
     } finally {
       setLoading(false);
