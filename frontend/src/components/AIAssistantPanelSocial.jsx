@@ -37,10 +37,10 @@ const defaultAd = {
   title: "",
   price: "",
   category: "",
-  product_condition: "", // Novo, Usado, Seminovo
+  product_condition: "",
   city: "",
   state: "",
-  availability: "Item único",
+  availability: "",  // vazio para forçar seleção guiada; o payload usa "Item único" como fallback
   description: "",
   photos: []
 };
@@ -58,24 +58,29 @@ const detectCategory = (text) => {
 };
 
 // Detecta preço em qualquer parte do texto.
-// Trata o caso em que o split por vírgula quebra "18,99" em ["18", "99"].
+// Suporta: R$1200, R$ 1.200, R$1.200,00, 1200, 1.200, 18,99 (decimal quebrado pelo split)
+const PRICE_REGEX = /^(?:R\$\s*)?\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?$|^(?:R\$\s*)?\d+$/;
+
 const extractPrice = (parts) => {
   for (let i = 0; i < parts.length; i++) {
     const p = parts[i].trim();
-    // Padrão completo: R$ 1.500,00 ou R$1500 ou 1500 ou 1.500
-    if (/^R?\$?\s*\d{1,3}(?:\.\d{3})*(?:,\d{2})?$/.test(p.replace(/\s/g, "")) ||
-        /^R?\$?\s*\d{1,3}(?:,\d{3})*(?:\.\d{2})?$/.test(p.replace(/\s/g, ""))) {
+    const pNorm = p.replace(/\s/g, "");
+
+    // Testa padrão completo de preço (com ou sem R$, com ou sem separadores)
+    if (PRICE_REGEX.test(pNorm)) {
       return { price: p, index: i };
     }
+
     // Detecta quando a vírgula quebrou o preço decimal em duas partes:
     // parte atual é só número (ex: "18" ou "R$ 18") E próxima é exatamente 2 dígitos (ex: "99")
-    const pClean = p.replace(/^R?\$?\s*/i, "");
+    const pClean = pNorm.replace(/^R\$/i, "");
     if (/^\d{1,4}$/.test(pClean) && i + 1 < parts.length && /^\d{2}$/.test(parts[i + 1].trim())) {
       const joined = p + "," + parts[i + 1].trim();
       return { price: joined, index: i, extraIndex: i + 1 };
     }
-    // Detecta número inteiro simples como preço (ex: "18" sozinho, sem parte decimal depois)
-    if (/^R?\$?\s*\d+$/.test(p.replace(/\s/g, "")) && (i + 1 >= parts.length || !/^\d{2}$/.test(parts[i + 1]?.trim()))) {
+
+    // Detecta número inteiro simples como preço (ex: "1200" sozinho)
+    if (/^(?:R\$)?\d+$/.test(pNorm)) {
       // Só aceita como preço se não for a primeira parte (título) e não for a última (cidade)
       if (i > 0 && i < parts.length - 1) {
         return { price: p, index: i };
@@ -362,12 +367,14 @@ export default function AIAssistantPanelSocial({
   // Trata seleção de opção guiada (estado ou disponibilidade)
   // Não adiciona mensagens no chat — apenas avança o fluxo visualmente
   const handleSelectOption = (field, value) => {
-    const updated = { ...(localAd || defaultAd), [field]: value };
+    // Garante que availability nunca herda valor padrão antigo ao iniciar novo fluxo
+    const base = { ...(localAd || defaultAd), [field]: value };
+    const updated = base;
     setLocalAd(updated);
     setPendingStep(null);
 
-    // Verifica o próximo passo pendente (sem mensagem no chat)
-    if (field === "product_condition" && !updated.availability) {
+    // Após selecionar estado, SEMPRE mostra painel de disponibilidade
+    if (field === "product_condition") {
       setPendingStep("availability");
       return;
     }
