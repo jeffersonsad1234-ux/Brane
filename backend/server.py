@@ -97,6 +97,74 @@ class MockDB:
 
 # Forcing MockDB for sandbox environment to ensure 100% availability
 db = MockDB()
+
+# Seed initial data for sandbox
+def seed_data():
+    import uuid
+    from datetime import datetime, timezone
+    
+    # Check if already seeded
+    if len(db['social_posts'].data) > 0: return
+    
+    seeds = [
+        {
+            "post_id": f"post_{uuid.uuid4().hex[:12]}",
+            "user_id": "system_seed",
+            "user_name": "Jefferson UX",
+            "user_picture": "https://api.dicebear.com/7.x/avataaars/svg?seed=Jefferson",
+            "content": "iPhone 13 Pro Max 256GB em perfeito estado. Acompanha caixa e carregador original.",
+            "image": "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?auto=format&fit=crop&w=800&q=80",
+            "title": "iPhone 13 Pro Max 256GB",
+            "price": "4.500",
+            "category": "Celulares",
+            "city": "São Paulo",
+            "state": "SP",
+            "product_condition": "Usado",
+            "likes": [],
+            "likes_count": 12,
+            "comments_count": 3,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "post_id": f"post_{uuid.uuid4().hex[:12]}",
+            "user_id": "system_seed",
+            "user_name": "B-Livre Oficial",
+            "user_picture": "https://api.dicebear.com/7.x/avataaars/svg?seed=Admin",
+            "content": "Cadeira Gamer Profissional com ajuste de altura e inclinação. Super confortável para longas sessões.",
+            "image": "https://images.unsplash.com/photo-1598550476439-6847785fce66?auto=format&fit=crop&w=800&q=80",
+            "title": "Cadeira Gamer Profissional",
+            "price": "890",
+            "category": "Casa e móveis",
+            "city": "Rio de Janeiro",
+            "state": "RJ",
+            "product_condition": "Novo",
+            "likes": [],
+            "likes_count": 45,
+            "comments_count": 8,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "post_id": f"post_{uuid.uuid4().hex[:12]}",
+            "user_id": "system_seed",
+            "user_name": "Paulo Tech",
+            "user_picture": "https://api.dicebear.com/7.x/avataaars/svg?seed=Paulo",
+            "content": "PlayStation 5 com 2 controles DualSense e 3 jogos inclusos. Pouco uso, na garantia.",
+            "image": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=800&q=80",
+            "title": "PlayStation 5 + 2 Controles",
+            "price": "3.200",
+            "category": "Games",
+            "city": "Curitiba",
+            "state": "PR",
+            "product_condition": "Seminovo",
+            "likes": [],
+            "likes_count": 89,
+            "comments_count": 15,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+    ]
+    db['social_posts'].data.extend(seeds)
+
+seed_data()
 client = None # Define client to avoid NameError in shutdown
 logging.info("Using MockDB for sandbox environment")
 JWT_SECRET = os.environ.get('JWT_SECRET', 'brane-secret-key')

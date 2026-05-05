@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ImagePlus, Send, Sparkles } from "lucide-react";
+import { ImagePlus, Send, Sparkles, RefreshCw, CheckCircle2 } from "lucide-react";
 
 const defaultAd = {
   title: "",
@@ -14,17 +14,35 @@ const defaultAd = {
 
 const safe = (value) => String(value || "").trim();
 
+// Categorias automáticas baseadas em palavras-chave
+const detectCategory = (text) => {
+  const t = text.toLowerCase();
+  if (t.includes("iphone") || t.includes("celular") || t.includes("samsung") || t.includes("xiaomi")) return "Celulares";
+  if (t.includes("cadeira") || t.includes("mesa") || t.includes("sofa") || t.includes("armario")) return "Casa e móveis";
+  if (t.includes("ps5") || t.includes("xbox") || t.includes("game") || t.includes("nintendo")) return "Games";
+  if (t.includes("carro") || t.includes("moto") || t.includes("veiculo")) return "Veículos";
+  return "Outros";
+};
+
 const buildSmartAd = (rawText) => {
   const text = safe(rawText);
   const lines = text.split("\n").map((item) => item.trim()).filter(Boolean);
-  const first = lines[0] || "Produto em ótimo estado";
-  const maybePrice = lines.find((line) => /r\$\s*\d|^\d+[.,]?\d*$/.test(line.toLowerCase()));
+  
+  // Extração básica de preço
+  const priceMatch = text.match(/r\$\s*(\d+[.,]?\d*)/i) || text.match(/(\d+[.,]?\d*)\s*reais/i) || text.match(/(?:^|\s)(\d+[.,]?\d*)(?:\s|$)/);
+  const price = priceMatch ? priceMatch[1] : "";
+
+  // Extração básica de cidade (procurando por padrões comuns ou após vírgula)
+  const cityMatch = text.match(/,\s*([^,]+)$/) || text.match(/em\s+([^,.]+)/i);
+  const city = cityMatch ? cityMatch[1].trim() : "";
 
   return {
     ...defaultAd,
-    title: first,
+    title: lines[0] || "Novo anúncio",
     description: text,
-    price: maybePrice ? maybePrice.replace(/^r\$\s*/i, "") : ""
+    price: price,
+    city: city,
+    category: detectCategory(text)
   };
 };
 
@@ -43,8 +61,8 @@ export default function AIAssistantPanelSocial({
   const [messages, setMessages] = useState([
     {
       id: 1,
-      from: "ai",
-      text: "Descreva o que vai anunciar (produto, estado, cidade e preco)."
+      from: "system",
+      text: "Descreva seu produto em uma única mensagem. Ex: iPhone 12, usado, 128GB, Guarulhos, R$1500"
     }
   ]);
   const fileRef = useRef(null);
@@ -54,7 +72,7 @@ export default function AIAssistantPanelSocial({
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, ad]);
+  }, [messages, ad, isGenerating]);
 
   const handleUpload = async (event) => {
     const files = Array.from(event.target.files || []);
@@ -62,7 +80,7 @@ export default function AIAssistantPanelSocial({
     await onPhotoUpload(files);
     setMessages((prev) => [
       ...prev,
-      { id: prev.length + 1, from: "ai", text: `${files.length} foto(s) anexada(s).` }
+      { id: prev.length + 1, from: "system", text: `${files.length} foto(s) anexada(s).` }
     ]);
     if (fileRef.current) fileRef.current.value = "";
   };
@@ -70,24 +88,41 @@ export default function AIAssistantPanelSocial({
   const handleGenerate = () => {
     const text = safe(input);
     if (!text) return;
-    const smartAd = buildSmartAd(text);
-
+    
     setMessages((prev) => [...prev, { id: prev.length + 1, from: "user", text }]);
     setInput("");
+
+    // Simulação de verificação de dados faltantes
+    const smartAd = buildSmartAd(text);
+    const missing = [];
+    if (!smartAd.price) missing.push("preço");
+    if (!smartAd.city) missing.push("cidade");
+
+    if (missing.length > 0 && !text.includes("?")) {
+       setMessages((prev) => [
+        ...prev, 
+        { id: prev.length + 1, from: "system", text: `Legal! Poderia me informar também o ${missing.join(" e ")}?` }
+      ]);
+      return;
+    }
+
     setLocalAd(smartAd);
     onGenerateAd(smartAd);
     onFillForm(smartAd);
     setMessages((prev) => [
       ...prev,
-      { id: prev.length + 1, from: "ai", text: "Anuncio gerado. Revise e publique quando quiser." }
+      { id: prev.length + 1, from: "system", text: "Anúncio preparado! Confira a prévia abaixo." }
     ]);
   };
 
   const handleImprove = () => {
     if (!ad) return;
+    // Reescreve completamente sem concatenar
+    const improvedDescription = `Oportunidade: ${ad.title}. Produto em excelente estado de conservação, ideal para quem busca qualidade e bom preço. Disponível para retirada em ${ad.city || 'sua região'}. Entre em contato para mais detalhes e garanta já o seu!`;
+    
     const improved = {
       ...ad,
-      description: safe(ad.description) + " Negociavel e pronto para entrega."
+      description: improvedDescription
     };
     setLocalAd(improved);
     onImproveAd(improved);
@@ -97,54 +132,85 @@ export default function AIAssistantPanelSocial({
   const handleReset = () => {
     setInput("");
     setLocalAd(null);
+    setMessages([{
+      id: 1,
+      from: "system",
+      text: "Descreva seu produto em uma única mensagem. Ex: iPhone 12, usado, 128GB, Guarulhos, R$1500"
+    }]);
     onGenerateNew();
     onFillForm(defaultAd);
   };
 
   return (
-    <div className="flex h-full flex-col rounded-[24px] border border-white/10 bg-black/20">
-      <div className="border-b border-white/10 p-4">
+    <div className="flex h-full flex-col rounded-[24px] border border-white/10 bg-black/20 overflow-hidden">
+      <div className="border-b border-white/10 p-4 bg-white/[0.02]">
         <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#8C8F9A]">
-          Assistente de anuncio
+          Novo anúncio
         </p>
-        <p className="mt-1 text-sm text-white">
-          Gere seu texto rapido e publique no B Livre.
+        <p className="mt-1 text-sm text-white/70">
+          Crie seu anúncio de forma simples e rápida.
         </p>
       </div>
 
-      <div className="flex-1 space-y-3 overflow-y-auto p-4">
+      <div className="flex-1 space-y-4 overflow-y-auto p-4 scrollbar-hide">
         {messages.map((message) => (
           <div
             key={message.id}
             className={
-              "rounded-2xl px-3 py-2 text-sm " +
+              "rounded-2xl px-4 py-2.5 text-sm leading-relaxed " +
               (message.from === "user"
-                ? "ml-auto max-w-[88%] bg-[#D4A24C] text-black"
-                : "mr-auto max-w-[88%] bg-white/10 text-white")
+                ? "ml-auto max-w-[85%] bg-[#D4A24C] text-black font-medium"
+                : "mr-auto max-w-[85%] bg-white/10 text-white/90 border border-white/5")
             }
           >
             {message.text}
           </div>
         ))}
 
-        {ad && (
-          <div className="rounded-2xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 p-3">
-            <p className="text-xs font-black text-[#F1D28A]">Rascunho gerado</p>
-            <p className="mt-1 text-sm font-black text-white">{ad.title || "Sem titulo"}</p>
-            <p className="mt-1 text-xs text-[#C9CBD6] line-clamp-4">{ad.description || "-"}</p>
+        {isGenerating && (
+          <div className="mr-auto flex items-center gap-2 rounded-2xl bg-white/5 px-4 py-2.5 text-sm text-white/60 border border-white/5">
+            <RefreshCw size={14} className="animate-spin" />
+            Gerando seu anúncio...
+          </div>
+        )}
+
+        {ad && !isGenerating && (
+          <div className="mx-auto w-full max-w-[95%] rounded-2xl border border-[#D4A24C]/40 bg-gradient-to-b from-[#D4A24C]/10 to-transparent p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#F1D28A]">Prévia do Anúncio</span>
+              <CheckCircle2 size={14} className="text-[#D4A24C]" />
+            </div>
+            
+            <div className="space-y-3">
+              <div>
+                <h4 className="text-lg font-bold text-white leading-tight">{ad.title || "Sem título"}</h4>
+                <div className="mt-1 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-[#D4A24C] px-2 py-0.5 text-[10px] font-bold text-black">R$ {ad.price || "---"}</span>
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium text-white/70">{ad.category || "Outros"}</span>
+                  {ad.city && <span className="text-[10px] text-white/50">📍 {ad.city}</span>}
+                </div>
+              </div>
+              
+              <div className="rounded-xl bg-black/20 p-3 border border-white/5">
+                <p className="text-xs text-white/80 leading-relaxed whitespace-pre-wrap">
+                  {ad.description || "Nenhuma descrição gerada."}
+                </p>
+              </div>
+            </div>
           </div>
         )}
         <div ref={endRef} />
       </div>
 
-      <div className="space-y-3 border-t border-white/10 p-4">
+      <div className="space-y-3 border-t border-white/10 p-4 bg-black/40">
         <div className="flex gap-2">
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="h-10 rounded-xl border border-white/15 bg-white/[0.04] px-3 text-[#F1D28A]"
+            className="h-11 w-11 flex items-center justify-center rounded-xl border border-white/10 bg-white/5 text-[#F1D28A] hover:bg-white/10 transition-colors"
+            title="Adicionar fotos"
           >
-            <ImagePlus size={16} />
+            <ImagePlus size={18} />
           </button>
           <input
             ref={fileRef}
@@ -155,21 +221,23 @@ export default function AIAssistantPanelSocial({
             onChange={handleUpload}
           />
 
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
-            placeholder="Ex: iPhone 12, usado, Sao Paulo, R$ 2500..."
-            className="h-10 flex-1 rounded-xl border border-white/15 bg-black/30 px-3 text-sm text-white outline-none"
-          />
+          <div className="relative flex-1">
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
+              placeholder="Descreva seu produto..."
+              className="h-11 w-full rounded-xl border border-white/10 bg-black/40 px-4 text-sm text-white outline-none focus:border-[#D4A24C]/50 transition-all"
+            />
+          </div>
 
           <button
             type="button"
             onClick={handleGenerate}
             disabled={isGenerating || !safe(input)}
-            className="h-10 rounded-xl bg-[#D4A24C] px-3 text-black disabled:opacity-50"
+            className="h-11 w-11 flex items-center justify-center rounded-xl bg-[#D4A24C] text-black hover:bg-[#F1D28A] disabled:opacity-30 transition-all"
           >
-            <Send size={16} />
+            <Send size={18} />
           </button>
         </div>
 
@@ -178,24 +246,26 @@ export default function AIAssistantPanelSocial({
             type="button"
             onClick={handleImprove}
             disabled={!ad || isGenerating}
-            className="rounded-xl border border-white/15 bg-white/[0.04] px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
+            className="flex flex-col items-center justify-center rounded-xl border border-white/10 bg-white/5 py-2 text-[10px] font-bold text-white/80 hover:bg-white/10 disabled:opacity-30 transition-all"
           >
-            <Sparkles size={14} className="mx-auto mb-1" />
+            <Sparkles size={14} className="mb-1 text-[#F1D28A]" />
             Melhorar
           </button>
           <button
             type="button"
             onClick={handleReset}
-            className="rounded-xl border border-white/15 bg-white/[0.04] px-3 py-2 text-xs font-bold text-white"
+            className="flex flex-col items-center justify-center rounded-xl border border-white/10 bg-white/5 py-2 text-[10px] font-bold text-white/80 hover:bg-white/10 transition-all"
           >
+            <RefreshCw size={14} className="mb-1" />
             Novo
           </button>
           <button
             type="button"
             onClick={() => ad && onPublishAd(ad)}
             disabled={!ad || isGenerating}
-            className="rounded-xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] px-3 py-2 text-xs font-black text-black disabled:opacity-50"
+            className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-br from-[#D4A24C] to-[#B98228] py-2 text-[10px] font-black text-black hover:brightness-110 disabled:opacity-30 transition-all shadow-lg shadow-[#D4A24C]/10"
           >
+            <CheckCircle2 size={14} className="mb-1" />
             Publicar
           </button>
         </div>
