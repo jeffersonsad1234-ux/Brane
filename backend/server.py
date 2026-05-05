@@ -118,7 +118,8 @@ def seed_data():
     # Check if already seeded
     if len(db['social_posts'].data) > 0: return
     
-    seeds = [
+    # Seed social posts
+    social_seeds = [
         {
             "post_id": f"post_{uuid.uuid4().hex[:12]}",
             "user_id": "system_seed",
@@ -174,7 +175,51 @@ def seed_data():
             "created_at": datetime.now(timezone.utc).isoformat()
         }
     ]
-    db['social_posts'].data.extend(seeds)
+    db['social_posts'].data.extend(social_seeds)
+    
+    # Seed marketplace products (for /market)
+    product_seeds = [
+        {
+            "product_id": f"prod_{uuid.uuid4().hex[:12]}",
+            "seller_id": "system_seed",
+            "seller_name": "Jefferson UX",
+            "title": "iPhone 13 Pro Max 256GB",
+            "description": "iPhone 13 Pro Max 256GB em perfeito estado. Acompanha caixa e carregador original.",
+            "price": 4500,
+            "category": "Celulares",
+            "image": "https://images.unsplash.com/photo-1632661674596-df8be070a5c5?auto=format&fit=crop&w=800&q=80",
+            "images": ["https://images.unsplash.com/photo-1632661674596-df8be070a5c5?auto=format&fit=crop&w=800&q=80"],
+            "status": "active",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "product_id": f"prod_{uuid.uuid4().hex[:12]}",
+            "seller_id": "system_seed",
+            "seller_name": "B-Livre Oficial",
+            "title": "Cadeira Gamer Profissional",
+            "description": "Cadeira Gamer Profissional com ajuste de altura e inclinação. Super confortável para longas sessões.",
+            "price": 890,
+            "category": "Casa e móveis",
+            "image": "https://images.unsplash.com/photo-1598550476439-6847785fce66?auto=format&fit=crop&w=800&q=80",
+            "images": ["https://images.unsplash.com/photo-1598550476439-6847785fce66?auto=format&fit=crop&w=800&q=80"],
+            "status": "active",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "product_id": f"prod_{uuid.uuid4().hex[:12]}",
+            "seller_id": "system_seed",
+            "seller_name": "Paulo Tech",
+            "title": "PlayStation 5 + 2 Controles",
+            "description": "PlayStation 5 com 2 controles DualSense e 3 jogos inclusos. Pouco uso, na garantia.",
+            "price": 3200,
+            "category": "Games",
+            "image": "https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=800&q=80",
+            "images": ["https://images.unsplash.com/photo-1606813907291-d86efa9b94db?auto=format&fit=crop&w=800&q=80"],
+            "status": "active",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+    ]
+    db['products'].data.extend(product_seeds)
 
 # Seed apenas para MockDB (em memória)
 if isinstance(db, MockDB):
@@ -527,6 +572,7 @@ DISPOSABLE_EMAIL_DOMAINS = {
     "mintemail.com", "mailcatch.com", "fake-mail.net",
 }
 
+# Regex que aceita emails válidos com pontos nos domínios (ex: gmail.com, outlook.com)
 EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
 def validate_email_strict(email: str) -> tuple[bool, str]:
@@ -1124,12 +1170,19 @@ async def update_report_status(report_id: str, request: Request):
 
 # ==================== PRODUCT ROUTES ====================
 @api_router.get("/products")
-async def list_products(search: Optional[str] = None, category: Optional[str] = None, city: Optional[str] = None, page: int = 1, limit: int = 20):
+async def list_products(search: Optional[str] = None, category: Optional[str] = None, city: Optional[str] = None, page: int = 1, limit: int = 20, status: Optional[str] = None):
+    # Construir query base: aceitar produtos ativos ou sem status definido
     query = {
-        "status": "active",
         "$or": [
-            {"is_deleted": False},
-            {"is_deleted": {"$exists": False}}
+            {"status": "active"},
+            {"status": {"$exists": False}},
+            {"status": ""}
+        ],
+        "$and": [
+            {"$or": [
+                {"is_deleted": False},
+                {"is_deleted": {"$exists": False}}
+            ]}
         ]
     }
     if search:
@@ -3791,6 +3844,7 @@ async def update_admin_layout_settings(request: Request):
 
 # ==================== NEWSLETTER / SUBSCRIBERS ====================
 import re as _re
+# Regex que aceita emails válidos com pontos nos domínios (ex: gmail.com, outlook.com)
 _EMAIL_RX = _re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 
 class SubscribeRequest(BaseModel):
@@ -4052,6 +4106,19 @@ async def update_social_profile_direct(data: dict, request: Request):
 @app.on_event("startup")
 async def startup():
     try:
+        # Admin padrão solicitado pelo usuário
+        admin_req = await db.users.find_one({"email": "admin@branelivre.com"}, {"_id": 0})
+        if not admin_req:
+            admin_id = f"user_{uuid.uuid4().hex[:12]}"
+            await db.users.insert_one({
+                "user_id": admin_id, "name": "Admin B-Livre", "email": "admin@branelivre.com",
+                "password_hash": hash_password("123456"), "role": "admin",
+                "picture": "", "bank_details": {}, "is_blocked": False,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            })
+            await db.wallets.insert_one({"user_id": admin_id, "available": 0.0, "held": 0.0})
+            logger.info("Admin user created: admin@branelivre.com / 123456")
+
         admin = await db.users.find_one({"email": "admin@brane.com"}, {"_id": 0})
         if not admin:
             admin_id = f"user_{uuid.uuid4().hex[:12]}"
