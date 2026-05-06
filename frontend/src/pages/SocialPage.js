@@ -880,38 +880,49 @@ export default function SocialPage() {
 
           @media (max-width: 1024px) {
             .blivre-shell {
-              grid-template-columns: 0px minmax(0, 1fr) 0px !important;
+              grid-template-columns: 180px minmax(0, 1fr) 200px !important;
             }
           }
 
           @media (max-width: 768px) {
             .blivre-shell {
-              grid-template-columns: minmax(0, 1fr) !important;
-              height: auto !important;
-              overflow: visible !important;
+              grid-template-columns: 140px minmax(0, 1fr) 150px !important;
+              gap: 8px !important;
             }
-
+            
             .blivre-side {
-              display: none !important;
+              display: block !important;
+              opacity: 1 !important;
+              scale: 1 !important;
+              pointer-events: auto !important;
             }
 
             .blivre-grid,
             .blivre-grid-focused {
-              grid-template-columns: repeat(3, 1fr) !important;
-              gap: 8px !important;
-            }
-
-            .blivre-product-card {
-              max-width: 100% !important;
+              grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
+              gap: 6px !important;
             }
           }
 
-          @media (max-width: 540px) {
+          @media (max-width: 480px) {
+            .blivre-shell {
+              grid-template-columns: 100px minmax(0, 1fr) 110px !important;
+              gap: 4px !important;
+              padding: 0 4px !important;
+            }
+
+            .blivre-side {
+              padding: 8px !important;
+            }
+
             .blivre-grid,
             .blivre-grid-focused {
-              grid-template-columns: repeat(2, 1fr) !important;
-              gap: 6px !important;
+              grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)) !important;
+              gap: 4px !important;
             }
+            
+            header h1 { font-size: 14px !important; }
+            header p { font-size: 8px !important; }
           }
         `}
       </style>
@@ -1647,7 +1658,7 @@ export default function SocialPage() {
           >
             <aside
               className={
-                "hidden lg:block space-y-5 self-start h-[calc(100vh-110px)] overflow-y-auto pr-1 blivre-side " +
+                "space-y-3 sm:space-y-5 self-start h-[calc(100vh-110px)] overflow-y-auto pr-1 blivre-side " +
                 (expanded ? "opacity-0 pointer-events-none scale-95" : "opacity-100 scale-100")
               }
             >
@@ -1918,7 +1929,7 @@ export default function SocialPage() {
               )}
             </main>
 
-            <aside className="hidden lg:block h-[calc(100vh-110px)] overflow-hidden blivre-side">
+            <aside className="h-[calc(100vh-110px)] overflow-hidden blivre-side">
               {expanded ? (
                 <button
                   onClick={() => setComposerOpen(true)}
