@@ -1632,8 +1632,8 @@ export default function SocialPage() {
 
       <div className="relative z-10">
         <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050508]/90 backdrop-blur-xl w-full overflow-x-hidden">
-          <div className="w-full px-3 sm:px-4 py-3 sm:py-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-2 sm:gap-4">
+          <div className="w-full px-3 sm:px-4 py-3 sm:py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
+            <div className="flex items-center justify-between md:justify-start gap-2 sm:gap-4">
               <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1px] flex-shrink-0">
                   <div className="w-full h-full rounded-2xl bg-[#09090D] overflow-hidden flex items-center justify-center">
@@ -1648,7 +1648,9 @@ export default function SocialPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1 sm:gap-2">
+
+              {/* Botões de Notificação/Configuração no Mobile (lado direito do logo) */}
+              <div className="flex md:hidden items-center gap-1 sm:gap-2">
                 <button
                   onClick={() => setShowNotifications(true)}
                   className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] flex-shrink-0"
@@ -1675,8 +1677,8 @@ export default function SocialPage() {
               </div>
             </div>
 
-            {/* Busca Mobile/Desktop */}
-            <div className="flex flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-2.5 sm:py-3">
+            {/* Busca: Empilhada no Mobile, Lado a Lado no Desktop */}
+            <div className="flex flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-2.5 sm:py-3 md:max-w-xl">
               <Search size={18} className="text-[#D4A24C]" />
               <input
                 value={searchTerm}
@@ -1686,8 +1688,35 @@ export default function SocialPage() {
               />
             </div>
 
-            {/* Carrossel de Categorias Mobile */}
-            <div className="categories-carousel">
+            {/* Botões de Notificação/Configuração no Desktop (lado direito da busca) */}
+            <div className="hidden md:flex items-center gap-1 sm:gap-2">
+              <button
+                onClick={() => setShowNotifications(true)}
+                className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] flex-shrink-0"
+              >
+                <Bell size={16} />
+              </button>
+
+              <button
+                onClick={() => {
+                  setProfileForm({
+                    name: user?.name || "",
+                    city: user?.city || "",
+                    state: user?.state || "",
+                    picture: user?.picture || user?.avatar || "",
+                    phone: user?.phone || "",
+                    bio: user?.bio || ""
+                  });
+                  setShowSettings(true);
+                }}
+                className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] flex-shrink-0"
+              >
+                <Settings size={16} />
+              </button>
+            </div>
+
+            {/* Carrossel de Categorias: Apenas Mobile */}
+            <div className="categories-carousel md:hidden">
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat.id}
