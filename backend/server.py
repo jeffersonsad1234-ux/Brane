@@ -1154,14 +1154,10 @@ async def create_report(data: ReportCreate, request: Request):
     await db.reports.insert_one(report)
     return {k: v for k, v in report.items() if k != "_id"}
 
-@api_router.get("/admin/reports")
-async def list_reports(request: Request):
-    await require_admin(request)
-    items = await db.reports.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
-    return {"reports": items, "total": len(items)}
-
+# admin/reports and admin/reports/{id}/action are defined above in the B Livre section
+# Legacy update endpoint kept for backward compatibility
 @api_router.put("/admin/reports/{report_id}")
-async def update_report_status(report_id: str, request: Request):
+async def update_report_status_legacy(report_id: str, request: Request):
     await require_admin(request)
     body = await request.json()
     status = body.get("status", "resolvido")
@@ -2029,6 +2025,28 @@ async def admin_dashboard(request: Request):
     pending_orders = await db.orders.count_documents({"status": {"$in": ["pending", "awaiting_payment"]}})
     pending_withdrawals = await db.withdrawals.count_documents({"status": "pending"})
     
+    # Métricas reais da B Livre (social posts)
+    total_social_posts = await db.social_posts.count_documents({})
+    total_reports = await db.reports.count_documents({})
+    pending_reports = await db.reports.count_documents({"status": "pendente"})
+    
+    # Mensagens hoje (direct + store + social)
+    today_start = (datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)).isoformat()
+    messages_today = await db.direct_messages.count_documents({"created_at": {"$gte": today_start}})
+    messages_today += await db.store_messages.count_documents({"created_at": {"$gte": today_start}})
+    messages_today += await db.social_messages.count_documents({"created_at": {"$gte": today_start}})
+    
+    # Novos usuários hoje
+    new_users_today = await db.users.count_documents({"created_at": {"$gte": today_start}})
+    
+    # Usuários online (sessões ativas nas últimas 15 min)
+    fifteen_min_ago = (datetime.now(timezone.utc) - timedelta(minutes=15)).isoformat()
+    users_online = await db.user_sessions.count_documents({"created_at": {"$gte": fifteen_min_ago}})
+    
+    # Anúncios ativos (social posts + produtos ativos)
+    active_ads = await db.social_posts.count_documents({})
+    active_products = await db.products.count_documents({"status": "active", "is_deleted": {"$ne": True}})
+    
     # Otimização: Usar agregação ao invés de carregar todos os documentos
     sales_agg = await db.orders.aggregate([
         {
@@ -2043,11 +2061,29 @@ async def admin_dashboard(request: Request):
     total_sales = sales_agg[0]["total_sales"] if sales_agg else 0
     total_commissions = sales_agg[0]["total_commissions"] if sales_agg else 0
     
+    # Dados recentes para o dashboard
+    recent_orders = await db.orders.find({}, {"_id": 0, "order_id": 1, "buyer_name": 1, "total": 1, "status": 1, "created_at": 1}).sort("created_at", -1).limit(5).to_list(5)
+    recent_social_posts = await db.social_posts.find({}, {"_id": 0, "post_id": 1, "title": 1, "content": 1, "user_name": 1, "city": 1, "image": 1, "is_blocked": 1, "created_at": 1}).sort("created_at", -1).limit(4).to_list(4)
+    recent_users = await db.users.find({}, {"_id": 0, "user_id": 1, "name": 1, "email": 1, "role": 1, "city": 1, "state": 1, "picture": 1, "created_at": 1}).sort("created_at", -1).limit(5).to_list(5)
+    
     return {
         "total_users": total_users, "total_products": total_products,
         "total_orders": total_orders, "pending_orders": pending_orders,
         "pending_withdrawals": pending_withdrawals,
-        "total_sales": total_sales, "total_commissions": total_commissions
+        "total_sales": total_sales, "total_commissions": total_commissions,
+        # Métricas reais da B Livre
+        "total_social_posts": total_social_posts,
+        "total_reports": total_reports,
+        "pending_reports": pending_reports,
+        "messages_today": messages_today,
+        "new_users_today": new_users_today,
+        "users_online": users_online,
+        "active_ads": active_ads,
+        "active_products": active_products,
+        # Dados recentes
+        "recent_orders": recent_orders,
+        "recent_social_posts": recent_social_posts,
+        "recent_users": recent_users,
     }
 
 @api_router.get("/admin/orders")
@@ -2676,10 +2712,25 @@ async def admin_delete_product(product_id: str, request: Request):
 
 
 @api_router.get("/admin/users")
-async def admin_list_users(request: Request):
+async def admin_list_users(request: Request, search: Optional[str] = None, role: Optional[str] = None):
     await require_admin(request)
-    users = await db.users.find({}, {"_id": 0, "password_hash": 0}).to_list(1000)
-    return {"users": users}
+    query = {}
+    if search:
+        import re as _re2
+        query["$or"] = [
+            {"name": {"$regex": _re2.escape(search), "$options": "i"}},
+            {"email": {"$regex": _re2.escape(search), "$options": "i"}}
+        ]
+    if role:
+        query["role"] = role
+    users = await db.users.find(query, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(1000)
+    # Enriquecer com contagem de anúncios
+    for u in users:
+        uid = u.get("user_id", "")
+        u["ads_count"] = await db.social_posts.count_documents({"user_id": uid})
+        u["products_count"] = await db.products.count_documents({"seller_id": uid, "is_deleted": {"$ne": True}})
+    total = len(users)
+    return {"users": users, "total": total}
 
 @api_router.put("/admin/users/{user_id}/block")
 async def admin_toggle_block(user_id: str, request: Request):
@@ -2690,6 +2741,267 @@ async def admin_toggle_block(user_id: str, request: Request):
     new_status = not user.get("is_blocked", False)
     await db.users.update_one({"user_id": user_id}, {"$set": {"is_blocked": new_status}})
     return {"message": "Bloqueado" if new_status else "Desbloqueado", "is_blocked": new_status}
+
+# ==================== ADMIN: B LIVRE ADS (SOCIAL POSTS) ====================
+@api_router.get("/admin/social-posts")
+async def admin_list_social_posts(request: Request, page: int = 1, limit: int = 50, search: Optional[str] = None, status: Optional[str] = None):
+    """Admin lista todos os anúncios da B Livre (social posts)"""
+    await require_admin(request)
+    query = {}
+    if search:
+        import re as _re3
+        query["$or"] = [
+            {"title": {"$regex": _re3.escape(search), "$options": "i"}},
+            {"content": {"$regex": _re3.escape(search), "$options": "i"}},
+            {"user_name": {"$regex": _re3.escape(search), "$options": "i"}}
+        ]
+    if status == "blocked":
+        query["is_blocked"] = True
+    elif status == "featured":
+        query["is_featured"] = True
+    elif status == "active":
+        query["is_blocked"] = {"$ne": True}
+    skip = (page - 1) * limit
+    posts = await db.social_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.social_posts.count_documents(query)
+    return {"posts": posts, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
+
+@api_router.put("/admin/social-posts/{post_id}/block")
+async def admin_block_social_post(post_id: str, request: Request):
+    """Admin bloqueia/desbloqueia anúncio da B Livre"""
+    await require_admin(request)
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Anúncio nao encontrado")
+    new_status = not post.get("is_blocked", False)
+    await db.social_posts.update_one({"post_id": post_id}, {"$set": {"is_blocked": new_status}})
+    return {"message": "Bloqueado" if new_status else "Desbloqueado", "is_blocked": new_status}
+
+@api_router.put("/admin/social-posts/{post_id}/feature")
+async def admin_feature_social_post(post_id: str, request: Request):
+    """Admin destaca/remove destaque de anúncio da B Livre"""
+    await require_admin(request)
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Anúncio nao encontrado")
+    new_status = not post.get("is_featured", False)
+    await db.social_posts.update_one({"post_id": post_id}, {"$set": {"is_featured": new_status}})
+    return {"message": "Destacado" if new_status else "Destaque removido", "is_featured": new_status}
+
+@api_router.delete("/admin/social-posts/{post_id}")
+async def admin_delete_social_post(post_id: str, request: Request):
+    """Admin remove anúncio da B Livre"""
+    await require_admin(request)
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Anúncio nao encontrado")
+    await db.social_posts.delete_one({"post_id": post_id})
+    await db.social_comments.delete_many({"post_id": post_id})
+    return {"message": "Anúncio removido"}
+
+# ==================== ADMIN: MONITORAMENTO DE MENSAGENS ====================
+@api_router.get("/admin/messages")
+async def admin_list_all_messages(request: Request, page: int = 1, limit: int = 50, tipo: Optional[str] = None):
+    """Admin monitora todas as mensagens da plataforma"""
+    await require_admin(request)
+    skip = (page - 1) * limit
+    all_messages = []
+    
+    search_q = request.query_params.get("search", "")
+    
+    if not tipo or tipo == "direct":
+        # Mensagens diretas
+        direct = await db.direct_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
+        for m in direct:
+            m["type"] = "direct"
+            m["sender_name"] = m.get("sender_name", "")
+            m["receiver_name"] = m.get("recipient_name", "")
+            if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("recipient_name", "") + m.get("message", "")).lower():
+                continue
+            all_messages.append(m)
+    
+    if not tipo or tipo == "store":
+        # Mensagens de loja
+        store_msgs = await db.store_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
+        for m in store_msgs:
+            m["type"] = "store"
+            m["sender_name"] = m.get("sender_name", "")
+            # Buscar nome da loja
+            store = await db.stores.find_one({"store_id": m.get("store_id")}, {"_id": 0, "name": 1})
+            m["receiver_name"] = store["name"] if store else "Loja"
+            if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("receiver_name", "") + m.get("message", "")).lower():
+                continue
+            all_messages.append(m)
+    
+    if not tipo or tipo == "social":
+        # Mensagens sociais (chat em anúncios)
+        social_msgs = await db.social_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
+        for m in social_msgs:
+            m["type"] = "social"
+            m["sender_name"] = m.get("sender_name", "")
+            # Buscar título do post
+            post = await db.social_posts.find_one({"post_id": m.get("post_id")}, {"_id": 0, "title": 1, "user_name": 1})
+            m["receiver_name"] = post["user_name"] if post else "Usuário"
+            m["product_title"] = post["title"] if post else ""
+            if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("receiver_name", "") + m.get("message", "")).lower():
+                continue
+            all_messages.append(m)
+    
+    if not tipo or tipo == "support":
+        # Mensagens de suporte
+        support_msgs = await db.support_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
+        for m in support_msgs:
+            m["type"] = "support"
+            m["sender_name"] = m.get("user_name", "")
+            m["receiver_name"] = "Suporte BRANE"
+            if search_q and search_q.lower() not in (m.get("user_name", "") + m.get("message", "")).lower():
+                continue
+            all_messages.append(m)
+    
+    # Ordenar por data
+    all_messages.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+    total = len(all_messages)
+    paginated = all_messages[skip:skip+limit]
+    return {"messages": paginated, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
+
+# ==================== ADMIN: DENUNCIAS COMPLETO ====================
+@api_router.get("/admin/reports")
+async def admin_list_reports_v2(request: Request, status: Optional[str] = None, page: int = 1, limit: int = 50):
+    """Admin lista denúncias com dados enriquecidos"""
+    await require_admin(request)
+    query = {}
+    if status:
+        query["status"] = status
+    skip = (page - 1) * limit
+    items = await db.reports.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    # Enriquecer com dados do denunciante, denunciado e post
+    for item in items:
+        reporter = await db.users.find_one({"user_id": item.get("reporter_id")}, {"_id": 0, "name": 1, "email": 1})
+        item["reporter_name"] = reporter["name"] if reporter else "Desconhecido"
+        item["reporter_email"] = reporter["email"] if reporter else ""
+        if item.get("reported_user_id"):
+            reported = await db.users.find_one({"user_id": item["reported_user_id"]}, {"_id": 0, "name": 1, "email": 1})
+            item["reported_user_name"] = reported["name"] if reported else "Desconhecido"
+        if item.get("post_id"):
+            post = await db.social_posts.find_one({"post_id": item["post_id"]}, {"_id": 0, "title": 1})
+            item["post_title"] = post["title"] if post else ""
+    total = await db.reports.count_documents(query)
+    return {"reports": items, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
+
+@api_router.put("/admin/reports/{report_id}/action")
+async def admin_report_action(report_id: str, request: Request):
+    """Admin toma ação em uma denúncia: ignorar, bloquear_anuncio, bloquear_usuario, resolver"""
+    await require_admin(request)
+    body = await request.json()
+    action = body.get("action", "resolver")  # ignorar | bloquear_anuncio | bloquear_usuario | resolver
+    
+    report = await db.reports.find_one({"report_id": report_id}, {"_id": 0})
+    if not report:
+        raise HTTPException(status_code=404, detail="Denúncia nao encontrada")
+    
+    new_status = "resolvida"
+    result_msg = "Denúncia resolvida"
+    
+    if action == "ignorar":
+        new_status = "ignorada"
+        result_msg = "Denúncia ignorada"
+    elif action == "bloquear_anuncio" and report.get("post_id"):
+        await db.social_posts.update_one({"post_id": report["post_id"]}, {"$set": {"is_blocked": True}})
+        new_status = "resolvida"
+        result_msg = "Anúncio bloqueado"
+    elif action == "bloquear_usuario" and report.get("reported_user_id"):
+        await db.users.update_one({"user_id": report["reported_user_id"]}, {"$set": {"is_blocked": True}})
+        new_status = "resolvida"
+        result_msg = "Usuário bloqueado"
+    
+    await db.reports.update_one(
+        {"report_id": report_id},
+        {"$set": {"status": new_status, "action_taken": action, "resolved_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    return {"message": result_msg, "status": new_status}
+
+# Endpoints individuais para ações em denúncias (compatibilidade com frontend)
+@api_router.put("/admin/reports/{report_id}/ignore")
+async def admin_report_ignore(report_id: str, request: Request):
+    await require_admin(request)
+    report = await db.reports.find_one({"report_id": report_id}, {"_id": 0})
+    if not report:
+        raise HTTPException(status_code=404, detail="Denúncia não encontrada")
+    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "ignorada", "action_taken": "ignorar", "resolved_at": datetime.now(timezone.utc).isoformat()}})
+    return {"message": "Denúncia ignorada", "status": "ignorada"}
+
+@api_router.put("/admin/reports/{report_id}/resolve")
+async def admin_report_resolve(report_id: str, request: Request):
+    await require_admin(request)
+    report = await db.reports.find_one({"report_id": report_id}, {"_id": 0})
+    if not report:
+        raise HTTPException(status_code=404, detail="Denúncia não encontrada")
+    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "resolvida", "action_taken": "resolver", "resolved_at": datetime.now(timezone.utc).isoformat()}})
+    return {"message": "Denúncia resolvida", "status": "resolvida"}
+
+@api_router.put("/admin/reports/{report_id}/block_ad")
+async def admin_report_block_ad(report_id: str, request: Request):
+    await require_admin(request)
+    report = await db.reports.find_one({"report_id": report_id}, {"_id": 0})
+    if not report:
+        raise HTTPException(status_code=404, detail="Denúncia não encontrada")
+    if report.get("post_id"):
+        await db.social_posts.update_one({"post_id": report["post_id"]}, {"$set": {"is_blocked": True}})
+    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "resolvida", "action_taken": "bloquear_anuncio", "resolved_at": datetime.now(timezone.utc).isoformat()}})
+    return {"message": "Anúncio bloqueado", "status": "resolvida"}
+
+@api_router.put("/admin/reports/{report_id}/block_user")
+async def admin_report_block_user(report_id: str, request: Request):
+    await require_admin(request)
+    report = await db.reports.find_one({"report_id": report_id}, {"_id": 0})
+    if not report:
+        raise HTTPException(status_code=404, detail="Denúncia não encontrada")
+    if report.get("reported_user_id"):
+        await db.users.update_one({"user_id": report["reported_user_id"]}, {"$set": {"is_blocked": True}})
+    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "resolvida", "action_taken": "bloquear_usuario", "resolved_at": datetime.now(timezone.utc).isoformat()}})
+    return {"message": "Usuário bloqueado", "status": "resolvida"}
+
+# Endpoint remove via PUT para social-posts (compatibilidade com frontend)
+@api_router.put("/admin/social-posts/{post_id}/remove")
+async def admin_remove_social_post_put(post_id: str, request: Request):
+    """Admin remove anúncio da B Livre via PUT"""
+    await require_admin(request)
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Anúncio não encontrado")
+    await db.social_posts.delete_one({"post_id": post_id})
+    await db.social_comments.delete_many({"post_id": post_id})
+    return {"message": "Anúncio removido"}
+
+# Endpoint unblock via PUT para social-posts
+@api_router.put("/admin/social-posts/{post_id}/unblock")
+async def admin_unblock_social_post(post_id: str, request: Request):
+    """Admin desbloqueia anúncio da B Livre"""
+    await require_admin(request)
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Anúncio não encontrado")
+    await db.social_posts.update_one({"post_id": post_id}, {"$set": {"is_blocked": False}})
+    return {"message": "Anúncio desbloqueado", "is_blocked": False}
+
+# ==================== ADMIN: NOTIFICATION COUNTS ATUALIZADO ====================
+@api_router.get("/admin/notification-counts")
+async def get_admin_notification_counts_v2(request: Request):
+    await require_admin(request)
+    pending_orders = await db.orders.count_documents({"status": {"$in": ["pending", "awaiting_payment"]}})
+    pending_withdrawals = await db.withdrawals.count_documents({"status": "pending"})
+    pending_support = await db.support_messages.count_documents({"status": {"$in": ["pending", "open"]}})
+    pending_stores = await db.stores.count_documents({"is_approved": False})
+    total_users = await db.users.count_documents({})
+    pending_reports = await db.reports.count_documents({"status": "pendente"})
+    return {
+        "orders": pending_orders,
+        "withdrawals": pending_withdrawals,
+        "support": pending_support,
+        "stores": pending_stores,
+        "users": total_users,
+        "reports": pending_reports,
+    }
 
 @api_router.get("/admin/withdrawals")
 async def admin_list_withdrawals(request: Request):
@@ -2827,22 +3139,9 @@ async def get_payment_methods():
         })
     return {"methods": methods}
 
-# ==================== ADMIN NOTIFICATION COUNTS ====================
-@api_router.get("/admin/notification-counts")
-async def get_admin_notification_counts(request: Request):
-    await require_admin(request)
-    pending_orders = await db.orders.count_documents({"status": {"$in": ["pending", "awaiting_payment"]}})
-    pending_withdrawals = await db.withdrawals.count_documents({"status": "pending"})
-    pending_support = await db.support_messages.count_documents({"status": {"$in": ["pending", "open"]}})
-    pending_stores = await db.stores.count_documents({"is_approved": False})
-    new_users_24h = await db.users.count_documents({})  # total users as badge
-    return {
-        "orders": pending_orders,
-        "withdrawals": pending_withdrawals,
-        "support": pending_support,
-        "stores": pending_stores,
-        "users": new_users_24h
-    }
+# ==================== ADMIN NOTIFICATION COUNTS (legacy kept for compat) ====================
+# NOTE: The updated version is defined above in the B Livre section
+# This block is intentionally removed to avoid duplicate route registration
 
 @api_router.get("/admin/contact-settings")
 async def get_contact_settings(request: Request):

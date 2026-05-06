@@ -103,10 +103,17 @@ function DashboardTab({ token, platform }) {
   const [period, setPeriod] = useState('7d');
   const h = { Authorization: `Bearer ${token}` };
 
-  useEffect(() => {
+  const fetchDashboard = () => {
     axios.get(`${API}/admin/dashboard`, { headers: h })
       .then(r => setData(r.data))
       .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchDashboard();
+    // Polling a cada 10 segundos
+    const interval = setInterval(fetchDashboard, 10000);
+    return () => clearInterval(interval);
   }, [token]);
 
   const salesData = [
@@ -215,19 +222,19 @@ function DashboardTab({ token, platform }) {
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         {isMarketplace ? (
           <>
-            <StatCard label="Vendas totais" value={data ? `R$ ${(data.total_sales || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00'} icon={DollarSign} color="#D4A24C" change={23.5} />
-            <StatCard label="Pedidos" value={data?.total_orders ?? 0} icon={ShoppingBag} color="#8B5CF6" change={18.7} />
-            <StatCard label="Usuários ativos" value={data?.total_users ?? 0} icon={Users} color="#3B82F6" change={12.3} />
-            <StatCard label="Anúncios ativos" value={data?.total_products ?? 0} icon={Tag} color="#10B981" change={15.2} />
-            <StatCard label="Denúncias pendentes" value={data?.pending_orders ?? 0} icon={AlertTriangle} color="#EF4444" change={-4.2} />
+            <StatCard label="Vendas totais" value={data ? `R$ ${(data.total_sales || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'R$ 0,00'} icon={DollarSign} color="#D4A24C" />
+            <StatCard label="Pedidos" value={data?.total_orders ?? 0} icon={ShoppingBag} color="#8B5CF6" />
+            <StatCard label="Total de usuários" value={data?.total_users ?? 0} icon={Users} color="#3B82F6" />
+            <StatCard label="Produtos ativos" value={data?.active_products ?? 0} icon={Tag} color="#10B981" />
+            <StatCard label="Denúncias pendentes" value={data?.pending_reports ?? 0} icon={AlertTriangle} color="#EF4444" />
           </>
         ) : (
           <>
-            <StatCard label="Anúncios ativos" value={data?.total_products ?? 0} icon={Megaphone} color="#D4A24C" change={8.3} />
-            <StatCard label="Usuários ativos" value={data?.total_users ?? 0} icon={Users} color="#3B82F6" change={12.3} />
-            <StatCard label="Denúncias" value={data?.pending_orders ?? 0} icon={AlertTriangle} color="#EF4444" change={-4.2} />
-            <StatCard label="Interações sociais" value="3.421" icon={Activity} color="#8B5CF6" change={21.0} />
-            <StatCard label="Conversas ativas" value="128" icon={MessageSquare} color="#10B981" change={5.1} />
+            <StatCard label="Anúncios B Livre" value={data?.active_ads ?? 0} icon={Megaphone} color="#D4A24C" />
+            <StatCard label="Total de usuários" value={data?.total_users ?? 0} icon={Users} color="#3B82F6" />
+            <StatCard label="Usuários online" value={data?.users_online ?? 0} icon={Activity} color="#10B981" />
+            <StatCard label="Mensagens hoje" value={data?.messages_today ?? 0} icon={MessageSquare} color="#8B5CF6" />
+            <StatCard label="Denúncias pendentes" value={data?.pending_reports ?? 0} icon={AlertTriangle} color="#EF4444" />
           </>
         )}
       </div>
@@ -341,62 +348,68 @@ function DashboardTab({ token, platform }) {
         <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-white">Pedidos recentes</h3>
-            <button className="text-xs text-[#D4A24C] hover:underline flex items-center gap-1">Ver todos <ChevronRight className="w-3 h-3" /></button>
+            <button className="text-xs text-[#D4A24C] hover:underline flex items-center gap-1" onClick={() => {}}>Ver todos <ChevronRight className="w-3 h-3" /></button>
           </div>
           <div className="space-y-0">
             <div className="grid grid-cols-4 text-xs text-[#6F7280] uppercase tracking-wider pb-2 border-b border-[#1E2230] mb-2">
               <span>Pedido</span><span>Cliente</span><span>Valor</span><span>Status</span>
             </div>
-            {recentOrders.map((o, i) => (
+            {(data?.recent_orders || []).length === 0 ? (
+              <p className="text-center text-[#6F7280] text-xs py-4">Nenhum pedido ainda</p>
+            ) : (data.recent_orders || []).slice(0, 5).map((o, i) => (
               <div key={i} className="grid grid-cols-4 items-center py-2.5 border-b border-[#1E2230]/50 last:border-0 text-sm">
-                <span className="text-[#D4A24C] font-medium">{o.id}</span>
-                <span className="text-white truncate">{o.client}</span>
-                <span className="text-white">R$ {o.value.toFixed(2)}</span>
+                <span className="text-[#D4A24C] font-medium">#{(o.order_id || '').slice(0, 8)}</span>
+                <span className="text-white truncate">{o.buyer_name || 'N/A'}</span>
+                <span className="text-white">R$ {(o.total || 0).toFixed(2)}</span>
                 <StatusBadge status={o.status} />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Recent Ads */}
+        {/* Recent B Livre Ads */}
         <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-white">Anúncios recentes</h3>
-            <button className="text-xs text-[#D4A24C] hover:underline flex items-center gap-1">Ver todos <ChevronRight className="w-3 h-3" /></button>
+            <h3 className="font-semibold text-white">Anúncios B Livre recentes</h3>
+            <button className="text-xs text-[#D4A24C] hover:underline flex items-center gap-1" onClick={() => {}}>Ver todos <ChevronRight className="w-3 h-3" /></button>
           </div>
           <div className="space-y-3">
-            {recentAds.map((ad, i) => (
+            {(data?.recent_social_posts || []).length === 0 ? (
+              <p className="text-center text-[#6F7280] text-xs py-4">Nenhum anúncio ainda</p>
+            ) : (data.recent_social_posts || []).slice(0, 4).map((ad, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#0B0D12] border border-[#1E2230] flex items-center justify-center shrink-0">
-                  <Package className="w-5 h-5 text-[#6F7280]" />
+                <div className="w-10 h-10 rounded-lg bg-[#0B0D12] border border-[#1E2230] flex items-center justify-center shrink-0 overflow-hidden">
+                  {ad.image ? <img src={ad.image} alt="" className="w-full h-full object-cover" /> : <Package className="w-5 h-5 text-[#6F7280]" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white font-medium truncate">{ad.title}</p>
-                  <p className="text-xs text-[#A6A8B3]">{ad.store}</p>
+                  <p className="text-sm text-white font-medium truncate">{ad.title || ad.content?.slice(0, 30) || 'Sem título'}</p>
+                  <p className="text-xs text-[#A6A8B3]">{ad.user_name} · {ad.city || ''}</p>
                 </div>
-                <StatusBadge status={ad.status} />
+                {ad.is_blocked ? <span className="text-xs text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">Bloqueado</span> : <span className="text-xs text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">Ativo</span>}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Recent Activities */}
+        {/* Recent Users */}
         <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-white">Atividades recentes</h3>
-            <button className="text-xs text-[#D4A24C] hover:underline flex items-center gap-1">Ver todas <ChevronRight className="w-3 h-3" /></button>
+            <h3 className="font-semibold text-white">Usuários recentes</h3>
+            <button className="text-xs text-[#D4A24C] hover:underline flex items-center gap-1" onClick={() => {}}>Ver todos <ChevronRight className="w-3 h-3" /></button>
           </div>
           <div className="space-y-3">
-            {activities.map((act, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: `${act.color}20`, color: act.color }}>
-                  {activityIcon(act.type)}
+            {(data?.recent_users || []).length === 0 ? (
+              <p className="text-center text-[#6F7280] text-xs py-4">Nenhum usuário ainda</p>
+            ) : (data.recent_users || []).slice(0, 5).map((u, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#D4A24C]/20 flex items-center justify-center shrink-0">
+                  {u.picture ? <img src={u.picture} alt="" className="w-full h-full rounded-full object-cover" /> : <Users className="w-4 h-4 text-[#D4A24C]" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white font-medium">{act.label}</p>
-                  <p className="text-xs text-[#A6A8B3] truncate">{act.detail}</p>
+                  <p className="text-sm text-white font-medium truncate">{u.name}</p>
+                  <p className="text-xs text-[#A6A8B3]">{u.city ? `${u.city}, ${u.state}` : u.email?.split('@')[0]}</p>
                 </div>
-                <span className="text-xs text-[#6F7280] shrink-0">{act.time}</span>
+                <span className="text-[10px] text-[#D4A24C] bg-[#D4A24C]/10 px-2 py-0.5 rounded-full">{u.role}</span>
               </div>
             ))}
           </div>
@@ -407,11 +420,11 @@ function DashboardTab({ token, platform }) {
       <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-4">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 divide-x divide-[#1E2230]">
           {[
-            { label: 'Comissão total (mês)', value: `R$ ${(data?.total_commissions || 123456.78).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, icon: DollarSign },
-            { label: 'Lojas ativas', value: '1.254', icon: Store },
-            { label: 'Produtos cadastrados', value: data?.total_products?.toLocaleString('pt-BR') || '12.843', icon: Package },
-            { label: 'Avaliações', value: data?.total_orders?.toLocaleString('pt-BR') || '8.456', icon: CheckCircle },
-            { label: 'Uptime da plataforma', value: '99.98%', icon: Activity },
+            { label: 'Comissão total', value: `R$ ${(data?.total_commissions || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, icon: DollarSign },
+            { label: 'Novos usuários hoje', value: data?.new_users_today ?? 0, icon: Users },
+            { label: 'Produtos cadastrados', value: (data?.total_products ?? 0).toLocaleString('pt-BR'), icon: Package },
+            { label: 'Pedidos totais', value: (data?.total_orders ?? 0).toLocaleString('pt-BR'), icon: CheckCircle },
+            { label: 'Anúncios B Livre', value: (data?.total_social_posts ?? 0).toLocaleString('pt-BR'), icon: Megaphone },
           ].map((item, i) => {
             const Icon = item.icon;
             return (
@@ -485,33 +498,120 @@ function OrdersTab({ token }) {
 // ==================== USERS TAB ====================
 function UsersTab({ token }) {
   const [users, setUsers] = useState([]);
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [total, setTotal] = useState(0);
   const h = { Authorization: `Bearer ${token}` };
-  const f = () => axios.get(`${API}/admin/users`, { headers: h }).then(r => setUsers(r.data.users || [])).catch(() => {});
-  useEffect(() => { f(); }, []);
-  const toggleBlock = async (uid) => { await axios.put(`${API}/admin/users/${uid}/block`, {}, { headers: h }); toast.success('Status alterado'); f(); };
+
+  const fetchUsers = () => {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (roleFilter) params.append('role', roleFilter);
+    axios.get(`${API}/admin/users?${params}`, { headers: h })
+      .then(r => { setUsers(r.data.users || []); setTotal(r.data.total || 0); })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchUsers();
+    // Polling a cada 10 segundos
+    const interval = setInterval(fetchUsers, 10000);
+    return () => clearInterval(interval);
+  }, [search, roleFilter]);
+
+  const toggleBlock = async (uid) => {
+    await axios.put(`${API}/admin/users/${uid}/block`, {}, { headers: h });
+    toast.success('Status alterado');
+    fetchUsers();
+  };
+
   const roleLabels = { buyer: 'Comprador', seller: 'Vendedor', affiliate: 'Afiliado', admin: 'Admin' };
+  const roleColors = { buyer: '#3B82F6', seller: '#10B981', affiliate: '#8B5CF6', admin: '#D4A24C' };
+
   return (
     <div data-testid="admin-users-tab">
-      <SectionHeader title="Gerenciar Usuários" subtitle="Visualize e controle todos os usuários da plataforma" />
-      <div className="space-y-2">
-        {users.map(u => (
-          <div key={u.user_id} className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-4 flex items-center justify-between hover:border-[#D4A24C]/20 transition-all">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#D4A24C]/20 flex items-center justify-center">
-                <Users className="w-5 h-5 text-[#D4A24C]" />
-              </div>
-              <div>
-                <p className="font-medium text-sm text-white">{u.name}</p>
-                <p className="text-xs text-[#A6A8B3]">{u.email} · <span className="text-[#D4A24C]">{roleLabels[u.role] || u.role}</span></p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {u.is_blocked && <span className="text-xs text-red-400 font-medium bg-red-500/10 px-2 py-0.5 rounded-full">Bloqueado</span>}
-              {u.role !== 'admin' && <Button size="sm" variant={u.is_blocked ? "default" : "destructive"} className="rounded-lg" onClick={() => toggleBlock(u.user_id)} data-testid={`block-user-${u.user_id}`}><Ban className="w-4 h-4 mr-1" /> {u.is_blocked ? 'Desbloquear' : 'Bloquear'}</Button>}
+      <SectionHeader
+        title="Gerenciar Usuários"
+        subtitle={`${total} usuários cadastrados • Atualização automática a cada 10s`}
+        action={
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1 bg-[#0B0D12] border border-[#1E2230] rounded-full p-1">
+              {['', 'buyer', 'seller', 'affiliate', 'admin'].map(r => (
+                <button key={r} onClick={() => setRoleFilter(r)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold transition ${roleFilter === r ? 'bg-[#D4A24C] text-black' : 'text-[#A6A8B3]'}`}>
+                  {r === '' ? 'Todos' : roleLabels[r]}
+                </button>
+              ))}
             </div>
           </div>
-        ))}
+        }
+      />
+      {/* Search */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6F7280]" />
+        <input
+          type="text"
+          placeholder="Buscar por nome ou email..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-[#11131A] border border-[#1E2230] text-white text-sm placeholder-[#6F7280] focus:outline-none focus:border-[#D4A24C]/50"
+        />
       </div>
+      {users.length === 0 ? (
+        <div className="text-center py-16 bg-[#11131A] rounded-2xl border border-[#1E2230]">
+          <Users className="w-12 h-12 text-[#6F7280] mx-auto mb-3" />
+          <p className="text-[#A6A8B3]">Nenhum usuário encontrado</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {users.map(u => (
+            <div key={u.user_id} className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-4 hover:border-[#D4A24C]/20 transition-all">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className="w-10 h-10 rounded-full bg-[#D4A24C]/20 flex items-center justify-center shrink-0 overflow-hidden">
+                    {u.picture ? <img src={u.picture} alt="" className="w-full h-full object-cover" /> : <Users className="w-5 h-5 text-[#D4A24C]" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-semibold text-sm text-white">{u.name}</p>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: `${roleColors[u.role] || '#6F7280'}20`, color: roleColors[u.role] || '#6F7280' }}>{roleLabels[u.role] || u.role}</span>
+                      {u.is_blocked && <span className="text-[10px] text-red-400 font-medium bg-red-500/10 px-2 py-0.5 rounded-full">Bloqueado</span>}
+                    </div>
+                    <p className="text-xs text-[#A6A8B3] mt-0.5">{u.email}</p>
+                    <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                      {(u.city || u.state) && (
+                        <span className="text-xs text-[#6F7280] flex items-center gap-1">
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                          {[u.city, u.state].filter(Boolean).join(', ')}
+                        </span>
+                      )}
+                      {u.created_at && (
+                        <span className="text-xs text-[#6F7280]">
+                          Cadastro: {new Date(u.created_at).toLocaleDateString('pt-BR')}
+                        </span>
+                      )}
+                      {(u.ads_count > 0 || u.products_count > 0) && (
+                        <span className="text-xs text-[#D4A24C]">
+                          {u.ads_count > 0 ? `${u.ads_count} anúncio(s) B Livre` : ''}
+                          {u.ads_count > 0 && u.products_count > 0 ? ' · ' : ''}
+                          {u.products_count > 0 ? `${u.products_count} produto(s)` : ''}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {u.role !== 'admin' && (
+                    <Button size="sm" variant={u.is_blocked ? 'default' : 'destructive'} className="rounded-lg" onClick={() => toggleBlock(u.user_id)} data-testid={`block-user-${u.user_id}`}>
+                      <Ban className="w-4 h-4 mr-1" /> {u.is_blocked ? 'Desbloquear' : 'Bloquear'}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -1208,6 +1308,333 @@ function FooterConfigTab({ token }) {
   );
 }
 
+// ==================== B LIVRE ADS TAB ====================
+function BLivreAdsTab({ token }) {
+  const [posts, setPosts] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all');
+  const [selectedPost, setSelectedPost] = useState(null);
+  const h = { Authorization: `Bearer ${token}` };
+
+  const fetchPosts = () => {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (filter !== 'all') params.append('filter', filter);
+    axios.get(`${API}/admin/social-posts?${params}`, { headers: h })
+      .then(r => { setPosts(r.data.posts || []); setTotal(r.data.total || 0); })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchPosts();
+    const interval = setInterval(fetchPosts, 10000);
+    return () => clearInterval(interval);
+  }, [search, filter]);
+
+  const actionPost = async (postId, action) => {
+    try {
+      await axios.put(`${API}/admin/social-posts/${postId}/${action}`, {}, { headers: h });
+      const labels = { approve: 'Aprovado', remove: 'Removido', block: 'Bloqueado', unblock: 'Desbloqueado', feature: 'Destacado' };
+      toast.success(labels[action] || 'Ação realizada');
+      fetchPosts();
+      setSelectedPost(null);
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Erro ao executar ação');
+    }
+  };
+
+  const getPostImage = (post) => {
+    if (!post.image) return null;
+    try {
+      const imgs = JSON.parse(post.image);
+      return Array.isArray(imgs) ? imgs[0] : post.image;
+    } catch { return post.image; }
+  };
+
+  return (
+    <div data-testid="admin-blivre-ads-tab">
+      <SectionHeader
+        title="Anúncios B Livre"
+        subtitle={`${total} anúncios publicados • Atualização automática a cada 10s`}
+        action={
+          <div className="flex gap-1 bg-[#0B0D12] border border-[#1E2230] rounded-full p-1">
+            {['all', 'active', 'blocked', 'featured'].map(f => (
+              <button key={f} onClick={() => setFilter(f)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition ${filter === f ? 'bg-[#D4A24C] text-black' : 'text-[#A6A8B3]'}`}>
+                {f === 'all' ? 'Todos' : f === 'active' ? 'Ativos' : f === 'blocked' ? 'Bloqueados' : 'Destacados'}
+              </button>
+            ))}
+          </div>
+        }
+      />
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6F7280]" />
+        <input type="text" placeholder="Buscar anúncio por título, usuário ou categoria..."
+          value={search} onChange={e => setSearch(e.target.value)}
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-[#11131A] border border-[#1E2230] text-white text-sm placeholder-[#6F7280] focus:outline-none focus:border-[#D4A24C]/50" />
+      </div>
+
+      {posts.length === 0 ? (
+        <div className="text-center py-16 bg-[#11131A] rounded-2xl border border-[#1E2230]">
+          <Megaphone className="w-12 h-12 text-[#6F7280] mx-auto mb-3" />
+          <p className="text-[#A6A8B3]">Nenhum anúncio encontrado</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {posts.map(post => {
+            const img = getPostImage(post);
+            return (
+              <div key={post.post_id} className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-4 hover:border-[#D4A24C]/20 transition-all">
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 rounded-xl bg-[#0B0D12] border border-[#1E2230] shrink-0 overflow-hidden">
+                    {img ? <img src={img} alt="" className="w-full h-full object-cover" /> : <Package className="w-8 h-8 text-[#6F7280] m-auto mt-4" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-semibold text-white">{post.title || 'Sem título'}</p>
+                          {post.is_featured && <span className="text-[10px] text-yellow-400 bg-yellow-500/10 px-2 py-0.5 rounded-full">⭐ Destacado</span>}
+                          {post.is_blocked ? <span className="text-[10px] text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">Bloqueado</span> : <span className="text-[10px] text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">Ativo</span>}
+                        </div>
+                        <p className="text-xs text-[#A6A8B3] mt-0.5">{post.user_name} • {post.category || 'Sem categoria'} • {post.city ? `${post.city}, ${post.state}` : ''}</p>
+                        {post.price && <p className="text-sm font-bold text-[#D4A24C] mt-1">R$ {post.price}</p>}
+                        <p className="text-xs text-[#6F7280] mt-1">{post.content?.slice(0, 80)}{post.content?.length > 80 ? '...' : ''}</p>
+                        <p className="text-xs text-[#6F7280] mt-1">{post.created_at ? new Date(post.created_at).toLocaleString('pt-BR') : ''}</p>
+                      </div>
+                      <div className="flex flex-col gap-1.5 shrink-0">
+                        {!post.is_blocked ? (
+                          <>
+                            <Button size="sm" variant="outline" className="border-[#1E2230] text-[#A6A8B3] hover:border-yellow-500/50 hover:text-yellow-400 rounded-lg text-xs" onClick={() => actionPost(post.post_id, 'feature')}>
+                              <Crown className="w-3 h-3 mr-1" /> Destacar
+                            </Button>
+                            <Button size="sm" variant="destructive" className="rounded-lg text-xs" onClick={() => actionPost(post.post_id, 'block')}>
+                              <Ban className="w-3 h-3 mr-1" /> Bloquear
+                            </Button>
+                          </>
+                        ) : (
+                          <Button size="sm" variant="outline" className="border-green-500/50 text-green-400 hover:bg-green-500/10 rounded-lg text-xs" onClick={() => actionPost(post.post_id, 'unblock')}>
+                            <Check className="w-3 h-3 mr-1" /> Desbloquear
+                          </Button>
+                        )}
+                        <Button size="sm" variant="destructive" className="rounded-lg text-xs bg-red-900/50 hover:bg-red-900" onClick={() => actionPost(post.post_id, 'remove')}>
+                          <Trash2 className="w-3 h-3 mr-1" /> Remover
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ==================== MESSAGES MONITOR TAB ====================
+function MessagesMonitorTab({ token }) {
+  const [messages, setMessages] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState('');
+  const h = { Authorization: `Bearer ${token}` };
+
+  const fetchMessages = () => {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    axios.get(`${API}/admin/messages?${params}`, { headers: h })
+      .then(r => { setMessages(r.data.messages || []); setTotal(r.data.total || 0); })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchMessages();
+    const interval = setInterval(fetchMessages, 8000);
+    return () => clearInterval(interval);
+  }, [search]);
+
+  const formatTime = (iso) => {
+    try {
+      const d = new Date(iso);
+      const now = new Date();
+      const diff = Math.floor((now - d) / 1000);
+      if (diff < 60) return `${diff}s atrás`;
+      if (diff < 3600) return `${Math.floor(diff / 60)}min atrás`;
+      if (diff < 86400) return `${Math.floor(diff / 3600)}h atrás`;
+      return d.toLocaleDateString('pt-BR');
+    } catch { return iso; }
+  };
+
+  return (
+    <div data-testid="admin-messages-tab">
+      <SectionHeader
+        title="Monitoramento de Mensagens"
+        subtitle={`${total} mensagens • Atualização automática a cada 8s`}
+      />
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6F7280]" />
+        <input type="text" placeholder="Buscar por remetente, destinatário ou mensagem..."
+          value={search} onChange={e => setSearch(e.target.value)}
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-[#11131A] border border-[#1E2230] text-white text-sm placeholder-[#6F7280] focus:outline-none focus:border-[#D4A24C]/50" />
+      </div>
+
+      {messages.length === 0 ? (
+        <div className="text-center py-16 bg-[#11131A] rounded-2xl border border-[#1E2230]">
+          <MessageSquare className="w-12 h-12 text-[#6F7280] mx-auto mb-3" />
+          <p className="text-[#A6A8B3] font-medium">Nenhuma mensagem ainda</p>
+          <p className="text-xs text-[#6F7280] mt-1">As mensagens entre usuários aparecerão aqui em tempo real</p>
+        </div>
+      ) : (
+        <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-5 text-xs text-[#6F7280] uppercase tracking-wider px-4 py-3 border-b border-[#1E2230] bg-[#0B0D12]">
+            <span>Remetente</span>
+            <span>Destinatário</span>
+            <span className="col-span-2">Mensagem</span>
+            <span className="text-right">Horário</span>
+          </div>
+          <div className="divide-y divide-[#1E2230]">
+            {messages.map((msg, i) => (
+              <div key={msg.message_id || i} className="grid grid-cols-5 items-center px-4 py-3 hover:bg-[#1E2230]/30 transition-all">
+                <div>
+                  <p className="text-sm text-white font-medium truncate">{msg.sender_name || 'Usuário'}</p>
+                  <p className="text-xs text-[#6F7280] truncate">{msg.sender_email || ''}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-[#A6A8B3] truncate">{msg.receiver_name || 'Usuário'}</p>
+                  <p className="text-xs text-[#6F7280] truncate">{msg.receiver_email || ''}</p>
+                </div>
+                <div className="col-span-2 pr-4">
+                  <p className="text-sm text-[#E6E6EA] truncate">{msg.message}</p>
+                  {msg.product_title && (
+                    <p className="text-xs text-[#D4A24C] mt-0.5 truncate">📦 {msg.product_title}</p>
+                  )}
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-[#6F7280]">{formatTime(msg.created_at)}</p>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#1E2230] text-[#A6A8B3]">{msg.type === 'direct' ? 'Direto' : msg.type === 'store' ? 'Loja' : 'Chat'}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ==================== REPORTS TAB (REAL) ====================
+function ReportsTab({ token }) {
+  const [reports, setReports] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [filter, setFilter] = useState('pending');
+  const h = { Authorization: `Bearer ${token}` };
+
+  const fetchReports = () => {
+    const params = new URLSearchParams();
+    if (filter !== 'all') params.append('status', filter);
+    axios.get(`${API}/admin/reports?${params}`, { headers: h })
+      .then(r => { setReports(r.data.reports || []); setTotal(r.data.total || 0); })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    fetchReports();
+    const interval = setInterval(fetchReports, 10000);
+    return () => clearInterval(interval);
+  }, [filter]);
+
+  const actionReport = async (reportId, action) => {
+    try {
+      await axios.put(`${API}/admin/reports/${reportId}/${action}`, {}, { headers: h });
+      const labels = { ignore: 'Ignorada', resolve: 'Resolvida', block_ad: 'Anúncio bloqueado', block_user: 'Usuário bloqueado' };
+      toast.success(labels[action] || 'Ação realizada');
+      fetchReports();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Erro ao executar ação');
+    }
+  };
+
+  const statusColors = { pending: '#F59E0B', analyzed: '#3B82F6', resolved: '#10B981', ignored: '#6B7280' };
+  const statusLabels = { pending: 'Pendente', analyzed: 'Analisada', resolved: 'Resolvida', ignored: 'Ignorada' };
+  const tipoLabels = { anuncio: 'Anúncio', usuario: 'Usuário' };
+
+  return (
+    <div data-testid="admin-reports-tab">
+      <SectionHeader
+        title="Denúncias"
+        subtitle={`${total} denúncias • Atualização automática a cada 10s`}
+        action={
+          <div className="flex gap-1 bg-[#0B0D12] border border-[#1E2230] rounded-full p-1">
+            {['all', 'pending', 'analyzed', 'resolved', 'ignored'].map(f => (
+              <button key={f} onClick={() => setFilter(f)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold transition ${filter === f ? 'bg-[#D4A24C] text-black' : 'text-[#A6A8B3]'}`}>
+                {f === 'all' ? 'Todas' : statusLabels[f]}
+              </button>
+            ))}
+          </div>
+        }
+      />
+
+      {reports.length === 0 ? (
+        <div className="text-center py-16 bg-[#11131A] rounded-2xl border border-[#1E2230]">
+          <AlertTriangle className="w-12 h-12 text-[#6F7280] mx-auto mb-3" />
+          <p className="text-[#A6A8B3] font-medium">
+            {filter === 'pending' ? 'Nenhuma denúncia pendente' : 'Nenhuma denúncia encontrada'}
+          </p>
+          <p className="text-xs text-[#6F7280] mt-1">As denúncias dos usuários aparecerão aqui em tempo real</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {reports.map(report => (
+            <div key={report.report_id} className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-4 hover:border-[#D4A24C]/20 transition-all">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                    <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: `${statusColors[report.status] || '#6B7280'}20`, color: statusColors[report.status] || '#6B7280' }}>
+                      {statusLabels[report.status] || report.status}
+                    </span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-[#1E2230] text-[#A6A8B3]">
+                      {tipoLabels[report.tipo] || report.tipo}
+                    </span>
+                  </div>
+                  <p className="font-semibold text-white">{report.motivo}</p>
+                  {report.descricao && <p className="text-sm text-[#A6A8B3] mt-1">{report.descricao}</p>}
+                  <div className="flex items-center gap-4 mt-2 text-xs text-[#6F7280] flex-wrap">
+                    <span>Denunciante: <span className="text-[#A6A8B3]">{report.reporter_name || 'Anônimo'}</span></span>
+                    {report.reported_user_name && <span>Denunciado: <span className="text-[#A6A8B3]">{report.reported_user_name}</span></span>}
+                    {report.post_title && <span>Anúncio: <span className="text-[#D4A24C]">{report.post_title}</span></span>}
+                    <span>{report.created_at ? new Date(report.created_at).toLocaleString('pt-BR') : ''}</span>
+                  </div>
+                </div>
+                {report.status === 'pending' && (
+                  <div className="flex flex-col gap-1.5 shrink-0">
+                    <Button size="sm" variant="outline" className="border-[#1E2230] text-[#A6A8B3] hover:border-green-500/50 hover:text-green-400 rounded-lg text-xs" onClick={() => actionReport(report.report_id, 'ignore')}>
+                      <X className="w-3 h-3 mr-1" /> Ignorar
+                    </Button>
+                    {report.tipo === 'anuncio' && (
+                      <Button size="sm" variant="destructive" className="rounded-lg text-xs" onClick={() => actionReport(report.report_id, 'block_ad')}>
+                        <Ban className="w-3 h-3 mr-1" /> Bloquear Anúncio
+                      </Button>
+                    )}
+                    <Button size="sm" variant="destructive" className="rounded-lg text-xs bg-red-900/50 hover:bg-red-900" onClick={() => actionReport(report.report_id, 'block_user')}>
+                      <Ban className="w-3 h-3 mr-1" /> Bloquear Usuário
+                    </Button>
+                    <Button size="sm" variant="outline" className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10 rounded-lg text-xs" onClick={() => actionReport(report.report_id, 'resolve')}>
+                      <Check className="w-3 h-3 mr-1" /> Resolver
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ==================== SIDEBAR NAVIGATION ====================
 const sidebarItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -1220,6 +1647,7 @@ const sidebarItems = [
   { id: 'commissions', label: 'Comissões', icon: CreditCard },
   { id: 'withdrawals', label: 'Saques', icon: Wallet },
   { id: 'reports', label: 'Denúncias', icon: AlertTriangle },
+  { id: 'messages-monitor', label: 'Mensagens', icon: MessageSquare },
   { id: 'support', label: 'Suporte', icon: Headphones },
   { id: 'coupons', label: 'Cupons', icon: Gift },
   { id: 'notifications', label: 'Notificações', icon: Bell },
@@ -1255,14 +1683,19 @@ export default function AdminPage() {
   const notifRef = useRef(null);
 
   useEffect(() => {
-    if (token) {
+    const fetchCounts = () => {
+      if (!token) return;
       axios.get(`${API}/admin/notification-counts`, { headers: { Authorization: `Bearer ${token}` } })
         .then(r => setCounts(r.data || {}))
         .catch(() => {});
       axios.get(`${API}/admin/notifications`, { headers: { Authorization: `Bearer ${token}` } })
         .then(r => { setNotifications((r.data.notifications || []).slice(0, 8)); setUnreadCount(r.data.unread_count || 0); })
         .catch(() => {});
-    }
+    };
+    fetchCounts();
+    // Polling global a cada 15 segundos
+    const interval = setInterval(fetchCounts, 15000);
+    return () => clearInterval(interval);
   }, [token]);
 
   // Close dropdowns on outside click
@@ -1292,7 +1725,7 @@ export default function AdminPage() {
       case 'commissions': return <CommissionsTab token={token} />;
       case 'shipping': return <ShippingTab token={token} />;
       case 'theme': return <ThemeTab token={token} />;
-      case 'ads': return <AdsTab token={token} />;
+      case 'ads': return <BLivreAdsTab token={token} />;
       case 'support': return <SupportTab token={token} />;
       case 'pages': return <PagesTab token={token} />;
       case 'newsletter': return <NewsletterTab token={token} />;
@@ -1301,15 +1734,8 @@ export default function AdminPage() {
       case 'financial': return <FinancialSettingsTab token={token} />;
       case 'finance-pro': return <FinanceModule token={token} />;
       case 'plans': return <PromotionPlansModule token={token} />;
-      case 'reports': return (
-        <div data-testid="admin-reports-tab">
-          <SectionHeader title="Denúncias" subtitle="Gerencie as denúncias recebidas na plataforma" />
-          <div className="text-center py-16 bg-[#11131A] rounded-2xl border border-[#1E2230]">
-            <AlertTriangle className="w-12 h-12 text-[#6F7280] mx-auto mb-3" />
-            <p className="text-[#A6A8B3]">Nenhuma denúncia pendente</p>
-          </div>
-        </div>
-      );
+      case 'reports': return <ReportsTab token={token} />;
+      case 'messages-monitor': return <MessagesMonitorTab token={token} />;
       case 'coupons': return (
         <div data-testid="admin-coupons-tab">
           <SectionHeader title="Cupons" subtitle="Gerencie os cupons de desconto da plataforma" />
