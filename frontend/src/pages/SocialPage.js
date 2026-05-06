@@ -878,51 +878,59 @@ export default function SocialPage() {
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 8px 22px rgba(200,138,26,0.28);
           }
 
+          /* Forçar layout de 3 colunas idêntico ao desktop em todas as larguras */
+          .blivre-shell {
+            grid-template-columns: 235px minmax(0, 1fr) 255px !important;
+            display: grid !important;
+            gap: 16px !important;
+          }
+
+          .blivre-side {
+            display: block !important;
+            opacity: 1 !important;
+            scale: 1 !important;
+            pointer-events: auto !important;
+          }
+
+          .blivre-grid,
+          .blivre-grid-focused {
+            grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)) !important;
+            gap: 16px !important;
+          }
+
           @media (max-width: 1024px) {
             .blivre-shell {
               grid-template-columns: 180px minmax(0, 1fr) 200px !important;
+              gap: 12px !important;
+            }
+            .blivre-grid, .blivre-grid-focused {
+              grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
+              gap: 12px !important;
             }
           }
 
           @media (max-width: 768px) {
             .blivre-shell {
-              grid-template-columns: 140px minmax(0, 1fr) 150px !important;
+              grid-template-columns: 120px minmax(0, 1fr) 130px !important;
               gap: 8px !important;
             }
-            
-            .blivre-side {
-              display: block !important;
-              opacity: 1 !important;
-              scale: 1 !important;
-              pointer-events: auto !important;
-            }
-
-            .blivre-grid,
-            .blivre-grid-focused {
-              grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)) !important;
-              gap: 6px !important;
+            .blivre-grid, .blivre-grid-focused {
+              grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)) !important;
+              gap: 8px !important;
             }
           }
 
           @media (max-width: 480px) {
             .blivre-shell {
-              grid-template-columns: 100px minmax(0, 1fr) 110px !important;
-              gap: 4px !important;
-              padding: 0 4px !important;
-            }
-
-            .blivre-side {
-              padding: 8px !important;
-            }
-
-            .blivre-grid,
-            .blivre-grid-focused {
-              grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)) !important;
+              grid-template-columns: 85px minmax(0, 1fr) 95px !important;
               gap: 4px !important;
             }
-            
+            .blivre-grid, .blivre-grid-focused {
+              grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)) !important;
+              gap: 6px !important;
+            }
             header h1 { font-size: 14px !important; }
-            header p { font-size: 8px !important; }
+            header p { font-size: 7px !important; }
           }
         `}
       </style>
@@ -1902,20 +1910,20 @@ export default function SocialPage() {
                             )}
                           </div>
 
-                          <div className="p-1.5 sm:p-3 bg-white">
-                            <p className="text-[#17130B] font-black text-[10px] sm:text-sm leading-tight line-clamp-2 tracking-[-0.03em]">
+                          <div className="p-1 sm:p-3 bg-white">
+                            <p className="text-[#17130B] font-black text-[8px] sm:text-sm leading-tight line-clamp-2 tracking-[-0.03em]">
                               {getTitle(post)}
                             </p>
 
-                            <p className="blivre-gold-text font-black text-sm sm:text-lg mt-0.5 sm:mt-2 tracking-[-0.04em]">
+                            <p className="blivre-gold-text font-black text-[10px] sm:text-lg mt-0.5 sm:mt-2 tracking-[-0.04em]">
                               {getPrice(post)}
                             </p>
 
-                            <p className="text-[9px] sm:text-[11px] text-[#8B8790] font-semibold mt-0.5 sm:mt-1 truncate">
+                            <p className="text-[7px] sm:text-[11px] text-[#8B8790] font-semibold mt-0.5 sm:mt-1 truncate">
                               {getLocation(post)}
                             </p>
 
-                            <span className="mt-1.5 sm:mt-3 inline-flex w-full justify-center rounded-lg sm:rounded-xl blivre-gold-button px-1.5 sm:px-3 py-1 sm:py-2 text-[9px] sm:text-[12px] font-black text-[#14100A]">
+                            <span className="mt-1 sm:mt-3 inline-flex w-full justify-center rounded-md sm:rounded-xl blivre-gold-button px-1 sm:px-3 py-1 sm:py-2 text-[8px] sm:text-[12px] font-black text-[#14100A]">
                               {activeFilter === "mine" ? "Ver meu anúncio" : "Ver produto"}
                             </span>
                           </div>
