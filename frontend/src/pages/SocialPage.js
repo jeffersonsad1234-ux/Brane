@@ -2054,16 +2054,18 @@ export default function SocialPage() {
 
             <aside className={`h-[calc(100vh-110px)] overflow-hidden blivre-side ${expanded ? 'w-[70px] ml-4' : ''}`}>
               {expanded ? (
-                <button
-                  onClick={() => {
-                    if (!requireAuth("anunciar")) return;
-                    setUseAI(true);
-                    setComposerOpen(true);
-                  }}
-                  className="w-14 h-14 rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black shadow-[0_12px_35px_rgba(212,162,76,0.22)] flex items-center justify-center text-2xl"
-                >
-                  <Plus size={28} strokeWidth={3} />
-                </button>
+                <div className="fixed top-[108px] right-4 sm:right-8 z-30">
+                  <button
+                    onClick={() => {
+                      if (!requireAuth("anunciar")) return;
+                      setUseAI(true);
+                      setComposerOpen(true);
+                    }}
+                    className="w-14 h-14 rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black shadow-[0_12px_35px_rgba(212,162,76,0.22)] flex items-center justify-center text-2xl transition-transform hover:scale-105 active:scale-95"
+                  >
+                    <Plus size={28} strokeWidth={3} />
+                  </button>
+                </div>
               ) : (
                 <div className="space-y-5">
                   <div className="rounded-[28px] border border-[#D4A24C]/20 bg-gradient-to-br from-white/[0.06] to-white/[0.025] p-5">
