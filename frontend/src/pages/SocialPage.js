@@ -877,6 +877,42 @@ export default function SocialPage() {
             background: linear-gradient(135deg, #8F5F12 0%, #C88A1A 18%, #FFD36A 38%, #FFF1A8 50%, #D89B25 68%, #9F6811 100%);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 8px 22px rgba(200,138,26,0.28);
           }
+
+          @media (max-width: 1024px) {
+            .blivre-shell {
+              grid-template-columns: 0px minmax(0, 1fr) 0px !important;
+            }
+          }
+
+          @media (max-width: 768px) {
+            .blivre-shell {
+              grid-template-columns: minmax(0, 1fr) !important;
+              height: auto !important;
+              overflow: visible !important;
+            }
+
+            .blivre-side {
+              display: none !important;
+            }
+
+            .blivre-grid,
+            .blivre-grid-focused {
+              grid-template-columns: 1fr !important;
+              gap: 12px !important;
+            }
+
+            .blivre-product-card {
+              max-width: 100% !important;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .blivre-grid,
+            .blivre-grid-focused {
+              grid-template-columns: 1fr !important;
+              gap: 10px !important;
+            }
+          }
         `}
       </style>
 
@@ -1545,18 +1581,18 @@ export default function SocialPage() {
       )}
 
       <div className="relative z-10">
-        <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050508]/90 backdrop-blur-xl">
-          <div className="max-w-[1600px] mx-auto px-4 py-4 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1px]">
+        <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050508]/90 backdrop-blur-xl w-full overflow-x-hidden">
+          <div className="w-full px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1px] flex-shrink-0">
                 <div className="w-full h-full rounded-2xl bg-[#09090D] overflow-hidden flex items-center justify-center">
                   <img src={BRANE_LOGO_URL} alt="B Livre" className="w-full h-full object-cover" />
                 </div>
               </div>
 
-              <div>
-                <h1 className="font-black tracking-wide leading-none">B Livre</h1>
-                <p className="text-[11px] text-[#8C8F9A] uppercase tracking-[0.2em]">
+              <div className="min-w-0 hidden sm:block">
+                <h1 className="font-black tracking-wide leading-none text-base sm:text-lg">B Livre</h1>
+                <p className="text-[10px] sm:text-[11px] text-[#8C8F9A] uppercase tracking-[0.2em] truncate">
                   compras, vendas e oportunidades locais
                 </p>
               </div>
@@ -1572,12 +1608,12 @@ export default function SocialPage() {
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <button
                 onClick={() => setShowNotifications(true)}
-                className="relative w-11 h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C]"
+                className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] flex-shrink-0"
               >
-                <Bell size={19} />
+                <Bell size={16} className="sm:block" />
               </button>
 
               <button
@@ -1592,17 +1628,17 @@ export default function SocialPage() {
                   });
                   setShowSettings(true);
                 }}
-                className="w-11 h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C]"
+                className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] flex-shrink-0"
               >
-                <Settings size={19} />
+                <Settings size={16} className="sm:block" />
               </button>
             </div>
           </div>
         </header>
 
-        <div className="max-w-[1600px] mx-auto px-4 py-4">
+        <div className="w-full px-2 sm:px-4 py-3 sm:py-4">
           <div
-            className="grid gap-4 items-start h-[calc(100vh-92px)] overflow-hidden blivre-shell"
+            className="grid gap-2 sm:gap-4 items-start h-[calc(100vh-92px)] overflow-hidden blivre-shell"
             style={{
               gridTemplateColumns: expanded
                 ? "0px minmax(0, 1fr) 70px"
@@ -1690,7 +1726,7 @@ export default function SocialPage() {
 
             <main
               onScroll={handleProductsScroll}
-              className="h-[calc(100vh-110px)] overflow-y-auto pr-2"
+              className="h-[calc(100vh-110px)] overflow-y-auto pr-1 sm:pr-2"
             >
               {activeFilter === "messages" ? (
                 selectedChat ? (
@@ -1776,20 +1812,20 @@ export default function SocialPage() {
                   </div>
                 )
               ) : loading ? (
-                <div className="grid gap-4 blivre-grid">
+                <div className="grid gap-2 sm:gap-4 blivre-grid">
                   {Array.from({ length: 12 }, (_, index) => (
                     <SkeletonCard key={index} />
                   ))}
                 </div>
               ) : filteredPosts.length === 0 ? (
-                <div className="rounded-[32px] border border-white/10 bg-white/[0.035] p-12 text-center">
+                <div className="rounded-[32px] border border-white/10 bg-white/[0.035] p-6 sm:p-12 text-center">
                   <Package className="mx-auto text-[#D4A24C] mb-4" size={46} />
                   <p className="text-[#C9CBD6] font-black text-lg">
                     Nenhum anúncio encontrado.
                   </p>
                 </div>
               ) : (
-                <div className={expanded ? "grid gap-4 blivre-grid-focused" : "grid gap-4 blivre-grid"}>
+                <div className={expanded ? "grid gap-2 sm:gap-4 blivre-grid-focused" : "grid gap-2 sm:gap-4 blivre-grid"}>
                   {filteredPosts.map((post) => {
                     const key = getPostKey(post);
                     const isFavorite = favorites.includes(key);
@@ -1855,20 +1891,20 @@ export default function SocialPage() {
                             )}
                           </div>
 
-                          <div className="p-3 bg-white">
-                            <p className="text-[#17130B] font-black text-sm leading-tight line-clamp-2 tracking-[-0.03em]">
+                          <div className="p-2 sm:p-3 bg-white">
+                            <p className="text-[#17130B] font-black text-xs sm:text-sm leading-tight line-clamp-2 tracking-[-0.03em]">
                               {getTitle(post)}
                             </p>
 
-                            <p className="blivre-gold-text font-black text-lg mt-2 tracking-[-0.04em]">
+                            <p className="blivre-gold-text font-black text-base sm:text-lg mt-1 sm:mt-2 tracking-[-0.04em]">
                               {getPrice(post)}
                             </p>
 
-                            <p className="text-[11px] text-[#8B8790] font-semibold mt-1 truncate">
+                            <p className="text-[10px] sm:text-[11px] text-[#8B8790] font-semibold mt-0.5 sm:mt-1 truncate">
                               {getLocation(post)}
                             </p>
 
-                            <span className="mt-3 inline-flex w-full justify-center rounded-xl blivre-gold-button px-3 py-2 text-[12px] font-black text-[#14100A]">
+                            <span className="mt-2 sm:mt-3 inline-flex w-full justify-center rounded-xl blivre-gold-button px-2 sm:px-3 py-1.5 sm:py-2 text-[11px] sm:text-[12px] font-black text-[#14100A]">
                               {activeFilter === "mine" ? "Ver meu anúncio" : "Ver produto"}
                             </span>
                           </div>
