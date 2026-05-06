@@ -918,8 +918,8 @@ export default function SocialPage() {
           }
 
           .blivre-shell-expanded {
-            grid-template-columns: 0px minmax(0, 1fr) 0px !important;
-            gap: 0 !important;
+            grid-template-columns: 70px minmax(0, 1fr) 70px !important;
+            gap: 16px !important;
           }
 
           .blivre-side {
@@ -928,12 +928,14 @@ export default function SocialPage() {
             overflow: hidden;
           }
 
-          .blivre-side-collapsed {
-            width: 0 !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
+          .blivre-side-left-collapsed {
+            width: 70px !important;
+            padding: 10px !important;
+          }
+
+          .blivre-side-right-collapsed {
+            width: 70px !important;
+            opacity: 1 !important;
           }
 
           .blivre-grid,
@@ -944,8 +946,8 @@ export default function SocialPage() {
           }
 
           .blivre-grid-expanded {
-            grid-template-columns: repeat(6, 1fr) !important;
-            gap: 12px !important;
+            grid-template-columns: repeat(5, 1fr) !important;
+            gap: 16px !important;
           }
 
           /* Layout Mobile Profissional (Amazon/Shopee Style) */
@@ -1782,12 +1784,12 @@ export default function SocialPage() {
             <aside
               className={
                 "space-y-3 sm:space-y-5 self-start h-[calc(100vh-110px)] overflow-y-auto pr-1 blivre-side " +
-                (expanded ? "blivre-side-collapsed" : "")
+                (expanded ? "blivre-side-left-collapsed" : "")
               }
             >
-              <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1px]">
+              <div className={`rounded-[28px] border border-white/10 bg-white/[0.04] transition-all duration-300 ${expanded ? 'p-2' : 'p-5'}`}>
+                <div className={`flex items-center gap-3 mb-2 ${expanded ? 'justify-center' : ''}`}>
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1px] flex-shrink-0">
                     <div className="w-full h-full rounded-full bg-[#09090D] overflow-hidden flex items-center justify-center">
                       {user?.picture || user?.avatar ? (
                         <img src={user.picture || user.avatar} alt="Avatar" className="w-full h-full object-cover" />
@@ -1796,13 +1798,15 @@ export default function SocialPage() {
                       )}
                     </div>
                   </div>
-                  <h3 className="font-black text-lg flex items-center gap-2">
-                    {user && user.name ? user.name : "Usuário B Livre"}
-                    <BadgeCheck size={17} className="text-[#D4A24C]" />
-                  </h3>
+                  {!expanded && (
+                    <h3 className="font-black text-lg flex items-center gap-2 truncate">
+                      {user && user.name ? user.name : "Usuário B Livre"}
+                      <BadgeCheck size={17} className="text-[#D4A24C]" />
+                    </h3>
+                  )}
                 </div>
 
-                <div className="mt-5 space-y-2">
+                <div className={`mt-5 space-y-2 ${expanded ? 'flex flex-col items-center' : ''}`}>
                   {[
                     ["Perto de você", MapPin, "near"],
                     ["Meus anúncios", Package, "mine"],
@@ -1815,52 +1819,57 @@ export default function SocialPage() {
                         setActiveFilter(value);
                         setSelectedCategory("");
                       }}
+                      title={expanded ? label : ""}
                       className={
-                        "w-full flex items-center gap-3 text-sm rounded-xl px-3 py-3 hover:bg-white/[0.04] " +
-                        (activeFilter === value ? "text-[#F1D28A] bg-[#D4A24C]/10" : "text-[#C9CBD6]")
+                        `flex items-center gap-3 text-sm rounded-xl transition-all duration-300 ${expanded ? 'w-12 h-12 justify-center p-0' : 'w-full px-3 py-3'} ` +
+                        (activeFilter === value ? "text-[#F1D28A] bg-[#D4A24C]/10" : "text-[#C9CBD6] hover:bg-white/[0.04]")
                       }
                     >
-                      <Icon size={17} className="text-[#D4A24C]" />
-                      {label}
+                      <Icon size={expanded ? 20 : 17} className="text-[#D4A24C]" />
+                      {!expanded && label}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="rounded-[28px] border border-white/10 bg-white/[0.035] p-5">
-                <h3 className="font-black mb-4 flex items-center gap-2">
-                  <Tags size={18} className="text-[#D4A24C]" />
-                  Categorias
+              <div className={`rounded-[28px] border border-white/10 bg-white/[0.035] transition-all duration-300 ${expanded ? 'p-2 flex flex-col items-center' : 'p-5'}`}>
+                <h3 className={`font-black flex items-center gap-2 ${expanded ? 'mb-0' : 'mb-4'}`}>
+                  <Tags size={expanded ? 20 : 18} className="text-[#D4A24C]" />
+                  {!expanded && "Categorias"}
                 </h3>
+                {!expanded && (
+                  <>
+                    <button
+                      onClick={() => {
+                        setSelectedCategory("");
+                        setActiveFilter("all");
+                      }}
+                      className="w-full py-3 border-b border-white/5 text-sm text-[#F1D28A] text-left"
+                    >
+                      Todas
+                    </button>
 
-                <button
-                  onClick={() => {
-                    setSelectedCategory("");
-                    setActiveFilter("all");
-                  }}
-                  className="w-full py-3 border-b border-white/5 text-sm text-[#F1D28A] text-left"
-                >
-                  Todas
-                </button>
-
-                {categories.map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => {
-                      setSelectedCategory(item);
-                      setActiveFilter("all");
-                    }}
-                    className="w-full py-3 border-b border-white/5 last:border-b-0 text-sm text-left text-[#B8BAC6]"
-                  >
-                    {item}
-                  </button>
-                ))}
+                    {categories.map((item) => (
+                      <button
+                        key={item}
+                        onClick={() => {
+                          setSelectedCategory(item);
+                          setActiveFilter("all");
+                        }}
+                        className={
+                          "w-full py-3 border-b border-white/5 text-sm text-left transition-colors " +
+                          (selectedCategory === item ? "text-[#F1D28A] font-bold" : "text-[#C9CBD6] hover:text-white")
+                        }
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </>
+                )}
               </div>
             </aside>
 
-            <main
-              onScroll={handleProductsScroll}
-              className="h-[calc(100vh-110px)] overflow-y-auto pr-1 sm:pr-2"
+            <main className="h-[calc(100vh-110px)] overflow-y-auto pr-1 sm:pr-2"
             >
               {activeFilter === "messages" ? (
                 selectedChat ? (
@@ -2052,9 +2061,9 @@ export default function SocialPage() {
               )}
             </main>
 
-            <aside className={`h-[calc(100vh-110px)] overflow-hidden blivre-side ${expanded ? 'w-[70px] ml-4' : ''}`}>
+            <aside className={`h-[calc(100vh-110px)] overflow-hidden blivre-side ${expanded ? 'blivre-side-right-collapsed ml-4' : ''}`}>
               <div className="space-y-5">
-                <div className={`rounded-[28px] border border-[#D4A24C]/20 bg-gradient-to-br from-white/[0.06] to-white/[0.025] p-5 transition-all duration-300 ${expanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                <div className={`rounded-[28px] border border-[#D4A24C]/20 bg-gradient-to-br from-white/[0.06] to-white/[0.025] p-5 transition-all duration-300 ${expanded ? 'opacity-0 pointer-events-none h-0 overflow-hidden m-0 p-0' : 'opacity-100'}`}>
                   <h3 className="font-black mb-3 flex items-center gap-2">
                     <Package size={18} className="text-[#D4A24C]" />
                     Anunciar produto
@@ -2089,7 +2098,7 @@ export default function SocialPage() {
                   </div>
                 )}
 
-                  <div className="rounded-[28px] border border-white/10 bg-white/[0.035] p-5">
+                  <div className={`rounded-[28px] border border-white/10 bg-white/[0.035] p-5 transition-all duration-300 ${expanded ? 'opacity-0 pointer-events-none h-0 overflow-hidden m-0 p-0' : 'opacity-100'}`}>
                     <h3 className="font-black mb-4 flex items-center gap-2">
                       <Globe size={18} className="text-[#D4A24C]" />
                       Alcance
