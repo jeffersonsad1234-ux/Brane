@@ -357,7 +357,26 @@ export default function SocialPage() {
     loadPosts(1, false);
     loadSocialData();
 
+    const handleScroll = () => {
+      if (window.innerWidth < 768) return; // Não afeta mobile
+
+      if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
+
+      scrollFrameRef.current = requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+        const shouldExpand = scrollY > 100;
+
+        if (shouldExpand !== expandedRef.current) {
+          setExpanded(shouldExpand);
+          expandedRef.current = shouldExpand;
+        }
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
     return () => {
+      window.removeEventListener("scroll", handleScroll);
       if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
     };
   }, [token]);
@@ -895,16 +914,38 @@ export default function SocialPage() {
             grid-template-columns: 235px minmax(0, 1fr) 255px !important;
             display: grid !important;
             gap: 16px !important;
+            transition: grid-template-columns 0.3s ease;
+          }
+
+          .blivre-shell-expanded {
+            grid-template-columns: 0px minmax(0, 1fr) 0px !important;
+            gap: 0 !important;
           }
 
           .blivre-side {
             display: block !important;
+            transition: all 0.3s ease;
+            overflow: hidden;
+          }
+
+          .blivre-side-collapsed {
+            width: 0 !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
           }
 
           .blivre-grid,
           .blivre-grid-focused {
             grid-template-columns: repeat(auto-fill, minmax(185px, 1fr)) !important;
             gap: 16px !important;
+            transition: all 0.3s ease;
+          }
+
+          .blivre-grid-expanded {
+            grid-template-columns: repeat(6, 1fr) !important;
+            gap: 12px !important;
           }
 
           /* Layout Mobile Profissional (Amazon/Shopee Style) */
@@ -1736,17 +1777,12 @@ export default function SocialPage() {
 
         <div className="w-full px-2 sm:px-4 py-3 sm:py-4">
           <div
-            className="grid gap-2 sm:gap-4 items-start h-[calc(100vh-92px)] overflow-hidden blivre-shell"
-            style={{
-              gridTemplateColumns: expanded
-                ? "0px minmax(0, 1fr) 70px"
-                : "235px minmax(0, 1fr) 255px"
-            }}
+            className={`grid gap-2 sm:gap-4 items-start h-[calc(100vh-92px)] overflow-hidden blivre-shell ${expanded ? 'blivre-shell-expanded' : ''}`}
           >
             <aside
               className={
                 "space-y-3 sm:space-y-5 self-start h-[calc(100vh-110px)] overflow-y-auto pr-1 blivre-side " +
-                (expanded ? "opacity-0 pointer-events-none scale-95" : "opacity-100 scale-100")
+                (expanded ? "blivre-side-collapsed" : "")
               }
             >
               <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5">
@@ -1923,7 +1959,7 @@ export default function SocialPage() {
                   </p>
                 </div>
               ) : (
-                <div className={expanded ? "grid gap-2 sm:gap-4 blivre-grid-focused" : "grid gap-2 sm:gap-4 blivre-grid"}>
+                <div className={`grid gap-2 sm:gap-4 blivre-grid ${expanded ? 'blivre-grid-expanded' : ''}`}>
                   {filteredPosts.map((post) => {
                     const key = getPostKey(post);
                     const isFavorite = favorites.includes(key);
@@ -2016,13 +2052,17 @@ export default function SocialPage() {
               )}
             </main>
 
-            <aside className="h-[calc(100vh-110px)] overflow-hidden blivre-side">
+            <aside className={`h-[calc(100vh-110px)] overflow-hidden blivre-side ${expanded ? 'w-[70px] ml-4' : ''}`}>
               {expanded ? (
                 <button
-                  onClick={() => setComposerOpen(true)}
-                  className="w-full h-16 rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black shadow-[0_12px_35px_rgba(212,162,76,0.22)]"
+                  onClick={() => {
+                    if (!requireAuth("anunciar")) return;
+                    setUseAI(true);
+                    setComposerOpen(true);
+                  }}
+                  className="w-14 h-14 rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black shadow-[0_12px_35px_rgba(212,162,76,0.22)] flex items-center justify-center text-2xl"
                 >
-                  +
+                  <Plus size={28} strokeWidth={3} />
                 </button>
               ) : (
                 <div className="space-y-5">
