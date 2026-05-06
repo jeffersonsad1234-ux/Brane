@@ -480,7 +480,7 @@ export default function AIAssistantPanelSocial({
         </p>
       </div>
 
-      <div className="flex-1 space-y-4 overflow-y-auto p-4 scrollbar-hide">
+      <div className="flex-1 space-y-4 overflow-y-auto p-3 sm:p-4 scrollbar-hide">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -605,7 +605,7 @@ export default function AIAssistantPanelSocial({
         )}
 
         {ad && photosCount > 0 && !isGenerating && ad.title && ad.price && ad.city && (
-          <div className="mx-auto w-full max-w-[95%] rounded-2xl border border-[#D4A24C]/40 bg-gradient-to-b from-[#D4A24C]/10 to-transparent p-5 space-y-4">
+          <div className="mx-auto w-full max-w-[98%] sm:max-w-[95%] rounded-2xl border border-[#D4A24C]/40 bg-gradient-to-b from-[#D4A24C]/10 to-transparent p-3 sm:p-5 space-y-3 sm:space-y-4">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <span className="text-[10px] font-black uppercase tracking-widest text-[#F1D28A]">Prévia do Anúncio</span>
               <div className="flex items-center gap-1 text-[#D4A24C]">
@@ -648,7 +648,7 @@ export default function AIAssistantPanelSocial({
                 <p className="text-xl font-black text-[#D4A24C]">{ad.price.startsWith('R$') ? ad.price : `R$ ${ad.price}`}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
                 <div className="space-y-0.5">
                   <p className="text-[10px] uppercase font-bold text-white/40">Localização</p>
                   <p className="text-xs text-white/80 font-medium">📍 {ad.city}</p>
@@ -727,7 +727,7 @@ export default function AIAssistantPanelSocial({
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           <button
             type="button"
             onClick={handleImprove}

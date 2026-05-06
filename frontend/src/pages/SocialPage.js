@@ -2046,6 +2046,20 @@ export default function SocialPage() {
         </div>
       </div>
 
+      {/* Botão Flutuante de Anunciar (Mobile) */}
+      <div className="fixed bottom-6 right-6 z-50 md:hidden">
+        <button
+          onClick={() => {
+            if (!requireAuth("anunciar")) return;
+            setUseAI(true);
+            setComposerOpen(true);
+          }}
+          className="w-14 h-14 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] shadow-[0_8px_32px_rgba(212,162,76,0.4)] flex items-center justify-center text-black transition-transform active:scale-90"
+        >
+          <Camera size={24} />
+        </button>
+      </div>
+
       <BLivreAuthModal
         isOpen={showAuthModal}
         onClose={() => {
