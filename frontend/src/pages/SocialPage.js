@@ -1780,6 +1780,11 @@ export default function SocialPage() {
         <div className="w-full px-2 sm:px-4 py-3 sm:py-4">
           <div
             className={`grid gap-2 sm:gap-4 items-start h-[calc(100vh-92px)] overflow-hidden blivre-shell ${expanded ? 'blivre-shell-expanded' : ''}`}
+            style={{
+              gridTemplateColumns: expanded
+                ? "70px minmax(0, 1fr) 70px"
+                : "235px minmax(0, 1fr) 255px"
+            }}
           >
             <aside
               className={
@@ -1968,7 +1973,13 @@ export default function SocialPage() {
                   </p>
                 </div>
               ) : (
-                <div className={`grid gap-2 sm:gap-4 blivre-grid ${expanded ? 'blivre-grid-expanded' : ''}`}>
+                <div className={`grid gap-2 sm:gap-4 blivre-grid ${expanded ? 'blivre-grid-expanded' : ''}`}
+                  style={{
+                    gridTemplateColumns: expanded
+                      ? "repeat(5, 1fr)"
+                      : "repeat(auto-fill, minmax(185px, 1fr))"
+                  }}
+                >
                   {filteredPosts.map((post) => {
                     const key = getPostKey(post);
                     const isFavorite = favorites.includes(key);
