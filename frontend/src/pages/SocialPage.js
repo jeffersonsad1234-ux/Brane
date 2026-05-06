@@ -233,6 +233,7 @@ export default function SocialPage() {
     });
 
   // Upload real: envia o arquivo para /api/upload e retorna a URL
+  // O backend retorna { imageUrl, thumbnailUrl, filename, ... }
   const uploadFileToServer = async (file) => {
     if (!token) return null;
     try {
@@ -241,6 +242,9 @@ export default function SocialPage() {
       const res = await axios.post(`${API}/upload`, fd, {
         headers: { ...authHeaders, "Content-Type": "multipart/form-data" }
       });
+      // Novo formato: imageUrl (full) e thumbnailUrl (leve)
+      if (res.data?.imageUrl) return res.data.imageUrl;
+      // Legado: path
       const path = res.data?.path;
       if (path) return `${API}/files/${path}`;
       return null;
@@ -776,13 +780,44 @@ export default function SocialPage() {
   };
 
   const SkeletonCard = () => (
-    <div className="rounded-[20px] overflow-hidden bg-white border border-[#E5E7EB]">
-      <div className="aspect-square bg-[#E5E7EB] animate-pulse" />
+    <div
+      className="rounded-[20px] overflow-hidden bg-white border border-[#E5E7EB]"
+      aria-hidden="true"
+      style={{ pointerEvents: 'none' }}
+    >
+      <div
+        className="aspect-square"
+        style={{
+          background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+          backgroundSize: '200% 100%',
+          animation: 'brane-skeleton-shimmer 1.4s infinite linear'
+        }}
+      />
       <div className="p-3 bg-white space-y-3">
-        <div className="h-4 rounded bg-[#E5E7EB] animate-pulse" />
-        <div className="h-5 rounded bg-[#E5E7EB] w-2/3 animate-pulse" />
-        <div className="h-3 rounded bg-[#E5E7EB] w-1/2 animate-pulse" />
-        <div className="h-8 rounded-xl bg-[#E5E7EB] animate-pulse" />
+        <div style={{
+          height: '14px', borderRadius: '6px', width: '80%',
+          background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+          backgroundSize: '200% 100%',
+          animation: 'brane-skeleton-shimmer 1.4s 0.1s infinite linear'
+        }} />
+        <div style={{
+          height: '18px', borderRadius: '6px', width: '55%',
+          background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+          backgroundSize: '200% 100%',
+          animation: 'brane-skeleton-shimmer 1.4s 0.2s infinite linear'
+        }} />
+        <div style={{
+          height: '11px', borderRadius: '6px', width: '65%',
+          background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+          backgroundSize: '200% 100%',
+          animation: 'brane-skeleton-shimmer 1.4s 0.3s infinite linear'
+        }} />
+        <div style={{
+          height: '32px', borderRadius: '12px', width: '100%',
+          background: 'linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%)',
+          backgroundSize: '200% 100%',
+          animation: 'brane-skeleton-shimmer 1.4s 0.4s infinite linear'
+        }} />
       </div>
     </div>
   );
@@ -791,6 +826,11 @@ export default function SocialPage() {
     <div className="min-h-screen text-white relative overflow-hidden bg-[#040407]">
       <style>
         {`
+          @keyframes brane-skeleton-shimmer {
+            0%   { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+          }
+
           @keyframes blivreSlideIn {
             from { opacity: 0; transform: translateX(180px) scale(0.92); }
             to { opacity: 1; transform: translateX(0) scale(1); }

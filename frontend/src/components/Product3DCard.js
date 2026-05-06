@@ -17,6 +17,74 @@ import '../styles/product3d.css';
 
 const API = process.env.REACT_APP_BACKEND_URL + '/api';
 
+/**
+ * Normaliza uma URL de imagem.
+ * - URLs http/https → retorna como está
+ * - data:image (base64 legado) → retorna como está
+ * - blob: → retorna como está
+ * - qualquer outro valor → monta URL via /api/files/<valor>
+ */
+function normalizeImage(img) {
+  if (!img) return null;
+  if (
+    img.startsWith('http') ||
+    img.startsWith('data:image') ||
+    img.startsWith('blob:')
+  ) {
+    return img;
+  }
+  return API + '/files/' + img;
+}
+
+/**
+ * Skeleton de card para exibir durante carregamento do feed.
+ * Mantém o mesmo tamanho do card real para evitar layout shift.
+ */
+export function Product3DCardSkeleton() {
+  return (
+    <div className="product-3d-card-wrapper brane-light-product" aria-hidden="true">
+      <div className="product-3d-card" style={{ pointerEvents: 'none' }}>
+        <div className="product-3d-image-container" style={{ position: 'relative', overflow: 'hidden' }}>
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              background: 'linear-gradient(90deg, #1a1d27 25%, #22263a 50%, #1a1d27 75%)',
+              backgroundSize: '200% 100%',
+              animation: 'brane-skeleton-shimmer 1.4s infinite linear',
+              borderRadius: '12px',
+              minHeight: '200px',
+            }}
+          />
+        </div>
+        <div className="product-3d-info" style={{ padding: '12px' }}>
+          {/* Título skeleton */}
+          <div style={{
+            height: '16px', borderRadius: '6px', marginBottom: '8px', width: '80%',
+            background: 'linear-gradient(90deg, #1a1d27 25%, #22263a 50%, #1a1d27 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'brane-skeleton-shimmer 1.4s infinite linear',
+          }} />
+          {/* Preço skeleton */}
+          <div style={{
+            height: '22px', borderRadius: '6px', marginBottom: '6px', width: '55%',
+            background: 'linear-gradient(90deg, #1a1d27 25%, #22263a 50%, #1a1d27 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'brane-skeleton-shimmer 1.4s 0.1s infinite linear',
+          }} />
+          {/* Parcelas skeleton */}
+          <div style={{
+            height: '12px', borderRadius: '6px', marginBottom: '8px', width: '65%',
+            background: 'linear-gradient(90deg, #1a1d27 25%, #22263a 50%, #1a1d27 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'brane-skeleton-shimmer 1.4s 0.2s infinite linear',
+          }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Product3DCard({ product, index = 0 }) {
   const navigate = useNavigate();
   const imageRef = useRef(null);
@@ -27,6 +95,7 @@ export default function Product3DCard({ product, index = 0 }) {
   const [added, setAdded] = useState(false);
   const [motionRect, setMotionRect] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   useEffect(() => {
     if (previewMounted) {
@@ -34,41 +103,50 @@ export default function Product3DCard({ product, index = 0 }) {
     } else {
       document.body.classList.remove('modal-open');
     }
-
     return () => {
       document.body.classList.remove('modal-open');
     };
   }, [previewMounted]);
 
-  const normalizeImage = (img) => {
-    if (!img) return null;
+  /**
+   * thumbnailUrl → imagem leve para o feed (400x400 WebP)
+   * imageUrl → imagem completa para o modal/detalhe (1200x1200 WebP)
+   * Fallback para campos legados (image, images[])
+   */
+  const thumbnailSrc = useMemo(() => {
+    // Preferir thumbnailUrl (novo pipeline)
+    if (product.thumbnailUrl) return normalizeImage(product.thumbnailUrl);
+    // Fallback legado
+    const raw = product.image || (product.images && product.images[0]) || (product.photos && product.photos[0]) || null;
+    return normalizeImage(raw);
+  }, [product.thumbnailUrl, product.image, product.images, product.photos]);
 
-    if (
-      img.startsWith('http') ||
-      img.startsWith('data:image') ||
-      img.startsWith('blob:')
-    ) {
-      return img;
-    }
-
-    return API + '/files/' + img;
-  };
-
+  // Lista completa de imagens para o modal (usa imageUrl para a principal)
   const images = useMemo(() => {
     const rawImages = [];
-
-    if (product.image) rawImages.push(product.image);
-    if (product.images && product.images.length > 0) rawImages.push(...product.images);
-    if (product.photos && product.photos.length > 0) rawImages.push(...product.photos);
+    // Preferir imageUrl como primeira imagem no modal
+    if (product.imageUrl) rawImages.push(product.imageUrl);
+    if (product.image && product.image !== product.imageUrl) rawImages.push(product.image);
+    if (product.images && product.images.length > 0) {
+      product.images.forEach(img => {
+        if (img !== product.imageUrl && img !== product.image) rawImages.push(img);
+      });
+    }
+    if (product.photos && product.photos.length > 0) {
+      product.photos.forEach(img => {
+        if (!rawImages.includes(img)) rawImages.push(img);
+      });
+    }
+    // Se não tem nada, usar thumbnailSrc como fallback
+    if (rawImages.length === 0 && thumbnailSrc) rawImages.push(thumbnailSrc);
 
     return rawImages
       .map(normalizeImage)
       .filter(Boolean)
       .filter((img, i, arr) => arr.indexOf(img) === i);
-  }, [product.images, product.image, product.photos]);
+  }, [product.imageUrl, product.image, product.images, product.photos, thumbnailSrc]);
 
-  const imgUrl = images[0] || null;
-  const currentImg = images[selectedImage] || imgUrl;
+  const currentImg = images[selectedImage] || images[0] || null;
 
   const price = splitPrice(product.price || 0);
   const whole = price.whole;
@@ -77,7 +155,6 @@ export default function Product3DCard({ product, index = 0 }) {
   const openMotion = () => {
     if (imageRef.current) {
       const rect = imageRef.current.getBoundingClientRect();
-
       setMotionRect({
         left: rect.left,
         top: rect.top,
@@ -87,15 +164,12 @@ export default function Product3DCard({ product, index = 0 }) {
     } else {
       setMotionRect(null);
     }
-
     setSelectedImage(0);
     setShowDetails(false);
     setPreviewMounted(true);
-
     requestAnimationFrame(() => {
       setOpenPreview(true);
     });
-
     setTimeout(() => {
       setShowDetails(true);
     }, 450);
@@ -104,7 +178,6 @@ export default function Product3DCard({ product, index = 0 }) {
   const closeMotion = () => {
     setOpenPreview(false);
     setShowDetails(false);
-
     setTimeout(() => {
       setPreviewMounted(false);
     }, 300);
@@ -113,7 +186,6 @@ export default function Product3DCard({ product, index = 0 }) {
   const nextImage = (e) => {
     e.preventDefault();
     e.stopPropagation();
-
     if (images.length > 0) {
       setSelectedImage((prev) => (prev + 1) % images.length);
     }
@@ -122,7 +194,6 @@ export default function Product3DCard({ product, index = 0 }) {
   const prevImage = (e) => {
     e.preventDefault();
     e.stopPropagation();
-
     if (images.length > 0) {
       setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
     }
@@ -136,9 +207,7 @@ export default function Product3DCard({ product, index = 0 }) {
   const handleQuickCart = (e) => {
     e.preventDefault();
     e.stopPropagation();
-
     setAdded(true);
-
     setTimeout(() => {
       setAdded(false);
     }, 1600);
@@ -164,7 +233,6 @@ export default function Product3DCard({ product, index = 0 }) {
       {currentImg && !showDetails && (
         <>
           <div className="brane-flight-portal" style={flightStyle}></div>
-
           <img
             src={currentImg}
             alt={product.title}
@@ -263,6 +331,7 @@ export default function Product3DCard({ product, index = 0 }) {
               alt={product.title}
               className="brane-motion-product"
               decoding="async"
+              loading="lazy"
             />
           ) : (
             <div className="brane-motion-placeholder">
@@ -319,14 +388,33 @@ export default function Product3DCard({ product, index = 0 }) {
           <div className="product-3d-image-container">
             <div className="brane-product-pedestal"></div>
 
-            {imgUrl ? (
-              <ProductImageZoom
-                imageRef={imageRef}
-                src={imgUrl}
-                alt={product.title}
-                className="product-3d-image"
-                wrapperClassName="w-full h-full"
-              />
+            {thumbnailSrc ? (
+              <>
+                {/* Skeleton enquanto a thumbnail carrega */}
+                {!imgLoaded && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(90deg, #1a1d27 25%, #22263a 50%, #1a1d27 75%)',
+                      backgroundSize: '200% 100%',
+                      animation: 'brane-skeleton-shimmer 1.4s infinite linear',
+                      borderRadius: '12px',
+                      zIndex: 1,
+                    }}
+                  />
+                )}
+                <ProductImageZoom
+                  imageRef={imageRef}
+                  src={thumbnailSrc}
+                  alt={product.title}
+                  className="product-3d-image"
+                  wrapperClassName="w-full h-full"
+                  loading="lazy"
+                  onLoad={() => setImgLoaded(true)}
+                  imgStyle={{ opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.3s ease' }}
+                />
+              </>
             ) : (
               <div className="product-3d-placeholder">
                 <StoreIcon className="w-14 h-14 text-black/20" />

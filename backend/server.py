@@ -1,5 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Request, Response
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -18,9 +19,19 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 import asyncio
 import resend
+import time
+import re
+import html
+import bleach
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# ==================== UPLOAD STORAGE ====================
+# Diretório local para armazenar imagens otimizadas
+# Preparado para trocar por Cloudflare R2 ou S3 no futuro
+UPLOADS_DIR = ROOT_DIR / "uploads"
+UPLOADS_DIR.mkdir(exist_ok=True)
 
 # Railway / local: never crash at import — missing MONGO_URL prevented the app from binding (healthcheck failures).
 mongo_url = (os.getenv("MONGO_URL") or "").strip()
@@ -42,6 +53,8 @@ class MockCollection:
         for item in self.data:
             match = True
             for k, v in query.items():
+                if k.startswith("$"):
+                    continue
                 if item.get(k) != v:
                     match = False
                     break
@@ -54,26 +67,48 @@ class MockCollection:
         doc = await self.find_one(query)
         if doc:
             if "$set" in update: doc.update(update["$set"])
+            if "$inc" in update:
+                for k, v in update["$inc"].items():
+                    doc[k] = doc.get(k, 0) + v
             return doc
         elif upsert:
-            new_doc = query.copy()
+            new_doc = {k: v for k, v in query.items() if not k.startswith("$")}
             if "$set" in update: new_doc.update(update["$set"])
             self.data.append(new_doc)
             return new_doc
+    async def update_many(self, query, update, upsert=False):
+        for item in self.data:
+            match = True
+            for k, v in query.items():
+                if k.startswith("$"):
+                    continue
+                if item.get(k) != v:
+                    match = False
+                    break
+            if match:
+                if "$set" in update: item.update(update["$set"])
+                if "$inc" in update:
+                    for k, v in update["$inc"].items():
+                        item[k] = item.get(k, 0) + v
     async def delete_one(self, query):
         doc = await self.find_one(query)
         if doc: self.data.remove(doc)
     async def delete_many(self, query):
-        self.data = [item for item in self.data if not all(item.get(k) == v for k, v in query.items())]
-    def find(self, query, projection=None):
+        self.data = [item for item in self.data if not all(item.get(k) == v for k, v in query.items() if not k.startswith("$"))]
+    def find(self, query=None, projection=None):
+        query = query or {}
         class Cursor:
             def __init__(self, data): self.data = data
-            def sort(self, field, direction): 
-                self.data.sort(key=lambda x: x.get(field, ""), reverse=(direction == -1))
+            def sort(self, field, direction=None):
+                if isinstance(field, list):
+                    for f, d in reversed(field):
+                        self.data.sort(key=lambda x: x.get(f, ""), reverse=(d == -1))
+                else:
+                    self.data.sort(key=lambda x: x.get(field, ""), reverse=(direction == -1))
                 return self
             def skip(self, n): self.data = self.data[n:]; return self
-            def limit(self, n): self.data = self.data[:n]; return self
-            async def to_list(self, n): return self.data[:n]
+            def limit(self, n): self.data = self.data[:n] if n else self.data; return self
+            async def to_list(self, n=None): return self.data[:n] if n else self.data
             def __aiter__(self):
                 self.iter = iter(self.data)
                 return self
@@ -81,10 +116,75 @@ class MockCollection:
                 try: return next(self.iter)
                 except StopIteration: raise StopAsyncIteration
         
-        filtered = [item for item in self.data if all(item.get(k) == v for k, v in query.items())]
+        filtered = []
+        for item in self.data:
+            match = True
+            for k, v in query.items():
+                if k == "$or":
+                    sub_match = False
+                    for sub in v:
+                        if all(item.get(sk) == sv for sk, sv in sub.items() if not sk.startswith("$")):
+                            sub_match = True
+                            break
+                    if not sub_match:
+                        match = False
+                        break
+                elif k == "$and":
+                    for sub in v:
+                        for sk, sv in sub.items():
+                            if sk == "$or":
+                                sub_or = any(item.get(ssk) == ssv for sss in sv for ssk, ssv in sss.items() if not ssk.startswith("$"))
+                                if not sub_or:
+                                    match = False
+                                    break
+                elif k.startswith("$"):
+                    continue
+                elif isinstance(v, dict):
+                    item_val = item.get(k)
+                    for op, op_val in v.items():
+                        if op == "$regex":
+                            import re as _re
+                            flags = 0
+                            if "$options" in v and "i" in v["$options"]:
+                                flags = _re.IGNORECASE
+                            if not (item_val and _re.search(op_val, str(item_val), flags)):
+                                match = False
+                                break
+                        elif op == "$in":
+                            if item_val not in op_val:
+                                match = False
+                                break
+                        elif op == "$ne":
+                            if item_val == op_val:
+                                match = False
+                                break
+                        elif op == "$exists":
+                            if op_val and k not in item:
+                                match = False
+                                break
+                            elif not op_val and k in item:
+                                match = False
+                                break
+                else:
+                    if item.get(k) != v:
+                        match = False
+                        break
+            if match:
+                filtered.append(item)
         return Cursor(filtered)
-    async def count_documents(self, query):
-        return len([item for item in self.data if all(item.get(k) == v for k, v in query.items())])
+    async def count_documents(self, query=None):
+        query = query or {}
+        return len(self.find(query).data)
+    async def create_index(self, keys, **kwargs):
+        pass  # Mock: índices não necessários em memória
+    def aggregate(self, pipeline):
+        class AggCursor:
+            def __init__(self, data): self.data = data; self.iter = iter(data)
+            def __aiter__(self): return self
+            async def __anext__(self):
+                try: return next(self.iter)
+                except StopIteration: raise StopAsyncIteration
+        return AggCursor([])
 
 class MockDB:
     def __init__(self):
@@ -237,14 +337,14 @@ SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
 if RESEND_API_KEY:
     resend.api_key = RESEND_API_KEY
 
-#STORAGE_URL = "https://integrations.emergentagent.com/objstore/api/v1/storage"
-#EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
 APP_NAME = "brane-marketplace"
-#storage_key = None
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 app = FastAPI()
+
+# ==================== SERVIR ARQUIVOS ESTÁTICOS DE UPLOAD ====================
+app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
 @app.get("/", response_class=PlainTextResponse)
 def root():
@@ -256,7 +356,264 @@ def health():
 
 api_router = APIRouter(prefix="/api")
 
-# Middleware para adicionar headers anti-cache nas respostas da API
+# ==================== RATE LIMITING ====================
+# Armazenamento em memória para rate limiting (sem Redis necessário)
+_rate_limit_store: dict = {}
+
+def _rate_limit_key(request: Request, action: str) -> str:
+    """Gera chave única por IP + ação"""
+    forwarded = request.headers.get("X-Forwarded-For")
+    ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else "unknown")
+    return f"{action}:{ip}"
+
+def check_rate_limit(request: Request, action: str, max_requests: int, window_seconds: int) -> bool:
+    """
+    Verifica rate limit. Retorna True se permitido, False se bloqueado.
+    Limites recomendados:
+    - login: 10 req / 60s
+    - register: 5 req / 300s
+    - publish: 10 req / 60s
+    - message: 30 req / 60s
+    """
+    key = _rate_limit_key(request, action)
+    now = time.time()
+    
+    if key not in _rate_limit_store:
+        _rate_limit_store[key] = []
+    
+    # Limpar entradas antigas
+    _rate_limit_store[key] = [t for t in _rate_limit_store[key] if now - t < window_seconds]
+    
+    if len(_rate_limit_store[key]) >= max_requests:
+        return False
+    
+    _rate_limit_store[key].append(now)
+    return True
+
+# ==================== SANITIZAÇÃO DE INPUTS ====================
+ALLOWED_TAGS = []  # Sem HTML permitido em campos de texto
+
+def sanitize_text(value: str, max_length: int = 2000) -> str:
+    """Remove HTML/scripts e limita tamanho"""
+    if not value:
+        return ""
+    # Remove tags HTML
+    cleaned = bleach.clean(str(value), tags=ALLOWED_TAGS, strip=True)
+    # Limita tamanho
+    return cleaned[:max_length].strip()
+
+def sanitize_price(value) -> float:
+    """Valida e sanitiza preço"""
+    try:
+        price = float(str(value).replace(",", "."))
+        if price < 0 or price > 999999999:
+            raise ValueError("Preço inválido")
+        return round(price, 2)
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=400, detail="Preço inválido")
+
+# ==================== SISTEMA DE UPLOAD DE IMAGENS ====================
+# Configurações de imagem
+IMAGE_MAX_SIZE_MB = 10
+IMAGE_MAX_SIZE_BYTES = IMAGE_MAX_SIZE_MB * 1024 * 1024
+THUMBNAIL_SIZE = (400, 400)   # Thumbnail para feed
+FULL_SIZE = (1200, 1200)       # Imagem grande para detalhe do anúncio
+ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif", "image/bmp"}
+
+def get_backend_url(request: Request) -> str:
+    """Retorna a URL base do backend para montar URLs de arquivos"""
+    # Tenta pegar do env primeiro (Railway configura isso)
+    backend_url = os.getenv("BACKEND_URL", "").strip()
+    if backend_url:
+        return backend_url.rstrip("/")
+    # Fallback: usa o host da requisição
+    scheme = request.headers.get("X-Forwarded-Proto", request.url.scheme)
+    host = request.headers.get("X-Forwarded-Host", request.headers.get("host", "localhost:8080"))
+    return f"{scheme}://{host}"
+
+async def process_and_save_image(
+    file_data: bytes,
+    mime_type: str,
+    request: Request
+) -> dict:
+    """
+    Processa imagem:
+    1. Valida tipo e tamanho
+    2. Converte para WebP
+    3. Gera thumbnail 400x400
+    4. Gera versão full 1200x1200
+    5. Salva em disco local
+    6. Retorna metadados com URLs
+    
+    Preparado para trocar por Cloudflare R2 / S3 no futuro:
+    - Basta trocar o bloco de salvamento por upload para storage externo
+    - As URLs retornadas já seguem o padrão esperado pelo frontend
+    """
+    if len(file_data) > IMAGE_MAX_SIZE_BYTES:
+        raise HTTPException(status_code=400, detail=f"Imagem muito grande. Máximo: {IMAGE_MAX_SIZE_MB}MB")
+    
+    if mime_type not in ALLOWED_MIME_TYPES:
+        raise HTTPException(status_code=400, detail="Tipo de arquivo não permitido. Use: JPEG, PNG, WebP, GIF ou BMP")
+    
+    try:
+        img = Image.open(BytesIO(file_data))
+    except Exception:
+        raise HTTPException(status_code=400, detail="Arquivo de imagem inválido ou corrompido")
+    
+    # Converter para RGB (necessário para WebP)
+    if img.mode in ("RGBA", "P", "LA"):
+        background = Image.new("RGB", img.size, (255, 255, 255))
+        if img.mode == "P":
+            img = img.convert("RGBA")
+        if img.mode in ("RGBA", "LA"):
+            background.paste(img, mask=img.split()[-1])
+        img = background
+    elif img.mode != "RGB":
+        img = img.convert("RGB")
+    
+    original_width, original_height = img.size
+    file_id = uuid.uuid4().hex
+    
+    # Gerar thumbnail (400x400, crop centralizado)
+    thumb = img.copy()
+    thumb.thumbnail(THUMBNAIL_SIZE, Image.LANCZOS)
+    # Crop centralizado para manter proporção quadrada no feed
+    thumb_w, thumb_h = thumb.size
+    min_dim = min(thumb_w, thumb_h)
+    left = (thumb_w - min_dim) // 2
+    top = (thumb_h - min_dim) // 2
+    thumb = thumb.crop((left, top, left + min_dim, top + min_dim))
+    thumb = thumb.resize(THUMBNAIL_SIZE, Image.LANCZOS)
+    
+    thumb_buf = BytesIO()
+    thumb.save(thumb_buf, format="WEBP", quality=75, optimize=True)
+    thumb_data = thumb_buf.getvalue()
+    
+    # Gerar versão full (1200x1200 máximo, mantém proporção)
+    full = img.copy()
+    full.thumbnail(FULL_SIZE, Image.LANCZOS)
+    full_buf = BytesIO()
+    full.save(full_buf, format="WEBP", quality=85, optimize=True)
+    full_data = full_buf.getvalue()
+    
+    # Salvar arquivos em disco
+    thumb_filename = f"thumb_{file_id}.webp"
+    full_filename = f"full_{file_id}.webp"
+    
+    thumb_path = UPLOADS_DIR / thumb_filename
+    full_path = UPLOADS_DIR / full_filename
+    
+    # Operação de I/O em thread separada para não bloquear o event loop
+    await asyncio.to_thread(_write_file, thumb_path, thumb_data)
+    await asyncio.to_thread(_write_file, full_path, full_data)
+    
+    # Construir URLs
+    base_url = get_backend_url(request)
+    thumbnail_url = f"{base_url}/uploads/{thumb_filename}"
+    image_url = f"{base_url}/uploads/{full_filename}"
+    
+    return {
+        "imageUrl": image_url,
+        "thumbnailUrl": thumbnail_url,
+        "filename": full_filename,
+        "thumbnailFilename": thumb_filename,
+        "mimeType": "image/webp",
+        "size": len(full_data),
+        "thumbnailSize": len(thumb_data),
+        "width": full.size[0],
+        "height": full.size[1],
+        "originalWidth": original_width,
+        "originalHeight": original_height,
+    }
+
+def _write_file(path: Path, data: bytes):
+    """Escreve arquivo em disco (executado em thread separada)"""
+    with open(path, "wb") as f:
+        f.write(data)
+
+async def process_base64_image(image_data: str, request: Request) -> dict:
+    """
+    Processa imagem em base64 (compatibilidade com fluxo legado).
+    Converte para bytes e chama process_and_save_image.
+    """
+    if not image_data or not image_data.startswith("data:image"):
+        return {"imageUrl": image_data, "thumbnailUrl": image_data}
+    
+    try:
+        header, encoded = image_data.split(",", 1)
+        mime_type = header.split(":")[1].split(";")[0] if ":" in header else "image/jpeg"
+        raw = base64.b64decode(encoded)
+        return await process_and_save_image(raw, mime_type, request)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Erro ao processar imagem base64: {e}")
+        return {"imageUrl": image_data, "thumbnailUrl": image_data}
+
+# ==================== ENDPOINT DE UPLOAD ====================
+@api_router.post("/upload")
+async def upload_file(request: Request, file: UploadFile = File(...)):
+    """
+    Upload de arquivo de imagem.
+    Retorna URLs para thumbnail e imagem completa em WebP.
+    Preparado para trocar storage por Cloudflare R2 ou S3 no futuro.
+    """
+    # Rate limit: 20 uploads por minuto por IP
+    if not check_rate_limit(request, "upload", 20, 60):
+        raise HTTPException(status_code=429, detail="Muitos uploads. Aguarde um momento.")
+    
+    # Verificar autenticação
+    try:
+        await get_current_user(request)
+    except HTTPException:
+        raise HTTPException(status_code=401, detail="Autenticação necessária para upload")
+    
+    # Validar tipo MIME
+    content_type = file.content_type or ""
+    if content_type not in ALLOWED_MIME_TYPES:
+        raise HTTPException(status_code=400, detail="Tipo de arquivo não permitido")
+    
+    # Ler dados
+    file_data = await file.read()
+    
+    result = await process_and_save_image(file_data, content_type, request)
+    return result
+
+@api_router.post("/upload/multiple")
+async def upload_multiple_files(request: Request, files: List[UploadFile] = File(...)):
+    """Upload de múltiplas imagens de uma vez"""
+    if not check_rate_limit(request, "upload", 20, 60):
+        raise HTTPException(status_code=429, detail="Muitos uploads. Aguarde um momento.")
+    
+    try:
+        await get_current_user(request)
+    except HTTPException:
+        raise HTTPException(status_code=401, detail="Autenticação necessária para upload")
+    
+    if len(files) > 10:
+        raise HTTPException(status_code=400, detail="Máximo de 10 imagens por vez")
+    
+    results = []
+    for file in files:
+        content_type = file.content_type or ""
+        if content_type not in ALLOWED_MIME_TYPES:
+            raise HTTPException(status_code=400, detail=f"Tipo não permitido: {file.filename}")
+        file_data = await file.read()
+        result = await process_and_save_image(file_data, content_type, request)
+        results.append(result)
+    
+    return {"images": results}
+
+# Endpoint legado de compatibilidade (CreateStorePage usa /api/upload e espera {path})
+@api_router.get("/files/{filename}")
+async def serve_file(filename: str):
+    """Serve arquivos de upload (compatibilidade com código legado)"""
+    file_path = UPLOADS_DIR / filename
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Arquivo não encontrado")
+    return FileResponse(str(file_path))
+
+# ==================== MIDDLEWARE ====================
 @app.middleware("http")
 async def add_no_cache_headers(request, call_next):
     response = await call_next(request)
@@ -265,6 +622,9 @@ async def add_no_cache_headers(request, call_next):
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
+    # Cache longo para arquivos de upload (imagens otimizadas)
+    elif request.url.path.startswith("/uploads/"):
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
     return response
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -415,8 +775,6 @@ class ShippingSettings(BaseModel):
 
 class SellerTermsAccept(BaseModel):
     accepted: bool = True
-class SellerTermsAccept(BaseModel):
-    accepted: bool = True
 
 class Sale(BaseModel):
     sale_id: Optional[str] = None
@@ -424,16 +782,8 @@ class Sale(BaseModel):
     customer_name: str
     value: float
     status: str = "pending"
-    created_at: Optional[str] = None 
-    
-class Sale(BaseModel):
-    sale_id: str
-    buyer_id: str
-    seller_id: str
-    product_id: str
-    amount: float
-    status: str  # "pending" | "released"
-    created_at: datetime    
+    created_at: Optional[str] = None
+
 # ==================== STORE MODELS ====================
 class StoreCreate(BaseModel):
     name: str
@@ -527,39 +877,15 @@ async def require_seller(request: Request) -> dict:
 
 
 def init_storage():
-    # Storage agora usa MongoDB - nenhuma inicializacao externa necessaria
+    # Storage local configurado - uploads salvos em disco
+    UPLOADS_DIR.mkdir(exist_ok=True)
     return True
-
-async def put_object_mongo(db_ref, path: str, data: bytes, content_type: str) -> dict:
-    """Salva arquivo diretamente no MongoDB como base64"""
-    encoded = base64.b64encode(data).decode('utf-8')
-    await db_ref.file_storage.update_one(
-        {"path": path},
-        {"$set": {
-            "path": path,
-            "data": encoded,
-            "content_type": content_type,
-            "size": len(data),
-            "created_at": datetime.now(timezone.utc).isoformat()
-        }},
-        upsert=True
-    )
-    return {"path": path, "size": len(data)}
-
-async def get_object_mongo(db_ref, path: str):
-    """Recupera arquivo do MongoDB"""
-    doc = await db_ref.file_storage.find_one({"path": path})
-    if not doc:
-        return None, None
-    data = base64.b64decode(doc["data"])
-    return data, doc.get("content_type", "application/octet-stream")
 
 def clean_user(user: dict) -> dict:
     return {k: v for k, v in user.items() if k not in ("password_hash", "_id")}
 
 
 # ==================== EMAIL VALIDATION ====================
-import re
 
 # Blocked disposable/temporary email domains (most common ones)
 DISPOSABLE_EMAIL_DOMAINS = {
@@ -575,7 +901,7 @@ DISPOSABLE_EMAIL_DOMAINS = {
 # Regex que aceita emails válidos com pontos nos domínios (ex: gmail.com, outlook.com)
 EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
-def validate_email_strict(email: str) -> tuple[bool, str]:
+def validate_email_strict(email: str) -> tuple:
     """Validate email format and check against disposable domains.
     Returns (is_valid, error_message)"""
     if not email or len(email) > 254:
@@ -587,9 +913,6 @@ def validate_email_strict(email: str) -> tuple[bool, str]:
         domain = email.split("@")[1]
     except IndexError:
         return False, "Email invalido"
-    # Removendo bloqueio de emails temporários para facilitar testes e uso real
-    # if domain in DISPOSABLE_EMAIL_DOMAINS:
-    #     return False, "Emails temporarios/descartaveis nao sao permitidos"
     
     local_part = email.split("@")[0]
     if len(local_part) < 1:
@@ -599,7 +922,16 @@ def validate_email_strict(email: str) -> tuple[bool, str]:
 
 # ==================== AUTH ROUTES ====================
 @api_router.post("/auth/register")
-async def register(data: UserRegister):
+async def register(data: UserRegister, request: Request):
+    # Rate limit: 5 cadastros por IP a cada 5 minutos
+    if not check_rate_limit(request, "register", 5, 300):
+        raise HTTPException(status_code=429, detail="Muitas tentativas de cadastro. Aguarde alguns minutos.")
+    
+    # Sanitizar inputs
+    name = sanitize_text(data.name, 100)
+    if len(name) < 2:
+        raise HTTPException(status_code=400, detail="Nome inválido")
+    
     # Strict email validation
     ok, err = validate_email_strict(data.email)
     if not ok:
@@ -611,13 +943,11 @@ async def register(data: UserRegister):
     # Validate password strength
     if len(data.password) < 6:
         raise HTTPException(status_code=400, detail="Senha deve ter no minimo 6 caracteres")
-    if not data.name or len(data.name.strip()) < 2:
-        raise HTTPException(status_code=400, detail="Nome invalido")
 
     user_id = f"user_{uuid.uuid4().hex[:12]}"
     register_role = data.role if data.role in ("buyer", "seller", "affiliate", "admin") else "buyer"
     user = {
-        "user_id": user_id, "name": data.name.strip(), "email": email_normalized,
+        "user_id": user_id, "name": name, "email": email_normalized,
         "password_hash": hash_password(data.password), "role": register_role,
         "picture": "", "bio": "", "cover_photo": "",
         "bank_details": {}, "is_blocked": False,
@@ -672,7 +1002,11 @@ async def verify_email(data: EmailVerifyConfirm):
     return {"message": "Email verificado com sucesso", "user": clean_user(updated)}
 
 @api_router.post("/auth/login")
-async def login(data: UserLogin):
+async def login(data: UserLogin, request: Request):
+    # Rate limit: 10 tentativas de login por IP a cada 60 segundos
+    if not check_rate_limit(request, "login", 10, 60):
+        raise HTTPException(status_code=429, detail="Muitas tentativas de login. Aguarde um momento.")
+    
     email_normalized = data.email.strip().lower()
     user = await db.users.find_one({"email": email_normalized}, {"_id": 0})
     if not user or not verify_password(data.password, user.get("password_hash", "")):
@@ -722,11 +1056,12 @@ async def exchange_session(request: Request):
             "created_at": datetime.now(timezone.utc).isoformat()
         })
         await db.wallets.insert_one({"user_id": user_id, "available": 0.0, "held": 0.0})
-    await db.user_sessions.insert_one({
-        "session_token": session_token, "user_id": user_id,
-        "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
+    if session_token:
+        await db.user_sessions.insert_one({
+            "session_token": session_token, "user_id": user_id,
+            "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
     user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
     response = JSONResponse(content=clean_user(user))
     response.set_cookie(
@@ -785,7 +1120,11 @@ async def get_profile(request: Request):
 async def update_profile(request: Request):
     user = await get_current_user(request)
     body = await request.json()
-    updates = {k: v for k, v in body.items() if k in {"name", "picture", "phone", "bio", "city", "state"}}
+    allowed_fields = {"name", "picture", "phone", "bio", "city", "state"}
+    updates = {}
+    for k, v in body.items():
+        if k in allowed_fields:
+            updates[k] = sanitize_text(str(v), 500) if isinstance(v, str) else v
     if updates:
         await db.users.update_one({"user_id": user["user_id"]}, {"$set": updates})
     updated = await db.users.find_one({"user_id": user["user_id"]}, {"_id": 0})
@@ -815,7 +1154,10 @@ async def update_profile_extended(request: Request):
     user = await get_current_user(request)
     body = await request.json()
     allowed = {"bio", "cover_photo", "phone", "name", "picture", "city", "state"}
-    updates = {k: v for k, v in body.items() if k in allowed}
+    updates = {}
+    for k, v in body.items():
+        if k in allowed:
+            updates[k] = sanitize_text(str(v), 500) if isinstance(v, str) else v
     if updates:
         await db.users.update_one({"user_id": user["user_id"]}, {"$set": updates})
     updated = await db.users.find_one({"user_id": user["user_id"]}, {"_id": 0})
@@ -848,27 +1190,37 @@ async def get_social_profile():
 
 @api_router.post("/social/posts")
 async def create_social_post(data: SocialPostCreate, request: Request):
+    # Rate limit: 10 posts por minuto por IP
+    if not check_rate_limit(request, "publish", 10, 60):
+        raise HTTPException(status_code=429, detail="Muitas publicações. Aguarde um momento.")
+    
     user = await get_current_user(request)
     if not data.content or len(data.content.strip()) < 1:
         raise HTTPException(status_code=400, detail="Conteudo vazio")
+    
+    # Sanitizar conteúdo
+    content = sanitize_text(data.content, 2000)
+    title = sanitize_text(data.title or "", 200)
+    description = sanitize_text(data.description or "", 2000)
+    
     post_id = f"post_{uuid.uuid4().hex[:12]}"
     post = {
         "post_id": post_id,
         "user_id": user["user_id"],
         "user_name": user.get("name", ""),
         "user_picture": user.get("picture", ""),
-        "content": data.content.strip()[:2000],
+        "content": content,
         "image": data.image or "",
-        "title": data.title,
+        "title": title,
         "price": data.price,
         "category": data.category,
         "state": data.state,
         "city": data.city,
         "product_condition": data.product_condition,
-        "description": data.description,
+        "description": description,
         "availability": data.availability,
-        "contact_phone": data.contact_phone or "",
-        "contact_whatsapp": data.contact_whatsapp or "",
+        "contact_phone": sanitize_text(data.contact_phone or "", 20),
+        "contact_whatsapp": sanitize_text(data.contact_whatsapp or "", 20),
         "likes": [],
         "likes_count": 0,
         "comments_count": 0,
@@ -882,6 +1234,8 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
     query = {}
     if user_id:
         query["user_id"] = user_id
+    # Excluir posts bloqueados
+    query["is_blocked"] = {"$ne": True}
     skip = (page - 1) * limit
     posts = await db.social_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     total = await db.social_posts.count_documents(query)
@@ -900,230 +1254,148 @@ async def like_social_post(post_id: str, request: Request):
             {"post_id": post_id},
             {"$pull": {"likes": user["user_id"]}, "$inc": {"likes_count": -1}}
         )
-        return {"liked": False, "likes_count": max(0, post.get("likes_count", 1) - 1)}
+        return {"liked": False}
     else:
+        # Like
         await db.social_posts.update_one(
             {"post_id": post_id},
-            {"$push": {"likes": user["user_id"]}, "$inc": {"likes_count": 1}}
+            {"$addToSet": {"likes": user["user_id"]}, "$inc": {"likes_count": 1}}
         )
-        return {"liked": True, "likes_count": post.get("likes_count", 0) + 1}
+        return {"liked": True}
 
-@api_router.put("/social/posts/{post_id}")
-async def update_social_post(post_id: str, data: dict, request: Request):
-    user = await get_current_user(request)
-    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
-    if not post:
-        raise HTTPException(status_code=404, detail="Post nao encontrado")
-    if post["user_id"] != user["user_id"] and user.get("role") != "admin":
-        raise HTTPException(status_code=403, detail="Sem permissao")
-    
-    allowed_fields = {
-        "content", "image", "title", "price", "category", 
-        "state", "city", "product_condition", "description", "availability",
-        "contact_phone", "contact_whatsapp"
-    }
-    updates = {k: v for k, v in data.items() if k in allowed_fields}
-    
-    if updates:
-        await db.social_posts.update_one({"post_id": post_id}, {"$set": updates})
-    
-    updated = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
-    return updated
-
-@api_router.delete("/social/posts/{post_id}")
-async def delete_social_post(post_id: str, request: Request):
-    user = await get_current_user(request)
-    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
-    if not post:
-        raise HTTPException(status_code=404, detail="Post nao encontrado")
-    if post["user_id"] != user["user_id"] and user.get("role") != "admin":
-        raise HTTPException(status_code=403, detail="Sem permissao")
-    await db.social_posts.delete_one({"post_id": post_id})
-    await db.social_comments.delete_many({"post_id": post_id})
-    return {"message": "Post removido"}
+@api_router.get("/social/posts/{post_id}/comments")
+async def get_post_comments(post_id: str, page: int = 1, limit: int = 20):
+    skip = (page - 1) * limit
+    comments = await db.social_comments.find({"post_id": post_id}, {"_id": 0}).sort("created_at", 1).skip(skip).limit(limit).to_list(limit)
+    total = await db.social_comments.count_documents({"post_id": post_id})
+    return {"comments": comments, "total": total}
 
 @api_router.post("/social/posts/{post_id}/comments")
-async def create_comment(post_id: str, data: SocialCommentCreate, request: Request):
+async def add_post_comment(post_id: str, data: SocialCommentCreate, request: Request):
+    # Rate limit: 30 comentários por minuto por IP
+    if not check_rate_limit(request, "message", 30, 60):
+        raise HTTPException(status_code=429, detail="Muitas mensagens. Aguarde um momento.")
+    
     user = await get_current_user(request)
     post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
     if not post:
         raise HTTPException(status_code=404, detail="Post nao encontrado")
-    if not data.content.strip():
-        raise HTTPException(status_code=400, detail="Comentario vazio")
-    comment_id = f"cmt_{uuid.uuid4().hex[:12]}"
+    
+    content = sanitize_text(data.content, 1000)
+    if not content:
+        raise HTTPException(status_code=400, detail="Comentário vazio")
+    
+    comment_id = f"comment_{uuid.uuid4().hex[:12]}"
     comment = {
         "comment_id": comment_id,
         "post_id": post_id,
         "user_id": user["user_id"],
         "user_name": user.get("name", ""),
         "user_picture": user.get("picture", ""),
-        "content": data.content.strip()[:500],
+        "content": content,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.social_comments.insert_one(comment)
     await db.social_posts.update_one({"post_id": post_id}, {"$inc": {"comments_count": 1}})
     return {k: v for k, v in comment.items() if k != "_id"}
 
-@api_router.get("/social/posts/{post_id}/comments")
-async def list_comments(post_id: str):
-    comments = await db.social_comments.find({"post_id": post_id}, {"_id": 0}).sort("created_at", 1).to_list(200)
-    return {"comments": comments}
-# =========================
-# FAVORITOS
-# =========================
+@api_router.get("/social/posts/{post_id}")
+async def get_social_post(post_id: str):
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post nao encontrado")
+    return post
 
-@api_router.post("/social/favorites/{post_id}")
-async def toggle_favorite(post_id: str, request: Request):
-    user = await get_current_user(request)
-
-    existing = await db.social_favorites.find_one({
-        "user_id": user["user_id"],
-        "post_id": post_id
-    })
-
-    if existing:
-        await db.social_favorites.delete_one({"_id": existing["_id"]})
-        return {"favorited": False}
-
-    await db.social_favorites.insert_one({
-        "user_id": user["user_id"],
-        "post_id": post_id
-    })
-
-    return {"favorited": True}
-
-
-@api_router.get("/social/favorites")
-async def get_favorites(request: Request):
-    user = await get_current_user(request)
-
-    favs = db.social_favorites.find({"user_id": user["user_id"]})
-    ids = [f["post_id"] async for f in favs]
-
-    return {"favorites": ids}
-
-
-# =========================
-# VISUALIZAÇÕES
-# =========================
-
-@api_router.put("/social/profile")
-async def update_social_profile(data: dict, request: Request):
-    user = await get_current_user(request)
-    allowed = {"name", "city", "state", "avatar", "picture", "phone", "bio"}
-    updates = {k: v for k, v in data.items() if k in allowed}
-    if updates:
-        await db.users.update_one(
-            {"user_id": user["user_id"]},
-            {"$set": updates},
-            upsert=True
-        )
-    updated = await db.users.find_one({"user_id": user["user_id"]}, {"_id": 0})
-    return clean_user(updated) if updated else {"ok": True}
-
-
-# =========================
-# INTERESSE
-# =========================
-
-@api_router.post("/social/posts/{post_id}/interest")
-async def register_interest(post_id: str, request: Request):
-    user = await get_current_user(request)
-
-    await db.social_interests.insert_one({
-        "post_id": post_id,
-        "user_id": user["user_id"],
-        "created_at": datetime.now(timezone.utc)
-    })
-
-    return {"ok": True}
-
-
-# =========================
-# STATS (ALCANCE)
-# =========================
-
-@api_router.get("/social/stats")
-async def get_stats(request: Request):
-    user = await get_current_user(request)
-
-    my_posts = db.social_posts.find({"user_id": user["user_id"]})
-    post_ids = [p["post_id"] async for p in my_posts]
-
-    views = await db.social_views.count_documents({
-        "post_id": {"$in": post_ids}
-    })
-
-    interests = await db.social_interests.count_documents({
-        "post_id": {"$in": post_ids}
-    })
-
-    return {
-        "views": views,
-        "interests": interests,
-        "my_ads": len(post_ids)
+# ==================== DESAPEGA ROUTES ====================
+@api_router.get("/desapega")
+async def list_desapega_posts(page: int = 1, limit: int = 20, search: Optional[str] = None):
+    query: dict = {
+        "$or": [
+            {"product_type": "secondhand"},
+            {"source": "desapega"},
+            {"condition": {"$in": ["used", "like_new", "good", "fair"]}},
+            {"product_condition": {"$exists": True}}
+        ]
     }
+    if search:
+        query["$and"] = [{"$or": [
+            {"title": {"$regex": search, "$options": "i"}},
+            {"description": {"$regex": search, "$options": "i"}}
+        ]}]
+    skip = (page - 1) * limit
+    posts = await db.products.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    # Normalizar imagens para retornar thumbnailUrl e imageUrl
+    for p in posts:
+        _normalize_product_images(p)
+    total = await db.products.count_documents(query)
+    return {"posts": posts, "products": posts, "total": total, "page": page}
 
-
-# =========================
-# MENSAGENS
-# =========================
-
-@api_router.post("/social/messages")
-async def send_message(data: dict, request: Request):
+# ==================== SELLER TERMS ====================
+@api_router.get("/seller/terms-status")
+async def get_seller_terms_status(request: Request):
     user = await get_current_user(request)
+    terms = await db.seller_terms.find_one({"user_id": user["user_id"]}, {"_id": 0})
+    return {"accepted": bool(terms and terms.get("accepted"))}
 
-    message = {
-        "post_id": data.get("post_id"),
-        "message": data.get("message"),
+@api_router.post("/seller/accept-terms")
+async def accept_seller_terms(request: Request):
+    user = await get_current_user(request)
+    await db.seller_terms.update_one(
+        {"user_id": user["user_id"]},
+        {"$set": {"user_id": user["user_id"], "accepted": True, "accepted_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True
+    )
+    return {"message": "Termos aceitos"}
+
+# ==================== MESSAGES ====================
+@api_router.post("/messages")
+async def send_message(request: Request):
+    # Rate limit: 30 mensagens por minuto por IP
+    if not check_rate_limit(request, "message", 30, 60):
+        raise HTTPException(status_code=429, detail="Muitas mensagens. Aguarde um momento.")
+    
+    user = await get_current_user(request)
+    body = await request.json()
+    
+    content = sanitize_text(body.get("message", ""), 2000)
+    if not content:
+        raise HTTPException(status_code=400, detail="Mensagem vazia")
+    
+    msg_id = f"msg_{uuid.uuid4().hex[:12]}"
+    msg = {
+        "message_id": msg_id,
         "sender_id": user["user_id"],
         "sender_name": user.get("name", ""),
-        "created_at": datetime.now(timezone.utc)
+        "recipient_id": body.get("recipient_id", ""),
+        "product_id": body.get("product_id", ""),
+        "message": content,
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
     }
+    await db.messages.insert_one(msg)
+    return {k: v for k, v in msg.items() if k != "_id"}
 
-    await db.social_messages.insert_one(message)
-
-    return {"ok": True}
-
-
-@api_router.get("/social/messages")
+@api_router.get("/messages")
 async def get_messages(request: Request):
     user = await get_current_user(request)
+    msgs = await db.messages.find(
+        {"$or": [{"sender_id": user["user_id"]}, {"recipient_id": user["user_id"]}]},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(100).to_list(100)
+    return {"messages": msgs}
 
-    msgs = db.social_messages.find({
-        "sender_id": user["user_id"]
-    }).sort("created_at", -1)
-
-    result = []
-    async for m in msgs:
-        m.pop("_id", None)
-        result.append(m)
-
-    return {"messages": result}
-
-
-# =========================
-# NOTIFICAÇÕES
-# =========================
-
+# ==================== NOTIFICAÇÕES ====================
 @api_router.get("/notifications")
 async def get_notifications(request: Request):
     user = await get_current_user(request)
-
-    notifs = db.notifications.find({
-        "user_id": user["user_id"]
-    }).sort("created_at", -1)
+    notifs = db.notifications.find({"user_id": user["user_id"]}).sort("created_at", -1)
     result = []
     async for n in notifs:
         n.pop("_id", None)
         result.append(n)
-
     return {"notifications": result}
 
-
-# =========================
-# PERFIL
-# =========================
+# ==================== PERFIL ====================
 @api_router.get("/social/profile")
 async def get_social_profile_auth(request: Request):
     user = await get_current_user(request)
@@ -1132,10 +1404,7 @@ async def get_social_profile_auth(request: Request):
         profile = user
     return clean_user(profile)
 
-# =========================
-# DENÚNCIAS
-# =========================
-
+# ==================== DENÚNCIAS ====================
 @api_router.post("/social/reports")
 async def create_report(data: ReportCreate, request: Request):
     user = await get_current_user(request)
@@ -1146,8 +1415,8 @@ async def create_report(data: ReportCreate, request: Request):
         "post_id": data.post_id or "",
         "reported_user_id": data.reported_user_id or "",
         "reporter_id": user["user_id"],
-        "motivo": data.motivo,
-        "descricao": data.descricao or "",
+        "motivo": sanitize_text(data.motivo, 200),
+        "descricao": sanitize_text(data.descricao or "", 1000),
         "status": "pendente",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
@@ -1164,11 +1433,44 @@ async def update_report_status_legacy(report_id: str, request: Request):
     await db.reports.update_one({"report_id": report_id}, {"$set": {"status": status}})
     return {"ok": True}
 
+# ==================== HELPERS DE IMAGEM ====================
+def _normalize_product_images(product: dict) -> dict:
+    """
+    Normaliza campos de imagem do produto para incluir thumbnailUrl e imageUrl.
+    Mantém compatibilidade com produtos antigos que usam base64 ou URLs externas.
+    """
+    images = product.get("images") or []
+    image = product.get("image") or ""
+    
+    # Se já tem imageUrl e thumbnailUrl, não precisa normalizar
+    if product.get("imageUrl") and product.get("thumbnailUrl"):
+        return product
+    
+    # Pegar primeira imagem disponível
+    first_image = images[0] if images else image
+    
+    # Se é base64, usar como está (legado)
+    if first_image and first_image.startswith("data:image"):
+        product["imageUrl"] = first_image
+        product["thumbnailUrl"] = first_image
+    elif first_image:
+        product["imageUrl"] = first_image
+        product["thumbnailUrl"] = product.get("thumbnailUrl") or first_image
+    
+    return product
+
 # ==================== PRODUCT ROUTES ====================
 @api_router.get("/products")
-async def list_products(search: Optional[str] = None, category: Optional[str] = None, city: Optional[str] = None, page: int = 1, limit: int = 20, status: Optional[str] = None):
+async def list_products(
+    search: Optional[str] = None,
+    category: Optional[str] = None,
+    city: Optional[str] = None,
+    page: int = 1,
+    limit: int = 20,
+    status: Optional[str] = None
+):
     # Construir query base: aceitar produtos ativos ou sem status definido
-    query = {
+    query: dict = {
         "$or": [
             {"status": "active"},
             {"status": {"$exists": False}},
@@ -1182,15 +1484,20 @@ async def list_products(search: Optional[str] = None, category: Optional[str] = 
         ]
     }
     if search:
+        # Sanitizar busca
+        search_clean = sanitize_text(search, 100)
         query["$or"] = [
-            {"title": {"$regex": search, "$options": "i"}},
-            {"description": {"$regex": search, "$options": "i"}}
+            {"title": {"$regex": search_clean, "$options": "i"}},
+            {"description": {"$regex": search_clean, "$options": "i"}}
         ]
     if category:
         query["category"] = category
     if city:
-        query["city"] = {"$regex": city, "$options": "i"}
+        query["city"] = {"$regex": sanitize_text(city, 100), "$options": "i"}
+    
     skip = (page - 1) * limit
+    # Projeção otimizada: apenas campos necessários para o feed
+    # thumbnailUrl é servido no feed, imageUrl apenas no detalhe
     products = await db.products.find(
         query,
         {
@@ -1199,12 +1506,24 @@ async def list_products(search: Optional[str] = None, category: Optional[str] = 
             "title": 1,
             "price": 1,
             "city": 1,
+            "state": 1,
             "image": 1,
             "images": {"$slice": 1},
+            "imageUrl": 1,
+            "thumbnailUrl": 1,
             "seller_id": 1,
+            "seller_name": 1,
+            "category": 1,
+            "condition": 1,
+            "product_type": 1,
             "created_at": 1
         }
     ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    
+    # Normalizar imagens para todos os produtos
+    for p in products:
+        _normalize_product_images(p)
+    
     total = await db.products.count_documents(query)
     return {"products": products, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
 
@@ -1219,46 +1538,82 @@ async def get_product(product_id: str):
     if seller and store:
         seller["store_slug"] = store.get("slug")
         seller["store_name"] = store.get("name")
+    # Normalizar imagens
+    _normalize_product_images(product)
     return {**product, "seller": seller}
-def compress_base64_image(image_data: str) -> str:
-    try:
-        if not image_data or not image_data.startswith("data:image"):
-            return image_data
 
-        header, encoded = image_data.split(",", 1)
-        raw = base64.b64decode(encoded)
-
-        img = Image.open(BytesIO(raw))
-
-        if img.mode in ("RGBA", "P"):
-            img = img.convert("RGB")
-
-        img.thumbnail((1200, 1200))
-
-        output = BytesIO()
-        img.save(output, format="JPEG", quality=70, optimize=True)
-
-        compressed = base64.b64encode(output.getvalue()).decode("utf-8")
-        return "data:image/jpeg;base64," + compressed
-
-    except Exception:
-        return image_data
 @api_router.post("/products")
 async def create_product(data: ProductCreate, request: Request):
+    # Rate limit: 10 publicações por minuto por IP
+    if not check_rate_limit(request, "publish", 10, 60):
+        raise HTTPException(status_code=429, detail="Muitas publicações. Aguarde um momento.")
+    
     user = await require_seller(request)
-    if data.category in ("imoveis", "automoveis") and not data.city:
+    
+    # Sanitizar inputs
+    title = sanitize_text(data.title, 200)
+    description = sanitize_text(data.description, 3000)
+    category = sanitize_text(data.category, 100)
+    city = sanitize_text(data.city or "", 100)
+    
+    if not title:
+        raise HTTPException(status_code=400, detail="Título obrigatório")
+    if not description:
+        raise HTTPException(status_code=400, detail="Descrição obrigatória")
+    
+    price = sanitize_price(data.price)
+    
+    if category in ("imoveis", "automoveis") and not city:
         raise HTTPException(status_code=400, detail="Cidade obrigatoria para imoveis/automoveis")
+    
     product_id = f"prod_{uuid.uuid4().hex[:12]}"
+    
+    # Processar imagens
+    # Suporta tanto URLs diretas (novo fluxo com upload) quanto base64 (legado)
+    processed_images = []
+    thumbnail_url = ""
+    image_url = ""
+    
+    for img in (data.images or []):
+        if img.startswith("data:image"):
+            # Legado: base64 - processar e converter para WebP
+            try:
+                img_meta = await process_base64_image(img, request)
+                processed_images.append(img_meta.get("imageUrl", img))
+                if not thumbnail_url:
+                    thumbnail_url = img_meta.get("thumbnailUrl", img)
+                    image_url = img_meta.get("imageUrl", img)
+            except Exception:
+                # Fallback: usar como está se falhar
+                processed_images.append(img)
+                if not thumbnail_url:
+                    thumbnail_url = img
+                    image_url = img
+        else:
+            # URL direta (novo fluxo ou URL externa)
+            processed_images.append(img)
+            if not thumbnail_url:
+                thumbnail_url = img
+                image_url = img
+    
     product = {
-        "product_id": product_id, "title": data.title, "description": data.description,
-        "price": data.price, "category": data.category, "city": data.city or "",
-        "location": data.location or "",
-"image": compress_base64_image(data.images[0]) if data.images else "",
-"images": [compress_base64_image(img) for img in data.images] if data.images else [],
-"product_type": data.product_type or "store",
+        "product_id": product_id,
+        "title": title,
+        "description": description,
+        "price": price,
+        "category": category,
+        "city": city,
+        "location": sanitize_text(data.location or "", 200),
+        "image": image_url or (processed_images[0] if processed_images else ""),
+        "images": processed_images,
+        "imageUrl": image_url,
+        "thumbnailUrl": thumbnail_url,
+        "product_type": data.product_type or "store",
         "condition": data.condition or "new",
-        "seller_id": user["user_id"], "seller_name": user["name"],
-        "status": "active", "created_at": datetime.now(timezone.utc).isoformat()
+        "seller_id": user["user_id"],
+        "seller_name": user["name"],
+        "status": "active",
+        "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.products.insert_one(product)
     # Update store products count
@@ -1277,17 +1632,16 @@ async def update_product(product_id: str, data: ProductUpdate, request: Request)
     if product["seller_id"] != user["user_id"] and user["role"] != "admin":
         raise HTTPException(status_code=403, detail="Sem permissao")
     updates = {k: v for k, v in data.model_dump(exclude_none=True).items()}
+    # Sanitizar campos de texto
+    for field in ["title", "description", "category", "city", "location"]:
+        if field in updates and isinstance(updates[field], str):
+            updates[field] = sanitize_text(updates[field], 3000 if field == "description" else 200)
     if updates:
         await db.products.update_one({"product_id": product_id}, {"$set": updates})
-    return await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    updated = await db.products.find_one({"product_id": product_id}, {"_id": 0})
+    _normalize_product_images(updated)
+    return updated
 
-query = {
-    "status": "active",
-    "$or": [
-        {"is_deleted": False},
-        {"is_deleted": {"$exists": False}}
-    ]
-}
 @api_router.delete("/products/{product_id}")
 async def delete_product(product_id: str, request: Request):
     user = await require_seller(request)
@@ -1309,9 +1663,10 @@ async def delete_product(product_id: str, request: Request):
             detail="Sem permissao"
         )
 
-    await db.products.delete_many({
-        "seller_id": "JXTRHT"
-    })
+    await db.products.update_one(
+        {"product_id": product_id},
+        {"$set": {"is_deleted": True, "status": "deleted"}}
+    )
 
     return {"message": "Produto removido"}
 
@@ -1319,11 +1674,15 @@ async def delete_product(product_id: str, request: Request):
 async def get_my_products(request: Request):
     user = await require_seller(request)
     products = await db.products.find({"seller_id": user["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    for p in products:
+        _normalize_product_images(p)
     return {"products": products}
+
 @api_router.get("/sales/test")
 async def test_sales():
     sales = await db.sales.find({}, {"_id": 0}).to_list(100)
     return sales
+
 @api_router.post("/admin/sales/test-create")
 async def create_test_sale(request: Request):
     await require_admin(request)
@@ -1347,7 +1706,8 @@ async def create_test_sale(request: Request):
         upsert=True
     )
 
-    return {"message": "Venda de teste criada", "sale": sale}    
+    return {"message": "Venda de teste criada", "sale": sale}
+
 # ==================== STORE ROUTES ====================
 @api_router.post("/stores")
 async def create_store(data: StoreCreate, request: Request):
@@ -1358,98 +1718,70 @@ async def create_store(data: StoreCreate, request: Request):
         raise HTTPException(status_code=400, detail="Voce ja possui uma loja")
     
     store_id = f"store_{uuid.uuid4().hex[:12]}"
-    slug = data.name.lower().replace(" ", "-").replace(".", "")[:30] + f"-{store_id[-6:]}"
+    name = sanitize_text(data.name, 100)
+    slug = name.lower().replace(" ", "-").replace(".", "")[:30] + f"-{store_id[-6:]}"
     
     store = {
         "store_id": store_id,
         "owner_id": user["user_id"],
         "owner_name": user["name"],
-        "name": data.name,
+        "name": name,
         "slug": slug,
-        "description": data.description or "",
+        "description": sanitize_text(data.description or "", 1000),
         "logo": data.logo or "",
         "banner": data.banner or "",
-        "category": data.category or "",
-        "business_hours": data.business_hours or "",
-        "plan": "free",  # free, pro, premium
-        "plan_commission": 0.09,  # 9% for free
-        "is_featured": False,  # Only PRO/PREMIUM can be featured
-        "is_approved": True,  # Admin must approve to show in Stores section
-        "ads_per_day": 0,  # 0 for free, 2 for PRO/PREMIUM
+        "category": sanitize_text(data.category or "", 100),
+        "business_hours": sanitize_text(data.business_hours or "", 200),
+        "plan": "free",
+        "is_approved": False,
         "products_count": 0,
-        "total_sales": 0,
-        "rating": 0,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.stores.insert_one(store)
-    
-    # Update user to be a seller
-    await db.users.update_one(
-        {"user_id": user["user_id"]}, 
-        {"$set": {"role": "seller", "store_id": store_id}}
-    )
-    
+    # Upgrade user role to seller
+    if user.get("role") == "buyer":
+        await db.users.update_one({"user_id": user["user_id"]}, {"$set": {"role": "seller"}})
     return {k: v for k, v in store.items() if k != "_id"}
 
 @api_router.get("/stores")
-async def list_stores(featured_only: bool = False, limit: int = 20, page: int = 1):
-    query = {}
-    if featured_only:
-        query = {}
+async def list_stores(search: Optional[str] = None, category: Optional[str] = None, page: int = 1, limit: int = 20):
+    query: dict = {}
+    if search:
+        search_clean = sanitize_text(search, 100)
+        query["$or"] = [
+            {"name": {"$regex": search_clean, "$options": "i"}},
+            {"description": {"$regex": search_clean, "$options": "i"}}
+        ]
+    if category:
+        query["category"] = category
     skip = (page - 1) * limit
     stores = await db.stores.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    
-    # Otimização: Buscar todos os produtos de uma vez (evita N+1 queries)
-    if stores:
-        owner_ids = [store["owner_id"] for store in stores]
-        products = await db.products.find(
-            {
-                "seller_id": {"$in": owner_ids},
-                "is_deleted": {"$ne": True}
-            },
-            {"_id": 0, "product_id": 1, "title": 1, "price": 1, "images": 1, "seller_id": 1}
-        ).sort("created_at", -1).to_list(1000)
-        
-        # Agrupar produtos por seller_id
-        products_by_seller = {}
-        for p in products:
-            seller_id = p.pop("seller_id")
-            if seller_id not in products_by_seller:
-                products_by_seller[seller_id] = []
-            if len(products_by_seller[seller_id]) < 4:  # Max 4 produtos por loja
-                products_by_seller[seller_id].append({
-                    "product_id": p["product_id"],
-                    "title": p["title"],
-                    "price": p["price"],
-                    "image": p["images"][0] if p.get("images") else ""
-                })
-        
-        # Adicionar produtos em destaque para cada loja
-        for store in stores:
-            store["featured_products"] = products_by_seller.get(store["owner_id"], [])
-    
     total = await db.stores.count_documents(query)
-    return {"stores": stores, "total": total, "page": page}
+    return {"stores": stores, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
 
-@api_router.get("/stores/my")
+@api_router.get("/stores/mine")
 async def get_my_store(request: Request):
     user = await get_current_user(request)
     store = await db.stores.find_one({"owner_id": user["user_id"]}, {"_id": 0})
     if not store:
-        return {"store": None}
-    return {"store": store}
+        raise HTTPException(status_code=404, detail="Voce nao tem uma loja")
+    return store
 
 @api_router.get("/stores/{store_id}")
 async def get_store(store_id: str):
-    # Support both store_id and slug
     store = await db.stores.find_one(
-        {"$or": [{"store_id": store_id}, {"slug": store_id}]}, 
+        {"$or": [{"store_id": store_id}, {"slug": store_id}]},
         {"_id": 0}
     )
     if not store:
         raise HTTPException(status_code=404, detail="Loja nao encontrada")
     # Get store products
-    products = await db.products.find({"seller_id": store["owner_id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    products = await db.products.find(
+        {"seller_id": store["owner_id"], "status": "active"},
+        {"_id": 0}
+    ).sort("created_at", -1).limit(20).to_list(20)
+    for p in products:
+        _normalize_product_images(p)
     return {**store, "products": products}
 
 @api_router.put("/stores/{store_id}")
@@ -1460,211 +1792,46 @@ async def update_store(store_id: str, data: StoreUpdate, request: Request):
         raise HTTPException(status_code=404, detail="Loja nao encontrada")
     if store["owner_id"] != user["user_id"] and user["role"] != "admin":
         raise HTTPException(status_code=403, detail="Sem permissao")
-    
     updates = {k: v for k, v in data.model_dump(exclude_none=True).items()}
+    for field in ["name", "description", "category", "business_hours"]:
+        if field in updates and isinstance(updates[field], str):
+            updates[field] = sanitize_text(updates[field], 1000 if field == "description" else 200)
     if updates:
         await db.stores.update_one({"store_id": store_id}, {"$set": updates})
     return await db.stores.find_one({"store_id": store_id}, {"_id": 0})
 
-@api_router.post("/stores/upgrade")
-async def upgrade_store_plan(data: PlanUpgrade, request: Request):
+@api_router.put("/stores/{store_id}/upgrade")
+async def upgrade_store_plan(store_id: str, data: PlanUpgrade, request: Request):
     user = await get_current_user(request)
-    store = await db.stores.find_one({"owner_id": user["user_id"]}, {"_id": 0})
+    store = await db.stores.find_one({"store_id": store_id}, {"_id": 0})
     if not store:
-        raise HTTPException(status_code=404, detail="Voce nao possui uma loja")
-    
-    plans = {
-        "free": {"commission": 0.09, "ads_per_day": 0, "price": 0},
-        "pro": {"commission": 0.02, "ads_per_day": 2, "price": 99},
-        "premium": {"commission": 0.01, "ads_per_day": 2, "price": 199}
-    }
-    
-    if data.plan not in plans:
+        raise HTTPException(status_code=404, detail="Loja nao encontrada")
+    if store["owner_id"] != user["user_id"]:
+        raise HTTPException(status_code=403, detail="Sem permissao")
+    if data.plan not in ("free", "pro", "premium"):
         raise HTTPException(status_code=400, detail="Plano invalido")
-    
-    plan_info = plans[data.plan]
-    await db.stores.update_one(
-        {"store_id": store["store_id"]},
-        {"$set": {
-            "plan": data.plan,
-            "plan_commission": plan_info["commission"],
-            "ads_per_day": plan_info["ads_per_day"],
-            "is_featured": data.plan in ["pro", "premium"]
-        }}
-    )
-    
-    return {"message": f"Plano atualizado para {data.plan.upper()}", "plan": data.plan}
-
-# ==================== ADMIN STORE ROUTES ====================
-@api_router.get("/admin/stores")
-async def admin_list_stores(request: Request):
-    await require_admin(request)
-    stores = await db.stores.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
-    return {"stores": stores}
-
-@api_router.put("/admin/stores/{store_id}/approve")
-async def admin_approve_store(store_id: str, request: Request):
-    await require_admin(request)
-    body = await request.json()
-    approved = body.get("approved", True)
-    await db.stores.update_one(
-        {"store_id": store_id},
-        {"$set": {"is_approved": approved}}
-    )
-    return {"message": "Loja aprovada" if approved else "Aprovacao removida"}
-
-@api_router.put("/admin/stores/{store_id}/plan")
-async def admin_set_store_plan(store_id: str, request: Request):
-    await require_admin(request)
-    body = await request.json()
-    plan = body.get("plan", "free")
-    
-    plans = {
-        "free": {"commission": 0.09, "ads_per_day": 0},
-        "pro": {"commission": 0.02, "ads_per_day": 2},
-        "premium": {"commission": 0.01, "ads_per_day": 2}
-    }
-    
-    if plan not in plans:
-        raise HTTPException(status_code=400, detail="Plano invalido")
-    
-    plan_info = plans[plan]
-    await db.stores.update_one(
-        {"store_id": store_id},
-        {"$set": {
-            "plan": plan,
-            "plan_commission": plan_info["commission"],
-            "ads_per_day": plan_info["ads_per_day"],
-            "is_featured": plan in ["pro", "premium"]
-        }}
-    )
-    return {"message": f"Plano alterado para {plan.upper()}"}
-
-# ==================== ADS ROUTES ====================
-@api_router.get("/ads")
-async def list_ads(position: Optional[str] = None):
-    query = {"active": True}
-    if position:
-        query["position"] = position
-    ads = await db.ads.find(query, {"_id": 0}).sort("created_at", -1).to_list(50)
-    return {"ads": ads}
-
-@api_router.post("/ads")
-async def create_ad(data: AdCreate, request: Request):
-    user = await get_current_user(request)
-    
-    # Check if user can create ads
-    if user["role"] != "admin":
-        store = await db.stores.find_one({"owner_id": user["user_id"]}, {"_id": 0})
-        if not store:
-            raise HTTPException(status_code=403, detail="Voce precisa ter uma loja para criar anuncios")
-        if store["plan"] not in ["pro", "premium"]:
-            raise HTTPException(status_code=403, detail="Apenas planos PRO e PREMIUM podem criar anuncios")
-        
-        # Check daily ad limit
-        today = datetime.now(timezone.utc).date().isoformat()
-        ads_today = await db.ads.count_documents({
-            "owner_id": user["user_id"],
-            "created_at": {"$regex": f"^{today}"}
-        })
-        if ads_today >= store["ads_per_day"]:
-            raise HTTPException(status_code=400, detail="Limite diario de anuncios atingido")
-    
-    ad_id = f"ad_{uuid.uuid4().hex[:12]}"
-    ad = {
-        "ad_id": ad_id,
-        "owner_id": user["user_id"],
-        "owner_name": user["name"],
-        "title": data.title,
-        "image": data.image,
-        "link": data.link,
-        "position": data.position or "between_products",
-        "active": True if user["role"] == "admin" else False,  # Admin ads active immediately
-        "clicks": 0,
-        "views": 0,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
-    await db.ads.insert_one(ad)
-    return {k: v for k, v in ad.items() if k != "_id"}
-
-@api_router.get("/admin/ads")
-async def admin_list_ads(request: Request):
-    await require_admin(request)
-    ads = await db.ads.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
-    return {"ads": ads}
-
-@api_router.put("/admin/ads/{ad_id}")
-async def admin_update_ad(ad_id: str, data: AdUpdate, request: Request):
-    await require_admin(request)
-    updates = {k: v for k, v in data.model_dump(exclude_none=True).items()}
-    if updates:
-        await db.ads.update_one({"ad_id": ad_id}, {"$set": updates})
-    return await db.ads.find_one({"ad_id": ad_id}, {"_id": 0})
-
-@api_router.delete("/admin/ads/{ad_id}")
-async def admin_delete_ad(ad_id: str, request: Request):
-    await require_admin(request)
-    await db.ads.delete_one({"ad_id": ad_id})
-    return {"message": "Anuncio removido"}
-
-@api_router.post("/ads/{ad_id}/click")
-async def track_ad_click(ad_id: str):
-    await db.ads.update_one({"ad_id": ad_id}, {"$inc": {"clicks": 1}})
-    return {"message": "Click registrado"}
-
-# ==================== UPLOAD ROUTES ====================
-@api_router.post("/upload")
-async def upload_file(request: Request, file: UploadFile = File(...)):
-    user = await get_current_user(request)
-    ext = file.filename.split(".")[-1] if "." in file.filename else "bin"
-    path = f"{APP_NAME}/uploads/{user['user_id']}/{uuid.uuid4()}.{ext}"
-
-    data = await file.read()
-
-    # Limitar tamanho do arquivo (10MB)
-    if len(data) > 10 * 1024 * 1024:
-        raise HTTPException(status_code=400, detail="Arquivo muito grande (max 10MB)")
-
-    try:
-        result = await put_object_mongo(db, path, data, file.content_type or "application/octet-stream")
-    except Exception as e:
-        print("ERRO UPLOAD:", str(e))
-        raise HTTPException(status_code=500, detail="Erro ao salvar arquivo")
-
-    await db.files.insert_one({
-        "file_id": str(uuid.uuid4()), "storage_path": result["path"],
-        "original_filename": file.filename, "content_type": file.content_type,
-        "size": result.get("size", len(data)), "user_id": user["user_id"],
-        "is_deleted": False, "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    return {"path": result["path"], "url": f"/api/files/{result['path']}"}
-
-@api_router.get("/files/{path:path}")
-async def get_file(path: str):
-    try:
-        data, content_type = await get_object_mongo(db, path)
-        if data is None:
-            raise HTTPException(status_code=404, detail="Arquivo nao encontrado")
-        return Response(content=data, media_type=content_type)
-    except HTTPException:
-        raise
-    except Exception:
-        raise HTTPException(status_code=404, detail="Arquivo nao encontrado")
+    await db.stores.update_one({"store_id": store_id}, {"$set": {"plan": data.plan}})
+    return {"message": "Plano atualizado", "plan": data.plan}
 
 # ==================== CART ROUTES ====================
 @api_router.get("/cart")
 async def get_cart(request: Request):
     user = await get_current_user(request)
-    items = await db.cart_items.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(100)
-    for item in items:
+    cart_items = await db.cart_items.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(100)
+    enriched = []
+    for item in cart_items:
         product = await db.products.find_one({"product_id": item["product_id"]}, {"_id": 0})
         if product:
-            item["product"] = product
-    return {"items": items}
+            _normalize_product_images(product)
+            enriched.append({**item, "product": product})
+    return {"cart": enriched}
 
 @api_router.post("/cart")
 async def add_to_cart(data: CartItemAdd, request: Request):
     user = await get_current_user(request)
+    product = await db.products.find_one({"product_id": data.product_id}, {"_id": 0})
+    if not product:
+        raise HTTPException(status_code=404, detail="Produto nao encontrado")
     existing = await db.cart_items.find_one({"user_id": user["user_id"], "product_id": data.product_id}, {"_id": 0})
     if existing:
         await db.cart_items.update_one(
@@ -1673,9 +1840,11 @@ async def add_to_cart(data: CartItemAdd, request: Request):
         )
     else:
         await db.cart_items.insert_one({
-            "item_id": f"cart_{uuid.uuid4().hex[:12]}", "user_id": user["user_id"],
-            "product_id": data.product_id, "quantity": data.quantity,
-            "created_at": datetime.now(timezone.utc).isoformat()
+            "cart_item_id": f"cart_{uuid.uuid4().hex[:12]}",
+            "user_id": user["user_id"],
+            "product_id": data.product_id,
+            "quantity": data.quantity,
+            "added_at": datetime.now(timezone.utc).isoformat()
         })
     return {"message": "Adicionado ao carrinho"}
 
@@ -1683,20 +1852,23 @@ async def add_to_cart(data: CartItemAdd, request: Request):
 async def update_cart_item(item_id: str, request: Request):
     user = await get_current_user(request)
     body = await request.json()
-    quantity = body.get("quantity", 1)
+    quantity = int(body.get("quantity", 1))
     if quantity <= 0:
-        await db.cart_items.delete_one({"item_id": item_id, "user_id": user["user_id"]})
-    else:
-        await db.cart_items.update_one({"item_id": item_id, "user_id": user["user_id"]}, {"$set": {"quantity": quantity}})
-    return {"message": "Carrinho atualizado"}
+        await db.cart_items.delete_one({"cart_item_id": item_id, "user_id": user["user_id"]})
+        return {"message": "Item removido"}
+    await db.cart_items.update_one(
+        {"cart_item_id": item_id, "user_id": user["user_id"]},
+        {"$set": {"quantity": quantity}}
+    )
+    return {"message": "Quantidade atualizada"}
 
 @api_router.delete("/cart/{item_id}")
 async def remove_from_cart(item_id: str, request: Request):
     user = await get_current_user(request)
-    await db.cart_items.delete_one({"item_id": item_id, "user_id": user["user_id"]})
+    await db.cart_items.delete_one({"cart_item_id": item_id, "user_id": user["user_id"]})
     return {"message": "Item removido"}
 
-# ==================== ORDER ROUTES ====================
+# ==================== ORDERS ====================
 @api_router.post("/orders")
 async def create_order(data: OrderCreate, request: Request):
     user = await get_current_user(request)
@@ -1704,7 +1876,6 @@ async def create_order(data: OrderCreate, request: Request):
     if not cart_items:
         raise HTTPException(status_code=400, detail="Carrinho vazio")
     
-    # Validate shipping address
     if not data.shipping_address:
         raise HTTPException(status_code=400, detail="Endereco de entrega obrigatorio")
     
@@ -1712,7 +1883,6 @@ async def create_order(data: OrderCreate, request: Request):
     platform_rate = settings["value"]["platform_commission"] if settings else 0.09
     affiliate_rate = settings["value"]["affiliate_commission"] if settings else 0.065
     
-    # Get shipping settings
     shipping_settings = await db.platform_settings.find_one({"key": "shipping"}, {"_id": 0})
     shipping_cost = 0.0
     shipping_name = "Padrao"
@@ -1723,7 +1893,6 @@ async def create_order(data: OrderCreate, request: Request):
                 shipping_name = opt["name"]
                 break
     
-    # Check for coupon discount
     discount = 0.0
     coupon_applied = None
     if data.coupon_code:
@@ -1747,24 +1916,23 @@ async def create_order(data: OrderCreate, request: Request):
         item_subtotal = product["price"] * ci["quantity"]
         subtotal += item_subtotal
         
-        # Comissão: 0% para Desapega (secondhand/unique), normal para outros
         is_desapega = product.get("product_type") in ["secondhand", "unique"]
         item_commission = 0.0 if is_desapega else (item_subtotal * platform_rate)
         total_platform_commission += item_commission
         
+        img = product.get("thumbnailUrl") or (product.get("images", [None])[0] if product.get("images") else "")
         order_items.append({
             "product_id": product["product_id"], "title": product["title"],
             "price": product["price"], "quantity": ci["quantity"],
             "subtotal": item_subtotal, "seller_id": product["seller_id"],
             "product_type": product.get("product_type", "store"),
             "commission": item_commission,
-            "image": product["images"][0] if product.get("images") else ""
+            "image": img
         })
         sellers[product["seller_id"]] = sellers.get(product["seller_id"], 0) + item_subtotal
     
-    # Calculate final total
     if coupon_applied and discount > 0:
-        if discount <= 1:  # percentage
+        if discount <= 1:
             discount_value = subtotal * discount
         else:
             discount_value = min(discount, subtotal)
@@ -1774,30 +1942,24 @@ async def create_order(data: OrderCreate, request: Request):
     total = subtotal - discount_value + shipping_cost
     
     affiliate_id = None
-    # Smart Margin System - Anti-Loss
-    # Platform: 9%, Affiliate: up to 6.5%
-    # Total commissions never exceed safe margin
-    max_affiliate_rate = affiliate_rate  # 6.5% default
+    max_affiliate_rate = affiliate_rate
     if data.affiliate_code:
         link = await db.affiliate_links.find_one({"code": data.affiliate_code}, {"_id": 0})
         if link:
             affiliate_id = link["affiliate_id"]
             await db.affiliate_links.update_one({"code": data.affiliate_code}, {"$inc": {"conversions": 1}})
-            # Smart margin check: ensure platform + affiliate doesn't exceed safe threshold
             total_commission = platform_rate + max_affiliate_rate
-            if total_commission > 0.15:  # Safety cap at 15%
+            if total_commission > 0.15:
                 max_affiliate_rate = max(0, 0.15 - platform_rate)
-            # For very low margin products, reduce or disable affiliate
             for ci in cart_items:
                 product = await db.products.find_one({"product_id": ci["product_id"]}, {"_id": 0})
-                if product and product["price"] < 10:  # Critical low price products
-                    max_affiliate_rate = min(max_affiliate_rate, 0.03)  # Cap at 3%
+                if product and product["price"] < 10:
+                    max_affiliate_rate = min(max_affiliate_rate, 0.03)
     
     actual_affiliate_rate = max_affiliate_rate if affiliate_id else 0
     
     order_id = f"order_{uuid.uuid4().hex[:12]}"
     
-    # Get payment instructions based on method
     payment_method = data.payment_method or "pix"
     fin_settings = await db.platform_settings.find_one({"key": "financial"}, {"_id": 0})
     payment_info = {}
@@ -1818,7 +1980,7 @@ async def create_order(data: OrderCreate, request: Request):
         "discount": discount_value, "coupon_code": coupon_applied,
         "total": total,
         "shipping_address": data.shipping_address.model_dump() if data.shipping_address else {},
-        "platform_commission": total_platform_commission,  # Já calculada por item (0% para Desapega)
+        "platform_commission": total_platform_commission,
         "affiliate_commission": subtotal * actual_affiliate_rate if affiliate_id else 0,
         "affiliate_rate_applied": actual_affiliate_rate,
         "affiliate_id": affiliate_id, "status": "awaiting_payment",
@@ -1832,11 +1994,10 @@ async def create_order(data: OrderCreate, request: Request):
     }
     await db.orders.insert_one(order)
     
-    # Criar notificacao para admin (nova venda)
     await db.admin_notifications.insert_one({
         "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
         "type": "new_sale",
-        "message": f"Nova venda #{order_id[:16]} - {user['name']} comprou de {', '.join([item.get('seller_id', '')[:8] for item in order_items[:2]])}",
+        "message": f"Nova venda #{order_id[:16]} - {user['name']}",
         "order_id": order_id,
         "buyer_id": user["user_id"],
         "buyer_name": user["name"],
@@ -1908,397 +2069,186 @@ async def get_wallet_history(request: Request):
 async def request_withdrawal(data: WithdrawalRequest, request: Request):
     user = await get_current_user(request)
     wallet = await db.wallets.find_one({"user_id": user["user_id"]}, {"_id": 0})
-    if not wallet or wallet["available"] < data.amount or data.amount <= 0:
-        raise HTTPException(status_code=400, detail="Saldo insuficiente ou valor invalido")
+    if not wallet or wallet.get("available", 0) < data.amount:
+        raise HTTPException(status_code=400, detail="Saldo insuficiente")
     wd_id = f"wd_{uuid.uuid4().hex[:12]}"
-    await db.withdrawals.insert_one({
-        "withdrawal_id": wd_id, "user_id": user["user_id"], "user_name": user["name"],
-        "amount": data.amount, "method": data.method,
-        "bank_details": user.get("bank_details", {}), "status": "pending",
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
     await db.wallets.update_one({"user_id": user["user_id"]}, {"$inc": {"available": -data.amount}})
-    await db.notifications.insert_one({
-        "notification_id": f"notif_{uuid.uuid4().hex[:12]}", "user_id": user["user_id"],
-        "type": "withdrawal", "message": f"Solicitacao de saque de R$ {data.amount:.2f} enviada!",
-        "read": False, "created_at": datetime.now(timezone.utc).isoformat()
+    await db.withdrawals.insert_one({
+        "withdrawal_id": wd_id, "user_id": user["user_id"],
+        "user_name": user["name"], "amount": data.amount, "method": data.method,
+        "status": "pending", "created_at": datetime.now(timezone.utc).isoformat()
     })
     return {"message": "Saque solicitado", "withdrawal_id": wd_id}
 
-# ==================== AFFILIATE ROUTES ====================
-@api_router.post("/affiliates/link")
-async def create_affiliate_link(request: Request):
-    user = await get_current_user(request)
-    body = await request.json()
-    product_id = body.get("product_id")
-    if not product_id:
-        raise HTTPException(status_code=400, detail="product_id necessario")
-    code = f"aff_{uuid.uuid4().hex[:8]}"
-    link = {
-        "link_id": f"link_{uuid.uuid4().hex[:12]}", "product_id": product_id,
-        "affiliate_id": user["user_id"], "code": code,
-        "clicks": 0, "conversions": 0,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
-    await db.affiliate_links.insert_one(link)
-    return {"code": code}
-
-@api_router.get("/affiliates/earnings")
-async def get_affiliate_earnings(request: Request):
-    user = await get_current_user(request)
-    links = await db.affiliate_links.find({"affiliate_id": user["user_id"]}, {"_id": 0}).to_list(100)
-    txs = await db.wallet_transactions.find({"user_id": user["user_id"], "type": "affiliate_commission"}, {"_id": 0}).to_list(100)
-    total = sum(t["amount"] for t in txs)
-    return {"links": links, "transactions": txs, "total_earnings": total}
-
-# ==================== NOTIFICATION ROUTES ====================
-@api_router.get("/notifications")
-async def get_notifications(request: Request):
-    user = await get_current_user(request)
-    notifs = await db.notifications.find({"user_id": user["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
-    unread = sum(1 for n in notifs if not n.get("read"))
-    return {"notifications": notifs, "unread": unread}
-
-@api_router.put("/notifications/{notification_id}/read")
-async def mark_notification_read(notification_id: str, request: Request):
-    user = await get_current_user(request)
-    await db.notifications.update_one({"notification_id": notification_id, "user_id": user["user_id"]}, {"$set": {"read": True}})
-    return {"message": "Notificacao marcada como lida"}
-
-@api_router.put("/notifications/read-all")
-async def mark_all_read(request: Request):
-    user = await get_current_user(request)
-    await db.notifications.update_many({"user_id": user["user_id"]}, {"$set": {"read": True}})
-    return {"message": "Todas marcadas como lidas"}
-
-# ==================== SUPPORT ROUTES ====================
+# ==================== SUPPORT ====================
 @api_router.post("/support")
-async def create_support(data: SupportMessage, request: Request):
+async def send_support_message(data: SupportMessage, request: Request):
     user = await get_current_user(request)
     msg_id = f"support_{uuid.uuid4().hex[:12]}"
     msg = {
-        "message_id": msg_id, "user_id": user["user_id"],
-        "user_name": user["name"], "user_email": user["email"],
-        "subject": data.subject, "message": data.message,
-        "replies": [], "status": "open",
+        "message_id": msg_id,
+        "user_id": user["user_id"],
+        "user_name": user["name"],
+        "user_email": user.get("email", ""),
+        "subject": sanitize_text(data.subject, 200),
+        "message": sanitize_text(data.message, 2000),
+        "status": "pending",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.support_messages.insert_one(msg)
-    return {k: v for k, v in msg.items() if k != "_id"}
+    return {"message": "Mensagem enviada", "message_id": msg_id}
 
 @api_router.get("/support")
-async def get_user_support(request: Request):
+async def get_support_messages(request: Request):
     user = await get_current_user(request)
     msgs = await db.support_messages.find({"user_id": user["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
     return {"messages": msgs}
 
-# ==================== PAGES ROUTES ====================
-@api_router.get("/pages/{slug}")
-async def get_page(slug: str):
-    page = await db.pages.find_one({"slug": slug}, {"_id": 0})
-    if not page:
-        return {"slug": slug, "title": slug.replace("-", " ").title(), "content": ""}
-    return page
-
-# ==================== CATEGORIES ====================
-@api_router.get("/categories")
-async def get_categories():
-    return {"categories": [
-        {"id": "eletronicos", "name": "Eletronicos", "icon": "Smartphone"},
-        {"id": "roupas", "name": "Roupas", "icon": "Shirt"},
-        {"id": "cosmeticos", "name": "Cosmeticos", "icon": "Sparkles"},
-        {"id": "casa", "name": "Casa e Decoracao", "icon": "Home"},
-        {"id": "acessorios", "name": "Acessorios", "icon": "Watch"},
-        {"id": "esportes", "name": "Esportes", "icon": "Dumbbell"},
-        {"id": "arte", "name": "Arte", "icon": "Palette"},
-        {"id": "imoveis", "name": "Imoveis", "icon": "Building"},
-        {"id": "automoveis", "name": "Automoveis", "icon": "Car"}
-    ]}
-
 # ==================== ADMIN ROUTES ====================
-@api_router.get("/admin/dashboard")
-async def admin_dashboard(request: Request):
+@api_router.get("/admin/users")
+async def admin_list_users(request: Request, page: int = 1, limit: int = 50, search: Optional[str] = None):
     await require_admin(request)
-    total_users = await db.users.count_documents({})
-    total_products = await db.products.count_documents({})
-    total_orders = await db.orders.count_documents({})
-    pending_orders = await db.orders.count_documents({"status": {"$in": ["pending", "awaiting_payment"]}})
-    pending_withdrawals = await db.withdrawals.count_documents({"status": "pending"})
-    
-    # Métricas reais da B Livre (social posts)
-    total_social_posts = await db.social_posts.count_documents({})
-    total_reports = await db.reports.count_documents({})
-    pending_reports = await db.reports.count_documents({"status": "pendente"})
-    
-    # Mensagens hoje (direct + store + social)
-    today_start = (datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)).isoformat()
-    messages_today = await db.direct_messages.count_documents({"created_at": {"$gte": today_start}})
-    messages_today += await db.store_messages.count_documents({"created_at": {"$gte": today_start}})
-    messages_today += await db.social_messages.count_documents({"created_at": {"$gte": today_start}})
-    
-    # Novos usuários hoje
-    new_users_today = await db.users.count_documents({"created_at": {"$gte": today_start}})
-    
-    # Usuários online (sessões ativas nas últimas 15 min)
-    fifteen_min_ago = (datetime.now(timezone.utc) - timedelta(minutes=15)).isoformat()
-    users_online = await db.user_sessions.count_documents({"created_at": {"$gte": fifteen_min_ago}})
-    
-    # Anúncios ativos (social posts + produtos ativos)
-    active_ads = await db.social_posts.count_documents({})
-    active_products = await db.products.count_documents({"status": "active", "is_deleted": {"$ne": True}})
-    
-    # Otimização: Usar agregação ao invés de carregar todos os documentos
-    sales_agg = await db.orders.aggregate([
-        {
-            "$group": {
-                "_id": None,
-                "total_sales": {"$sum": "$total"},
-                "total_commissions": {"$sum": "$platform_commission"}
-            }
-        }
-    ]).to_list(1)
-    
-    total_sales = sales_agg[0]["total_sales"] if sales_agg else 0
-    total_commissions = sales_agg[0]["total_commissions"] if sales_agg else 0
-    
-    # Dados recentes para o dashboard
-    recent_orders = await db.orders.find({}, {"_id": 0, "order_id": 1, "buyer_name": 1, "total": 1, "status": 1, "created_at": 1}).sort("created_at", -1).limit(5).to_list(5)
-    recent_social_posts = await db.social_posts.find({}, {"_id": 0, "post_id": 1, "title": 1, "content": 1, "user_name": 1, "city": 1, "image": 1, "is_blocked": 1, "created_at": 1}).sort("created_at", -1).limit(4).to_list(4)
-    recent_users = await db.users.find({}, {"_id": 0, "user_id": 1, "name": 1, "email": 1, "role": 1, "city": 1, "state": 1, "picture": 1, "created_at": 1}).sort("created_at", -1).limit(5).to_list(5)
-    
-    return {
-        "total_users": total_users, "total_products": total_products,
-        "total_orders": total_orders, "pending_orders": pending_orders,
-        "pending_withdrawals": pending_withdrawals,
-        "total_sales": total_sales, "total_commissions": total_commissions,
-        # Métricas reais da B Livre
-        "total_social_posts": total_social_posts,
-        "total_reports": total_reports,
-        "pending_reports": pending_reports,
-        "messages_today": messages_today,
-        "new_users_today": new_users_today,
-        "users_online": users_online,
-        "active_ads": active_ads,
-        "active_products": active_products,
-        # Dados recentes
-        "recent_orders": recent_orders,
-        "recent_social_posts": recent_social_posts,
-        "recent_users": recent_users,
-    }
+    query = {}
+    if search:
+        search_clean = sanitize_text(search, 100)
+        query["$or"] = [
+            {"name": {"$regex": search_clean, "$options": "i"}},
+            {"email": {"$regex": search_clean, "$options": "i"}}
+        ]
+    skip = (page - 1) * limit
+    users = await db.users.find(query, {"_id": 0, "password_hash": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.users.count_documents(query)
+    return {"users": users, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
+
+@api_router.put("/admin/users/{user_id}/block")
+async def admin_block_user(user_id: str, request: Request):
+    await require_admin(request)
+    await db.users.update_one({"user_id": user_id}, {"$set": {"is_blocked": True}})
+    return {"message": "Usuario bloqueado"}
+
+@api_router.put("/admin/users/{user_id}/unblock")
+async def admin_unblock_user(user_id: str, request: Request):
+    await require_admin(request)
+    await db.users.update_one({"user_id": user_id}, {"$set": {"is_blocked": False}})
+    return {"message": "Usuario desbloqueado"}
+
+@api_router.put("/admin/users/{user_id}/role")
+async def admin_change_user_role(user_id: str, request: Request):
+    await require_admin(request)
+    body = await request.json()
+    role = body.get("role")
+    if role not in ("buyer", "seller", "affiliate", "admin"):
+        raise HTTPException(status_code=400, detail="Papel invalido")
+    await db.users.update_one({"user_id": user_id}, {"$set": {"role": role}})
+    return {"message": "Papel atualizado"}
+
+@api_router.delete("/admin/users/{user_id}")
+async def admin_delete_user(user_id: str, request: Request):
+    await require_admin(request)
+    await db.users.delete_one({"user_id": user_id})
+    return {"message": "Usuario removido"}
+
+@api_router.get("/admin/products")
+async def admin_list_products(request: Request, page: int = 1, limit: int = 50, search: Optional[str] = None, status: Optional[str] = None):
+    await require_admin(request)
+    query = {}
+    if search:
+        search_clean = sanitize_text(search, 100)
+        query["$or"] = [
+            {"title": {"$regex": search_clean, "$options": "i"}},
+            {"seller_name": {"$regex": search_clean, "$options": "i"}}
+        ]
+    if status:
+        query["status"] = status
+    skip = (page - 1) * limit
+    products = await db.products.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    for p in products:
+        _normalize_product_images(p)
+    total = await db.products.count_documents(query)
+    return {"products": products, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
+
+@api_router.put("/admin/products/{product_id}/status")
+async def admin_update_product_status(product_id: str, request: Request):
+    await require_admin(request)
+    body = await request.json()
+    status = body.get("status", "active")
+    await db.products.update_one({"product_id": product_id}, {"$set": {"status": status}})
+    return {"message": "Status atualizado"}
+
+@api_router.delete("/admin/products/{product_id}")
+async def admin_delete_product(product_id: str, request: Request):
+    await require_admin(request)
+    await db.products.delete_one({"product_id": product_id})
+    return {"message": "Produto removido"}
 
 @api_router.get("/admin/orders")
-async def admin_list_orders(request: Request, status: Optional[str] = None):
+async def admin_list_orders(request: Request, page: int = 1, limit: int = 50, status: Optional[str] = None):
     await require_admin(request)
-    query = {"status": status} if status else {}
-    orders = await db.orders.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
-    return {"orders": orders}
+    query = {}
+    if status:
+        query["status"] = status
+    skip = (page - 1) * limit
+    orders = await db.orders.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.orders.count_documents(query)
+    return {"orders": orders, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
 
-@api_router.put("/admin/orders/{order_id}/approve")
-async def admin_approve_order(order_id: str, request: Request):
+@api_router.put("/admin/orders/{order_id}/status")
+async def admin_update_order_status(order_id: str, request: Request):
     await require_admin(request)
-    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
-    if not order:
-        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
-    now = datetime.now(timezone.utc).isoformat()
-    tracking = order.get("tracking", [])
-    tracking.append({"status": "payment_confirmed", "label": "Pagamento Confirmado", "date": now})
-    tracking.append({"status": "approved", "label": "Pedido Aprovado", "date": now})
-    await db.orders.update_one({"order_id": order_id}, {"$set": {"status": "approved", "payment_confirmed": True, "tracking": tracking}})
-    # Move held to available for related transactions
-    await db.wallet_transactions.update_many({"order_id": order_id, "status": "held"}, {"$set": {"status": "available"}})
-    txs = await db.wallet_transactions.find({"order_id": order_id}, {"_id": 0}).to_list(100)
-    for tx in txs:
-        await db.wallets.update_one({"user_id": tx["user_id"]}, {"$inc": {"held": -tx["amount"], "available": tx["amount"]}})
-    # Award 1 Brane Coin to buyer
-    await db.users.update_one({"user_id": order["buyer_id"]}, {"$inc": {"brane_coins": 1}})
-    await db.brane_coins_history.insert_one({
-        "tx_id": f"coin_{uuid.uuid4().hex[:12]}", "user_id": order["buyer_id"],
-        "amount": 1, "type": "earned", "reason": f"Compra #{order_id[:16]}",
-        "created_at": now
-    })
-    await db.notifications.insert_one({
-        "notification_id": f"notif_{uuid.uuid4().hex[:12]}", "user_id": order["buyer_id"],
-        "type": "order", "message": f"Pagamento confirmado! Seu pedido #{order_id[:16]} foi aprovado! Voce ganhou 1 Brane Coin!",
-        "read": False, "created_at": now
-    })
-    return {"message": "Pagamento confirmado e pedido aprovado"}
-
-@api_router.put("/admin/orders/{order_id}/reject")
-async def admin_reject_order(order_id: str, request: Request):
-    await require_admin(request)
-    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
-    if not order:
-        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
-    await db.orders.update_one({"order_id": order_id}, {"$set": {"status": "rejected"}})
-    # Cancel held transactions
-    held_txs = await db.wallet_transactions.find({"order_id": order_id, "status": "held"}, {"_id": 0}).to_list(100)
-    for tx in held_txs:
-        await db.wallets.update_one({"user_id": tx["user_id"]}, {"$inc": {"held": -tx["amount"]}})
-    await db.wallet_transactions.update_many({"order_id": order_id, "status": "held"}, {"$set": {"status": "cancelled"}})
-    await db.notifications.insert_one({
-        "notification_id": f"notif_{uuid.uuid4().hex[:12]}", "user_id": order["buyer_id"],
-        "type": "order", "message": f"Seu pedido #{order_id[:16]} foi rejeitado.",
-        "read": False, "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    return {"message": "Pedido rejeitado"}
-
-# ==================== ADMIN ORDER TRACKING ====================
-@api_router.put("/admin/orders/{order_id}/ship")
-async def admin_ship_order(order_id: str, request: Request):
-    await require_admin(request)
-    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
-    if not order:
-        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
-    now = datetime.now(timezone.utc).isoformat()
-    tracking = order.get("tracking", [])
-    tracking.append({"status": "shipped", "label": "Enviado", "date": now})
-    await db.orders.update_one({"order_id": order_id}, {"$set": {"status": "shipped", "tracking": tracking}})
-    await db.notifications.insert_one({
-        "notification_id": f"notif_{uuid.uuid4().hex[:12]}", "user_id": order["buyer_id"],
-        "type": "order", "message": f"Seu pedido #{order_id[:16]} foi enviado!",
-        "read": False, "created_at": now
-    })
-    return {"message": "Pedido enviado"}
-
-@api_router.put("/admin/orders/{order_id}/deliver")
-async def admin_deliver_order(order_id: str, request: Request):
-    await require_admin(request)
-    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
-    if not order:
-        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
-    now = datetime.now(timezone.utc).isoformat()
-    tracking = order.get("tracking", [])
-    tracking.append({"status": "delivered", "label": "Entregue", "date": now})
-    await db.orders.update_one({"order_id": order_id}, {"$set": {"status": "delivered", "tracking": tracking}})
-    await db.notifications.insert_one({
-        "notification_id": f"notif_{uuid.uuid4().hex[:12]}", "user_id": order["buyer_id"],
-        "type": "order", "message": f"Seu pedido #{order_id[:16]} foi entregue!",
-        "read": False, "created_at": now
-    })
-    return {"message": "Pedido entregue"}
-
-# ==================== BRANE COINS & REWARDS ====================
-@api_router.get("/brane-coins")
-async def get_brane_coins(request: Request):
-    user = await get_current_user(request)
-    coins = user.get("brane_coins", 0)
-    is_vip = user.get("is_vip", False)
-    history = await db.brane_coins_history.find({"user_id": user["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
-    # Available rewards
-    rewards = []
-    if coins >= 5:
-        rewards.append({"id": "coupon_5pct", "name": "Cupom 5% OFF", "cost": 5, "description": "5% de desconto na proxima compra"})
-        rewards.append({"id": "coupon_3eur", "name": "Cupom R$3 OFF", "cost": 5, "description": "R$3 de desconto na proxima compra"})
-    if coins >= 50 and not is_vip:
-        rewards.append({"id": "vip_access", "name": "Acesso VIP Brane", "cost": 50, "description": "Promocoes exclusivas, descontos especiais e ofertas antecipadas"})
-    return {"coins": coins, "is_vip": is_vip, "history": history, "available_rewards": rewards}
-
-@api_router.post("/brane-coins/redeem")
-async def redeem_brane_coins(request: Request):
-    user = await get_current_user(request)
     body = await request.json()
-    reward_id = body.get("reward_id")
-    coins = user.get("brane_coins", 0)
-    now = datetime.now(timezone.utc).isoformat()
-    
-    if reward_id == "coupon_5pct" and coins >= 5:
-        code = f"BRANE5-{uuid.uuid4().hex[:6].upper()}"
-        await db.coupons.insert_one({
-            "coupon_id": f"coupon_{uuid.uuid4().hex[:12]}", "code": code,
-            "type": "percentage", "value": 0.05, "max_uses": 1, "uses": 0,
-            "is_active": True, "user_id": user["user_id"],
-            "created_at": now
+    status = body.get("status", "processing")
+    updates = {"status": status}
+    if status == "shipped":
+        updates["tracking_code"] = body.get("tracking_code", "")
+    await db.orders.update_one({"order_id": order_id}, {"$set": updates})
+    # Notificar comprador
+    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+    if order:
+        status_labels = {
+            "processing": "Pedido em processamento",
+            "shipped": "Pedido enviado",
+            "delivered": "Pedido entregue",
+            "cancelled": "Pedido cancelado"
+        }
+        await db.notifications.insert_one({
+            "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+            "user_id": order["buyer_id"],
+            "type": "order_update",
+            "message": status_labels.get(status, f"Pedido #{order_id[:16]} atualizado"),
+            "read": False,
+            "created_at": datetime.now(timezone.utc).isoformat()
         })
-        await db.users.update_one({"user_id": user["user_id"]}, {"$inc": {"brane_coins": -5}})
-        await db.brane_coins_history.insert_one({"tx_id": f"coin_{uuid.uuid4().hex[:12]}", "user_id": user["user_id"], "amount": -5, "type": "redeemed", "reason": f"Cupom 5% OFF: {code}", "created_at": now})
-        return {"message": f"Cupom {code} criado!", "coupon_code": code}
-    elif reward_id == "coupon_3eur" and coins >= 5:
-        code = f"BRANE3-{uuid.uuid4().hex[:6].upper()}"
-        await db.coupons.insert_one({
-            "coupon_id": f"coupon_{uuid.uuid4().hex[:12]}", "code": code,
-            "type": "fixed", "value": 3.0, "max_uses": 1, "uses": 0,
-            "is_active": True, "user_id": user["user_id"],
-            "created_at": now
-        })
-        await db.users.update_one({"user_id": user["user_id"]}, {"$inc": {"brane_coins": -5}})
-        await db.brane_coins_history.insert_one({"tx_id": f"coin_{uuid.uuid4().hex[:12]}", "user_id": user["user_id"], "amount": -5, "type": "redeemed", "reason": f"Cupom R$3 OFF: {code}", "created_at": now})
-        return {"message": f"Cupom {code} criado!", "coupon_code": code}
-    elif reward_id == "vip_access" and coins >= 50:
-        await db.users.update_one({"user_id": user["user_id"]}, {"$set": {"is_vip": True, "vip_since": now}, "$inc": {"brane_coins": -50}})
-        await db.brane_coins_history.insert_one({"tx_id": f"coin_{uuid.uuid4().hex[:12]}", "user_id": user["user_id"], "amount": -50, "type": "redeemed", "reason": "Acesso VIP Brane", "created_at": now})
-        return {"message": "VIP Brane ativado!"}
-    else:
-        raise HTTPException(status_code=400, detail="Coins insuficientes ou recompensa invalida")
+    return {"message": "Status atualizado"}
 
-# ==================== BUYER WALLET ====================
-@api_router.get("/buyer-wallet")
-async def get_buyer_wallet(request: Request):
-    user = await get_current_user(request)
-    coins = user.get("brane_coins", 0)
-    is_vip = user.get("is_vip", False)
-    orders_count = await db.orders.count_documents({"buyer_id": user["user_id"], "status": "approved"})
-    # Get user coupons
-    coupons = await db.coupons.find({"user_id": user["user_id"], "is_active": True}, {"_id": 0}).to_list(20)
-    active_coupons = [c for c in coupons if c.get("uses", 0) < c.get("max_uses", 1)]
-    return {
-        "coins": coins, "is_vip": is_vip, "orders_count": orders_count,
-        "active_coupons": active_coupons,
-        "next_reward_at": 5 - (coins % 5) if coins % 5 != 0 else 0
-    }
+@api_router.get("/admin/messages")
+async def admin_list_messages(request: Request, page: int = 1, limit: int = 50):
+    await require_admin(request)
+    try:
+        skip = (page - 1) * limit
+        msgs = await db.support_messages.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+        total = await db.support_messages.count_documents({})
+        return {"messages": msgs, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
+    except Exception as e:
+        logging.error(f"admin/messages error: {e}")
+        return {"messages": [], "total": 0, "page": page, "pages": 1, "error": str(e)}
 
-# ==================== DESAPEGA (UNIQUE/SECONDHAND PRODUCTS) ====================
-@api_router.get("/desapega")
-async def list_desapega_products(skip: int = 0, limit: int = 20):
-    products = await db.products.find(
-        {"product_type": {"$in": ["unique", "secondhand"]}, "is_deleted": {"$ne": True}},
-        {"_id": 0}
-    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    for p in products:
-        seller = await db.users.find_one({"user_id": p["seller_id"]}, {"_id": 0, "password_hash": 0})
-        p["seller_name"] = seller["name"] if seller else "Vendedor"
-    return {"products": products, "total": await db.products.count_documents({"product_type": {"$in": ["unique", "secondhand"]}, "is_deleted": {"$ne": True}})}
-
-# ==================== SUPPORT CHAT ====================
-@api_router.post("/support/message")
-async def send_support_message(request: Request):
-    user = await get_current_user(request)
-    body = await request.json()
-    msg = body.get("message", "").strip()
+@api_router.post("/admin/support/{message_id}/reply")
+async def admin_reply_support(message_id: str, data: SupportReply, request: Request):
+    await require_admin(request)
+    msg = await db.support_messages.find_one({"message_id": message_id}, {"_id": 0})
     if not msg:
-        raise HTTPException(status_code=400, detail="Mensagem vazia")
+        raise HTTPException(status_code=404, detail="Mensagem nao encontrada")
+    user_id = msg["user_id"]
+    reply_text = sanitize_text(data.reply, 2000)
+    await db.support_messages.update_one(
+        {"message_id": message_id},
+        {"$set": {"status": "replied", "reply": reply_text, "replied_at": datetime.now(timezone.utc).isoformat()}}
+    )
     msg_doc = {
-        "message_id": f"msg_{uuid.uuid4().hex[:12]}", "user_id": user["user_id"],
-        "user_name": user["name"], "user_role": user["role"],
-        "message": msg, "is_admin_reply": False, "status": "open",
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
-    await db.support_messages.insert_one(msg_doc)
-    return {"message": "Mensagem enviada!", "message_id": msg_doc["message_id"]}
-
-@api_router.get("/support/messages")
-async def get_support_messages(request: Request):
-    user = await get_current_user(request)
-    messages = await db.support_messages.find({"user_id": user["user_id"]}, {"_id": 0}).sort("created_at", 1).to_list(100)
-    return {"messages": messages}
-
-@api_router.get("/admin/support/messages")
-async def admin_get_support_messages(request: Request):
-    await require_admin(request)
-    messages = await db.support_messages.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
-    return {"messages": messages}
-
-@api_router.post("/admin/support/reply")
-async def admin_reply_support(request: Request):
-    await require_admin(request)
-    body = await request.json()
-    user_id = body.get("user_id")
-    msg = body.get("message", "").strip()
-    if not msg or not user_id:
-        raise HTTPException(status_code=400, detail="Dados incompletos")
-    msg_doc = {
-        "message_id": f"msg_{uuid.uuid4().hex[:12]}", "user_id": user_id,
-        "user_name": "Suporte BRANE", "user_role": "admin",
-        "message": msg, "is_admin_reply": True, "status": "replied",
+        "message_id": f"msg_{uuid.uuid4().hex[:12]}",
+        "user_id": user_id,
+        "subject": "Resposta do Suporte",
+        "message": reply_text, "is_admin_reply": True, "status": "replied",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.support_messages.insert_one(msg_doc)
@@ -2321,11 +2271,19 @@ async def _resolve_store(store_id_or_slug: str):
 @api_router.post("/stores/{store_id}/chat")
 async def send_store_chat_message(store_id: str, data: StoreChatMessage, request: Request):
     """Buyer sends message to store"""
+    # Rate limit: 30 mensagens por minuto
+    if not check_rate_limit(request, "message", 30, 60):
+        raise HTTPException(status_code=429, detail="Muitas mensagens. Aguarde um momento.")
+    
     user = await get_current_user(request)
     
     store = await _resolve_store(store_id)
     if not store:
         raise HTTPException(status_code=404, detail="Loja nao encontrada")
+    
+    msg_text = sanitize_text(data.message, 2000)
+    if not msg_text:
+        raise HTTPException(status_code=400, detail="Mensagem vazia")
     
     real_store_id = store["store_id"]
     message_id = f"msg_{uuid.uuid4().hex[:12]}"
@@ -2335,14 +2293,13 @@ async def send_store_chat_message(store_id: str, data: StoreChatMessage, request
         "sender_id": user["user_id"],
         "sender_name": user["name"],
         "sender_role": user["role"],
-        "message": data.message.strip(),
+        "message": msg_text,
         "read": False,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     
     await db.store_messages.insert_one(message)
     
-    # Notify store owner
     await db.notifications.insert_one({
         "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
         "user_id": store["owner_id"],
@@ -2372,14 +2329,11 @@ async def get_store_chat_messages(store_id: str, request: Request, limit: int = 
         raise HTTPException(status_code=404, detail="Loja nao encontrada")
     
     real_store_id = store["store_id"]
-    # Only store owner or participants can see messages
     is_owner = store["owner_id"] == user["user_id"]
     
     if is_owner:
-        # Owner sees all messages
         query = {"store_id": real_store_id}
     else:
-        # Buyer sees only their messages with the store
         query = {
             "store_id": real_store_id,
             "$or": [
@@ -2389,9 +2343,8 @@ async def get_store_chat_messages(store_id: str, request: Request, limit: int = 
         }
     
     messages = await db.store_messages.find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
-    messages.reverse()  # Chronological order
+    messages.reverse()
     
-    # Mark as read for current user
     if not is_owner:
         await db.store_messages.update_many(
             {"store_id": real_store_id, "sender_id": store["owner_id"], "read": False},
@@ -2417,13 +2370,11 @@ async def get_seller_chat_conversations(request: Request):
     if not store:
         raise HTTPException(status_code=404, detail="Voce nao tem uma loja")
     
-    # Get all unique users who messaged this store
     messages = await db.store_messages.find(
         {"store_id": store["store_id"], "sender_id": {"$ne": user["user_id"]}},
         {"_id": 0, "sender_id": 1, "sender_name": 1, "message": 1, "read": 1, "created_at": 1}
     ).sort("created_at", -1).to_list(500)
     
-    # Group by sender
     conversations = {}
     for msg in messages:
         sender_id = msg["sender_id"]
@@ -2455,6 +2406,10 @@ def _direct_thread_id(user_a: str, user_b: str) -> str:
 @api_router.post("/direct-chat/{other_user_id}")
 async def send_direct_message(other_user_id: str, data: DirectChatMessage, request: Request):
     """Send a direct message to another user"""
+    # Rate limit: 30 mensagens por minuto
+    if not check_rate_limit(request, "message", 30, 60):
+        raise HTTPException(status_code=429, detail="Muitas mensagens. Aguarde um momento.")
+    
     user = await get_current_user(request)
     if other_user_id == user["user_id"]:
         raise HTTPException(status_code=400, detail="Voce nao pode conversar consigo mesmo")
@@ -2462,7 +2417,7 @@ async def send_direct_message(other_user_id: str, data: DirectChatMessage, reque
     if not other:
         raise HTTPException(status_code=404, detail="Usuario nao encontrado")
 
-    msg_text = (data.message or "").strip()
+    msg_text = sanitize_text(data.message or "", 2000)
     if not msg_text:
         raise HTTPException(status_code=400, detail="Mensagem nao pode estar vazia")
 
@@ -2488,13 +2443,13 @@ async def send_direct_message(other_user_id: str, data: DirectChatMessage, reque
         "type": "direct_chat",
         "message": f"Nova mensagem de {user['name']}",
         "data": {
-    "thread_id": thread_id,
-    "sender_id": user["user_id"],
-    "sender_name": user["name"],
-    "receiver_id": other_user_id,
-    "product_id": data.product_id,
-    "open_chat_url": f"/chat/{user['user_id']}"
-},
+            "thread_id": thread_id,
+            "sender_id": user["user_id"],
+            "sender_name": user["name"],
+            "receiver_id": other_user_id,
+            "product_id": data.product_id,
+            "open_chat_url": f"/chat/{user['user_id']}"
+        },
         "read": False,
         "created_at": datetime.now(timezone.utc).isoformat()
     })
@@ -2510,7 +2465,6 @@ async def get_direct_messages(other_user_id: str, request: Request, limit: int =
         raise HTTPException(status_code=404, detail="Usuario nao encontrado")
     thread_id = _direct_thread_id(user["user_id"], other_user_id)
     messages = await db.direct_messages.find({"thread_id": thread_id}, {"_id": 0}).sort("created_at", 1).limit(limit).to_list(limit)
-    # Mark inbound as read
     await db.direct_messages.update_many(
         {"thread_id": thread_id, "recipient_id": user["user_id"], "read": False},
         {"$set": {"read": True}}
@@ -2523,388 +2477,167 @@ async def list_my_direct_threads(request: Request):
     """List all direct chat threads for the logged-in user"""
     user = await get_current_user(request)
     uid = user["user_id"]
-    pipeline = [
-        {"$match": {"$or": [{"sender_id": uid}, {"recipient_id": uid}]}},
-        {"$sort": {"created_at": -1}},
-        {"$group": {
-            "_id": "$thread_id",
-            "last_message": {"$first": "$message"},
-            "last_message_date": {"$first": "$created_at"},
-            "last_sender_id": {"$first": "$sender_id"},
-            "messages": {"$push": "$$ROOT"}
-        }},
-    ]
+    
+    # Buscar todas as mensagens do usuário
+    all_msgs = await db.direct_messages.find(
+        {"$or": [{"sender_id": uid}, {"recipient_id": uid}]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(500)
+    
+    # Agrupar por thread
+    threads_map = {}
+    for msg in all_msgs:
+        tid = msg.get("thread_id")
+        if tid not in threads_map:
+            threads_map[tid] = msg
+    
     threads = []
-    async for row in db.direct_messages.aggregate(pipeline):
-        thread_id = row["_id"]
-        msgs = row.get("messages") or []
-        # determine "other" user id
-        other_id = None
-        for m in msgs:
-            if m.get("sender_id") != uid:
-                other_id = m.get("sender_id")
-                break
-            if m.get("recipient_id") != uid:
-                other_id = m.get("recipient_id")
-                break
-        if not other_id:
-            continue
+    for tid, msg in threads_map.items():
+        other_id = msg["recipient_id"] if msg["sender_id"] == uid else msg["sender_id"]
         other = await db.users.find_one({"user_id": other_id}, {"_id": 0, "user_id": 1, "name": 1, "picture": 1, "role": 1})
         if not other:
             continue
-        unread = await db.direct_messages.count_documents({"thread_id": thread_id, "recipient_id": uid, "read": False})
+        unread = await db.direct_messages.count_documents(
+            {"thread_id": tid, "recipient_id": uid, "read": False}
+        )
         threads.append({
-            "thread_id": thread_id,
+            "thread_id": tid,
             "other": other,
-            "last_message": row.get("last_message"),
-            "last_message_date": row.get("last_message_date"),
-            "unread_count": unread,
+            "last_message": msg.get("message", ""),
+            "last_message_date": msg.get("created_at", ""),
+            "unread_count": unread
         })
+    
     return {"threads": threads}
 
 
-# ==================== ADMIN: monitor chat conversations ====================
-@api_router.get("/admin/chats/store-messages")
-async def admin_list_store_messages(request: Request, store_id: Optional[str] = None, limit: int = 200):
+# ==================== ADS ====================
+@api_router.get("/ads")
+async def list_ads(position: Optional[str] = None):
+    query = {"active": True}
+    if position:
+        query["position"] = position
+    ads = await db.ads.find(query, {"_id": 0}).sort("created_at", -1).to_list(20)
+    return {"ads": ads}
+
+@api_router.post("/ads/{ad_id}/click")
+async def register_ad_click(ad_id: str):
+    await db.ads.update_one({"ad_id": ad_id}, {"$inc": {"clicks": 1}})
+    return {"ok": True}
+
+@api_router.get("/admin/ads")
+async def admin_list_ads(request: Request):
     await require_admin(request)
-    query = {"store_id": store_id} if store_id else {}
-    msgs = await db.store_messages.find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
-    return {"messages": msgs, "total": len(msgs)}
+    ads = await db.ads.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return {"ads": ads}
 
-
-@api_router.get("/admin/chats/direct-messages")
-async def admin_list_direct_messages(request: Request, thread_id: Optional[str] = None, limit: int = 200):
+@api_router.post("/admin/ads")
+async def admin_create_ad(data: AdCreate, request: Request):
     await require_admin(request)
-    query = {"thread_id": thread_id} if thread_id else {}
-    msgs = await db.direct_messages.find(query, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
-    return {"messages": msgs, "total": len(msgs)}
-
-# ==================== ADMIN PLATFORM CUSTOMIZATION ====================
-def _theme_defaults():
-    return {
-        # Brand
-        "platform_name": "BRANE",
-        "platform_slogan": "Marketplace Premium",
-        # Global
-        "primary_color": "#D4A24C",
-        "title_color": "#D4A24C",
-        "page_bg": "#050608",
-        # Navbar
-        "navbar_bg": "#050608",
-        "navbar_text": "#F7F7FA",
-        "nav_link_color": "#A6A8B3",
-        "nav_link_hover_color": "#D4A24C",
-        "menu_text_color": "#F7F7FA",
-        # Categories
-        "category_text_color": "#F7F7FA",
-        "category_bg_color": "#0B0D12",
-        # Product card
-        "card_bg": "#0B0D12",
-        "card_border": "#1E2230",
-        "card_hover_border": "#D4A24C",
-        "product_title_color": "#F7F7FA",
-        # Prices
-        "price_color": "#D4A24C",
-        "price_cents_color": "#D4A24C",
-        # Buttons
-        "button_color": "#FFF3C4",
-        "button_text_color": "#0F1111",
-        "buy_now_color": "#6D28D9",
-        # Rating / shipping
-        "star_color": "#D4A24C",
-        "free_shipping_color": "#10A875",
-        # Layout
-        "product_card_size": "medium",
-        "product_card_shape": "rounded",
-        "product_image_ratio": "square",
-        "product_grid_columns": "4",
-        # Toggles
-        "show_stars": True,
-        "show_free_shipping": True,
-        "show_installments": True,
-        "installment_count": 12,
-        "show_category_icons": True,
-        # Social page customization (DM)
-        "social_bg_color": "#0a0014",
-        "social_accent_color": "#ec4899",
-        "social_card_bg": "#1a1028",
-        "social_card_border": "rgba(168,85,247,0.25)",
-        "social_text_color": "#ffffff",
-        "social_muted_color": "rgba(216,180,254,0.6)",
-        "social_feed_width": "medium",
-        "social_card_radius": "xl",
-    }
-
-@api_router.get("/admin/theme")
-async def get_theme_settings(request: Request):
-    await require_admin(request)
-    s = await db.platform_settings.find_one({"key": "theme"}, {"_id": 0})
-    return {**_theme_defaults(), **(s["value"] if s else {})}
-
-@api_router.put("/admin/theme")
-async def update_theme_settings(request: Request):
-    await require_admin(request)
-    body = await request.json()
-    await db.platform_settings.update_one(
-        {"key": "theme"},
-        {"$set": {"key": "theme", "value": body}},
-        upsert=True
-    )
-    return {"message": "Tema atualizado"}
-
-# Public theme endpoint (no auth needed)
-@api_router.get("/theme")
-async def get_public_theme():
-    s = await db.platform_settings.find_one({"key": "theme"}, {"_id": 0})
-    return {**_theme_defaults(), **(s["value"] if s else {})}
-
-# ==================== ADMIN PRODUCTS MANAGEMENT ====================
-@api_router.get("/admin/products")
-async def admin_list_products(request: Request, skip: int = 0, limit: int = 50):
-    await require_admin(request)
-    products = await db.products.find({"is_deleted": {"$ne": True}}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    total = await db.products.count_documents({"is_deleted": {"$ne": True}})
-    return {"products": products, "total": total}
-
-@api_router.post("/admin/products")
-async def admin_create_product(request: Request):
-    await require_admin(request)
-    body = await request.json()
-    product_id = f"prod_{uuid.uuid4().hex[:12]}"
-    product = {
-        "product_id": product_id,
-        "title": body.get("title", ""),
-        "description": body.get("description", ""),
-        "price": float(body.get("price", 0)),
-        "category": body.get("category", ""),
-        "city": body.get("city", ""),
-        "location": body.get("location", ""),
-        "images": body.get("images", []),
-        "product_type": body.get("product_type", "store"),
-        "condition": body.get("condition", "new"),
-        "seller_id": "platform",
-        "seller_name": "BRANE Oficial",
-        "status": "active",
+    ad_id = f"ad_{uuid.uuid4().hex[:12]}"
+    ad = {
+        "ad_id": ad_id,
+        "title": sanitize_text(data.title, 200),
+        "image": data.image,
+        "link": data.link,
+        "position": data.position or "between_products",
+        "active": True,
+        "clicks": 0,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
-    await db.products.insert_one(product)
-    return {"product_id": product_id, "message": "Produto criado"}
+    await db.ads.insert_one(ad)
+    return {k: v for k, v in ad.items() if k != "_id"}
 
-@api_router.put("/admin/products/{product_id}")
-async def admin_update_product(product_id: str, request: Request):
+@api_router.put("/admin/ads/{ad_id}")
+async def admin_update_ad(ad_id: str, data: AdUpdate, request: Request):
     await require_admin(request)
+    updates = {k: v for k, v in data.model_dump(exclude_none=True).items()}
+    if updates:
+        await db.ads.update_one({"ad_id": ad_id}, {"$set": updates})
+    return await db.ads.find_one({"ad_id": ad_id}, {"_id": 0})
+
+@api_router.delete("/admin/ads/{ad_id}")
+async def admin_delete_ad(ad_id
+: str, request: Request):
+    await require_admin(request)
+    await db.ads.delete_one({"ad_id": ad_id})
+    return {"message": "Anuncio removido"}
+
+# ==================== AFFILIATE ====================
+@api_router.get("/affiliate/links")
+async def get_affiliate_links(request: Request):
+    user = await get_current_user(request)
+    links = await db.affiliate_links.find({"affiliate_id": user["user_id"]}, {"_id": 0}).to_list(50)
+    return {"links": links}
+
+@api_router.post("/affiliate/links")
+async def create_affiliate_link(request: Request):
+    user = await get_current_user(request)
     body = await request.json()
-    update = {}
-    for field in ["title", "description", "price", "category", "city", "location", "images", "product_type", "condition", "status"]:
-        if field in body:
-            update[field] = body[field]
-    if update:
-        await db.products.update_one({"product_id": product_id}, {"$set": update})
-    return {"message": "Produto atualizado"}
+    product_id = body.get("product_id", "")
+    code = f"aff_{uuid.uuid4().hex[:8]}"
+    link = {
+        "link_id": f"link_{uuid.uuid4().hex[:12]}",
+        "affiliate_id": user["user_id"],
+        "product_id": product_id,
+        "code": code,
+        "conversions": 0,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.affiliate_links.insert_one(link)
+    return {k: v for k, v in link.items() if k != "_id"}
 
-@api_router.delete("/admin/products/{product_id}")
-async def admin_delete_product(product_id: str, request: Request):
-    await require_admin(request)
-    await db.products.delete_one({
-    "product_id": product_id
-})
-    return {"message": "Produto removido"}
+# ==================== SAVED ADDRESS ====================
+@api_router.get("/users/saved-address")
+async def get_saved_address(request: Request):
+    user = await get_current_user(request)
+    addr = await db.saved_addresses.find_one({"user_id": user["user_id"]}, {"_id": 0})
+    return addr or {}
 
+@api_router.put("/users/saved-address")
+async def save_address(request: Request):
+    user = await get_current_user(request)
+    body = await request.json()
+    await db.saved_addresses.update_one(
+        {"user_id": user["user_id"]},
+        {"$set": {**body, "user_id": user["user_id"]}},
+        upsert=True
+    )
+    return {"message": "Endereco salvo"}
 
-@api_router.get("/admin/users")
-async def admin_list_users(request: Request, search: Optional[str] = None, role: Optional[str] = None):
-    await require_admin(request)
-    query = {}
-    if search:
-        import re as _re2
-        query["$or"] = [
-            {"name": {"$regex": _re2.escape(search), "$options": "i"}},
-            {"email": {"$regex": _re2.escape(search), "$options": "i"}}
+# ==================== SHIPPING OPTIONS ====================
+@api_router.get("/shipping/options")
+async def get_shipping_options():
+    settings = await db.platform_settings.find_one({"key": "shipping"}, {"_id": 0})
+    if settings:
+        return {"options": settings["value"].get("options", [])}
+    return {"options": [
+        {"name": "Gratis", "price": 0, "days": "7-15 dias uteis", "enabled": True},
+        {"name": "Normal", "price": 15.90, "days": "5-8 dias uteis", "enabled": True},
+        {"name": "Expresso", "price": 29.90, "days": "2-3 dias uteis", "enabled": True}
+    ]}
+
+# ==================== PAYMENT METHODS ====================
+@api_router.get("/payment-methods")
+async def get_payment_methods():
+    fin = await db.platform_settings.find_one({"key": "financial"}, {"_id": 0})
+    methods = []
+    if fin:
+        v = fin.get("value", {})
+        if v.get("pix_enabled", True):
+            methods.append({"id": "pix", "name": "PIX", "description": "Pagamento instantâneo"})
+        if v.get("ted_enabled", True):
+            methods.append({"id": "ted", "name": "TED/Transferência", "description": "Transferência bancária"})
+        if v.get("paypal_enabled", False):
+            methods.append({"id": "paypal", "name": "PayPal", "description": "Pagamento via PayPal"})
+    if not methods:
+        methods = [
+            {"id": "pix", "name": "PIX", "description": "Pagamento instantâneo"},
+            {"id": "ted", "name": "TED/Transferência", "description": "Transferência bancária"}
         ]
-    if role:
-        query["role"] = role
-    users = await db.users.find(query, {"_id": 0, "password_hash": 0}).sort("created_at", -1).to_list(1000)
-    # Enriquecer com contagem de anúncios
-    for u in users:
-        uid = u.get("user_id", "")
-        u["ads_count"] = await db.social_posts.count_documents({"user_id": uid})
-        u["products_count"] = await db.products.count_documents({"seller_id": uid, "is_deleted": {"$ne": True}})
-    total = len(users)
-    return {"users": users, "total": total}
+    return {"methods": methods}
 
-@api_router.put("/admin/users/{user_id}/block")
-async def admin_toggle_block(user_id: str, request: Request):
-    await require_admin(request)
-    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario nao encontrado")
-    new_status = not user.get("is_blocked", False)
-    await db.users.update_one({"user_id": user_id}, {"$set": {"is_blocked": new_status}})
-    return {"message": "Bloqueado" if new_status else "Desbloqueado", "is_blocked": new_status}
-
-# ==================== ADMIN: B LIVRE ADS (SOCIAL POSTS) ====================
-@api_router.get("/admin/social-posts")
-async def admin_list_social_posts(request: Request, page: int = 1, limit: int = 50, search: Optional[str] = None, status: Optional[str] = None):
-    """Admin lista todos os anúncios da B Livre (social posts)"""
-    await require_admin(request)
-    query = {}
-    if search:
-        import re as _re3
-        query["$or"] = [
-            {"title": {"$regex": _re3.escape(search), "$options": "i"}},
-            {"content": {"$regex": _re3.escape(search), "$options": "i"}},
-            {"user_name": {"$regex": _re3.escape(search), "$options": "i"}}
-        ]
-    if status == "blocked":
-        query["is_blocked"] = True
-    elif status == "featured":
-        query["is_featured"] = True
-    elif status == "active":
-        query["is_blocked"] = {"$ne": True}
-    skip = (page - 1) * limit
-    posts = await db.social_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    total = await db.social_posts.count_documents(query)
-    return {"posts": posts, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
-
-@api_router.put("/admin/social-posts/{post_id}/block")
-async def admin_block_social_post(post_id: str, request: Request):
-    """Admin bloqueia/desbloqueia anúncio da B Livre"""
-    await require_admin(request)
-    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
-    if not post:
-        raise HTTPException(status_code=404, detail="Anúncio nao encontrado")
-    new_status = not post.get("is_blocked", False)
-    await db.social_posts.update_one({"post_id": post_id}, {"$set": {"is_blocked": new_status}})
-    return {"message": "Bloqueado" if new_status else "Desbloqueado", "is_blocked": new_status}
-
-@api_router.put("/admin/social-posts/{post_id}/feature")
-async def admin_feature_social_post(post_id: str, request: Request):
-    """Admin destaca/remove destaque de anúncio da B Livre"""
-    await require_admin(request)
-    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
-    if not post:
-        raise HTTPException(status_code=404, detail="Anúncio nao encontrado")
-    new_status = not post.get("is_featured", False)
-    await db.social_posts.update_one({"post_id": post_id}, {"$set": {"is_featured": new_status}})
-    return {"message": "Destacado" if new_status else "Destaque removido", "is_featured": new_status}
-
-@api_router.delete("/admin/social-posts/{post_id}")
-async def admin_delete_social_post(post_id: str, request: Request):
-    """Admin remove anúncio da B Livre"""
-    await require_admin(request)
-    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
-    if not post:
-        raise HTTPException(status_code=404, detail="Anúncio nao encontrado")
-    await db.social_posts.delete_one({"post_id": post_id})
-    await db.social_comments.delete_many({"post_id": post_id})
-    return {"message": "Anúncio removido"}
-
-# ==================== ADMIN: MONITORAMENTO DE MENSAGENS ====================
-def _safe_msg(m: dict) -> dict:
-    """Limpa campos não-serializáveis (ObjectId) de um documento MongoDB"""
-    clean = {}
-    for k, v in m.items():
-        if k == "_id":
-            continue
-        try:
-            import json
-            json.dumps(v)
-            clean[k] = v
-        except (TypeError, ValueError):
-            clean[k] = str(v)
-    return clean
-
-@api_router.get("/admin/messages")
-async def admin_list_all_messages(request: Request, page: int = 1, limit: int = 50, tipo: Optional[str] = None):
-    """Admin monitora todas as mensagens da plataforma"""
-    await require_admin(request)
-    skip = (page - 1) * limit
-    all_messages = []
-    
-    search_q = request.query_params.get("search", "")
-    
-    try:
-        if not tipo or tipo == "direct":
-            try:
-                direct = await db.direct_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
-                for m in direct:
-                    m = _safe_msg(m)
-                    m["type"] = "direct"
-                    m["sender_name"] = m.get("sender_name") or m.get("from_name", "")
-                    m["receiver_name"] = m.get("recipient_name") or m.get("to_name", "")
-                    m["message"] = m.get("message") or m.get("content") or m.get("text", "")
-                    if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("receiver_name", "") + m.get("message", "")).lower():
-                        continue
-                    all_messages.append(m)
-            except Exception as e:
-                logging.warning(f"admin/messages direct error: {e}")
-        
-        if not tipo or tipo == "store":
-            try:
-                store_msgs = await db.store_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
-                for m in store_msgs:
-                    m = _safe_msg(m)
-                    m["type"] = "store"
-                    m["sender_name"] = m.get("sender_name", "")
-                    try:
-                        store = await db.stores.find_one({"store_id": m.get("store_id")}, {"_id": 0, "name": 1})
-                        m["receiver_name"] = store["name"] if store else "Loja"
-                    except:
-                        m["receiver_name"] = "Loja"
-                    m["message"] = m.get("message") or m.get("content") or m.get("text", "")
-                    if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("receiver_name", "") + m.get("message", "")).lower():
-                        continue
-                    all_messages.append(m)
-            except Exception as e:
-                logging.warning(f"admin/messages store error: {e}")
-        
-        if not tipo or tipo == "social":
-            try:
-                social_msgs = await db.social_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
-                for m in social_msgs:
-                    m = _safe_msg(m)
-                    m["type"] = "social"
-                    m["sender_name"] = m.get("sender_name", "")
-                    try:
-                        post = await db.social_posts.find_one({"post_id": m.get("post_id")}, {"_id": 0, "title": 1, "user_name": 1})
-                        m["receiver_name"] = post["user_name"] if post else "Usuário"
-                        m["product_title"] = post["title"] if post else ""
-                    except:
-                        m["receiver_name"] = "Usuário"
-                        m["product_title"] = ""
-                    m["message"] = m.get("message") or m.get("content") or m.get("text", "")
-                    if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("receiver_name", "") + m.get("message", "")).lower():
-                        continue
-                    all_messages.append(m)
-            except Exception as e:
-                logging.warning(f"admin/messages social error: {e}")
-        
-        if not tipo or tipo == "support":
-            try:
-                support_msgs = await db.support_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
-                for m in support_msgs:
-                    m = _safe_msg(m)
-                    m["type"] = "support"
-                    m["sender_name"] = m.get("user_name") or m.get("sender_name", "")
-                    m["receiver_name"] = "Suporte BRANE"
-                    m["message"] = m.get("message") or m.get("content") or m.get("text", "")
-                    if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("message", "")).lower():
-                        continue
-                    all_messages.append(m)
-            except Exception as e:
-                logging.warning(f"admin/messages support error: {e}")
-        
-        # Ordenar por data
-        all_messages.sort(key=lambda x: x.get("created_at", ""), reverse=True)
-        total = len(all_messages)
-        paginated = all_messages[skip:skip+limit]
-        return {"messages": paginated, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
-    
-    except Exception as e:
-        logging.error(f"admin/messages fatal error: {e}")
-        return {"messages": [], "total": 0, "page": page, "pages": 1, "error": str(e)}
-
-# ==================== ADMIN: DENUNCIAS COMPLETO ====================
+# ==================== ADMIN: DENUNCIAS ====================
 @api_router.get("/admin/reports")
 async def admin_list_reports_v2(request: Request, status: Optional[str] = None, page: int = 1, limit: int = 50):
     """Admin lista denúncias com dados enriquecidos"""
@@ -2914,7 +2647,6 @@ async def admin_list_reports_v2(request: Request, status: Optional[str] = None, 
         query["status"] = status
     skip = (page - 1) * limit
     items = await db.reports.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    # Enriquecer com dados do denunciante, denunciado e post
     for item in items:
         reporter = await db.users.find_one({"user_id": item.get("reporter_id")}, {"_id": 0, "name": 1, "email": 1})
         item["reporter_name"] = reporter["name"] if reporter else "Desconhecido"
@@ -2930,10 +2662,9 @@ async def admin_list_reports_v2(request: Request, status: Optional[str] = None, 
 
 @api_router.put("/admin/reports/{report_id}/action")
 async def admin_report_action(report_id: str, request: Request):
-    """Admin toma ação em uma denúncia: ignorar, bloquear_anuncio, bloquear_usuario, resolver"""
     await require_admin(request)
     body = await request.json()
-    action = body.get("action", "resolver")  # ignorar | bloquear_anuncio | bloquear_usuario | resolver
+    action = body.get("action", "resolver")
     
     report = await db.reports.find_one({"report_id": report_id}, {"_id": 0})
     if not report:
@@ -2960,22 +2691,15 @@ async def admin_report_action(report_id: str, request: Request):
     )
     return {"message": result_msg, "status": new_status}
 
-# Endpoints individuais para ações em denúncias (compatibilidade com frontend)
 @api_router.put("/admin/reports/{report_id}/ignore")
 async def admin_report_ignore(report_id: str, request: Request):
     await require_admin(request)
-    report = await db.reports.find_one({"report_id": report_id}, {"_id": 0})
-    if not report:
-        raise HTTPException(status_code=404, detail="Denúncia não encontrada")
     await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "ignorada", "action_taken": "ignorar", "resolved_at": datetime.now(timezone.utc).isoformat()}})
     return {"message": "Denúncia ignorada", "status": "ignorada"}
 
 @api_router.put("/admin/reports/{report_id}/resolve")
 async def admin_report_resolve(report_id: str, request: Request):
     await require_admin(request)
-    report = await db.reports.find_one({"report_id": report_id}, {"_id": 0})
-    if not report:
-        raise HTTPException(status_code=404, detail="Denúncia não encontrada")
     await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "resolvida", "action_taken": "resolver", "resolved_at": datetime.now(timezone.utc).isoformat()}})
     return {"message": "Denúncia resolvida", "status": "resolvida"}
 
@@ -3001,10 +2725,8 @@ async def admin_report_block_user(report_id: str, request: Request):
     await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "resolvida", "action_taken": "bloquear_usuario", "resolved_at": datetime.now(timezone.utc).isoformat()}})
     return {"message": "Usuário bloqueado", "status": "resolvida"}
 
-# Endpoint remove via PUT para social-posts (compatibilidade com frontend)
 @api_router.put("/admin/social-posts/{post_id}/remove")
 async def admin_remove_social_post_put(post_id: str, request: Request):
-    """Admin remove anúncio da B Livre via PUT"""
     await require_admin(request)
     post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
     if not post:
@@ -3013,10 +2735,8 @@ async def admin_remove_social_post_put(post_id: str, request: Request):
     await db.social_comments.delete_many({"post_id": post_id})
     return {"message": "Anúncio removido"}
 
-# Endpoint unblock via PUT para social-posts
 @api_router.put("/admin/social-posts/{post_id}/unblock")
 async def admin_unblock_social_post(post_id: str, request: Request):
-    """Admin desbloqueia anúncio da B Livre"""
     await require_admin(request)
     post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
     if not post:
@@ -3024,7 +2744,7 @@ async def admin_unblock_social_post(post_id: str, request: Request):
     await db.social_posts.update_one({"post_id": post_id}, {"$set": {"is_blocked": False}})
     return {"message": "Anúncio desbloqueado", "is_blocked": False}
 
-# ==================== ADMIN: NOTIFICATION COUNTS ATUALIZADO ====================
+# ==================== ADMIN: NOTIFICATION COUNTS ====================
 @api_router.get("/admin/notification-counts")
 async def get_admin_notification_counts_v2(request: Request):
     await require_admin(request)
@@ -3084,418 +2804,104 @@ async def admin_reject_withdrawal(wd_id: str, request: Request):
     })
     return {"message": "Saque rejeitado"}
 
-@api_router.get("/admin/commissions")
-async def get_commissions(request: Request):
+# ==================== ADMIN: STORES ====================
+@api_router.get("/admin/stores")
+async def admin_list_stores(request: Request, page: int = 1, limit: int = 50):
     await require_admin(request)
-    s = await db.platform_settings.find_one({"key": "commissions"}, {"_id": 0})
-    return s["value"] if s else {"platform_commission": 0.09, "affiliate_commission": 0.065}
+    skip = (page - 1) * limit
+    stores = await db.stores.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.stores.count_documents({})
+    return {"stores": stores, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
 
-@api_router.put("/admin/commissions")
-async def update_commissions(data: CommissionUpdate, request: Request):
+@api_router.put("/admin/stores/{store_id}/approve")
+async def admin_approve_store(store_id: str, request: Request):
     await require_admin(request)
-    s = await db.platform_settings.find_one({"key": "commissions"}, {"_id": 0})
-    values = s["value"] if s else {"platform_commission": 0.09, "affiliate_commission": 0.065}
+    await db.stores.update_one({"store_id": store_id}, {"$set": {"is_approved": True}})
+    store = await db.stores.find_one({"store_id": store_id}, {"_id": 0})
+    if store:
+        await db.notifications.insert_one({
+            "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+            "user_id": store["owner_id"],
+            "type": "store_approved",
+            "message": "Sua loja foi aprovada! Agora você pode vender.",
+            "read": False,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+    return {"message": "Loja aprovada"}
+
+@api_router.put("/admin/stores/{store_id}/reject")
+async def admin_reject_store(store_id: str, request: Request):
+    await require_admin(request)
+    await db.stores.update_one({"store_id": store_id}, {"$set": {"is_approved": False, "rejected": True}})
+    return {"message": "Loja rejeitada"}
+
+# ==================== ADMIN: PLATFORM SETTINGS ====================
+@api_router.get("/admin/settings/commissions")
+async def get_commission_settings(request: Request):
+    await require_admin(request)
+    settings = await db.platform_settings.find_one({"key": "commissions"}, {"_id": 0})
+    if settings:
+        return settings["value"]
+    return {"platform_commission": 0.09, "affiliate_commission": 0.065}
+
+@api_router.put("/admin/settings/commissions")
+async def update_commission_settings(data: CommissionUpdate, request: Request):
+    await require_admin(request)
+    current = await db.platform_settings.find_one({"key": "commissions"}, {"_id": 0})
+    current_value = current["value"] if current else {"platform_commission": 0.09, "affiliate_commission": 0.065}
     if data.platform_commission is not None:
-        values["platform_commission"] = data.platform_commission
+        current_value["platform_commission"] = data.platform_commission
     if data.affiliate_commission is not None:
-        values["affiliate_commission"] = data.affiliate_commission
-    await db.platform_settings.update_one({"key": "commissions"}, {"$set": {"value": values}}, upsert=True)
-    return values
-
-@api_router.get("/admin/support")
-async def admin_list_support(request: Request):
-    await require_admin(request)
-    msgs = await db.support_messages.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
-    return {"messages": msgs}
-
-@api_router.get("/admin/pages/{slug}")
-async def admin_get_page(slug: str, request: Request):
-    await require_admin(request)
-    page = await db.pages.find_one({"slug": slug}, {"_id": 0})
-    return page or {"slug": slug, "title": slug.replace("-", " ").title(), "content": ""}
-
-@api_router.put("/admin/pages/{slug}")
-async def admin_update_page(slug: str, data: PageUpdate, request: Request):
-    await require_admin(request)
-    await db.pages.update_one(
-        {"slug": slug},
-        {"$set": {"slug": slug, "title": slug.replace("-", " ").title(), "content": data.content, "updated_at": datetime.now(timezone.utc).isoformat()}},
+        current_value["affiliate_commission"] = data.affiliate_commission
+    await db.platform_settings.update_one(
+        {"key": "commissions"},
+        {"$set": {"key": "commissions", "value": current_value}},
         upsert=True
     )
-    return {"message": "Pagina atualizada"}
+    return current_value
 
-@api_router.get("/admin/financial-settings")
+@api_router.get("/admin/settings/financial")
 async def get_financial_settings(request: Request):
     await require_admin(request)
-    s = await db.platform_settings.find_one({"key": "financial"}, {"_id": 0})
-    return s["value"] if s else {"paypal_email": "", "bank_name": "", "bank_branch": "", "bank_account_name": "", "bank_account_number": "", "pix_key": "", "pix_key_type": "cpf", "paypal_enabled": False, "pix_enabled": True, "ted_enabled": True}
+    settings = await db.platform_settings.find_one({"key": "financial"}, {"_id": 0})
+    if settings:
+        return settings["value"]
+    return {}
 
-@api_router.put("/admin/financial-settings")
+@api_router.put("/admin/settings/financial")
 async def update_financial_settings(data: FinancialSettings, request: Request):
     await require_admin(request)
-    await db.platform_settings.update_one({"key": "financial"}, {"$set": {"key": "financial", "value": data.model_dump()}}, upsert=True)
-    return {"message": "Configuracoes financeiras atualizadas"}
-
-# ==================== PAYMENT METHODS (PUBLIC) ====================
-@api_router.get("/payment-methods")
-async def get_payment_methods():
-    """Retorna metodos de pagamento ativos com detalhes para o comprador"""
-    s = await db.platform_settings.find_one({"key": "financial"}, {"_id": 0})
-    settings = s["value"] if s else {}
-    methods = []
-    if settings.get("pix_enabled", True):
-        methods.append({
-            "id": "pix",
-            "name": "PIX",
-            "description": "Pagamento instantaneo via PIX",
-            "configured": bool(settings.get("pix_key")),
-            "details": {
-                "pix_key": settings.get("pix_key", ""),
-                "pix_key_type": settings.get("pix_key_type", "cpf")
-            }
-        })
-    if settings.get("ted_enabled", True):
-        methods.append({
-            "id": "ted",
-            "name": "Transferencia Bancaria",
-            "description": "Transferencia via TED/DOC",
-            "configured": bool(settings.get("bank_name") and settings.get("bank_account_number")),
-            "details": {
-                "bank_name": settings.get("bank_name", ""),
-                "bank_branch": settings.get("bank_branch", ""),
-                "account_name": settings.get("bank_account_name", ""),
-                "account_number": settings.get("bank_account_number", "")
-            }
-        })
-    if settings.get("paypal_enabled", False):
-        methods.append({
-            "id": "paypal",
-            "name": "PayPal",
-            "description": "Pagamento via PayPal",
-            "configured": bool(settings.get("paypal_email")),
-            "details": {
-                "paypal_email": settings.get("paypal_email", "")
-            }
-        })
-    return {"methods": methods}
-
-# ==================== ADMIN NOTIFICATION COUNTS (legacy kept for compat) ====================
-# NOTE: The updated version is defined above in the B Livre section
-# This block is intentionally removed to avoid duplicate route registration
-
-@api_router.get("/admin/contact-settings")
-async def get_contact_settings(request: Request):
-    await require_admin(request)
-    s = await db.platform_settings.find_one({"key": "contact"}, {"_id": 0})
-    return s["value"] if s else {"email": "", "whatsapp": "", "instagram": ""}
-
-@api_router.put("/admin/contact-settings")
-async def update_contact_settings(request: Request):
-    await require_admin(request)
-    body = await request.json()
-    await db.platform_settings.update_one({"key": "contact"}, {"$set": {"key": "contact", "value": body}}, upsert=True)
-    return {"message": "Configuracoes de contato atualizadas"}
-
-# ==================== SHIPPING SETTINGS ====================
-@api_router.get("/shipping/options")
-async def get_shipping_options():
-    s = await db.platform_settings.find_one({"key": "shipping"}, {"_id": 0})
-    if s:
-        return {"options": [opt for opt in s["value"].get("options", []) if opt.get("enabled", True)]}
-    return {"options": [
-        {"name": "Gratis", "price": 0, "days": "7-15 dias uteis", "enabled": True},
-        {"name": "Normal", "price": 15.90, "days": "5-8 dias uteis", "enabled": True},
-        {"name": "Expresso", "price": 29.90, "days": "2-3 dias uteis", "enabled": True}
-    ]}
-
-@api_router.get("/admin/shipping-settings")
-async def admin_get_shipping_settings(request: Request):
-    await require_admin(request)
-    s = await db.platform_settings.find_one({"key": "shipping"}, {"_id": 0})
-    if s:
-        return s["value"]
-    return {"options": [
-        {"name": "Gratis", "price": 0, "days": "7-15 dias uteis", "enabled": True},
-        {"name": "Normal", "price": 15.90, "days": "5-8 dias uteis", "enabled": True},
-        {"name": "Expresso", "price": 29.90, "days": "2-3 dias uteis", "enabled": True}
-    ]}
-
-@api_router.put("/admin/shipping-settings")
-async def admin_update_shipping_settings(request: Request):
-    await require_admin(request)
-    body = await request.json()
     await db.platform_settings.update_one(
-        {"key": "shipping"},
-        {"$set": {"key": "shipping", "value": body}},
+        {"key": "financial"},
+        {"$set": {"key": "financial", "value": data.model_dump()}},
         upsert=True
     )
-    return {"message": "Configuracoes de frete atualizadas"}
+    return data.model_dump()
 
-# ==================== SELLER TERMS ====================
-@api_router.get("/seller/terms-status")
-async def get_seller_terms_status(request: Request):
-    user = await get_current_user(request)
-    return {"accepted": user.get("seller_terms_accepted", False)}
+@api_router.get("/admin/settings/shipping")
+async def get_shipping_settings(request: Request):
+    await require_admin(request)
+    settings = await db.platform_settings.find_one({"key": "shipping"}, {"_id": 0})
+    if settings:
+        return settings["value"]
+    return {"options": []}
 
-@api_router.post("/seller/accept-terms")
-async def accept_seller_terms(request: Request):
-    user = await get_current_user(request)
-    await db.users.update_one(
-        {"user_id": user["user_id"]},
-        {"$set": {"seller_terms_accepted": True, "seller_terms_accepted_at": datetime.now(timezone.utc).isoformat()}}
+@api_router.put("/admin/settings/shipping")
+async def update_shipping_settings(data: ShippingSettings, request: Request):
+    await require_admin(request)
+    value = {"options": [o.model_dump() for o in data.options]}
+    await db.platform_settings.update_one(
+        {"key": "shipping"},
+        {"$set": {"key": "shipping", "value": value}},
+        upsert=True
     )
-    return {"message": "Termos aceitos com sucesso"}
+    return value
 
-@api_router.get("/seller/has-products")
-async def seller_has_products(request: Request):
-    user = await get_current_user(request)
-    count = await db.products.count_documents({"seller_id": user["user_id"]})
-    return {"has_products": count > 0, "count": count}
-
-# ==================== GESTÃO FINANCEIRA / PAYMENT CONFIG (PRO) ====================
-FINANCE_SETTINGS_ID = "finance_settings_singleton"
-
-def _default_finance_settings():
-    return {
-        "_kind": "finance_settings",
-        "_id": FINANCE_SETTINGS_ID,
-        # 1. Dados da Empresa
-        "company": {
-            "name": "", "trade_name": "", "legal_name": "",
-            "document_type": "cpf",  # cpf | cnpj
-            "cnpj": "", "cpf": "",
-            "ie": "", "im": "",
-            "email": "", "phone": "",
-            "address": "", "zip_code": "", "city": "", "state": "", "country": "Brasil"
-        },
-        # 2. Dados Bancários
-        "bank": {
-            "bank_name": "", "bank_code": "",
-            "account_type": "corrente",  # corrente | poupanca | pj
-            "agency": "", "account": "", "account_digit": "",
-            "holder_name": "", "holder_document": "",
-            "holder_type": "pf"  # pf | pj
-        },
-        # 3. Chaves PIX (lista)
-        "pix_keys": [],  # [{ id, key_type, key, display_name, bank_linked, notes, active, primary }]
-        # 4. Gateways
-        "gateways": {
-            g: {"active": False, "environment": "sandbox", "public_key": "", "secret_key": "",
-                "access_token": "", "webhook_url": "", "status": "disconnected"}
-            for g in ["mercadopago", "pagseguro", "stripe", "asaas", "pagarme", "paypal"]
-        },
-        # 5. Repasse
-        "payout": {
-            "commission_percent": 10.0,
-            "fixed_fee": 0.0,
-            "release_days": 7,
-            "security_hold_percent": 0.0,
-            "auto_split": True,
-            "auto_approve": False
-        },
-        # 6. Controle saques
-        "withdrawals_config": {
-            "min_amount": 50.0,
-            "payout_days": 2
-        },
-        # 7. Comprovantes
-        "receipts": {
-            "display_name": "", "company_on_receipt": "",
-            "logo_url": "", "auto_email": True, "auto_receipt": True
-        },
-        # 8. Segurança
-        "security": {
-            "twofa_enabled": False,
-            "lock_sensitive_edit": False
-        },
-        "updated_at": datetime.now(timezone.utc).isoformat()
-    }
-
-async def _ensure_finance_settings():
-    doc = await db.settings.find_one({"_id": FINANCE_SETTINGS_ID})
-    if not doc:
-        doc = _default_finance_settings()
-        await db.settings.insert_one(doc)
-    return doc
-
-def _sanitize_finance_doc(doc):
-    if not doc:
-        return None
-    doc.pop("_id", None)
-    doc.pop("_kind", None)
-    return doc
-
-@api_router.get("/admin/finance/settings")
-async def admin_finance_get(request: Request):
-    await require_admin(request)
-    doc = await _ensure_finance_settings()
-    return _sanitize_finance_doc(doc)
-
-@api_router.put("/admin/finance/settings")
-async def admin_finance_update(request: Request):
-    admin = await require_admin(request)
-    body = await request.json()
-    # Allow updating any of the sections: company, bank, payout, withdrawals_config, receipts, security, gateways
-    allowed_sections = {"company","bank","payout","withdrawals_config","receipts","security","gateways"}
-    updates = {}
-    for section, value in body.items():
-        if section in allowed_sections and isinstance(value, dict):
-            # merge into existing
-            current = (await _ensure_finance_settings()).get(section, {}) or {}
-            if section == "gateways":
-                # deep merge per gateway
-                merged = dict(current)
-                for gw, cfg in value.items():
-                    if isinstance(cfg, dict):
-                        existing = merged.get(gw, {}) or {}
-                        existing.update({k: v for k, v in cfg.items()})
-                        merged[gw] = existing
-                updates[section] = merged
-            else:
-                merged = dict(current)
-                merged.update(value)
-                updates[section] = merged
-    updates["updated_at"] = datetime.now(timezone.utc).isoformat()
-    # Audit log
-    log_entry = {
-        "log_id": str(uuid.uuid4()),
-        "admin_id": admin["user_id"],
-        "admin_email": admin.get("email"),
-        "action": "finance_settings_update",
-        "sections": list(updates.keys()),
-        "created_at": datetime.now(timezone.utc).isoformat()
-    }
-    await db.finance_logs.insert_one(log_entry)
-    await db.settings.update_one({"_id": FINANCE_SETTINGS_ID}, {"$set": updates}, upsert=True)
-    doc = await db.settings.find_one({"_id": FINANCE_SETTINGS_ID})
-    return {"message": "Configurações atualizadas", "settings": _sanitize_finance_doc(doc)}
-
-@api_router.post("/admin/finance/pix-keys")
-async def admin_finance_add_pix(request: Request):
-    await require_admin(request)
-    body = await request.json()
-    settings = await _ensure_finance_settings()
-    pix_keys = list(settings.get("pix_keys") or [])
-    new_key = {
-        "id": str(uuid.uuid4()),
-        "key_type": body.get("key_type", "cpf"),
-        "key": body.get("key", "").strip(),
-        "display_name": body.get("display_name", "").strip(),
-        "bank_linked": body.get("bank_linked", "").strip(),
-        "notes": body.get("notes", "").strip(),
-        "active": bool(body.get("active", True)),
-        "primary": bool(body.get("primary", False)),
-    }
-    if new_key["primary"]:
-        for k in pix_keys:
-            k["primary"] = False
-    if not pix_keys:
-        new_key["primary"] = True
-    pix_keys.append(new_key)
-    await db.settings.update_one({"_id": FINANCE_SETTINGS_ID}, {"$set": {"pix_keys": pix_keys}})
-    return {"message": "Chave PIX adicionada", "pix_keys": pix_keys}
-
-@api_router.put("/admin/finance/pix-keys/{key_id}")
-async def admin_finance_update_pix(key_id: str, request: Request):
-    await require_admin(request)
-    body = await request.json()
-    settings = await _ensure_finance_settings()
-    pix_keys = list(settings.get("pix_keys") or [])
-    target_idx = next((i for i, k in enumerate(pix_keys) if k.get("id") == key_id), -1)
-    if target_idx < 0:
-        raise HTTPException(status_code=404, detail="Chave PIX não encontrada")
-    if body.get("primary") is True:
-        for k in pix_keys:
-            k["primary"] = False
-    for field in ["key_type","key","display_name","bank_linked","notes","active","primary"]:
-        if field in body:
-            pix_keys[target_idx][field] = body[field]
-    await db.settings.update_one({"_id": FINANCE_SETTINGS_ID}, {"$set": {"pix_keys": pix_keys}})
-    return {"message": "Chave PIX atualizada", "pix_keys": pix_keys}
-
-@api_router.delete("/admin/finance/pix-keys/{key_id}")
-async def admin_finance_delete_pix(key_id: str, request: Request):
-    await require_admin(request)
-    settings = await _ensure_finance_settings()
-    pix_keys = [k for k in (settings.get("pix_keys") or []) if k.get("id") != key_id]
-    # ensure a primary remains if any
-    if pix_keys and not any(k.get("primary") for k in pix_keys):
-        pix_keys[0]["primary"] = True
-    await db.settings.update_one({"_id": FINANCE_SETTINGS_ID}, {"$set": {"pix_keys": pix_keys}})
-    return {"message": "Chave PIX removida", "pix_keys": pix_keys}
-
-@api_router.get("/admin/finance/dashboard")
-async def admin_finance_dashboard(request: Request):
-    await require_admin(request)
-    now = datetime.now(timezone.utc)
-    start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
-    start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0).isoformat()
-
-    async def _sum(match):
-        cursor = db.orders.aggregate([{"$match": match}, {"$group": {"_id": None, "sum": {"$sum": "$total"}, "count": {"$sum": 1}}}])
-        docs = await cursor.to_list(length=1)
-        return (docs[0] if docs else {"sum": 0, "count": 0})
-
-    paid_filter = {"status": {"$in": ["approved", "shipped", "delivered", "payment_confirmed"]}}
-    today = await _sum({**paid_filter, "created_at": {"$gte": start_of_day}})
-    month = await _sum({**paid_filter, "created_at": {"$gte": start_of_month}})
-    pending = await _sum({"status": {"$in": ["awaiting_payment", "pending"]}})
-    cancelled = await _sum({"status": "rejected"})
-
-    # wallets
-    wallet_cursor = db.wallets.aggregate([{"$group": {"_id": None, "avail": {"$sum": "$available"}, "held": {"$sum": "$held"}}}])
-    wdocs = await wallet_cursor.to_list(length=1)
-    total_avail = (wdocs[0]["avail"] if wdocs else 0.0) or 0.0
-    total_held = (wdocs[0]["held"] if wdocs else 0.0) or 0.0
-
-    total_commissions = await db.commissions.count_documents({})
-    pending_withdrawals = await db.withdrawals.count_documents({"status": "pending"})
-    completed_withdrawals = await db.withdrawals.count_documents({"status": "approved"})
-
-    return {
-        "balance_total": total_avail + total_held,
-        "balance_available": total_avail,
-        "balance_held": total_held,
-        "sales_today": {"amount": today["sum"], "count": today["count"]},
-        "sales_month": {"amount": month["sum"], "count": month["count"]},
-        "pending": {"amount": pending["sum"], "count": pending["count"]},
-        "cancelled": {"amount": cancelled["sum"], "count": cancelled["count"]},
-        "commissions_count": total_commissions,
-        "withdrawals_pending": pending_withdrawals,
-        "withdrawals_completed": completed_withdrawals,
-        "refunds_count": 0,
-        "chargebacks_count": 0,
-    }
-
-@api_router.get("/admin/finance/logs")
-async def admin_finance_logs(request: Request):
-    await require_admin(request)
-    logs = await db.finance_logs.find({}, {"_id": 0}).sort("created_at", -1).limit(100).to_list(length=100)
-    return {"logs": logs}
-
-# ==================== SAVED SHIPPING ADDRESS ====================
-@api_router.get("/users/saved-address")
-async def get_saved_address(request: Request):
-    user = await get_current_user(request)
-    return {"address": user.get("saved_address") or None}
-
-@api_router.put("/users/saved-address")
-async def save_address(request: Request):
-    user = await get_current_user(request)
-    body = await request.json()
-    allowed = {"name","cpf","phone","street","number","complement","neighborhood","city","state","zip_code"}
-    clean = {k: str(v).strip() for k, v in body.items() if k in allowed}
-    await db.users.update_one(
-        {"user_id": user["user_id"]},
-        {"$set": {"saved_address": clean, "saved_address_updated_at": datetime.now(timezone.utc).isoformat()}}
-    )
-    return {"message": "Endereço salvo", "address": clean}
-
-# ==================== ADMIN: ALL WALLETS (for escrow dashboard) ====================
+# ==================== ADMIN: WALLETS ====================
 @api_router.get("/admin/wallets")
-async def admin_list_all_wallets(request: Request):
+async def admin_list_wallets(request: Request):
     await require_admin(request)
-    users = await db.users.find({"role": {"$in": ["seller", "affiliate", "buyer", "admin"]}}, {"_id": 0}).to_list(length=1000)
+    users = await db.users.find({}, {"_id": 0, "user_id": 1, "name": 1, "email": 1, "role": 1}).to_list(500)
     items = []
     for u in users:
         w = await db.wallets.find_one({"user_id": u["user_id"]}, {"_id": 0}) or {}
@@ -3508,11 +2914,10 @@ async def admin_list_all_wallets(request: Request):
             "held": float(w.get("held") or 0.0),
             "total": float((w.get("available") or 0.0) + (w.get("held") or 0.0)),
         })
-    # sort by held descending so admins see who needs attention first
     items.sort(key=lambda x: (x["held"], x["available"]), reverse=True)
     return {"wallets": items}
 
-# ==================== PROMOTION PLANS (admin-managed) ====================
+# ==================== PROMOTION PLANS ====================
 class PromotionPlanCreate(BaseModel):
     name: str
     price: float
@@ -3537,10 +2942,10 @@ async def admin_create_promotion_plan(data: PromotionPlanCreate, request: Reques
     plan_id = f"plan_{uuid.uuid4().hex[:12]}"
     doc = {
         "plan_id": plan_id,
-        "name": data.name.strip(),
+        "name": sanitize_text(data.name, 100),
         "price": float(data.price),
         "duration_days": int(data.duration_days),
-        "description": (data.description or "").strip(),
+        "description": sanitize_text(data.description or "", 500),
         "benefits": data.benefits or {
             "home_highlight": True,
             "footer_banner": True,
@@ -3575,7 +2980,7 @@ async def seller_subscribe_plan(request: Request):
     user = await get_current_user(request)
     body = await request.json()
     plan_id = body.get("plan_id")
-    payment_method = body.get("payment_method", "wallet")  # wallet | pix
+    payment_method = body.get("payment_method", "wallet")
     if not plan_id:
         raise HTTPException(status_code=400, detail="Plano obrigatório")
     plan = await db.promotion_plans.find_one({"plan_id": plan_id, "active": True})
@@ -3608,7 +3013,7 @@ async def seller_subscribe_plan(request: Request):
         "plan_price": float(plan["price"]),
         "duration_days": int(plan["duration_days"]),
         "payment_method": payment_method,
-        "status": status,  # pending | active | expired | rejected
+        "status": status,
         "benefits": plan.get("benefits") or {},
         "created_at": now.isoformat(),
         "paid_at": paid_at,
@@ -3655,8 +3060,7 @@ async def admin_reject_subscription(sub_id: str, request: Request):
     )
     return {"message": "Assinatura rejeitada"}
 
-
-# ==================== DEMO SEED (admin only) ====================
+# ==================== DEMO SEED ====================
 @api_router.post("/admin/seed-demo-products")
 async def admin_seed_demo_products(request: Request):
     await require_admin(request)
@@ -3678,7 +3082,6 @@ async def admin_seed_demo_products(request: Request):
     created = 0
     now_iso = datetime.now(timezone.utc).isoformat()
     for title, desc, price, cat, ltype, cond, img in demo_items:
-        # avoid duplicates
         exists = await db.products.find_one({"title": title})
         if exists:
             continue
@@ -3694,6 +3097,9 @@ async def admin_seed_demo_products(request: Request):
             "city": "São Paulo",
             "state": "SP",
             "images": [img],
+            "image": img,
+            "imageUrl": img,
+            "thumbnailUrl": img,
             "listing_type": ltype,
             "product_type": "secondhand" if ltype == "desapega" else "new",
             "stock": 10,
@@ -3719,14 +3125,23 @@ async def admin_create_coupon(request: Request):
     body = await request.json()
     coupon = {
         "coupon_id": f"coupon_{uuid.uuid4().hex[:12]}",
-        "code": body.get("code", "").upper(),
-        "type": body.get("type", "fixed"),  # fixed or percentage
-        "value": body.get("value", 0),
-        "active": body.get("active", True),
+        "code": sanitize_text(body.get("code", ""), 50).upper(),
+        "type": body.get("type", "percentage"),
+        "value": float(body.get("value", 0)),
+        "active": True,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.coupons.insert_one(coupon)
     return {k: v for k, v in coupon.items() if k != "_id"}
+
+@api_router.put("/admin/coupons/{coupon_id}")
+async def admin_update_coupon(coupon_id: str, request: Request):
+    await require_admin(request)
+    body = await request.json()
+    allowed = {"code", "type", "value", "active"}
+    clean = {k: v for k, v in body.items() if k in allowed}
+    await db.coupons.update_one({"coupon_id": coupon_id}, {"$set": clean})
+    return await db.coupons.find_one({"coupon_id": coupon_id}, {"_id": 0})
 
 @api_router.delete("/admin/coupons/{coupon_id}")
 async def admin_delete_coupon(coupon_id: str, request: Request):
@@ -3734,370 +3149,38 @@ async def admin_delete_coupon(coupon_id: str, request: Request):
     await db.coupons.delete_one({"coupon_id": coupon_id})
     return {"message": "Cupom removido"}
 
-@api_router.post("/coupons/validate")
-async def validate_coupon(request: Request):
-    await get_current_user(request)
-    body = await request.json()
-    code = body.get("code", "").upper()
-    coupon = await db.coupons.find_one({"code": code, "active": True}, {"_id": 0})
-    if not coupon:
-        raise HTTPException(status_code=404, detail="Cupom invalido ou expirado")
-    return {"valid": True, "type": coupon["type"], "value": coupon["value"], "code": coupon["code"]}
+# ==================== STATIC PAGES ====================
+@api_router.get("/pages/{page_slug}")
+async def get_static_page(page_slug: str):
+    page = await db.static_pages.find_one({"slug": page_slug}, {"_id": 0})
+    if not page:
+        return {"slug": page_slug, "content": ""}
+    return page
 
-# ==================== 1. GESTÃO DE SALDO (ADMIN) ====================
-@api_router.post("/admin/wallet/add-balance")
-async def admin_add_balance(request: Request):
-    """Admin adiciona saldo manualmente na carteira de vendedor/afiliado"""
+@api_router.put("/admin/pages/{page_slug}")
+async def update_static_page(page_slug: str, data: PageUpdate, request: Request):
     await require_admin(request)
-    body = await request.json()
-    user_id = body.get("user_id")
-    amount = float(body.get("amount", 0))
-    balance_type = body.get("balance_type", "available")  # available ou held
-    
-    if not user_id or amount <= 0:
-        raise HTTPException(status_code=400, detail="user_id e amount obrigatorios")
-    
-    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario nao encontrado")
-    
-    # Atualizar wallet
-    if balance_type == "held":
-        await db.wallets.update_one({"user_id": user_id}, {"$inc": {"held": amount}}, upsert=True)
-    else:
-        await db.wallets.update_one({"user_id": user_id}, {"$inc": {"available": amount}}, upsert=True)
-    
-    # Registrar transacao
-    await db.wallet_transactions.insert_one({
-        "tx_id": f"tx_{uuid.uuid4().hex[:12]}",
-        "user_id": user_id,
-        "type": "admin_credit",
-        "amount": amount,
-        "status": balance_type,
-        "description": f"Credito manual do admin ({balance_type})",
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    
-    # Notificar usuario
-    await db.notifications.insert_one({
-        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
-        "user_id": user_id,
-        "type": "wallet",
-        "message": f"R$ {amount:.2f} adicionado a sua carteira!",
-        "read": False,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    
-    wallet = await db.wallets.find_one({"user_id": user_id}, {"_id": 0})
-    return {"message": "Saldo adicionado com sucesso", "wallet": wallet}
-
-# ==================== 2. SISTEMA DE LIBERAÇÃO DE SALDO (ESCROW) ====================
-@api_router.post("/admin/wallet/release-held")
-async def admin_release_held_balance(request: Request):
-    """Admin libera saldo retido (held -> available)"""
-    await require_admin(request)
-    body = await request.json()
-    user_id = body.get("user_id")
-    amount = body.get("amount")  # Optional: se None, libera tudo
-    order_id = body.get("order_id")  # Optional: liberar por pedido especifico
-    
-    if not user_id:
-        raise HTTPException(status_code=400, detail="user_id obrigatorio")
-    
-    wallet = await db.wallets.find_one({"user_id": user_id}, {"_id": 0})
-    if not wallet:
-        raise HTTPException(status_code=404, detail="Carteira nao encontrada")
-    
-    held_balance = wallet.get("held", 0)
-    if held_balance <= 0:
-        raise HTTPException(status_code=400, detail="Nenhum saldo retido para liberar")
-    
-    # Se amount nao especificado, libera tudo
-    release_amount = float(amount) if amount else held_balance
-    
-    if release_amount > held_balance:
-        raise HTTPException(status_code=400, detail="Valor maior que saldo retido")
-    
-    # Transferir de held para available
-    await db.wallets.update_one(
-        {"user_id": user_id},
-        {"$inc": {"held": -release_amount, "available": release_amount}}
+    await db.static_pages.update_one(
+        {"slug": page_slug},
+        {"$set": {"slug": page_slug, "content": data.content, "updated_at": datetime.now(timezone.utc).isoformat()}},
+        upsert=True
     )
-    
-    # Atualizar transacoes relacionadas ao pedido
-    if order_id:
-        await db.wallet_transactions.update_many(
-            {"user_id": user_id, "order_id": order_id, "status": "held"},
-            {"$set": {"status": "available", "released_at": datetime.now(timezone.utc).isoformat()}}
-        )
-    
-    # Registrar liberacao
-    await db.wallet_transactions.insert_one({
-        "tx_id": f"tx_{uuid.uuid4().hex[:12]}",
-        "user_id": user_id,
-        "type": "admin_release",
-        "amount": release_amount,
-        "status": "available",
-        "description": "Liberacao manual de saldo retido" + (f" (Pedido #{order_id[:16]})" if order_id else ""),
-        "order_id": order_id,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    
-    # Notificar usuario
-    await db.notifications.insert_one({
-        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
-        "user_id": user_id,
-        "type": "wallet",
-        "message": f"R$ {release_amount:.2f} liberado e disponivel para saque!",
-        "read": False,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    
-    updated_wallet = await db.wallets.find_one({"user_id": user_id}, {"_id": 0})
-    return {"message": "Saldo liberado com sucesso", "released": release_amount, "wallet": updated_wallet}
+    return {"message": "Página atualizada"}
 
-# ==================== 3. CONTROLE DE AFILIADOS ====================
-@api_router.put("/admin/users/{user_id}/affiliate-settings")
-async def admin_update_affiliate_settings(user_id: str, request: Request):
-    """Admin ativa/desativa ganhos de afiliado"""
-    await require_admin(request)
-    body = await request.json()
-    affiliate_earnings_enabled = body.get("affiliate_earnings_enabled", True)
-    
-    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario nao encontrado")
-    
-    await db.users.update_one(
-        {"user_id": user_id},
-        {"$set": {"affiliate_earnings_enabled": affiliate_earnings_enabled}}
-    )
-    
-    return {"message": "Configuracoes de afiliado atualizadas", "affiliate_earnings_enabled": affiliate_earnings_enabled}
-
-@api_router.post("/admin/affiliate/release-commission")
-async def admin_release_affiliate_commission(request: Request):
-    """Admin libera comissao de afiliado manualmente"""
-    await require_admin(request)
-    body = await request.json()
-    affiliate_id = body.get("affiliate_id")
-    order_id = body.get("order_id")
-    
-    if not affiliate_id or not order_id:
-        raise HTTPException(status_code=400, detail="affiliate_id e order_id obrigatorios")
-    
-    # Buscar transacao de comissao
-    tx = await db.wallet_transactions.find_one(
-        {"user_id": affiliate_id, "order_id": order_id, "type": "affiliate_commission"},
-        {"_id": 0}
-    )
-    
-    if not tx:
-        raise HTTPException(status_code=404, detail="Comissao nao encontrada")
-    
-    if tx.get("status") == "available":
-        raise HTTPException(status_code=400, detail="Comissao ja liberada")
-    
-    amount = tx["amount"]
-    
-    # Transferir de held para available
-    await db.wallets.update_one(
-        {"user_id": affiliate_id},
-        {"$inc": {"held": -amount, "available": amount}}
-    )
-    
-    # Atualizar transacao
-    await db.wallet_transactions.update_one(
-        {"tx_id": tx["tx_id"]},
-        {"$set": {"status": "available", "released_at": datetime.now(timezone.utc).isoformat()}}
-    )
-    
-    # Notificar afiliado
-    await db.notifications.insert_one({
-        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
-        "user_id": affiliate_id,
-        "type": "wallet",
-        "message": f"Comissao de R$ {amount:.2f} liberada!",
-        "read": False,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    
-    return {"message": "Comissao liberada", "amount": amount}
-
-# ==================== 4. PAINEL DE VENDAS MELHORADO ====================
-@api_router.get("/admin/sales/dashboard")
-async def admin_sales_dashboard(request: Request):
-    """Dashboard completo de vendas com detalhes de comprador, vendedor, produto"""
-    await require_admin(request)
-    
-    orders = await db.orders.find({}, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
-    
-    sales_data = []
-    for order in orders:
-        buyer = await db.users.find_one({"user_id": order["buyer_id"]}, {"_id": 0, "password_hash": 0})
-        
-        for item in order.get("items", []):
-            seller = await db.users.find_one({"user_id": item["seller_id"]}, {"_id": 0, "password_hash": 0})
-            product = await db.products.find_one({"product_id": item["product_id"]}, {"_id": 0})
-            
-            sales_data.append({
-                "order_id": order["order_id"],
-                "buyer": {
-                    "user_id": order["buyer_id"],
-                    "name": order.get("buyer_name", ""),
-                    "email": order.get("buyer_email", "")
-                },
-                "seller": {
-                    "user_id": item["seller_id"],
-                    "name": seller.get("name", "") if seller else "",
-                    "email": seller.get("email", "") if seller else ""
-                },
-                "product": {
-                    "product_id": item["product_id"],
-                    "title": item.get("title", ""),
-                    "price": item.get("price", 0),
-                    "quantity": item.get("quantity", 1),
-                    "image": item.get("image", "")
-                },
-                "value": item.get("subtotal", 0),
-                "total": order.get("total", 0),
-                "status": order.get("status", "pending"),
-                "payment_method": order.get("payment_method", "pix"),
-                "tracking_code": order.get("tracking_code", ""),
-                "created_at": order.get("created_at", ""),
-                "shipping_address": order.get("shipping_address", {})
-            })
-    
-    return {"sales": sales_data, "total_sales": len(sales_data)}
-
-# ==================== 5. NOTIFICAÇÕES AUTOMÁTICAS DE VENDAS ====================
-@api_router.get("/admin/notifications")
-async def admin_get_notifications(request: Request):
-    """Obter notificacoes do admin (vendas, etc)"""
-    await require_admin(request)
-    
-    notifications = await db.admin_notifications.find({}, {"_id": 0}).sort("created_at", -1).limit(50).to_list(50)
-    unread_count = await db.admin_notifications.count_documents({"read": False})
-    
-    return {"notifications": notifications, "unread_count": unread_count}
-
-@api_router.put("/admin/notifications/{notification_id}/read")
-async def admin_mark_notification_read(notification_id: str, request: Request):
-    """Marcar notificacao como lida"""
-    await require_admin(request)
-    
-    await db.admin_notifications.update_one(
-        {"notification_id": notification_id},
-        {"$set": {"read": True}}
-    )
-    
-    return {"message": "Notificacao marcada como lida"}
-
-# ==================== 6. RASTREAMENTO DE PEDIDOS ====================
-@api_router.put("/admin/orders/{order_id}/tracking")
-async def admin_update_tracking_code(order_id: str, request: Request):
-    """Admin/Vendedor adiciona codigo de rastreio"""
+# ==================== BRANE COINS ====================
+@api_router.get("/brane-coins")
+async def get_brane_coins(request: Request):
     user = await get_current_user(request)
-    body = await request.json()
-    tracking_code = body.get("tracking_code", "").strip()
-    
-    if not tracking_code:
-        raise HTTPException(status_code=400, detail="Codigo de rastreio obrigatorio")
-    
-    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
-    if not order:
-        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
-    
-    # Verificar permissao (admin ou vendedor do pedido)
-    is_seller = any(item["seller_id"] == user["user_id"] for item in order.get("items", []))
-    if user.get("role") != "admin" and not is_seller:
-        raise HTTPException(status_code=403, detail="Sem permissao")
-    
-    # Atualizar codigo de rastreio
-    await db.orders.update_one(
-        {"order_id": order_id},
-        {"$set": {"tracking_code": tracking_code, "tracking_updated_at": datetime.now(timezone.utc).isoformat()}}
-    )
-    
-    # Notificar comprador
-    await db.notifications.insert_one({
-        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
-        "user_id": order["buyer_id"],
-        "type": "order",
-        "message": f"Codigo de rastreio adicionado: {tracking_code}",
-        "read": False,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    
-    return {"message": "Codigo de rastreio atualizado", "tracking_code": tracking_code}
+    u = await db.users.find_one({"user_id": user["user_id"]}, {"_id": 0, "brane_coins": 1})
+    return {"brane_coins": u.get("brane_coins", 0) if u else 0}
 
-@api_router.put("/seller/orders/{order_id}/tracking")
-async def seller_add_tracking_code(order_id: str, request: Request):
-    """Vendedor adiciona código de rastreio ao seu pedido"""
-    user = await get_current_user(request)
-    
-    if user.get("role") != "seller":
-        raise HTTPException(status_code=403, detail="Apenas vendedores podem adicionar codigo de rastreio")
-    
-    body = await request.json()
-    tracking_code = body.get("tracking_code", "").strip()
-    
-    if not tracking_code:
-        raise HTTPException(status_code=400, detail="Codigo de rastreio obrigatorio")
-    
-    order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
-    if not order:
-        raise HTTPException(status_code=404, detail="Pedido nao encontrado")
-    
-    # Verificar se vendedor tem produtos neste pedido
-    is_seller = any(item["seller_id"] == user["user_id"] for item in order.get("items", []))
-    if not is_seller:
-        raise HTTPException(status_code=403, detail="Este pedido nao pertence a voce")
-    
-    # Atualizar codigo de rastreio
-    await db.orders.update_one(
-        {"order_id": order_id},
-        {"$set": {
-            "tracking_code": tracking_code,
-            "tracking_updated_at": datetime.now(timezone.utc).isoformat(),
-            "tracking_updated_by": user["user_id"]
-        }}
-    )
-    
-    # Notificar comprador
-    await db.notifications.insert_one({
-        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
-        "user_id": order["buyer_id"],
-        "type": "order_tracking",
-        "message": f"Código de rastreio disponível: {tracking_code}",
-        "data": {"order_id": order_id, "tracking_code": tracking_code},
-        "read": False,
-        "created_at": datetime.now(timezone.utc).isoformat()
-    })
-    
-    return {
-        "message": "Codigo de rastreio adicionado com sucesso",
-        "tracking_code": tracking_code,
-        "order_id": order_id
-    }
-
+# ==================== ORDER TRACKING ====================
 @api_router.get("/orders/{order_id}/tracking")
 async def get_order_tracking(order_id: str, request: Request):
-    """Obter informacoes de rastreio do pedido"""
-    user = await get_current_user(request)
-    
+    await get_current_user(request)
     order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
     if not order:
         raise HTTPException(status_code=404, detail="Pedido nao encontrado")
-    
-    # Verificar se usuario tem permissao
-    is_buyer = order["buyer_id"] == user["user_id"]
-    is_seller = any(item["seller_id"] == user["user_id"] for item in order.get("items", []))
-    is_admin = user.get("role") == "admin"
-    
-    if not (is_buyer or is_seller or is_admin):
-        raise HTTPException(status_code=403, detail="Sem permissao")
-    
     return {
         "order_id": order["order_id"],
         "tracking_code": order.get("tracking_code", ""),
@@ -4106,14 +3189,11 @@ async def get_order_tracking(order_id: str, request: Request):
         "created_at": order.get("created_at", "")
     }
 
-# ==================== 7. PERSONALIZAÇÃO DO PAINEL ADMIN ====================
+# ==================== ADMIN: CUSTOMIZAÇÃO ====================
 @api_router.get("/admin/customization")
 async def get_admin_customization(request: Request):
-    """Obter configuracoes de personalizacao do admin"""
     await require_admin(request)
-    
     custom = await db.admin_customization.find_one({"key": "settings"}, {"_id": 0})
-    
     defaults = {
         "dashboard_bg_color": "#F3F4F6",
         "sidebar_bg_color": "#1F2937",
@@ -4132,30 +3212,23 @@ async def get_admin_customization(request: Request):
         "category_text_color": "#111827",
         "category_bg_color": "#FFFFFF"
     }
-    
     return {**defaults, **(custom["value"] if custom else {})}
 
 @api_router.put("/admin/customization")
 async def update_admin_customization(request: Request):
-    """Atualizar configuracoes de personalizacao"""
     await require_admin(request)
     body = await request.json()
-    
     await db.admin_customization.update_one(
         {"key": "settings"},
         {"$set": {"key": "settings", "value": body, "updated_at": datetime.now(timezone.utc).isoformat()}},
         upsert=True
     )
-    
     return {"message": "Personalizacao atualizada", "settings": body}
 
 @api_router.get("/admin/layout-settings")
 async def get_admin_layout_settings(request: Request):
-    """Obter configuracoes de layout do painel"""
     await require_admin(request)
-    
     layout = await db.admin_customization.find_one({"key": "layout"}, {"_id": 0})
-    
     defaults = {
         "buyer_profile_layout": "default",
         "seller_profile_layout": "default",
@@ -4164,26 +3237,21 @@ async def get_admin_layout_settings(request: Request):
         "sidebar_collapsed": False,
         "theme_mode": "light"
     }
-    
     return {**defaults, **(layout["value"] if layout else {})}
 
 @api_router.put("/admin/layout-settings")
 async def update_admin_layout_settings(request: Request):
-    """Atualizar configuracoes de layout"""
     await require_admin(request)
     body = await request.json()
-    
     await db.admin_customization.update_one(
         {"key": "layout"},
         {"$set": {"key": "layout", "value": body, "updated_at": datetime.now(timezone.utc).isoformat()}},
         upsert=True
     )
-    
     return {"message": "Layout atualizado", "settings": body}
 
-# ==================== NEWSLETTER / SUBSCRIBERS ====================
+# ==================== NEWSLETTER ====================
 import re as _re
-# Regex que aceita emails válidos com pontos nos domínios (ex: gmail.com, outlook.com)
 _EMAIL_RX = _re.compile(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$")
 
 class SubscribeRequest(BaseModel):
@@ -4219,14 +3287,10 @@ async def list_subscribers(request: Request, skip: int = 0, limit: int = 1000, s
 async def delete_subscriber(subscriber_id: str, request: Request):
     await require_admin(request)
     result = await db.subscribers.delete_one({"subscriber_id": subscriber_id})
-    if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail="Inscrito nao encontrado")
     return {"message": "Inscrito removido"}
 
-
-# ==================== EMAIL CAMPAIGNS (RESEND) ====================
+# ==================== EMAIL CAMPAIGNS ====================
 def _build_campaign_html(title: str, content: str, button_text: str = "", button_url: str = "") -> str:
-    """Build a simple, email-client-safe HTML for campaigns"""
     safe_content = (content or "").replace("\n", "<br>")
     button_html = ""
     if button_text and button_url:
@@ -4262,8 +3326,7 @@ def _build_campaign_html(title: str, content: str, button_text: str = "", button
           <tr>
             <td style="background:#0B0D12;padding:18px 24px;text-align:center;border-top:1px solid #1E2230;">
               <p style="color:#6F7280;font-size:11px;margin:0;font-family:Arial,sans-serif;">
-                &copy; {datetime.now(timezone.utc).year} Brane Marketplace. Todos os direitos reservados.<br>
-                Voce esta recebendo este e-mail porque se inscreveu em nossa newsletter.
+                &copy; {datetime.now(timezone.utc).year} Brane Marketplace. Todos os direitos reservados.
               </p>
             </td>
           </tr>
@@ -4274,7 +3337,6 @@ def _build_campaign_html(title: str, content: str, button_text: str = "", button
 </body>
 </html>'''
 
-
 class CampaignCreate(BaseModel):
     subject: str
     title: str
@@ -4282,20 +3344,16 @@ class CampaignCreate(BaseModel):
     button_text: Optional[str] = ""
     button_url: Optional[str] = ""
 
-
 @api_router.post("/admin/campaigns/preview")
 async def preview_campaign(payload: CampaignCreate, request: Request):
-    """Generate HTML preview without sending"""
     await require_admin(request)
     if not payload.subject.strip() or not payload.title.strip() or not payload.content.strip():
         raise HTTPException(status_code=400, detail="Assunto, titulo e conteudo sao obrigatorios")
-    html = _build_campaign_html(payload.title, payload.content, payload.button_text or "", payload.button_url or "")
-    return {"subject": payload.subject, "html": html}
-
+    html_content = _build_campaign_html(payload.title, payload.content, payload.button_text or "", payload.button_url or "")
+    return {"subject": payload.subject, "html": html_content}
 
 @api_router.post("/admin/campaigns")
 async def create_and_send_campaign(payload: CampaignCreate, request: Request):
-    """Create a campaign and send to all subscribers via Resend"""
     await require_admin(request)
     if not RESEND_API_KEY:
         raise HTTPException(status_code=500, detail="Servico de e-mail nao configurado (RESEND_API_KEY)")
@@ -4306,7 +3364,7 @@ async def create_and_send_campaign(payload: CampaignCreate, request: Request):
     if not subscribers:
         raise HTTPException(status_code=400, detail="Nenhum inscrito para enviar")
 
-    html = _build_campaign_html(payload.title, payload.content, payload.button_text or "", payload.button_url or "")
+    html_content = _build_campaign_html(payload.title, payload.content, payload.button_text or "", payload.button_url or "")
     campaign_id = f"camp_{uuid.uuid4().hex[:12]}"
     sent_count = 0
     error_count = 0
@@ -4321,7 +3379,7 @@ async def create_and_send_campaign(payload: CampaignCreate, request: Request):
                 "from": SENDER_EMAIL,
                 "to": [email],
                 "subject": payload.subject,
-                "html": html,
+                "html": html_content,
             }
             await asyncio.to_thread(resend.Emails.send, params)
             sent_count += 1
@@ -4347,13 +3405,11 @@ async def create_and_send_campaign(payload: CampaignCreate, request: Request):
     await db.campaigns.insert_one(campaign_doc)
     return {k: v for k, v in campaign_doc.items() if k != "_id"}
 
-
 @api_router.get("/admin/campaigns")
 async def list_campaigns(request: Request, limit: int = 100):
     await require_admin(request)
     items = await db.campaigns.find({}, {"_id": 0}).sort("created_at", -1).limit(limit).to_list(limit)
     return {"campaigns": items, "total": len(items)}
-
 
 @api_router.get("/admin/campaigns/{campaign_id}")
 async def get_campaign(campaign_id: str, request: Request):
@@ -4363,8 +3419,7 @@ async def get_campaign(campaign_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Campanha nao encontrada")
     return item
 
-
-# ==================== FOOTER CONFIG (SOCIAL LINKS) ====================
+# ==================== FOOTER CONFIG ====================
 def _default_footer_config():
     return {
         "social_links": {
@@ -4375,15 +3430,12 @@ def _default_footer_config():
         }
     }
 
-
 @api_router.get("/footer-config")
 async def get_footer_config_public():
-    """Public endpoint - read by Footer component"""
     doc = await db.platform_settings.find_one({"key": "footer_config"}, {"_id": 0})
     if not doc:
         return _default_footer_config()
     return doc.get("value") or _default_footer_config()
-
 
 @api_router.get("/admin/footer-config")
 async def get_footer_config_admin(request: Request):
@@ -4393,10 +3445,8 @@ async def get_footer_config_admin(request: Request):
         return _default_footer_config()
     return doc.get("value") or _default_footer_config()
 
-
 class FooterConfigUpdate(BaseModel):
     social_links: dict
-
 
 @api_router.put("/admin/footer-config")
 async def update_footer_config(payload: FooterConfigUpdate, request: Request):
@@ -4409,6 +3459,94 @@ async def update_footer_config(payload: FooterConfigUpdate, request: Request):
     )
     return value
 
+# ==================== MONGODB INDEXES ====================
+async def create_mongodb_indexes():
+    """
+    Cria índices no MongoDB para otimizar consultas.
+    Executado no startup da aplicação.
+    Índices são idempotentes - não causam erro se já existirem.
+    """
+    if isinstance(db, MockDB):
+        logger.info("MockDB: pulando criação de índices")
+        return
+    
+    try:
+        # Índices de produtos (mais críticos para performance do feed)
+        await db.products.create_index([("status", 1), ("created_at", -1)])
+        await db.products.create_index([("seller_id", 1)])
+        await db.products.create_index([("category", 1), ("status", 1)])
+        await db.products.create_index([("city", 1), ("status", 1)])
+        await db.products.create_index([("product_type", 1), ("status", 1)])
+        await db.products.create_index([("is_deleted", 1), ("status", 1), ("created_at", -1)])
+        await db.products.create_index([("title", "text"), ("description", "text")])
+        
+        # Índices de usuários
+        await db.users.create_index([("email", 1)], unique=True, sparse=True)
+        await db.users.create_index([("user_id", 1)], unique=True, sparse=True)
+        await db.users.create_index([("role", 1)])
+        await db.users.create_index([("is_blocked", 1)])
+        
+        # Índices de mensagens diretas
+        await db.direct_messages.create_index([("thread_id", 1), ("created_at", 1)])
+        await db.direct_messages.create_index([("sender_id", 1)])
+        await db.direct_messages.create_index([("recipient_id", 1)])
+        await db.direct_messages.create_index([("recipient_id", 1), ("read", 1)])
+        
+        # Índices de mensagens de loja
+        await db.store_messages.create_index([("store_id", 1), ("created_at", -1)])
+        await db.store_messages.create_index([("sender_id", 1)])
+        
+        # Índices de pedidos
+        await db.orders.create_index([("buyer_id", 1), ("created_at", -1)])
+        await db.orders.create_index([("status", 1), ("created_at", -1)])
+        await db.orders.create_index([("items.seller_id", 1)])
+        
+        # Índices de denúncias
+        await db.reports.create_index([("status", 1), ("created_at", -1)])
+        await db.reports.create_index([("reporter_id", 1)])
+        await db.reports.create_index([("reported_user_id", 1)])
+        
+        # Índices de social posts (B Livre)
+        await db.social_posts.create_index([("created_at", -1)])
+        await db.social_posts.create_index([("user_id", 1)])
+        await db.social_posts.create_index([("is_blocked", 1), ("created_at", -1)])
+        
+        # Índices de comentários
+        await db.social_comments.create_index([("post_id", 1), ("created_at", 1)])
+        
+        # Índices de notificações
+        await db.notifications.create_index([("user_id", 1), ("created_at", -1)])
+        await db.notifications.create_index([("user_id", 1), ("read", 1)])
+        
+        # Índices de lojas
+        await db.stores.create_index([("owner_id", 1)])
+        await db.stores.create_index([("slug", 1)], unique=True, sparse=True)
+        await db.stores.create_index([("is_approved", 1)])
+        
+        # Índices de carteira
+        await db.wallets.create_index([("user_id", 1)], unique=True, sparse=True)
+        await db.wallet_transactions.create_index([("user_id", 1), ("created_at", -1)])
+        
+        # Índices de saques
+        await db.withdrawals.create_index([("user_id", 1)])
+        await db.withdrawals.create_index([("status", 1), ("created_at", -1)])
+        
+        # Índices de suporte
+        await db.support_messages.create_index([("user_id", 1)])
+        await db.support_messages.create_index([("status", 1), ("created_at", -1)])
+        
+        # Índices de assinaturas
+        await db.subscriptions.create_index([("seller_id", 1)])
+        await db.subscriptions.create_index([("status", 1)])
+        
+        # Índices de storage de arquivos (legado)
+        await db.file_storage.create_index([("path", 1)], unique=True, sparse=True)
+        
+        logger.info("✅ Índices MongoDB criados com sucesso")
+    except Exception as e:
+        logger.error(f"Erro ao criar índices MongoDB: {e}")
+
+# ==================== CORS + APP SETUP ====================
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r".*",
@@ -4425,26 +3563,28 @@ async def get_social_profile_test():
     return {"status": "ok"}
     
 @app.put("/api/social/profile")
-async def update_social_profile_direct(data: dict, request: Request):
+async def update_social_profile_direct(request: Request):
     user = await get_current_user(request)
-
+    data = await request.json()
     await db.users.update_one(
         {"user_id": user["user_id"]},
         {"$set": {
             "user_id": user["user_id"],
-            "name": data.get("name", ""),
-            "city": data.get("city", ""),
-            "state": data.get("state", ""),
+            "name": sanitize_text(data.get("name", ""), 100),
+            "city": sanitize_text(data.get("city", ""), 100),
+            "state": sanitize_text(data.get("state", ""), 100),
             "avatar": data.get("avatar", "")
         }},
         upsert=True
     )
-
     return {"ok": True}
 
 @app.on_event("startup")
 async def startup():
     try:
+        # Criar diretório de uploads
+        UPLOADS_DIR.mkdir(exist_ok=True)
+        
         # Admin padrão solicitado pelo usuário
         admin_req = await db.users.find_one({"email": "admin@branelivre.com"}, {"_id": 0})
         if not admin_req:
@@ -4469,10 +3609,11 @@ async def startup():
             })
             await db.wallets.insert_one({"user_id": admin_id, "available": 0.0, "held": 0.0})
             logger.info("Admin user created: admin@brane.com / Admin123!")
+        
         comm = await db.platform_settings.find_one({"key": "commissions"})
         if not comm:
             await db.platform_settings.insert_one({"key": "commissions", "value": {"platform_commission": 0.09, "affiliate_commission": 0.065}})
-        # Initialize shipping settings
+        
         shipping = await db.platform_settings.find_one({"key": "shipping"})
         if not shipping:
             await db.platform_settings.insert_one({
@@ -4485,12 +3626,17 @@ async def startup():
                     ]
                 }
             })
+        
+        # Criar índices MongoDB
+        await create_mongodb_indexes()
+        
         try:
             init_storage()
-            logger.info("MongoDB storage ready - no external storage needed")
+            logger.info("Storage local pronto: uploads/")
         except Exception as e:
             logger.error(f"Storage init failed: {e}")
-        logger.info("BRANE Marketplace started!")
+        
+        logger.info("🚀 BRANE Marketplace iniciado com otimizações de performance!")
     except Exception as e:
         logger.error(f"Startup database initialization failed: {e}")
         logger.info("App starting without database initialization")

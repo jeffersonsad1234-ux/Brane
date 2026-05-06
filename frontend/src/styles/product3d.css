@@ -774,3 +774,29 @@ body.modal-open {
     height: 52px;
   }
 }
+
+/* ==================== SKELETON LOADING ====================
+ * Animação de shimmer para skeleton cards no feed.
+ * Usada pelo Product3DCardSkeleton e pelos placeholders inline.
+ */
+@keyframes brane-skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.brane-skeleton-card {
+  pointer-events: none;
+  user-select: none;
+}
+
+.brane-skeleton-block {
+  background: linear-gradient(
+    90deg,
+    #1a1d27 25%,
+    #22263a 50%,
+    #1a1d27 75%
+  );
+  background-size: 200% 100%;
+  animation: brane-skeleton-shimmer 1.4s infinite linear;
+  border-radius: 8px;
+}

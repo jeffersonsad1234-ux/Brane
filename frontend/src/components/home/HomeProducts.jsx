@@ -1,5 +1,5 @@
 import { Store as StoreIcon } from 'lucide-react';
-import Product3DCard from '../Product3DCard';
+import Product3DCard, { Product3DCardSkeleton } from '../Product3DCard';
 
 export default function HomeProducts({
   productsRef,
@@ -12,19 +12,10 @@ export default function HomeProducts({
   return (
     <section ref={productsRef} className="max-w-7xl mx-auto px-4 pt-5 scroll-mt-20 bg-transparent">
       {loadingProducts && products.length === 0 ? (
+        /* Skeleton elegante que mantém o layout do grid real */
         <div className="theme-product-grid">
           {Array.from({ length: 12 }, (_, i) => (
-            <div
-              key={i}
-              className="rounded-[22px] bg-white border border-[#E5E7EB] overflow-hidden animate-pulse"
-            >
-              <div className="aspect-square bg-[#F3F4F6]" />
-              <div className="p-3 space-y-2">
-                <div className="h-3 rounded bg-[#E5E7EB] w-4/5" />
-                <div className="h-3 rounded bg-[#E5E7EB] w-2/3" />
-                <div className="h-5 rounded bg-[#E5E7EB] w-1/2" />
-              </div>
-            </div>
+            <Product3DCardSkeleton key={i} />
           ))}
         </div>
       ) : products.length > 0 ? (

@@ -207,7 +207,7 @@ try {
   setForm(function(prev) {  
     return {  
       ...prev,  
-      [field]: res.data.path  
+      [field]: res.data?.imageUrl || res.data?.path || ''  
     };  
   });  
 

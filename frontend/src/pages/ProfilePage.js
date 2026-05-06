@@ -42,7 +42,8 @@ export default function ProfilePage() {
       const fd = new FormData();
       fd.append('file', file);
       const res = await axios.post(`${API}/upload`, fd, { headers });
-      const picUrl = `${API}/files/${res.data.path}`;
+      // Novo formato: imageUrl; fallback para path legado
+      const picUrl = res.data?.imageUrl || `${API}/files/${res.data.path}`;
       setForm(prev => ({ ...prev, picture: picUrl }));
       await axios.put(`${API}/users/profile`, { picture: picUrl }, { headers });
       setProfile(prev => ({ ...prev, picture: picUrl }));

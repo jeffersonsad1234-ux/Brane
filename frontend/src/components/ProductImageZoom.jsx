@@ -10,7 +10,10 @@ export default function ProductImageZoom({
   zoomSize = 220,
   zoomPanelSize = 180,
   lensSize = 180,
-  style = {}
+  style = {},
+  imgStyle = {},
+  onLoad = null,
+  loading = "lazy"
 }) {
   const [canZoom, setCanZoom] = useState(false);
   const [showZoom, setShowZoom] = useState(false);
@@ -57,8 +60,10 @@ export default function ProductImageZoom({
         src={src}
         alt={alt}
         className={`w-full h-full object-cover ${className}`}
-        loading="lazy"
+        loading={loading}
         decoding="async"
+        style={imgStyle}
+        onLoad={onLoad || undefined}
         onMouseEnter={() => {
           if (detailMode) {
             setIsActive(true);
