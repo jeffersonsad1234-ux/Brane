@@ -922,15 +922,30 @@ export default function SocialPage() {
 
           @media (max-width: 480px) {
             .blivre-shell {
-              grid-template-columns: 85px minmax(0, 1fr) 95px !important;
+              grid-template-columns: 75px minmax(0, 1fr) 85px !important;
               gap: 4px !important;
+              padding: 0 2px !important;
             }
             .blivre-grid, .blivre-grid-focused {
-              grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)) !important;
-              gap: 6px !important;
+              grid-template-columns: repeat(2, 1fr) !important;
+              gap: 4px !important;
             }
-            header h1 { font-size: 14px !important; }
-            header p { font-size: 7px !important; }
+            .blivre-side {
+              padding: 4px !important;
+            }
+            .blivre-side div {
+              padding: 6px !important;
+              border-radius: 12px !important;
+            }
+            .blivre-side h3 { font-size: 10px !important; margin-bottom: 4px !important; }
+            .blivre-side button { padding: 4px !important; font-size: 8px !important; border-radius: 8px !important; gap: 4px !important; }
+            .blivre-side svg { width: 12px !important; height: 12px !important; }
+            
+            header h1 { font-size: 12px !important; }
+            header p { font-size: 6px !important; }
+            header .w-9 { width: 28px !important; height: 28px !important; border-radius: 8px !important; }
+            header .w-11 { width: 28px !important; height: 28px !important; border-radius: 8px !important; }
+            header svg { width: 14px !important; height: 14px !important; }
           }
         `}
       </style>
@@ -1923,7 +1938,7 @@ export default function SocialPage() {
                               {getLocation(post)}
                             </p>
 
-                            <span className="mt-1 sm:mt-3 inline-flex w-full justify-center rounded-md sm:rounded-xl blivre-gold-button px-1 sm:px-3 py-1 sm:py-2 text-[8px] sm:text-[12px] font-black text-[#14100A]">
+                            <span className="mt-1 sm:mt-3 inline-flex w-full justify-center rounded-md sm:rounded-xl blivre-gold-button px-1 sm:px-3 py-1 sm:py-1.5 text-[7px] sm:text-[12px] font-black text-[#14100A]">
                               {activeFilter === "mine" ? "Ver meu anúncio" : "Ver produto"}
                             </span>
                           </div>
@@ -1972,7 +1987,7 @@ export default function SocialPage() {
                       Alcance
                     </h3>
 
-                    <div className="space-y-3 text-sm text-[#B8BAC6]">
+                    <div className="space-y-2 sm:space-y-3 text-[10px] sm:text-sm text-[#B8BAC6]">
                       <div className="flex items-center justify-between">
                         <span>Visualizações</span>
                         <span className="text-[#F1D28A] font-bold">{totalViews}</span>
