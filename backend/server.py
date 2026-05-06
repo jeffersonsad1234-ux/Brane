@@ -2800,6 +2800,20 @@ async def admin_delete_social_post(post_id: str, request: Request):
     return {"message": "Anúncio removido"}
 
 # ==================== ADMIN: MONITORAMENTO DE MENSAGENS ====================
+def _safe_msg(m: dict) -> dict:
+    """Limpa campos não-serializáveis (ObjectId) de um documento MongoDB"""
+    clean = {}
+    for k, v in m.items():
+        if k == "_id":
+            continue
+        try:
+            import json
+            json.dumps(v)
+            clean[k] = v
+        except (TypeError, ValueError):
+            clean[k] = str(v)
+    return clean
+
 @api_router.get("/admin/messages")
 async def admin_list_all_messages(request: Request, page: int = 1, limit: int = 50, tipo: Optional[str] = None):
     """Admin monitora todas as mensagens da plataforma"""
@@ -2809,60 +2823,86 @@ async def admin_list_all_messages(request: Request, page: int = 1, limit: int = 
     
     search_q = request.query_params.get("search", "")
     
-    if not tipo or tipo == "direct":
-        # Mensagens diretas
-        direct = await db.direct_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
-        for m in direct:
-            m["type"] = "direct"
-            m["sender_name"] = m.get("sender_name", "")
-            m["receiver_name"] = m.get("recipient_name", "")
-            if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("recipient_name", "") + m.get("message", "")).lower():
-                continue
-            all_messages.append(m)
+    try:
+        if not tipo or tipo == "direct":
+            try:
+                direct = await db.direct_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
+                for m in direct:
+                    m = _safe_msg(m)
+                    m["type"] = "direct"
+                    m["sender_name"] = m.get("sender_name") or m.get("from_name", "")
+                    m["receiver_name"] = m.get("recipient_name") or m.get("to_name", "")
+                    m["message"] = m.get("message") or m.get("content") or m.get("text", "")
+                    if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("receiver_name", "") + m.get("message", "")).lower():
+                        continue
+                    all_messages.append(m)
+            except Exception as e:
+                logging.warning(f"admin/messages direct error: {e}")
+        
+        if not tipo or tipo == "store":
+            try:
+                store_msgs = await db.store_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
+                for m in store_msgs:
+                    m = _safe_msg(m)
+                    m["type"] = "store"
+                    m["sender_name"] = m.get("sender_name", "")
+                    try:
+                        store = await db.stores.find_one({"store_id": m.get("store_id")}, {"_id": 0, "name": 1})
+                        m["receiver_name"] = store["name"] if store else "Loja"
+                    except:
+                        m["receiver_name"] = "Loja"
+                    m["message"] = m.get("message") or m.get("content") or m.get("text", "")
+                    if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("receiver_name", "") + m.get("message", "")).lower():
+                        continue
+                    all_messages.append(m)
+            except Exception as e:
+                logging.warning(f"admin/messages store error: {e}")
+        
+        if not tipo or tipo == "social":
+            try:
+                social_msgs = await db.social_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
+                for m in social_msgs:
+                    m = _safe_msg(m)
+                    m["type"] = "social"
+                    m["sender_name"] = m.get("sender_name", "")
+                    try:
+                        post = await db.social_posts.find_one({"post_id": m.get("post_id")}, {"_id": 0, "title": 1, "user_name": 1})
+                        m["receiver_name"] = post["user_name"] if post else "Usuário"
+                        m["product_title"] = post["title"] if post else ""
+                    except:
+                        m["receiver_name"] = "Usuário"
+                        m["product_title"] = ""
+                    m["message"] = m.get("message") or m.get("content") or m.get("text", "")
+                    if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("receiver_name", "") + m.get("message", "")).lower():
+                        continue
+                    all_messages.append(m)
+            except Exception as e:
+                logging.warning(f"admin/messages social error: {e}")
+        
+        if not tipo or tipo == "support":
+            try:
+                support_msgs = await db.support_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
+                for m in support_msgs:
+                    m = _safe_msg(m)
+                    m["type"] = "support"
+                    m["sender_name"] = m.get("user_name") or m.get("sender_name", "")
+                    m["receiver_name"] = "Suporte BRANE"
+                    m["message"] = m.get("message") or m.get("content") or m.get("text", "")
+                    if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("message", "")).lower():
+                        continue
+                    all_messages.append(m)
+            except Exception as e:
+                logging.warning(f"admin/messages support error: {e}")
+        
+        # Ordenar por data
+        all_messages.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+        total = len(all_messages)
+        paginated = all_messages[skip:skip+limit]
+        return {"messages": paginated, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
     
-    if not tipo or tipo == "store":
-        # Mensagens de loja
-        store_msgs = await db.store_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
-        for m in store_msgs:
-            m["type"] = "store"
-            m["sender_name"] = m.get("sender_name", "")
-            # Buscar nome da loja
-            store = await db.stores.find_one({"store_id": m.get("store_id")}, {"_id": 0, "name": 1})
-            m["receiver_name"] = store["name"] if store else "Loja"
-            if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("receiver_name", "") + m.get("message", "")).lower():
-                continue
-            all_messages.append(m)
-    
-    if not tipo or tipo == "social":
-        # Mensagens sociais (chat em anúncios)
-        social_msgs = await db.social_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(200).to_list(200)
-        for m in social_msgs:
-            m["type"] = "social"
-            m["sender_name"] = m.get("sender_name", "")
-            # Buscar título do post
-            post = await db.social_posts.find_one({"post_id": m.get("post_id")}, {"_id": 0, "title": 1, "user_name": 1})
-            m["receiver_name"] = post["user_name"] if post else "Usuário"
-            m["product_title"] = post["title"] if post else ""
-            if search_q and search_q.lower() not in (m.get("sender_name", "") + m.get("receiver_name", "") + m.get("message", "")).lower():
-                continue
-            all_messages.append(m)
-    
-    if not tipo or tipo == "support":
-        # Mensagens de suporte
-        support_msgs = await db.support_messages.find({}, {"_id": 0}).sort("created_at", -1).limit(100).to_list(100)
-        for m in support_msgs:
-            m["type"] = "support"
-            m["sender_name"] = m.get("user_name", "")
-            m["receiver_name"] = "Suporte BRANE"
-            if search_q and search_q.lower() not in (m.get("user_name", "") + m.get("message", "")).lower():
-                continue
-            all_messages.append(m)
-    
-    # Ordenar por data
-    all_messages.sort(key=lambda x: x.get("created_at", ""), reverse=True)
-    total = len(all_messages)
-    paginated = all_messages[skip:skip+limit]
-    return {"messages": paginated, "total": total, "page": page, "pages": max(1, (total + limit - 1) // limit)}
+    except Exception as e:
+        logging.error(f"admin/messages fatal error: {e}")
+        return {"messages": [], "total": 0, "page": page, "pages": 1, "error": str(e)}
 
 # ==================== ADMIN: DENUNCIAS COMPLETO ====================
 @api_router.get("/admin/reports")
