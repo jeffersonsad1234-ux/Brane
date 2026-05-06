@@ -47,6 +47,7 @@ export default function SocialPage() {
   const avatarInputRef = useRef(null);
   const loadMoreRef = useRef(null);
   const scrollFrameRef = useRef(null);
+  const mainScrollRef = useRef(null);
   const expandedRef = useRef(false);
 
   const [posts, setPosts] = useState([]);
@@ -358,13 +359,13 @@ export default function SocialPage() {
     loadSocialData();
 
     const handleScroll = () => {
-      if (window.innerWidth < 768) return; // Não afeta mobile
+      if (window.innerWidth < 768) return;
 
       if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
 
       scrollFrameRef.current = requestAnimationFrame(() => {
-        const scrollY = window.scrollY;
-        const shouldExpand = scrollY > 100;
+        const scrollY = mainScrollRef.current ? mainScrollRef.current.scrollTop : 0;
+        const shouldExpand = scrollY > 50;
 
         if (shouldExpand !== expandedRef.current) {
           setExpanded(shouldExpand);
@@ -373,10 +374,15 @@ export default function SocialPage() {
       });
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    const scrollArea = mainScrollRef.current;
+    if (scrollArea) {
+      scrollArea.addEventListener("scroll", handleScroll, { passive: true });
+    }
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      if (scrollArea) {
+        scrollArea.removeEventListener("scroll", handleScroll);
+      }
       if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
     };
   }, [token]);
@@ -1874,7 +1880,9 @@ export default function SocialPage() {
               </div>
             </aside>
 
-            <main className="h-[calc(100vh-110px)] overflow-y-auto pr-1 sm:pr-2"
+            <main 
+              ref={mainScrollRef}
+              className="h-[calc(100vh-110px)] overflow-y-auto pr-1 sm:pr-2"
             >
               {activeFilter === "messages" ? (
                 selectedChat ? (
