@@ -878,7 +878,7 @@ export default function SocialPage() {
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 8px 22px rgba(200,138,26,0.28);
           }
 
-          /* Forçar layout de 3 colunas idêntico ao desktop em todas as larguras */
+          /* Layout Desktop Padrão */
           .blivre-shell {
             grid-template-columns: 235px minmax(0, 1fr) 255px !important;
             display: grid !important;
@@ -887,9 +887,6 @@ export default function SocialPage() {
 
           .blivre-side {
             display: block !important;
-            opacity: 1 !important;
-            scale: 1 !important;
-            pointer-events: auto !important;
           }
 
           .blivre-grid,
@@ -898,54 +895,61 @@ export default function SocialPage() {
             gap: 16px !important;
           }
 
-          @media (max-width: 1024px) {
-            .blivre-shell {
-              grid-template-columns: 180px minmax(0, 1fr) 200px !important;
-              gap: 12px !important;
-            }
-            .blivre-grid, .blivre-grid-focused {
-              grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
-              gap: 12px !important;
-            }
-          }
-
+          /* Layout Mobile Profissional (Amazon/Shopee Style) */
           @media (max-width: 768px) {
             .blivre-shell {
-              grid-template-columns: 120px minmax(0, 1fr) 130px !important;
-              gap: 8px !important;
+              grid-template-columns: 1fr !important;
+              gap: 0 !important;
+              padding: 0 !important;
             }
-            .blivre-grid, .blivre-grid-focused {
-              grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)) !important;
+
+            .blivre-side {
+              display: none !important;
+            }
+
+            .blivre-grid,
+            .blivre-grid-focused {
+              grid-template-columns: repeat(2, 1fr) !important;
               gap: 8px !important;
+              padding: 8px !important;
+            }
+
+            /* Ajuste para celulares maiores */
+            @media (min-width: 481px) {
+              .blivre-grid,
+              .blivre-grid-focused {
+                grid-template-columns: repeat(3, 1fr) !important;
+              }
             }
           }
 
           @media (max-width: 480px) {
-            .blivre-shell {
-              grid-template-columns: 75px minmax(0, 1fr) 85px !important;
-              gap: 4px !important;
-              padding: 0 2px !important;
-            }
-            .blivre-grid, .blivre-grid-focused {
+            .blivre-grid,
+            .blivre-grid-focused {
               grid-template-columns: repeat(2, 1fr) !important;
-              gap: 4px !important;
-            }
-            .blivre-side {
-              padding: 4px !important;
-            }
-            .blivre-side div {
+              gap: 6px !important;
               padding: 6px !important;
-              border-radius: 12px !important;
             }
-            .blivre-side h3 { font-size: 10px !important; margin-bottom: 4px !important; }
-            .blivre-side button { padding: 4px !important; font-size: 8px !important; border-radius: 8px !important; gap: 4px !important; }
-            .blivre-side svg { width: 12px !important; height: 12px !important; }
-            
-            header h1 { font-size: 12px !important; }
-            header p { font-size: 6px !important; }
-            header .w-9 { width: 28px !important; height: 28px !important; border-radius: 8px !important; }
-            header .w-11 { width: 28px !important; height: 28px !important; border-radius: 8px !important; }
-            header svg { width: 14px !important; height: 14px !important; }
+          }
+
+          /* Estilo para o carrossel de categorias mobile */
+          .categories-carousel {
+            display: none;
+          }
+          
+          @media (max-width: 768px) {
+            .categories-carousel {
+              display: flex;
+              overflow-x: auto;
+              scroll-behavior: smooth;
+              -webkit-overflow-scrolling: touch;
+              gap: 8px;
+              padding: 12px 8px;
+              scrollbar-width: none;
+            }
+            .categories-carousel::-webkit-scrollbar {
+              display: none;
+            }
           }
         `}
       </style>
@@ -1616,56 +1620,75 @@ export default function SocialPage() {
 
       <div className="relative z-10">
         <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050508]/90 backdrop-blur-xl w-full overflow-x-hidden">
-          <div className="w-full px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between gap-2 sm:gap-4">
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1px] flex-shrink-0">
-                <div className="w-full h-full rounded-2xl bg-[#09090D] overflow-hidden flex items-center justify-center">
-                  <img src={BRANE_LOGO_URL} alt="B Livre" className="w-full h-full object-cover" />
+          <div className="w-full px-3 sm:px-4 py-3 sm:py-4 flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-2 sm:gap-4">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1px] flex-shrink-0">
+                  <div className="w-full h-full rounded-2xl bg-[#09090D] overflow-hidden flex items-center justify-center">
+                    <img src={BRANE_LOGO_URL} alt="B Livre" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+
+                <div className="min-w-0">
+                  <h1 className="font-black tracking-wide leading-none text-base sm:text-lg">B Livre</h1>
+                  <p className="text-[10px] sm:text-[11px] text-[#8C8F9A] uppercase tracking-[0.2em] truncate hidden sm:block">
+                    compras, vendas e oportunidades locais
+                  </p>
                 </div>
               </div>
+              <div className="flex items-center gap-1 sm:gap-2">
+                <button
+                  onClick={() => setShowNotifications(true)}
+                  className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] flex-shrink-0"
+                >
+                  <Bell size={16} />
+                </button>
 
-              <div className="min-w-0 hidden sm:block">
-                <h1 className="font-black tracking-wide leading-none text-base sm:text-lg">B Livre</h1>
-                <p className="text-[10px] sm:text-[11px] text-[#8C8F9A] uppercase tracking-[0.2em] truncate">
-                  compras, vendas e oportunidades locais
-                </p>
+                <button
+                  onClick={() => {
+                    setProfileForm({
+                      name: user?.name || "",
+                      city: user?.city || "",
+                      state: user?.state || "",
+                      picture: user?.picture || user?.avatar || "",
+                      phone: user?.phone || "",
+                      bio: user?.bio || ""
+                    });
+                    setShowSettings(true);
+                  }}
+                  className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] flex-shrink-0"
+                >
+                  <Settings size={16} />
+                </button>
               </div>
             </div>
 
-            <div className="hidden md:flex flex-1 max-w-xl items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3">
+            {/* Busca Mobile/Desktop */}
+            <div className="flex flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-2.5 sm:py-3">
               <Search size={18} className="text-[#D4A24C]" />
               <input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar produtos, serviços e oportunidades..."
+                placeholder="Buscar produtos, serviços..."
                 className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-[#6F7280]"
               />
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-2">
-              <button
-                onClick={() => setShowNotifications(true)}
-                className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] flex-shrink-0"
-              >
-                <Bell size={16} className="sm:block" />
-              </button>
-
-              <button
-                onClick={() => {
-                  setProfileForm({
-                    name: user?.name || "",
-                    city: user?.city || "",
-                    state: user?.state || "",
-                    picture: user?.picture || user?.avatar || "",
-                    phone: user?.phone || "",
-                    bio: user?.bio || ""
-                  });
-                  setShowSettings(true);
-                }}
-                className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] flex-shrink-0"
-              >
-                <Settings size={16} className="sm:block" />
-              </button>
+            {/* Carrossel de Categorias Mobile */}
+            <div className="categories-carousel">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`whitespace-nowrap px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    activeCategory === cat.id
+                      ? "bg-[#D4A24C] text-black"
+                      : "bg-white/5 text-[#8C8F9A] border border-white/10"
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
             </div>
           </div>
         </header>
@@ -1925,20 +1948,20 @@ export default function SocialPage() {
                             )}
                           </div>
 
-                          <div className="p-1 sm:p-3 bg-white">
-                            <p className="text-[#17130B] font-black text-[8px] sm:text-sm leading-tight line-clamp-2 tracking-[-0.03em]">
+                          <div className="p-2 sm:p-3 bg-white">
+                            <p className="text-[#17130B] font-black text-xs sm:text-sm leading-tight line-clamp-2 tracking-[-0.03em]">
                               {getTitle(post)}
                             </p>
 
-                            <p className="blivre-gold-text font-black text-[10px] sm:text-lg mt-0.5 sm:mt-2 tracking-[-0.04em]">
+                            <p className="blivre-gold-text font-black text-base sm:text-lg mt-1 sm:mt-2 tracking-[-0.04em]">
                               {getPrice(post)}
                             </p>
 
-                            <p className="text-[7px] sm:text-[11px] text-[#8B8790] font-semibold mt-0.5 sm:mt-1 truncate">
+                            <p className="text-[10px] sm:text-[11px] text-[#8B8790] font-semibold mt-0.5 sm:mt-1 truncate">
                               {getLocation(post)}
                             </p>
 
-                            <span className="mt-1 sm:mt-3 inline-flex w-full justify-center rounded-md sm:rounded-xl blivre-gold-button px-1 sm:px-3 py-1 sm:py-1.5 text-[7px] sm:text-[12px] font-black text-[#14100A]">
+                            <span className="mt-2 sm:mt-3 inline-flex w-full justify-center rounded-xl blivre-gold-button px-2 sm:px-3 py-1.5 sm:py-2 text-[11px] sm:text-[12px] font-black text-[#14100A]">
                               {activeFilter === "mine" ? "Ver meu anúncio" : "Ver produto"}
                             </span>
                           </div>
