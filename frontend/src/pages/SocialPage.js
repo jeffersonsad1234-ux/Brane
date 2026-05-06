@@ -15,6 +15,17 @@ const PAGE_SIZE = 24;
 
 const categories = ["Celulares", "Veículos", "Imóveis", "Casa e móveis", "Moda", "Serviços", "Outros"];
 
+const CATEGORIES = [
+  { id: "all", label: "Todas" },
+  { id: "Celulares", label: "Celulares" },
+  { id: "Veículos", label: "Veículos" },
+  { id: "Imóveis", label: "Imóveis" },
+  { id: "Casa e móveis", label: "Casa e móveis" },
+  { id: "Moda", label: "Moda" },
+  { id: "Serviços", label: "Serviços" },
+  { id: "Outros", label: "Outros" }
+];
+
 const states = [
   "Acre", "Alagoas", "Amapá", "Amazonas", "Bahia", "Ceará", "Distrito Federal",
   "Espírito Santo", "Goiás", "Maranhão", "Mato Grosso", "Mato Grosso do Sul",
@@ -54,6 +65,7 @@ export default function SocialPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
   const [favorites, setFavorites] = useState([]);
   const [stats, setStats] = useState({});
   const [socialStats, setSocialStats] = useState({
