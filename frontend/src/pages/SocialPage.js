@@ -2053,39 +2053,41 @@ export default function SocialPage() {
             </main>
 
             <aside className={`h-[calc(100vh-110px)] overflow-hidden blivre-side ${expanded ? 'w-[70px] ml-4' : ''}`}>
-              {expanded ? (
-                <div className="fixed top-[108px] right-4 sm:right-8 z-30">
+              <div className="space-y-5">
+                <div className={`rounded-[28px] border border-[#D4A24C]/20 bg-gradient-to-br from-white/[0.06] to-white/[0.025] p-5 transition-all duration-300 ${expanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                  <h3 className="font-black mb-3 flex items-center gap-2">
+                    <Package size={18} className="text-[#D4A24C]" />
+                    Anunciar produto
+                  </h3>
+
                   <button
+                    type="button"
                     onClick={() => {
                       if (!requireAuth("anunciar")) return;
                       setUseAI(true);
                       setComposerOpen(true);
                     }}
-                    className="w-14 h-14 rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black shadow-[0_12px_35px_rgba(212,162,76,0.22)] flex items-center justify-center text-2xl transition-transform hover:scale-105 active:scale-95"
+                    className="w-full rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black py-3"
                   >
-                    <Plus size={28} strokeWidth={3} />
+                    Anunciar
                   </button>
                 </div>
-              ) : (
-                <div className="space-y-5">
-                  <div className="rounded-[28px] border border-[#D4A24C]/20 bg-gradient-to-br from-white/[0.06] to-white/[0.025] p-5">
-                    <h3 className="font-black mb-3 flex items-center gap-2">
-                      <Package size={18} className="text-[#D4A24C]" />
-                      Anunciar produto
-                    </h3>
 
+                {/* Botão + Fixo que aparece ao rolar */}
+                {expanded && (
+                  <div className="fixed top-[108px] right-4 sm:right-8 z-[100]">
                     <button
-                      type="button"
                       onClick={() => {
                         if (!requireAuth("anunciar")) return;
                         setUseAI(true);
                         setComposerOpen(true);
                       }}
-                      className="w-full rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black py-3"
+                      className="w-14 h-14 rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black shadow-[0_12px_35px_rgba(212,162,76,0.4)] flex items-center justify-center text-2xl transition-all hover:scale-105 active:scale-95 animate-in fade-in zoom-in duration-300"
                     >
-                      Anunciar
+                      <Plus size={28} strokeWidth={3} />
                     </button>
                   </div>
+                )}
 
                   <div className="rounded-[28px] border border-white/10 bg-white/[0.035] p-5">
                     <h3 className="font-black mb-4 flex items-center gap-2">
@@ -2111,7 +2113,6 @@ export default function SocialPage() {
                     </div>
                   </div>
                 </div>
-              )}
             </aside>
           </div>
         </div>
