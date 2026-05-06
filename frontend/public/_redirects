@@ -1,0 +1,3 @@
+# Redirecionamento: B Livre (rota antiga /social → nova rota /blivre)
+/social /blivre 301
+/social/* /blivre 301

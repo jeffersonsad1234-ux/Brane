@@ -89,7 +89,7 @@ function AppRouter() {
   }
 
   const isAdmin = path.startsWith("/admin");
-  const isSocial = path.startsWith("/social");
+  const isSocial = path.startsWith("/blivre");
 
   return (
     <>
@@ -141,8 +141,10 @@ function AppRouter() {
 
             <Route path="/desapega" element={<DesapegaPage />} />
 
-            <Route path="/social" element={<SocialPage />} />
-            <Route path="/social/*" element={<SocialPage />} />
+            <Route path="/blivre" element={<SocialPage />} />
+            <Route path="/blivre/*" element={<SocialPage />} />
+            <Route path="/social" element={<Navigate to="/blivre" replace />} />
+            <Route path="/social/*" element={<Navigate to="/blivre" replace />} />
 
             <Route
               path="/add-product"
