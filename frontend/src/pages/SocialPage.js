@@ -897,8 +897,8 @@ export default function SocialPage() {
 
             .blivre-grid,
             .blivre-grid-focused {
-              grid-template-columns: 1fr !important;
-              gap: 12px !important;
+              grid-template-columns: repeat(3, 1fr) !important;
+              gap: 8px !important;
             }
 
             .blivre-product-card {
@@ -906,11 +906,11 @@ export default function SocialPage() {
             }
           }
 
-          @media (max-width: 480px) {
+          @media (max-width: 540px) {
             .blivre-grid,
             .blivre-grid-focused {
-              grid-template-columns: 1fr !important;
-              gap: 10px !important;
+              grid-template-columns: repeat(2, 1fr) !important;
+              gap: 6px !important;
             }
           }
         `}
@@ -1891,20 +1891,20 @@ export default function SocialPage() {
                             )}
                           </div>
 
-                          <div className="p-2 sm:p-3 bg-white">
-                            <p className="text-[#17130B] font-black text-xs sm:text-sm leading-tight line-clamp-2 tracking-[-0.03em]">
+                          <div className="p-1.5 sm:p-3 bg-white">
+                            <p className="text-[#17130B] font-black text-[10px] sm:text-sm leading-tight line-clamp-2 tracking-[-0.03em]">
                               {getTitle(post)}
                             </p>
 
-                            <p className="blivre-gold-text font-black text-base sm:text-lg mt-1 sm:mt-2 tracking-[-0.04em]">
+                            <p className="blivre-gold-text font-black text-sm sm:text-lg mt-0.5 sm:mt-2 tracking-[-0.04em]">
                               {getPrice(post)}
                             </p>
 
-                            <p className="text-[10px] sm:text-[11px] text-[#8B8790] font-semibold mt-0.5 sm:mt-1 truncate">
+                            <p className="text-[9px] sm:text-[11px] text-[#8B8790] font-semibold mt-0.5 sm:mt-1 truncate">
                               {getLocation(post)}
                             </p>
 
-                            <span className="mt-2 sm:mt-3 inline-flex w-full justify-center rounded-xl blivre-gold-button px-2 sm:px-3 py-1.5 sm:py-2 text-[11px] sm:text-[12px] font-black text-[#14100A]">
+                            <span className="mt-1.5 sm:mt-3 inline-flex w-full justify-center rounded-lg sm:rounded-xl blivre-gold-button px-1.5 sm:px-3 py-1 sm:py-2 text-[9px] sm:text-[12px] font-black text-[#14100A]">
                               {activeFilter === "mine" ? "Ver meu anúncio" : "Ver produto"}
                             </span>
                           </div>
