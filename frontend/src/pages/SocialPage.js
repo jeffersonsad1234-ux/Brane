@@ -3,7 +3,7 @@ import axios from "axios";
 import {
   Image, Send, User, Bell, Search, MessageSquare,
   Settings, BadgeCheck, Package, MapPin, Tags,
-  Heart, X, ChevronLeft, ChevronRight, Globe, Camera,
+  Heart, X, ChevronLeft, ChevronRight, Globe, Camera, Plus,
   Phone, LogOut, ShoppingBag, Flag
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
@@ -2085,7 +2085,7 @@ export default function SocialPage() {
           }}
           className="w-14 h-14 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] shadow-[0_8px_32px_rgba(212,162,76,0.4)] flex items-center justify-center text-black transition-transform active:scale-90"
         >
-          <Camera size={24} />
+          <Plus size={32} strokeWidth={3} />
         </button>
       </div>
 
