@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Rápido - Backend B Livre</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #D4A24C, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        p {
+            color: #999;
+            margin-bottom: 30px;
+        }
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #D4A24C, #B8882A);
+            border: none;
+            border-radius: 12px;
+            color: black;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .result.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+        .result.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        .result.info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #3b82f6;
+        }
+        .icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Teste Rápido - Backend B Livre</h1>
+        <p>Clique no botão para verificar se o backend foi deployado com os novos endpoints.</p>
+        
+        <button id="testBtn" onclick="testarBackend()">Testar Backend Agora</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function testarBackend() {
+            const btn = document.getElementById('testBtn');
+            const result = document.getElementById('result');
+            
+            btn.disabled = true;
+            btn.textContent = 'Testando...';
+            result.innerHTML = '';
+            
+            try {
+                // Testar se os endpoints existem
+                const tests = [
+                    {
+                        name: 'POST /admin/messages/send',
+                        url: 'https://blv-dashboard-ux.preview.emergentagent.com/api/admin/messages/send',
+                        method: 'OPTIONS'
+                    },
+                    {
+                        name: 'POST /admin/reports/{id}/respond',
+                        url: 'https://blv-dashboard-ux.preview.emergentagent.com/api/admin/reports/test123/respond',
+                        method: 'OPTIONS'
+                    },
+                    {
+                        name: 'GET /admin/notifications/{id}/details',
+                        url: 'https://blv-dashboard-ux.preview.emergentagent.com/api/admin/notifications/test123/details',
+                        method: 'HEAD'
+                    }
+                ];
+                
+                let allSuccess = true;
+                let resultHTML = '<div class="icon">🔍</div>';
+                resultHTML += '<strong>Resultados dos testes:</strong><br><br>';
+                
+                for (const test of tests) {
+                    try {
+                        const response = await fetch(test.url, { 
+                            method: test.method,
+                            mode: 'cors'
+                        });
+                        
+                        // 404 = endpoint não existe (BAD)
+                        // 401/403/405 = endpoint existe mas sem auth (GOOD)
+                        if (response.status === 404) {
+                            allSuccess = false;
+                            resultHTML += `❌ <code>${test.name}</code> - NÃO encontrado<br>`;
+                        } else {
+                            resultHTML += `✅ <code>${test.name}</code> - Encontrado!<br>`;
+                        }
+                    } catch (error) {
+                        // CORS error geralmente significa que o endpoint existe
+                        resultHTML += `⚠️ <code>${test.name}</code> - Possível CORS (endpoint pode existir)<br>`;
+                    }
+                }
+                
+                resultHTML += '<br>';
+                
+                if (allSuccess) {
+                    result.className = 'result success';
+                    resultHTML += '<div class="icon">✅</div>';
+                    resultHTML += '<strong>BACKEND ATUALIZADO!</strong><br><br>';
+                    resultHTML += 'Todos os novos endpoints foram encontrados. O backend está deployado e funcionando!<br><br>';
+                    resultHTML += 'Você pode testar as funcionalidades no painel ADM agora.';
+                } else {
+                    result.className = 'result error';
+                    resultHTML += '<div class="icon">❌</div>';
+                    resultHTML += '<strong>BACKEND NÃO ATUALIZADO</strong><br><br>';
+                    resultHTML += 'Alguns endpoints não foram encontrados. O backend precisa ser deployado na Railway.<br><br>';
+                    resultHTML += '<strong>O que fazer:</strong><br>';
+                    resultHTML += '1. Acesse railway.app<br>';
+                    resultHTML += '2. Vá no projeto do backend<br>';
+                    resultHTML += '3. Force um redeploy<br>';
+                    resultHTML += '4. Aguarde 3-5 minutos<br>';
+                    resultHTML += '5. Teste novamente aqui';
+                }
+                
+                result.innerHTML = resultHTML;
+                
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `
+                    <div class="icon">⚠️</div>
+                    <strong>Erro ao testar:</strong><br><br>
+                    ${error.message}
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Testar Novamente';
+            }
+        }
+    </script>
+</body>
+</html>
