@@ -2210,32 +2210,32 @@ export default function SocialPage() {
         </div>
       </div>
 
-      {/* Botão Flutuante de Anunciar (Mobile) + Caixinha de Suporte */}
-      <div className="fixed bottom-6 right-4 z-50 md:hidden flex flex-col items-end gap-3">
-        {/* Caixinha de mensagem rápida para suporte */}
-        {showMobileSupport && (
-          <div className="w-72 rounded-[20px] border border-[#D4A24C]/30 bg-[#0B0B12] shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-              <span className="text-sm font-black text-white">Fale com o suporte</span>
-              <button onClick={() => setShowMobileSupport(false)} className="text-[#8C8F9A] hover:text-white"><X size={16} /></button>
-            </div>
-            <div className="p-3">
-              <textarea
-                value={mobileSupportMsg}
-                onChange={(e) => setMobileSupportMsg(e.target.value)}
-                placeholder="Digite sua mensagem..."
-                rows={3}
-                className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-[#D4A24C]/50 resize-none"
-              />
-              <button
-                onClick={sendMobileSupportMsg}
-                disabled={sendingMobileSupport || !mobileSupportMsg.trim()}
-                className="mt-2 w-full rounded-xl gold-premium-3d py-2 text-xs font-black disabled:opacity-50"
-              >
-                {sendingMobileSupport ? "Enviando..." : "Enviar"}
-              </button>
-            </div>
-          </div>
+     {/* Botões flutuantes mobile */}
+<div className="fixed bottom-7 right-4 z-50 md:hidden flex flex-col items-center gap-3">
+
+  <button
+    onClick={() => {
+      if (!requireAuth("messages")) return;
+      setActiveFilter("messages");
+      setSelectedChat(null);
+    }}
+    className="w-12 h-12 rounded-full gold-premium-3d flex items-center justify-center text-black"
+  >
+    <MessageSquare size={20} strokeWidth={2.7} />
+  </button>
+
+  <button
+    onClick={() => {
+      if (!requireAuth("anunciar")) return;
+      setUseAI(true);
+      setComposerOpen(true);
+    }}
+    className="w-14 h-14 rounded-full gold-premium-3d flex items-center justify-center text-black"
+  >
+    <Plus size={30} strokeWidth={3.2} />
+  </button>
+
+</div>
         )}
         {/* Botão de suporte */}
         <button
