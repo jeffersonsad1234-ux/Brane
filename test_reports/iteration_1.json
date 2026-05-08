@@ -1,0 +1,51 @@
+{
+  "summary": "Tested both backend (25 pytest cases) and frontend (Playwright e2e for the admin panel). 25/25 backend tests passed and all critical frontend flows work end-to-end. Login, KPIs com dados reais, navegação por sidebar, suspender/reativar usuário, denúncias status update, suporte com reply + status, exportação de PDF, logout e guarda de rota /admin/blivre estão funcionando.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST/scripts seed_real_data.py", "issue": "Seed não é idempotente para listings: cada execução adiciona +12 listings (atualmente 26 no banco em vez de 12). Seed para users já é idempotente (ignora 400 e-mail existente)."},
+      {"endpoint": "CORS", "issue": "CORS_ORIGINS='*' combinado com allow_credentials=True viola spec do CORS. Como a app usa Bearer JWT (não cookies) não causa bug funcional, mas é cheiro de código."},
+      {"endpoint": "POST /api/auth/login", "issue": "Sem rate-limit / brute-force lockout (playbook recomenda 5 falhas). Não estava nos requisitos explícitos, apenas observação."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "Dashboard charts (recharts)", "issue": "ResponsiveContainer renderiza com width(-1)/height(-1) na 1ª pintura — warning no console: 'The width(-1) and height(-1) of chart should be greater than 0'. Os gráficos aparecem corretamente após resize, mas o container precisa de minHeight ou aspect ratio definido. Provavelmente o card pai começa com height auto.", "selector": ".recharts-responsive-container", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Dashboard", "issues": ["KPI 'Usuários online (5min)' marcou 8/8 todos online — esperado dado que seed/heartbeat acabaram de rodar. Funcional, só observação."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_blivre_admin.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Tornar /app/scripts/seed_real_data.py idempotente para listings (limpar antes de inserir, ou usar upsert por título+owner). Atualmente já existem 26 anúncios após 2 execuções.",
+    "Definir min-height/aspect ao ResponsiveContainer do recharts no Dashboard.jsx para silenciar warning de width(-1)/height(-1) e evitar piscadas na 1ª renderização.",
+    "(Opcional) Restringir CORS_ORIGINS para domínio específico já que allow_credentials=True está ligado.",
+    "(Opcional) Implementar lockout de brute-force no /api/auth/login (5 tentativas)."
+  ],
+  "critical_code_review_comments": [
+    "server.py tem 799 linhas — começando a ficar grande, considere dividir em routers (auth.py, public.py, admin.py, pdf.py).",
+    "O endpoint admin /export/pdf está dentro do APIRouter admin com dependencies=[require_admin], OK. Auth e RBAC corretamente aplicados.",
+    "_id já é excluído em todas as queries via projection {'_id': 0}. ✓",
+    "Senha admin é re-aplicada se mudar no .env (verify_password falha → update). ✓",
+    "Hash bcrypt usado corretamente (gensalt + checkpw). ✓",
+    "JWT secret vindo de env. ✓",
+    "Sem dependência de _id no frontend (usa id UUID). ✓",
+    "data-testids presentes em todos os elementos críticos. ✓"
+  ],
+  "updated_files": [
+    "/app/backend/tests/__init__.py (criado)",
+    "/app/backend/tests/test_blivre_admin.py (criado, 25 cases)"
+  ],
+  "success_rate": {"backend": "100% (25/25)", "frontend": "100% nos fluxos críticos"},
+  "test_credentials": "admin@blivre.com / admin123 (admin), maria@blivre.com / senha123 (user) — em /app/memory/test_credentials.md",
+  "seed_data_creation": "Re-executei /app/scripts/seed_real_data.py após os testes para garantir massa de dados; resultado: 8 users (idempotente), porém 26 listings (12 originais + 12 da nova execução + 2 criados em testes que sobreviveram pois alguns eram TEST_).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend 25 tests em /app/backend/tests/test_blivre_admin.py — rode com `cd /app/backend && python -m pytest tests/ -v`. Os testes criam usuários/listings com prefixo TEST_ e fazem cleanup. As views/interests counters são incrementadas pelos testes — números reais variam. Frontend test data-ids confirmados: kpi-* (8 KPIs), suspend-{id}, ban-{id}, delete-{id}, activate-{id}, remove-listing-{id}, report-status-{id}, open-ticket-{id}, ticket-modal, ticket-reply-input, ticket-reply-submit, ticket-status-select, close-ticket, admin-logout, export-pdf-btn, kpi-*, reports-tab-*, support-tab-*. Login button NÃO usa data-testid; usei text 'Acessar painel'.",
+  "rca_of_the_issue": "N/A — nenhum bug funcional encontrado. Apenas o seed não-idempotente de listings explica por que o KPI de anúncios mostra 26 ao invés dos 12 prometidos (não é bug do painel, é do script de seed)."
+}
