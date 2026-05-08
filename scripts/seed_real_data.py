@@ -94,11 +94,27 @@ def main():
 
     user_emails = list(tokens.keys())
 
-    # Create listings (each user creates 1-2)
+    # Create listings (idempotent: skip if same title+owner already exists)
+    existing_titles = set()
+    try:
+        existing = requests.get(f"{API}/listings?limit=500", timeout=10).json()
+        existing_titles = {l.get("title") for l in existing}
+    except Exception:
+        pass
+
     listing_ids = []
     listing_owners = {}
     for i, (title, desc, cat, price, loc) in enumerate(LISTINGS):
         owner_email = user_emails[i % len(user_emails)]
+        if title in existing_titles:
+            # find existing
+            for l in existing:
+                if l.get("title") == title:
+                    listing_ids.append(l["id"])
+                    listing_owners[l["id"]] = (owner_email, l["owner_id"])
+                    print(f"  = listing {title} (existente)")
+                    break
+            continue
         d = post("/listings", {
             "title": title, "description": desc, "category": cat,
             "price": price, "location": loc,

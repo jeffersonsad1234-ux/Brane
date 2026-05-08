@@ -237,7 +237,7 @@ export default function Dashboard() {
         <ChartCard title="Categorias de anúncios" subtitle="Distribuição dos ativos">
           <div className="h-[300px]" data-testid="chart-categories">
             {stats?.categories?.length ? (
-              <ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%" minHeight={300}>
                 <PieChart>
                   <Pie
                     data={stats.categories}
@@ -269,7 +269,7 @@ export default function Dashboard() {
       {/* Bar chart - messages per day */}
       <ChartCard title="Mensagens por dia" subtitle="Volume de conversas entre usuários">
         <div className="h-[220px]" data-testid="chart-messages">
-          <ResponsiveContainer>
+          <ResponsiveContainer width="100%" height="100%" minHeight={220}>
             <BarChart data={stats?.series_7d || []}>
               <CartesianGrid stroke="#1f2733" strokeDasharray="3 3" />
               <XAxis dataKey="date" stroke="#5b6473" fontSize={11} />
