@@ -2239,26 +2239,7 @@ export default function SocialPage() {
   </button>
 </div>
         
-        {/* Botão de suporte */}
-        <button
-          onClick={() => setShowMobileSupport((v) => !v)}
-          className="w-11 h-11 rounded-full bg-[#1A1A2E] border border-[#D4A24C]/30 flex items-center justify-center text-[#D4A24C] shadow-lg"
-          title="Fale com suporte"
-        >
-          <MessageSquare size={20} />
-        </button>
-        {/* Botão + anunciar */}
-        <button
-          onClick={() => {
-            if (!requireAuth("anunciar")) return;
-            setUseAI(true);
-            setComposerOpen(true);
-          }}
-          className="w-14 h-14 rounded-full gold-premium-3d flex items-center justify-center"
-        >
-          <Plus size={32} strokeWidth={3} />
-        </button>
-      </div>
+        
 
       {/* Modal de Suporte */}
       {showSupportModal && (
