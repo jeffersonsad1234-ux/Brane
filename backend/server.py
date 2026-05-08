@@ -755,6 +755,17 @@ class SupportMessage(BaseModel):
 class SupportReply(BaseModel):
     reply: str
 
+class ReportResponse(BaseModel):
+    response: str
+
+class AdminMessageSend(BaseModel):
+    recipient_id: str
+    message: str
+    subject: Optional[str] = "Mensagem do Administrador"
+
+class AdminMessageReply(BaseModel):
+    message: str
+
 class PasswordReset(BaseModel):
     email: str
 
@@ -1428,7 +1439,7 @@ async def create_report(data: ReportCreate, request: Request):
         "reporter_id": user["user_id"],
         "motivo": sanitize_text(data.motivo, 200),
         "descricao": sanitize_text(data.descricao or "", 1000),
-        "status": "pendente",
+        "status": "pending",
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     await db.reports.insert_one(report)
@@ -2324,6 +2335,210 @@ async def admin_reply_support(message_id: str, data: SupportReply, request: Requ
     })
     return {"message": "Resposta enviada"}
 
+# ==================== ADMIN: SEND MESSAGE TO USER ====================
+@api_router.post("/admin/messages/send")
+async def admin_send_message(data: AdminMessageSend, request: Request):
+    """Admin envia nova mensagem para um usuário"""
+    await require_admin(request)
+    user = await db.users.find_one({"user_id": data.recipient_id}, {"_id": 0, "name": 1, "email": 1})
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    
+    msg_id = f"admin_msg_{uuid.uuid4().hex[:12]}"
+    message_text = sanitize_text(data.message, 2000)
+    subject_text = sanitize_text(data.subject, 200)
+    
+    # Criar mensagem como suporte
+    msg_doc = {
+        "message_id": msg_id,
+        "user_id": data.recipient_id,
+        "user_name": user["name"],
+        "user_email": user.get("email", ""),
+        "subject": subject_text,
+        "message": message_text,
+        "is_admin_message": True,
+        "status": "replied",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.support_messages.insert_one(msg_doc)
+    
+    # Notificar usuário
+    await db.notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "user_id": data.recipient_id,
+        "type": "admin_message",
+        "message": f"Você recebeu uma mensagem do administrador: {subject_text}",
+        "related_id": msg_id,
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {"message": "Mensagem enviada com sucesso", "message_id": msg_id}
+
+# ==================== ADMIN: REPLY TO DIRECT MESSAGE ====================
+@api_router.post("/admin/messages/{message_id}/reply")
+async def admin_reply_direct_message(message_id: str, data: AdminMessageReply, request: Request):
+    """Admin responde uma mensagem direta existente"""
+    await require_admin(request)
+    
+    # Buscar mensagem original
+    direct_msg = await db.direct_messages.find_one({"message_id": message_id}, {"_id": 0})
+    store_msg = await db.store_messages.find_one({"message_id": message_id}, {"_id": 0})
+    
+    if not direct_msg and not store_msg:
+        raise HTTPException(status_code=404, detail="Mensagem não encontrada")
+    
+    msg = direct_msg or store_msg
+    sender_id = msg.get("sender_id")
+    
+    # Buscar dados do remetente
+    sender = await db.users.find_one({"user_id": sender_id}, {"_id": 0, "name": 1, "email": 1})
+    if not sender:
+        raise HTTPException(status_code=404, detail="Remetente não encontrado")
+    
+    reply_text = sanitize_text(data.message, 2000)
+    
+    # Criar mensagem de resposta do admin como suporte
+    reply_id = f"admin_reply_{uuid.uuid4().hex[:12]}"
+    reply_doc = {
+        "message_id": reply_id,
+        "user_id": sender_id,
+        "user_name": sender["name"],
+        "user_email": sender.get("email", ""),
+        "subject": "Resposta do Administrador",
+        "message": reply_text,
+        "is_admin_reply": True,
+        "original_message_id": message_id,
+        "status": "replied",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.support_messages.insert_one(reply_doc)
+    
+    # Notificar usuário
+    await db.notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "user_id": sender_id,
+        "type": "message_reply",
+        "message": "O administrador respondeu sua mensagem",
+        "related_id": reply_id,
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    return {"message": "Resposta enviada com sucesso", "reply_id": reply_id}
+
+# ==================== ADMIN: RESPOND TO REPORT ====================
+@api_router.post("/admin/reports/{report_id}/respond")
+async def admin_respond_report(report_id: str, data: ReportResponse, request: Request):
+    """Admin responde uma denúncia e envia email + notificação para o denunciante"""
+    await require_admin(request)
+    
+    report = await db.reports.find_one({"report_id": report_id}, {"_id": 0})
+    if not report:
+        raise HTTPException(status_code=404, detail="Denúncia não encontrada")
+    
+    reporter_id = report.get("reporter_id")
+    reporter = await db.users.find_one({"user_id": reporter_id}, {"_id": 0, "name": 1, "email": 1})
+    if not reporter:
+        raise HTTPException(status_code=404, detail="Denunciante não encontrado")
+    
+    response_text = sanitize_text(data.response, 2000)
+    
+    # Atualizar denúncia com resposta
+    await db.reports.update_one(
+        {"report_id": report_id},
+        {"$set": {
+            "admin_response": response_text,
+            "response_at": datetime.now(timezone.utc).isoformat(),
+            "status": "analyzed" if report.get("status") in ["pending", "pendente"] else report.get("status")
+        }}
+    )
+    
+    # Criar notificação interna
+    await db.notifications.insert_one({
+        "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+        "user_id": reporter_id,
+        "type": "report_response",
+        "message": f"Sua denúncia recebeu uma resposta do administrador",
+        "related_id": report_id,
+        "read": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Enviar email (se RESEND_API_KEY estiver configurado)
+    if RESEND_API_KEY and reporter.get("email"):
+        try:
+            email_html = f"""
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #D4A24C;">Resposta da sua Denúncia - B Livre</h2>
+                <p>Olá <strong>{reporter['name']}</strong>,</p>
+                <p>Sua denúncia foi analisada pela nossa equipe. Confira a resposta abaixo:</p>
+                <div style="background: #f5f5f5; padding: 15px; border-left: 4px solid #D4A24C; margin: 20px 0;">
+                    <p style="margin: 0; white-space: pre-wrap;">{response_text}</p>
+                </div>
+                <p><strong>Detalhes da denúncia:</strong></p>
+                <ul>
+                    <li><strong>Motivo:</strong> {report.get('motivo', 'N/A')}</li>
+                    <li><strong>Data:</strong> {report.get('created_at', 'N/A')}</li>
+                </ul>
+                <p>Se precisar de mais informações, entre em contato conosco através do suporte.</p>
+                <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                <p style="color: #999; font-size: 12px;">Equipe B Livre</p>
+            </div>
+            """
+            resend.Emails.send({
+                "from": SENDER_EMAIL,
+                "to": reporter["email"],
+                "subject": "Resposta da sua Denúncia - B Livre",
+                "html": email_html
+            })
+        except Exception as e:
+            logging.error(f"Erro ao enviar email de resposta da denúncia: {e}")
+    
+    return {"message": "Resposta enviada com sucesso (email + notificação)", "report_id": report_id}
+
+# ==================== ADMIN: GET NOTIFICATION DETAILS ====================
+@api_router.get("/admin/notifications/{notification_id}/details")
+async def admin_get_notification_details(notification_id: str, request: Request):
+    """Retorna detalhes da notificação incluindo dados relacionados"""
+    await require_admin(request)
+    
+    notif = await db.admin_notifications.find_one({"notification_id": notification_id}, {"_id": 0})
+    if not notif:
+        raise HTTPException(status_code=404, detail="Notificação não encontrada")
+    
+    # Marcar como lida
+    await db.admin_notifications.update_one(
+        {"notification_id": notification_id},
+        {"$set": {"read": True}}
+    )
+    
+    result = {"notification": notif, "related_data": None}
+    
+    # Buscar dados relacionados baseado no tipo
+    notif_type = notif.get("type", "")
+    
+    if notif_type == "new_order":
+        order_id = notif.get("order_id")
+        if order_id:
+            order = await db.orders.find_one({"order_id": order_id}, {"_id": 0})
+            result["related_data"] = {"type": "order", "data": order}
+            result["redirect_tab"] = "orders"
+    
+    elif notif_type == "new_withdrawal":
+        result["redirect_tab"] = "withdrawals"
+    
+    elif notif_type == "new_support":
+        result["redirect_tab"] = "support"
+    
+    elif notif_type == "new_report":
+        result["redirect_tab"] = "reports"
+    
+    elif notif_type == "new_message":
+        result["redirect_tab"] = "messages-monitor"
+    
+    return result
+
 # ==================== STORE CHAT ====================
 async def _resolve_store(store_id_or_slug: str):
     """Resolve a store by ID or slug."""
@@ -2735,19 +2950,19 @@ async def admin_report_action(report_id: str, request: Request):
     if not report:
         raise HTTPException(status_code=404, detail="Denúncia nao encontrada")
     
-    new_status = "resolvida"
+    new_status = "resolved"
     result_msg = "Denúncia resolvida"
     
     if action == "ignorar":
-        new_status = "ignorada"
+        new_status = "ignored"
         result_msg = "Denúncia ignorada"
     elif action == "bloquear_anuncio" and report.get("post_id"):
         await db.social_posts.update_one({"post_id": report["post_id"]}, {"$set": {"is_blocked": True}})
-        new_status = "resolvida"
+        new_status = "resolved"
         result_msg = "Anúncio bloqueado"
     elif action == "bloquear_usuario" and report.get("reported_user_id"):
         await db.users.update_one({"user_id": report["reported_user_id"]}, {"$set": {"is_blocked": True}})
-        new_status = "resolvida"
+        new_status = "resolved"
         result_msg = "Usuário bloqueado"
     
     await db.reports.update_one(
@@ -2759,14 +2974,14 @@ async def admin_report_action(report_id: str, request: Request):
 @api_router.put("/admin/reports/{report_id}/ignore")
 async def admin_report_ignore(report_id: str, request: Request):
     await require_admin(request)
-    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "ignorada", "action_taken": "ignorar", "resolved_at": datetime.now(timezone.utc).isoformat()}})
-    return {"message": "Denúncia ignorada", "status": "ignorada"}
+    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "ignored", "action_taken": "ignorar", "resolved_at": datetime.now(timezone.utc).isoformat()}})
+    return {"message": "Denúncia ignorada", "status": "ignored"}
 
 @api_router.put("/admin/reports/{report_id}/resolve")
 async def admin_report_resolve(report_id: str, request: Request):
     await require_admin(request)
-    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "resolvida", "action_taken": "resolver", "resolved_at": datetime.now(timezone.utc).isoformat()}})
-    return {"message": "Denúncia resolvida", "status": "resolvida"}
+    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "resolved", "action_taken": "resolver", "resolved_at": datetime.now(timezone.utc).isoformat()}})
+    return {"message": "Denúncia resolvida", "status": "resolved"}
 
 @api_router.put("/admin/reports/{report_id}/block_ad")
 async def admin_report_block_ad(report_id: str, request: Request):
@@ -2776,8 +2991,8 @@ async def admin_report_block_ad(report_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Denúncia não encontrada")
     if report.get("post_id"):
         await db.social_posts.update_one({"post_id": report["post_id"]}, {"$set": {"is_blocked": True}})
-    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "resolvida", "action_taken": "bloquear_anuncio", "resolved_at": datetime.now(timezone.utc).isoformat()}})
-    return {"message": "Anúncio bloqueado", "status": "resolvida"}
+    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "resolved", "action_taken": "bloquear_anuncio", "resolved_at": datetime.now(timezone.utc).isoformat()}})
+    return {"message": "Anúncio bloqueado", "status": "resolved"}
 
 @api_router.put("/admin/reports/{report_id}/block_user")
 async def admin_report_block_user(report_id: str, request: Request):
@@ -2787,8 +3002,8 @@ async def admin_report_block_user(report_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Denúncia não encontrada")
     if report.get("reported_user_id"):
         await db.users.update_one({"user_id": report["reported_user_id"]}, {"$set": {"is_blocked": True}})
-    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "resolvida", "action_taken": "bloquear_usuario", "resolved_at": datetime.now(timezone.utc).isoformat()}})
-    return {"message": "Usuário bloqueado", "status": "resolvida"}
+    await db.reports.update_one({"report_id": report_id}, {"$set": {"status": "resolved", "action_taken": "bloquear_usuario", "resolved_at": datetime.now(timezone.utc).isoformat()}})
+    return {"message": "Usuário bloqueado", "status": "resolved"}
 
 @api_router.put("/admin/social-posts/{post_id}/remove")
 async def admin_remove_social_post_put(post_id: str, request: Request):
@@ -2818,7 +3033,7 @@ async def get_admin_notification_counts_v2(request: Request):
     pending_support = await db.support_messages.count_documents({"status": {"$in": ["pending", "open"]}})
     pending_stores = await db.stores.count_documents({"is_approved": False})
     total_users = await db.users.count_documents({})
-    pending_reports = await db.reports.count_documents({"status": "pendente"})
+    pending_reports = await db.reports.count_documents({"status": {"$in": ["pending", "pendente"]}})
     return {
         "orders": pending_orders,
         "withdrawals": pending_withdrawals,
