@@ -368,54 +368,42 @@ div[class*="visual-edits"], div[id*="emergent"] {
   font-weight: 900;
   letter-spacing: -0.03em;
   line-height: 1.15;
-  text-rendering: geometricPrecision;
-}
-
-.blivre-price-gold {
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  background: linear-gradient(
-    135deg,
-    #8f5f12 0%,
-    #c88a1a 18%,
-    #ffd36a 38%,
-    #fff1a8 50%,
-    #d89b25 68%,
-    #9f6811 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.25))
-          drop-shadow(0 4px 10px rgba(200, 138, 26, 0.28));
-}
-
-.blivre-location-premium {
-  color: #8b8790;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.blivre-gold-button {
-  background: linear-gradient(
-    135deg,
-    #8f5f12 0%,
-    #c88a1a 18%,
-    #ffd36a 38%,
-    #fff1a8 50%,
-    #d89b25 68%,
-    #9f6811 100%
-  );
-  color: #14100a;
-  font-weight: 900;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    0 8px 22px rgba(200, 138, 26, 0.28);
-  transition: transform 0.18s ease, filter 0.18s ease;
-}
-
-.blivre-gold-button:hover {
+  tex.blivre-price-gold {
+375	  font-weight: 900;
+376	  letter-spacing: -0.04em;
+377	  background: linear-gradient(
+378	    180deg,
+379	    #FFF7C2 0%,
+380	    #FFC123 45%,
+381	    #8A5A00 100%
+382	  );
+383	  -webkit-background-clip: text;
+384	  background-clip: text;
+385	  color: transparent;
+386	  -webkit-text-fill-color: transparent;
+387	  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+388	}: #8b8790;
+  .blivre-gold-button {
+401	  background: linear-gradient(
+402	    180deg,
+403	    #FFF7C2 0%,
+404	    #FFE08A 15%,
+405	    #FFC123 35%,
+406	    #E6A300 55%,
+407	    #C88700 78%,
+408	    #8A5A00 100%
+409	  );
+410	  color: #111;
+411	  font-weight: 900;
+412	  box-shadow:
+413	    inset 0 2px 1px rgba(255,255,255,0.45),
+414	    inset 0 -3px 6px rgba(0,0,0,0.35),
+415	    0 6px 12px rgba(255,191,0,0.25),
+416	    0 0 12px rgba(255,215,0,0.18);
+417	  transition: transform 0.18s ease, filter 0.18s ease;
+418	  border: none;
+419	  text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+420	}utton:hover {
   filter: brightness(1.08) saturate(1.08);
   transform: translateY(-1px);
 }
