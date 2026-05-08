@@ -125,3 +125,4 @@ resend>=2.0.0
 Pillow
 bleach
 reportlab>=4.0.0
+webencodings>=0.5.1
