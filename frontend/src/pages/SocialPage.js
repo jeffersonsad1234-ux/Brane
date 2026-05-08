@@ -2236,7 +2236,7 @@ export default function SocialPage() {
   </button>
 
 </div>
-        )}
+        
         {/* Botão de suporte */}
         <button
           onClick={() => setShowMobileSupport((v) => !v)}
