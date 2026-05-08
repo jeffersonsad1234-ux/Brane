@@ -47,7 +47,8 @@ export default function SupportPage() {
     }
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [filter]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, [filter]);
 
   const updateStatus = async (id, status) => {
     try {

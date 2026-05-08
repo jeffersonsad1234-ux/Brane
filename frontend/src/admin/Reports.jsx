@@ -40,7 +40,8 @@ export default function ReportsPage() {
     }
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [filter]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); }, [filter]);
 
   const update = async (id, status) => {
     try {
