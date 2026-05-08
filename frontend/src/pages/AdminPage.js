@@ -1672,6 +1672,11 @@ function MessagesMonitorTab({ token }) {
   const [messages, setMessages] = useState([]);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
+  const [replyTo, setReplyTo] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [showNewMessage, setShowNewMessage] = useState(false);
+  const [newMessageForm, setNewMessageForm] = useState({ recipient_id: '', message: '', subject: 'Mensagem do Administrador' });
+  const [users, setUsers] = useState([]);
   const h = { Authorization: `Bearer ${token}` };
 
   const fetchMessages = () => {
@@ -1685,8 +1690,41 @@ function MessagesMonitorTab({ token }) {
   useEffect(() => {
     fetchMessages();
     const interval = setInterval(fetchMessages, 8000);
+    axios.get(`${API}/admin/users`, { headers: h }).then(r => setUsers(r.data.users || [])).catch(() => {});
     return () => clearInterval(interval);
   }, [search]);
+
+  const sendReply = async (msgId) => {
+    if (!replyText.trim()) {
+      toast.error('Digite uma resposta');
+      return;
+    }
+    try {
+      await axios.post(`${API}/admin/messages/${msgId}/reply`, { message: replyText }, { headers: h });
+      toast.success('Resposta enviada!');
+      setReplyText('');
+      setReplyTo(null);
+      fetchMessages();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Erro ao enviar resposta');
+    }
+  };
+
+  const sendNewMessage = async () => {
+    if (!newMessageForm.recipient_id || !newMessageForm.message.trim()) {
+      toast.error('Selecione um usuário e digite a mensagem');
+      return;
+    }
+    try {
+      await axios.post(`${API}/admin/messages/send`, newMessageForm, { headers: h });
+      toast.success('Mensagem enviada!');
+      setNewMessageForm({ recipient_id: '', message: '', subject: 'Mensagem do Administrador' });
+      setShowNewMessage(false);
+      fetchMessages();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Erro ao enviar mensagem');
+    }
+  };
 
   const formatTime = (iso) => {
     try {
@@ -1705,7 +1743,68 @@ function MessagesMonitorTab({ token }) {
       <SectionHeader
         title="Monitoramento de Mensagens"
         subtitle={`${total} mensagens • Atualização automática a cada 8s`}
+        action={
+          <Button 
+            onClick={() => setShowNewMessage(!showNewMessage)}
+            className="rounded-xl font-semibold"
+            style={{ background: 'linear-gradient(135deg, #D4A24C, #B8882A)', color: '#000' }}
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            {showNewMessage ? 'Cancelar' : 'Nova Mensagem'}
+          </Button>
+        }
       />
+
+      {showNewMessage && (
+        <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-6 mb-4">
+          <h4 className="font-semibold text-white mb-4">Enviar Nova Mensagem</h4>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-[#E6E6EA]">Destinatário</Label>
+              <select
+                value={newMessageForm.recipient_id}
+                onChange={e => setNewMessageForm({ ...newMessageForm, recipient_id: e.target.value })}
+                className="w-full h-10 px-3 mt-1 rounded-lg bg-[#0B0D12] border border-[#1E2230] text-white"
+              >
+                <option value="">Selecione um usuário...</option>
+                {users.map(u => (
+                  <option key={u.user_id} value={u.user_id}>
+                    {u.name} ({u.email}) - {u.role}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label className="text-[#E6E6EA]">Assunto</Label>
+              <Input
+                value={newMessageForm.subject}
+                onChange={e => setNewMessageForm({ ...newMessageForm, subject: e.target.value })}
+                className="bg-[#0B0D12] border-[#1E2230] text-white mt-1"
+                placeholder="Assunto da mensagem"
+              />
+            </div>
+            <div>
+              <Label className="text-[#E6E6EA]">Mensagem</Label>
+              <Textarea
+                value={newMessageForm.message}
+                onChange={e => setNewMessageForm({ ...newMessageForm, message: e.target.value })}
+                className="bg-[#0B0D12] border-[#1E2230] text-white mt-1"
+                rows={4}
+                placeholder="Digite sua mensagem..."
+              />
+            </div>
+            <Button
+              onClick={sendNewMessage}
+              className="rounded-xl font-semibold w-full"
+              style={{ background: 'linear-gradient(135deg, #D4A24C, #B8882A)', color: '#000' }}
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Enviar Mensagem
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="relative mb-4">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6F7280]" />
         <input type="text" placeholder="Buscar por remetente, destinatário ou mensagem..."
@@ -1720,37 +1819,79 @@ function MessagesMonitorTab({ token }) {
           <p className="text-xs text-[#6F7280] mt-1">As mensagens entre usuários aparecerão aqui em tempo real</p>
         </div>
       ) : (
-        <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl overflow-hidden">
-          <div className="grid grid-cols-5 text-xs text-[#6F7280] uppercase tracking-wider px-4 py-3 border-b border-[#1E2230] bg-[#0B0D12]">
-            <span>Remetente</span>
-            <span>Destinatário</span>
-            <span className="col-span-2">Mensagem</span>
-            <span className="text-right">Horário</span>
-          </div>
-          <div className="divide-y divide-[#1E2230]">
-            {messages.map((msg, i) => (
-              <div key={msg.message_id || i} className="grid grid-cols-5 items-center px-4 py-3 hover:bg-[#1E2230]/30 transition-all">
-                <div>
-                  <p className="text-sm text-white font-medium truncate">{msg.sender_name || 'Usuário'}</p>
-                  <p className="text-xs text-[#6F7280] truncate">{msg.sender_email || ''}</p>
+        <div className="space-y-3">
+          {messages.map((msg, i) => (
+            <div key={msg.message_id || i} className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-4 hover:border-[#D4A24C]/20 transition-all">
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <div className="flex-1 grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-xs text-[#6F7280]">Remetente</p>
+                    <p className="text-sm text-white font-medium">{msg.sender_name || 'Usuário'}</p>
+                    {msg.sender_email && <p className="text-xs text-[#6F7280]">{msg.sender_email}</p>}
+                  </div>
+                  <div>
+                    <p className="text-xs text-[#6F7280]">Destinatário</p>
+                    <p className="text-sm text-[#A6A8B3]">{msg.receiver_name || 'Usuário'}</p>
+                    {msg.receiver_email && <p className="text-xs text-[#6F7280]">{msg.receiver_email}</p>}
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-[#A6A8B3] truncate">{msg.receiver_name || 'Usuário'}</p>
-                  <p className="text-xs text-[#6F7280] truncate">{msg.receiver_email || ''}</p>
-                </div>
-                <div className="col-span-2 pr-4">
-                  <p className="text-sm text-[#E6E6EA] truncate">{msg.message}</p>
-                  {msg.product_title && (
-                    <p className="text-xs text-[#D4A24C] mt-0.5 truncate">📦 {msg.product_title}</p>
-                  )}
-                </div>
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <p className="text-xs text-[#6F7280]">{formatTime(msg.created_at)}</p>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#1E2230] text-[#A6A8B3]">{msg.type === 'direct' ? 'Direto' : msg.type === 'store' ? 'Loja' : 'Chat'}</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#1E2230] text-[#A6A8B3]">
+                    {msg.type === 'direct' ? 'Direto' : msg.type === 'store' ? 'Loja' : 'Chat'}
+                  </span>
                 </div>
               </div>
-            ))}
-          </div>
+              
+              <div className="bg-[#0B0D12] rounded-lg p-3 mb-3">
+                <p className="text-sm text-[#E6E6EA]">{msg.message}</p>
+                {msg.product_title && (
+                  <p className="text-xs text-[#D4A24C] mt-1.5">📦 {msg.product_title}</p>
+                )}
+              </div>
+
+              {replyTo === msg.message_id ? (
+                <div className="space-y-2">
+                  <Textarea
+                    value={replyText}
+                    onChange={e => setReplyText(e.target.value)}
+                    placeholder="Digite sua resposta..."
+                    className="bg-[#0B0D12] border-[#1E2230] text-white"
+                    rows={3}
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => sendReply(msg.message_id)}
+                      className="rounded-lg"
+                      style={{ background: 'linear-gradient(135deg, #D4A24C, #B8882A)', color: '#000' }}
+                    >
+                      <Send className="w-3 h-3 mr-1" />
+                      Enviar Resposta
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => { setReplyTo(null); setReplyText(''); }}
+                      className="border-[#1E2230] text-[#A6A8B3] hover:border-[#D4A24C]/50 rounded-lg"
+                    >
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setReplyTo(msg.message_id)}
+                  className="border-[#1E2230] text-[#E6E6EA] hover:border-[#D4A24C]/50 rounded-lg"
+                >
+                  <MessageSquare className="w-3 h-3 mr-1" />
+                  Responder
+                </Button>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -1762,6 +1903,8 @@ function ReportsTab({ token }) {
   const [reports, setReports] = useState([]);
   const [total, setTotal] = useState(0);
   const [filter, setFilter] = useState('pending');
+  const [respondTo, setRespondTo] = useState(null);
+  const [responseText, setResponseText] = useState('');
   const h = { Authorization: `Bearer ${token}` };
 
   const fetchReports = () => {
@@ -1789,8 +1932,24 @@ function ReportsTab({ token }) {
     }
   };
 
+  const sendResponse = async (reportId) => {
+    if (!responseText.trim()) {
+      toast.error('Digite uma resposta');
+      return;
+    }
+    try {
+      await axios.post(`${API}/admin/reports/${reportId}/respond`, { response: responseText }, { headers: h });
+      toast.success('Resposta enviada (email + notificação)');
+      setResponseText('');
+      setRespondTo(null);
+      fetchReports();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || 'Erro ao enviar resposta');
+    }
+  };
+
   const statusColors = { pending: '#F59E0B', analyzed: '#3B82F6', resolved: '#10B981', ignored: '#6B7280' };
-  const statusLabels = { pending: 'Pendente', analyzed: 'Analisada', resolved: 'Resolvida', ignored: 'Ignorada' };
+  const statusLabels = { pending: 'Pendente', analyzed: 'Em Análise', resolved: 'Resolvida', ignored: 'Ignorada' };
   const tipoLabels = { anuncio: 'Anúncio', usuario: 'Usuário' };
 
   return (
@@ -1822,9 +1981,9 @@ function ReportsTab({ token }) {
         <div className="space-y-3">
           {reports.map(report => (
             <div key={report.report_id} className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-4 hover:border-[#D4A24C]/20 transition-all">
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start justify-between gap-4 mb-3">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <div className="flex items-center gap-2 flex-wrap mb-2">
                     <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: `${statusColors[report.status] || '#6B7280'}20`, color: statusColors[report.status] || '#6B7280' }}>
                       {statusLabels[report.status] || report.status}
                     </span>
@@ -1834,6 +1993,12 @@ function ReportsTab({ token }) {
                   </div>
                   <p className="font-semibold text-white">{report.motivo}</p>
                   {report.descricao && <p className="text-sm text-[#A6A8B3] mt-1">{report.descricao}</p>}
+                  {report.admin_response && (
+                    <div className="mt-3 bg-[#0B0D12] border-l-2 border-[#D4A24C] rounded-lg p-3">
+                      <p className="text-xs text-[#D4A24C] font-semibold mb-1">Resposta do Admin:</p>
+                      <p className="text-sm text-[#E6E6EA]">{report.admin_response}</p>
+                    </div>
+                  )}
                   <div className="flex items-center gap-4 mt-2 text-xs text-[#6F7280] flex-wrap">
                     <span>Denunciante: <span className="text-[#A6A8B3]">{report.reporter_name || 'Anônimo'}</span></span>
                     {report.reported_user_name && <span>Denunciado: <span className="text-[#A6A8B3]">{report.reported_user_name}</span></span>}
@@ -1841,25 +2006,70 @@ function ReportsTab({ token }) {
                     <span>{report.created_at ? new Date(report.created_at).toLocaleString('pt-BR') : ''}</span>
                   </div>
                 </div>
-                {report.status === 'pending' && (
-                  <div className="flex flex-col gap-1.5 shrink-0">
-                    <Button size="sm" variant="outline" className="border-[#1E2230] text-[#A6A8B3] hover:border-green-500/50 hover:text-green-400 rounded-lg text-xs" onClick={() => actionReport(report.report_id, 'ignore')}>
-                      <X className="w-3 h-3 mr-1" /> Ignorar
-                    </Button>
-                    {report.tipo === 'anuncio' && (
-                      <Button size="sm" variant="destructive" className="rounded-lg text-xs" onClick={() => actionReport(report.report_id, 'block_ad')}>
-                        <Ban className="w-3 h-3 mr-1" /> Bloquear Anúncio
+                
+                <div className="flex flex-col gap-1.5 shrink-0">
+                  {report.status === 'pending' && (
+                    <>
+                      <Button size="sm" variant="outline" className="border-[#1E2230] text-[#A6A8B3] hover:border-green-500/50 hover:text-green-400 rounded-lg text-xs" onClick={() => actionReport(report.report_id, 'ignore')}>
+                        <X className="w-3 h-3 mr-1" /> Ignorar
                       </Button>
-                    )}
-                    <Button size="sm" variant="destructive" className="rounded-lg text-xs bg-red-900/50 hover:bg-red-900" onClick={() => actionReport(report.report_id, 'block_user')}>
-                      <Ban className="w-3 h-3 mr-1" /> Bloquear Usuário
+                      {report.tipo === 'anuncio' && (
+                        <Button size="sm" variant="destructive" className="rounded-lg text-xs" onClick={() => actionReport(report.report_id, 'block_ad')}>
+                          <Ban className="w-3 h-3 mr-1" /> Bloquear Anúncio
+                        </Button>
+                      )}
+                      <Button size="sm" variant="destructive" className="rounded-lg text-xs bg-red-900/50 hover:bg-red-900" onClick={() => actionReport(report.report_id, 'block_user')}>
+                        <Ban className="w-3 h-3 mr-1" /> Bloquear Usuário
+                      </Button>
+                      <Button size="sm" variant="outline" className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10 rounded-lg text-xs" onClick={() => actionReport(report.report_id, 'resolve')}>
+                        <Check className="w-3 h-3 mr-1" /> Resolver
+                      </Button>
+                    </>
+                  )}
+                  {(report.status === 'pending' || report.status === 'analyzed') && (
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="border-[#D4A24C]/50 text-[#D4A24C] hover:bg-[#D4A24C]/10 rounded-lg text-xs"
+                      onClick={() => setRespondTo(respondTo === report.report_id ? null : report.report_id)}
+                    >
+                      <MessageSquare className="w-3 h-3 mr-1" /> Responder
                     </Button>
-                    <Button size="sm" variant="outline" className="border-blue-500/50 text-blue-400 hover:bg-blue-500/10 rounded-lg text-xs" onClick={() => actionReport(report.report_id, 'resolve')}>
-                      <Check className="w-3 h-3 mr-1" /> Resolver
+                  )}
+                </div>
+              </div>
+
+              {respondTo === report.report_id && (
+                <div className="mt-3 space-y-2 pt-3 border-t border-[#1E2230]">
+                  <Label className="text-[#E6E6EA]">Resposta para o denunciante (será enviada por email + notificação):</Label>
+                  <Textarea
+                    value={responseText}
+                    onChange={e => setResponseText(e.target.value)}
+                    placeholder="Digite sua resposta para o denunciante..."
+                    className="bg-[#0B0D12] border-[#1E2230] text-white"
+                    rows={3}
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => sendResponse(report.report_id)}
+                      className="rounded-lg"
+                      style={{ background: 'linear-gradient(135deg, #D4A24C, #B8882A)', color: '#000' }}
+                    >
+                      <Send className="w-3 h-3 mr-1" />
+                      Enviar Resposta (Email + Notificação)
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => { setRespondTo(null); setResponseText(''); }}
+                      className="border-[#1E2230] text-[#A6A8B3] hover:border-[#D4A24C]/50 rounded-lg"
+                    >
+                      Cancelar
                     </Button>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -1917,6 +2127,7 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const platformMenuRef = useRef(null);
   const notifRef = useRef(null);
+  const mainContentRef = useRef(null);
 
   useEffect(() => {
     const fetchCounts = () => {
@@ -1933,6 +2144,20 @@ export default function AdminPage() {
     const interval = setInterval(fetchCounts, 15000);
     return () => clearInterval(interval);
   }, [token]);
+
+  // Auto-collapse sidebar on scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (mainContentRef.current && mainContentRef.current.scrollTop > 50 && sidebarOpen) {
+        setSidebarOpen(false);
+      }
+    };
+    const mainEl = mainContentRef.current;
+    if (mainEl) {
+      mainEl.addEventListener('scroll', handleScroll);
+      return () => mainEl.removeEventListener('scroll', handleScroll);
+    }
+  }, [sidebarOpen]);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -2003,6 +2228,7 @@ export default function AdminPage() {
     <div className="flex h-screen overflow-hidden" style={{ background: '#0B0D12' }} data-testid="admin-page">
       {/* SIDEBAR */}
       <aside
+        onMouseEnter={() => !sidebarOpen && setSidebarOpen(true)}
         className={`flex flex-col shrink-0 transition-all duration-300 border-r border-[#1E2230] ${sidebarOpen ? 'w-[220px]' : 'w-[64px]'}`}
         style={{ background: '#0D0F16' }}
       >
@@ -2147,7 +2373,25 @@ export default function AdminPage() {
                     {notifications.length === 0 ? (
                       <div className="py-8 text-center text-[#A6A8B3] text-sm">Nenhuma notificação</div>
                     ) : notifications.map(n => (
-                      <div key={n.notification_id} className={`px-4 py-3 border-b border-[#1E2230]/50 last:border-0 hover:bg-[#1E2230]/40 transition-all ${!n.read ? 'border-l-2 border-l-[#D4A24C]' : ''}`}>
+                      <div 
+                        key={n.notification_id} 
+                        onClick={async () => {
+                          try {
+                            const res = await axios.get(`${API}/admin/notifications/${n.notification_id}/details`, { headers: { Authorization: `Bearer ${token}` } });
+                            if (res.data.redirect_tab) {
+                              setActiveTab(res.data.redirect_tab);
+                            }
+                            setNotifOpen(false);
+                            // Atualizar contadores
+                            axios.get(`${API}/admin/notifications`, { headers: { Authorization: `Bearer ${token}` } })
+                              .then(r => { setNotifications((r.data.notifications || []).slice(0, 8)); setUnreadCount(r.data.unread_count || 0); })
+                              .catch(() => {});
+                          } catch (err) {
+                            console.error('Erro ao abrir notificação:', err);
+                          }
+                        }}
+                        className={`px-4 py-3 border-b border-[#1E2230]/50 last:border-0 hover:bg-[#1E2230]/40 transition-all cursor-pointer ${!n.read ? 'border-l-2 border-l-[#D4A24C]' : ''}`}
+                      >
                         <p className="text-xs text-white font-medium">{n.message}</p>
                         <p className="text-[10px] text-[#6F7280] mt-0.5">{new Date(n.created_at).toLocaleString('pt-BR')}</p>
                       </div>
@@ -2185,7 +2429,7 @@ export default function AdminPage() {
         </header>
 
         {/* PAGE CONTENT */}
-        <main className="flex-1 overflow-y-auto p-6" style={{ background: '#0B0D12' }}>
+        <main ref={mainContentRef} className="flex-1 overflow-y-auto p-6" style={{ background: '#0B0D12', maxHeight: '100vh' }}>
           {renderTab()}
         </main>
       </div>
