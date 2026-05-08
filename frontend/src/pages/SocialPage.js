@@ -2210,31 +2210,33 @@ export default function SocialPage() {
         </div>
       </div>
 
-     {/* Botões flutuantes mobile */}
+  {/* Botões flutuantes mobile */}
 <div className="fixed bottom-7 right-4 z-50 md:hidden flex flex-col items-center gap-3">
-
   <button
+    type="button"
     onClick={() => {
       if (!requireAuth("messages")) return;
       setActiveFilter("messages");
       setSelectedChat(null);
     }}
     className="w-12 h-12 rounded-full gold-premium-3d flex items-center justify-center text-black"
+    title="Mensagens"
   >
     <MessageSquare size={20} strokeWidth={2.7} />
   </button>
 
   <button
+    type="button"
     onClick={() => {
       if (!requireAuth("anunciar")) return;
       setUseAI(true);
       setComposerOpen(true);
     }}
     className="w-14 h-14 rounded-full gold-premium-3d flex items-center justify-center text-black"
+    title="Anunciar"
   >
     <Plus size={30} strokeWidth={3.2} />
   </button>
-
 </div>
         
         {/* Botão de suporte */}
