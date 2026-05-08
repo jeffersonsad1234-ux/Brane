@@ -34,7 +34,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import Product3DCard from '../components/Product3DCard';
 
-const API = process.env.REACT_APP_BACKEND_URL + '/api';
+const API = (process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '') + '/api';
 const CACHE_KEY = 'brane_market_products_cache_v1';
 
 const categories = [

@@ -29,7 +29,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${(process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '')}/api`;
 
 // ==================== BADGE HELPER ====================
 function NBadge({ count }) {
@@ -962,7 +962,7 @@ function AdminProductsTab({ token }) {
       <div className="space-y-2">
         {products.map(p => {
           const img = p.images?.[0];
-          const imgUrl = img ? (img.startsWith('http') ? img : `${process.env.REACT_APP_BACKEND_URL}/api/files/${img}`) : null;
+          const imgUrl = img ? (img.startsWith('http') ? img : `${(process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '')}/api/files/${img}`) : null;
           return (
             <div key={p.product_id} className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-3 flex items-center gap-3 hover:border-[#D4A24C]/20 transition-all">
               <div className="w-14 h-14 rounded-xl bg-[#0B0D12] overflow-hidden shrink-0">{imgUrl ? <img src={imgUrl} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-[#6F7280]">📦</div>}</div>

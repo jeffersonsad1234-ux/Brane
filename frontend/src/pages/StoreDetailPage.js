@@ -16,7 +16,7 @@ import {
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
-const API = process.env.REACT_APP_BACKEND_URL + '/api';
+const API = (process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '') + '/api';
 
 const PLAN_BADGES = {
   premium: { label: 'PREMIUM', color: '#D4A24C', icon: Crown, bg: 'from-[#D4A24C]/20 to-[#D4A24C]/5' },

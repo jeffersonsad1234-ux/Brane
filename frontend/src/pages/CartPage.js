@@ -6,7 +6,7 @@ import { Trash2, Minus, Plus, ShoppingCart, ArrowRight, Shield } from 'lucide-re
 import { Button } from '../components/ui/button';
 import { toast } from 'sonner';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${(process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '')}/api`;
 
 export default function CartPage() {
   const { token } = useAuth();

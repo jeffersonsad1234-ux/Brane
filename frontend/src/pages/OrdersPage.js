@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Package, Zap, CreditCard, DollarSign, Copy, ChevronDown, ChevronUp, CheckCircle, Clock, Truck, MapPin, ShoppingBag } from 'lucide-react';
 import { toast } from 'sonner';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${(process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '')}/api`;
 
 const TRACKING_STEPS = [
   { key: 'created', label: 'Criado', icon: ShoppingBag },

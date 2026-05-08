@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Bell, Check, MessageCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 
-const API = process.env.REACT_APP_BACKEND_URL + '/api';
+const API = (process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '') + '/api';
 
 export default function NotificationsPage() {
   const { token } = useAuth();

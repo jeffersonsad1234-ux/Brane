@@ -3,7 +3,7 @@ import { Heart, MapPin, Store as StoreIcon, Star } from 'lucide-react';
 import { splitPrice } from '../lib/price';
 import { useTheme } from '../contexts/ThemeContext';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${(process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '')}/api`;
 
 /**
  * Theme-aware Product Card.

@@ -9,7 +9,7 @@ import { Eye, EyeOff, ArrowLeft, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { BRANE_LOGO_URL } from '../components/Navbar';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${(process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '')}/api`;
 
 function PasswordInput({ value, onChange, placeholder, testId, ...props }) {
   const [show, setShow] = useState(false);

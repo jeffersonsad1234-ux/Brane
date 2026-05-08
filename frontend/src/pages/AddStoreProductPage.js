@@ -4,7 +4,7 @@ import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import AIAssistantPanel from "../components/AIAssistantPanel";
 
-const API = process.env.REACT_APP_BACKEND_URL + "/api";
+const API = (process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '') + '/api';
 
 const STATES_AND_CITIES = {
   "Acre": ["Rio Branco", "Cruzeiro do Sul", "Sena Madureira", "Tarauacá"],

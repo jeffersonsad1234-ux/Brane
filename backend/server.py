@@ -196,20 +196,30 @@ class MockDB:
     def __getattr__(self, name):
         return self.__getitem__(name)
 
-# Use MongoDB Atlas if MONGO_URL is set, otherwise fallback to MockDB
-_use_mongo = bool(mongo_url and mongo_url != "mongodb://127.0.0.1:27017")
-if _use_mongo:
+# Use MongoDB sempre que MONGO_URL estiver definido (incluindo localhost para dev)
+# MockDB APENAS quando MONGO_URL nao estiver definido E nao for possivel conectar ao MongoDB
+_mongo_url_provided = bool(os.getenv("MONGO_URL", "").strip())
+if _mongo_url_provided:
+    # MONGO_URL foi explicitamente configurado — usar MongoDB obrigatoriamente
     try:
         client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=_mongo_timeout_ms)
         db = client[db_name]
-        logging.info(f"Using MongoDB Atlas: {db_name}")
+        logging.info(f"Using MongoDB: {db_name} (url: {mongo_url[:30]}...)")
     except Exception as _e:
-        logging.warning(f"MongoDB connection failed ({_e}), falling back to MockDB")
+        logging.error(f"CRITICO: MongoDB connection failed ({_e}). MONGO_URL foi configurado mas conexao falhou.")
+        logging.error("Usando MockDB temporariamente — dados NAO serao persistidos. Verifique MONGO_URL.")
         db = MockDB()
         client = None
 else:
-    db = MockDB()
-    client = None
+    # MONGO_URL nao configurado — tentar localhost, fallback para MockDB
+    try:
+        client = AsyncIOMotorClient(mongo_url, serverSelectionTimeoutMS=2000)
+        db = client[db_name]
+        logging.info(f"Using MongoDB local: {db_name}")
+    except Exception as _e:
+        logging.warning(f"MongoDB local nao disponivel ({_e}), usando MockDB (dados em memoria).")
+        db = MockDB()
+        client = None
 
 # Seed initial data for sandbox
 def seed_data():
@@ -4301,12 +4311,21 @@ async def startup():
             admin_id = f"user_{uuid.uuid4().hex[:12]}"
             await db.users.insert_one({
                 "user_id": admin_id, "name": "Admin BRANE", "email": "admin@brane.com",
-                "password_hash": hash_password("Admin123!"), "role": "admin",
+                "password_hash": hash_password("Admin123!@#"), "role": "admin",
                 "picture": "", "bank_details": {}, "is_blocked": False,
                 "created_at": datetime.now(timezone.utc).isoformat()
             })
             await db.wallets.insert_one({"user_id": admin_id, "available": 0.0, "held": 0.0})
-            logger.info("Admin user created: admin@brane.com / Admin123!")
+            logger.info("Admin user created: admin@brane.com / Admin123!@#")
+        else:
+            # Garantir que o admin existente tenha role=admin (pode ter sido alterado ao criar loja)
+            if admin.get("role") != "admin":
+                await db.users.update_one({"email": "admin@brane.com"}, {"$set": {"role": "admin"}})
+                logger.info("Admin role restored: admin@brane.com")
+            # Garantir que is_blocked seja False
+            if admin.get("is_blocked"):
+                await db.users.update_one({"email": "admin@brane.com"}, {"$set": {"is_blocked": False}})
+                logger.info("Admin unblocked: admin@brane.com")
         
         comm = await db.platform_settings.find_one({"key": "commissions"})
         if not comm:

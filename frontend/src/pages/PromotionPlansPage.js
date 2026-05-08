@@ -5,7 +5,7 @@ import { Crown, Check, Zap, CreditCard, Wallet, Clock, CheckCircle, XCircle, Arr
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${(process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '')}/api`;
 
 const BENEFIT_LABELS = {
   home_highlight: 'Destaque na home',

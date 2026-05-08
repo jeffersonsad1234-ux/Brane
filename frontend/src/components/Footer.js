@@ -6,7 +6,7 @@ import { Instagram, Facebook, Twitter, Globe, Mail, Send } from 'lucide-react';
 import { BRANE_LOGO_URL } from './Navbar';
 import AdSlot from './AdSlot';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${(process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '')}/api`;
 
 const SOCIAL_ICON_MAP = {
   instagram: Instagram,

@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import AuthModal from '../components/AuthModal';
 import ProductImageZoom from '../components/ProductImageZoom';
 
-const API = process.env.REACT_APP_BACKEND_URL + '/api';
+const API = (process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '') + '/api';
 
 export default function ProductDetailPage() {
   const { id } = useParams();

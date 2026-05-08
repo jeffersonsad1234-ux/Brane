@@ -7,7 +7,7 @@ import { Textarea } from './ui/textarea';
 import { Switch } from './ui/switch';
 import { toast } from 'sonner';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${(process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '')}/api`;
 
 const BENEFIT_DEFS = [
   { key: 'home_highlight', label: 'Destaque na home', icon: Star },

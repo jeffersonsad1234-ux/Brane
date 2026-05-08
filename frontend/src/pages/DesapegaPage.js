@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Tag, Search } from 'lucide-react';
 import Product3DCard from '../components/Product3DCard';
 
-const API = process.env.REACT_APP_BACKEND_URL + '/api';
+const API = (process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim().replace(/\/$/, '') + '/api';
 
 export default function DesapegaPage() {
   const [products, setProducts] = useState([]);
