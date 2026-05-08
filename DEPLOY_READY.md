@@ -86,5 +86,5 @@ Acesse no site deployado:
 
 Build criado em: $(date)
 Local: /app/frontend/build/
-Backend URL: https://social-links-config.preview.emergentagent.com/api
+Backend URL: https://blv-dashboard-ux.preview.emergentagent.com/api
 

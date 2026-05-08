@@ -9,7 +9,7 @@ import sys
 
 def test_file_upload():
     """Test file upload functionality with admin credentials"""
-    base_url = "https://social-links-config.preview.emergentagent.com"
+    base_url = "https://blv-dashboard-ux.preview.emergentagent.com"
     api_url = f"{base_url}/api"
     
     print("🔐 Testing File Upload Functionality")

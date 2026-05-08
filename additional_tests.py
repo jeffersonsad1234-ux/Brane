@@ -9,7 +9,7 @@ import json
 import time
 
 # Configuration
-BASE_URL = "https://social-links-config.preview.emergentagent.com/api"
+BASE_URL = "https://blv-dashboard-ux.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin@brane.com"
 ADMIN_PASSWORD = "Admin123!"
 
