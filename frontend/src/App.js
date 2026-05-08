@@ -37,6 +37,16 @@ import AddDesapegaProductPage from "./pages/AddDesapegaProductPage";
 import AdminPage from "./pages/AdminPage";
 import PromotionPlansPage from "./pages/PromotionPlansPage";
 
+// B-Livre Admin Panel (exclusivo, separado do Marketplace)
+import BLivreLogin from "./blivre-admin/Login";
+import BLivreLayout from "./blivre-admin/Layout";
+import BLivreDashboard from "./blivre-admin/Dashboard";
+import BLivreUsers from "./blivre-admin/Users";
+import BLivreAds from "./blivre-admin/Ads";
+import BLivreMessages from "./blivre-admin/Messages";
+import BLivreReports from "./blivre-admin/Reports";
+import BLivreSupport from "./blivre-admin/Support";
+
 function ProtectedRoute({ children, adminOnly = false, sellerOnly = false }) {
   const { user, loading } = useAuth();
 
@@ -262,6 +272,23 @@ function AppRouter() {
                 </ProtectedRoute>
               }
             />
+
+            <Route
+              path="/admin/blivre/login"
+              element={<BLivreLogin />}
+            />
+
+            <Route
+              path="/admin/blivre"
+              element={<BLivreLayout />}
+            >
+              <Route index element={<BLivreDashboard />} />
+              <Route path="usuarios" element={<BLivreUsers />} />
+              <Route path="anuncios" element={<BLivreAds />} />
+              <Route path="mensagens" element={<BLivreMessages />} />
+              <Route path="denuncias" element={<BLivreReports />} />
+              <Route path="suporte" element={<BLivreSupport />} />
+            </Route>
 
             <Route
               path="/admin"
