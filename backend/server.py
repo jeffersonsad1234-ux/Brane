@@ -3573,6 +3573,85 @@ async def admin_dashboard(request: Request):
     five_min_ago = (datetime.now(timezone.utc) - timedelta(minutes=5)).isoformat()
     users_online = await db.users.count_documents({"last_seen": {"$gte": five_min_ago}})
 
+    # ==================== B-LIVRE: SÉRIES E AGREGAÇÕES REAIS ====================
+    # Série de 7 dias (dia a dia) com novos usuários, novos anúncios e mensagens
+    series_7d_blivre = []
+    for i in range(6, -1, -1):
+        day = (datetime.now(timezone.utc) - timedelta(days=i)).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        next_day = day + timedelta(days=1)
+        d_iso, n_iso = day.isoformat(), next_day.isoformat()
+        b_users = await db.users.count_documents({"created_at": {"$gte": d_iso, "$lt": n_iso}})
+        b_listings = await db.social_posts.count_documents({"created_at": {"$gte": d_iso, "$lt": n_iso}})
+        b_msgs = await db.direct_messages.count_documents({"created_at": {"$gte": d_iso, "$lt": n_iso}})
+        b_msgs += await db.store_messages.count_documents({"created_at": {"$gte": d_iso, "$lt": n_iso}})
+        series_7d_blivre.append({
+            "date": day.strftime("%d/%m"),
+            "users": b_users,
+            "listings": b_listings,
+            "messages": b_msgs,
+        })
+
+    # Distribuição por categoria de anúncios B-Livre (ativos)
+    cats_pipeline = [
+        {"$match": {"is_blocked": {"$ne": True}}},
+        {"$group": {"_id": "$category", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 6},
+    ]
+    blivre_categories = []
+    async for c in db.social_posts.aggregate(cats_pipeline):
+        blivre_categories.append({"name": c["_id"] or "geral", "value": c["count"]})
+
+    # Mensagens de hoje (já calculado acima como messages_today)
+    # Listas recentes específicas de B-Livre
+    recent_messages_blivre = []
+    raw_dm = await db.direct_messages.find(
+        {}, {"_id": 0}
+    ).sort("created_at", -1).limit(5).to_list(5)
+    for m in raw_dm:
+        recent_messages_blivre.append({
+            "id": m.get("message_id") or m.get("id"),
+            "from_name": m.get("sender_name") or m.get("from_name"),
+            "to_name": m.get("recipient_name") or m.get("to_name"),
+            "content": m.get("content") or m.get("message") or "",
+            "created_at": m.get("created_at"),
+        })
+
+    recent_reports_blivre = await db.reports.find(
+        {}, {"_id": 0, "report_id": 1, "reason": 1, "target_type": 1, "status": 1, "created_at": 1, "reporter_name": 1}
+    ).sort("created_at", -1).limit(5).to_list(5)
+
+    recent_support_blivre = await db.support_messages.find(
+        {}, {"_id": 0, "message_id": 1, "subject": 1, "status": 1, "created_at": 1, "user_name": 1, "user_email": 1}
+    ).sort("created_at", -1).limit(5).to_list(5) if hasattr(db, 'support_messages') else []
+    try:
+        recent_support_blivre = await db.support_messages.find(
+            {}, {"_id": 0, "message_id": 1, "subject": 1, "status": 1, "created_at": 1, "user_name": 1, "user_email": 1}
+        ).sort("created_at", -1).limit(5).to_list(5)
+    except Exception:
+        recent_support_blivre = []
+
+    open_support = await db.support_messages.count_documents({"status": {"$in": ["open", "in_progress", "pendente", "pending"]}}) if True else 0
+    try:
+        open_support = await db.support_messages.count_documents({"status": {"$in": ["open", "in_progress", "pendente", "pending"]}})
+    except Exception:
+        open_support = 0
+
+    # Visualizações e interesses (se as collections existirem)
+    try:
+        total_views = await db.social_post_views.count_documents({})
+    except Exception:
+        total_views = 0
+    try:
+        total_interests = await db.social_post_likes.count_documents({})
+    except Exception:
+        # fallback: somar campo likes_count dos posts
+        likes_pipeline = [{"$group": {"_id": None, "t": {"$sum": "$likes_count"}}}]
+        agg = await db.social_posts.aggregate(likes_pipeline).to_list(1)
+        total_interests = (agg[0]["t"] if agg else 0) or 0
+
     return {
         "total_users": total_users,
         "total_orders": total_orders,
@@ -3589,6 +3668,15 @@ async def admin_dashboard(request: Request):
         "recent_orders": recent_orders,
         "recent_users": recent_users,
         "recent_social_posts": recent_social_posts,
+        # B-Livre exclusive
+        "series_7d_blivre": series_7d_blivre,
+        "blivre_categories": blivre_categories,
+        "recent_messages_blivre": recent_messages_blivre,
+        "recent_reports_blivre": recent_reports_blivre,
+        "recent_support_blivre": recent_support_blivre,
+        "open_support": open_support,
+        "total_views_blivre": total_views,
+        "total_interests_blivre": total_interests,
     }
 
 
@@ -4253,6 +4341,186 @@ async def create_mongodb_indexes():
         logger.info('✅ Índices MongoDB criados com sucesso')
     except Exception as e:
         logger.error(f"Erro ao criar índices MongoDB: {e}")
+
+# ==================== ADMIN B-LIVRE: EXPORT PDF ====================
+@api_router.get("/admin/blivre/export/pdf")
+async def admin_blivre_export_pdf(request: Request):
+    """Gera relatório PDF real com dados B-Livre (sem dados de marketplace)."""
+    await require_admin(request)
+
+    import io as _io
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors as _colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import cm
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
+
+    buffer = _io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        leftMargin=2 * cm, rightMargin=2 * cm,
+        topMargin=2 * cm, bottomMargin=2 * cm,
+        title="Relatório B-Livre",
+    )
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle(
+        "title", parent=styles["Title"],
+        textColor=_colors.HexColor("#D4A24C"), fontSize=22, spaceAfter=6,
+    )
+    subtitle_style = ParagraphStyle(
+        "sub", parent=styles["Normal"],
+        textColor=_colors.HexColor("#6b7280"), fontSize=10, spaceAfter=18,
+    )
+    h2 = ParagraphStyle("h2", parent=styles["Heading2"],
+                        textColor=_colors.HexColor("#111827"), spaceAfter=6)
+
+    story = []
+    now_dt = datetime.now(timezone.utc)
+    story.append(Paragraph("Relatório B-Livre", title_style))
+    story.append(Paragraph(
+        f"Gerado em {now_dt.strftime('%d/%m/%Y %H:%M UTC')} • Painel administrativo • Classificados gratuitos",
+        subtitle_style,
+    ))
+
+    five_min_ago = (now_dt - timedelta(minutes=5)).isoformat()
+    today_start = now_dt.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+
+    total_users = await db.users.count_documents({})
+    online_users = await db.users.count_documents({"last_seen": {"$gte": five_min_ago}})
+    active_ads = await db.social_posts.count_documents({"is_blocked": {"$ne": True}})
+    total_ads = await db.social_posts.count_documents({})
+    msgs_total = await db.direct_messages.count_documents({}) + await db.store_messages.count_documents({})
+    msgs_today = await db.direct_messages.count_documents({"created_at": {"$gte": today_start}}) + \
+        await db.store_messages.count_documents({"created_at": {"$gte": today_start}})
+    pending_reports = await db.reports.count_documents({"status": {"$in": ["pendente", "pending"]}})
+    try:
+        open_support = await db.support_messages.count_documents({"status": {"$in": ["open", "in_progress", "pendente", "pending"]}})
+    except Exception:
+        open_support = 0
+
+    kpis = [
+        ["Indicador", "Total"],
+        ["Usuários cadastrados", str(total_users)],
+        ["Usuários online (últimos 5 min)", str(online_users)],
+        ["Anúncios ativos", str(active_ads)],
+        ["Anúncios (total)", str(total_ads)],
+        ["Mensagens hoje", str(msgs_today)],
+        ["Mensagens (total)", str(msgs_total)],
+        ["Denúncias pendentes", str(pending_reports)],
+        ["Chamados de suporte abertos", str(open_support)],
+    ]
+    story.append(Paragraph("Indicadores principais B-Livre", h2))
+    t = Table(kpis, colWidths=[10 * cm, 5 * cm])
+    t.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), _colors.HexColor("#D4A24C")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), _colors.white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [_colors.HexColor("#f9fafb"), _colors.white]),
+        ("GRID", (0, 0), (-1, -1), 0.25, _colors.HexColor("#e5e7eb")),
+        ("LEFTPADDING", (0, 0), (-1, -1), 8),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ]))
+    story.append(t)
+    story.append(Spacer(1, 16))
+
+    # Anúncios recentes
+    story.append(Paragraph("Anúncios B-Livre recentes", h2))
+    recent_ads = await db.social_posts.find({}, {"_id": 0}).sort("created_at", -1).limit(15).to_list(15)
+    if recent_ads:
+        rows = [["Título", "Categoria", "Autor", "Status", "Criado em"]]
+        for ad in recent_ads:
+            rows.append([
+                (ad.get("title") or ad.get("content") or "")[:40],
+                ad.get("category") or "-",
+                (ad.get("user_name") or "-")[:20],
+                "Bloqueado" if ad.get("is_blocked") else "Ativo",
+                (ad.get("created_at") or "")[:10],
+            ])
+        t2 = Table(rows, colWidths=[5.5 * cm, 2.5 * cm, 3 * cm, 2 * cm, 2.5 * cm])
+        t2.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), _colors.HexColor("#111827")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), _colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [_colors.HexColor("#f9fafb"), _colors.white]),
+            ("GRID", (0, 0), (-1, -1), 0.25, _colors.HexColor("#e5e7eb")),
+        ]))
+        story.append(t2)
+    else:
+        story.append(Paragraph("Nenhum anúncio cadastrado ainda.", styles["Italic"]))
+    story.append(Spacer(1, 16))
+
+    # Denúncias pendentes
+    story.append(Paragraph("Denúncias pendentes", h2))
+    rep_pending = await db.reports.find(
+        {"status": {"$in": ["pendente", "pending"]}}, {"_id": 0}
+    ).sort("created_at", -1).limit(15).to_list(15)
+    if rep_pending:
+        rows = [["Tipo", "Motivo", "Reportado por", "Criado em"]]
+        for r in rep_pending:
+            rows.append([
+                r.get("target_type") or "-",
+                (r.get("reason") or "")[:50],
+                (r.get("reporter_name") or "-")[:20],
+                (r.get("created_at") or "")[:16],
+            ])
+        t3 = Table(rows, colWidths=[2.5 * cm, 7 * cm, 3.5 * cm, 3 * cm])
+        t3.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), _colors.HexColor("#dc2626")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), _colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [_colors.HexColor("#fef2f2"), _colors.white]),
+            ("GRID", (0, 0), (-1, -1), 0.25, _colors.HexColor("#fecaca")),
+        ]))
+        story.append(t3)
+    else:
+        story.append(Paragraph("Nenhuma denúncia pendente.", styles["Italic"]))
+
+    story.append(PageBreak())
+
+    # Suporte aberto
+    story.append(Paragraph("Suporte aberto", h2))
+    try:
+        sup_open = await db.support_messages.find(
+            {"status": {"$in": ["open", "in_progress", "pendente", "pending"]}}, {"_id": 0}
+        ).sort("created_at", -1).limit(15).to_list(15)
+    except Exception:
+        sup_open = []
+    if sup_open:
+        rows = [["Assunto", "Usuário", "Status", "Criado em"]]
+        for s in sup_open:
+            rows.append([
+                (s.get("subject") or s.get("message") or "")[:40],
+                (s.get("user_name") or "-")[:20],
+                s.get("status") or "-",
+                (s.get("created_at") or "")[:10],
+            ])
+        t4 = Table(rows, colWidths=[6 * cm, 4 * cm, 2.5 * cm, 2.5 * cm])
+        t4.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), _colors.HexColor("#0ea5e9")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), _colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE", (0, 0), (-1, -1), 9),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1), [_colors.HexColor("#f0f9ff"), _colors.white]),
+            ("GRID", (0, 0), (-1, -1), 0.25, _colors.HexColor("#bae6fd")),
+        ]))
+        story.append(t4)
+    else:
+        story.append(Paragraph("Nenhum chamado em aberto.", styles["Italic"]))
+
+    doc.build(story)
+    buffer.seek(0)
+    filename = f"relatorio-blivre-{now_dt.strftime('%Y%m%d-%H%M')}.pdf"
+    return Response(
+        content=buffer.getvalue(),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
 
 # ==================== CORS + APP SETUP ====================
 app.add_middleware(

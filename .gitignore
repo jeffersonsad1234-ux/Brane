@@ -46,3 +46,4 @@ tmp/
 temp/
 *.tmp
 data/
+frontend/node_modules/.cache/default-development/0.pack

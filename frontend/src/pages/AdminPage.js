@@ -211,7 +211,34 @@ function DashboardTab({ token, platform }) {
             <Calendar className="w-4 h-4 text-[#D4A24C]" />
             <span>01/05/2025 - 05/05/2025</span>
           </div>
-          <Button className="flex items-center gap-2 bg-[#11131A] border border-[#1E2230] hover:border-[#D4A24C]/50 text-[#A6A8B3] hover:text-white rounded-xl px-4 py-2 text-sm transition-all">
+          <Button
+            data-testid="admin-export-pdf-btn"
+            onClick={async () => {
+              const url = isMarketplace
+                ? `${API}/admin/dashboard/export-pdf`
+                : `${API}/admin/blivre/export/pdf`;
+              try {
+                const r = await axios.get(url, {
+                  headers: h,
+                  responseType: 'blob',
+                });
+                const blobUrl = URL.createObjectURL(r.data);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = isMarketplace
+                  ? `relatorio-marketplace-${new Date().toISOString().slice(0,10)}.pdf`
+                  : `relatorio-blivre-${new Date().toISOString().slice(0,10)}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(blobUrl);
+                toast.success('Relatório exportado!');
+              } catch (e) {
+                toast.error('Erro ao exportar relatório');
+              }
+            }}
+            className="flex items-center gap-2 bg-[#11131A] border border-[#1E2230] hover:border-[#D4A24C]/50 text-[#A6A8B3] hover:text-white rounded-xl px-4 py-2 text-sm transition-all"
+          >
             <Download className="w-4 h-4 text-[#D4A24C]" />
             Exportar relatório
           </Button>
@@ -239,7 +266,8 @@ function DashboardTab({ token, platform }) {
         )}
       </div>
 
-      {/* Charts Row */}
+      {/* ==================== MARKETPLACE: Vendas / Categorias / Acessos ==================== */}
+      {isMarketplace && (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Sales Chart */}
         <div className="lg:col-span-1 bg-[#11131A] border border-[#1E2230] rounded-2xl p-5">
@@ -341,8 +369,88 @@ function DashboardTab({ token, platform }) {
           </div>
         </div>
       </div>
+      )}
 
-      {/* Tables Row */}
+      {/* ==================== B-LIVRE: Atividade real / Categorias reais ==================== */}
+      {!isMarketplace && (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4" data-testid="blivre-charts">
+        {/* Activity 7d - real */}
+        <div className="lg:col-span-2 bg-[#11131A] border border-[#1E2230] rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="font-semibold text-white">Atividade nos últimos 7 dias</h3>
+              <p className="text-xs text-[#6F7280] mt-0.5">Usuários novos · anúncios · mensagens (dados reais)</p>
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={220} minHeight={220}>
+            <AreaChart data={data?.series_7d_blivre || []} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="bUsers" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#D4A24C" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#D4A24C" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="bListings" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10B981" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#10B981" stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="bMessages" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#8B5CF6" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#8B5CF6" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1E2230" />
+              <XAxis dataKey="date" tick={{ fill: '#6F7280', fontSize: 10 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: '#6F7280', fontSize: 10 }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip contentStyle={{ background: '#11131A', border: '1px solid #1E2230', borderRadius: 8, fontSize: 12 }} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <Area name="Usuários" type="monotone" dataKey="users" stroke="#D4A24C" strokeWidth={2} fill="url(#bUsers)" dot={{ fill: '#D4A24C', r: 3 }} />
+              <Area name="Anúncios" type="monotone" dataKey="listings" stroke="#10B981" strokeWidth={2} fill="url(#bListings)" dot={{ fill: '#10B981', r: 3 }} />
+              <Area name="Mensagens" type="monotone" dataKey="messages" stroke="#8B5CF6" strokeWidth={2} fill="url(#bMessages)" dot={{ fill: '#8B5CF6', r: 3 }} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Categorias B-Livre - real */}
+        <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-5">
+          <h3 className="font-semibold text-white mb-1">Categorias de anúncios</h3>
+          <p className="text-xs text-[#6F7280] mb-4">Distribuição dos ativos</p>
+          {(data?.blivre_categories || []).length === 0 ? (
+            <div className="text-center text-[#6F7280] text-xs py-12">Sem dados de categorias ainda</div>
+          ) : (
+            <div className="flex items-center gap-4">
+              <ResponsiveContainer width={130} height={130}>
+                <PieChart>
+                  <Pie data={data.blivre_categories} cx="50%" cy="50%" innerRadius={40} outerRadius={60} dataKey="value" strokeWidth={0}>
+                    {(data.blivre_categories || []).map((_, i) => {
+                      const palette = ['#D4A24C', '#10B981', '#8B5CF6', '#3B82F6', '#F59E0B', '#EF4444'];
+                      return <Cell key={`bcell-${i}`} fill={palette[i % palette.length]} />;
+                    })}
+                  </Pie>
+                  <Tooltip contentStyle={{ background: '#11131A', border: '1px solid #1E2230', borderRadius: 8, fontSize: 12 }} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex-1 space-y-1.5">
+                {(data.blivre_categories || []).map((item, i) => {
+                  const palette = ['#D4A24C', '#10B981', '#8B5CF6', '#3B82F6', '#F59E0B', '#EF4444'];
+                  return (
+                    <div key={i} className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-2 h-2 rounded-full" style={{ background: palette[i % palette.length] }} />
+                        <span className="text-[#A6A8B3]">{item.name}</span>
+                      </div>
+                      <span className="text-white font-medium">{item.value}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+      )}
+
+      {/* ==================== MARKETPLACE: Pedidos / Anúncios / Usuários recentes ==================== */}
+      {isMarketplace && (
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Recent Orders */}
         <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-5">
@@ -415,8 +523,109 @@ function DashboardTab({ token, platform }) {
           </div>
         </div>
       </div>
+      )}
+
+      {/* ==================== B-LIVRE: Anúncios / Mensagens / Denúncias / Suporte recentes ==================== */}
+      {!isMarketplace && (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4" data-testid="blivre-recent">
+        {/* Anúncios recentes */}
+        <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-white">Anúncios B Livre recentes</h3>
+            <button className="text-xs text-[#D4A24C] hover:underline flex items-center gap-1">Ver todos <ChevronRight className="w-3 h-3" /></button>
+          </div>
+          <div className="space-y-3">
+            {(data?.recent_social_posts || []).length === 0 ? (
+              <p className="text-center text-[#6F7280] text-xs py-6">Nenhum anúncio ainda</p>
+            ) : (data.recent_social_posts || []).slice(0, 5).map((ad, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[#0B0D12] border border-[#1E2230] flex items-center justify-center shrink-0 overflow-hidden">
+                  {ad.image ? <img src={ad.image} alt="" className="w-full h-full object-cover" /> : <Package className="w-5 h-5 text-[#6F7280]" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white font-medium truncate">{ad.title || ad.content?.slice(0, 40) || 'Sem título'}</p>
+                  <p className="text-xs text-[#A6A8B3] truncate">{ad.user_name || '—'} · {ad.city || ''}</p>
+                </div>
+                {ad.is_blocked
+                  ? <span className="text-xs text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full shrink-0">Bloqueado</span>
+                  : <span className="text-xs text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full shrink-0">Ativo</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Mensagens recentes */}
+        <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-white">Mensagens recentes</h3>
+            <button className="text-xs text-[#D4A24C] hover:underline flex items-center gap-1" onClick={() => {}}>Ver todas <ChevronRight className="w-3 h-3" /></button>
+          </div>
+          <div className="space-y-3">
+            {(data?.recent_messages_blivre || []).length === 0 ? (
+              <p className="text-center text-[#6F7280] text-xs py-6">Sem mensagens ainda</p>
+            ) : (data.recent_messages_blivre || []).slice(0, 5).map((m, i) => (
+              <div key={i} className="text-sm">
+                <p className="text-white font-medium truncate">
+                  {m.from_name || '—'} <span className="text-[#6F7280]">→</span> {m.to_name || '—'}
+                </p>
+                <p className="text-xs text-[#A6A8B3] truncate">"{(m.content || '').slice(0, 80)}"</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Denúncias recentes */}
+        <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-white">Denúncias recentes</h3>
+            <button className="text-xs text-[#D4A24C] hover:underline flex items-center gap-1" onClick={() => {}}>Ver todas <ChevronRight className="w-3 h-3" /></button>
+          </div>
+          <div className="space-y-3">
+            {(data?.recent_reports_blivre || []).length === 0 ? (
+              <p className="text-center text-[#6F7280] text-xs py-6">Sem denúncias</p>
+            ) : (data.recent_reports_blivre || []).slice(0, 5).map((r, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-4 h-4 text-red-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white font-medium truncate">{r.reason || '—'}</p>
+                  <p className="text-xs text-[#A6A8B3] truncate">{r.target_type} · por {r.reporter_name || '—'}</p>
+                </div>
+                <span className="text-[10px] text-[#A6A8B3] bg-[#0B0D12] px-2 py-0.5 rounded-full shrink-0">{r.status}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Suporte recente */}
+        <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-white">Suporte recente</h3>
+            <button className="text-xs text-[#D4A24C] hover:underline flex items-center gap-1" onClick={() => {}}>Ver todos <ChevronRight className="w-3 h-3" /></button>
+          </div>
+          <div className="space-y-3">
+            {(data?.recent_support_blivre || []).length === 0 ? (
+              <p className="text-center text-[#6F7280] text-xs py-6">Sem chamados</p>
+            ) : (data.recent_support_blivre || []).slice(0, 5).map((s, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                  <Headphones className="w-4 h-4 text-blue-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white font-medium truncate">{s.subject || '—'}</p>
+                  <p className="text-xs text-[#A6A8B3] truncate">{s.user_name || s.user_email || '—'}</p>
+                </div>
+                <span className="text-[10px] text-[#A6A8B3] bg-[#0B0D12] px-2 py-0.5 rounded-full shrink-0">{s.status}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      )}
 
       {/* Bottom Stats Bar */}
+      {isMarketplace ? (
       <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-4">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 divide-x divide-[#1E2230]">
           {[
@@ -439,6 +648,30 @@ function DashboardTab({ token, platform }) {
           })}
         </div>
       </div>
+      ) : (
+      <div className="bg-[#11131A] border border-[#1E2230] rounded-2xl p-4" data-testid="blivre-bottom-stats">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 divide-x divide-[#1E2230]">
+          {[
+            { label: 'Visualizações', value: (data?.total_views_blivre ?? 0).toLocaleString('pt-BR'), icon: Eye },
+            { label: 'Interesses', value: (data?.total_interests_blivre ?? 0).toLocaleString('pt-BR'), icon: TrendingUp },
+            { label: 'Anúncios (total)', value: (data?.total_social_posts ?? 0).toLocaleString('pt-BR'), icon: Megaphone },
+            { label: 'Suporte aberto', value: data?.open_support ?? 0, icon: Headphones },
+            { label: 'Novos usuários hoje', value: data?.new_users_today ?? 0, icon: Users },
+          ].map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <div key={i} className="px-4 first:pl-0 last:pr-0 flex items-center gap-3">
+                <Icon className="w-4 h-4 text-[#D4A24C] shrink-0" />
+                <div>
+                  <p className="text-xs text-[#6F7280]">{item.label}</p>
+                  <p className="text-sm font-bold text-white">{item.value}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      )}
     </div>
   );
 }
@@ -1636,35 +1869,38 @@ function ReportsTab({ token }) {
 }
 
 // ==================== SIDEBAR NAVIGATION ====================
+// Items disponíveis para cada plataforma. B-Livre = classificados grátis
+// (sem pedidos/lojas/financeiro/comissões/saques/cupons que são exclusivos
+// do Marketplace).
 const sidebarItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'users', label: 'Usuários', icon: Users },
-  { id: 'admin-products', label: 'Produtos', icon: Package },
-  { id: 'ads', label: 'Anúncios', icon: Megaphone },
-  { id: 'orders', label: 'Pedidos', icon: ShoppingBag },
-  { id: 'stores', label: 'Lojas', icon: Store },
-  { id: 'financial', label: 'Financeiro', icon: DollarSign },
-  { id: 'commissions', label: 'Comissões', icon: CreditCard },
-  { id: 'withdrawals', label: 'Saques', icon: Wallet },
-  { id: 'reports', label: 'Denúncias', icon: AlertTriangle },
-  { id: 'messages-monitor', label: 'Mensagens', icon: MessageSquare },
-  { id: 'support', label: 'Suporte', icon: Headphones },
-  { id: 'coupons', label: 'Cupons', icon: Gift },
-  { id: 'notifications', label: 'Notificações', icon: Bell },
-  { id: 'sales', label: 'Relatórios', icon: BarChart3 },
-  { id: 'theme', label: 'Configurações', icon: Settings },
-  { id: 'finance-pro', label: 'Integrações', icon: Layers },
-  // Extra tabs
-  { id: 'wallet-manage', label: 'Saldo', icon: Wallet, hidden: true },
-  { id: 'escrow', label: 'Escrow', icon: UnlockKeyhole, hidden: true },
-  { id: 'tracking', label: 'Rastreio', icon: Truck, hidden: true },
-  { id: 'affiliate-control', label: 'Afiliados', icon: UserCog, hidden: true },
-  { id: 'shipping', label: 'Frete', icon: Truck, hidden: true },
-  { id: 'pages', label: 'Páginas', icon: FileText, hidden: true },
-  { id: 'newsletter', label: 'Newsletter', icon: Mail, hidden: true },
-  { id: 'campaigns', label: 'Campanhas', icon: Send, hidden: true },
-  { id: 'footer-config', label: 'Rodapé', icon: Globe, hidden: true },
-  { id: 'plans', label: 'Planos', icon: Crown, hidden: true },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, platforms: ['marketplace', 'blivre'] },
+  { id: 'users', label: 'Usuários', icon: Users, platforms: ['marketplace', 'blivre'] },
+  { id: 'admin-products', label: 'Produtos', icon: Package, platforms: ['marketplace'] },
+  { id: 'ads', label: 'Anúncios', icon: Megaphone, platforms: ['marketplace', 'blivre'] },
+  { id: 'orders', label: 'Pedidos', icon: ShoppingBag, platforms: ['marketplace'] },
+  { id: 'stores', label: 'Lojas', icon: Store, platforms: ['marketplace'] },
+  { id: 'financial', label: 'Financeiro', icon: DollarSign, platforms: ['marketplace'] },
+  { id: 'commissions', label: 'Comissões', icon: CreditCard, platforms: ['marketplace'] },
+  { id: 'withdrawals', label: 'Saques', icon: Wallet, platforms: ['marketplace'] },
+  { id: 'reports', label: 'Denúncias', icon: AlertTriangle, platforms: ['marketplace', 'blivre'] },
+  { id: 'messages-monitor', label: 'Mensagens', icon: MessageSquare, platforms: ['marketplace', 'blivre'] },
+  { id: 'support', label: 'Suporte', icon: Headphones, platforms: ['marketplace', 'blivre'] },
+  { id: 'coupons', label: 'Cupons', icon: Gift, platforms: ['marketplace'] },
+  { id: 'notifications', label: 'Notificações', icon: Bell, platforms: ['marketplace', 'blivre'] },
+  { id: 'sales', label: 'Relatórios', icon: BarChart3, platforms: ['marketplace'] },
+  { id: 'theme', label: 'Configurações', icon: Settings, platforms: ['marketplace', 'blivre'] },
+  { id: 'finance-pro', label: 'Integrações', icon: Layers, platforms: ['marketplace'] },
+  // Extra tabs (acessíveis programaticamente, ocultos da sidebar)
+  { id: 'wallet-manage', label: 'Saldo', icon: Wallet, hidden: true, platforms: ['marketplace'] },
+  { id: 'escrow', label: 'Escrow', icon: UnlockKeyhole, hidden: true, platforms: ['marketplace'] },
+  { id: 'tracking', label: 'Rastreio', icon: Truck, hidden: true, platforms: ['marketplace'] },
+  { id: 'affiliate-control', label: 'Afiliados', icon: UserCog, hidden: true, platforms: ['marketplace'] },
+  { id: 'shipping', label: 'Frete', icon: Truck, hidden: true, platforms: ['marketplace'] },
+  { id: 'pages', label: 'Páginas', icon: FileText, hidden: true, platforms: ['marketplace', 'blivre'] },
+  { id: 'newsletter', label: 'Newsletter', icon: Mail, hidden: true, platforms: ['marketplace'] },
+  { id: 'campaigns', label: 'Campanhas', icon: Send, hidden: true, platforms: ['marketplace'] },
+  { id: 'footer-config', label: 'Rodapé', icon: Globe, hidden: true, platforms: ['marketplace', 'blivre'] },
+  { id: 'plans', label: 'Planos', icon: Crown, hidden: true, platforms: ['marketplace'] },
 ];
 
 // ==================== MAIN ADMIN PAGE ====================
@@ -1749,7 +1985,19 @@ export default function AdminPage() {
     }
   };
 
-  const visibleSidebarItems = sidebarItems.filter(item => !item.hidden);
+  const visibleSidebarItems = sidebarItems.filter(
+    item => !item.hidden && (item.platforms || []).includes(platform)
+  );
+
+  // Quando o usuário troca de plataforma, se a aba atual não pertence à
+  // nova plataforma, voltar ao Dashboard.
+  useEffect(() => {
+    const current = sidebarItems.find(i => i.id === activeTab);
+    if (current && !(current.platforms || []).includes(platform)) {
+      setActiveTab('dashboard');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [platform]);
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#0B0D12' }} data-testid="admin-page">
