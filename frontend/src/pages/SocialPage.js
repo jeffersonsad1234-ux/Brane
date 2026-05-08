@@ -2056,13 +2056,20 @@ export default function SocialPage() {
                           <div className="p-2 sm:p-3 bg-white">
                             <p className="text-[#17130B] font-black text-xs sm:text-sm leading-tight line-clamp-2 tracking-[-0.03em]">
                               {getTitle(post)}
-                                                       <p className="gold-text-premium text-base sm:text-lg mt-1 sm:mt-2 tracking-[-0.04em]">
-2062	                              {getPrice(post)}
-2063	                            </p>                           <p className="text-[10px] sm:text-[11px] text-[#8B8790] font-semibold mt-0.5 sm:mt-1 truncate">
+                            </p>
+
+                            <p className="gold-text-premium text-base sm:text-lg mt-1 sm:mt-2 tracking-[-0.04em]">
+                              {getPrice(post)}
+                            </p>
+
+                            <p className="text-[10px] sm:text-[11px] text-[#8B8790] font-semibold mt-0.5 sm:mt-1 truncate">
                               {getLocation(post)}
-                                                      <span className="mt-2 sm:mt-3 inline-flex w-full justify-center rounded-xl gold-premium-3d px-2 sm:px-3 py-1.5 sm:py-2 text-[11px] sm:text-[12px] font-black text-[#111]">
-2070	                              {activeFilter === "mine" ? "Ver meu anúncio" : "Ver produto"}
-2071	                            </span>                         </div>
+                            </p>
+
+                            <span className="mt-2 sm:mt-3 inline-flex w-full justify-center rounded-xl gold-premium-3d px-2 sm:px-3 py-1.5 sm:py-2 text-[11px] sm:text-[12px] font-black text-[#111]">
+                              {activeFilter === "mine" ? "Ver meu anúncio" : "Ver produto"}
+                            </span>
+                          </div>
                         </button>
                       </div>
                     );
@@ -2078,31 +2085,37 @@ export default function SocialPage() {
                 <div className={`rounded-[28px] border border-[#D4A24C]/20 bg-gradient-to-br from-white/[0.06] to-white/[0.025] p-5 transition-all duration-300 ${expanded ? 'opacity-0 pointer-events-none h-0 overflow-hidden m-0 p-0' : 'opacity-100'}`}>
                   <h3 className="font-black mb-3 flex items-center gap-2">
                     <Package size={18} className="text-[#D4A24C]" />
-                              <button
-2092	                    type="button"
-2093	                    onClick={() => {
-2094	                      if (!requireAuth("anunciar")) return;
-2095	                      setUseAI(true);
-2096	                      setComposerOpen(true);
-2097	                    }}
-2098	                    className="w-full rounded-2xl gold-premium-3d py-3"
-2099	                  >
-2100	                    Anunciar
-2101	                  </button>
+                    Anunciar produto
+                  </h3>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!requireAuth("anunciar")) return;
+                      setUseAI(true);
+                      setComposerOpen(true);
+                    }}
+                    className="w-full rounded-2xl gold-premium-3d py-3"
+                  >
+                    Anunciar
+                  </button>
                 </div>
 
                 {/* Botão + Fixo que aparece ao rolar */}
                 {expanded && (
-                  <div className="fixed top-[108px] right-4 sm                    <button
-2108	                      onClick={() => {
-2109	                        if (!requireAuth("anunciar")) return;
-2110	                        setUseAI(true);
-2111	                        setComposerOpen(true);
-2112	                      }}
-2113	                      className="w-14 h-14 rounded-2xl gold-premium-3d flex items-center justify-center text-2xl animate-in fade-in zoom-in duration-300"
-2114	                    >
-2115	                      <Plus size={28} strokeWidth={3} />
-2116	                    </button>                )}
+                  <div className="fixed top-[108px] right-4 sm:right-8 z-[100]">
+                    <button
+                      onClick={() => {
+                        if (!requireAuth("anunciar")) return;
+                        setUseAI(true);
+                        setComposerOpen(true);
+                      }}
+                      className="w-14 h-14 rounded-2xl gold-premium-3d flex items-center justify-center text-2xl animate-in fade-in zoom-in duration-300"
+                    >
+                      <Plus size={28} strokeWidth={3} />
+                    </button>
+                  </div>
+                )}
 
                   <div className={`rounded-[28px] border border-white/10 bg-white/[0.035] p-5 transition-all duration-300 ${expanded ? 'opacity-0 pointer-events-none h-0 overflow-hidden m-0 p-0' : 'opacity-100'}`}>
                     <h3 className="font-black mb-4 flex items-center gap-2">
@@ -2110,20 +2123,22 @@ export default function SocialPage() {
                       Alcance
                     </h3>
 
-                    <div className="space-y-2 sm:space-y-3 t	                      <div className="flex items-center justify-between">
-2128	                        <span>Visualizações</span>
-2129	                        <span className="gold-text-premium">{totalViews}</span>
-2130	                      </div>
-2131	
-2132	                      <div className="flex items-center justify-between">
-2133	                        <span>Interesses</span>
-2134	                        <span className="gold-text-premium">{totalInterests}</span>
-2135	                      </div>
-2136	
-2137	                      <div className="flex items-center justify-between">
-2138	                        <span>Meus anúncios</span>
-2139	                        <span className="gold-text-premium">{totalMyAds}</span>
-2140	                      </div>
+                    <div className="space-y-2 sm:space-y-3 text-[10px] sm:text-sm text-[#B8BAC6]">
+                      <div className="flex items-center justify-between">
+                        <span>Visualizações</span>
+                        <span className="gold-text-premium">{totalViews}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span>Interesses</span>
+                        <span className="gold-text-premium">{totalInterests}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <span>Meus anúncios</span>
+                        <span className="gold-text-premium">{totalMyAds}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
             </aside>
@@ -2131,18 +2146,22 @@ export default function SocialPage() {
         </div>
       </div>
 
-      {/* Botão Flutuante de      <div className="fixed bottom-6 right-6 z-50 md:hidden">
-2151	        <button
-2152	          onClick={() => {
-2153	            if (!requireAuth("anunciar")) return;
-2154	            setUseAI(true);
-2155	            setComposerOpen(true);
-2156	          }}
-2157	          className="w-14 h-14 rounded-full gold-premium-3d flex items-center justify-center"
-2158	        >
-2159	          <Plus size={32} strokeWidth={3} />
-2160	        </button>
-2161	      </div> isOpen={showAuthModal}
+      {/* Botão Flutuante de Anunciar (Mobile) */}
+      <div className="fixed bottom-6 right-6 z-50 md:hidden">
+        <button
+          onClick={() => {
+            if (!requireAuth("anunciar")) return;
+            setUseAI(true);
+            setComposerOpen(true);
+          }}
+          className="w-14 h-14 rounded-full gold-premium-3d flex items-center justify-center"
+        >
+          <Plus size={32} strokeWidth={3} />
+        </button>
+      </div>
+
+      <BLivreAuthModal
+        isOpen={showAuthModal}
         onClose={() => {
           setShowAuthModal(false);
           setPendingAction(null);

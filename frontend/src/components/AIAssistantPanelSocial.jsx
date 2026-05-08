@@ -560,13 +560,16 @@ export default function AIAssistantPanelSocial({
                 onChange={(e) => setContactNumber(e.target.value)}
                 placeholder="Ex: (11) 99999-9999"
                 className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-[#D4A24C]/50"
-                            <button
-566	              type="button"
-567	              onClick={handleConfirmContact}
-568	              className="w-full rounded-xl gold-premium-3d py-2 text-xs"
-569	            >
-570	              {contactOptions.phone || contactOptions.whatsapp ? "Confirmar contato" : "Continuar sem contato"}
-571	            </button>   </div>
+              />
+            )}
+            <button
+              type="button"
+              onClick={handleConfirmContact}
+              className="w-full rounded-xl gold-premium-3d py-2 text-xs"
+            >
+              {contactOptions.phone || contactOptions.whatsapp ? "Confirmar contato" : "Continuar sem contato"}
+            </button>
+          </div>
         )}
 
         {/* Painel visual de seleção de DISPONIBILIDADE */}
@@ -711,14 +714,18 @@ export default function AIAssistantPanelSocial({
               onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
               placeholder="Produto, estado, detalhes, preço, cidade..."
               className="h-11 w-full rounded-xl border border-white/10 bg-black/40 px-4 text-sm text-white outline-none focus:border-[#D4A24C]/50 transition-all"
-            />          <button
-720	            type="button"
-721	            onClick={handleGenerate}
-722	            disabled={isGenerating || !safe(input)}
-723	            className="h-11 w-11 flex items-center justify-center rounded-xl gold-premium-3d disabled:opacity-30"
-724	          >
-725	            <Send size={18} />
-726	          </button></div>
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGenerate}
+            disabled={isGenerating || !safe(input)}
+            className="h-11 w-11 flex items-center justify-center rounded-xl gold-premium-3d disabled:opacity-30"
+          >
+            <Send size={18} />
+          </button>
+        </div>
 
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           <button
@@ -737,15 +744,18 @@ export default function AIAssistantPanelSocial({
           >
             <RefreshCw size={14} className="mb-1" />
             Novo
-              <button
-748	            type="button"
-749	            onClick={() => ad && onPublishAd(ad)}
-750	            disabled={!ad || isGenerating || photosCount === 0 || !ad.title || !ad.price}
-751	            className="flex flex-col items-center justify-center rounded-xl gold-premium-3d py-2 text-[10px]"
-752	          >
-753	            <CheckCircle2 size={14} className="mb-1" />
-754	            Publicar
-755	          </button>      </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => ad && onPublishAd(ad)}
+            disabled={!ad || isGenerating || photosCount === 0 || !ad.title || !ad.price}
+            className="flex flex-col items-center justify-center rounded-xl gold-premium-3d py-2 text-[10px]"
+          >
+            <CheckCircle2 size={14} className="mb-1" />
+            Publicar
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
