@@ -112,6 +112,38 @@ export default function SocialPage() {
   const [sendingReport, setSendingReport] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactData, setContactData] = useState(null);
+  // Mobile: caixinha de mensagem rápida para suporte
+  const [showMobileSupport, setShowMobileSupport] = useState(false);
+  // Modal de suporte no settings
+  const [showSupportModal, setShowSupportModal] = useState(false);
+  const [supportMsg, setSupportMsg] = useState("");
+  const [sendingSupport, setSendingSupport] = useState(false);
+  const sendSupportMsg = async () => {
+    if (!supportMsg.trim()) return;
+    if (!requireAuth()) return;
+    setSendingSupport(true);
+    try {
+      await axios.post(`${API}/support`, { subject: "Suporte B Livre", message: supportMsg }, { headers: authHeaders });
+      setSupportMsg("");
+      setShowSupportModal(false);
+      alert("Mensagem enviada ao suporte!");
+    } catch { alert("Erro ao enviar. Tente novamente."); }
+    finally { setSendingSupport(false); }
+  };
+  const [mobileSupportMsg, setMobileSupportMsg] = useState("");
+  const [sendingMobileSupport, setSendingMobileSupport] = useState(false);
+  const sendMobileSupportMsg = async () => {
+    if (!mobileSupportMsg.trim()) return;
+    if (!requireAuth("suporte")) return;
+    setSendingMobileSupport(true);
+    try {
+      await axios.post(`${API}/support`, { subject: "Suporte B Livre", message: mobileSupportMsg }, { headers: authHeaders });
+      setMobileSupportMsg("");
+      setShowMobileSupport(false);
+      alert("Mensagem enviada ao suporte!");
+    } catch { alert("Erro ao enviar. Tente novamente."); }
+    finally { setSendingMobileSupport(false); }
+  };
 
   const REPORT_MOTIVOS = [
     "Produto falso ou golpe",
@@ -931,7 +963,7 @@ export default function SocialPage() {
           .blivre-side {
             display: block !important;
             transition: all 0.3s ease;
-            overflow: hidden;
+            overflow: visible;
           }
 
           .blivre-side-left-collapsed {
@@ -1177,6 +1209,13 @@ export default function SocialPage() {
                 Sair da conta
               </button>
             </div>
+            <button
+              onClick={() => { setShowSettings(false); setShowSupportModal(true); }}
+              className="mt-2 w-full flex items-center justify-center gap-2 rounded-2xl border border-[#D4A24C]/20 bg-[#D4A24C]/5 text-[#D4A24C] font-bold py-3 text-sm hover:bg-[#D4A24C]/10 transition-all"
+            >
+              <MessageSquare size={16} />
+              Fale com suporte
+            </button>
           </div>
         </div>
       )}
@@ -1700,6 +1739,31 @@ export default function SocialPage() {
 
               {/* Botões de Notificação/Configuração no Mobile (lado direito do logo) */}
               <div className="flex md:hidden items-center gap-1 sm:gap-2">
+                {/* Avatar do usuário logado - mobile */}
+                {user && (
+                  <button
+                    onClick={() => {
+                      setProfileForm({
+                        name: user?.name || "",
+                        city: user?.city || "",
+                        state: user?.state || "",
+                        picture: user?.picture || user?.avatar || "",
+                        phone: user?.phone || "",
+                        bio: user?.bio || ""
+                      });
+                      setShowSettings(true);
+                    }}
+                    className="w-9 h-9 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1.5px] flex-shrink-0"
+                  >
+                    <div className="w-full h-full rounded-full bg-[#09090D] overflow-hidden flex items-center justify-center">
+                      {user?.picture || user?.avatar ? (
+                        <img src={user.picture || user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <User size={14} className="text-[#F1D28A]" />
+                      )}
+                    </div>
+                  </button>
+                )}
                 <button
                   onClick={() => setShowNotifications(true)}
                   className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] flex-shrink-0"
@@ -1794,7 +1858,7 @@ export default function SocialPage() {
           >
             <aside
               className={
-                "space-y-3 sm:space-y-5 self-start h-[calc(100vh-110px)] overflow-y-auto pr-1 blivre-side " +
+                "space-y-3 sm:space-y-5 h-[calc(100vh-110px)] overflow-y-auto pr-1 blivre-side " +
                 (expanded ? "blivre-side-left-collapsed" : "")
               }
             >
@@ -2080,7 +2144,7 @@ export default function SocialPage() {
               )}
             </main>
 
-            <aside className={`h-[calc(100vh-110px)] overflow-hidden blivre-side ${expanded ? 'blivre-side-right-collapsed ml-4' : ''}`}>
+            <aside className={`h-[calc(100vh-110px)] overflow-y-auto blivre-side ${expanded ? 'blivre-side-right-collapsed ml-4' : ''}`}>
               <div className="space-y-5">
                 <div className={`rounded-[28px] border border-[#D4A24C]/20 bg-gradient-to-br from-white/[0.06] to-white/[0.025] p-5 transition-all duration-300 ${expanded ? 'opacity-0 pointer-events-none h-0 overflow-hidden m-0 p-0' : 'opacity-100'}`}>
                   <h3 className="font-black mb-3 flex items-center gap-2">
@@ -2146,8 +2210,42 @@ export default function SocialPage() {
         </div>
       </div>
 
-      {/* Botão Flutuante de Anunciar (Mobile) */}
-      <div className="fixed bottom-6 right-6 z-50 md:hidden">
+      {/* Botão Flutuante de Anunciar (Mobile) + Caixinha de Suporte */}
+      <div className="fixed bottom-6 right-4 z-50 md:hidden flex flex-col items-end gap-3">
+        {/* Caixinha de mensagem rápida para suporte */}
+        {showMobileSupport && (
+          <div className="w-72 rounded-[20px] border border-[#D4A24C]/30 bg-[#0B0B12] shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+              <span className="text-sm font-black text-white">Fale com o suporte</span>
+              <button onClick={() => setShowMobileSupport(false)} className="text-[#8C8F9A] hover:text-white"><X size={16} /></button>
+            </div>
+            <div className="p-3">
+              <textarea
+                value={mobileSupportMsg}
+                onChange={(e) => setMobileSupportMsg(e.target.value)}
+                placeholder="Digite sua mensagem..."
+                rows={3}
+                className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-[#D4A24C]/50 resize-none"
+              />
+              <button
+                onClick={sendMobileSupportMsg}
+                disabled={sendingMobileSupport || !mobileSupportMsg.trim()}
+                className="mt-2 w-full rounded-xl gold-premium-3d py-2 text-xs font-black disabled:opacity-50"
+              >
+                {sendingMobileSupport ? "Enviando..." : "Enviar"}
+              </button>
+            </div>
+          </div>
+        )}
+        {/* Botão de suporte */}
+        <button
+          onClick={() => setShowMobileSupport((v) => !v)}
+          className="w-11 h-11 rounded-full bg-[#1A1A2E] border border-[#D4A24C]/30 flex items-center justify-center text-[#D4A24C] shadow-lg"
+          title="Fale com suporte"
+        >
+          <MessageSquare size={20} />
+        </button>
+        {/* Botão + anunciar */}
         <button
           onClick={() => {
             if (!requireAuth("anunciar")) return;
@@ -2160,6 +2258,37 @@ export default function SocialPage() {
         </button>
       </div>
 
+      {/* Modal de Suporte */}
+      {showSupportModal && (
+        <div className="fixed inset-0 z-[130] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
+          <div className="w-full max-w-[420px] rounded-[28px] border border-[#D4A24C]/25 bg-[#0B0B12] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.62)]">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="font-black text-lg text-white">Fale com o suporte</h2>
+                <p className="text-xs text-[#8C8F9A] mt-1">Envie sua mensagem e responderemos em breve.</p>
+              </div>
+              <button onClick={() => setShowSupportModal(false)} className="w-9 h-9 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#C9CBD6]"><X size={18} /></button>
+            </div>
+            <textarea
+              value={supportMsg}
+              onChange={(e) => setSupportMsg(e.target.value)}
+              placeholder="Descreva sua dúvida ou problema..."
+              rows={5}
+              className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm text-white outline-none focus:border-[#D4A24C]/50 resize-none"
+            />
+            <div className="flex gap-3 mt-4">
+              <button onClick={() => setShowSupportModal(false)} className="flex-1 rounded-2xl border border-white/10 bg-white/[0.04] text-white/70 font-bold py-3 text-sm hover:bg-white/10 transition-all">Cancelar</button>
+              <button
+                onClick={sendSupportMsg}
+                disabled={sendingSupport || !supportMsg.trim()}
+                className="flex-1 rounded-2xl gold-premium-3d font-black py-3 text-sm disabled:opacity-50"
+              >
+                {sendingSupport ? "Enviando..." : "Enviar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <BLivreAuthModal
         isOpen={showAuthModal}
         onClose={() => {
