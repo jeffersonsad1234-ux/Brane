@@ -560,16 +560,13 @@ export default function AIAssistantPanelSocial({
                 onChange={(e) => setContactNumber(e.target.value)}
                 placeholder="Ex: (11) 99999-9999"
                 className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-sm text-white outline-none focus:border-[#D4A24C]/50"
-              />
-            )}
-            <button
-              type="button"
-              onClick={handleConfirmContact}
-              className="w-full rounded-xl bg-gradient-to-br from-[#D4A24C] to-[#B98228] py-2 text-xs font-black text-black hover:brightness-110 transition-all"
-            >
-              {contactOptions.phone || contactOptions.whatsapp ? "Confirmar contato" : "Continuar sem contato"}
-            </button>
-          </div>
+                            <button
+566	              type="button"
+567	              onClick={handleConfirmContact}
+568	              className="w-full rounded-xl gold-premium-3d py-2 text-xs"
+569	            >
+570	              {contactOptions.phone || contactOptions.whatsapp ? "Confirmar contato" : "Continuar sem contato"}
+571	            </button>   </div>
         )}
 
         {/* Painel visual de seleção de DISPONIBILIDADE */}
@@ -645,7 +642,7 @@ export default function AIAssistantPanelSocial({
             <div className="space-y-4">
               <div className="space-y-1">
                 <h4 className="text-lg font-bold text-white leading-tight">{ad.title}</h4>
-                <p className="text-xl font-black text-[#D4A24C]">{ad.price.startsWith('R$') ? ad.price : `R$ ${ad.price}`}</p>
+                <p className="text-xl gold-text-premium">{ad.price.startsWith('R$') ? ad.price : `R$ ${ad.price}`}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
@@ -714,18 +711,14 @@ export default function AIAssistantPanelSocial({
               onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
               placeholder="Produto, estado, detalhes, preço, cidade..."
               className="h-11 w-full rounded-xl border border-white/10 bg-black/40 px-4 text-sm text-white outline-none focus:border-[#D4A24C]/50 transition-all"
-            />
-          </div>
-
-          <button
-            type="button"
-            onClick={handleGenerate}
-            disabled={isGenerating || !safe(input)}
-            className="h-11 w-11 flex items-center justify-center rounded-xl bg-[#D4A24C] text-black hover:bg-[#F1D28A] disabled:opacity-30 transition-all"
-          >
-            <Send size={18} />
-          </button>
-        </div>
+            />          <button
+720	            type="button"
+721	            onClick={handleGenerate}
+722	            disabled={isGenerating || !safe(input)}
+723	            className="h-11 w-11 flex items-center justify-center rounded-xl gold-premium-3d disabled:opacity-30"
+724	          >
+725	            <Send size={18} />
+726	          </button></div>
 
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
           <button
@@ -744,18 +737,15 @@ export default function AIAssistantPanelSocial({
           >
             <RefreshCw size={14} className="mb-1" />
             Novo
-          </button>
-          <button
-            type="button"
-            onClick={() => ad && onPublishAd(ad)}
-            disabled={!ad || isGenerating || photosCount === 0 || !ad.title || !ad.price}
-            className="flex flex-col items-center justify-center rounded-xl bg-gradient-to-br from-[#D4A24C] to-[#B98228] py-2 text-[10px] font-black text-black hover:brightness-110 disabled:opacity-30 transition-all shadow-lg shadow-[#D4A24C]/10"
-          >
-            <CheckCircle2 size={14} className="mb-1" />
-            Publicar
-          </button>
-        </div>
-      </div>
+              <button
+748	            type="button"
+749	            onClick={() => ad && onPublishAd(ad)}
+750	            disabled={!ad || isGenerating || photosCount === 0 || !ad.title || !ad.price}
+751	            className="flex flex-col items-center justify-center rounded-xl gold-premium-3d py-2 text-[10px]"
+752	          >
+753	            <CheckCircle2 size={14} className="mb-1" />
+754	            Publicar
+755	          </button>      </div>
     </div>
   );
 }
