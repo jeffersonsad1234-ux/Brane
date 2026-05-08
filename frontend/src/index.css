@@ -96,6 +96,7 @@ div[style*="z-index: 2147483647"], div[style*="position: fixed"][style*="bottom"
     opacity: 0 !important;
     pointer-events: none !important;
 }
+
 @media (max-width: 768px) {
   html {
     font-size: 13px;
@@ -146,6 +147,7 @@ div[style*="z-index: 2147483647"], div[style*="position: fixed"][style*="bottom"
     gap: 12px !important;
   }
 }
+
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -173,62 +175,17 @@ div[style*="z-index: 2147483647"], div[style*="position: fixed"][style*="bottom"
     box-shadow: 0 0 24px rgba(212, 162, 76, 0.22);
   }
 }
+
 .brane-ad-slot {
-  perspective: 1	.brane-ad-slot a {
-211	  animation: braneAdBoomerang 3.5s ease-in-out infinite !important;
-212	  transform-origin: center;
-213	}
-214	
-215	/* OURO PREMIUM 3D METÁLICO */
-216	.gold-premium-3d {
-217	  background: linear-gradient(
-218	    180deg,
-219	    #FFF7C2 0%,
-220	    #FFE08A 15%,
-221	    #FFC123 35%,
-222	    #E6A300 55%,
-223	    #C88700 78%,
-224	    #8A5A00 100%
-225	  ) !important;
-226	  box-shadow:
-227	    inset 0 2px 1px rgba(255,255,255,0.45),
-228	    inset 0 -3px 6px rgba(0,0,0,0.35),
-229	    0 6px 12px rgba(255,191,0,0.25),
-230	    0 0 12px rgba(255,215,0,0.18) !important;
-231	  color: #111 !important;
-232	  border: none !important;
-233	  font-weight: 900 !important;
-234	  text-shadow: 0 1px 0 rgba(255,255,255,0.2);
-235	  transition: all 0.2s ease-in-out;
-236	}
-237	
-238	.gold-premium-3d:hover {
-239	  filter: brightness(1.1);
-240	  transform: translateY(-1px);
-241	  box-shadow:
-242	    inset 0 2px 1px rgba(255,255,255,0.55),
-243	    inset 0 -3px 6px rgba(0,0,0,0.4),
-244	    0 8px 16px rgba(255,191,0,0.3),
-245	    0 0 15px rgba(255,215,0,0.25) !important;
-246	}
-247	
-248	.gold-premium-3d:active {
-249	  transform: translateY(1px);
-250	  filter: brightness(0.95);
-251	}
-252	
-253	.gold-text-premium {
-254	  background: linear-gradient(
-255	    180deg,
-256	    #FFF7C2 0%,
-257	    #FFC123 45%,
-258	    #8A5A00 100%
-259	  );
-260	  -webkit-background-clip: text;
-261	  -webkit-text-fill-color: transparent;
-262	  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
-263	  font-weight: 900;
-264	}brane-ad-slot img {
+  perspective: 1000px;
+}
+
+.brane-ad-slot a {
+  animation: braneAdBoomerang 3.5s ease-in-out infinite !important;
+  transform-origin: center;
+}
+
+.brane-ad-slot img {
   height: 160px !important;
   object-fit: cover !important;
 }
@@ -254,4 +211,57 @@ div[style*="z-index: 2147483647"], div[style*="position: fixed"][style*="bottom"
     transform: scale(1) rotateX(0deg) rotateY(0deg);
     box-shadow: 0 0 0 rgba(212, 162, 76, 0);
   }
+}
+
+/* OURO PREMIUM 3D METÁLICO */
+.gold-premium-3d {
+  background: linear-gradient(
+    180deg,
+    #FFF7C2 0%,
+    #FFE08A 15%,
+    #FFC123 35%,
+    #E6A300 55%,
+    #C88700 78%,
+    #8A5A00 100%
+  ) !important;
+  box-shadow:
+    inset 0 2px 1px rgba(255,255,255,0.45),
+    inset 0 -3px 6px rgba(0,0,0,0.35),
+    0 6px 12px rgba(255,191,0,0.25),
+    0 0 12px rgba(255,215,0,0.18) !important;
+  color: #111 !important;
+  border: none !important;
+  font-weight: 900 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.2);
+  transition: all 0.2s ease-in-out;
+}
+
+.gold-premium-3d:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 2px 1px rgba(255,255,255,0.55),
+    inset 0 -3px 6px rgba(0,0,0,0.4),
+    0 8px 16px rgba(255,191,0,0.3),
+    0 0 15px rgba(255,215,0,0.25) !important;
+}
+
+.gold-premium-3d:active {
+  transform: translateY(1px);
+  filter: brightness(0.95);
+}
+
+.gold-text-premium {
+  background: linear-gradient(
+    180deg,
+    #FFF7C2 0%,
+    #FFC123 45%,
+    #8A5A00 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  font-weight: 900;
 }
