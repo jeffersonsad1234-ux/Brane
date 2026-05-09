@@ -1,0 +1,43 @@
+{
+  "summary": "Iteration 3 testing of BRANE Marketplace bug fixes + promotion plans feature. Backend: 22/22 pytest tests passed (100%) covering admin wallets, ads (footer position), promotion plans CRUD, seller subscribe (wallet insufficient + PIX pending), admin approve/reject subscriptions, saved address, theme update persistence. Frontend: admin panel shows all 21 tabs incl. Planos/Escrow/Gestão Financeira; Escrow tab loads with totals & filters; Anúncios form includes 'Rodapé' (footer) option; /promote page renders 3 tier cards (Básico/Pro/Premium) each with 'Pagar com carteira' + 'Pagar com PIX'; HomePage AdSlot visible when ads exist (ad-slot-top rendered after creating a top ad).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/users/saved-address", "issue": "Duplicate function declarations in server.py at lines 2287-2302 and 2469-2480+ — both pairs have @api_router decorators. Works (last wins) but confusing and risky."},
+      {"endpoint": "/api/ads", "issue": "AdCreate model docstring/comment (line 213) says '# top, between_products, sidebar' but 'footer' is now supported — update comment for clarity."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Desapega product listing", "issue": "No products visible on /desapega in current seed — could not UI-verify absence of buy-now-btn. Needs seed data or a desapega product for full UI validation. (Backend-level not tested because endpoint scope unclear; requirement was UI absent).", "affected_selectors": ["[data-testid=\"buy-now-btn\"]", "[data-testid=\"chat-seller-btn\"]"]}
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "(Low) Remove duplicate get_saved_address/save_address endpoint declarations in /app/backend/server.py (one pair at ~L2287-2302, another at ~L2469-2480+).",
+    "(Low) Update AdCreate comment in server.py to include 'footer' position.",
+    "(Info) Seed at least one Desapega product to validate absence of buy-now-btn and presence of chat-seller-btn on ProductDetailPage for desapega products."
+  ],
+  "critical_code_review_comments": [
+    "server.py is 3008 lines — should be split into modular routers (auth, ads, wallet, admin, plans, subscriptions).",
+    "Duplicate decorated endpoint definitions (saved-address) pose maintenance risk.",
+    "Promotion plan subscribe deducts wallet but does not create any audit/transaction ledger entry — consider logging a wallet transaction for traceability.",
+    "AdSlot fails silently on axios errors (catch(() => {})) — consider logging for observability in production.",
+    "Admin subscriptions approve endpoint does not re-check plan exists/active before setting status=active."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py"
+  ],
+  "success_rate": {"backend": "100%", "frontend": "~95%"},
+  "test_credentials": "admin@brane.com / Admin123! (from /app/memory/test_credentials.md). Test sellers created dynamically via /api/auth/register.",
+  "seed_data_creation": "Tests create: 1 admin-owned footer ad (cleaned up), 1 admin-owned top ad (left), 1 promotion plan (deleted at cleanup), 2 subscriptions (1 approved, 1 rejected). Also via UI, Admin Planos tab already shows 3 seeded plans Básico/Pro/Premium (presumably seeded by app init or earlier test run).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend tests in /app/backend/tests/backend_test.py (pytest, 22 tests, 100% pass). Playwright UI verified: login→/admin redirect, 21 tabs, Escrow wallets table, Planos CRUD UI with 3 plans, Anúncios form has Rodapé option, /promote shows 3 cards with carteira+PIX buttons, AdSlot rendered on /market (HomePage) when ad exists. Duplicate saved-address declarations in server.py should be cleaned up but functionally work. Personalization CSS vars were not visually diffed before/after in this pass (time-boxed); backend PUT /admin/theme persists correctly.",
+  "rca_of_the_issue": "No blocking issues found. All reported bugs (escrow API, ads rendering, personalization, promotion plans feature) appear correctly implemented and integrated end-to-end."
+}

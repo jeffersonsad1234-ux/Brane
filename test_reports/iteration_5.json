@@ -1,0 +1,38 @@
+{
+  "summary": "Iteration 5 - validated final pre-launch B Livre bug fixes. Backend: 19/19 pytest pass for /api/social/{posts,favorites,messages,stats}, /api/notifications, /api/admin/reports/{id}/{respond,resolve,ignore,block_ad,block_user}, /api/admin/support/{id}/reply. Frontend Playwright at 390x844 (mobile), 768x1024 (tablet) and 1280x800 (desktop) confirmed: (1) Favorites - click heart on B Livre card toggles favorite (golden fill) WITHOUT opening product modal (verified product_modal_visible=False after click; URL stays /blivre); card is now <div role='button'> wrapping inner area + sibling <button> for heart with e.stopPropagation, no hydration error; (2) Card click DOES open product modal correctly; (3) Mobile FAB Anunciar (button title='Anunciar' at fixed bottom-7 right-4) opens composer-modal successfully without error; (4) PWA Install modal opens with z-index 2147483600 (max-int range, parent chain ['2147483600','40','10','10']) - guaranteed above all cards/overlays; help modal + dismiss btn work; (5) Notifications - bell opens inline panel inside /blivre, clicking direct_chat notification opens internal chat (blivre-back-from-chat visible) WITHOUT navigating to Marketplace /chat/{id} or /notifications routes (URL stays /blivre); (6) ADM Denúncias /admin/blivre/denuncias - 5 reports listed via [data-testid=bl-open-report-*], drawer opens with HISTÓRICO DE RESPOSTAS, response input + send works, toast 'Resposta enviada (email + notificação)' shown, new entry appears in timeline; (7) ADM Suporte /admin/blivre/suporte - 4 chamados, Abrir opens drawer with textarea + Responder/Enviar button, reply sent OK. Marketplace pages NOT touched.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_blivre_endpoints.py",
+    "/app/test_reports/pytest/pytest_iter5.xml"
+  ],
+  "action_items": [
+    "Optional minor: add data-testid='blivre-mobile-fab-anunciar' and 'blivre-mobile-fab-mensagens' to the mobile fixed FABs in SocialPage.js around lines 2789-2814 (currently no testid; tests fall back to button[title='Anunciar']/[title='Mensagens']).",
+    "Optional minor: add data-testid='blivre-bell-btn' to the header notifications bell button (currently selected via 'button:has(svg.lucide-bell)')."
+  ],
+  "critical_code_review_comments": [
+    "Card refactor (SocialPage.js ~2624-2710) correctly resolves the prior 'button-inside-button' hydration error: outer container is plain <div>, inner clickable area is <div role='button' tabIndex={0} onClick=openPost>, and favorite/edit/delete are sibling <button> elements with e.stopPropagation. Keyboard accessibility (Enter/Space) preserved.",
+    "PWA modal z-index of 2147483600 in PWAInstallButton.jsx is effectively max signed-int, ensuring modal cannot be obscured by any other layer. Inline style + style attr both set; parent chain confirms isolation.",
+    "Backend POST /api/social/messages correctly creates msg + recipient notification with type='direct_chat' and data.source='blivre'. SocialPage handleClick uses these markers to open inline chat instead of navigating to Marketplace /chat/{sender_id} route — verified working end-to-end.",
+    "Backend POST /api/social/favorites/{post_id} is a true toggle (returns favorited:true/false) and persists across GET /api/social/favorites — verified persistence with toggle on→off→on flow.",
+    "Backend POST /admin/reports/{id}/respond correctly returns 404 for unknown report (validates body via ReportResponse pydantic) and inserts notification + email; toast confirms email + notificação on UI.",
+    "Mobile floating buttons block (lines 2789-2814) is missing data-testid attributes — tests had to fall back to title attribute. Recommend adding for stable automation."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_blivre_endpoints.py"
+  ],
+  "success_rate": {"backend": "100% (19/19)", "frontend": "100% (7/7 scenarios across mobile+tablet+desktop)"},
+  "test_credentials": "admin@brane.com / Admin123!@# (from /app/memory/test_credentials.md). Used localStorage.setItem('brane_token', ...) to skip BLivreAuthModal in browser tests.",
+  "seed_data_creation": "Created via API: 4 TEST_post_persist_* posts (user TEST_userA), several TEST_motivo_* / TEST_resolve / TEST_block_* reports (user TEST_userB), 1 TEST_iter5_support ticket. All TEST_-prefixed; non-blocking, low volume.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend regression file: /app/backend/tests/test_blivre_endpoints.py covers all B Livre + ADM endpoints listed in iter5 review. Run: REACT_APP_BACKEND_URL=https://blivre-quality-check.preview.emergentagent.com python -m pytest backend/tests/test_blivre_endpoints.py -v. Note: /api/social/posts requires price as STRING (not float) - server uses 'price: str' in pydantic model. Reports respond endpoint expects {response: '...'} (not 'message'). Mobile composer-modal is fully working. Card structure changed from <button>-in-<button> to <div role='button'> with sibling fav <button> + e.stopPropagation — favorite click must NOT open product (key regression check).",
+  "rca_of_the_issue": "N/A - all 6 reported bugs verified fixed: (1) PWA modal z-index escalated to 2147483600 covers all overlays; (2) mobile FAB now correctly invokes setUseAI+setComposerOpen and renders composer h-[100dvh]; (3) favorites button has e.stopPropagation and is sibling (not child) of the clickable card area, fixing both hydration error and propagation bug; (4) notifications use internal openChat/openSupport handlers instead of navigate('/chat/...'); (5) /api/social/messages writes proper sender/recipient + creates direct_chat notification consumed inline; (6) ADM drawers (Reports.jsx, Support.jsx) call /admin/reports/{id}/respond and /admin/support/{id}/reply respectively, both returning success and persisting timeline."
+}

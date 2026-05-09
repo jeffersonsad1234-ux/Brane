@@ -1,0 +1,57 @@
+{
+  "theme": "light",
+  "archetype": "5 (Jewel & Luxury) - Light Variant / Premium E-commerce",
+  "colors": {
+    "background": "#F9F9F8",
+    "surface": "#FFFFFF",
+    "primary": "#B38B36",
+    "primary_hover": "#9A752B",
+    "accent_wood": "#E6D5B8",
+    "text_primary": "#1A1A1A",
+    "text_secondary": "#666666",
+    "border": "#E5E5E5",
+    "success": "#28A745",
+    "danger": "#DC3545",
+    "warning": "#FFC107"
+  },
+  "typography": {
+    "heading_font": "Outfit",
+    "body_font": "Manrope",
+    "logo_text_treatment": "CSS drop-shadow for 3D effect. Half white, half soft gold. text-shadow: 2px 2px 4px rgba(0,0,0,0.2), 0px 4px 10px rgba(0,0,0,0.1);"
+  },
+  "spacing_and_layout": {
+    "general": "Generous spacing. p-6 to p-12 for sections. Cards with p-6.",
+    "grid": "Bento-style or neat e-commerce grid (grid-cols-1 sm:grid-cols-2 lg:grid-cols-4). gap-6 or gap-8.",
+    "surface_strategy": "Neumorphism or subtle Glassmorphism. Prefer clean, crisp edges with 1px border (#E5E5E5) and soft shadows (shadow-sm)."
+  },
+  "components": {
+    "cards": "Flat background (#FFFFFF), 1px border (#E5E5E5), rounded-xl, soft hover lift (-translate-y-1, shadow-md).",
+    "buttons": "Primary buttons: bg-[#B38B36] text-white hover:bg-[#9A752B] rounded-full or rounded-lg. No heavy animations, just subtle scale or color transition.",
+    "navigation": "Sticky top bar, z-50, background #FFFFFF/90 with backdrop-blur-md. Clean links, dark gold hover state.",
+    "hero": "Center aligned 'BRANE' text with 3D effect. 'Marketplace Premium' text above with 4 stars. Light wood/soft white background.",
+    "icons": "lucide-react, 1.5 stroke width, clean and minimal."
+  },
+  "animations": {
+    "general": "Strictly minimal. NO heavy animations. Use simple Framer Motion fade-ins (opacity 0 to 1, y: 10 to 0). Quick durations (0.2s - 0.3s).",
+    "hover": "Subtle color changes, slight drop-shadow increases."
+  },
+  "media": {
+    "logo": "https://customer-assets.emergentagent.com/job_brane-exchange/artifacts/wiagamwr_IMG_20260412_043249_662.jpg",
+    "hero_background": "https://images.unsplash.com/photo-1531824475211-72594993ce2a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzh8MHwxfHNlYXJjaHwyfHxsaWdodCUyMHdvb2QlMjB0ZXh0dXJlJTIwc29mdCUyMHdoaXRlfGVufDB8fHx8MTc3NTk2MjQ0OXww&ixlib=rb-4.1.0&q=85",
+    "wood_texture": "https://images.pexels.com/photos/4018955/pexels-photo-4018955.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+    "categories": {
+      "cosmetics": "https://images.unsplash.com/photo-1631730359585-38a4935cbec4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NDh8MHwxfHNlYXJjaHwzfHxsdXh1cnklMjBjb3NtZXRpY3MlMjBwcm9kdWN0JTIwc29mdCUyMGJhY2tncm91bmR8ZW58MHx8fHwxNzc1OTYyNDQ0fDA&ixlib=rb-4.1.0&q=85",
+      "real_estate": "https://images.unsplash.com/photo-1757262798677-ab4af4455a58?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwzfHxtb2Rlcm4lMjBsdXh1cnklMjBob21lJTIwaW50ZXJpb3IlMjBicmlnaHR8ZW58MHx8fHwxNzc1OTYyNDQ0fDA&ixlib=rb-4.1.0&q=85",
+      "accessories": "https://images.pexels.com/photos/36475269/pexels-photo-36475269.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "home": "https://images.unsplash.com/photo-1757262798639-fb6a5d2a752a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwyfHxtb2Rlcm4lMjBsdXh1cnklMjBob21lJTIwaW50ZXJpb3IlMjBicmlnaHR8ZW58MHx8fHwxNzc1OTYyNDQ0fDA&ixlib=rb-4.1.0&q=85"
+    }
+  },
+  "specific_instructions": [
+    "Text language MUST be in Portuguese (Português BR).",
+    "Hero section MUST have 4 stars at the top with text 'Marketplace Premium'.",
+    "The word 'BRANE' in the hero MUST be half white and half soft gold. Use CSS background-clip: text with a linear-gradient(to right, #FFFFFF 50%, #B38B36 50%).",
+    "Add 3D effect to the logo and 'BRANE' name using CSS `drop-shadow(0px 4px 6px rgba(179,139,54,0.4))`. NO complex 3D libraries.",
+    "Keep everything high-performance, fast loading, accessible, and responsive.",
+    "Add `data-testid` to all interactive elements."
+  ]
+}

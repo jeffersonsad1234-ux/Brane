@@ -1,0 +1,36 @@
+{
+  "summary": "Iteration 4 testing — all 5 surgical fixes for B Livre / ADM scope verified PASSING. Backend 8/8 pytest green for /api/admin/reports/{id}/respond push-to-admin_responses[] flow plus existing /api/public/support and /api/admin/support regression. Frontend Playwright (mobile 390x844 + desktop 1280x800) confirms: (1) /blivre logout via [data-testid=blivre-logout-btn] inside settings opens BLivreAuthModal directly without leaving /blivre — verified URL stays at /blivre and 'Bem-vindo à B-Livre' visible; (2) mobile composer-modal h-[100dvh] occupies full 390x844 viewport with [data-testid=blivre-back-from-composer] visible and back closes modal; desktop composer is exactly 560px wide, rounded md:rounded-[28px] with gold border; (3) PWAInstallButton always rendered ([data-testid=pwa-install-btn] count=2 — sm in settings + standalone), click opens [data-testid=pwa-install-help-modal] with platform-specific install instructions, [data-testid=pwa-install-dismiss] present; (4) Mobile back arrows visible+functional for showSettings, showNotifications, showSupportModal, composer (all 4 verified), product back-testid present in source; (5) ADM Denúncias /admin/blivre/denuncias lists 'Ver detalhes' [data-testid=bl-open-report-{id}], opens [data-testid=bl-report-drawer] with full timeline 'HISTÓRICO DE RESPOSTAS', [data-testid=bl-report-response-input] + [data-testid=bl-report-send-response] work, drawer reflects new entry after sending, Resolver/Ignorar/Bloquear-usuário buttons visible. Backend $push admin_responses[] confirmed: 2 sequential responds yield array of length 2 with {by:'admin', message, created_at}. Marketplace pages NOT touched.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_admin_reports.py",
+    "/app/backend/tests/test_public_support.py",
+    "/app/test_reports/pytest/pytest_iter4.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "POST /api/admin/reports/{id}/respond correctly uses $push for admin_responses[] while keeping legacy admin_response field updated to last reply — clean dual-write strategy.",
+    "Status auto-promotion from pending → analyzed only triggers when current status is in ['pending','pendente'] — preserves resolved/ignored/blocked terminal states. Good defensive coding.",
+    "Reports.jsx drawer 'Ver detalhes' renders timeline by combining legacy admin_response with admin_responses[] — handles old data gracefully.",
+    "Settings gear button in SocialPage.js (3 mount points: line 2191/2222/2262) lacks a data-testid attribute. Tests had to use 'button:has(svg.lucide-settings)' fallback. Minor — recommend adding data-testid='blivre-settings-btn' for stability.",
+    "PWAInstallButton mounts twice in DOM (sizes 'sm' inside settings + standalone) — fine functionally but yields two pwa-install-btn nodes; tests must account for this when asserting visibility.",
+    "Composer modal correctly toggles full-screen on mobile (h-[100dvh], rounded-none, border-0) vs constrained desktop (md:max-w-[560px], md:h-[92vh], md:rounded-[28px], md:border) — verified visually and via class string + bbox (560x736 on desktop 1280x800)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_admin_reports.py"
+  ],
+  "success_rate": {"backend": "100% (8/8 new + 10/10 prior support regression)", "frontend": "100% (5/5 verified scenarios)"},
+  "test_credentials": "admin@brane.com / Admin123!@# (from /app/memory/test_credentials.md). Login via API + localStorage.setItem('brane_token', token) used to bypass UI auth modal during browser tests.",
+  "seed_data_creation": "Created 1 TEST report (report_id from runtime, post_id 'TEST_post_*') in db.reports with 3 admin_responses (TEST_resposta_1, TEST_resposta_2, TEST_drawer_response_iter4). Also ~1 public support ticket via test. All tagged TEST_ — non-blocking, low volume.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend: /app/backend/tests/test_admin_reports.py covers POST /api/admin/reports/{id}/respond (push), GET /api/admin/reports (admin_responses returned), 401 unauth, 404 unknown report, plus public/admin support regression. Run with REACT_APP_BACKEND_URL=https://blivre-mobile-nav.preview.emergentagent.com pytest -v. Frontend: PWA install button cannot trigger native beforeinstallprompt in headless Chromium — current spec is met by mounting + help modal fallback (verified). Settings button in /blivre header has no data-testid; use 'button:has(svg.lucide-settings)' or add 'blivre-settings-btn' if stricter selectors are needed. Marketplace untouched. ADM Denúncias drawer end-to-end (open → respond → timeline update → action buttons) is fully working.",
+  "rca_of_the_issue": "N/A — all 5 fixes verified working as intended. No defects."
+}

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRANE - Demonstração de Produtos 3D</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0A0A0F 0%, #050608 50%, #0D0510 100%);
+            min-height: 100vh;
+            color: #FFFFFF;
+            overflow-x: hidden;
+        }
+
+        /* Fundo elegante e rico */
+        .premium-background {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            animation: pulse-slow 8s ease-in-out infinite;
+        }
+
+        .glow-1 {
+            top: 0;
+            left: 0;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(212, 162, 76, 0.2) 0%, transparent 70%);
+        }
+
+        .glow-2 {
+            top: 25%;
+            right: 0;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, rgba(109, 40, 217, 0.2) 0%, transparent 70%);
+            animation-delay: 2s;
+        }
+
+        .glow-3 {
+            bottom: 0;
+            left: 33%;
+            width: 900px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(179, 139, 54, 0.15) 0%, transparent 70%);
+            animation-delay: 4s;
+        }
+
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: #D4A24C;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .gold-text {
+            background: linear-gradient(180deg, #F5DCA4 0%, #E8C372 25%, #D4A24C 50%, #B38B36 75%, #8A6A24 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: #A6A8B3;
+            font-size: 1rem;
+        }
+
+        /* Grid de produtos 3D */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 50px 30px;
+            margin-top: 40px;
+        }
+
+        /* Card 3D */
+        .product-card {
+            perspective: 1500px;
+            animation: floatIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+        }
+
+        .product-card:nth-child(1) { animation-delay: 0.1s; }
+        .product-card:nth-child(2) { animation-delay: 0.2s; }
+        .product-card:nth-child(3) { animation-delay: 0.3s; }
+        .product-card:nth-child(4) { animation-delay: 0.4s; }
+        .product-card:nth-child(5) { animation-delay: 0.5s; }
+        .product-card:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes floatIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-inner {
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            animation: float3d 6s ease-in-out infinite;
+        }
+
+        @keyframes float3d {
+            0%, 100% {
+                transform: translateY(0px) rotateX(2deg) rotateY(-2deg);
+            }
+            25% {
+                transform: translateY(-8px) rotateX(-3deg) rotateY(3deg);
+            }
+            50% {
+                transform: translateY(-12px) rotateX(3deg) rotateY(-3deg);
+            }
+            75% {
+                transform: translateY(-8px) rotateX(-2deg) rotateY(2deg);
+            }
+        }
+
+        .product-card:hover .product-inner {
+            transform: translateY(-15px) rotateX(8deg) rotateY(8deg) scale(1.05);
+            animation: none;
+        }
+
+        .product-front {
+            background: linear-gradient(145deg, #0E0F14 0%, #1A1C26 100%);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+
+        .product-front::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(135deg, rgba(212, 162, 76, 0.4) 0%, rgba(109, 40, 217, 0.4) 25%, rgba(212, 162, 76, 0.6) 50%, rgba(109, 40, 217, 0.4) 75%, rgba(212, 162, 76, 0.4) 100%);
+            border-radius: 24px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
+            background-size: 200% 200%;
+            animation: borderGlow 3s ease infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .product-card:hover .product-front::before {
+            opacity: 1;
+        }
+
+        .product-image {
+            aspect-ratio: 1;
+            overflow: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #0E0F14 0%, #14161E 50%, #0E0F14 100%);
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            filter: brightness(1.05) contrast(1.1);
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.15);
+        }
+
+        .light-reflection {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(212, 162, 76, 0) 0%, rgba(212, 162, 76, 0.15) 30%, rgba(109, 40, 217, 0.15) 50%, rgba(212, 162, 76, 0.15) 70%, rgba(212, 162, 76, 0) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+
+        .product-card:hover .light-reflection {
+            opacity: 1;
+        }
+
+        .product-info {
+            padding: 24px 20px;
+        }
+
+        .product-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            transition: color 0.3s ease;
+        }
+
+        .product-card:hover .product-title {
+            color: #D4A24C;
+        }
+
+        .product-description {
+            font-size: 0.85rem;
+            color: #9CA3AF;
+            margin-bottom: 16px;
+        }
+
+        .product-price {
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+            margin-bottom: 12px;
+        }
+
+        .currency {
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #E8C372 0%, #D4A24C 50%, #B38B36 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .price-whole {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFFFFF 0%, #E8C372 50%, #D4A24C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .price-cents {
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFFFFF 0%, #E8C372 50%, #D4A24C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .product-location {
+            font-size: 0.8rem;
+            color: #6B7280;
+        }
+
+        /* Sombra 3D dinâmica */
+        .product-shadow {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 30px;
+            background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.3) 40%, transparent 70%);
+            filter: blur(15px);
+            opacity: 0.6;
+            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            z-index: -1;
+        }
+
+        .product-card:hover .product-shadow {
+            width: 90%;
+            opacity: 0.8;
+            bottom: -40px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Fundo premium -->
+    <div class="premium-background">
+        <div class="bg-glow glow-1"></div>
+        <div class="bg-glow glow-2"></div>
+        <div class="bg-glow glow-3"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="label">Experiência 3D</div>
+            <h1 class="title">
+                Produtos em <span class="gold-text">Destaque</span>
+            </h1>
+            <p class="subtitle">Veja os produtos como se estivessem na sua frente</p>
+        </div>
+
+        <div class="products-grid">
+            <!-- Produto 1 -->
+            <div class="product-card">
+                <div class="product-inner">
+                    <div class="product-front">
+                        <div class="product-image">
+                            <img src="https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=800" alt="iPhone 15 Pro Max">
+                            <div class="light-reflection"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">iPhone 15 Pro Max 256GB</h3>
+                            <p class="product-description">Smartphone premium com chip A17 Pro e câmera profissional</p>
+                            <div class="product-price">
+                                <span class="currency">R$</span>
+                                <span class="price-whole">7.999</span>
+                                <span class="price-cents">,99</span>
+                            </div>
+                            <p class="product-location">📍 São Paulo</p>
+                        </div>
+                    </div>
+                    <div class="product-shadow"></div>
+                </div>
+            </div>
+
+            <!-- Produto 2 -->
+            <div class="product-card">
+                <div class="product-inner">
+                    <div class="product-front">
+                        <div class="product-image">
+                            <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=800" alt="MacBook Pro">
+                            <div class="light-reflection"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">MacBook Pro M3 Max</h3>
+                            <p class="product-description">Notebook profissional com 32GB RAM DDR5</p>
+                            <div class="product-price">
+                                <span class="currency">R$</span>
+                                <span class="price-whole">15.999</span>
+                                <span class="price-cents">,00</span>
+                            </div>
+                            <p class="product-location">📍 Rio de Janeiro</p>
+                        </div>
+                    </div>
+                    <div class="product-shadow"></div>
+                </div>
+            </div>
+
+            <!-- Produto 3 -->
+            <div class="product-card">
+                <div class="product-inner">
+                    <div class="product-front">
+                        <div class="product-image">
+                            <img src="https://images.unsplash.com/photo-1606841837239-c5a1a4a07af7?w=800" alt="AirPods Pro">
+                            <div class="light-reflection"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">AirPods Pro 2ª Geração</h3>
+                            <p class="product-description">Fones com cancelamento de ruído e áudio espacial</p>
+                            <div class="product-price">
+                                <span class="currency">R$</span>
+                                <span class="price-whole">1.899</span>
+                                <span class="price-cents">,99</span>
+                            </div>
+                            <p class="product-location">📍 Brasília</p>
+                        </div>
+                    </div>
+                    <div class="product-shadow"></div>
+                </div>
+            </div>
+
+            <!-- Produto 4 -->
+            <div class="product-card">
+                <div class="product-inner">
+                    <div class="product-front">
+                        <div class="product-image">
+                            <img src="https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=800" alt="Apple Watch">
+                            <div class="light-reflection"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Apple Watch Ultra 2</h3>
+                            <p class="product-description">Smartwatch robusto com GPS duplo</p>
+                            <div class="product-price">
+                                <span class="currency">R$</span>
+                                <span class="price-whole">5.499</span>
+                                <span class="price-cents">,00</span>
+                            </div>
+                            <p class="product-location">📍 Curitiba</p>
+                        </div>
+                    </div>
+                    <div class="product-shadow"></div>
+                </div>
+            </div>
+
+            <!-- Produto 5 -->
+            <div class="product-card">
+                <div class="product-inner">
+                    <div class="product-front">
+                        <div class="product-image">
+                            <img src="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800" alt="iPad Pro">
+                            <div class="light-reflection"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">iPad Pro 12.9 com M2</h3>
+                            <p class="product-description">Tablet profissional com tela Liquid Retina XDR</p>
+                            <div class="product-price">
+                                <span class="currency">R$</span>
+                                <span class="price-whole">9.999</span>
+                                <span class="price-cents">,00</span>
+                            </div>
+                            <p class="product-location">📍 Belo Horizonte</p>
+                        </div>
+                    </div>
+                    <div class="product-shadow"></div>
+                </div>
+            </div>
+
+            <!-- Produto 6 -->
+            <div class="product-card">
+                <div class="product-inner">
+                    <div class="product-front">
+                        <div class="product-image">
+                            <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800" alt="Headphone">
+                            <div class="light-reflection"></div>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-title">Sony WH-1000XM5 Preto</h3>
+                            <p class="product-description">Headphone premium com melhor cancelamento de ruído</p>
+                            <div class="product-price">
+                                <span class="currency">R$</span>
+                                <span class="price-whole">2.299</span>
+                                <span class="price-cents">,99</span>
+                            </div>
+                            <p class="product-location">📍 Porto Alegre</p>
+                        </div>
+                    </div>
+                    <div class="product-shadow"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

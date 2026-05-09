@@ -1,75 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Manrope:wght@300;400;500;600;700;800&display=swap');
+@import url('./styles/premium.css');
+@import url('./styles/animations.css');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
     margin: 0;
-    font-family:
-        -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-        "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-        sans-serif;
+    font-family: 'Manrope', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: #EFE8DC;
+    color: #12141A;
 }
 
-code {
-    font-family:
-        source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+/* Admin panel full-screen layout */
+[data-testid="admin-page"] {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
 }
 
 @layer base {
     :root {
-        --background: 0 0% 100%;
-        --foreground: 0 0% 3.9%;
-        --card: 0 0% 100%;
-        --card-foreground: 0 0% 3.9%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 0 0% 3.9%;
-        --primary: 0 0% 9%;
-        --primary-foreground: 0 0% 98%;
-        --secondary: 0 0% 96.1%;
-        --secondary-foreground: 0 0% 9%;
-        --muted: 0 0% 96.1%;
-        --muted-foreground: 0 0% 45.1%;
-        --accent: 0 0% 96.1%;
-        --accent-foreground: 0 0% 9%;
-        --destructive: 0 84.2% 60.2%;
+        --background: 0 0% 5%;
+        --foreground: 0 0% 90%;
+        --card: 0 0% 10%;
+        --card-foreground: 0 0% 90%;
+        --popover: 0 0% 10%;
+        --popover-foreground: 0 0% 90%;
+        --primary: 40 55% 46%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 0 0% 14%;
+        --secondary-foreground: 0 0% 90%;
+        --muted: 0 0% 14%;
+        --muted-foreground: 0 0% 55%;
+        --accent: 0 0% 14%;
+        --accent-foreground: 0 0% 90%;
+        --destructive: 0 84% 60%;
         --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 89.8%;
-        --input: 0 0% 89.8%;
-        --ring: 0 0% 3.9%;
-        --chart-1: 12 76% 61%;
+        --border: 0 0% 18%;
+        --input: 0 0% 18%;
+        --ring: 40 55% 46%;
+        --chart-1: 40 55% 46%;
         --chart-2: 173 58% 39%;
         --chart-3: 197 37% 24%;
         --chart-4: 43 74% 66%;
         --chart-5: 27 87% 67%;
         --radius: 0.5rem;
-    }
-    .dark {
-        --background: 0 0% 3.9%;
-        --foreground: 0 0% 98%;
-        --card: 0 0% 3.9%;
-        --card-foreground: 0 0% 98%;
-        --popover: 0 0% 3.9%;
-        --popover-foreground: 0 0% 98%;
-        --primary: 0 0% 98%;
-        --primary-foreground: 0 0% 9%;
-        --secondary: 0 0% 14.9%;
-        --secondary-foreground: 0 0% 98%;
-        --muted: 0 0% 14.9%;
-        --muted-foreground: 0 0% 63.9%;
-        --accent: 0 0% 14.9%;
-        --accent-foreground: 0 0% 98%;
-        --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 14.9%;
-        --input: 0 0% 14.9%;
-        --ring: 0 0% 83.1%;
-        --chart-1: 220 70% 50%;
-        --chart-2: 160 60% 45%;
-        --chart-3: 30 80% 55%;
-        --chart-4: 280 65% 60%;
-        --chart-5: 340 75% 55%;
+        --gold: #B38B36;
+        --gold-hover: #9A752B;
+        --gold-light: #E6D5B8;
     }
 }
 
@@ -86,30 +72,180 @@ code {
     [data-debug-wrapper="true"] {
         display: contents !important;
     }
-
     [data-debug-wrapper="true"] > * {
-        margin-left: inherit;
-        margin-right: inherit;
-        margin-top: inherit;
-        margin-bottom: inherit;
-        padding-left: inherit;
-        padding-right: inherit;
-        padding-top: inherit;
-        padding-bottom: inherit;
-        column-gap: inherit;
-        row-gap: inherit;
-        gap: inherit;
-        border-left-width: inherit;
-        border-right-width: inherit;
-        border-top-width: inherit;
-        border-bottom-width: inherit;
-        border-left-style: inherit;
-        border-right-style: inherit;
-        border-top-style: inherit;
-        border-bottom-style: inherit;
-        border-left-color: inherit;
-        border-right-color: inherit;
-        border-top-color: inherit;
-        border-bottom-color: inherit;
+        margin-left: inherit; margin-right: inherit;
+        margin-top: inherit; margin-bottom: inherit;
+        padding-left: inherit; padding-right: inherit;
+        padding-top: inherit; padding-bottom: inherit;
+        column-gap: inherit; row-gap: inherit; gap: inherit;
+        border-left-width: inherit; border-right-width: inherit;
+        border-top-width: inherit; border-bottom-width: inherit;
+        border-left-style: inherit; border-right-style: inherit;
+        border-top-style: inherit; border-bottom-style: inherit;
+        border-left-color: inherit; border-right-color: inherit;
+        border-top-color: inherit; border-bottom-color: inherit;
     }
+}
+
+/* Hide Emergent platform badge */
+[class*="emergent-visual"], [data-emergent], #emergent-badge,
+div[style*="Made with Emergent"], a[href*="emergent.sh"][style],
+div[style*="z-index: 2147483647"], div[style*="position: fixed"][style*="bottom"] > a[href*="emergent"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+@media (max-width: 768px) {
+  html {
+    font-size: 13px;
+    zoom: 0.95;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .container,
+  .max-w-7xl,
+  .max-w-6xl,
+  .max-w-5xl,
+  .max-w-4xl,
+  .max-w-3xl {
+    max-width: 100% !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+
+  h1 {
+    font-size: 1.8rem !important;
+  }
+
+  h2 {
+    font-size: 1.4rem !important;
+  }
+
+  h3 {
+    font-size: 1.2rem !important;
+  }
+
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    font-size: 0.9rem !important;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .grid {
+    gap: 12px !important;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.brane-ad-slot a {
+  animation: braneAdPulse 4s ease-in-out infinite;
+}
+
+@keyframes braneAdPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(212, 162, 76, 0);
+  }
+
+  50% {
+    transform: scale(1.015);
+    box-shadow: 0 0 24px rgba(212, 162, 76, 0.22);
+  }
+}
+
+.brane-ad-slot {
+  perspective: 1000px;
+}
+
+.brane-ad-slot a {
+  animation: braneAdBoomerang 3.5s ease-in-out infinite !important;
+  transform-origin: center;
+}
+
+.brane-ad-slot img {
+  height: 160px !important;
+  object-fit: cover !important;
+}
+
+@media (min-width: 768px) {
+  .brane-ad-slot img {
+    height: 230px !important;
+  }
+}
+
+@keyframes braneAdBoomerang {
+  0% {
+    transform: scale(1) rotateX(0deg) rotateY(0deg);
+    box-shadow: 0 0 0 rgba(212, 162, 76, 0);
+  }
+
+  50% {
+    transform: scale(1.03) rotateX(2deg) rotateY(-2deg);
+    box-shadow: 0 0 28px rgba(212, 162, 76, 0.35);
+  }
+
+  100% {
+    transform: scale(1) rotateX(0deg) rotateY(0deg);
+    box-shadow: 0 0 0 rgba(212, 162, 76, 0);
+  }
+}
+
+/* OURO PREMIUM 3D METÁLICO — base style; extended in styles/premium.css */
+.gold-premium-3d {
+  background: linear-gradient(135deg,
+    #5A3A00 0%,
+    #8A4A00 8%,
+    #B87333 18%,
+    #D48A00 30%,
+    #E5A000 42%,
+    #FFC107 50%,
+    #FFEC8B 58%,
+    #FFF3BF 62%,
+    #FFC107 70%,
+    #E5A000 82%,
+    #8A4A00 100%
+  );
+  color: #1a0f00;
+  border: 2px solid rgba(255, 236, 139, 0.7);
+  font-weight: 900;
+  position: relative;
+  overflow: hidden;
+}
+
+.gold-text-premium {
+  background: linear-gradient(
+    180deg,
+    #FFF7C2 0%,
+    #FFC123 45%,
+    #8A5A00 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+  font-weight: 900;
 }

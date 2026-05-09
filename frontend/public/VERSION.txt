@@ -1,0 +1,4 @@
+Build: 20260508_205524
+Commit: 6eede75d2c0f1218a35ac51e55abaf695f81c5e1
+AdminPage Features: Nova Mensagem, Responder Mensagens, Responder Denúncias, Scroll Fix, Sidebar Auto-collapse
+Status: UPDATED

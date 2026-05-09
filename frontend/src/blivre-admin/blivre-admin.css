@@ -1,0 +1,304 @@
+/* ====== B-LIVRE ADMIN PANEL — escopo isolado em .bl-admin ====== */
+.bl-admin {
+  --bl-bg-0: #07090d;
+  --bl-bg-1: #0b0f15;
+  --bl-bg-2: #11161f;
+  --bl-bg-3: #161c27;
+  --bl-line: #1f2733;
+  --bl-line-2: #2a3342;
+  --bl-text: #e6ebf2;
+  --bl-text-dim: #8a93a4;
+  --bl-text-mute: #5b6473;
+  --bl-accent: #10b981;
+  --bl-accent-2: #34d399;
+  --bl-accent-soft: rgba(16, 185, 129, 0.12);
+  --bl-warn: #f59e0b;
+  --bl-danger: #ef4444;
+  --bl-info: #38bdf8;
+  --bl-violet: #a78bfa;
+  --bl-pink: #f472b6;
+  
+  /* Dourado 3D Premium da Logo B Livre */
+  --bl-gold: #D4A24C;
+  --bl-gold-light: #E8C578;
+  --bl-gold-dark: #B8882A;
+  --bl-gold-shadow: rgba(212, 162, 76, 0.4);
+
+  background: var(--bl-bg-0);
+  color: var(--bl-text);
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: -0.01em;
+  min-height: 100vh;
+}
+
+.bl-admin * { box-sizing: border-box; }
+.bl-admin .mono { font-family: 'JetBrains Mono', monospace; }
+
+.bl-admin .bg-grid {
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.10) 0%, transparent 50%),
+    linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 56px 56px, 56px 56px;
+}
+
+.bl-admin .glass {
+  background: linear-gradient(180deg, rgba(22,28,39,0.85) 0%, rgba(11,15,21,0.85) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--bl-line);
+}
+
+.bl-admin .card-premium {
+  background: linear-gradient(180deg, var(--bl-bg-2) 0%, var(--bl-bg-1) 100%);
+  border: 1px solid var(--bl-line);
+  border-radius: 16px;
+  transition: border-color .25s ease, transform .25s ease;
+}
+.bl-admin .card-premium:hover { border-color: var(--bl-line-2); }
+
+.bl-admin .kpi-card { position: relative; overflow: hidden; }
+.bl-admin .kpi-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 50%), rgba(16,185,129,0.06), transparent 40%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.bl-admin .kpi-card:hover::before { opacity: 1; }
+
+/* ====== BOTÕES COM DOURADO 3D PREMIUM ====== */
+.bl-admin .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: 10px;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all .2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--bl-text);
+  font-family: inherit;
+}
+.bl-admin .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Botão Primary com Dourado 3D Premium */
+.bl-admin .btn-primary {
+  background: linear-gradient(135deg, var(--bl-gold-light) 0%, var(--bl-gold) 50%, var(--bl-gold-dark) 100%);
+  color: #000;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.3);
+  box-shadow: 
+    0 2px 8px rgba(212, 162, 76, 0.3),
+    0 4px 16px rgba(212, 162, 76, 0.2),
+    inset 0 1px 0 rgba(255,255,255,0.3),
+    inset 0 -1px 0 rgba(0,0,0,0.1);
+  border: 1px solid rgba(212, 162, 76, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+.bl-admin .btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.5s;
+}
+
+.bl-admin .btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #FFD700 0%, var(--bl-gold-light) 50%, var(--bl-gold) 100%);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 16px rgba(212, 162, 76, 0.4),
+    0 8px 32px rgba(212, 162, 76, 0.3),
+    inset 0 1px 0 rgba(255,255,255,0.4),
+    inset 0 -1px 0 rgba(0,0,0,0.1);
+}
+
+.bl-admin .btn-primary:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.bl-admin .btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 
+    0 2px 8px rgba(212, 162, 76, 0.3),
+    inset 0 1px 0 rgba(255,255,255,0.2),
+    inset 0 -1px 0 rgba(0,0,0,0.2);
+}
+
+.bl-admin .btn-ghost { color: var(--bl-text-dim); border-color: var(--bl-line); }
+.bl-admin .btn-ghost:hover:not(:disabled) {
+  color: var(--bl-text); border-color: var(--bl-line-2); background: var(--bl-bg-2);
+}
+.bl-admin .btn-danger {
+  background: rgba(239,68,68,0.1);
+  color: #fca5a5;
+  border-color: rgba(239,68,68,0.25);
+}
+.bl-admin .btn-danger:hover:not(:disabled) {
+  background: rgba(239,68,68,0.18); color: #fecaca;
+}
+
+.bl-admin .input-premium,
+.bl-admin input[type="text"],
+.bl-admin input[type="email"],
+.bl-admin input[type="password"],
+.bl-admin input[type="number"],
+.bl-admin input[type="search"],
+.bl-admin select,
+.bl-admin textarea {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bl-bg-2);
+  border: 1px solid var(--bl-line);
+  border-radius: 10px;
+  color: var(--bl-text);
+  font-size: 14px;
+  font-family: inherit;
+  transition: all .2s ease;
+  outline: none;
+}
+
+.bl-admin .input-premium:focus,
+.bl-admin input:focus,
+.bl-admin select:focus,
+.bl-admin textarea:focus {
+  border-color: var(--bl-accent);
+  background: var(--bl-bg-1);
+  box-shadow: 0 0 0 3px rgba(16,185,129,0.08);
+}
+
+.bl-admin .input-premium::placeholder,
+.bl-admin input::placeholder,
+.bl-admin textarea::placeholder {
+  color: var(--bl-text-mute);
+}
+
+.bl-admin .table-premium {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.bl-admin .table-premium thead th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--bl-text-mute);
+  background: var(--bl-bg-2);
+  border-bottom: 1px solid var(--bl-line);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.bl-admin .table-premium tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--bl-line-2);
+  color: var(--bl-text);
+  font-size: 14px;
+}
+.bl-admin .table-premium tbody tr:hover {
+  background: var(--bl-bg-2);
+}
+
+.bl-admin .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.bl-admin .badge-green { background: rgba(16,185,129,0.15); color: #34d399; }
+.bl-admin .badge-amber { background: rgba(245,158,11,0.15); color: #fbbf24; }
+.bl-admin .badge-red { background: rgba(239,68,68,0.15); color: #fca5a5; }
+.bl-admin .badge-blue { background: rgba(56,189,248,0.15); color: #7dd3fc; }
+.bl-admin .badge-gray { background: rgba(107,114,128,0.15); color: #9ca3af; }
+.bl-admin .badge-violet { background: rgba(167,139,250,0.15); color: #c4b5fd; }
+.bl-admin .badge-pink { background: rgba(244,114,182,0.15); color: #f9a8d4; }
+
+.bl-admin .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: var(--bl-text-dim);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all .2s ease;
+  position: relative;
+}
+.bl-admin .nav-link:hover {
+  background: var(--bl-bg-2);
+  color: var(--bl-text);
+}
+.bl-admin .nav-link.active {
+  background: var(--bl-accent-soft);
+  color: var(--bl-accent-2);
+}
+.bl-admin .nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--bl-accent);
+  border-radius: 0 999px 999px 0;
+}
+
+.bl-admin .nav-count {
+  margin-left: auto;
+  min-width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--bl-accent);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0 6px;
+}
+
+.bl-admin .pulse-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bl-accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.95); }
+}
+
+.bl-admin .animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}

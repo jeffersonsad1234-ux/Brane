@@ -1,53 +1,346 @@
-import { useEffect } from "react";
-import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import "./App.css";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import AuthCallback from "./components/AuthCallback";
+import AnimatedBackground from "./components/AnimatedBackground";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import FloatingSupport from "./components/FloatingSupport";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+import HomePage from "./pages/HomePage";
+import SuppliersPage from "./pages/SuppliersPage";
+import AuthPage from "./pages/AuthPage";
+import ProductsPage from "./pages/ProductsPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
+import DashboardPage from "./pages/DashboardPage";
+import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import WalletPage from "./pages/WalletPage";
+import OrdersPage from "./pages/OrdersPage";
+import NotificationsPage from "./pages/NotificationsPage";
+import ProfilePage from "./pages/ProfilePage";
+import StaticPage from "./pages/StaticPage";
+import StoresPage from "./pages/StoresPage";
+import StoreDetailPage from "./pages/StoreDetailPage";
+import StoreChatPage from "./pages/StoreChatPage";
+import DirectChatPage from "./pages/DirectChatPage";
+import CreateStorePage from "./pages/CreateStorePage";
+import SupportPage from "./pages/SupportPage";
+import DesapegaPage from "./pages/DesapegaPage";
+import BraneCoinsPage from "./pages/BraneCoinsPage";
+import AddProductPage from "./pages/AddProductPage";
+import SocialPage from "./pages/SocialPage";
+import { Toaster } from "./components/ui/sonner";
+import AddStoreProductPage from "./pages/AddStoreProductPage";
+import AddDesapegaProductPage from "./pages/AddDesapegaProductPage";
+import AdminPage from "./pages/AdminPage";
+import PromotionPlansPage from "./pages/PromotionPlansPage";
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
+// B-Livre Admin Panel (exclusivo, separado do Marketplace)
+import BLivreLogin from "./blivre-admin/Login";
+import BLivreLayout from "./blivre-admin/Layout";
+import BLivreDashboard from "./blivre-admin/Dashboard";
+import BLivreUsers from "./blivre-admin/Users";
+import BLivreAds from "./blivre-admin/Ads";
+import BLivreMessages from "./blivre-admin/Messages";
+import BLivreReports from "./blivre-admin/Reports";
+import BLivreSupport from "./blivre-admin/Support";
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+function ProtectedRoute({ children, adminOnly = false, sellerOnly = false }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#050608]">
+        <div className="w-9 h-9 border-2 border-[#8A2CFF] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) return <Navigate to="/auth" replace />;
+
+  if (adminOnly && user.role !== "admin") {
+    return <Navigate to="/market" replace />;
+  }
+
+  if (
+    sellerOnly &&
+    user.role !== "seller" &&
+    user.role !== "admin"
+  ) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+}
+
+function AppRouter() {
+  const location = useLocation();
+
+  if (location.hash && location.hash.includes("session_id=")) {
+    return <AuthCallback />;
+  }
+
+  const path = location.pathname;
+  const isAuth = path === "/auth";
+
+  if (isAuth) {
+    return (
+      <>
+        <Routes>
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="*" element={<Navigate to="/market" replace />} />
+        </Routes>
+
+        <Toaster position="top-right" />
+      </>
+    );
+  }
+
+  const isAdmin = path.startsWith("/admin");
+  const isSocial = path.startsWith("/blivre") || path.startsWith("/social");
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
+    <>
+      <AnimatedBackground />
+
+      <div className={`relative z-10${isAdmin ? ' h-screen overflow-hidden' : ''}`}>
+        {!isAdmin && !isSocial && <Navbar />}
+
+        <main className={isAdmin ? 'h-screen overflow-hidden' : 'min-h-screen'}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/market" replace />} />
+            <Route path="/market" element={<HomePage />} />
+
+            <Route path="/fornecedores" element={<SuppliersPage />} />
+
+            <Route path="/products" element={<ProductsPage />} />
+            <Route path="/products/:id" element={<ProductDetailPage />} />
+
+            <Route path="/stores" element={<StoresPage />} />
+
+            <Route
+              path="/stores/create"
+              element={
+                <ProtectedRoute>
+                  <CreateStorePage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="/stores/:slug" element={<StoreDetailPage />} />
+
+            <Route
+              path="/stores/:slug/chat"
+              element={
+                <ProtectedRoute>
+                  <StoreChatPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/chat/:userId"
+              element={
+                <ProtectedRoute>
+                  <DirectChatPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="/desapega" element={<DesapegaPage />} />
+
+            <Route path="/blivre" element={<SocialPage />} />
+            <Route path="/blivre/*" element={<SocialPage />} />
+            <Route path="/social" element={<Navigate to="/blivre" replace />} />
+            <Route path="/social/*" element={<Navigate to="/blivre" replace />} />
+
+            <Route
+              path="/add-product"
+              element={
+                <ProtectedRoute sellerOnly>
+                  <AddProductPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/add-product/feed"
+              element={
+                <ProtectedRoute sellerOnly>
+                  <AddStoreProductPage mode="feed" />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/add-product/store"
+              element={
+                <ProtectedRoute sellerOnly>
+                  <AddStoreProductPage mode="store" />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/add-product/desapega"
+              element={
+                <ProtectedRoute sellerOnly>
+                  <AddDesapegaProductPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/cart"
+              element={
+                <ProtectedRoute>
+                  <CartPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute>
+                  <CheckoutPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/wallet"
+              element={
+                <ProtectedRoute>
+                  <WalletPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <OrdersPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/notifications"
+              element={
+                <ProtectedRoute>
+                  <NotificationsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/support"
+              element={
+                <ProtectedRoute>
+                  <SupportPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/brane-coins"
+              element={
+                <ProtectedRoute>
+                  <BraneCoinsPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/blivre/login"
+              element={<BLivreLogin />}
+            />
+
+            <Route
+              path="/admin/blivre"
+              element={<BLivreLayout />}
+            >
+              <Route index element={<BLivreDashboard />} />
+              <Route path="usuarios" element={<BLivreUsers />} />
+              <Route path="anuncios" element={<BLivreAds />} />
+              <Route path="mensagens" element={<BLivreMessages />} />
+              <Route path="denuncias" element={<BLivreReports />} />
+              <Route path="suporte" element={<BLivreSupport />} />
+            </Route>
+
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute adminOnly>
+                  <AdminPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/admin/*"
+              element={
+                <ProtectedRoute adminOnly>
+                  <AdminPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/promote"
+              element={
+                <ProtectedRoute>
+                  <PromotionPlansPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="/pages/:slug" element={<StaticPage />} />
+
+            <Route path="*" element={<Navigate to="/market" replace />} />
+          </Routes>
+        </main>
+
+        {!isAdmin && !isSocial && <Footer />}
+        {!isAdmin && !isSocial && <FloatingSupport />}
+      </div>
+
+      <Toaster position="top-right" />
+    </>
   );
-};
+}
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </div>
+    <AuthProvider>
+      <ThemeProvider>
+        <BrowserRouter>
+          <AppRouter />
+        </BrowserRouter>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
 
