@@ -2279,6 +2279,7 @@ export default function SocialPage() {
                 <button
                   onClick={() => setShowNotifications(true)}
                   className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] flex-shrink-0"
+                  data-testid="blivre-bell-btn-mobile"
                 >
                   <Bell size={16} />
                 </button>
@@ -2319,6 +2320,7 @@ export default function SocialPage() {
               <button
                 onClick={() => setShowNotifications(true)}
                 className="relative w-9 h-9 sm:w-11 sm:h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] flex-shrink-0"
+                data-testid="blivre-bell-btn"
               >
                 <Bell size={16} />
               </button>
@@ -2796,6 +2798,7 @@ export default function SocialPage() {
     }}
     className="w-12 h-12 rounded-full gold-premium-3d flex items-center justify-center text-black"
     title="Mensagens"
+    data-testid="blivre-mobile-fab-mensagens"
   >
     <MessageSquare size={20} strokeWidth={2.7} />
   </button>
@@ -2809,6 +2812,7 @@ export default function SocialPage() {
     }}
     className="w-14 h-14 rounded-full gold-premium-3d flex items-center justify-center text-black"
     title="Anunciar"
+    data-testid="blivre-mobile-fab-anunciar"
   >
     <Plus size={30} strokeWidth={3.2} />
   </button>
