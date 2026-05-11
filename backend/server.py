@@ -868,20 +868,7 @@ async def get_messages(request: Request):
 # =========================
 # NOTIFICAÇÕES
 # =========================
-
-@api_router.get("/notifications")
-async def get_notifications(request: Request):
-    user = await get_current_user(request)
-
-    notifs = db.notifications.find({
-        "user_id": user["user_id"]
-    }).sort("created_at", -1)
-    result = []
-    async for n in notifs:
-        n.pop("_id", None)
-        result.append(n)
-
-    return {"notifications": result}
+# (Rota de notificações movida para seção NOTIFICATION ROUTES abaixo)
 
 
 # =========================
@@ -2114,6 +2101,30 @@ async def get_store_chat_messages(store_id: str, request: Request, limit: int = 
             {"$set": {"read": True}}
         )
     
+    # Mark related notifications as read
+    if not is_owner:
+        # Buyer marking store owner messages as read
+        await db.notifications.update_many(
+            {
+                "user_id": user["user_id"],
+                "type": "store_chat",
+                "data.store_id": real_store_id,
+                "read": False
+            },
+            {"$set": {"read": True}}
+        )
+    else:
+        # Store owner marking buyer messages as read
+        await db.notifications.update_many(
+            {
+                "user_id": user["user_id"],
+                "type": "store_chat",
+                "data.store_id": real_store_id,
+                "read": False
+            },
+            {"$set": {"read": True}}
+        )
+    
     return {"messages": messages, "store": store}
 
 @api_router.get("/seller/chat/conversations")
@@ -2226,6 +2237,18 @@ async def get_direct_messages(other_user_id: str, request: Request, limit: int =
         {"thread_id": thread_id, "recipient_id": user["user_id"], "read": False},
         {"$set": {"read": True}}
     )
+    
+    # Mark related notifications as read
+    await db.notifications.update_many(
+        {
+            "user_id": user["user_id"],
+            "type": "direct_chat",
+            "data.thread_id": thread_id,
+            "read": False
+        },
+        {"$set": {"read": True}}
+    )
+    
     return {"messages": messages, "other": other}
 
 
