@@ -8,5 +8,8 @@
   "scripts": {
     "install": "npm install --prefix ./frontend --legacy-peer-deps",
     "build": "npm install --prefix ./frontend --legacy-peer-deps && npm run build --prefix ./frontend"
+  },
+  "dependencies": {
+    "date-fns": "^3.6.0"
   }
 }
