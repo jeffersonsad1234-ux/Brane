@@ -144,6 +144,9 @@ function AppRouter() {
             <Route path="/social" element={<SocialPage />} />
             <Route path="/social/*" element={<SocialPage />} />
 
+            <Route path="/blivre" element={<SocialPage />} />
+            <Route path="/blivre/*" element={<SocialPage />} />
+
             <Route
               path="/add-product"
               element={
