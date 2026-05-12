@@ -133,7 +133,13 @@ export default function ProductDetailPage() {
           ? currentImg
           : API + '/files/' + currentImg
       )
-    : null;
+    : (product.image && !product.images?.length)
+      ? (
+          product.image.startsWith('data:image') || product.image.startsWith('http')
+            ? product.image
+            : API + '/files/' + product.image
+        )
+      : null;
 
   const priceWhole = Math.floor(product.price || 0);
   const priceCents = Math.round(((product.price || 0) - priceWhole) * 100).toString().padStart(2, '0');

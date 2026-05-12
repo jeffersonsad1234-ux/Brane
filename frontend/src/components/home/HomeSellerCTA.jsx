@@ -51,6 +51,36 @@ export default function HomeSellerCTA({ user }) {
           </div>
         </div>
       </section>
+
+      <section className="max-w-7xl mx-auto px-4 pb-10 bg-white">
+        <div className="rounded-[30px] bg-gradient-to-br from-[#090B10] via-[#1A1F2E] to-[#090B10] border border-[#D4A24C]/20 p-6 md:p-7">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-5">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-[#F1D28A] mb-2">
+                B Livre
+              </p>
+
+              <h3 className="text-2xl md:text-3xl font-black text-white">
+                Compre e venda direto com a comunidade
+              </h3>
+
+              <p className="text-[#B8BAC6] mt-2 text-sm">
+                Anúncios classificados, chat direto e oportunidades locais.
+              </p>
+            </div>
+
+            <Link to="/market/blivre">
+              <button
+                type="button"
+                className="h-11 px-5 rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-white font-black inline-flex items-center gap-2 hover:from-[#B98228] hover:via-[#D4A24C] hover:to-[#8B6914] transition"
+              >
+                Explorar B Livre
+                <ArrowRight size={16} className="text-white" />
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
     </>
   );
 }
