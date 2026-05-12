@@ -2,3 +2,7 @@
 # Ver: https://developers.cloudflare.com/pages/configuration/monorepos/
 name = "brane"
 pages_build_output_dir = "./frontend/build"
+
+[build]
+command = "npm run build"
+install_command = "npm install --legacy-peer-deps"
