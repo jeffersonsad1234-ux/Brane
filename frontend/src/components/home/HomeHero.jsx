@@ -148,6 +148,7 @@ export default function HomeHero({
 
           {/* COLUNA DIREITA (SEM DESAPEGA) */}
           <div className="hidden lg:flex flex-col gap-3">
+            {/* Parte Superior: Lojas parceiras */}
             <button
               type="button"
               onClick={() => navigate('/stores')}
@@ -162,6 +163,23 @@ export default function HomeHero({
               </span>
 
               <Home className="absolute right-5 bottom-5 text-[#D4A24C]" />
+            </button>
+
+            {/* Parte Inferior: B Livre */}
+            <button
+              type="button"
+              onClick={() => navigate('/market/blivre')}
+              className="relative flex-1 rounded-[24px] bg-gradient-to-br from-[#090B10] via-[#1A1F2E] to-[#090B10] border border-[#D4A24C]/20 p-4 text-left"
+            >
+              <h3 className="text-white font-black">
+                B Livre
+              </h3>
+
+              <span className="text-xs text-[#F1D28A]/70">
+                Compre e venda direto
+              </span>
+
+              <Home className="absolute right-5 bottom-5 text-[#F1D28A]" />
             </button>
           </div>
         </div>
