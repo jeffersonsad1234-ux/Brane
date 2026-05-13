@@ -13,16 +13,28 @@ const defaultAd = {
 const safe = (v) => String(v || "").trim();
 
 const parseInput = (text) => {
-  const parts = text.split(",").map((s) => s.trim()).filter(Boolean);
   const r = { ...defaultAd };
+  let remaining = text;
+
+  // 1. Extract price first (handles R$ 250,00 / 250,00 / 250.00 / R$250,00)
+  const pm = remaining.match(/(?:R\$\s*)?(\d+(?:[.,]\d{2})?)/i);
+  if (pm) {
+    const full = pm[0];
+    const num = pm[1];
+    if (/^R\$/i.test(full) || /[.,]\d{2}/.test(num) || /^\d{1,8}$/.test(num)) {
+      r.price = full.replace(/^R\$\s*/i, "").trim();
+      remaining = remaining.replace(full, "");
+    }
+  }
+
+  // 2. Split remaining by comma
+  const parts = remaining.split(",").map((s) => s.trim()).filter(Boolean);
   if (!parts.length) return r;
   r.title = parts[0];
+
   for (let i = 1; i < parts.length; i++) {
     const raw = parts[i];
     const low = raw.toLowerCase();
-    if (!r.price && /^r?\$?\s*[\d.,]+$/.test(low.replace(/\s/g, ""))) {
-      r.price = raw.replace(/^r\$\s*/i, "").trim(); continue;
-    }
     const cat = CATEGORIES.find((c) => c.toLowerCase().includes(low) || low.includes(c.toLowerCase()));
     if (cat && !r.category) { r.category = cat; continue; }
     const cond = CONDITIONS.find((c) => c.toLowerCase().includes(low) || low.includes(c.toLowerCase()));
@@ -31,25 +43,23 @@ const parseInput = (text) => {
     if (avail && !r.availability) { r.availability = avail; continue; }
     r.description += (r.description ? ", " : "") + raw;
   }
+
   const loc = text.match(/([\w\sÀ-ÿ]+)\s*[-–]\s*([\w\sÀ-ÿ]+)/);
   if (loc) { r.city = loc[1].trim(); r.state = loc[2].trim(); }
   return r;
 };
 
 /* ─── Improvement data ─── */
-const TITLE_PREFIXES = ["", "✨ ", "📱 ", "💎 ", "🚀 ", "⭐ ", "🎯 "];
-const CTAS = [
-  "Chame agora e garanta o seu! 🚀", "Aproveite antes que acabe! ⚡",
-  "Oferta imperdível para hoje! 🎯", "Últimas unidades disponíveis! 📦",
-  "Produto em excelente estado! ✅", "Conservado e pronto para uso! 💎",
-  "Não perca essa oportunidade! ⭐", "Garanta já o seu produto! 🔥",
-];
-const DESC_TEMPLATES = [
-  (p) => `${p} em ótimo estado de conservação. Produto completo e funcional. ${CTAS[Math.floor(Math.random() * CTAS.length)]}`,
-  (p) => `Produto de qualidade: ${p}. Perfeito para quem busca custo-benefício. ${CTAS[Math.floor(Math.random() * CTAS.length)]}`,
-  (p) => `${p} — item bem cuidado, funcionando perfeitamente. ${CTAS[Math.floor(Math.random() * CTAS.length)]}`,
-  (p) => `Vendo ${p}. Produto original, conservado e pronto para uso imediato. ${CTAS[Math.floor(Math.random() * CTAS.length)]}`,
-  (p) => `Oportunidade: ${p}. Entre em contato e confira! ${CTAS[Math.floor(Math.random() * CTAS.length)]}`,
+const TITLE_PREFIXES = ["", "✨ ", "📱 ", "💎 ", "🚀 ", "⭐ ", "🎯 ", "📌 ", "🔖 "];
+const DESC_APPENDS = [
+  "✨ Produto bem conservado, pronto para uso",
+  "👍 Não perca essa oportunidade",
+  "🔥 Entre em contato e garanta o seu",
+  "💎 Excelente custo-benefício",
+  "⭐ Produto em ótimo estado",
+  "✅ Disponível e em perfeitas condições",
+  "🚀 Aproveite esta oferta imperdível",
+  "🎯 Qualidade e bom negócio",
 ];
 
 /* ─── Premium Character Illustration (front-facing) ─── */
@@ -348,6 +358,7 @@ export default function AIAssistantPanelSocial({
   const fileRef = useRef(null);
   const endRef = useRef(null);
   const initialized = useRef(false);
+  const originalDescRef = useRef("");
 
   const ad = generatedAd || localAd;
   const hasAd = safe(ad.title) || safe(ad.price);
@@ -376,6 +387,7 @@ export default function AIAssistantPanelSocial({
     await new Promise((r) => setTimeout(r, 1800));
     const parsed = parseInput(text);
     setLocalAd(parsed);
+    originalDescRef.current = safe(parsed.description);
     setBraneState("idle");
     setStep(1);
   };
@@ -435,18 +447,18 @@ export default function AIAssistantPanelSocial({
     await new Promise((r) => setTimeout(r, 1800));
     const prefixIdx = improveCount % TITLE_PREFIXES.length;
     const prefix = TITLE_PREFIXES[prefixIdx];
-    const rawTitle = safe(ad.title).replace(/^vendo\s+/i, "").replace(/^[✨📱💎🚀⭐🎯]\s*/, "");
+    const rawTitle = safe(ad.title).replace(/^vendo\s+/i, "").replace(/^[✨📱💎🚀⭐🎯📌🔖]\s*/, "");
     const newTitle = prefix ? `${prefix}${rawTitle}` : rawTitle;
-    const prodName = rawTitle || "produto";
-    const templateIdx = Math.floor(improveCount / TITLE_PREFIXES.length) % DESC_TEMPLATES.length;
-    const newDesc = DESC_TEMPLATES[templateIdx](prodName);
+    const appendIdx = improveCount % DESC_APPENDS.length;
+    const suffix = DESC_APPENDS[appendIdx];
+    const base = originalDescRef.current || safe(ad.description);
+    const newDesc = base ? `${base} ${suffix}` : suffix;
     setImproveCount((c) => c + 1);
     const improved = { ...ad, title: newTitle, description: newDesc };
     setLocalAd(improved);
     onImproveAd(improved);
     onFillForm(improved);
     setBraneState("idle");
-    // No addMsg — only update preview silently
   };
 
   const handlePublish = async () => {
@@ -459,7 +471,7 @@ export default function AIAssistantPanelSocial({
     setStep(0); setInput(""); setLocalAd(defaultAd);
     setPhotoPreviews([]); setContactPhone(""); setContactWhatsapp("");
     setBraneState("idle"); setMessages([]);
-    initialized.current = false;
+    initialized.current = false; originalDescRef.current = "";
     onGenerateNew();
   };
 
