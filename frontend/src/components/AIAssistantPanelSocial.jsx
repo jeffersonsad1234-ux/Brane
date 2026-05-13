@@ -44,7 +44,7 @@ export default function AIAssistantPanelSocial({
     {
       id: 1,
       from: "ai",
-      text: "Descreva o que vai anunciar.\nExemplo:\nNome do produto,\nmarca,\nestado,\npreço,\ncidade,\ndetalhes,\ntempo de uso,\nacessórios inclusos etc."
+      text: "Escreva tudo em uma única mensagem, separado por vírgulas.\n\nExemplo:\n nome do produto, categoria, preço, estado, cidade, condição, tempo de uso, acessórios, entrega e descrição.\n\nA BRANE entende automaticamente as informações e monta seu anúncio premium."
     }
   ]);
   const fileRef = useRef(null);
@@ -102,14 +102,14 @@ export default function AIAssistantPanelSocial({
   };
 
   return (
-    <div className="flex h-full flex-col rounded-[24px] border border-[#D4A24C]/25" style={{ background: 'linear-gradient(180deg, rgba(212,162,76,0.06), rgba(10,10,15,0.95))' }}>
+    <div className="flex h-full flex-col rounded-[24px] border border-[#D4A24C]/30 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, rgba(212,162,76,0.08), rgba(10,10,15,0.95))', boxShadow: 'inset 0 0 60px rgba(212,162,76,0.04), 0 0 40px rgba(212,162,76,0.06)' }}>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% -10%, rgba(212,162,76,0.15), transparent 60%)' }}></div>
       <div className="border-b border-[#D4A24C]/20 p-4 relative">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(212,162,76,0.12), transparent 70%)' }}></div>
-        <p className="text-xs font-bold uppercase tracking-[0.16em] brane-gold-text relative z-10">
-          Brami IA
+        <p className="text-xs font-bold uppercase tracking-[0.16em] brane-gold-text relative z-10" style={{ filter: 'drop-shadow(0 0 12px rgba(212,162,76,0.3))' }}>
+          BRANE
         </p>
         <p className="mt-1 text-sm text-[#C9CBD6] relative z-10">
-          Descreva seu produto e a Brami gera o anúncio pra você.
+          Descreva seu produto e a BRANE gera o anúncio pra você.
         </p>
       </div>
 

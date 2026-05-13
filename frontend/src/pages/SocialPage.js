@@ -26,6 +26,14 @@ const states = [
 
 const productConditions = ["Novo", "Usado", "Em bom estado", "Com detalhes", "Para retirada de peças"];
 
+const descriptionExamples = [
+  "iPhone 13, R$3500, São Paulo, seminovo…",
+  "Notebook gamer, R$2200, Belém…",
+  "Sofá 3 lugares, R$800, Rio de Janeiro, ótimo estado…",
+  "Bicicleta aro 29, R$600, BH, usada 6 meses…",
+  "Fone Bluetooth, R$120, Curitiba, novo na caixa…"
+];
+
 export default function SocialPage() {
   const { user, token, API: AUTH_API } = useAuth();
   const API = AUTH_API || `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
@@ -93,6 +101,14 @@ export default function SocialPage() {
     };
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const [exampleIndex, setExampleIndex] = useState(0);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setExampleIndex((prev) => (prev + 1) % descriptionExamples.length);
+    }, 4000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleInstall = async () => {
@@ -794,14 +810,24 @@ export default function SocialPage() {
                 </div>
               ) : (
                 notifications.map((item, index) => (
-                  <div key={item.id || index} className="brane-card-soft p-4">
+                  <button
+                    key={item.id || index}
+                    onClick={() => {
+                      setShowNotifications(false);
+                      if (item.sender_id || item.user_id) {
+                        setSelectedChat({ sender_name: item.sender_name || item.title, post_id: item.post_id, message: item.message || item.content });
+                        setActiveFilter("messages");
+                      }
+                    }}
+                    className="w-full text-left brane-card-soft p-4 hover:bg-white/[0.08] transition-colors cursor-pointer"
+                  >
                     <p className="text-sm font-semibold text-white">
-                      {item.title || "Nova notificação"}
+                      {item.title || item.sender_name || "Nova notificação"}
                     </p>
                     <p className="text-xs text-[#A6A8B3] mt-1">
                       {item.message || item.content || "Você tem uma nova atualização."}
                     </p>
-                  </div>
+                  </button>
                 ))
               )}
             </div>
@@ -906,6 +932,36 @@ export default function SocialPage() {
             >
               {savingProfile ? "Salvando..." : "Salvar perfil"}
             </button>
+
+            <div className="mt-5 pt-4 border-t border-[#1E2230] space-y-1">
+              <button
+                onClick={() => { setShowSettings(false); window.location.href = '/support'; }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A6A8B3] hover:text-white hover:bg-white/[0.04] transition-colors"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-[#D4A24C]">
+                  <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Falar com suporte
+              </button>
+              <button
+                onClick={() => { setShowSettings(false); window.location.href = '/auth'; }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A6A8B3] hover:text-white hover:bg-white/[0.04] transition-colors"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-[#D4A24C]">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Esqueci minha senha
+              </button>
+              <button
+                onClick={() => { setShowSettings(false); window.location.href = '/dashboard'; }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A6A8B3] hover:text-white hover:bg-white/[0.04] transition-colors"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-[#D4A24C]">
+                  <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+                Configurações da conta
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -919,12 +975,12 @@ export default function SocialPage() {
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div>
           <h2 className="font-black text-lg text-white">
-            {editingPost ? "Editar anúncio" : "Novo anúncio com Brami"}
+            {editingPost ? "Editar anúncio" : "Novo anúncio com BRANE"}
           </h2>
           <p className="text-[11px] text-[#8C8F9A] mt-1">
             {editingPost
               ? "Atualize as informações do seu anúncio."
-              : "Responda algumas perguntas e a Brami monta o anúncio pra você."}
+              : "Responda algumas perguntas e a BRANE monta o anúncio pra você."}
           </p>
         </div>
 
@@ -1132,7 +1188,7 @@ export default function SocialPage() {
                 value={form.description}
                 onChange={(e) => updateForm("description", e.target.value)}
                 rows="4"
-                placeholder="Descreva o que vai anunciar. Exemplo: Nome do produto, marca, estado, preço, cidade, detalhes, tempo de uso, acessórios inclusos etc."
+                placeholder={descriptionExamples[exampleIndex]}
                 className="mt-1.5 w-full p-4 rounded-[22px] bg-black/30 border border-white/10 text-white outline-none resize-none placeholder:text-[#6F7280]"
               />
             </div>
@@ -1333,9 +1389,14 @@ export default function SocialPage() {
               )}
               <button
                 onClick={() => setShowNotifications(true)}
-                className="relative w-11 h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C]"
+                className="relative w-11 h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] hover:bg-white/[0.08] transition-colors"
               >
                 <Bell size={19} />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#D4A24C] text-[10px] font-black text-black flex items-center justify-center shadow-[0_0_8px_rgba(212,162,76,0.5)]">
+                    {notifications.length > 9 ? '9+' : notifications.length}
+                  </span>
+                )}
               </button>
 
               <button
@@ -1619,7 +1680,7 @@ export default function SocialPage() {
                             </p>
 
                             <div className="mt-3">
-                              <span className="inline-flex justify-center items-center gap-1.5 brane-btn-gold text-[11px] py-1.5 px-3.5 tracking-wide" style={{ boxShadow: 'inset 0 1px 0 rgba(255,235,180,0.55), inset 0 -1px 0 rgba(0,0,0,0.25), 0 6px 18px -6px rgba(138,106,36,0.5)' }}>
+                              <span className="inline-flex justify-center items-center gap-1.5 brane-btn-gold text-[11px] py-1.5 px-3.5 tracking-wide">
                                 <ShoppingCart size={13} />
                                 {activeFilter === "mine" ? "Ver meu anúncio" : "Ver produto"}
                               </span>
