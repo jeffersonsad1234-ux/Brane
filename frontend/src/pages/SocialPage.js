@@ -534,7 +534,7 @@ export default function SocialPage() {
   const openPost = (post) => {
     setSelectedPost(post);
     setSelectedImageIndex(0);
-    window.history.pushState({ branePost: true }, "");
+    window.history.pushState({ branePost: true }, "", window.location.pathname);
   };
 
   const closePost = () => {
@@ -704,7 +704,7 @@ export default function SocialPage() {
   const openChat = (chat) => {
     setSelectedChat(chat);
     loadChatMessages(chat.post_id);
-    window.history.pushState({ braneChat: true }, "");
+    window.history.pushState({ braneChat: true }, "", window.location.pathname);
   };
 
   const closeChat = () => {
@@ -891,7 +891,7 @@ export default function SocialPage() {
                           loadChatMessages(nPostId);
                           setActiveFilter("messages");
                           fetchMessages();
-                          window.history.pushState({ braneChat: true }, "");
+                          window.history.pushState({ braneChat: true }, "", window.location.pathname);
                         }
                       }}
                       className="w-full text-left brane-card-soft p-3 hover:bg-white/[0.08] transition-colors cursor-pointer flex items-start gap-3"
@@ -1894,10 +1894,12 @@ export default function SocialPage() {
         </div>
       </div>
 
-      {/* Mobile FAB anunciar */}
-      <button className="brane-fab" onClick={() => { if (!requireAuth()) return; setUseAI(true); setComposerOpen(true); }}>
-        +
-      </button>
+      {/* Mobile FAB anunciar (hidden when detail modal is open) */}
+      {(!selectedPost) && (
+        <button className="brane-fab" onClick={() => { if (!requireAuth()) return; setUseAI(true); setComposerOpen(true); }}>
+          +
+        </button>
+      )}
 
       {/* Mobile bottom navigation */}
       <nav className="brane-bottom-nav">
@@ -1919,7 +1921,7 @@ export default function SocialPage() {
                   avatar: user?.avatar || user?.photo || ""
                 });
                 setShowSettings(true);
-                window.history.pushState({ braneSettings: true }, "");
+                window.history.pushState({ braneSettings: true }, "", window.location.pathname);
               } else if (value === "messages") {
                 openMessagesTab();
               } else {
