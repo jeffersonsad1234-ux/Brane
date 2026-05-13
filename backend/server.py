@@ -14,6 +14,7 @@ from pathlib import Path
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
+import json
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 import asyncio
@@ -667,6 +668,65 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
     skip = (page - 1) * limit
     posts = await db.social_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     total = await db.social_posts.count_documents(query)
+
+    # Fallback to products when social_posts is empty
+    if total == 0:
+        product_query = {
+            "status": "active",
+            "$or": [
+                {"is_deleted": False},
+                {"is_deleted": {"$exists": False}}
+            ]
+        }
+        if user_id:
+            product_query["seller_id"] = user_id
+
+        products = await db.products.find(
+            product_query,
+            {"_id": 0}
+        ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+        total = await db.products.count_documents(product_query)
+
+        posts = []
+        for p in products:
+            images_list = p.get("images") or ([p["image"]] if p.get("image") else [])
+            image_json = json.dumps(images_list) if images_list else ""
+            condition = p.get("condition", "Novo")
+            if condition in ("new", "like_new"):
+                condition = "Novo"
+            elif condition == "good":
+                condition = "Em bom estado"
+            elif condition == "fair":
+                condition = "Com detalhes"
+
+            content_lines = [
+                p.get("title", "Produto"),
+                "R$ " + str(p.get("price", "")) if p.get("price") is not None else "",
+                p.get("category", ""),
+                condition,
+                p.get("city", "") + (" - " + p.get("state", "")) if p.get("state") else p.get("city", ""),
+                "Item único",
+                p.get("description", "")
+            ]
+            content = "\n".join(line for line in content_lines if line)
+
+            posts.append({
+                "post_id": p.get("product_id", ""),
+                "user_id": p.get("seller_id", ""),
+                "user_name": p.get("seller_name", ""),
+                "content": content,
+                "image": image_json,
+                "title": p.get("title", ""),
+                "price": str(p.get("price", "")),
+                "city": p.get("city", ""),
+                "state": p.get("state", ""),
+                "category": p.get("category", ""),
+                "product_condition": condition,
+                "description": p.get("description", ""),
+                "availability": "Item único",
+                "created_at": p.get("created_at", "")
+            })
+
     return {"posts": posts, "total": total, "page": page}
 
 @api_router.post("/social/posts/{post_id}/like")
@@ -701,6 +761,21 @@ async def delete_social_post(post_id: str, request: Request):
     await db.social_posts.delete_one({"post_id": post_id})
     await db.social_comments.delete_many({"post_id": post_id})
     return {"message": "Post removido"}
+
+@api_router.put("/social/posts/{post_id}")
+async def update_social_post(post_id: str, data: dict, request: Request):
+    user = await get_current_user(request)
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post nao encontrado")
+    if post["user_id"] != user["user_id"] and user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Sem permissao")
+    updates = {k: v for k, v in data.items() if v is not None}
+    if not updates.get("content"):
+        raise HTTPException(status_code=400, detail="Conteudo obrigatorio")
+    await db.social_posts.update_one({"post_id": post_id}, {"$set": updates})
+    updated = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    return updated
 
 @api_router.post("/social/posts/{post_id}/comments")
 async def create_comment(post_id: str, data: SocialCommentCreate, request: Request):
