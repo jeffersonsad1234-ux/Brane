@@ -1065,6 +1065,25 @@ body[data-card-shape="minimal"] .theme-product-card:hover {
   100% { opacity: 0; transform: translateY(-20px); }
 }
 
+/* ---------- BRANE character fixed (sticky) ---------- */
+.brane-character-fixed {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  margin-bottom: -4px;
+}
+
+/* ---------- Fade-in animation for steps ---------- */
+.brane-fade-in {
+  animation: braneFadeIn 0.35s ease-out forwards;
+}
+@keyframes braneFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* ---------- Scrollbar thin ---------- */
 .scrollbar-thin::-webkit-scrollbar {
   width: 4px;
