@@ -669,8 +669,11 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
     posts = await db.social_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     total = await db.social_posts.count_documents(query)
 
-    # Fallback to products when social_posts is empty
-    if total == 0:
+    # Fallback to products when social_posts is empty or has no actual posts
+    if not posts or total == 0:
+        logger.info("[B Livre] social_posts vazio — fazendo fallback para products")
+
+        # Query 1: active + não deletado (strict)
         product_query = {
             "status": "active",
             "$or": [
@@ -687,41 +690,77 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
         ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
         total = await db.products.count_documents(product_query)
 
+        # Query 2: fallback amplo — sem filtro de deleted, aceita qualquer status
+        if not products:
+            logger.info("[B Livre] Nenhum produto ativo encontrado — tentando query ampla")
+            broad_query = {}
+            if user_id:
+                broad_query["seller_id"] = user_id
+            products = await db.products.find(
+                broad_query,
+                {"_id": 0}
+            ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+            total = await db.products.count_documents(broad_query)
+            if products:
+                logger.info(f"[B Livre] Query ampla retornou {len(products)} produtos")
+
+        if not products:
+            logger.warning("[B Livre] Nenhum produto encontrado em nenhuma query")
+            return {"posts": [], "total": 0, "page": page}
+
         posts = []
         for p in products:
-            seller = await db.users.find_one({"user_id": p.get("seller_id")}, {"_id": 0, "name": 1, "picture": 1})
+            seller = await db.users.find_one({"user_id": p.get("seller_id")}, {"_id": 0, "name": 1, "picture": 1, "avatar": 1})
             images_list = p.get("images") or ([p["image"]] if p.get("image") else [])
             image_json = json.dumps(images_list) if images_list else ""
             condition = p.get("condition", "Novo")
-            if condition in ("new", "like_new"):
-                condition = "Novo"
-            elif condition == "good":
-                condition = "Em bom estado"
-            elif condition == "fair":
-                condition = "Com detalhes"
+            if isinstance(condition, str):
+                c = condition.lower()
+                if c in ("new", "like_new", "novo"):
+                    condition = "Novo"
+                elif c in ("good", "bom", "em bom estado"):
+                    condition = "Em bom estado"
+                elif c in ("fair", "com detalhes"):
+                    condition = "Com detalhes"
+                elif c in ("used", "usado"):
+                    condition = "Usado"
+
+            city = p.get("city") or p.get("location", "").split(",")[0].strip() or ""
+            state = p.get("state") or ""
+            location_str = f"{city} - {state}" if city and state else city
 
             content_lines = [
                 p.get("title", "Produto"),
-                "R$ " + str(p.get("price", "")) if p.get("price") is not None else "",
+                f"R$ {p['price']}" if p.get("price") is not None else "",
                 p.get("category", ""),
                 condition,
-                p.get("city", "") + (" - " + p.get("state", "")) if p.get("state") else p.get("city", ""),
+                location_str,
                 "Item único",
                 p.get("description", "")
             ]
             content = "\n".join(line for line in content_lines if line)
+            price_str = str(p.get("price", "")) if p.get("price") is not None else "consultar"
+
+            seller_name = None
+            seller_picture = None
+            if seller:
+                seller_name = seller.get("name") or p.get("seller_name", "")
+                seller_picture = seller.get("picture") or seller.get("avatar", "")
+            else:
+                seller_name = p.get("seller_name", "Vendedor")
+                seller_picture = ""
 
             posts.append({
-                "post_id": p.get("product_id", ""),
+                "post_id": p.get("product_id", f"prod_{uuid.uuid4().hex[:12]}"),
                 "user_id": p.get("seller_id", ""),
-                "user_name": seller.get("name") if seller else p.get("seller_name", "Vendedor Brane"),
-                "user_picture": seller.get("picture") if seller else "",
+                "user_name": seller_name,
+                "user_picture": seller_picture,
                 "content": content,
                 "image": image_json,
-                "title": p.get("title", ""),
-                "price": str(p.get("price", "")),
-                "city": p.get("city", ""),
-                "state": p.get("state", ""),
+                "title": p.get("title", "Produto"),
+                "price": price_str,
+                "city": city,
+                "state": state,
                 "category": p.get("category", ""),
                 "product_condition": condition,
                 "description": p.get("description", ""),
