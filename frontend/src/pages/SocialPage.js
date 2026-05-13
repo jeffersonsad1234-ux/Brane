@@ -3,12 +3,15 @@ import axios from "axios";
 import {
   Image, Send, User, Bell, Search, MessageSquare,
   Settings, BadgeCheck, Package, MapPin, Tags,
-  Heart, X, ChevronLeft, ChevronRight, Globe, Camera
+  Heart, X, ChevronLeft, ChevronRight, Globe, Camera, ShoppingCart
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import ProductImageZoom from "../components/ProductImageZoom";
 import AIAssistantPanelSocial from "../components/AIAssistantPanelSocial";
 import BLivreAuthModal from "../components/BLivreAuthModal";
+import "../styles/premium.css";
+import "../styles/product3d.css";
+import "../styles/animations.css";
 const PAGE_SIZE = 24;
 
 const categories = ["Celulares", "Veículos", "Imóveis", "Casa e móveis", "Moda", "Serviços", "Outros"];
@@ -690,13 +693,13 @@ export default function SocialPage() {
   };
 
   const SkeletonCard = () => (
-    <div className="rounded-[20px] overflow-hidden bg-white border border-[#E5E7EB]">
-      <div className="aspect-square bg-[#E5E7EB] animate-pulse" />
-      <div className="p-3 bg-white space-y-3">
-        <div className="h-4 rounded bg-[#E5E7EB] animate-pulse" />
-        <div className="h-5 rounded bg-[#E5E7EB] w-2/3 animate-pulse" />
-        <div className="h-3 rounded bg-[#E5E7EB] w-1/2 animate-pulse" />
-        <div className="h-8 rounded-xl bg-[#E5E7EB] animate-pulse" />
+    <div className="brane-card-premium overflow-hidden" style={{ borderRadius: 22 }}>
+      <div className="aspect-square bg-[#0B0D12] animate-pulse" />
+      <div className="p-3 space-y-3" style={{ background: 'linear-gradient(180deg, rgba(9,10,15,0.96), rgba(5,6,10,1))' }}>
+        <div className="h-4 rounded bg-[#1E2230] animate-pulse" />
+        <div className="h-5 rounded bg-[#1E2230] w-2/3 animate-pulse" />
+        <div className="h-3 rounded bg-[#1E2230] w-1/2 animate-pulse" />
+        <div className="h-8 rounded-xl bg-[#1E2230] animate-pulse" />
       </div>
     </div>
   );
@@ -760,7 +763,7 @@ export default function SocialPage() {
 
       {showNotifications && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-[520px] rounded-[28px] border border-[#D4A24C]/25 bg-[#0B0B12] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.62)]">
+          <div className="w-full max-w-[520px] brane-card-premium p-5" style={{ borderRadius: 28 }}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="font-black text-lg text-white">Notificações</h2>
@@ -771,7 +774,7 @@ export default function SocialPage() {
 
               <button
                 onClick={() => setShowNotifications(false)}
-                className="w-9 h-9 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#C9CBD6]"
+                className="w-9 h-9 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#A6A8B3] hover:text-white"
               >
                 <X size={18} />
               </button>
@@ -779,19 +782,16 @@ export default function SocialPage() {
 
             <div className="space-y-3 max-h-[56vh] overflow-y-auto pr-1">
               {notifications.length === 0 ? (
-                <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-sm text-[#8C8F9A]">
+                <div className="brane-card-soft p-4 text-sm text-[#8C8F9A]">
                   Nenhuma notificação por enquanto.
                 </div>
               ) : (
                 notifications.map((item, index) => (
-                  <div
-                    key={item.id || index}
-                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
-                  >
-                    <p className="text-sm font-black text-white">
+                  <div key={item.id || index} className="brane-card-soft p-4">
+                    <p className="text-sm font-semibold text-white">
                       {item.title || "Nova notificação"}
                     </p>
-                    <p className="text-xs text-[#B8BAC6] mt-1">
+                    <p className="text-xs text-[#A6A8B3] mt-1">
                       {item.message || item.content || "Você tem uma nova atualização."}
                     </p>
                   </div>
@@ -804,7 +804,7 @@ export default function SocialPage() {
 
       {showSettings && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-[620px] rounded-[28px] border border-[#D4A24C]/25 bg-[#0B0B12] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.62)]">
+          <div className="w-full max-w-[620px] brane-card-premium p-5" style={{ borderRadius: 28 }}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="font-black text-lg text-white">Editar perfil</h2>
@@ -815,7 +815,7 @@ export default function SocialPage() {
 
               <button
                 onClick={() => setShowSettings(false)}
-                className="w-9 h-9 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#C9CBD6]"
+                className="w-9 h-9 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#A6A8B3] hover:text-white"
               >
                 <X size={18} />
               </button>
@@ -836,7 +836,7 @@ export default function SocialPage() {
                 </div>
               </div>
 
-              <label className="inline-flex items-center gap-2 px-4 py-3 rounded-2xl border border-[#D4A24C]/25 bg-[#D4A24C]/10 text-[#F1D28A] text-sm font-bold cursor-pointer">
+              <label className="inline-flex items-center gap-2 px-4 py-3 rounded-2xl border border-[#D4A24C]/25 bg-[#D4A24C]/10 text-[#F1D28A] text-sm font-bold cursor-pointer hover:bg-[#D4A24C]/20 transition-colors">
                 <Camera size={17} />
                 Trocar foto
                 <input
@@ -855,7 +855,7 @@ export default function SocialPage() {
                 <input
                   value={profileForm.name}
                   onChange={(e) => setProfileForm((prev) => ({ ...prev, name: e.target.value }))}
-                  className="mt-1.5 w-full p-3 rounded-2xl bg-black/30 border border-white/10 text-white outline-none"
+                  className="mt-1.5 w-full p-3 brane-input"
                   placeholder="Seu nome"
                 />
               </div>
@@ -865,7 +865,7 @@ export default function SocialPage() {
                 <select
                   value={profileForm.state}
                   onChange={(e) => setProfileForm((prev) => ({ ...prev, state: e.target.value }))}
-                  className="mt-1.5 w-full p-3 rounded-2xl bg-black/30 border border-white/10 text-white outline-none"
+                  className="mt-1.5 w-full p-3 brane-input"
                 >
                   <option value="">Selecionar estado</option>
                   {states.map((item) => (
@@ -879,7 +879,7 @@ export default function SocialPage() {
                 <input
                   value={profileForm.city}
                   onChange={(e) => setProfileForm((prev) => ({ ...prev, city: e.target.value }))}
-                  className="mt-1.5 w-full p-3 rounded-2xl bg-black/30 border border-white/10 text-white outline-none"
+                  className="mt-1.5 w-full p-3 brane-input"
                   placeholder="Sua cidade"
                 />
               </div>
@@ -888,7 +888,7 @@ export default function SocialPage() {
             <button
               onClick={saveProfile}
               disabled={savingProfile}
-              className="mt-5 w-full rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black py-3 disabled:opacity-60"
+              className="mt-5 w-full brane-btn-gold py-3 disabled:opacity-60"
             >
               {savingProfile ? "Salvando..." : "Salvar perfil"}
             </button>
@@ -899,8 +899,8 @@ export default function SocialPage() {
      {composerOpen && (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
     <div
-      className="w-full max-w-[560px] h-[92vh] rounded-[28px] border border-[#D4A24C]/25 bg-[#0B0B12] p-4 md:p-5 shadow-[0_24px_80px_rgba(0,0,0,0.62)] overflow-hidden flex flex-col"
-      style={{ animation: "blivreSlideIn 0.28s ease-out" }}
+      className="w-full max-w-[560px] h-[92vh] brane-card-premium p-4 md:p-5 overflow-hidden flex flex-col"
+      style={{ borderRadius: 28, animation: "blivreSlideIn 0.28s ease-out" }}
     >
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div>
@@ -1139,92 +1139,134 @@ export default function SocialPage() {
 )}
 
       {selectedPost && (
-        <div className="fixed inset-0 z-[90] bg-black/75 backdrop-blur-xl flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-[90] bg-black/80 backdrop-blur-2xl flex items-center justify-center px-4">
           <button
             onClick={closePost}
-            className="absolute top-5 right-5 w-12 h-12 rounded-2xl bg-[#D4A24C] text-black flex items-center justify-center font-black"
+            className="absolute top-5 right-5 z-10 w-12 h-12 rounded-2xl brane-btn-gold flex items-center justify-center"
           >
             <X size={22} />
           </button>
 
-          {selectedImages.length > 1 && (
-            <>
-              <button
-                onClick={prevImage}
-                className="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center"
-              >
-                <ChevronLeft />
-              </button>
+          <div className="brane-motion-overlay" style={{ position: 'fixed', zIndex: 90 }}>
+            <div className="brane-motion-backdrop" style={{ zIndex: 90 }}></div>
+          </div>
 
-              <button
-                onClick={nextImage}
-                className="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center"
-              >
-                <ChevronRight />
-              </button>
-            </>
-          )}
-
-          <div className="w-full max-w-[1100px] mx-auto px-4">
-            <div className="overflow-hidden bg-white shadow-[0_30px_120px_rgba(0,0,0,0.65)]">
-              <div className="grid md:grid-cols-[1fr_360px] gap-6 items-center">
-                <div className="bg-[#EEF1F4] flex items-center justify-center min-h-[500px] relative px-4">
+          <div className="relative w-full max-w-[1200px] mx-auto px-4 z-10">
+            <div className="brane-card-premium overflow-hidden" style={{ borderRadius: 22 }}>
+              <div className="grid md:grid-cols-[1fr_380px]">
+                <div className="bg-[#050608] flex items-center justify-center min-h-[500px] relative px-4 py-6">
                   {selectedImage ? (
-                    <ProductImageZoom
-                      mode="detailPro"
-                      src={selectedImage}
-                      alt="Produto"
-                      className="max-h-[650px] w-full object-contain"
-                      wrapperClassName="w-full h-full"
-                      zoomPanelSize={240}
-                      lensSize={220}
-                    />
+                    <>
+                      {selectedImages.length > 1 && (
+                        <>
+                          <button
+                            onClick={prevImage}
+                            className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white hover:bg-black/80 z-10"
+                          >
+                            <ChevronLeft />
+                          </button>
+                          <button
+                            onClick={nextImage}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/60 border border-white/10 flex items-center justify-center text-white hover:bg-black/80 z-10"
+                          >
+                            <ChevronRight />
+                          </button>
+                        </>
+                      )}
+                      <ProductImageZoom
+                        mode="detailPro"
+                        src={selectedImage}
+                        alt="Produto"
+                        className="max-h-[650px] w-full object-contain"
+                        wrapperClassName="w-full h-full"
+                        zoomPanelSize={240}
+                        lensSize={220}
+                      />
+                    </>
                   ) : (
                     <Package className="text-[#D4A24C]" size={80} />
                   )}
+
+                  {selectedImages.length > 1 && (
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                      {selectedImages.map((img, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setSelectedImageIndex(i)}
+                          className={`w-12 h-12 rounded-xl overflow-hidden border-2 transition-all ${
+                            selectedImageIndex === i ? 'border-[#D4A24C] opacity-100' : 'border-transparent opacity-60'
+                          }`}
+                        >
+                          <img src={img} alt="" className="w-full h-full object-cover" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                <div className="flex flex-col text-[#111318] h-[85vh] max-w-[360px] w-full relative z-10">
-                  <div className="flex-1 overflow-y-auto px-5 pt-5 pb-3">
-                    <h2 className="text-xl font-black leading-tight">
+                <div className="flex flex-col h-[85vh] max-h-[650px]" style={{ background: 'linear-gradient(180deg, rgba(9,10,15,0.98), rgba(5,6,10,1))' }}>
+                  <div className="flex-1 overflow-y-auto px-6 pt-6 pb-3">
+                    <div className="brane-badge brane-badge-gold mb-3 inline-flex">
+                      {getCategory(selectedPost) || "Produto"}
+                    </div>
+
+                    <h2 className="text-xl font-bold text-[#F7F7FA] leading-tight">
                       {getTitle(selectedPost)}
                     </h2>
 
-                    <p className="text-xl font-black text-[#B98228] mt-2">
+                    <p className="brane-gold-text text-2xl font-black mt-3">
                       {getPrice(selectedPost)}
                     </p>
 
-                    <p className="text-sm text-[#606875] mt-2 flex items-center gap-2">
-                      <MapPin size={16} />
-                      {getLocation(selectedPost)}
-                    </p>
+                    <div className="flex items-center gap-3 mt-3 text-sm">
+                      <span className="flex items-center gap-1.5 text-[#A6A8B3]">
+                        <MapPin size={15} />
+                        {getLocation(selectedPost)}
+                      </span>
 
-                    {getCondition(selectedPost) && (
-                      <p className="text-sm font-bold text-[#111318] mt-2">
-                        Estado: {getCondition(selectedPost)}
-                      </p>
-                    )}
+                      {getCondition(selectedPost) && (
+                        <span className="brane-badge brane-badge-purple">
+                          {getCondition(selectedPost)}
+                        </span>
+                      )}
+                    </div>
 
-                    <div className="mt-4 border-t border-[#E5E7EB] pt-4">
-                      <p className="text-sm whitespace-pre-wrap text-[#3F4652]">
-                        {selectedPost.content}
+                    <div className="mt-5 pt-4 border-t border-[#1E2230]">
+                      <p className="text-sm leading-relaxed text-[#A6A8B3] whitespace-pre-wrap">
+                        {selectedPost.content || selectedPost.description || "Sem descrição disponível."}
                       </p>
                     </div>
+
+                    {selectedPost.seller_name && (
+                      <div className="mt-4 pt-4 border-t border-[#1E2230] flex items-center gap-3">
+                        <div className="brane-avatar-gradient w-10 h-10 flex items-center justify-center">
+                          <div className="w-full h-full rounded-full bg-[#0B0D12] flex items-center justify-center">
+                            <User size={18} className="text-[#D4A24C]" />
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[#F7F7FA]">{selectedPost.seller_name}</p>
+                          <p className="text-xs text-[#6F7280]">Vendedor</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="px-5 pb-4 pt-3 border-t border-[#E5E7EB]">
+                  <div className="px-6 pb-5 pt-3 border-t border-[#1E2230]">
                     <div className="flex gap-2">
                       <input
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        className="flex-1 h-11 rounded-2xl border border-[#E5E7EB] px-4 outline-none"
+                        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                        className="flex-1 h-11 rounded-2xl brane-input"
                         placeholder="Digite sua mensagem..."
                       />
 
                       <button
                         onClick={sendMessage}
-                        className="h-11 px-5 rounded-2xl bg-[#111318] text-white font-black"
+                        className="brane-btn-gold h-11 px-5"
                       >
+                        <Send size={16} />
                         Enviar
                       </button>
                     </div>
@@ -1305,13 +1347,13 @@ export default function SocialPage() {
                 (expanded ? "opacity-0 pointer-events-none scale-95" : "opacity-100 scale-100")
               }
             >
-              <div className="rounded-[28px] border border-white/10 bg-white/[0.04] p-5">
-                <h3 className="font-black text-lg flex items-center gap-2">
+              <div className="brane-card-soft p-5">
+                <h3 className="font-black text-lg flex items-center gap-2 brane-gold-text">
                   {user && user.name ? user.name : "Usuário B Livre"}
                   <BadgeCheck size={17} className="text-[#D4A24C]" />
                 </h3>
 
-                <div className="mt-5 space-y-2">
+                <div className="mt-5 space-y-1">
                   {[
                     ["Perto de você", MapPin, "near"],
                     ["Meus anúncios", Package, "mine"],
@@ -1325,8 +1367,8 @@ export default function SocialPage() {
                         setSelectedCategory("");
                       }}
                       className={
-                        "w-full flex items-center gap-3 text-sm rounded-xl px-3 py-3 hover:bg-white/[0.04] " +
-                        (activeFilter === value ? "text-[#F1D28A] bg-[#D4A24C]/10" : "text-[#C9CBD6]")
+                        "w-full flex items-center gap-3 text-sm rounded-xl px-3 py-3 transition-all " +
+                        (activeFilter === value ? "text-[#F1D28A] bg-[#D4A24C]/10 brane-gold-text font-bold" : "text-[#A6A8B3] hover:bg-white/[0.04] hover:text-white")
                       }
                     >
                       <Icon size={17} className="text-[#D4A24C]" />
@@ -1336,8 +1378,8 @@ export default function SocialPage() {
                 </div>
               </div>
 
-              <div className="rounded-[28px] border border-white/10 bg-white/[0.035] p-5">
-                <h3 className="font-black mb-4 flex items-center gap-2">
+              <div className="brane-card-soft p-5">
+                <h3 className="font-black mb-4 flex items-center gap-2 brane-gold-text">
                   <Tags size={18} className="text-[#D4A24C]" />
                   Categorias
                 </h3>
@@ -1347,7 +1389,7 @@ export default function SocialPage() {
                     setSelectedCategory("");
                     setActiveFilter("all");
                   }}
-                  className="w-full py-3 border-b border-white/5 text-sm text-[#F1D28A] text-left"
+                  className="w-full py-2.5 border-b border-[#1E2230] text-sm text-[#F1D28A] text-left hover:text-white transition-colors"
                 >
                   Todas
                 </button>
@@ -1359,7 +1401,7 @@ export default function SocialPage() {
                       setSelectedCategory(item);
                       setActiveFilter("all");
                     }}
-                    className="w-full py-3 border-b border-white/5 last:border-b-0 text-sm text-left text-[#B8BAC6]"
+                    className="w-full py-2.5 border-b border-[#1E2230] last:border-b-0 text-sm text-left text-[#A6A8B3] hover:text-white transition-colors"
                   >
                     {item}
                   </button>
@@ -1373,15 +1415,15 @@ export default function SocialPage() {
             >
               {activeFilter === "messages" ? (
                 selectedChat ? (
-                  <div className="rounded-[32px] border border-white/10 bg-white/[0.035] p-6">
+                  <div className="brane-card-premium p-6" style={{ borderRadius: 32 }}>
                     <div className="flex items-center justify-between mb-4">
-                      <h2 className="font-black text-xl flex items-center gap-2">
-                        <MessageSquare className="text-[#D4A24C]" />
+                      <h2 className="font-bold text-xl flex items-center gap-2 brane-gold-text">
+                        <MessageSquare size={20} />
                         Chat com {selectedChat.sender_name || selectedChat.name || "Usuário"}
                       </h2>
                       <button
                         onClick={closeChat}
-                        className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-[#C9CBD6] hover:bg-white/20"
+                        className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-[#A6A8B3] hover:bg-white/20 hover:text-white"
                       >
                         <X size={16} />
                       </button>
@@ -1396,7 +1438,7 @@ export default function SocialPage() {
                           <div
                             className={`max-w-[70%] p-3 rounded-2xl ${
                               msg.sender === (user?.name || "Você")
-                                ? "bg-[#D4A24C] text-black"
+                                ? "brane-btn-gold text-black"
                                 : "bg-white/10 text-white"
                             }`}
                           >
@@ -1412,21 +1454,21 @@ export default function SocialPage() {
                         onChange={(e) => setChatMessage(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && sendChatMessage()}
                         placeholder="Digite sua mensagem..."
-                        className="flex-1 p-3 rounded-2xl bg-black/30 border border-white/10 text-white outline-none"
+                        className="flex-1 p-3 brane-input"
                       />
                       <button
                         onClick={sendChatMessage}
                         disabled={!chatMessage.trim()}
-                        className="px-5 py-3 rounded-2xl bg-[#D4A24C] text-black font-black disabled:opacity-60"
+                        className="brane-btn-gold px-5 py-3 disabled:opacity-60"
                       >
                         <Send size={16} />
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-[32px] border border-white/10 bg-white/[0.035] p-6">
-                    <h2 className="font-black text-xl mb-4 flex items-center gap-2">
-                      <MessageSquare className="text-[#D4A24C]" />
+                  <div className="brane-card-premium p-6" style={{ borderRadius: 32 }}>
+                    <h2 className="font-bold text-xl mb-4 flex items-center gap-2 brane-gold-text">
+                      <MessageSquare size={20} />
                       Mensagens
                     </h2>
 
@@ -1440,12 +1482,12 @@ export default function SocialPage() {
                           <button
                             key={item.id || index}
                             onClick={() => openChat(item)}
-                            className="w-full text-left rounded-2xl border border-white/10 bg-white/[0.04] p-4 hover:bg-white/[0.08] transition-colors"
+                            className="w-full text-left brane-card-soft p-4 hover:bg-white/[0.08] transition-colors"
                           >
-                            <p className="text-sm font-black text-white">
+                            <p className="text-sm font-semibold text-white">
                               {item.sender_name || item.name || "Usuário"}
                             </p>
-                            <p className="text-xs text-[#B8BAC6] mt-1">
+                            <p className="text-xs text-[#A6A8B3] mt-1">
                               {item.message || item.content}
                             </p>
                           </button>
@@ -1461,10 +1503,13 @@ export default function SocialPage() {
                   ))}
                 </div>
               ) : filteredPosts.length === 0 ? (
-                <div className="rounded-[32px] border border-white/10 bg-white/[0.035] p-12 text-center">
+                <div className="brane-card-premium p-12 text-center" style={{ borderRadius: 32 }}>
                   <Package className="mx-auto text-[#D4A24C] mb-4" size={46} />
-                  <p className="text-[#C9CBD6] font-black text-lg">
+                  <p className="text-[#A6A8B3] font-semibold text-lg">
                     Nenhum anúncio encontrado.
+                  </p>
+                  <p className="text-sm text-[#6F7280] mt-2">
+                    Tente buscar por outra categoria ou termo.
                   </p>
                 </div>
               ) : (
@@ -1476,19 +1521,20 @@ export default function SocialPage() {
                     return (
                       <div
                         key={key}
-                        className="blivre-product-card text-left rounded-[20px] overflow-hidden bg-white border border-[#E5E7EB] shadow-[0_16px_38px_rgba(0,0,0,0.18)] hover:-translate-y-1 transition-transform duration-200"
+                        className="brane-card-premium blivre-product-card animate-brane-fade-in"
+                        style={{ animationDelay: filteredPosts.indexOf(post) * 0.03 + 's', animationFillMode: 'both' }}
                       >
                         <button
                           type="button"
                           onClick={() => openPost(post)}
                           className="w-full text-left"
                         >
-                          <div className="relative aspect-square bg-[#F3F4F6]">
+                          <div className="relative aspect-square bg-[#050608] overflow-hidden rounded-t-[22px]">
                             {getCoverImage(post) ? (
                               <ProductImageZoom
                                 src={getCoverImage(post)}
                                 alt="Anúncio"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                                 wrapperClassName="w-full h-full"
                               />
                             ) : (
@@ -1505,7 +1551,7 @@ export default function SocialPage() {
                                     e.stopPropagation();
                                     editPost(post);
                                   }}
-                                  className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center hover:bg-blue-600"
+                                  className="w-8 h-8 rounded-full bg-[#D4A24C] text-black flex items-center justify-center hover:brightness-110"
                                 >
                                   <Settings size={14} />
                                 </button>
@@ -1515,7 +1561,7 @@ export default function SocialPage() {
                                     e.stopPropagation();
                                     deletePost(post);
                                   }}
-                                  className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center hover:bg-red-600"
+                                  className="w-8 h-8 rounded-full bg-red-500/80 text-white flex items-center justify-center hover:bg-red-500"
                                 >
                                   <X size={14} />
                                 </button>
@@ -1525,8 +1571,8 @@ export default function SocialPage() {
                                 type="button"
                                 onClick={(e) => toggleFavorite(post, e)}
                                 className={
-                                  "absolute top-2 right-2 w-9 h-9 rounded-full flex items-center justify-center border border-white/20 " +
-                                  (isFavorite ? "bg-[#D4A24C] text-black" : "bg-black/60 text-white")
+                                  "absolute top-2 right-2 w-9 h-9 rounded-full flex items-center justify-center border z-10 " +
+                                  (isFavorite ? "bg-[#D4A24C] text-black border-[#D4A24C]" : "bg-black/60 text-white border-white/20")
                                 }
                               >
                                 <Heart size={16} fill={isFavorite ? "currentColor" : "none"} />
@@ -1534,22 +1580,26 @@ export default function SocialPage() {
                             )}
                           </div>
 
-                          <div className="p-3 bg-white">
-                            <p className="text-[#17130B] font-black text-sm leading-tight line-clamp-2 tracking-[-0.03em]">
+                          <div className="p-3" style={{ background: 'linear-gradient(180deg, rgba(9,10,15,0.96), rgba(5,6,10,1))' }}>
+                            <p className="text-[#F7F7FA] font-semibold text-sm leading-tight line-clamp-2">
                               {getTitle(post)}
                             </p>
 
-                            <p className="blivre-gold-text font-black text-lg mt-2 tracking-[-0.04em]">
+                            <p className="brane-gold-text font-black text-lg mt-1 tracking-[-0.04em]">
                               {getPrice(post)}
                             </p>
 
-                            <p className="text-[11px] text-[#8B8790] font-semibold mt-1 truncate">
+                            <p className="text-[11px] text-[#A6A8B3] font-medium mt-1 truncate flex items-center gap-1">
+                              <MapPin size={11} />
                               {getLocation(post)}
                             </p>
 
-                            <span className="mt-3 inline-flex w-full justify-center rounded-xl blivre-gold-button px-3 py-2 text-[12px] font-black text-[#14100A]">
-                              {activeFilter === "mine" ? "Ver meu anúncio" : "Ver produto"}
-                            </span>
+                            <div className="mt-3 w-full">
+                              <span className="w-full inline-flex justify-center items-center gap-1.5 brane-btn-gold text-[12px] py-2 px-3">
+                                <ShoppingCart size={14} />
+                                {activeFilter === "mine" ? "Ver meu anúncio" : "Ver produto"}
+                              </span>
+                            </div>
                           </div>
                         </button>
                       </div>
@@ -1565,14 +1615,14 @@ export default function SocialPage() {
               {expanded ? (
                 <button
                   onClick={() => setComposerOpen(true)}
-                  className="w-full h-16 rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black shadow-[0_12px_35px_rgba(212,162,76,0.22)]"
+                  className="w-full h-16 rounded-2xl brane-btn-gold font-black text-xl shadow-[0_12px_35px_rgba(212,162,76,0.22)]"
                 >
                   +
                 </button>
               ) : (
                 <div className="space-y-5">
-                  <div className="rounded-[28px] border border-[#D4A24C]/20 bg-gradient-to-br from-white/[0.06] to-white/[0.025] p-5">
-                    <h3 className="font-black mb-3 flex items-center gap-2">
+                  <div className="brane-card-premium p-5">
+                    <h3 className="font-black mb-3 flex items-center gap-2 brane-gold-text">
                       <Package size={18} className="text-[#D4A24C]" />
                       Anunciar produto
                     </h3>
@@ -1584,32 +1634,32 @@ export default function SocialPage() {
                         setUseAI(true);
                         setComposerOpen(true);
                       }}
-                      className="w-full rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black py-3"
+                      className="w-full brane-btn-gold py-3"
                     >
                       Anunciar
                     </button>
                   </div>
 
-                  <div className="rounded-[28px] border border-white/10 bg-white/[0.035] p-5">
-                    <h3 className="font-black mb-4 flex items-center gap-2">
+                  <div className="brane-card-soft p-5">
+                    <h3 className="font-black mb-4 flex items-center gap-2 brane-gold-text">
                       <Globe size={18} className="text-[#D4A24C]" />
                       Alcance
                     </h3>
 
-                    <div className="space-y-3 text-sm text-[#B8BAC6]">
+                    <div className="space-y-3 text-sm text-[#A6A8B3]">
                       <div className="flex items-center justify-between">
                         <span>Visualizações</span>
-                        <span className="text-[#F1D28A] font-bold">{totalViews}</span>
+                        <span className="brane-gold-text font-bold">{totalViews}</span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <span>Interesses</span>
-                        <span className="text-[#F1D28A] font-bold">{totalInterests}</span>
+                        <span className="brane-gold-text font-bold">{totalInterests}</span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <span>Meus anúncios</span>
-                        <span className="text-[#F1D28A] font-bold">{totalMyAds}</span>
+                        <span className="brane-gold-text font-bold">{totalMyAds}</span>
                       </div>
                     </div>
                   </div>
