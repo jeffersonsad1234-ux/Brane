@@ -100,6 +100,16 @@ class EmailVerifyConfirm(BaseModel):
 class SocialPostCreate(BaseModel):
     content: str
     image: Optional[str] = None
+    category: Optional[str] = None
+    title: Optional[str] = None
+    price: Optional[str] = None
+    state: Optional[str] = None
+    city: Optional[str] = None
+    product_condition: Optional[str] = None
+    description: Optional[str] = None
+    availability: Optional[str] = None
+    phone: Optional[str] = None
+    whatsapp: Optional[str] = None
 
 class SocialCommentCreate(BaseModel):
     content: str
@@ -655,7 +665,17 @@ async def create_social_post(data: SocialPostCreate, request: Request):
         "likes": [],
         "likes_count": 0,
         "comments_count": 0,
-        "created_at": datetime.now(timezone.utc).isoformat()
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "category": data.category or "",
+        "title": data.title or "",
+        "price": data.price or "",
+        "state": data.state or "",
+        "city": data.city or "",
+        "product_condition": data.product_condition or "",
+        "description": data.description or "",
+        "availability": data.availability or "Item único",
+        "phone": data.phone or "",
+        "whatsapp": data.whatsapp or ""
     }
     await db.social_posts.insert_one(post)
     return {k: v for k, v in post.items() if k != "_id"}
@@ -718,6 +738,10 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
                 c = condition.lower()
                 if c in ("new", "like_new", "novo"):
                     condition = "Novo"
+                elif c in ("seminovo", "like_new", "semi-novo"):
+                    condition = "Seminovo"
+                elif c in ("recondicionado", "refurbished"):
+                    condition = "Recondicionado"
                 elif c in ("good", "bom", "em bom estado"):
                     condition = "Em bom estado"
                 elif c in ("fair", "com detalhes"):
@@ -764,7 +788,9 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
                 "category": p.get("category", ""),
                 "product_condition": condition,
                 "description": p.get("description", ""),
-                "availability": "Item único",
+                "availability": p.get("availability", "Item único"),
+                "phone": p.get("phone", ""),
+                "whatsapp": p.get("whatsapp", ""),
                 "created_at": p.get("created_at", "")
             })
 

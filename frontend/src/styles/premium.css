@@ -1029,3 +1029,50 @@ body[data-card-shape="minimal"] .theme-product-card:hover {
 @media (min-width: 1024px) {
   .brane-fab { display: none !important; }
 }
+
+/* ---------- BRANE Character Animations ---------- */
+.brane-character-container {
+  filter: drop-shadow(0 0 30px rgba(212,162,76,0.15));
+  transition: all 0.3s ease;
+}
+.brane-character-svg {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.brane-character-container:hover .brane-character-svg {
+  transform: scale(1.03);
+}
+.brane-ch-glow {
+  animation: braneGlowPulse 3s ease-in-out infinite;
+}
+.brane-ch-arms {
+  transform-origin: center;
+  animation: braneArmsWork 1.2s ease-in-out infinite;
+}
+.brane-ch-particle {
+  opacity: 0;
+  animation: braneParticleFloat 1.5s ease-out infinite;
+}
+@keyframes braneGlowPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+@keyframes braneArmsWork {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes braneParticleFloat {
+  0% { opacity: 0.8; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-20px); }
+}
+
+/* ---------- Scrollbar thin ---------- */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(212,162,76,0.2);
+  border-radius: 4px;
+}

@@ -3,7 +3,8 @@ import axios from "axios";
 import {
   Image, Send, User, Bell, Search, MessageSquare,
   Settings, BadgeCheck, Package, MapPin, Tags,
-  Heart, X, ChevronLeft, ChevronRight, Globe, Camera, ShoppingCart
+  Heart, X, ChevronLeft, ChevronRight, Globe, Camera, ShoppingCart,
+  Copy, Phone
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import ProductImageZoom from "../components/ProductImageZoom";
@@ -24,7 +25,7 @@ const states = [
   "Roraima", "Santa Catarina", "São Paulo", "Sergipe", "Tocantins"
 ];
 
-const productConditions = ["Novo", "Usado", "Em bom estado", "Com detalhes", "Para retirada de peças"];
+const productConditions = ["Novo", "Usado", "Seminovo", "Recondicionado", "Em bom estado", "Com detalhes", "Para retirada de peças"];
 
 const descriptionExamples = [
   "iPhone 13, R$3500, São Paulo, seminovo…",
@@ -146,8 +147,12 @@ export default function SocialPage() {
     city: "",
     productCondition: "",
     description: "",
-    availability: "Item único"
+    availability: "Item único",
+    phone: "",
+    whatsapp: ""
   });
+
+  const [showContactModal, setShowContactModal] = useState(null);
 
   const getPostKey = (post) => String(post?.post_id || post?.id || post?.created_at || JSON.stringify(post));
 
@@ -452,7 +457,9 @@ export default function SocialPage() {
           city: sourceForm.city,
           product_condition: sourceForm.productCondition,
           description: sourceForm.description,
-          availability: sourceForm.availability
+          availability: sourceForm.availability,
+          phone: sourceForm.phone || "",
+          whatsapp: sourceForm.whatsapp || ""
         },
         { headers: authHeaders }
       );
@@ -465,7 +472,9 @@ export default function SocialPage() {
         city: "",
         productCondition: "",
         description: "",
-        availability: "Item único"
+        availability: "Item único",
+        phone: "",
+        whatsapp: ""
       });
 
       clearImages();
@@ -514,6 +523,8 @@ export default function SocialPage() {
           state: form.state,
           city: form.city,
           product_condition: form.productCondition,
+          phone: form.phone,
+          whatsapp: form.whatsapp
         },
         { headers: authHeaders }
       );
@@ -749,7 +760,9 @@ export default function SocialPage() {
       city: post.city || "",
       productCondition: post.product_condition || getCondition(post) || "",
       description: post.description || post.content || "",
-      availability: post.availability || "Item único"
+      availability: post.availability || "Item único",
+      phone: post.phone || "",
+      whatsapp: post.whatsapp || ""
     });
 
     setImages(getPostImages(post) || []);
@@ -1082,7 +1095,9 @@ export default function SocialPage() {
               city: "",
               productCondition: "",
               description: "",
-              availability: "Item único"
+              availability: "Item único",
+              phone: "",
+              whatsapp: ""
             });
             setImages([]);
           }}
@@ -1136,7 +1151,9 @@ export default function SocialPage() {
                 city: finalData.city || form.city,
                 productCondition: finalData.condition || finalData.productCondition || form.productCondition,
                 description: finalData.description || form.description,
-                availability: finalData.availability || form.availability
+                availability: finalData.availability || form.availability,
+                phone: finalData.phone || form.phone,
+                whatsapp: finalData.whatsapp || form.whatsapp
               });
 
               setGeneratedAd(finalData);
@@ -1152,7 +1169,9 @@ export default function SocialPage() {
                 city: "",
                 productCondition: "",
                 description: "",
-                availability: "Item único"
+                availability: "Item único",
+                phone: "",
+                whatsapp: ""
               });
             }}
             onFillForm={(data) => {
@@ -1164,7 +1183,9 @@ export default function SocialPage() {
                 city: data.city || "",
                 productCondition: data.condition || data.productCondition || "",
                 description: data.description || "",
-                availability: data.availability || "Item único"
+                availability: data.availability || "Item único",
+                phone: data.phone || "",
+                whatsapp: data.whatsapp || ""
               });
             }}
             onPublishAd={async (ad) => {
@@ -1176,7 +1197,9 @@ export default function SocialPage() {
                 city: ad.city || "",
                 productCondition: ad.condition || ad.productCondition || "",
                 description: ad.description || "",
-                availability: ad.availability || "Item único"
+                availability: ad.availability || "Item único",
+                phone: ad.phone || "",
+                whatsapp: ad.whatsapp || ""
               };
               setForm(nextForm);
 
@@ -1403,23 +1426,73 @@ export default function SocialPage() {
                   </div>
 
                   <div className="px-6 pb-5 pt-3 border-t border-[#1E2230]">
-                    <div className="flex gap-2">
-                      <input
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                        className="flex-1 h-11 rounded-2xl brane-input"
-                        placeholder="Digite sua mensagem..."
-                      />
-
-                      <button
-                        onClick={sendMessage}
-                        className="brane-btn-gold h-11"
-                      >
-                        <Send size={16} />
-                        Enviar
-                      </button>
-                    </div>
+                    {showContactModal === getPostKey(selectedPost) ? (
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#8C8F9A]">Contato do vendedor</p>
+                        {selectedPost.phone && (
+                          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 p-3">
+                            <Phone size={16} className="text-[#D4A24C]" />
+                            <span className="flex-1 text-sm text-white">{selectedPost.phone}</span>
+                            <div className="flex gap-1">
+                              <button onClick={() => navigator.clipboard.writeText(selectedPost.phone)} className="p-2 rounded-xl bg-white/[0.06] text-[#C9CBD6] hover:bg-white/[0.1]" title="Copiar">
+                                <Copy size={14} />
+                              </button>
+                              <button onClick={() => window.location.href = "tel:" + selectedPost.phone} className="p-2 rounded-xl bg-white/[0.06] text-[#C9CBD6] hover:bg-white/[0.1]" title="Ligar">
+                                <Phone size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                        {selectedPost.whatsapp && (
+                          <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 p-3">
+                            <MessageSquare size={16} className="text-[#25D366]" />
+                            <span className="flex-1 text-sm text-white">{selectedPost.whatsapp}</span>
+                            <div className="flex gap-1">
+                              <button onClick={() => navigator.clipboard.writeText(selectedPost.whatsapp)} className="p-2 rounded-xl bg-white/[0.06] text-[#C9CBD6] hover:bg-white/[0.1]" title="Copiar">
+                                <Copy size={14} />
+                              </button>
+                              <button onClick={() => window.open("https://wa.me/" + selectedPost.whatsapp.replace(/\D/g, ""), "_blank")} className="p-2 rounded-xl bg-white/[0.06] text-[#25D366] hover:bg-white/[0.1]" title="WhatsApp">
+                                <MessageSquare size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                        {!selectedPost.phone && !selectedPost.whatsapp && (
+                          <p className="text-sm text-[#6F7280]">Vendedor não disponibilizou contato.</p>
+                        )}
+                        <button onClick={() => setShowContactModal(null)} className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
+                          Voltar
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            if (!requireAuth()) return;
+                            setShowContactModal(getPostKey(selectedPost));
+                          }}
+                          className="brane-btn-gold h-11 flex-1 justify-center"
+                        >
+                          <MessageSquare size={16} />
+                          Entrar em contato
+                        </button>
+                        <div className="relative flex-1">
+                          <input
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                            className="w-full h-11 rounded-2xl brane-input pr-12"
+                            placeholder="Enviar mensagem..."
+                          />
+                          <button
+                            onClick={sendMessage}
+                            className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
+                          >
+                            <Send size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
