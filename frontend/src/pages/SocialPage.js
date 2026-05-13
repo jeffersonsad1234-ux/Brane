@@ -93,6 +93,10 @@ export default function SocialPage() {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
 
+  const [unreadCount, setUnreadCount] = useState(0);
+  const notifIntervalRef = useRef(null);
+  const messagesIntervalRef = useRef(null);
+
   useEffect(() => {
     const handler = (e) => {
       e.preventDefault();
@@ -255,6 +259,7 @@ export default function SocialPage() {
 
       if (notificationsRes.status === "fulfilled") {
         setNotifications(notificationsRes.value.data.notifications || []);
+        setUnreadCount(notificationsRes.value.data.unread || 0);
       }
 
       if (messagesRes.status === "fulfilled") {
@@ -299,11 +304,29 @@ export default function SocialPage() {
   };
 
   useEffect(() => {
+    if (!token) return;
     loadPosts(1, false);
     loadSocialData();
 
+    notifIntervalRef.current = setInterval(() => {
+      axios.get(API + "/notifications", { headers: authHeaders })
+        .then((r) => {
+          setNotifications(r.data.notifications || []);
+          setUnreadCount(r.data.unread || 0);
+        })
+        .catch(() => {});
+    }, 15000);
+
+    messagesIntervalRef.current = setInterval(() => {
+      axios.get(API + "/social/messages", { headers: authHeaders })
+        .then((r) => setMessages(r.data.messages || []))
+        .catch(() => {});
+    }, 10000);
+
     return () => {
       if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
+      if (notifIntervalRef.current) clearInterval(notifIntervalRef.current);
+      if (messagesIntervalRef.current) clearInterval(messagesIntervalRef.current);
     };
   }, [token]);
 
@@ -627,16 +650,26 @@ export default function SocialPage() {
     }
   };
 
+  const loadChatMessages = async (postId) => {
+    try {
+      const res = await axios.get(API + "/social/messages?post_id=" + postId, { headers: authHeaders });
+      const msgs = (res.data.messages || []).map((m, i) => ({
+        id: i + 1,
+        sender: m.sender_name || "Usuário",
+        message: m.message,
+        timestamp: new Date(m.created_at || Date.now()),
+        isMine: m.sender_id === user?.user_id
+      }));
+      setChatMessages(msgs);
+    } catch (e) {
+      console.error("Erro ao carregar mensagens:", e);
+      setChatMessages([]);
+    }
+  };
+
   const openChat = (chat) => {
     setSelectedChat(chat);
-    setChatMessages([
-      {
-        id: 1,
-        sender: chat.sender_name || chat.name || "Usuário",
-        message: chat.message || chat.content,
-        timestamp: new Date(chat.created_at || Date.now())
-      }
-    ]);
+    loadChatMessages(chat.post_id);
   };
 
   const closeChat = () => {
@@ -648,26 +681,21 @@ export default function SocialPage() {
   const sendChatMessage = async () => {
     if (!chatMessage.trim() || !selectedChat) return;
 
-    const newMessage = {
-      id: chatMessages.length + 1,
-      sender: user?.name || "Você",
-      message: chatMessage,
-      timestamp: new Date()
-    };
+    const text = chatMessage;
 
-    setChatMessages((prev) => [...prev, newMessage]);
+    setChatMessage("");
 
     try {
       await axios.post(
         API + "/social/messages",
         {
           post_id: selectedChat.post_id,
-          message: chatMessage
+          message: text
         },
         { headers: authHeaders }
       );
 
-      setChatMessage("");
+      loadChatMessages(selectedChat.post_id);
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
       alert("Erro ao enviar mensagem.");
@@ -814,8 +842,10 @@ export default function SocialPage() {
                     key={item.id || index}
                     onClick={() => {
                       setShowNotifications(false);
-                      if (item.sender_id || item.user_id) {
-                        setSelectedChat({ sender_name: item.sender_name || item.title, post_id: item.post_id, message: item.message || item.content });
+                      const nPostId = item.data?.post_id || item.post_id;
+                      const nSender = item.data?.sender_name || item.sender_name || "Usuário";
+                      if (nPostId) {
+                        setSelectedChat({ post_id: nPostId, sender_name: nSender, message: item.message || "" });
                         setActiveFilter("messages");
                       }
                     }}
@@ -1389,15 +1419,16 @@ export default function SocialPage() {
               )}
               <button
                 onClick={() => {
-                  setNotifications([]);
+                  setUnreadCount(0);
                   setShowNotifications(true);
+                  axios.put(API + "/notifications/read-all", {}, { headers: authHeaders }).catch(() => {});
                 }}
                 className="relative w-11 h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] hover:bg-white/[0.08] transition-colors"
               >
                 <Bell size={19} />
-                {notifications.length > 0 && (
+                {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#D4A24C] text-[10px] font-black text-black flex items-center justify-center shadow-[0_0_8px_rgba(212,162,76,0.5)]">
-                    {notifications.length > 9 ? '9+' : notifications.length}
+                    {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
               </button>
@@ -1419,6 +1450,17 @@ export default function SocialPage() {
             </div>
           </div>
         </header>
+
+        {/* Mobile search bar */}
+        <div className="brane-mobile-search">
+          <Search size={16} className="text-[#D4A24C] shrink-0" />
+          <input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar na B Livre..."
+            className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-[#6F7280]"
+          />
+        </div>
 
         <div className="max-w-[1600px] mx-auto px-4 py-4">
           <div
@@ -1521,11 +1563,11 @@ export default function SocialPage() {
                       {chatMessages.map((msg) => (
                         <div
                           key={msg.id}
-                          className={`flex ${msg.sender === (user?.name || "Você") ? "justify-end" : "justify-start"}`}
+                          className={`flex ${msg.isMine ? "justify-end" : "justify-start"}`}
                         >
                           <div
                             className={`max-w-[70%] p-3 rounded-2xl ${
-                              msg.sender === (user?.name || "Você")
+                              msg.isMine
                                 ? "brane-btn-gold text-black"
                                 : "bg-white/10 text-white"
                             }`}
@@ -1566,20 +1608,35 @@ export default function SocialPage() {
                       </p>
                     ) : (
                       <div className="space-y-3">
-                        {messages.map((item, index) => (
-                          <button
-                            key={item.id || index}
-                            onClick={() => openChat(item)}
-                            className="w-full text-left brane-card-soft p-4 hover:bg-white/[0.08] transition-colors"
-                          >
-                            <p className="text-sm font-semibold text-white">
-                              {item.sender_name || item.name || "Usuário"}
-                            </p>
-                            <p className="text-xs text-[#A6A8B3] mt-1">
-                              {item.message || item.content}
-                            </p>
-                          </button>
-                        ))}
+                        {(() => {
+                          const grouped = {};
+                          messages.forEach((m) => {
+                            const pid = m.post_id || "unknown";
+                            if (!grouped[pid]) grouped[pid] = { post_id: pid, messages: [] };
+                            grouped[pid].messages.push(m);
+                          });
+                          const conversations = Object.values(grouped).map((g) => {
+                            g.messages.sort((a, b) => (a.created_at || "").localeCompare(b.created_at || ""));
+                            const last = g.messages[g.messages.length - 1];
+                            const other = g.messages.find((m) => m.sender_id !== user?.user_id) || g.messages[0];
+                            return { post_id: g.post_id, lastMsg: last, otherName: other?.sender_name || "Você" };
+                          });
+                          conversations.sort((a, b) => ((b.lastMsg?.created_at || "") > (a.lastMsg?.created_at || "") ? 1 : -1));
+                          return conversations.map((conv, i) => (
+                            <button
+                              key={conv.post_id || i}
+                              onClick={() => openChat({ post_id: conv.post_id, sender_name: conv.otherName, message: conv.lastMsg?.message })}
+                              className="w-full text-left brane-card-soft p-4 hover:bg-white/[0.08] transition-colors"
+                            >
+                              <p className="text-sm font-semibold text-white">
+                                {conv.otherName}
+                              </p>
+                              <p className="text-xs text-[#A6A8B3] mt-1 truncate">
+                                {conv.lastMsg?.message || "Clique para ver a conversa"}
+                              </p>
+                            </button>
+                          ));
+                        })()}
                       </div>
                     )}
                   </div>
@@ -1765,6 +1822,40 @@ export default function SocialPage() {
           </div>
         </div>
       </div>
+
+      {/* Mobile bottom navigation */}
+      <nav className="brane-bottom-nav">
+        {[
+          ["Início", Package, "all"],
+          ["Mensagens", MessageSquare, "messages"],
+          ["Favoritos", Heart, "favorites"],
+          ["Anúncios", User, "mine"],
+          ["Conta", Settings, "settings"]
+        ].map(([label, Icon, value]) => (
+          <button
+            key={value}
+            onClick={() => {
+              if (value === "settings") {
+                setProfileForm({
+                  name: user?.name || "",
+                  city: user?.city || "",
+                  state: user?.state || "",
+                  avatar: user?.avatar || user?.photo || ""
+                });
+                setShowSettings(true);
+              } else {
+                setActiveFilter(value === "all" ? "all" : value);
+                setSelectedCategory("");
+                setSelectedChat(null);
+              }
+            }}
+            className={value === (activeFilter === "all" ? "all" : activeFilter) ? "brane-bottom-active" : ""}
+          >
+            <Icon size={20} />
+            <span>{label}</span>
+          </button>
+        ))}
+      </nav>
 
       <BLivreAuthModal
         isOpen={showAuthModal}

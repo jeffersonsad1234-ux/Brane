@@ -781,6 +781,101 @@ body[data-card-shape="minimal"] .theme-product-card:hover {
   }
 }
 
+/* ---------- Mobile shell grid override ---------- */
+@media (max-width: 1023px) {
+  .blivre-shell {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .blivre-shell > aside,
+  .blivre-shell > .blivre-side {
+    display: none !important;
+  }
+  .blivre-shell > main {
+    height: calc(100vh - 160px) !important;
+  }
+  .blivre-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.5rem !important;
+  }
+  .social-header-search {
+    display: none !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .blivre-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.4rem !important;
+  }
+}
+
+/* ---------- Mobile bottom navigation ---------- */
+.brane-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0.35rem 0.5rem;
+  padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0.35rem));
+  background: rgba(10, 12, 20, 0.95);
+  border-top: 1px solid rgba(212, 162, 76, 0.2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.brane-bottom-nav button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.3rem 0.6rem;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #6F7280;
+  font-size: 0.6rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  cursor: pointer;
+  min-width: 48px;
+}
+.brane-bottom-nav button:active {
+  transform: scale(0.92);
+}
+.brane-bottom-nav button svg {
+  width: 20px;
+  height: 20px;
+}
+.brane-bottom-nav button.brane-bottom-active {
+  color: #D4A24C;
+  background: rgba(212, 162, 76, 0.1);
+}
+@media (min-width: 1024px) {
+  .brane-bottom-nav {
+    display: none !important;
+  }
+}
+
+/* Mobile search bar - visible only on small screens */
+.brane-mobile-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.035);
+}
+@media (min-width: 768px) {
+  .brane-mobile-search {
+    display: none !important;
+  }
+}
+
 /* ---------- Tabs override ---------- */
 .brane-tabs-list {
   background: var(--brane-bg-soft);

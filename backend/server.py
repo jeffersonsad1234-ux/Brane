@@ -962,21 +962,66 @@ async def send_message(data: dict, request: Request):
 
     await db.social_messages.insert_one(message)
 
+    # Notify the post owner
+    post = await db.social_posts.find_one({"post_id": data.get("post_id")})
+    if post and post.get("user_id") and post["user_id"] != user["user_id"]:
+        await db.notifications.insert_one({
+            "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
+            "user_id": post["user_id"],
+            "type": "social_message",
+            "title": f"Nova mensagem sobre seu anúncio",
+            "message": f"{user.get('name', 'Alguém')}: {data.get('message', '')[:120]}",
+            "data": {
+                "post_id": data.get("post_id"),
+                "sender_id": user["user_id"],
+                "sender_name": user.get("name", ""),
+                "open_chat_url": f"/blivre?post_id={data.get('post_id')}"
+            },
+            "read": False,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+
     return {"ok": True}
 
 
 @api_router.get("/social/messages")
-async def get_messages(request: Request):
+async def get_messages(request: Request, post_id: Optional[str] = None):
     user = await get_current_user(request)
 
-    msgs = db.social_messages.find({
-        "sender_id": user["user_id"]
-    }).sort("created_at", -1)
+    base_query = {} if not post_id else {"post_id": post_id}
+
+    # Messages user sent
+    query_sent = {**base_query, "sender_id": user["user_id"]}
+
+    # Messages about user's posts (so they can see replies)
+    my_posts = await db.social_posts.find(
+        {"user_id": user["user_id"]},
+        {"post_id": 1, "_id": 0}
+    ).to_list(200)
+    my_post_ids = [p["post_id"] for p in my_posts]
 
     result = []
-    async for m in msgs:
+    seen = set()
+
+    # Fetch messages user sent
+    async for m in db.social_messages.find(query_sent).sort("created_at", -1):
         m.pop("_id", None)
-        result.append(m)
+        key = f"{m.get('post_id')}_{m.get('sender_id')}_{m.get('created_at')}"
+        if key not in seen:
+            seen.add(key)
+            result.append(m)
+
+    # Fetch messages about user's posts (from other people)
+    if my_post_ids:
+        query_received = {"post_id": {"$in": my_post_ids}, **base_query}
+        for m in await db.social_messages.find(query_received).sort("created_at", -1).to_list(200):
+            m.pop("_id", None)
+            key = f"{m.get('post_id')}_{m.get('sender_id')}_{m.get('created_at')}"
+            if key not in seen:
+                seen.add(key)
+                result.append(m)
+
+    result.sort(key=lambda x: x.get("created_at", ""), reverse=True)
 
     return {"messages": result}
 
