@@ -318,13 +318,13 @@ export default function SocialPage() {
           setUnreadCount(r.data.unread || 0);
         })
         .catch(() => {});
-    }, 8000);
+    }, 5000);
 
     messagesIntervalRef.current = setInterval(() => {
       axios.get(API + "/social/messages", { headers: authHeaders })
         .then((r) => setMessages(r.data.messages || []))
         .catch(() => {});
-    }, 5000);
+    }, 3000);
 
     return () => {
       if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
@@ -667,6 +667,23 @@ export default function SocialPage() {
     }
   };
 
+  const fetchMessages = async () => {
+    if (!token) return;
+    try {
+      const res = await axios.get(API + "/social/messages", { headers: authHeaders });
+      setMessages(res.data.messages || []);
+    } catch (e) {
+      console.error("Erro ao buscar mensagens:", e);
+    }
+  };
+
+  const openMessagesTab = () => {
+    setActiveFilter("messages");
+    setSelectedChat(null);
+    setSelectedCategory("");
+    fetchMessages();
+  };
+
   const loadChatMessages = async (postId) => {
     try {
       const res = await axios.get(API + "/social/messages?post_id=" + postId, { headers: authHeaders });
@@ -873,6 +890,7 @@ export default function SocialPage() {
                           setSelectedChat({ post_id: nPostId, sender_name: nSender, message: item.message || "" });
                           loadChatMessages(nPostId);
                           setActiveFilter("messages");
+                          fetchMessages();
                           window.history.pushState({ braneChat: true }, "");
                         }
                       }}
@@ -1528,8 +1546,12 @@ export default function SocialPage() {
                     <button
                       key={label}
                       onClick={() => {
-                        setActiveFilter(value);
-                        setSelectedCategory("");
+                        if (value === "messages") {
+                          openMessagesTab();
+                        } else {
+                          setActiveFilter(value);
+                          setSelectedCategory("");
+                        }
                       }}
                       className={
                         "w-full flex items-center gap-3 text-sm rounded-xl px-3 py-3 transition-all " +
@@ -1898,6 +1920,8 @@ export default function SocialPage() {
                 });
                 setShowSettings(true);
                 window.history.pushState({ braneSettings: true }, "");
+              } else if (value === "messages") {
+                openMessagesTab();
               } else {
                 setActiveFilter(value === "all" ? "all" : value);
                 setSelectedCategory("");
