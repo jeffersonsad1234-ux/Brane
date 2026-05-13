@@ -61,169 +61,164 @@ function BraneScene({ state }) {
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
       <svg className="w-full h-full" viewBox="0 0 360 520" preserveAspectRatio="xMidYMid meet">
         <defs>
-          {/* Background gradients */}
-          <radialGradient id="sBg" cx="40%" cy="30%" r="80%">
-            <stop offset="0%" stopColor="#1a1225" />
-            <stop offset="60%" stopColor="#0d0815" />
-            <stop offset="100%" stopColor="#050208" />
+          <radialGradient id="sBg" cx="35%" cy="25%" r="85%">
+            <stop offset="0%" stopColor="#14101e" />
+            <stop offset="50%" stopColor="#0a0812" />
+            <stop offset="100%" stopColor="#040208" />
           </radialGradient>
-          <radialGradient id="sGoldGlow" cx="35%" cy="45%" r="65%">
-            <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.1" />
-            <stop offset="50%" stopColor="#D4A24C" stopOpacity="0.03" />
+          <radialGradient id="sAmbi" cx="25%" cy="40%" r="70%">
+            <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.08" />
+            <stop offset="60%" stopColor="#D4A24C" stopOpacity="0.02" />
             <stop offset="100%" stopColor="#D4A24C" stopOpacity="0" />
           </radialGradient>
-          {/* Skin with warm tone */}
           <linearGradient id="sSkin" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#f5e0c8" />
             <stop offset="100%" stopColor="#e8c8a8" />
           </linearGradient>
-          {/* Hair - dark brown with subtle warm highlights */}
           <linearGradient id="sHair" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#3a2045" />
-            <stop offset="40%" stopColor="#2a1535" />
-            <stop offset="100%" stopColor="#1a0a25" />
+            <stop offset="0%" stopColor="#2c1810" />
+            <stop offset="50%" stopColor="#1a0e08" />
+            <stop offset="100%" stopColor="#0f0805" />
           </linearGradient>
-          {/* Blazer - dark elegant */}
           <linearGradient id="sBlazer" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1e1530" />
-            <stop offset="100%" stopColor="#100820" />
+            <stop offset="0%" stopColor="#1a1225" />
+            <stop offset="100%" stopColor="#0e0818" />
           </linearGradient>
-          {/* Desk */}
           <linearGradient id="sDesk" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2a2028" />
-            <stop offset="100%" stopColor="#151015" />
+            <stop offset="0%" stopColor="#221a22" />
+            <stop offset="100%" stopColor="#120e15" />
           </linearGradient>
-          {/* Screen glow */}
-          <linearGradient id="sScreen" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.06" />
-            <stop offset="100%" stopColor="#7EC8E3" stopOpacity="0.03" />
+          <linearGradient id="sScrBg" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.07" />
+            <stop offset="100%" stopColor="#7EC8E3" stopOpacity="0.04" />
           </linearGradient>
-          {/* Gold rim light */}
           <linearGradient id="sRim" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.18" />
-            <stop offset="30%" stopColor="#D4A24C" stopOpacity="0.06" />
+            <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.2" />
+            <stop offset="40%" stopColor="#D4A24C" stopOpacity="0.05" />
             <stop offset="100%" stopColor="#D4A24C" stopOpacity="0" />
           </linearGradient>
         </defs>
 
         <rect width="360" height="520" fill="url(#sBg)" />
-        <rect width="360" height="520" fill="url(#sGoldGlow)" />
+        <rect width="360" height="520" fill="url(#sAmbi)" />
 
-        {/* Top ambient gold light */}
-        <ellipse cx="140" cy="0" rx="200" ry="160" fill="#D4A24C" opacity="0.05" />
+        {/* Gold ambient top */}
+        <ellipse cx="120" cy="0" rx="200" ry="140" fill="#D4A24C" opacity="0.04" />
 
         {/* === DESK === */}
-        <rect x="10" y="370" width="340" height="14" rx="4" fill="url(#sDesk)" />
-        <rect x="10" y="370" width="340" height="2" fill="url(#sRim)" />
-        <rect x="15" y="384" width="330" height="136" rx="2" fill="#0d0810" />
+        <rect x="0" y="372" width="360" height="12" rx="3" fill="url(#sDesk)" />
+        <rect x="0" y="372" width="360" height="1.5" fill="url(#sRim)" />
+        <rect x="5" y="384" width="350" height="136" rx="2" fill="#0d0812" />
 
-        {/* === CHAIR BACK === */}
-        <rect x="130" y="175" width="100" height="195" rx="35" fill="#0d0a12" stroke="#1a1525" strokeWidth="0.5" />
+        {/* === CHAIR === */}
+        <rect x="125" y="180" width="100" height="192" rx="30" fill="#0d0a15" stroke="#181225" strokeWidth="0.5" />
 
-        {/* === CHARACTER (side profile facing right) === */}
+        {/* === NOTEBOOK (behind hands, on desk) === */}
         <g>
-          {/* Blazer / Body */}
-          <path d="M160 232 Q165 222 175 220 L195 218 L215 220 Q225 222 230 232 L234 370 L156 370 Z" fill="url(#sBlazer)" />
-          {/* Blazer lapel */}
-          <path d="M185 220 L195 260 L205 220" fill="#151025" stroke="#1a1530" strokeWidth="0.5" />
-          {/* Blazer gold edge */}
-          <path d="M160 232 Q165 222 175 220" stroke="#D4A24C" strokeWidth="0.6" fill="none" opacity="0.25" />
+          {/* Base/thickness */}
+          <rect x="155" y="342" width="120" height="7" rx="2" fill="#181218" />
+          {/* Screen lid with slight angle */}
+          <path d="M160 342 L160 280 Q160 272 168 270 L262 270 Q270 272 270 280 L270 342 Z" fill="#0e0a12" stroke="#1a1525" strokeWidth="0.5" />
+          {/* Screen inner bezel */}
+          <rect x="168" y="276" width="94" height="62" rx="2" fill="#040308" stroke="#1a1525" strokeWidth="0.3" />
+          {/* Screen background with visible glow */}
+          <rect x="172" y="280" width="86" height="54" rx="1.5" fill="url(#sScrBg)" />
+          {/* Screen content — visible gold lines */}
+          <rect x="176" y="284" width="60" height="2" rx="0.5" fill="#D4A24C" opacity="0.2" />
+          <rect x="176" y="290" width="44" height="2" rx="0.5" fill="#D4A24C" opacity="0.14" />
+          <rect x="176" y="296" width="52" height="2" rx="0.5" fill="#D4A24C" opacity="0.18" />
+          <rect x="176" y="302" width="34" height="2" rx="0.5" fill="#D4A24C" opacity="0.12" />
+          <rect x="176" y="308" width="48" height="2" rx="0.5" fill="#D4A24C" opacity="0.16" />
+          <rect x="176" y="314" width="62" height="2" rx="0.5" fill="#D4A24C" opacity="0.2" />
+          <rect x="176" y="320" width="40" height="2" rx="0.5" fill="#D4A24C" opacity="0.1" />
+          <rect x="176" y="326" width="55" height="2" rx="0.5" fill="#D4A24C" opacity="0.15" />
+          {/* Keyboard area */}
+          <rect x="162" y="347" width="106" height="3" rx="1" fill="#1a1525" />
+          {/* Gold accent line */}
+          <line x1="160" y1="342" x2="270" y2="342" stroke="#D4A24C" strokeWidth="0.4" opacity="0.15" />
+        </g>
 
-          {/* Neck */}
-          <rect x="185" y="185" width="20" height="40" rx="5" fill="url(#sSkin)" />
+        {/* === CHARACTER === */}
+        <g>
+          {/* BLAZER / BODY */}
+          <path d="M158 236 Q162 226 172 224 L192 222 L212 224 Q222 226 226 236 L230 372 L154 372 Z" fill="url(#sBlazer)" />
+          {/* Lapels */}
+          <path d="M182 224 L192 262 L202 224" fill="#141020" stroke="#1a1530" strokeWidth="0.4" />
+          {/* Gold shoulder edge */}
+          <path d="M158 236 Q162 226 172 224" stroke="#D4A24C" strokeWidth="0.5" fill="none" opacity="0.2" />
 
-          {/* Head - elegant side profile facing right */}
-          <ellipse cx="200" cy="158" rx="32" ry="36" fill="url(#sSkin)" />
+          {/* NECK */}
+          <rect x="183" y="190" width="18" height="38" rx="5" fill="url(#sSkin)" />
 
-          {/* Hair - elegant shoulder-length, side profile */}
-          <path d="M168 150 Q167 126 178 114 Q190 104 205 102 Q220 104 228 114 Q232 122 230 132 L228 140 Q226 136 222 130 Q215 124 205 122 Q195 124 188 130 Q182 136 178 144 Q176 150 175 158 Q174 168 176 180 Q178 195 180 210 L178 215 Q172 200 170 185 Q168 170 168 150 Z" fill="url(#sHair)" />
-          {/* Hair flowing back */}
-          <path d="M168 152 Q163 165 165 185 Q167 205 170 220 Q160 195 158 170 Q157 155 162 142 Q165 135 168 130 Z" fill="url(#sHair)" />
-          {/* Hair shine */}
-          <path d="M178 118 Q190 108 205 107 Q215 108 222 114" stroke="#4a2a55" strokeWidth="1.5" fill="none" opacity="0.3" />
+          {/* HEAD */}
+          <ellipse cx="198" cy="162" rx="30" ry="34" fill="url(#sSkin)" />
 
-          {/* Face features - side profile facing right */}
-          {/* Forehead to nose bridge */}
-          <path d="M218 130 Q225 136 228 145 Q230 150 230 155" stroke="#e0c0a0" strokeWidth="0.5" fill="none" />
-          {/* Nose */}
-          <path d="M230 155 Q234 160 236 168 Q232 166 228 165" fill="url(#sSkin)" stroke="#d4b898" strokeWidth="0.5" />
+          {/* HAIR — natural dark brown, elegant shoulder-length */}
+          <path d="M168 155 Q166 130 176 118 Q188 107 204 105 Q220 107 228 118 Q232 126 230 138 L228 145 Q226 140 221 134 Q214 128 204 126 Q194 128 187 134 Q181 140 178 148 Q176 154 175 162 Q174 172 176 184 Q178 198 180 212 L179 218 Q173 202 170 186 Q168 172 168 155 Z" fill="url(#sHair)" />
+          {/* Hair back flow */}
+          <path d="M168 157 Q163 172 165 192 Q167 210 170 224 Q160 200 157 176 Q156 160 160 146 Q163 138 167 132 Z" fill="url(#sHair)" />
+          {/* Hair shine/reflection */}
+          <path d="M178 122 Q190 112 205 110 Q216 112 223 117" stroke="#4a3020" strokeWidth="1.2" fill="none" opacity="0.25" />
+          <path d="M180 118 Q195 110 210 111" stroke="#5a4030" strokeWidth="0.8" fill="none" opacity="0.15" />
+
+          {/* FACE — side profile facing right */}
+          {/* Forehead */}
+          <path d="M216 134 Q223 140 226 148" stroke="#e0c0a0" strokeWidth="0.4" fill="none" />
+          {/* Nose with defined bridge */}
+          <path d="M226 148 Q230 153 232 160 Q234 166 235 172 Q231 170 227 169" fill="url(#sSkin)" stroke="#d4b898" strokeWidth="0.5" />
+          {/* Nostril */}
+          <path d="M234 171 Q232 172 230 171" stroke="#c4a888" strokeWidth="0.4" fill="none" />
           {/* Upper lip */}
-          <path d="M228 176 Q232 178 234 176" stroke="#c4a080" strokeWidth="0.8" fill="none" strokeLinecap="round" />
-          {/* Lower lip / chin */}
-          <path d="M228 182 Q232 184 230 188 Q228 192 225 194" fill="url(#sSkin)" stroke="#d4b898" strokeWidth="0.4" fill="none" />
+          <path d="M227 180 Q230 182 232 180" stroke="#c4a080" strokeWidth="0.7" fill="none" strokeLinecap="round" />
+          {/* Lower lip + chin */}
+          <path d="M227 186 Q230 188 228 192 Q226 196 223 198" fill="url(#sSkin)" stroke="#d4b898" strokeWidth="0.4" fill="none" />
           {/* Jawline */}
-          <path d="M225 194 Q220 200 212 204 Q205 206 200 206" stroke="#d4b898" strokeWidth="0.4" fill="none" />
+          <path d="M223 198 Q218 203 210 205 Q202 207 198 207" stroke="#d4b898" strokeWidth="0.4" fill="none" />
 
-          {/* Eye */}
-          <ellipse cx="222" cy="155" rx="2.5" ry="2" fill="#1a0a25" />
-          <circle cx="223" cy="154.5" r="0.7" fill="white" opacity="0.35" />
+          {/* EYE */}
+          <ellipse cx="220" cy="160" rx="3" ry="2.5" fill="#1a0a25" />
+          <circle cx="221" cy="159.5" r="0.8" fill="white" opacity="0.3" />
           {/* Eyebrow */}
-          <path d="M218 151 Q222 149 226 151" stroke="#2a1535" strokeWidth="0.7" fill="none" />
-
-          {/* Eyelashes */}
-          <path d="M224 156 Q225 157 224 158" stroke="#1a0a25" strokeWidth="0.4" fill="none" />
+          <path d="M216 156 Q220 154 224 156" stroke="#2a1815" strokeWidth="0.6" fill="none" />
 
           {/* Ear */}
-          <path d="M204 155 Q202 152 202 156 Q202 160 204 158" stroke="#d4b898" strokeWidth="0.5" fill="url(#sSkin)" />
+          <path d="M202 160 Q200 157 200 161 Q200 165 202 163" stroke="#d4b898" strokeWidth="0.4" fill="url(#sSkin)" />
+          {/* Small gold earring */}
+          <circle cx="200" cy="167" r="1.8" fill="#D4A24C" opacity="0.5" />
 
-          {/* Earring */}
-          <circle cx="202" cy="163" r="1.5" fill="#D4A24C" opacity="0.6" />
+          {/* Warm gold face light */}
+          <ellipse cx="214" cy="165" rx="18" ry="28" fill="#D4A24C" opacity="0.03" />
 
-          {/* Warm gold light on face */}
-          <ellipse cx="215" cy="160" rx="20" ry="30" fill="#D4A24C" opacity="0.04" />
-
-          {/* === RIGHT ARM (typing) === */}
+          {/* === RIGHT ARM (typing on notebook) === */}
           {isWorking ? (
-            <g className="brane-ch-arms">
-              <path d="M230 240 Q252 258 258 275 Q260 282 256 290" stroke="url(#sBlazer)" strokeWidth="10" strokeLinecap="round" fill="none">
-                <animateTransform attributeName="transform" type="rotate" values="-1.5 230 240;1.5 230 240;-1.5 230 240" dur="1s" repeatCount="indefinite" />
+            <g className="brane-ch-arms" style={{ transformOrigin: "240px 250px" }}>
+              <path d="M226 244 Q248 262 254 280 Q256 288 254 296" stroke="url(#sBlazer)" strokeWidth="9" strokeLinecap="round" fill="none">
+                <animateTransform attributeName="transform" type="rotate" values="-1.5 240 250;1.5 240 250;-1.5 240 250" dur="0.9s" repeatCount="indefinite" />
               </path>
-              <ellipse cx="255" cy="292" rx="7" ry="4.5" fill="url(#sSkin)">
-                <animateTransform attributeName="transform" type="rotate" values="-1.5 255 292;1.5 255 292;-1.5 255 292" dur="1s" repeatCount="indefinite" />
+              <ellipse cx="253" cy="298" rx="8" ry="5" fill="url(#sSkin)">
+                <animateTransform attributeName="transform" type="rotate" values="-1.5 253 298;1.5 253 298;-1.5 253 298" dur="0.9s" repeatCount="indefinite" />
               </ellipse>
             </g>
           ) : isSuccess ? (
             <g>
-              <path d="M230 240 Q238 220 234 206" stroke="url(#sBlazer)" strokeWidth="10" strokeLinecap="round" fill="none" />
-              <ellipse cx="233" cy="204" rx="7" ry="4.5" fill="url(#sSkin)" />
+              <path d="M226 244 Q234 224 230 210" stroke="url(#sBlazer)" strokeWidth="9" strokeLinecap="round" fill="none" />
+              <ellipse cx="229" cy="208" rx="8" ry="5" fill="url(#sSkin)" />
             </g>
           ) : (
-            <path d="M230 240 Q248 258 254 270 Q256 276 254 282" stroke="url(#sBlazer)" strokeWidth="10" strokeLinecap="round" fill="none" />
+            <path d="M226 244 Q244 262 250 276 Q252 283 250 290" stroke="url(#sBlazer)" strokeWidth="9" strokeLinecap="round" fill="none" />
           )}
 
-          {/* === LEFT ARM (resting on desk) === */}
-          <path d="M170 238 Q156 260 158 278 Q160 292 172 298" stroke="url(#sBlazer)" strokeWidth="10" strokeLinecap="round" fill="none" />
-          <ellipse cx="174" cy="300" rx="7" ry="4.5" fill="url(#sSkin)" />
+          {/* === LEFT ARM (resting) === */}
+          <path d="M168 242 Q154 264 156 282 Q158 296 170 302" stroke="url(#sBlazer)" strokeWidth="9" strokeLinecap="round" fill="none" />
+          <ellipse cx="172" cy="304" rx="8" ry="5" fill="url(#sSkin)" />
         </g>
 
-        {/* === NOTEBOOK === */}
-        {/* Base */}
-        <rect x="162" y="340" width="110" height="8" rx="2" fill="#121015" />
-        {/* Screen lid */}
-        <path d="M168 340 L168 282 Q168 274 176 272 L258 272 Q266 274 266 282 L266 340 Z" fill="#0a0810" />
-        {/* Screen bezel */}
-        <rect x="174" y="278" width="86" height="58" rx="1" fill="#050408" stroke="#1a1525" strokeWidth="0.5" />
-        {/* Screen content */}
-        <rect x="178" y="282" width="78" height="50" rx="1" fill="url(#sScreen)" />
-        {/* Code lines */}
-        <rect x="180" y="286" width="50" height="1.5" rx="0.5" fill="#D4A24C" opacity="0.12" />
-        <rect x="180" y="292" width="38" height="1.5" rx="0.5" fill="#D4A24C" opacity="0.08" />
-        <rect x="180" y="298" width="44" height="1.5" rx="0.5" fill="#D4A24C" opacity="0.1" />
-        <rect x="180" y="304" width="28" height="1.5" rx="0.5" fill="#D4A24C" opacity="0.06" />
-        <rect x="180" y="310" width="42" height="1.5" rx="0.5" fill="#D4A24C" opacity="0.1" />
-        <rect x="180" y="316" width="52" height="1.5" rx="0.5" fill="#D4A24C" opacity="0.12" />
+        {/* Screen ambient light on face */}
+        <ellipse cx="218" cy="195" rx="28" ry="22" fill="#D4A24C" opacity="0.015" />
 
-        {/* Keyboard */}
-        <rect x="170" y="346" width="94" height="3" rx="1" fill="#1a1525" />
-        {/* Screen light on face */}
-        <ellipse cx="220" cy="190" rx="30" ry="25" fill="#7EC8E3" opacity="0.015" />
-
-        {/* Gold detail line on notebook */}
-        <line x1="168" y1="340" x2="266" y2="340" stroke="#D4A24C" strokeWidth="0.4" opacity="0.2" />
-
-        {/* === Success particles === */}
-        {isSuccess && [0, 1, 2, 3, 4].map((i) => (
-          <circle key={i} cx={160 + i * 22} cy={170} r={2} fill="#D4A24C" className="brane-ch-particle" style={{ animationDelay: `${i * 0.12}s` }} />
+        {/* === SUCCESS PARTICLES === */}
+        {isSuccess && [0, 1, 2, 3, 4, 5].map((i) => (
+          <circle key={i} cx={150 + i * 22} cy={170 + (i % 2) * 15} r={1.8 + (i % 2) * 0.5} fill="#D4A24C" className="brane-ch-particle" style={{ animationDelay: `${i * 0.1}s` }} />
         ))}
       </svg>
     </div>
@@ -562,22 +557,19 @@ export default function AIAssistantPanelSocial({
           <div ref={endRef} />
         </div>
 
-        {/* Fixed input */}
-        {step === 0 && (
-          <div className="flex-shrink-0 px-5 py-3 border-t border-white/[0.04]">
-            <div className="flex gap-2">
-              <input value={input} onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSubmitInput()}
-                placeholder="iPhone 12 Pro, R$1200, Belém Pará, em perfeito estado..."
-                className="h-10 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 text-sm text-white outline-none focus:border-[#D4A24C]/40 focus:shadow-[0_0_12px_rgba(212,162,76,0.06)] placeholder:text-[#6F7280]" />
-              <button type="button" onClick={handleSubmitInput} disabled={!safe(input)}
-                className="h-10 brane-btn-gold px-3.5 text-[12px] disabled:opacity-50">
-                <Send size={15} />
-              </button>
-            </div>
+        {/* Fixed input — always at bottom */}
+        <div className="flex-shrink-0 px-5 py-3 border-t border-white/[0.04]">
+          <div className="flex gap-2">
+            <input value={input} onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSubmitInput()}
+              placeholder={step === 0 ? "iPhone 12 Pro, R$1200, Belém Pará, em perfeito estado..." : "Digite para editar o anúncio..."}
+              className="h-10 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 text-sm text-white outline-none focus:border-[#D4A24C]/40 focus:shadow-[0_0_12px_rgba(212,162,76,0.06)] placeholder:text-[#6F7280]" />
+            <button type="button" onClick={handleSubmitInput} disabled={!safe(input)}
+              className="h-10 brane-btn-gold px-3.5 text-[12px] disabled:opacity-50">
+              <Send size={15} />
+            </button>
           </div>
-        )}
-        {step > 0 && <div className="h-3 flex-shrink-0" />}
+        </div>
       </div>
 
       {/* ═══ RIGHT: Preview + Actions (25%) ═══ */}
