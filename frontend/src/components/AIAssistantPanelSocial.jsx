@@ -44,7 +44,7 @@ export default function AIAssistantPanelSocial({
     {
       id: 1,
       from: "ai",
-      text: "Descreva o que vai anunciar (produto, estado, cidade e preco)."
+      text: "Descreva o que vai anunciar.\nExemplo:\nNome do produto,\nmarca,\nestado,\npreço,\ncidade,\ndetalhes,\ntempo de uso,\nacessórios inclusos etc."
     }
   ]);
   const fileRef = useRef(null);
@@ -102,13 +102,14 @@ export default function AIAssistantPanelSocial({
   };
 
   return (
-    <div className="flex h-full flex-col rounded-[24px] border border-white/10 bg-black/20">
-      <div className="border-b border-white/10 p-4">
-        <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#8C8F9A]">
-          Assistente de anuncio
+    <div className="flex h-full flex-col rounded-[24px] border border-[#D4A24C]/25" style={{ background: 'linear-gradient(180deg, rgba(212,162,76,0.06), rgba(10,10,15,0.95))' }}>
+      <div className="border-b border-[#D4A24C]/20 p-4 relative">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(212,162,76,0.12), transparent 70%)' }}></div>
+        <p className="text-xs font-bold uppercase tracking-[0.16em] brane-gold-text relative z-10">
+          Brami IA
         </p>
-        <p className="mt-1 text-sm text-white">
-          Gere seu texto rapido e publique no B Livre.
+        <p className="mt-1 text-sm text-[#C9CBD6] relative z-10">
+          Descreva seu produto e a Brami gera o anúncio pra você.
         </p>
       </div>
 
@@ -123,26 +124,26 @@ export default function AIAssistantPanelSocial({
                 : "mr-auto max-w-[88%] bg-white/10 text-white")
             }
           >
-            {message.text}
+            <span className="whitespace-pre-wrap">{message.text}</span>
           </div>
         ))}
 
         {ad && (
-          <div className="rounded-2xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 p-3">
-            <p className="text-xs font-black text-[#F1D28A]">Rascunho gerado</p>
-            <p className="mt-1 text-sm font-black text-white">{ad.title || "Sem titulo"}</p>
-            <p className="mt-1 text-xs text-[#C9CBD6] line-clamp-4">{ad.description || "-"}</p>
+          <div className="rounded-2xl border border-[#D4A24C]/30 p-3" style={{ background: 'linear-gradient(135deg, rgba(212,162,76,0.12), rgba(212,162,76,0.04))' }}>
+            <p className="text-xs font-black brane-gold-text">Rascunho gerado</p>
+            <p className="mt-1 text-sm font-semibold text-white">{ad.title || "Sem titulo"}</p>
+            <p className="mt-1 text-xs text-[#A6A8B3] line-clamp-4">{ad.description || "-"}</p>
           </div>
         )}
         <div ref={endRef} />
       </div>
 
-      <div className="space-y-3 border-t border-white/10 p-4">
+      <div className="space-y-3 border-t border-[#D4A24C]/20 p-4">
         <div className="flex gap-2">
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="h-10 rounded-xl border border-white/15 bg-white/[0.04] px-3 text-[#F1D28A]"
+            className="h-10 rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 px-3 text-[#F1D28A] hover:bg-[#D4A24C]/20"
           >
             <ImagePlus size={16} />
           </button>
@@ -160,14 +161,14 @@ export default function AIAssistantPanelSocial({
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
             placeholder="Ex: iPhone 12, usado, Sao Paulo, R$ 2500..."
-            className="h-10 flex-1 rounded-xl border border-white/15 bg-black/30 px-3 text-sm text-white outline-none"
+            className="h-10 flex-1 rounded-xl border border-[#D4A24C]/20 bg-[#050608] px-3 text-sm text-white outline-none focus:border-[#D4A24C]/50 focus:shadow-[0_0_12px_rgba(212,162,76,0.12)]"
           />
 
           <button
             type="button"
             onClick={handleGenerate}
             disabled={isGenerating || !safe(input)}
-            className="h-10 rounded-xl bg-[#D4A24C] px-3 text-black disabled:opacity-50"
+            className="h-10 rounded-xl brane-btn-gold px-3 text-[13px] disabled:opacity-50"
           >
             <Send size={16} />
           </button>
@@ -178,7 +179,7 @@ export default function AIAssistantPanelSocial({
             type="button"
             onClick={handleImprove}
             disabled={!ad || isGenerating}
-            className="rounded-xl border border-white/15 bg-white/[0.04] px-3 py-2 text-xs font-bold text-white disabled:opacity-50"
+            className="rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/8 px-3 py-2 text-xs font-bold brane-gold-text disabled:opacity-50 hover:bg-[#D4A24C]/15 transition-colors"
           >
             <Sparkles size={14} className="mx-auto mb-1" />
             Melhorar
@@ -186,7 +187,7 @@ export default function AIAssistantPanelSocial({
           <button
             type="button"
             onClick={handleReset}
-            className="rounded-xl border border-white/15 bg-white/[0.04] px-3 py-2 text-xs font-bold text-white"
+            className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08] hover:text-white transition-colors"
           >
             Novo
           </button>
@@ -194,7 +195,7 @@ export default function AIAssistantPanelSocial({
             type="button"
             onClick={() => ad && onPublishAd(ad)}
             disabled={!ad || isGenerating}
-            className="rounded-xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] px-3 py-2 text-xs font-black text-black disabled:opacity-50"
+            className="rounded-xl brane-btn-gold px-3 py-2 text-xs disabled:opacity-50"
           >
             Publicar
           </button>

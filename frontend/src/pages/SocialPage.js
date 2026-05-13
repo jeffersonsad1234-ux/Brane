@@ -82,6 +82,26 @@ export default function SocialPage() {
 
   const [editingPost, setEditingPost] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [showInstall, setShowInstall] = useState(false);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setShowInstall(true);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') setShowInstall(false);
+    setDeferredPrompt(null);
+  };
 
   const requireAuth = () => {
     if (!user) {
@@ -741,19 +761,6 @@ export default function SocialPage() {
             will-change: transform;
           }
 
-          .blivre-gold-text {
-            background: linear-gradient(135deg, #8F5F12 0%, #C88A1A 18%, #FFD36A 38%, #FFF1A8 50%, #D89B25 68%, #9F6811 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 4px 10px rgba(200,138,26,0.28));
-          }
-
-          .blivre-gold-button {
-            background: linear-gradient(135deg, #8F5F12 0%, #C88A1A 18%, #FFD36A 38%, #FFF1A8 50%, #D89B25 68%, #9F6811 100%);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.55), 0 8px 22px rgba(200,138,26,0.28);
-          }
         `}
       </style>
 
@@ -804,13 +811,20 @@ export default function SocialPage() {
 
       {showSettings && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-[620px] brane-card-premium p-5" style={{ borderRadius: 28 }}>
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2 className="font-black text-lg text-white">Editar perfil</h2>
-                <p className="text-xs text-[#8C8F9A] mt-1">
-                  Atualize sua foto, nome e localização.
-                </p>
+          <div className="w-full max-w-[620px] brane-card-premium p-6" style={{ borderRadius: 28 }}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1px]">
+                  <div className="w-full h-full rounded-xl bg-[#09090D] flex items-center justify-center">
+                    <User className="text-[#F1D28A]" size={18} />
+                  </div>
+                </div>
+                <div>
+                  <h2 className="font-black text-lg text-white">Editar perfil</h2>
+                  <p className="text-xs text-[#8C8F9A] mt-0.5">
+                    Atualize sua foto, nome e localização
+                  </p>
+                </div>
               </div>
 
               <button
@@ -821,8 +835,8 @@ export default function SocialPage() {
               </button>
             </div>
 
-            <div className="flex items-center gap-4 mb-5">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[2px]">
+            <div className="flex flex-col items-center gap-4 mb-6 pb-6 border-b border-[#1E2230]">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[2px] shadow-[0_0_30px_rgba(212,162,76,0.2)]">
                 <div className="w-full h-full rounded-full bg-[#0B0B0F] overflow-hidden flex items-center justify-center">
                   {profileForm.avatar ? (
                     <img
@@ -831,13 +845,13 @@ export default function SocialPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <User className="text-[#F1D28A]" size={34} />
+                    <User className="text-[#F1D28A]" size={38} />
                   )}
                 </div>
               </div>
 
-              <label className="inline-flex items-center gap-2 px-4 py-3 rounded-2xl border border-[#D4A24C]/25 bg-[#D4A24C]/10 text-[#F1D28A] text-sm font-bold cursor-pointer hover:bg-[#D4A24C]/20 transition-colors">
-                <Camera size={17} />
+              <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-[#D4A24C]/25 bg-[#D4A24C]/10 text-[#F1D28A] text-sm font-semibold cursor-pointer hover:bg-[#D4A24C]/20 transition-colors">
+                <Camera size={16} />
                 Trocar foto
                 <input
                   ref={avatarInputRef}
@@ -851,7 +865,7 @@ export default function SocialPage() {
 
             <div className="grid md:grid-cols-2 gap-3">
               <div className="md:col-span-2">
-                <label className="text-xs text-[#8C8F9A] font-bold">Nome</label>
+                <label className="text-xs text-[#8C8F9A] font-semibold">Nome</label>
                 <input
                   value={profileForm.name}
                   onChange={(e) => setProfileForm((prev) => ({ ...prev, name: e.target.value }))}
@@ -861,7 +875,7 @@ export default function SocialPage() {
               </div>
 
               <div>
-                <label className="text-xs text-[#8C8F9A] font-bold">Estado</label>
+                <label className="text-xs text-[#8C8F9A] font-semibold">Estado</label>
                 <select
                   value={profileForm.state}
                   onChange={(e) => setProfileForm((prev) => ({ ...prev, state: e.target.value }))}
@@ -875,7 +889,7 @@ export default function SocialPage() {
               </div>
 
               <div>
-                <label className="text-xs text-[#8C8F9A] font-bold">Cidade</label>
+                <label className="text-xs text-[#8C8F9A] font-semibold">Cidade</label>
                 <input
                   value={profileForm.city}
                   onChange={(e) => setProfileForm((prev) => ({ ...prev, city: e.target.value }))}
@@ -888,7 +902,7 @@ export default function SocialPage() {
             <button
               onClick={saveProfile}
               disabled={savingProfile}
-              className="mt-5 w-full brane-btn-gold py-3 disabled:opacity-60"
+              className="mt-6 w-full brane-btn-gold py-3 disabled:opacity-60"
             >
               {savingProfile ? "Salvando..." : "Salvar perfil"}
             </button>
@@ -905,12 +919,12 @@ export default function SocialPage() {
       <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <div>
           <h2 className="font-black text-lg text-white">
-            {editingPost ? "Editar anúncio" : "Novo anúncio com IA"}
+            {editingPost ? "Editar anúncio" : "Novo anúncio com Brami"}
           </h2>
           <p className="text-[11px] text-[#8C8F9A] mt-1">
             {editingPost
               ? "Atualize as informações do seu anúncio."
-              : "Responda algumas perguntas e a IA monta o anúncio para você."}
+              : "Responda algumas perguntas e a Brami monta o anúncio pra você."}
           </p>
         </div>
 
@@ -1118,7 +1132,8 @@ export default function SocialPage() {
                 value={form.description}
                 onChange={(e) => updateForm("description", e.target.value)}
                 rows="4"
-                className="mt-1.5 w-full p-4 rounded-[22px] bg-black/30 border border-white/10 text-white outline-none resize-none"
+                placeholder="Descreva o que vai anunciar. Exemplo: Nome do produto, marca, estado, preço, cidade, detalhes, tempo de uso, acessórios inclusos etc."
+                className="mt-1.5 w-full p-4 rounded-[22px] bg-black/30 border border-white/10 text-white outline-none resize-none placeholder:text-[#6F7280]"
               />
             </div>
           </div>
@@ -1127,7 +1142,7 @@ export default function SocialPage() {
             type="button"
             onClick={publishFromModal}
             disabled={posting}
-            className="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-black font-black disabled:opacity-60"
+            className="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl brane-btn-gold disabled:opacity-60"
           >
             <Send size={17} />
             {posting ? "Atualizando..." : "Atualizar anúncio"}
@@ -1139,17 +1154,13 @@ export default function SocialPage() {
 )}
 
       {selectedPost && (
-        <div className="fixed inset-0 z-[90] bg-black/80 backdrop-blur-2xl flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center px-4" style={{ background: 'rgba(5,6,8,0.82)', backdropFilter: 'blur(4px)' }}>
           <button
             onClick={closePost}
-            className="absolute top-5 right-5 z-10 w-12 h-12 rounded-2xl brane-btn-gold flex items-center justify-center"
+            className="absolute top-5 right-5 z-20 w-12 h-12 rounded-2xl brane-btn-gold flex items-center justify-center"
           >
             <X size={22} />
           </button>
-
-          <div className="brane-motion-overlay" style={{ position: 'fixed', zIndex: 90 }}>
-            <div className="brane-motion-backdrop" style={{ zIndex: 90 }}></div>
-          </div>
 
           <div className="relative w-full max-w-[1200px] mx-auto px-4 z-10">
             <div className="brane-card-premium overflow-hidden" style={{ borderRadius: 22 }}>
@@ -1307,6 +1318,19 @@ export default function SocialPage() {
             </div>
 
             <div className="flex items-center gap-2">
+              {showInstall && (
+                <button
+                  onClick={handleInstall}
+                  className="h-11 px-3 rounded-2xl brane-btn-gold text-[12px] font-black gap-1.5 inline-flex items-center"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Instalar
+                </button>
+              )}
               <button
                 onClick={() => setShowNotifications(true)}
                 className="relative w-11 h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C]"
@@ -1594,9 +1618,9 @@ export default function SocialPage() {
                               {getLocation(post)}
                             </p>
 
-                            <div className="mt-3 w-full">
-                              <span className="w-full inline-flex justify-center items-center gap-1.5 brane-btn-gold text-[12px] py-2 px-3">
-                                <ShoppingCart size={14} />
+                            <div className="mt-3">
+                              <span className="inline-flex justify-center items-center gap-1.5 brane-btn-gold text-[11px] py-1.5 px-3.5 tracking-wide" style={{ boxShadow: 'inset 0 1px 0 rgba(255,235,180,0.55), inset 0 -1px 0 rgba(0,0,0,0.25), 0 6px 18px -6px rgba(138,106,36,0.5)' }}>
+                                <ShoppingCart size={13} />
                                 {activeFilter === "mine" ? "Ver meu anúncio" : "Ver produto"}
                               </span>
                             </div>

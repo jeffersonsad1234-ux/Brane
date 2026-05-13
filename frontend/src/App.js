@@ -89,7 +89,7 @@ function AppRouter() {
   }
 
   const isAdmin = path.startsWith("/admin");
-  const isSocial = path.startsWith("/social");
+  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre");
 
   return (
     <>
