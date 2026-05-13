@@ -143,7 +143,7 @@ export default function AIAssistantPanelSocial({
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="h-10 rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 px-3 text-[#F1D28A] hover:bg-[#D4A24C]/20"
+            className="h-10 rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 px-3 text-[#F1D28A] hover:bg-[#D4A24C]/20 transition-colors"
           >
             <ImagePlus size={16} />
           </button>
@@ -168,7 +168,7 @@ export default function AIAssistantPanelSocial({
             type="button"
             onClick={handleGenerate}
             disabled={isGenerating || !safe(input)}
-            className="h-10 rounded-xl brane-btn-gold px-3 text-[13px] disabled:opacity-50"
+            className="h-10 brane-btn-gold px-3 text-[13px] disabled:opacity-50"
           >
             <Send size={16} />
           </button>
@@ -179,7 +179,7 @@ export default function AIAssistantPanelSocial({
             type="button"
             onClick={handleImprove}
             disabled={!ad || isGenerating}
-            className="rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/8 px-3 py-2 text-xs font-bold brane-gold-text disabled:opacity-50 hover:bg-[#D4A24C]/15 transition-colors"
+            className="rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/8 px-3 py-2 text-xs font-bold brane-gold-text disabled:opacity-50 hover:bg-[#D4A24C]/15 hover:shadow-[0_0_16px_rgba(212,162,76,0.15)] transition-all"
           >
             <Sparkles size={14} className="mx-auto mb-1" />
             Melhorar
@@ -195,7 +195,7 @@ export default function AIAssistantPanelSocial({
             type="button"
             onClick={() => ad && onPublishAd(ad)}
             disabled={!ad || isGenerating}
-            className="rounded-xl brane-btn-gold px-3 py-2 text-xs disabled:opacity-50"
+            className="brane-btn-gold px-3 py-2 text-xs disabled:opacity-50"
           >
             Publicar
           </button>

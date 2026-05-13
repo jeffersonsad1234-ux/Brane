@@ -928,7 +928,7 @@ export default function SocialPage() {
             <button
               onClick={saveProfile}
               disabled={savingProfile}
-              className="mt-6 w-full brane-btn-gold py-3 disabled:opacity-60"
+              className="mt-6 w-full brane-btn-gold disabled:opacity-60"
             >
               {savingProfile ? "Salvando..." : "Salvar perfil"}
             </button>
@@ -1198,7 +1198,7 @@ export default function SocialPage() {
             type="button"
             onClick={publishFromModal}
             disabled={posting}
-            className="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl brane-btn-gold disabled:opacity-60"
+            className="mt-4 w-full brane-btn-gold disabled:opacity-60"
           >
             <Send size={17} />
             {posting ? "Atualizando..." : "Atualizar anúncio"}
@@ -1213,7 +1213,7 @@ export default function SocialPage() {
         <div className="fixed inset-0 z-[90] flex items-center justify-center px-4" style={{ background: 'rgba(5,6,8,0.82)', backdropFilter: 'blur(4px)' }}>
           <button
             onClick={closePost}
-            className="absolute top-5 right-5 z-20 w-12 h-12 rounded-2xl brane-btn-gold flex items-center justify-center"
+            className="absolute top-5 right-5 z-20 w-11 h-11 brane-btn-gold flex items-center justify-center"
           >
             <X size={22} />
           </button>
@@ -1331,7 +1331,7 @@ export default function SocialPage() {
 
                       <button
                         onClick={sendMessage}
-                        className="brane-btn-gold h-11 px-5"
+                        className="brane-btn-gold h-11"
                       >
                         <Send size={16} />
                         Enviar
@@ -1377,7 +1377,7 @@ export default function SocialPage() {
               {showInstall && (
                 <button
                   onClick={handleInstall}
-                  className="h-11 px-3 rounded-2xl brane-btn-gold text-[12px] font-black gap-1.5 inline-flex items-center"
+                  className="h-10 px-3.5 brane-btn-gold text-[12px] font-black gap-1.5 inline-flex items-center"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -1388,7 +1388,10 @@ export default function SocialPage() {
                 </button>
               )}
               <button
-                onClick={() => setShowNotifications(true)}
+                onClick={() => {
+                  setNotifications([]);
+                  setShowNotifications(true);
+                }}
                 className="relative w-11 h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] hover:bg-white/[0.08] transition-colors"
               >
                 <Bell size={19} />
@@ -1544,7 +1547,7 @@ export default function SocialPage() {
                       <button
                         onClick={sendChatMessage}
                         disabled={!chatMessage.trim()}
-                        className="brane-btn-gold px-5 py-3 disabled:opacity-60"
+                        className="brane-btn-gold disabled:opacity-60"
                       >
                         <Send size={16} />
                       </button>
@@ -1666,6 +1669,14 @@ export default function SocialPage() {
                           </div>
 
                           <div className="p-3" style={{ background: 'linear-gradient(180deg, rgba(9,10,15,0.96), rgba(5,6,10,1))' }}>
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#D4A24C] to-[#8A2CFF] p-[1px] flex-shrink-0">
+                                <div className="w-full h-full rounded-full bg-[#0B0D12] flex items-center justify-center">
+                                  <span className="text-[10px] font-bold text-[#D4A24C]">{(post.seller_name || post.user_name || 'B')[0]}</span>
+                                </div>
+                              </div>
+                              <span className="text-[11px] text-[#A6A8B3] truncate">{post.seller_name || post.user_name || "B Livre"}</span>
+                            </div>
                             <p className="text-[#F7F7FA] font-semibold text-sm leading-tight line-clamp-2">
                               {getTitle(post)}
                             </p>
@@ -1700,7 +1711,7 @@ export default function SocialPage() {
               {expanded ? (
                 <button
                   onClick={() => setComposerOpen(true)}
-                  className="w-full h-16 rounded-2xl brane-btn-gold font-black text-xl shadow-[0_12px_35px_rgba(212,162,76,0.22)]"
+                  className="w-12 h-12 brane-btn-gold font-black text-lg items-center justify-center flex mx-auto"
                 >
                   +
                 </button>
@@ -1719,7 +1730,7 @@ export default function SocialPage() {
                         setUseAI(true);
                         setComposerOpen(true);
                       }}
-                      className="w-full brane-btn-gold py-3"
+                      className="w-full brane-btn-gold"
                     >
                       Anunciar
                     </button>
