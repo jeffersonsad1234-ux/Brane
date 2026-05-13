@@ -1690,9 +1690,9 @@ export default function SocialPage() {
                               {getLocation(post)}
                             </p>
 
-                            <div className="mt-3">
-                              <span className="inline-flex justify-center items-center gap-1.5 brane-btn-gold text-[11px] py-1.5 px-3.5 tracking-wide">
-                                <ShoppingCart size={13} />
+                            <div className="mt-2.5">
+                              <span className="inline-flex justify-center items-center gap-1 brane-btn-gold text-[10px] py-1 px-2.5">
+                                <ShoppingCart size={11} />
                                 {activeFilter === "mine" ? "Ver meu anúncio" : "Ver produto"}
                               </span>
                             </div>
