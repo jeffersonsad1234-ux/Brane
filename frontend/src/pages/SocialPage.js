@@ -304,8 +304,11 @@ export default function SocialPage() {
   };
 
   useEffect(() => {
-    if (!token) return;
     loadPosts(1, false);
+  }, []);
+
+  useEffect(() => {
+    if (!token) return;
     loadSocialData();
 
     notifIntervalRef.current = setInterval(() => {
@@ -329,6 +332,18 @@ export default function SocialPage() {
       if (messagesIntervalRef.current) clearInterval(messagesIntervalRef.current);
     };
   }, [token]);
+
+  useEffect(() => {
+    const handlePop = () => {
+      if (selectedChat) { closeChat(); return; }
+      if (showNotifications) { setShowNotifications(false); return; }
+      if (showSettings) { setShowSettings(false); return; }
+      if (selectedPost) { setSelectedPost(null); return; }
+      if (composerOpen) { setComposerOpen(false); return; }
+    };
+    window.addEventListener("popstate", handlePop);
+    return () => window.removeEventListener("popstate", handlePop);
+  }, [selectedChat, showNotifications, showSettings, selectedPost, composerOpen]);
 
   useEffect(() => {
     expandedRef.current = expanded;
@@ -519,11 +534,13 @@ export default function SocialPage() {
   const openPost = (post) => {
     setSelectedPost(post);
     setSelectedImageIndex(0);
+    window.history.pushState({ branePost: true }, "");
   };
 
   const closePost = () => {
     setSelectedPost(null);
     setSelectedImageIndex(0);
+    if (window.history.state?.branePost) window.history.back();
   };
 
   const nextImage = () => {
@@ -670,12 +687,16 @@ export default function SocialPage() {
   const openChat = (chat) => {
     setSelectedChat(chat);
     loadChatMessages(chat.post_id);
+    window.history.pushState({ braneChat: true }, "");
   };
 
   const closeChat = () => {
     setSelectedChat(null);
     setChatMessages([]);
     setChatMessage("");
+    if (window.history.state?.braneChat) {
+      window.history.back();
+    }
   };
 
   const sendChatMessage = async () => {
@@ -837,28 +858,42 @@ export default function SocialPage() {
                   Nenhuma notificação por enquanto.
                 </div>
               ) : (
-                notifications.map((item, index) => (
-                  <button
-                    key={item.id || index}
-                    onClick={() => {
-                      setShowNotifications(false);
-                      const nPostId = item.data?.post_id || item.post_id;
-                      const nSender = item.data?.sender_name || item.sender_name || "Usuário";
-                      if (nPostId) {
-                        setSelectedChat({ post_id: nPostId, sender_name: nSender, message: item.message || "" });
-                        setActiveFilter("messages");
-                      }
-                    }}
-                    className="w-full text-left brane-card-soft p-4 hover:bg-white/[0.08] transition-colors cursor-pointer"
-                  >
-                    <p className="text-sm font-semibold text-white">
-                      {item.title || item.sender_name || "Nova notificação"}
-                    </p>
-                    <p className="text-xs text-[#A6A8B3] mt-1">
-                      {item.message || item.content || "Você tem uma nova atualização."}
-                    </p>
-                  </button>
-                ))
+                notifications.map((item, index) => {
+                  const nPostId = item.data?.post_id || item.post_id;
+                  const notifPost = posts.find((p) => (p.post_id || p.id) === nPostId || getPostKey(p) === nPostId);
+                  const notifImg = notifPost ? getPostImages(notifPost)[0] || "" : "";
+                  const notifTitle = notifPost ? getTitle(notifPost) : (item.title || item.data?.sender_name || "Nova mensagem");
+                  return (
+                    <button
+                      key={item.id || index}
+                      onClick={() => {
+                        setShowNotifications(false);
+                        const nSender = item.data?.sender_name || item.sender_name || "Usuário";
+                        if (nPostId) {
+                          setSelectedChat({ post_id: nPostId, sender_name: nSender, message: item.message || "" });
+                          loadChatMessages(nPostId);
+                          setActiveFilter("messages");
+                          window.history.pushState({ braneChat: true }, "");
+                        }
+                      }}
+                      className="w-full text-left brane-card-soft p-3 hover:bg-white/[0.08] transition-colors cursor-pointer flex items-start gap-3"
+                    >
+                      {notifImg ? (
+                        <img src={notifImg} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A24C]/20 to-[#8A2CFF]/20 flex items-center justify-center text-[#D4A24C] shrink-0">
+                          <Package size={16} />
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold text-white truncate">{notifTitle}</p>
+                        <p className="text-[11px] text-[#A6A8B3] mt-0.5">
+                          {item.data?.sender_name || "Alguém"}: {item.message?.replace(/^[^:]+:\s*/, "").slice(0, 80) || item.content?.slice(0, 80) || "Nova mensagem"}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })
               )}
             </div>
           </div>
@@ -1622,20 +1657,34 @@ export default function SocialPage() {
                             return { post_id: g.post_id, lastMsg: last, otherName: other?.sender_name || "Você" };
                           });
                           conversations.sort((a, b) => ((b.lastMsg?.created_at || "") > (a.lastMsg?.created_at || "") ? 1 : -1));
-                          return conversations.map((conv, i) => (
-                            <button
-                              key={conv.post_id || i}
-                              onClick={() => openChat({ post_id: conv.post_id, sender_name: conv.otherName, message: conv.lastMsg?.message })}
-                              className="w-full text-left brane-card-soft p-4 hover:bg-white/[0.08] transition-colors"
-                            >
-                              <p className="text-sm font-semibold text-white">
-                                {conv.otherName}
-                              </p>
-                              <p className="text-xs text-[#A6A8B3] mt-1 truncate">
-                                {conv.lastMsg?.message || "Clique para ver a conversa"}
-                              </p>
-                            </button>
-                          ));
+                          return conversations.map((conv, i) => {
+                            const convPost = posts.find((p) => (p.post_id || p.id || "") === conv.post_id || getPostKey(p) === conv.post_id);
+                            const convImg = convPost ? getPostImages(convPost)[0] || "" : "";
+                            const convTitle = convPost ? getTitle(convPost) : "Anúncio";
+                            return (
+                              <button
+                                key={conv.post_id || i}
+                                onClick={() => openChat({ post_id: conv.post_id, sender_name: conv.otherName, message: conv.lastMsg?.message })}
+                                className="w-full text-left brane-card-soft p-3 hover:bg-white/[0.08] transition-colors flex items-start gap-3"
+                              >
+                                {convImg ? (
+                                  <img src={convImg} alt="" className="w-11 h-11 rounded-xl object-cover shrink-0" />
+                                ) : (
+                                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#D4A24C]/20 to-[#8A2CFF]/20 flex items-center justify-center text-[#D4A24C] shrink-0">
+                                    <Package size={18} />
+                                  </div>
+                                )}
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center justify-between gap-2">
+                                    <p className="text-sm font-semibold text-white truncate">{convTitle}</p>
+                                    <span className="text-[10px] text-[#6F7280] shrink-0">{conv.lastMsg?.created_at ? new Date(conv.lastMsg.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : ""}</span>
+                                  </div>
+                                  <p className="text-xs text-[#D4A24C] mt-0.5 font-medium">{conv.otherName}</p>
+                                  <p className="text-[11px] text-[#A6A8B3] mt-0.5 truncate">{conv.lastMsg?.message || "Clique para ver a conversa"}</p>
+                                </div>
+                              </button>
+                            );
+                          });
                         })()}
                       </div>
                     )}
@@ -1823,6 +1872,11 @@ export default function SocialPage() {
         </div>
       </div>
 
+      {/* Mobile FAB anunciar */}
+      <button className="brane-fab" onClick={() => { if (!requireAuth()) return; setUseAI(true); setComposerOpen(true); }}>
+        +
+      </button>
+
       {/* Mobile bottom navigation */}
       <nav className="brane-bottom-nav">
         {[
@@ -1843,6 +1897,7 @@ export default function SocialPage() {
                   avatar: user?.avatar || user?.photo || ""
                 });
                 setShowSettings(true);
+                window.history.pushState({ braneSettings: true }, "");
               } else {
                 setActiveFilter(value === "all" ? "all" : value);
                 setSelectedCategory("");
