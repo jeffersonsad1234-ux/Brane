@@ -689,6 +689,7 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
 
         posts = []
         for p in products:
+            seller = await db.users.find_one({"user_id": p.get("seller_id")}, {"_id": 0, "name": 1, "picture": 1})
             images_list = p.get("images") or ([p["image"]] if p.get("image") else [])
             image_json = json.dumps(images_list) if images_list else ""
             condition = p.get("condition", "Novo")
@@ -713,7 +714,8 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
             posts.append({
                 "post_id": p.get("product_id", ""),
                 "user_id": p.get("seller_id", ""),
-                "user_name": p.get("seller_name", ""),
+                "user_name": seller.get("name") if seller else p.get("seller_name", "Vendedor Brane"),
+                "user_picture": seller.get("picture") if seller else "",
                 "content": content,
                 "image": image_json,
                 "title": p.get("title", ""),
