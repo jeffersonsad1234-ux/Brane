@@ -318,13 +318,13 @@ export default function SocialPage() {
           setUnreadCount(r.data.unread || 0);
         })
         .catch(() => {});
-    }, 15000);
+    }, 8000);
 
     messagesIntervalRef.current = setInterval(() => {
       axios.get(API + "/social/messages", { headers: authHeaders })
         .then((r) => setMessages(r.data.messages || []))
         .catch(() => {});
-    }, 10000);
+    }, 5000);
 
     return () => {
       if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
@@ -846,7 +846,7 @@ export default function SocialPage() {
 
               <button
                 onClick={() => setShowNotifications(false)}
-                className="w-9 h-9 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#A6A8B3] hover:text-white"
+                className="w-9 h-9 brane-btn-gold flex items-center justify-center"
               >
                 <X size={18} />
               </button>
@@ -920,7 +920,7 @@ export default function SocialPage() {
 
               <button
                 onClick={() => setShowSettings(false)}
-                className="w-9 h-9 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#A6A8B3] hover:text-white"
+                className="w-9 h-9 brane-btn-gold flex items-center justify-center"
               >
                 <X size={18} />
               </button>
@@ -1275,18 +1275,18 @@ export default function SocialPage() {
 )}
 
       {selectedPost && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center px-4" style={{ background: 'rgba(5,6,8,0.82)', backdropFilter: 'blur(4px)' }}>
+        <div className="fixed inset-0 z-[90] flex items-center justify-center px-4 brane-modal-detail-wrapper" style={{ background: 'rgba(5,6,8,0.82)', backdropFilter: 'blur(4px)' }}>
           <button
             onClick={closePost}
-            className="absolute top-5 right-5 z-20 w-11 h-11 brane-btn-gold flex items-center justify-center"
+            className="absolute top-4 right-4 z-30 w-10 h-10 brane-btn-gold flex items-center justify-center"
           >
-            <X size={22} />
+            <X size={20} />
           </button>
 
-          <div className="relative w-full max-w-[1200px] mx-auto px-4 z-10">
+          <div className="relative w-full max-w-[1200px] mx-auto px-4 z-10 brane-modal-detail">
             <div className="brane-card-premium overflow-hidden" style={{ borderRadius: 22 }}>
               <div className="grid md:grid-cols-[1fr_380px]">
-                <div className="bg-[#050608] flex items-center justify-center min-h-[500px] relative px-4 py-6">
+                <div className="bg-[#050608] flex items-center justify-center min-h-[500px] relative px-4 py-6 brane-modal-image">
                   {selectedImage ? (
                     <>
                       {selectedImages.length > 1 && (
@@ -1336,7 +1336,7 @@ export default function SocialPage() {
                   )}
                 </div>
 
-                <div className="flex flex-col h-[85vh] max-h-[650px]" style={{ background: 'linear-gradient(180deg, rgba(9,10,15,0.98), rgba(5,6,10,1))' }}>
+                <div className="flex flex-col h-[85vh] max-h-[650px] brane-modal-sidebar" style={{ background: 'linear-gradient(180deg, rgba(9,10,15,0.98), rgba(5,6,10,1))' }}>
                   <div className="flex-1 overflow-y-auto px-6 pt-6 pb-3">
                     <div className="brane-badge brane-badge-gold mb-3 inline-flex">
                       {getCategory(selectedPost) || "Produto"}
@@ -1588,7 +1588,7 @@ export default function SocialPage() {
                       </h2>
                       <button
                         onClick={closeChat}
-                        className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-[#A6A8B3] hover:bg-white/20 hover:text-white"
+                        className="w-8 h-8 brane-btn-gold flex items-center justify-center"
                       >
                         <X size={16} />
                       </button>

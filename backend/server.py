@@ -962,9 +962,13 @@ async def send_message(data: dict, request: Request):
 
     await db.social_messages.insert_one(message)
 
-    # Notify the post owner
-    post = await db.social_posts.find_one({"post_id": data.get("post_id")})
-    if post and post.get("user_id") and post["user_id"] != user["user_id"]:
+    # Notify the post owner (social post OR marketplace product)
+    pid = data.get("post_id")
+    post = await db.social_posts.find_one({"post_id": pid})
+    if not post:
+        post = await db.products.find_one({"product_id": pid})
+    owner_id = (post.get("user_id") if post else None) or (post.get("seller_id") if post else None)
+    if post and owner_id and owner_id != user["user_id"]:
         await db.notifications.insert_one({
             "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
             "user_id": post["user_id"],
@@ -993,12 +997,17 @@ async def get_messages(request: Request, post_id: Optional[str] = None):
     # Messages user sent
     query_sent = {**base_query, "sender_id": user["user_id"]}
 
-    # Messages about user's posts (so they can see replies)
+    # Messages about user's posts/products (so they can see replies)
     my_posts = await db.social_posts.find(
         {"user_id": user["user_id"]},
         {"post_id": 1, "_id": 0}
     ).to_list(200)
     my_post_ids = [p["post_id"] for p in my_posts]
+    my_products = await db.products.find(
+        {"seller_id": user["user_id"]},
+        {"product_id": 1, "_id": 0}
+    ).to_list(200)
+    my_post_ids += [p["product_id"] for p in my_products]
 
     result = []
     seen = set()
