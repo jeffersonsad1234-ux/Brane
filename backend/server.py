@@ -667,6 +667,40 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
     skip = (page - 1) * limit
     posts = await db.social_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     total = await db.social_posts.count_documents(query)
+    
+    # Fallback: if no social posts found, show active products as social posts
+    if not posts and not user_id:
+        product_query = {
+            "status": "active",
+            "$or": [
+                {"is_deleted": False},
+                {"is_deleted": {"$exists": False}}
+            ]
+        }
+        products = await db.products.find(product_query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+        total = await db.products.count_documents(product_query)
+        
+        posts = []
+        for p in products:
+            # Try to get seller info for better social experience
+            seller = await db.users.find_one({"user_id": p.get("seller_id")}, {"_id": 0, "name": 1, "picture": 1})
+            
+            # Convert product to social post format
+            posts.append({
+                "post_id": f"prod_{p.get('product_id')}",
+                "user_id": p.get("seller_id"),
+                "user_name": seller.get("name") if seller else "Vendedor Brane",
+                "user_picture": seller.get("picture") if seller else "",
+                "content": f"Confira meu anúncio: {p.get('title')}\n\nPreço: R$ {p.get('price')}\nLocal: {p.get('city')}",
+                "image": p.get("image"),
+                "likes": [],
+                "likes_count": 0,
+                "comments_count": 0,
+                "created_at": p.get("created_at") or datetime.now(timezone.utc).isoformat(),
+                "is_product_fallback": True,
+                "product_id": p.get("product_id")
+            })
+            
     return {"posts": posts, "total": total, "page": page}
 
 @api_router.post("/social/posts/{post_id}/like")
