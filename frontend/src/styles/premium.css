@@ -800,40 +800,73 @@ body[data-card-shape="minimal"] .theme-product-card:hover {
   .social-header-search {
     display: none !important;
   }
-  /* Mobile full-width product modal */
+  /* Mobile FULLSCREEN product detail */
   .brane-modal-detail-wrapper {
     padding: 0 !important;
+    align-items: stretch !important;
+  }
+  .brane-modal-detail-wrapper > button:first-child {
+    position: fixed !important;
+    top: 12px !important;
+    right: 12px !important;
+    width: 36px !important;
+    height: 36px !important;
+    z-index: 999 !important;
   }
   .brane-modal-detail {
     max-width: 100% !important;
+    width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
+    height: 100dvh !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
   .brane-modal-detail .brane-card-premium {
-    border-radius: 12px !important;
-    margin: 0 0.5rem;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+  }
+  .brane-modal-detail .brane-card-premium > div:first-child {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+  }
+  .brane-modal-detail .grid {
+    grid-template-columns: 1fr !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
   }
   .brane-modal-detail .brane-modal-image {
-    min-height: 260px !important;
-    max-height: 300px !important;
-    padding: 0.25rem !important;
+    min-height: 35vh !important;
+    max-height: 40vh !important;
+    padding: 0 !important;
   }
   .brane-modal-detail .brane-modal-image img {
-    max-height: 260px !important;
+    max-height: 40vh !important;
+    object-fit: contain !important;
   }
   .brane-modal-detail .brane-modal-sidebar {
+    max-height: none !important;
     height: auto !important;
-    max-height: 50vh !important;
+    flex: 1 !important;
+    min-height: 0 !important;
   }
   .brane-modal-detail .brane-modal-sidebar > div:first-child {
-    max-height: calc(50vh - 70px) !important;
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
+    flex: 1 !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
   }
   .brane-modal-detail .brane-modal-sidebar > div:last-child {
-    padding-left: 0.75rem !important;
-    padding-right: 0.75rem !important;
-    border-top: 1px solid rgba(30,34,48,1) !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem)) !important;
   }
 }
 @media (min-width: 768px) {
