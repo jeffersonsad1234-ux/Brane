@@ -43,7 +43,6 @@ const CTAS = [
   "Oferta imperdível para hoje! 🎯", "Últimas unidades disponíveis! 📦",
   "Produto em excelente estado! ✅", "Conservado e pronto para uso! 💎",
   "Não perca essa oportunidade! ⭐", "Garanta já o seu produto! 🔥",
-  "Super oportunidade pra você! 🛒", "Qualidade e melhor preço! 🏆",
 ];
 const DESC_TEMPLATES = [
   (p) => `${p} em ótimo estado de conservação. Produto completo e funcional. ${CTAS[Math.floor(Math.random() * CTAS.length)]}`,
@@ -53,199 +52,189 @@ const DESC_TEMPLATES = [
   (p) => `Oportunidade: ${p}. Entre em contato e confira! ${CTAS[Math.floor(Math.random() * CTAS.length)]}`,
 ];
 
-/* ─── SVG Scene: Woman at desk with notebook ─── */
+/* ─── Premium Character Illustration ─── */
 function BraneScene({ state }) {
   const isWorking = state === "working";
   const isSuccess = state === "success";
 
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-      {/* Background */}
-      <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid slice">
+      <svg className="w-full h-full" viewBox="0 0 360 520" preserveAspectRatio="xMidYMid meet">
         <defs>
-          <radialGradient id="sceneBg" cx="40%" cy="30%" r="75%">
-            <stop offset="0%" stopColor="#1a1425" />
-            <stop offset="50%" stopColor="#0d0a15" />
-            <stop offset="100%" stopColor="#050308" />
+          {/* Background gradients */}
+          <radialGradient id="sBg" cx="40%" cy="30%" r="80%">
+            <stop offset="0%" stopColor="#1a1225" />
+            <stop offset="60%" stopColor="#0d0815" />
+            <stop offset="100%" stopColor="#050208" />
           </radialGradient>
-          <radialGradient id="goldGlow" cx="30%" cy="50%" r="60%">
-            <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.12" />
-            <stop offset="60%" stopColor="#D4A24C" stopOpacity="0.04" />
+          <radialGradient id="sGoldGlow" cx="35%" cy="45%" r="65%">
+            <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.1" />
+            <stop offset="50%" stopColor="#D4A24C" stopOpacity="0.03" />
             <stop offset="100%" stopColor="#D4A24C" stopOpacity="0" />
           </radialGradient>
-          <linearGradient id="deskGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1a1518" />
-            <stop offset="100%" stopColor="#0d080a" />
+          {/* Skin with warm tone */}
+          <linearGradient id="sSkin" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#f5e0c8" />
+            <stop offset="100%" stopColor="#e8c8a8" />
           </linearGradient>
-          <linearGradient id="screenGlow" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="#D4A24C" stopOpacity="0.02" />
-          </linearGradient>
-        </defs>
-
-        <rect width="400" height="600" fill="url(#sceneBg)" />
-        <rect width="400" height="600" fill="url(#goldGlow)" />
-
-        {/* Gold vignette top */}
-        <ellipse cx="200" cy="0" rx="250" ry="180" fill="url(#goldGlow)" opacity="0.5" />
-      </svg>
-
-      {/* Character scene */}
-      <svg className="relative z-10 w-full h-full" viewBox="0 0 400 600" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <linearGradient id="skinG" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#f0d5b8" />
-            <stop offset="100%" stopColor="#e0c0a0" />
-          </linearGradient>
-          <linearGradient id="hairG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2a1535" />
+          {/* Hair - dark brown with subtle warm highlights */}
+          <linearGradient id="sHair" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#3a2045" />
+            <stop offset="40%" stopColor="#2a1535" />
             <stop offset="100%" stopColor="#1a0a25" />
           </linearGradient>
-          <linearGradient id="blazerG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1a1025" />
-            <stop offset="100%" stopColor="#0f0818" />
+          {/* Blazer - dark elegant */}
+          <linearGradient id="sBlazer" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1e1530" />
+            <stop offset="100%" stopColor="#100820" />
           </linearGradient>
-          <linearGradient id="deskTopG" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2a2025" />
+          {/* Desk */}
+          <linearGradient id="sDesk" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#2a2028" />
             <stop offset="100%" stopColor="#151015" />
           </linearGradient>
-          <linearGradient id="screenG" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#7EC8E3" stopOpacity="0.15" />
-            <stop offset="50%" stopColor="#D4A24C" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="#2a1535" stopOpacity="0.12" />
+          {/* Screen glow */}
+          <linearGradient id="sScreen" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.06" />
+            <stop offset="100%" stopColor="#7EC8E3" stopOpacity="0.03" />
           </linearGradient>
-          <filter id="rimLight">
-            <feGaussianBlur stdDeviation="2" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-          <linearGradient id="edgeGold" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#D4A24C" stopOpacity="0" />
-            <stop offset="50%" stopColor="#D4A24C" stopOpacity="0.15" />
+          {/* Gold rim light */}
+          <linearGradient id="sRim" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.18" />
+            <stop offset="30%" stopColor="#D4A24C" stopOpacity="0.06" />
             <stop offset="100%" stopColor="#D4A24C" stopOpacity="0" />
           </linearGradient>
         </defs>
 
+        <rect width="360" height="520" fill="url(#sBg)" />
+        <rect width="360" height="520" fill="url(#sGoldGlow)" />
+
+        {/* Top ambient gold light */}
+        <ellipse cx="140" cy="0" rx="200" ry="160" fill="#D4A24C" opacity="0.05" />
+
         {/* === DESK === */}
-        {/* Desk top */}
-        <rect x="20" y="420" width="360" height="18" rx="3" fill="url(#deskTopG)" />
-        {/* Desk front panel */}
-        <rect x="25" y="438" width="350" height="162" rx="2" fill="#0d080a" />
-        {/* Desk gold edge highlight */}
-        <rect x="20" y="420" width="360" height="2" rx="1" fill="url(#edgeGold)" />
-        {/* Desk subtle reflection */}
-        <rect x="30" y="422" width="340" height="6" fill="url(#edgeGold)" opacity="0.3" />
+        <rect x="10" y="370" width="340" height="14" rx="4" fill="url(#sDesk)" />
+        <rect x="10" y="370" width="340" height="2" fill="url(#sRim)" />
+        <rect x="15" y="384" width="330" height="136" rx="2" fill="#0d0810" />
 
-        {/* === CHAIR (behind character) === */}
-        {/* Chair back */}
-        <rect x="115" y="200" width="130" height="180" rx="30" fill="#0d0a10" stroke="#1a1520" strokeWidth="1" />
-        {/* Chair base */}
-        <rect x="150" y="450" width="60" height="150" rx="4" fill="#0d0a10" />
+        {/* === CHAIR BACK === */}
+        <rect x="130" y="175" width="100" height="195" rx="35" fill="#0d0a12" stroke="#1a1525" strokeWidth="0.5" />
 
-        {/* === CHARACTER === */}
-        <g filter="url(#rimLight)">
-          {/* Body / Blazer */}
-          <path d="M145 260 Q150 250 160 248 L200 245 L240 248 Q250 250 255 260 L258 420 L142 420 Z" fill="url(#blazerG)" />
-          {/* Gold edge light on blazer */}
-          <path d="M145 260 Q150 250 160 248 L200 245" stroke="#D4A24C" strokeWidth="0.8" fill="none" opacity="0.2" />
-
-          {/* Collar / Lapel */}
-          <path d="M170 248 L185 290 L200 245" fill="#151020" stroke="#1a1525" strokeWidth="0.5" />
-          <path d="M200 245 L215 290 L230 248" fill="#151020" stroke="#1a1525" strokeWidth="0.5" />
+        {/* === CHARACTER (side profile facing right) === */}
+        <g>
+          {/* Blazer / Body */}
+          <path d="M160 232 Q165 222 175 220 L195 218 L215 220 Q225 222 230 232 L234 370 L156 370 Z" fill="url(#sBlazer)" />
+          {/* Blazer lapel */}
+          <path d="M185 220 L195 260 L205 220" fill="#151025" stroke="#1a1530" strokeWidth="0.5" />
+          {/* Blazer gold edge */}
+          <path d="M160 232 Q165 222 175 220" stroke="#D4A24C" strokeWidth="0.6" fill="none" opacity="0.25" />
 
           {/* Neck */}
-          <rect x="185" y="210" width="30" height="40" rx="6" fill="url(#skinG)" />
+          <rect x="185" y="185" width="20" height="40" rx="5" fill="url(#sSkin)" />
 
-          {/* Head - facing right (toward chat) */}
-          <ellipse cx="210" cy="180" rx="38" ry="42" fill="url(#skinG)" />
+          {/* Head - elegant side profile facing right */}
+          <ellipse cx="200" cy="158" rx="32" ry="36" fill="url(#sSkin)" />
 
-          {/* Hair - elegant shoulder-length */}
-          <path d="M172 175 Q170 140 180 125 Q195 108 210 105 Q225 108 240 120 Q250 135 248 160 Q250 148 242 140 Q230 132 210 130 Q190 132 178 140 Q172 148 172 160 Z" fill="url(#hairG)" />
-          {/* Hair back */}
-          <path d="M175 150 Q180 180 178 220 Q182 240 190 250 Q172 235 170 200 Q168 170 175 150" fill="url(#hairG)" />
-          {/* Hair front strands */}
-          <path d="M172 160 Q176 155 180 158" stroke="#3d2050" strokeWidth="1" fill="none" opacity="0.5" />
+          {/* Hair - elegant shoulder-length, side profile */}
+          <path d="M168 150 Q167 126 178 114 Q190 104 205 102 Q220 104 228 114 Q232 122 230 132 L228 140 Q226 136 222 130 Q215 124 205 122 Q195 124 188 130 Q182 136 178 144 Q176 150 175 158 Q174 168 176 180 Q178 195 180 210 L178 215 Q172 200 170 185 Q168 170 168 150 Z" fill="url(#sHair)" />
+          {/* Hair flowing back */}
+          <path d="M168 152 Q163 165 165 185 Q167 205 170 220 Q160 195 158 170 Q157 155 162 142 Q165 135 168 130 Z" fill="url(#sHair)" />
+          {/* Hair shine */}
+          <path d="M178 118 Q190 108 205 107 Q215 108 222 114" stroke="#4a2a55" strokeWidth="1.5" fill="none" opacity="0.3" />
 
-          {/* Face features - profile/three-quarter facing right */}
+          {/* Face features - side profile facing right */}
+          {/* Forehead to nose bridge */}
+          <path d="M218 130 Q225 136 228 145 Q230 150 230 155" stroke="#e0c0a0" strokeWidth="0.5" fill="none" />
           {/* Nose */}
-          <path d="M235 175 Q243 180 244 188 Q238 186 235 185" fill="url(#skinG)" stroke="#d4b898" strokeWidth="0.5" />
-          {/* Lips */}
-          <path d="M234 200 Q238 202 242 199" stroke="#c4a080" strokeWidth="1" fill="none" strokeLinecap="round" />
-          {/* Eye (right side, visible in three-quarter view) */}
-          <ellipse cx="232" cy="178" rx="3" ry="2.5" fill="#1a0a25" />
-          <circle cx="233" cy="177.5" r="0.8" fill="white" opacity="0.4" />
+          <path d="M230 155 Q234 160 236 168 Q232 166 228 165" fill="url(#sSkin)" stroke="#d4b898" strokeWidth="0.5" />
+          {/* Upper lip */}
+          <path d="M228 176 Q232 178 234 176" stroke="#c4a080" strokeWidth="0.8" fill="none" strokeLinecap="round" />
+          {/* Lower lip / chin */}
+          <path d="M228 182 Q232 184 230 188 Q228 192 225 194" fill="url(#sSkin)" stroke="#d4b898" strokeWidth="0.4" fill="none" />
+          {/* Jawline */}
+          <path d="M225 194 Q220 200 212 204 Q205 206 200 206" stroke="#d4b898" strokeWidth="0.4" fill="none" />
+
+          {/* Eye */}
+          <ellipse cx="222" cy="155" rx="2.5" ry="2" fill="#1a0a25" />
+          <circle cx="223" cy="154.5" r="0.7" fill="white" opacity="0.35" />
           {/* Eyebrow */}
-          <path d="M227 174 Q232 172 237 174" stroke="#2a1535" strokeWidth="0.8" fill="none" />
+          <path d="M218 151 Q222 149 226 151" stroke="#2a1535" strokeWidth="0.7" fill="none" />
 
-          {/* Gold ambient light on face from left */}
-          <ellipse cx="200" cy="180" rx="25" ry="30" fill="#D4A24C" opacity="0.04" />
+          {/* Eyelashes */}
+          <path d="M224 156 Q225 157 224 158" stroke="#1a0a25" strokeWidth="0.4" fill="none" />
 
-          {/* === RIGHT ARM (typing on notebook) === */}
+          {/* Ear */}
+          <path d="M204 155 Q202 152 202 156 Q202 160 204 158" stroke="#d4b898" strokeWidth="0.5" fill="url(#sSkin)" />
+
+          {/* Earring */}
+          <circle cx="202" cy="163" r="1.5" fill="#D4A24C" opacity="0.6" />
+
+          {/* Warm gold light on face */}
+          <ellipse cx="215" cy="160" rx="20" ry="30" fill="#D4A24C" opacity="0.04" />
+
+          {/* === RIGHT ARM (typing) === */}
           {isWorking ? (
             <g className="brane-ch-arms">
-              <path d="M250 270 Q275 290 285 310 Q290 320 288 330" stroke="url(#blazerG)" strokeWidth="12" strokeLinecap="round" fill="none">
-                <animateTransform attributeName="transform" type="rotate" values="-2 250 270;2 250 270;-2 250 270" dur="1.2s" repeatCount="indefinite" />
+              <path d="M230 240 Q252 258 258 275 Q260 282 256 290" stroke="url(#sBlazer)" strokeWidth="10" strokeLinecap="round" fill="none">
+                <animateTransform attributeName="transform" type="rotate" values="-1.5 230 240;1.5 230 240;-1.5 230 240" dur="1s" repeatCount="indefinite" />
               </path>
-              {/* Hand */}
-              <ellipse cx="286" cy="332" rx="8" ry="5" fill="url(#skinG)">
-                <animateTransform attributeName="transform" type="rotate" values="-2 286 332;2 286 332;-2 286 332" dur="1.2s" repeatCount="indefinite" />
+              <ellipse cx="255" cy="292" rx="7" ry="4.5" fill="url(#sSkin)">
+                <animateTransform attributeName="transform" type="rotate" values="-1.5 255 292;1.5 255 292;-1.5 255 292" dur="1s" repeatCount="indefinite" />
               </ellipse>
             </g>
           ) : isSuccess ? (
-            <g className="brane-ch-arms">
-              <path d="M250 270 Q260 250 255 235" stroke="url(#blazerG)" strokeWidth="12" strokeLinecap="round" fill="none" />
-              <ellipse cx="254" cy="233" rx="8" ry="5" fill="url(#skinG)" />
+            <g>
+              <path d="M230 240 Q238 220 234 206" stroke="url(#sBlazer)" strokeWidth="10" strokeLinecap="round" fill="none" />
+              <ellipse cx="233" cy="204" rx="7" ry="4.5" fill="url(#sSkin)" />
             </g>
           ) : (
-            <path d="M250 270 Q270 290 280 310 Q284 320 282 328" stroke="url(#blazerG)" strokeWidth="12" strokeLinecap="round" fill="none" />
+            <path d="M230 240 Q248 258 254 270 Q256 276 254 282" stroke="url(#sBlazer)" strokeWidth="10" strokeLinecap="round" fill="none" />
           )}
 
-          {/* === LEFT ARM (on desk) === */}
-          <path d="M150 270 Q135 295 140 315 Q145 330 160 335" stroke="url(#blazerG)" strokeWidth="12" strokeLinecap="round" fill="none" />
-          <ellipse cx="162" cy="336" rx="8" ry="5" fill="url(#skinG)" />
+          {/* === LEFT ARM (resting on desk) === */}
+          <path d="M170 238 Q156 260 158 278 Q160 292 172 298" stroke="url(#sBlazer)" strokeWidth="10" strokeLinecap="round" fill="none" />
+          <ellipse cx="174" cy="300" rx="7" ry="4.5" fill="url(#sSkin)" />
         </g>
 
         {/* === NOTEBOOK === */}
         {/* Base */}
-        <rect x="150" y="370" width="140" height="8" rx="2" fill="#151015" />
-        {/* Screen lid (slightly angled) */}
-        <path d="M155 370 L155 310 Q155 300 165 298 L275 298 Q285 300 285 310 L285 370 Z" fill="#0a080a" />
-        {/* Screen */}
-        <path d="M162 368 L162 314 Q162 306 170 304 L270 304 Q278 306 278 314 L278 368 Z" fill="#050308" stroke="#1a1525" strokeWidth="0.5" />
-        {/* Screen content glow */}
-        <rect x="168" y="310" width="104" height="54" rx="2" fill="url(#screenG)" />
-        {/* Screen lines of code/data */}
-        <rect x="170" y="314" width="60" height="2" rx="1" fill="#D4A24C" opacity="0.15" />
-        <rect x="170" y="320" width="45" height="2" rx="1" fill="#D4A24C" opacity="0.1" />
-        <rect x="170" y="326" width="55" height="2" rx="1" fill="#D4A24C" opacity="0.12" />
-        <rect x="170" y="332" width="35" height="2" rx="1" fill="#D4A24C" opacity="0.08" />
-        <rect x="170" y="338" width="50" height="2" rx="1" fill="#D4A24C" opacity="0.1" />
-        <rect x="170" y="344" width="65" height="2" rx="1" fill="#D4A24C" opacity="0.15" />
-        {/* Screen blue glow */}
-        <ellipse cx="220" cy="340" rx="60" ry="30" fill="#7EC8E3" opacity="0.03" />
+        <rect x="162" y="340" width="110" height="8" rx="2" fill="#121015" />
+        {/* Screen lid */}
+        <path d="M168 340 L168 282 Q168 274 176 272 L258 272 Q266 274 266 282 L266 340 Z" fill="#0a0810" />
+        {/* Screen bezel */}
+        <rect x="174" y="278" width="86" height="58" rx="1" fill="#050408" stroke="#1a1525" strokeWidth="0.5" />
+        {/* Screen content */}
+        <rect x="178" y="282" width="78" height="50" rx="1" fill="url(#sScreen)" />
+        {/* Code lines */}
+        <rect x="180" y="286" width="50" height="1.5" rx="0.5" fill="#D4A24C" opacity="0.12" />
+        <rect x="180" y="292" width="38" height="1.5" rx="0.5" fill="#D4A24C" opacity="0.08" />
+        <rect x="180" y="298" width="44" height="1.5" rx="0.5" fill="#D4A24C" opacity="0.1" />
+        <rect x="180" y="304" width="28" height="1.5" rx="0.5" fill="#D4A24C" opacity="0.06" />
+        <rect x="180" y="310" width="42" height="1.5" rx="0.5" fill="#D4A24C" opacity="0.1" />
+        <rect x="180" y="316" width="52" height="1.5" rx="0.5" fill="#D4A24C" opacity="0.12" />
 
-        {/* Keyboard area */}
-        <rect x="160" y="374" width="120" height="4" rx="1" fill="#1a1520" />
+        {/* Keyboard */}
+        <rect x="170" y="346" width="94" height="3" rx="1" fill="#1a1525" />
+        {/* Screen light on face */}
+        <ellipse cx="220" cy="190" rx="30" ry="25" fill="#7EC8E3" opacity="0.015" />
 
-        {/* Notebook gold accent line */}
-        <line x1="155" y1="370" x2="285" y2="370" stroke="#D4A24C" strokeWidth="0.5" opacity="0.3" />
+        {/* Gold detail line on notebook */}
+        <line x1="168" y1="340" x2="266" y2="340" stroke="#D4A24C" strokeWidth="0.4" opacity="0.2" />
 
-        {/* Ambient screen light on character face */}
-        <ellipse cx="225" cy="200" rx="35" ry="30" fill="#7EC8E3" opacity="0.02" />
-
-        {/* === SUCCESS PARTICLES === */}
+        {/* === Success particles === */}
         {isSuccess && [0, 1, 2, 3, 4].map((i) => (
-          <circle key={i} cx={170 + i * 25} cy={200} r={2} fill="#D4A24C" className="brane-ch-particle" style={{ animationDelay: `${i * 0.15}s` }} />
+          <circle key={i} cx={160 + i * 22} cy={170} r={2} fill="#D4A24C" className="brane-ch-particle" style={{ animationDelay: `${i * 0.12}s` }} />
         ))}
       </svg>
     </div>
   );
 }
 
-/* ─── Sub-components ─── */
+/* ─── Clickable Card ─── */
 function ClickableCard({ label, selected, onClick, icon }) {
   return (
     <button type="button" onClick={onClick}
-      className={`flex items-center gap-3 w-full p-3.5 rounded-2xl border text-sm font-bold transition-all duration-200 ${
+      className={`flex items-center gap-3 w-full p-3 rounded-2xl border text-sm font-bold transition-all duration-200 ${
         selected
           ? "border-[#D4A24C] bg-[#D4A24C]/15 text-[#F1D28A] shadow-[0_0_20px_rgba(212,162,76,0.12)]"
           : "border-white/10 bg-white/[0.04] text-[#C9CBD6] hover:bg-white/[0.08] hover:border-white/20"
@@ -254,6 +243,48 @@ function ClickableCard({ label, selected, onClick, icon }) {
       <span>{label}</span>
       {selected && <Check size={15} className="ml-auto text-[#D4A24C]" />}
     </button>
+  );
+}
+
+/* ─── Feed-style Preview Card ─── */
+function PreviewCard({ ad, images }) {
+  const cover = images?.[0] || ad.photos?.[0] || "";
+  const p = ad;
+
+  return (
+    <div className="brane-card-premium overflow-hidden rounded-2xl border border-[#D4A24C]/25"
+      style={{ background: "linear-gradient(180deg, rgba(212,162,76,0.06), rgba(10,10,15,0.92))" }}>
+      {cover ? (
+        <img src={cover} alt="" className="w-full aspect-square object-cover" />
+      ) : (
+        <div className="w-full aspect-square bg-[#0B0D12] flex items-center justify-center">
+          <Camera size={36} className="text-[#6F7280]" />
+        </div>
+      )}
+      <div className="p-3.5 space-y-2">
+        {p.category && (
+          <span className="inline-block px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#D4A24C]/15 text-[#D4A24C] border border-[#D4A24C]/30 leading-none">
+            {p.category}
+          </span>
+        )}
+        <h3 className="text-sm font-black text-white leading-tight">{p.title || "Título do anúncio"}</h3>
+        {p.price && <p className="brane-gold-text text-lg font-black">R$ {p.price}</p>}
+        {(p.city || p.state) && (
+          <p className="text-[11px] text-[#8C8F9A]">📍 {[p.city, p.state].filter(Boolean).join(" - ")}</p>
+        )}
+        <div className="flex flex-wrap gap-1">
+          {p.condition && (
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#5B1CB5]/20 text-[#7C3AED] border border-[#5B1CB5]/30 leading-none">{p.condition}</span>
+          )}
+          {p.availability && (
+            <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#10A875]/15 text-[#10A875] border border-[#10A875]/30 leading-none">{p.availability}</span>
+          )}
+        </div>
+        {p.description && (
+          <p className="text-[11px] text-[#A6A8B3] leading-relaxed line-clamp-3">{p.description}</p>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -283,6 +314,7 @@ export default function AIAssistantPanelSocial({
   const initialized = useRef(false);
 
   const ad = generatedAd || localAd;
+  const hasAd = safe(ad.title) || safe(ad.price);
 
   useEffect(() => {
     if (!initialized.current) {
@@ -323,9 +355,9 @@ export default function AIAssistantPanelSocial({
   const handleRetype = () => { setStep(0); setLocalAd(defaultAd); addMsg("Digite novamente:"); };
 
   const handleSelectCondition = (cond) => {
+    const needsAvail = !safe(ad.availability) || !safe(ad.availability);
     setLocalAd((prev) => ({ ...prev, condition: cond }));
-    const needsAvail = !safe(ad.availability);
-    setStep(needsAvail ? 3 : 4);
+    setStep(!safe(ad.availability) && !safe(cond) ? 3 : 4);
   };
 
   const handleSelectAvailability = (avail) => {
@@ -364,7 +396,7 @@ export default function AIAssistantPanelSocial({
   const handleImprove = async () => {
     if (!ad) return;
     setBraneState("working");
-    await new Promise((r) => setTimeout(r, 2000));
+    await new Promise((r) => setTimeout(r, 1800));
     const prefixIdx = improveCount % TITLE_PREFIXES.length;
     const prefix = TITLE_PREFIXES[prefixIdx];
     const rawTitle = safe(ad.title).replace(/^vendo\s+/i, "").replace(/^[✨📱💎🚀⭐🎯]\s*/, "");
@@ -378,7 +410,7 @@ export default function AIAssistantPanelSocial({
     onImproveAd(improved);
     onFillForm(improved);
     setBraneState("idle");
-    addMsg("Anúncio melhorado com nova versão profissional! ✨");
+    // No addMsg — only update preview silently
   };
 
   const handlePublish = async () => {
@@ -395,179 +427,130 @@ export default function AIAssistantPanelSocial({
     onGenerateNew();
   };
 
-  /* ─── Right panel content ─── */
-  const renderReview = () => {
-    const fields = [
-      { label: "Título", value: ad.title, icon: "📌" },
-      { label: "Preço", value: ad.price ? `R$ ${ad.price}` : "", icon: "💰" },
-      { label: "Categoria", value: ad.category, icon: "📂" },
-      { label: "Cidade", value: ad.city, icon: "📍" },
-      { label: "Condição", value: ad.condition, icon: "🏷️" },
-      { label: "Descrição", value: ad.description, icon: "📝" }
-    ].filter((f) => safe(f.value));
-
-    return (
-      <div className="rounded-2xl border border-[#D4A24C]/30 p-4 space-y-2 brane-fade-in"
-        style={{ background: "linear-gradient(135deg, rgba(212,162,76,0.12), rgba(212,162,76,0.03))" }}>
-        <p className="text-xs font-black brane-gold-text mb-2">✨ Dados identificados</p>
-        {fields.map((f) => (
-          <div key={f.label} className="flex items-start gap-2">
-            <span className="text-[10px] font-bold uppercase text-[#8C8F9A] min-w-[70px] shrink-0 mt-0.5">{f.icon}</span>
-            <span className="text-sm text-white">{f.value}</span>
-          </div>
-        ))}
-        <div className="flex gap-2 mt-3">
-          <button type="button" onClick={handleReviewContinue} className="flex-1 brane-btn-gold py-2.5 text-xs font-bold">✓ Continuar</button>
-          <button type="button" onClick={handleRetype} className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">Redigitar</button>
-        </div>
-      </div>
-    );
-  };
-
-  const renderConditionCards = () => (
-    <div className="space-y-2 brane-fade-in">
-      <p className="text-xs font-black brane-gold-text mb-2">Qual a condição?</p>
-      {CONDITIONS.map((c) => (
-        <ClickableCard key={c} label={c} selected={localAd.condition === c} onClick={() => handleSelectCondition(c)}
-          icon={c === "Novo" ? "🆕" : c === "Seminovo" ? "✨" : c === "Usado" ? "🔄" : "🔧"} />
-      ))}
-    </div>
-  );
-
-  const renderAvailabilityCards = () => (
-    <div className="space-y-2 brane-fade-in">
-      <p className="text-xs font-black brane-gold-text mb-2">Disponibilidade?</p>
-      {AVAILABILITIES.map((a) => (
-        <ClickableCard key={a} label={a} selected={localAd.availability === a} onClick={() => handleSelectAvailability(a)}
-          icon={a === "Item único" ? "📦" : a === "Várias unidades" ? "📦📦" : a === "Sob demanda" ? "📋" : "🔧"} />
-      ))}
-    </div>
-  );
-
-  const renderContactChoice = () => (
-    <div className="space-y-2 brane-fade-in">
-      <p className="text-xs font-black brane-gold-text mb-2">Adicionar contato?</p>
-      <p className="text-[11px] text-[#8C8F9A] mb-2">Só aparece após "Entrar em contato"</p>
-      <ClickableCard label="Telefone" icon="📞" onClick={() => { setStep(7); setContactWhatsapp(""); }} />
-      <ClickableCard label="WhatsApp" icon="💬" onClick={() => { setStep(7); setContactPhone(""); }} />
-      <ClickableCard label="Telefone e WhatsApp" icon="📱" onClick={() => setStep(7)} />
-      <ClickableCard label="Continuar sem contato" icon="⏭️" onClick={() => handleContactChoice("skip")} />
-    </div>
-  );
-
-  const renderContactInput = () => (
-    <div className="space-y-3 brane-fade-in">
-      <p className="text-xs font-black brane-gold-text">Digite seu contato</p>
-      <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 p-3">
-        <Phone size={16} className="text-[#D4A24C]" />
-        <input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)}
-          placeholder="Telefone (opcional)" className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-[#6F7280]" />
-      </div>
-      <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 p-3">
-        <MessageSquare size={16} className="text-[#25D366]" />
-        <input value={contactWhatsapp} onChange={(e) => setContactWhatsapp(e.target.value)}
-          placeholder="WhatsApp (opcional)" className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-[#6F7280]" />
-      </div>
-      <div className="flex gap-2">
-        <button type="button" onClick={handleContactDone} className="flex-1 brane-btn-gold py-2.5 text-xs font-bold">✓ Confirmar</button>
-        <button type="button" onClick={() => handleContactChoice("skip")}
-          className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">Pular</button>
-      </div>
-    </div>
-  );
-
-  const renderPhotoStep = () => (
-    <div className="brane-fade-in text-center">
-      <p className="text-xs font-black brane-gold-text mb-3">Envie uma foto do produto</p>
-      <button type="button" onClick={() => fileRef.current?.click()}
-        className="w-full max-w-xs mx-auto rounded-2xl border-2 border-dashed border-[#D4A24C]/30 py-12 flex flex-col items-center justify-center gap-2 text-[#C9CBD6] hover:border-[#D4A24C]/60 hover:bg-[#D4A24C]/5 transition-all cursor-pointer">
-        <Camera size={32} className="text-[#D4A24C]/60" />
-        <span className="text-sm font-bold">Clique para enviar foto</span>
-      </button>
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
-    </div>
-  );
-
-  const renderPreview = () => {
-    const p = ad;
-    const cover = photoPreviews[0] || p.photos?.[0] || "";
-    return (
-      <div className="brane-fade-in">
-        <div className="flex gap-3 rounded-2xl border border-[#D4A24C]/30 overflow-hidden brane-card-premium max-w-[420px]"
-          style={{ background: "linear-gradient(180deg, rgba(212,162,76,0.06), rgba(10,10,15,0.95))" }}>
-          {cover ? (
-            <img src={cover} alt="" className="w-28 h-28 object-cover shrink-0" />
-          ) : (
-            <div className="w-28 h-28 bg-[#0B0D12] flex items-center justify-center shrink-0">
-              <Camera size={28} className="text-[#6F7280]" />
-            </div>
-          )}
-          <div className="flex-1 p-3 min-w-0 space-y-1.5">
-            {p.category && (
-              <span className="inline-block px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider bg-[#D4A24C]/15 text-[#D4A24C] border border-[#D4A24C]/30 leading-none">{p.category}</span>
-            )}
-            <h3 className="text-sm font-black text-white leading-tight truncate">{p.title || "Título"}</h3>
-            <p className="brane-gold-text text-base font-black">{p.price ? `R$ ${p.price}` : ""}</p>
-            {(p.city || p.state) && <p className="text-[10px] text-[#8C8F9A] truncate">📍 {[p.city, p.state].filter(Boolean).join(" - ")}</p>}
-            <div className="flex flex-wrap gap-1">
-              {p.condition && <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-[#5B1CB5]/20 text-[#7C3AED] border border-[#5B1CB5]/30 leading-none">{p.condition}</span>}
-              {p.availability && <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-[#10A875]/15 text-[#10A875] border border-[#10A875]/30 leading-none">{p.availability}</span>}
+  /* ─── CENTER: Render step content ─── */
+  const renderStepContent = () => {
+    switch (step) {
+      case 0: return null;
+      case 1:
+        return (
+          <div className="rounded-2xl border border-[#D4A24C]/30 p-3.5 space-y-2 brane-fade-in"
+            style={{ background: "linear-gradient(135deg, rgba(212,162,76,0.12), rgba(212,162,76,0.03))" }}>
+            <p className="text-xs font-black brane-gold-text mb-1">✨ Dados identificados</p>
+            {[{ label: "📌", value: ad.title }, { label: "💰", value: ad.price ? `R$ ${ad.price}` : "" }, { label: "📂", value: ad.category }, { label: "📍", value: ad.city }, { label: "🏷️", value: ad.condition }, { label: "📝", value: ad.description }]
+              .filter((f) => safe(f.value))
+              .map((f) => (
+                <div key={f.label} className="flex items-start gap-2">
+                  <span className="text-[10px] text-[#8C8F9A] min-w-[24px]">{f.label}</span>
+                  <span className="text-sm text-white">{f.value}</span>
+                </div>
+              ))}
+            <div className="flex gap-2 mt-2">
+              <button type="button" onClick={handleReviewContinue} className="flex-1 brane-btn-gold py-2 text-xs font-bold">✓ Continuar</button>
+              <button type="button" onClick={handleRetype} className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-2 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">Redigitar</button>
             </div>
           </div>
-        </div>
-        {p.description && (
-          <p className="text-xs text-[#A6A8B3] leading-relaxed mt-2 max-w-[420px] line-clamp-2">{p.description}</p>
-        )}
-      </div>
-    );
+        );
+      case 2:
+        return (
+          <div className="space-y-1.5 brane-fade-in">
+            <p className="text-xs font-black brane-gold-text mb-1">Qual a condição?</p>
+            {CONDITIONS.map((c) => (
+              <ClickableCard key={c} label={c} selected={localAd.condition === c} onClick={() => handleSelectCondition(c)}
+                icon={c === "Novo" ? "🆕" : c === "Seminovo" ? "✨" : c === "Usado" ? "🔄" : "🔧"} />
+            ))}
+          </div>
+        );
+      case 3:
+        return (
+          <div className="space-y-1.5 brane-fade-in">
+            <p className="text-xs font-black brane-gold-text mb-1">Disponibilidade?</p>
+            {AVAILABILITIES.map((a) => (
+              <ClickableCard key={a} label={a} selected={localAd.availability === a} onClick={() => handleSelectAvailability(a)}
+                icon={a === "Item único" ? "📦" : a === "Várias unidades" ? "📦📦" : a === "Sob demanda" ? "📋" : "🔧"} />
+            ))}
+          </div>
+        );
+      case 4:
+        return (
+          <div className="space-y-1.5 brane-fade-in">
+            <p className="text-xs font-black brane-gold-text mb-1">Adicionar contato?</p>
+            <p className="text-[10px] text-[#8C8F9A] mb-1">Só aparece após "Entrar em contato"</p>
+            <ClickableCard label="Telefone" icon="📞" onClick={() => { setStep(7); setContactWhatsapp(""); }} />
+            <ClickableCard label="WhatsApp" icon="💬" onClick={() => { setStep(7); setContactPhone(""); }} />
+            <ClickableCard label="Telefone e WhatsApp" icon="📱" onClick={() => setStep(7)} />
+            <ClickableCard label="Continuar sem contato" icon="⏭️" onClick={() => handleContactChoice("skip")} />
+          </div>
+        );
+      case 7:
+        return (
+          <div className="space-y-2 brane-fade-in">
+            <p className="text-xs font-black brane-gold-text">Digite seu contato</p>
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/30 p-2.5">
+              <Phone size={14} className="text-[#D4A24C]" />
+              <input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)}
+                placeholder="Telefone" className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-[#6F7280]" />
+            </div>
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/30 p-2.5">
+              <MessageSquare size={14} className="text-[#25D366]" />
+              <input value={contactWhatsapp} onChange={(e) => setContactWhatsapp(e.target.value)}
+                placeholder="WhatsApp" className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-[#6F7280]" />
+            </div>
+            <div className="flex gap-2">
+              <button type="button" onClick={handleContactDone} className="flex-1 brane-btn-gold py-2 text-xs font-bold">✓ Confirmar</button>
+              <button type="button" onClick={() => handleContactChoice("skip")}
+                className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">Pular</button>
+            </div>
+          </div>
+        );
+      case 5:
+        return (
+          <div className="brane-fade-in text-center">
+            <p className="text-xs font-black brane-gold-text mb-2">Envie uma foto</p>
+            <button type="button" onClick={() => fileRef.current?.click()}
+              className="w-full max-w-[220px] mx-auto rounded-2xl border-2 border-dashed border-[#D4A24C]/30 py-10 flex flex-col items-center justify-center gap-2 text-[#C9CBD6] hover:border-[#D4A24C]/60 hover:bg-[#D4A24C]/5 transition-all cursor-pointer">
+              <Camera size={28} className="text-[#D4A24C]/60" />
+              <span className="text-sm font-bold">Clique para enviar</span>
+            </button>
+            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoSelect} />
+          </div>
+        );
+      default: return null;
+    }
   };
-
-  const showSteps = step > 0 && step < 6;
 
   return (
-    <div className="flex h-full w-full rounded-[24px] overflow-hidden"
-      style={{ background: "#08060d", boxShadow: "0 0 80px rgba(212,162,76,0.06), inset 0 0 60px rgba(212,162,76,0.02)" }}>
-      {/* ═══════ LEFT PANEL: IA SCENE (25%) ═══════ */}
-      <div className="w-[25%] min-w-[200px] max-w-[300px] relative flex-shrink-0 hidden md:flex flex-col"
-        style={{ background: "linear-gradient(180deg, rgba(212,162,76,0.03), rgba(10,8,15,1))" }}>
-        {/* Gold top glow */}
+    <div className="flex h-full w-full rounded-[24px] overflow-hidden bg-[#08060d]"
+      style={{ boxShadow: "0 0 80px rgba(212,162,76,0.05), inset 0 0 60px rgba(212,162,76,0.02)" }}>
+      {/* ═══ LEFT: Character (25%) ═══ */}
+      <div className="w-[25%] min-w-[180px] max-w-[280px] relative hidden md:flex flex-col flex-shrink-0"
+        style={{ background: "linear-gradient(180deg, rgba(212,162,76,0.02), rgba(10,8,15,1))" }}>
         <div className="absolute top-0 left-0 right-0 h-48 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 30% 0%, rgba(212,162,76,0.08), transparent 60%)" }} />
-
-        {/* Character scene */}
+          style={{ background: "radial-gradient(ellipse at 30% 0%, rgba(212,162,76,0.06), transparent 60%)" }} />
         <div className="flex-1 flex items-end justify-center">
-          <div className="w-full h-[85%]">
+          <div className="w-full h-[82%]">
             <BraneScene state={braneState} />
           </div>
         </div>
       </div>
 
-      {/* ═══════ RIGHT PANEL: CHAT (75%) ═══════ */}
-      <div className="flex-1 flex flex-col min-w-0 relative">
-        {/* Header bar */}
-        {step > 0 && (
-          <div className="flex items-center justify-between px-6 py-3 border-b border-white/[0.04] flex-shrink-0">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#D4A24C] to-[#8A6A24] flex items-center justify-center text-black font-black text-xs">B</div>
-              <span className="text-xs font-bold uppercase tracking-[0.12em] brane-gold-text" style={{ filter: "drop-shadow(0 0 12px rgba(212,162,76,0.2))" }}>BRANE</span>
-            </div>
-            <button type="button" onClick={handleNew} className="text-[10px] font-bold text-[#6F7280] hover:text-[#D4A24C] transition-colors">✨ Novo</button>
+      {/* ═══ CENTER: Chat (flex, ~50%) ═══ */}
+      <div className="flex-1 flex flex-col min-w-0 max-w-[55%] border-r border-white/[0.03]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-2.5 border-b border-white/[0.04] flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#D4A24C] to-[#8A6A24] flex items-center justify-center text-black font-black text-[10px]">B</div>
+            <span className="text-[10px] font-bold uppercase tracking-[0.14em] brane-gold-text">BRANE</span>
           </div>
-        )}
-        {step === 0 && (
-          <div className="flex items-center justify-between px-6 py-3 border-b border-white/[0.04] flex-shrink-0">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#D4A24C] to-[#8A6A24] flex items-center justify-center text-black font-black text-xs">B</div>
-              <span className="text-xs font-bold uppercase tracking-[0.12em] brane-gold-text" style={{ filter: "drop-shadow(0 0 12px rgba(212,162,76,0.2))" }}>BRANE</span>
-            </div>
-          </div>
-        )}
+          {step > 0 && (
+            <button type="button" onClick={handleNew} className="text-[9px] font-bold text-[#6F7280] hover:text-[#D4A24C] transition-colors">✨ Novo</button>
+          )}
+        </div>
 
-        {/* Messages area */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3 scrollbar-thin min-h-0">
+        {/* Messages + step cards */}
+        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-2.5 scrollbar-thin min-h-0">
           {messages.map((m) => (
             <div key={m.id}
-              className={`rounded-2xl px-4 py-2.5 text-sm max-w-[75%] ${
+              className={`rounded-2xl px-3.5 py-2 text-sm max-w-[80%] ${
                 m.from === "user"
                   ? "ml-auto bg-[#D4A24C] text-black"
                   : "mr-auto bg-white/10 text-white"
@@ -575,53 +558,80 @@ export default function AIAssistantPanelSocial({
               <span className="whitespace-pre-wrap">{m.text}</span>
             </div>
           ))}
-
-          {/* Step cards */}
-          {step === 1 && renderReview()}
-          {step === 2 && renderConditionCards()}
-          {step === 3 && renderAvailabilityCards()}
-          {step === 4 && renderContactChoice()}
-          {step === 7 && renderContactInput()}
-          {step === 5 && renderPhotoStep()}
-
-          {/* Preview + action buttons */}
-          {step === 6 && (
-            <div className="space-y-4 pt-2">
-              {renderPreview()}
-              <div className="flex gap-2 max-w-[420px]">
-                <button type="button" onClick={handleImprove} disabled={!ad || isGenerating}
-                  className="flex-1 rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-3 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all">
-                  <Sparkles size={14} className="inline mr-1.5" />Melhorar anúncio
-                </button>
-                <button type="button" onClick={handlePublish} disabled={!ad || isGenerating}
-                  className="flex-1 brane-btn-gold py-3 text-xs font-bold disabled:opacity-50">Publicar agora</button>
-                <button type="button" onClick={handleNew}
-                  className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">Novo</button>
-              </div>
-            </div>
-          )}
-
+          {renderStepContent()}
           <div ref={endRef} />
         </div>
 
-        {/* Fixed input at bottom */}
+        {/* Fixed input */}
         {step === 0 && (
-          <div className="flex-shrink-0 px-6 py-4 border-t border-white/[0.04]">
-            <div className="flex gap-2 max-w-[600px]">
+          <div className="flex-shrink-0 px-5 py-3 border-t border-white/[0.04]">
+            <div className="flex gap-2">
               <input value={input} onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSubmitInput()}
                 placeholder="iPhone 12 Pro, R$1200, Belém Pará, em perfeito estado..."
-                className="h-11 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-4 text-sm text-white outline-none focus:border-[#D4A24C]/40 focus:shadow-[0_0_12px_rgba(212,162,76,0.06)] placeholder:text-[#6F7280]" />
+                className="h-10 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 text-sm text-white outline-none focus:border-[#D4A24C]/40 focus:shadow-[0_0_12px_rgba(212,162,76,0.06)] placeholder:text-[#6F7280]" />
               <button type="button" onClick={handleSubmitInput} disabled={!safe(input)}
-                className="h-11 brane-btn-gold px-4 text-[13px] disabled:opacity-50">
-                <Send size={16} />
+                className="h-10 brane-btn-gold px-3.5 text-[12px] disabled:opacity-50">
+                <Send size={15} />
               </button>
             </div>
           </div>
         )}
+        {step > 0 && <div className="h-3 flex-shrink-0" />}
+      </div>
 
-        {/* Spacer at bottom when not step 0 */}
-        {step > 0 && step < 6 && <div className="h-4 flex-shrink-0" />}
+      {/* ═══ RIGHT: Preview + Actions (25%) ═══ */}
+      <div className="w-[25%] min-w-[180px] max-w-[300px] flex-shrink-0 hidden md:flex flex-col p-4"
+        style={{ background: "linear-gradient(180deg, rgba(212,162,76,0.02), rgba(10,8,15,1))" }}>
+        <div className="flex-shrink-0 mb-3">
+          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#6F7280]">Prévia do anúncio</p>
+        </div>
+
+        {hasAd ? (
+          <div className="flex-1 overflow-y-auto scrollbar-thin space-y-3">
+            <PreviewCard ad={ad} images={photoPreviews} />
+
+            {/* Action buttons */}
+            {step === 6 && (
+              <div className="space-y-2 pt-1">
+                <button type="button" onClick={handleImprove} disabled={!ad || isGenerating}
+                  className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all">
+                  <Sparkles size={13} className="inline mr-1.5" />Melhorar anúncio
+                </button>
+                <button type="button" onClick={handlePublish} disabled={!ad || isGenerating}
+                  className="w-full brane-btn-gold py-2.5 text-xs font-bold disabled:opacity-50">
+                  Publicar agora
+                </button>
+                <button type="button" onClick={handleNew}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
+                  ✨ Novo anúncio
+                </button>
+              </div>
+            )}
+
+            {/* Mini step progress */}
+            {step > 0 && step < 6 && (
+              <div className="space-y-1.5 pt-1">
+                <div className="flex items-center gap-2">
+                  <div className={`w-1.5 h-1.5 rounded-full ${step > 0 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                  <div className={`w-1.5 h-1.5 rounded-full ${step > 1 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                  <div className={`w-1.5 h-1.5 rounded-full ${step > 2 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                  <div className={`w-1.5 h-1.5 rounded-full ${step > 3 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                  <div className={`w-1.5 h-1.5 rounded-full ${step > 4 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                  <div className={`w-1.5 h-1.5 rounded-full ${step > 5 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                </div>
+                <p className="text-[9px] text-[#6F7280]">Preenchendo dados...</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <Camera size={32} className="mx-auto text-[#3a3a45] mb-2" />
+              <p className="text-[11px] text-[#6F7280]">Digite os dados no chat<br />para ver a prévia</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
