@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { ImagePlus, Send, Sparkles, Check, Camera, Phone, MessageSquare, Pencil } from "lucide-react";
+import { ImagePlus, Send, Sparkles, Check, Camera, Phone, MessageSquare } from "lucide-react";
 
 const CONDITIONS = ["Novo", "Seminovo", "Usado", "Recondicionado"];
 const AVAILABILITIES = ["Item único", "Várias unidades", "Sob demanda", "Serviço"];
@@ -11,6 +11,35 @@ const defaultAd = {
 };
 
 const safe = (v) => String(v || "").trim();
+
+/* ─── Improvement data ─── */
+const TITLE_PREFIXES = [
+  "", "✨ ", "📱 ", "💎 ", "🚀 ", "⭐ ", "🎯 ",
+];
+const CTAS = [
+  "Chame agora e garanta o seu! 🚀",
+  "Aproveite antes que acabe! ⚡",
+  "Oferta imperdível para hoje! 🎯",
+  "Últimas unidades disponíveis! 📦",
+  "Produto em excelente estado! ✅",
+  "Conservado e pronto para uso! 💎",
+  "Não perca essa oportunidade! ⭐",
+  "Garanta já o seu produto! 🔥",
+  "Super oportunidade pra você! 🛒",
+  "Qualidade e melhor preço! 🏆",
+];
+const DESC_TEMPLATES = [
+  (p) => `${p} em ótimo estado de conservação. Produto completo e funcional. ${CTAS[Math.floor(Math.random() * CTAS.length)]}`,
+  (p) => `Produto de qualidade: ${p}. Perfeito para quem busca custo-benefício. ${CTAS[Math.floor(Math.random() * CTAS.length)]}`,
+  (p) => `${p} — item bem cuidado, funcionando perfeitamente. ${CTAS[Math.floor(Math.random() * CTAS.length)]}`,
+  (p) => `Vendo ${p}. Produto original, conservado e pronto para uso imediato. ${CTAS[Math.floor(Math.random() * CTAS.length)]}`,
+  (p) => `Oportunidade: ${p}. Entre em contato e confira! ${CTAS[Math.floor(Math.random() * CTAS.length)]}`,
+];
+const CAT_EMOJIS = {
+  "Celulares": "📱", "Veículos": "🚗", "Imóveis": "🏠",
+  "Casa e móveis": "🏡", "Moda": "👗", "Serviços": "🔧", "Outros": "📦",
+};
+const FALLBACK_EMOJI = "📦";
 
 const parseInput = (text) => {
   const parts = text.split(",").map((s) => s.trim()).filter(Boolean);
@@ -197,6 +226,7 @@ export default function AIAssistantPanelSocial({
   const [contactPhone, setContactPhone] = useState("");
   const [contactWhatsapp, setContactWhatsapp] = useState("");
 
+  const [improveCount, setImproveCount] = useState(0);
   const fileRef = useRef(null);
   const endRef = useRef(null);
   const initialized = useRef(false);
@@ -294,24 +324,26 @@ export default function AIAssistantPanelSocial({
     setBraneState("working");
     await new Promise((r) => setTimeout(r, 2000));
 
-    const improved = {
-      ...ad,
-      title: ad.title && !ad.title.toLowerCase().startsWith("vendo")
-        ? `🔥 ${safe(ad.title)}`
-        : safe(ad.title).replace(/^vendo\s+/i, "") || ad.title,
-      description: safe(ad.description)
-        ? ad.description.replace(/[,.\s]+$/, "") + "!\n\n" + getCallToAction()
-        : "Produto de qualidade imperdível!\n\n" + getCallToAction()
-    };
+    const cat = safe(ad.category);
+    const catEmoji = CAT_EMOJIS[cat] || FALLBACK_EMOJI;
+    const prefixIdx = improveCount % TITLE_PREFIXES.length;
+    const prefix = TITLE_PREFIXES[prefixIdx];
+    const rawTitle = safe(ad.title).replace(/^vendo\s+/i, "").replace(/^[✨📱💎🚀⭐🎯]\s*/, "");
+    const newTitle = prefix ? `${prefix}${rawTitle}` : rawTitle;
 
+    const prodName = rawTitle || "produto";
+    const templateIdx = Math.floor(improveCount / TITLE_PREFIXES.length) % DESC_TEMPLATES.length;
+    const newDesc = DESC_TEMPLATES[templateIdx](prodName);
+
+    setImproveCount((c) => c + 1);
+
+    const improved = { ...ad, title: newTitle, description: newDesc };
     setLocalAd(improved);
     onImproveAd(improved);
     onFillForm(improved);
     setBraneState("presenting");
-    addMsg("Anúncio melhorado com títulos profissionais, emojis e chamada especial! ✨");
+    addMsg("Anúncio melhorado com nova versão profissional! ✨");
   };
-
-  const getCallToAction = () => "🔥 Chame agora e garanta antes que acabe!";
 
   const handlePublish = async () => {
     setBraneState("success");
@@ -453,61 +485,53 @@ export default function AIAssistantPanelSocial({
     const cover = photoPreviews[0] || p.photos?.[0] || "";
 
     return (
-      <div className="flex flex-col items-center gap-3 py-1 brane-fade-in">
-        <div className="w-full max-w-xs rounded-3xl border border-[#D4A24C]/30 overflow-hidden brane-card-premium" style={{ background: "linear-gradient(180deg, rgba(212,162,76,0.06), rgba(10,10,15,0.95))" }}>
-          {cover ? (
-            <img src={cover} alt="" className="w-full aspect-square object-cover" />
-          ) : (
-            <div className="w-full aspect-square bg-[#0B0D12] flex items-center justify-center">
-              <Camera size={48} className="text-[#6F7280]" />
+      <div className="flex flex-col items-center gap-2 py-1 brane-fade-in">
+        <div className="w-full max-w-[280px] rounded-2xl border border-[#D4A24C]/30 overflow-hidden brane-card-premium" style={{ background: "linear-gradient(180deg, rgba(212,162,76,0.06), rgba(10,10,15,0.95))" }}>
+          <div className="flex">
+            {cover ? (
+              <img src={cover} alt="" className="w-24 h-24 object-cover shrink-0" />
+            ) : (
+              <div className="w-24 h-24 bg-[#0B0D12] flex items-center justify-center shrink-0">
+                <Camera size={24} className="text-[#6F7280]" />
+              </div>
+            )}
+            <div className="flex-1 p-2.5 min-w-0 space-y-1">
+              {p.category && (
+                <span className="inline-block px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider bg-[#D4A24C]/15 text-[#D4A24C] border border-[#D4A24C]/30 leading-none">
+                  {p.category}
+                </span>
+              )}
+              <h3 className="text-sm font-black text-white leading-tight truncate">{p.title || "Título"}</h3>
+              {p.price && (
+                <p className="brane-gold-text text-base font-black">R$ {p.price}</p>
+              )}
+              {(p.city || p.state) && (
+                <p className="text-[10px] text-[#8C8F9A] truncate">📍 {[p.city, p.state].filter(Boolean).join(" - ")}</p>
+              )}
+              <div className="flex flex-wrap gap-1">
+                {p.condition && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-[#5B1CB5]/20 text-[#7C3AED] border border-[#5B1CB5]/30 leading-none">
+                    {p.condition}
+                  </span>
+                )}
+                {p.availability && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[8px] font-bold bg-[#10A875]/15 text-[#10A875] border border-[#10A875]/30 leading-none">
+                    {p.availability}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          {p.description && (
+            <div className="px-2.5 pb-2.5">
+              <p className="text-[11px] text-[#A6A8B3] leading-relaxed line-clamp-2">{p.description}</p>
             </div>
           )}
-          <div className="p-4 space-y-2.5">
-            {p.category && (
-              <span className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#D4A24C]/15 text-[#D4A24C] border border-[#D4A24C]/30">
-                {p.category}
-              </span>
-            )}
-            <h3 className="text-lg font-black text-white leading-tight">{p.title || "Título do anúncio"}</h3>
-            {p.price && (
-              <p className="brane-gold-text text-2xl font-black">R$ {p.price}</p>
-            )}
-            {(p.city || p.state) && (
-              <p className="text-sm text-[#8C8F9A]">📍 {[p.city, p.state].filter(Boolean).join(" - ")}</p>
-            )}
-            <div className="flex flex-wrap gap-1.5">
-              {p.condition && (
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#5B1CB5]/20 text-[#7C3AED] border border-[#5B1CB5]/30">
-                  {p.condition}
-                </span>
-              )}
-              {p.availability && (
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#10A875]/15 text-[#10A875] border border-[#10A875]/30">
-                  {p.availability}
-                </span>
-              )}
+          {(p.phone || p.whatsapp) && (
+            <div className="px-2.5 pb-2">
+              <p className="text-[8px] text-[#6F7280]">📞 Contato configurado</p>
             </div>
-            {p.description && (
-              <p className="text-sm text-[#A6A8B3] leading-relaxed whitespace-pre-wrap">{p.description}</p>
-            )}
-            {(p.phone || p.whatsapp) && (
-              <p className="text-[10px] text-[#6F7280] border-t border-white/10 pt-2 mt-2">
-                📞 Contato configurado (aparece no detalhe do anúncio)
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="flex gap-2 w-full max-w-xs">
-          <button type="button" onClick={handleImprove} disabled={!ad || isGenerating}
-            className="flex-1 rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all">
-            <Sparkles size={14} className="inline mr-1" />
-            Melhorar anúncio
-          </button>
-          <button type="button" onClick={handlePublish} disabled={!ad || isGenerating}
-            className="flex-1 brane-btn-gold py-2.5 text-xs font-bold disabled:opacity-50">
-            Publicar agora
-          </button>
+          )}
         </div>
       </div>
     );
