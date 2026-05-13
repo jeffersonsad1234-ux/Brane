@@ -25,7 +25,7 @@ const productConditions = ["Novo", "Usado", "Em bom estado", "Com detalhes", "Pa
 
 export default function SocialPage() {
   const { user, token, API: AUTH_API } = useAuth();
-  const API = AUTH_API || `${process.env.REACT_APP_BACKEND_URL || ""}/api`;
+  const API = AUTH_API || `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
 
   const authHeaders = token
     ? { Authorization: "Bearer " + token }
