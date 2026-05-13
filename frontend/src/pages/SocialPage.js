@@ -1457,6 +1457,32 @@ export default function SocialPage() {
             </div>
 
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setProfileForm({
+                    name: user?.name || "",
+                    city: user?.city || "",
+                    state: user?.state || "",
+                    avatar: user?.avatar || user?.photo || user?.picture || ""
+                  });
+                  setShowSettings(true);
+                }}
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1.5px] shrink-0 hover:brightness-110 transition-all shadow-[0_0_12px_rgba(212,162,76,0.2)]"
+              >
+                <div className="w-full h-full rounded-full bg-[#0B0D12] overflow-hidden flex items-center justify-center">
+                  {(user?.avatar || user?.photo || user?.picture) ? (
+                    <img
+                      src={user?.avatar || user?.photo || user?.picture}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <span className="text-[#D4A24C] font-black text-[11px]">
+                      {(user?.name || "B")[0].toUpperCase()}
+                    </span>
+                  )}
+                </div>
+              </button>
               {showInstall && (
                 <button
                   onClick={handleInstall}
@@ -1531,10 +1557,40 @@ export default function SocialPage() {
               }
             >
               <div className="brane-card-soft p-5">
-                <h3 className="font-black text-lg flex items-center gap-2 brane-gold-text">
-                  {user && user.name ? user.name : "Usuário B Livre"}
-                  <BadgeCheck size={17} className="text-[#D4A24C]" />
-                </h3>
+                <div className="flex items-center gap-3 mb-3">
+                  <button
+                    onClick={() => {
+                      setProfileForm({
+                        name: user?.name || "",
+                        city: user?.city || "",
+                        state: user?.state || "",
+                        avatar: user?.avatar || user?.photo || user?.picture || ""
+                      });
+                      setShowSettings(true);
+                    }}
+                    className="w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[2px] shrink-0 hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.25)]"
+                  >
+                    <div className="w-full h-full rounded-full bg-[#0B0D12] overflow-hidden flex items-center justify-center">
+                      {(user?.avatar || user?.photo || user?.picture) ? (
+                        <img
+                          src={user?.avatar || user?.photo || user?.picture}
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-[#D4A24C] font-black text-sm">
+                          {(user?.name || "B")[0].toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                  <div className="min-w-0">
+                    <h3 className="font-black text-lg flex items-center gap-2 brane-gold-text truncate">
+                      {user && user.name ? user.name : "Usuário B Livre"}
+                      <BadgeCheck size={17} className="text-[#D4A24C] shrink-0" />
+                    </h3>
+                  </div>
+                </div>
 
                 <div className="mt-5 space-y-1">
                   {[
