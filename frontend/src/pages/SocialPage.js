@@ -1063,51 +1063,28 @@ export default function SocialPage() {
       )}
 
      {composerOpen && (
-  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-    <div
-      className="w-full max-w-[560px] h-[92vh] brane-card-premium p-4 md:p-5 overflow-hidden flex flex-col"
-      style={{ borderRadius: 28, animation: "blivreSlideIn 0.28s ease-out" }}
-    >
-      <div className="flex items-center justify-between mb-4 flex-shrink-0">
-        <div>
-          <h2 className="font-black text-lg text-white">
-            {editingPost ? "Editar anúncio" : "Novo anúncio com BRANE"}
-          </h2>
-          <p className="text-[11px] text-[#8C8F9A] mt-1">
-            {editingPost
-              ? "Atualize as informações do seu anúncio."
-              : "Responda algumas perguntas e a BRANE monta o anúncio pra você."}
-          </p>
+  <div className="fixed inset-0 z-[100] bg-black/80 flex flex-col" style={{ backdropFilter: "blur(6px)" }}>
+    <div className="flex-1 min-h-0 p-2 md:p-3">
+      <div className="h-full w-full rounded-[24px] overflow-hidden flex flex-col" style={{ animation: "blivreSlideIn 0.28s ease-out" }}>
+        <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 bg-[#08060d]/95 border-b border-white/[0.04]">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#D4A24C] to-[#8A6A24] p-[1px]">
+              <div className="w-full h-full rounded-xl bg-[#08060d] flex items-center justify-center">
+                <span className="text-[#D4A24C] font-black text-sm">B</span>
+              </div>
+            </div>
+            <div>
+              <h2 className="text-sm font-black text-white">{editingPost ? "Editar anúncio" : "Novo anúncio"}</h2>
+              <p className="text-[10px] text-[#6F7280] tracking-wide uppercase">B Livre — Anúncios</p>
+            </div>
+          </div>
+          <button type="button" onClick={() => { setComposerOpen(false); setEditingPost(null); setUseAI(true); setGeneratedAd(null); setForm({ category: "", title: "", price: "", state: "", city: "", productCondition: "", description: "", availability: "Item único", phone: "", whatsapp: "" }); setImages([]); }}
+            className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#C9CBD6] hover:bg-white/10 hover:text-white transition-all">
+            <X size={17} />
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={() => {
-            setComposerOpen(false);
-            setEditingPost(null);
-            setUseAI(true);
-            setGeneratedAd(null);
-            setForm({
-              category: "",
-              title: "",
-              price: "",
-              state: "",
-              city: "",
-              productCondition: "",
-              description: "",
-              availability: "Item único",
-              phone: "",
-              whatsapp: ""
-            });
-            setImages([]);
-          }}
-          className="w-9 h-9 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#C9CBD6] hover:bg-white/10"
-        >
-          <X size={18} />
-        </button>
-      </div>
-
-      {!editingPost ? (
+        {!editingPost ? (
         <div className="flex-1 min-h-0">
           <AIAssistantPanelSocial
             onPhotoUpload={async (files) => {
@@ -1312,6 +1289,7 @@ export default function SocialPage() {
         </div>
       )}
     </div>
+  </div>
   </div>
 )}
 
