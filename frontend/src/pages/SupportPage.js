@@ -24,7 +24,14 @@ export default function SupportPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchMessages(); const i = setInterval(fetchMessages, 5000); return () => clearInterval(i); }, [token]);
+  useEffect(() => {
+    fetchMessages();
+    const i = setInterval(fetchMessages, 3000);
+    const onVisible = () => { if (!document.hidden) fetchMessages(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
+    return () => { clearInterval(i); document.removeEventListener('visibilitychange', onVisible); window.removeEventListener('focus', onVisible); };
+  }, [token]);
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
   const sendMsg = async () => {

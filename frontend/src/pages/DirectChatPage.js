@@ -20,28 +20,13 @@ export default function DirectChatPage() {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef(null);
 
-  useEffect(() => {
-    if (!user) {
-      navigate(`/auth?next=${encodeURIComponent(`/chat/${userId}`)}`);
-      return;
-    }
-    if (userId === user.user_id) {
-      toast.error('Você não pode conversar consigo mesmo');
-      navigate(-1);
-      return;
-    }
-    fetchMessages();
-    const interval = setInterval(fetchMessages, 5000);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
-
   const fetchMessages = async () => {
     if (!token) return;
     try {
       const res = await axios.get(`${API}/direct-chat/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
       setOther(res.data.other);
-      setMessages(res.data.messages || []);
+      const sorted = (res.data.messages || []).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      setMessages(sorted);
       setTimeout(() => {
         if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       }, 50);
@@ -54,6 +39,29 @@ export default function DirectChatPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!user) {
+      navigate(`/auth?next=${encodeURIComponent(`/chat/${userId}`)}`);
+      return;
+    }
+    if (userId === user.user_id) {
+      toast.error('Você não pode conversar consigo mesmo');
+      navigate(-1);
+      return;
+    }
+    fetchMessages();
+    const interval = setInterval(fetchMessages, 3000);
+    const onVisible = () => { if (!document.hidden) fetchMessages(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
+    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); window.removeEventListener('focus', onVisible); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages]);
 
   const sendMessage = async (e) => {
     e?.preventDefault();

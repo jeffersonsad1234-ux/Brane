@@ -60,7 +60,8 @@ export default function StoreChatPage() {
         headers: { Authorization: 'Bearer ' + token }
       });
 
-      setMessages(res.data.messages || []);
+      const sorted = (res.data.messages || []).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      setMessages(sorted);
 
       setTimeout(() => {
         if (scrollRef.current) {
@@ -84,10 +85,17 @@ export default function StoreChatPage() {
 
     fetchMessages();
 
-    const interval = setInterval(fetchMessages, 5000);
+    const interval = setInterval(fetchMessages, 3000);
+    const onVisible = () => { if (!document.hidden) fetchMessages(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
 
-    return () => clearInterval(interval);
+    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); window.removeEventListener('focus', onVisible); };
   }, [storeId, user, token]);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages]);
 
   const sendMessage = async (e) => {
     if (e) e.preventDefault();
@@ -174,27 +182,29 @@ export default function StoreChatPage() {
           Voltar para a loja
         </Link>
 
-        <div
-          className="bg-[#0B0D12] border border-[#1E2230] rounded-2xl overflow-hidden flex flex-col"
-          style={{ height: 'calc(100vh - 160px)', minHeight: '500px' }}
-        >
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-[#1E2230] bg-gradient-to-r from-[#0B0D12] to-[#11131A]">
-            <div className="w-12 h-12 rounded-xl bg-[#11131A] border border-[#1E2230] overflow-hidden flex items-center justify-center shrink-0">
-              {logoUrl ? (
-                <img src={logoUrl} alt={store.name} className="w-full h-full object-cover" />
-              ) : (
-                <StoreIcon className="w-6 h-6 text-[#D4A24C]" />
-              )}
-            </div>
+          <div
+            className="bg-[#0B0D12] border border-[#1E2230] rounded-2xl overflow-hidden flex flex-col"
+            style={{ height: 'calc(100vh - 160px)', minHeight: '500px' }}
+          >
+            <div className="flex items-center gap-3 px-5 py-4 border-b border-[#1E2230] bg-gradient-to-r from-[#0B0D12] to-[#11131A]">
+              <div className="w-12 h-12 rounded-xl bg-[#11131A] border border-[#1E2230] overflow-hidden flex items-center justify-center shrink-0">
+                {logoUrl ? (
+                  <img src={logoUrl} alt={store.name} className="w-full h-full object-cover" />
+                ) : (
+                  <StoreIcon className="w-6 h-6 text-[#D4A24C]" />
+                )}
+              </div>
 
-            <p className="text-xs text-[#A6A8B3] flex items-center gap-1">
-  <MessageCircle className="w-3 h-3" />
-  {user?.user_id === store?.owner_id
-    ? 'Chat da Loja'
-    : 'Chat com o vendedor'}
-</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-semibold truncate">{store?.name || 'Loja'}</p>
+                <p className="text-xs text-[#A6A8B3] flex items-center gap-1">
+                  <MessageCircle className="w-3 h-3" />
+                  {user?.user_id === store?.owner_id
+                    ? 'Chat da Loja'
+                    : 'Chat com o vendedor'}
+                </p>
+              </div>
             </div>
-          </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#050608]">
             {messages.length === 0 ? (
@@ -256,6 +266,7 @@ export default function StoreChatPage() {
           </form>
         </div>
       </div>
+    </div>
   
   );
 }

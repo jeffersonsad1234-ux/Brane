@@ -48,6 +48,7 @@ export default function SocialPage() {
   const loadMoreRef = useRef(null);
   const scrollFrameRef = useRef(null);
   const expandedRef = useRef(false);
+  const chatScrollRef = useRef(null);
 
   const [posts, setPosts] = useState([]);
   const [images, setImages] = useState([]);
@@ -331,10 +332,19 @@ export default function SocialPage() {
         .catch(() => {});
     }, 3000);
 
+    const onVisible = () => {
+      if (document.hidden) return;
+      loadSocialData();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
+
     return () => {
       if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
       if (notifIntervalRef.current) clearInterval(notifIntervalRef.current);
       if (messagesIntervalRef.current) clearInterval(messagesIntervalRef.current);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onVisible);
     };
   }, [token]);
 
@@ -710,14 +720,19 @@ export default function SocialPage() {
   const loadChatMessages = async (postId) => {
     try {
       const res = await axios.get(API + "/social/messages?post_id=" + postId, { headers: authHeaders });
-      const msgs = (res.data.messages || []).map((m, i) => ({
-        id: i + 1,
-        sender: m.sender_name || "Usuário",
-        message: m.message,
-        timestamp: new Date(m.created_at || Date.now()),
-        isMine: m.sender_id === user?.user_id
-      }));
+      const msgs = (res.data.messages || [])
+        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+        .map((m) => ({
+          id: m.message_id || m.id,
+          sender: m.sender_name || "Usuário",
+          message: m.message,
+          timestamp: new Date(m.created_at || Date.now()),
+          isMine: m.sender_id === user?.user_id
+        }));
       setChatMessages(msgs);
+      setTimeout(() => {
+        chatScrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 50);
     } catch (e) {
       console.error("Erro ao carregar mensagens:", e);
       setChatMessages([]);
@@ -1734,23 +1749,36 @@ export default function SocialPage() {
                       </button>
                     </div>
 
-                    <div className="h-[400px] overflow-y-auto mb-4 space-y-3">
-                      {chatMessages.map((msg) => (
-                        <div
-                          key={msg.id}
-                          className={`flex ${msg.isMine ? "justify-end" : "justify-start"}`}
-                        >
-                          <div
-                            className={`max-w-[70%] p-3 rounded-2xl ${
-                              msg.isMine
-                                ? "brane-btn-gold text-black"
-                                : "bg-white/10 text-white"
-                            }`}
-                          >
-                            <p className="text-sm">{msg.message}</p>
-                          </div>
+                    <div className="h-[400px] overflow-y-auto mb-4 space-y-3" ref={chatScrollRef}>
+                      {chatMessages.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full text-center text-[#6F7280]">
+                          <MessageSquare className="w-10 h-10 text-[#1E2230] mb-2" />
+                          <p className="text-sm">Nenhuma mensagem ainda.</p>
                         </div>
-                      ))}
+                      ) : (
+                        chatMessages.map((msg) => (
+                          <div
+                            key={msg.id}
+                            className={`flex ${msg.isMine ? "justify-end" : "justify-start"}`}
+                          >
+                            <div
+                              className={`max-w-[70%] p-3 rounded-2xl ${
+                                msg.isMine
+                                  ? "brane-btn-gold text-black"
+                                  : "bg-white/10 text-white"
+                              }`}
+                            >
+                              {!msg.isMine && (
+                                <p className="text-[10px] font-semibold mb-1 text-[#D4A24C]">{msg.sender}</p>
+                              )}
+                              <p className="text-sm">{msg.message}</p>
+                              <p className={`text-[9px] mt-1 ${msg.isMine ? "text-black/50" : "text-white/40"}`}>
+                                {msg.timestamp.toLocaleString("pt-BR", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" })}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
 
                     <div className="flex gap-2">

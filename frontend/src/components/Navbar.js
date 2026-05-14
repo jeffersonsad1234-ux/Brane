@@ -50,8 +50,11 @@ export default function Navbar({ onSearch }) {
     loadCart();
     loadNotifs();
 
-    const interval = setInterval(loadNotifs, 45000);
-    return () => clearInterval(interval);
+    const interval = setInterval(loadNotifs, 6000);
+    const onVisible = () => { if (!document.hidden) loadNotifs(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
+    return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); window.removeEventListener('focus', onVisible); };
   }, [user, token]);
 
   const canAnnounceProduct = user && (user.role === 'seller' || user.role === 'admin');
