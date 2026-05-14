@@ -12,18 +12,107 @@ const defaultAd = {
 
 const safe = (v) => String(v || "").trim();
 
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const KNOWN_CITIES = [
+  "castanhal","belém","ananindeua","santarém","marabá","parauapebas","redenção",
+  "são paulo","campinas","santos","são josé dos campos","ribeirão preto","guarulhos",
+  "rio de janeiro","niterói","duque de caxias","nova iguaçu","petrópolis",
+  "salvador","feira de santana","vitória da conquista","camaçari",
+  "fortaleza","juazeiro do norte","sobral","caucaia",
+  "recife","olinda","caruaru","petrolina",
+  "brasília",
+  "curitiba","londrina","maringá","ponta grossa","cascavel",
+  "belo horizonte","uberlândia","contagem","juiz de fora","montes claros",
+  "manaus","parintins",
+  "goiânia","aparecida de goiânia","anápolis",
+  "são luís","imperatriz",
+  "natal","mossoró","parnamirim",
+  "joão pessoa","campina grande",
+  "maceió","arapiraca",
+  "aracaju","nossa senhora do socorro",
+  "cuiabá","várzea grande","rondonópolis",
+  "campo grande","dourados",
+  "porto alegre","caxias do sul","pelotas","canoas",
+  "florianópolis","joinville","blumenau","chapecó",
+  "teresina","parnaíba",
+  "porto velho","ji-paraná",
+  "rio branco",
+  "macapá","santana",
+  "boa vista",
+  "palmas","araguaína",
+  "vitória","vila velha","serra","cariacica"
+];
+
+const BRAZIL_STATES = [
+  "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
+  "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"
+];
+
+const STATE_NAMES = [
+  "acre","alagoas","amapá","amazonas","bahia","ceará","distrito federal",
+  "espírito santo","goiás","maranhão","mato grosso","mato grosso do sul",
+  "minas gerais","pará","paraíba","paraná","pernambuco","piauí",
+  "rio de janeiro","rio grande do norte","rio grande do sul","rondônia",
+  "roraima","santa catarina","são paulo","sergipe","tocantins"
+];
+
+const CATEGORY_KEYWORDS = [
+  { cat: "Veículos", words: ["bicicleta","bike","moto","motocicleta","carro","automóvel","caminhão","caminhonete","ônibus","veículo","patinete","skate"] },
+  { cat: "Celulares", words: ["celular","iphone","smartphone","tablet","ipad","notebook","computador","pc","laptop","apple","samsung","xiaomi","motorola","fone","carregador","cabo","teclado","mouse","monitor"] },
+  { cat: "Imóveis", words: ["casa","apartamento","kitnet","terreno","sala comercial","imóvel","aluguel","condomínio","cobertura"] },
+  { cat: "Casa e móveis", words: ["cama","colchão","sofá","mesa","cadeira","armário","estante","móvel","guarda-roupa","geladeira","fogão","micro-ondas","tv","televisão","ventilador","tapete","cortina"] },
+  { cat: "Moda", words: ["sapato","roupa","bolsa","vestido","camisa","calça","tênis","jaqueta","blusa","bermuda","short","casaco","sandália","cinto","chapéu","moletom"] },
+  { cat: "Serviços", words: ["serviço","conserto","manutenção","aula","reforma","limpeza","entrega","frete","instalação","reparo","pintura","consultoria"] },
+];
+
+const isLocation = (s) => {
+  const low = s.toLowerCase().trim();
+  if (KNOWN_CITIES.includes(low)) return true;
+  const m = s.match(/^(.+)\s*[-–]\s*(.+)$/);
+  if (m) {
+    const stateU = m[2].trim().toUpperCase();
+    if (BRAZIL_STATES.includes(stateU)) return true;
+    if (STATE_NAMES.includes(m[2].trim().toLowerCase())) return true;
+  }
+  if (BRAZIL_STATES.includes(low.toUpperCase())) return true;
+  if (STATE_NAMES.includes(low)) return true;
+  const words = low.split(/\s+/);
+  if (words.length >= 2) {
+    const last = words[words.length - 1];
+    const rest = words.slice(0, -1).join(" ");
+    if (KNOWN_CITIES.includes(rest) && (BRAZIL_STATES.includes(last.toUpperCase()) || STATE_NAMES.includes(last))) return true;
+  }
+  return false;
+};
+
+const wordBoundary = (w) => "(?:^|[\\s,])" + escapeRegex(w) + "(?=[\\s,]|$)";
+
+const detectCategory = (title) => {
+  const low = title.toLowerCase();
+  for (const entry of CATEGORY_KEYWORDS) {
+    for (const w of entry.words) {
+      const wl = w.toLowerCase();
+      if (new RegExp(wordBoundary(wl), "i").test(low)) return entry.cat;
+      if (wl.includes(" ") && low.includes(wl)) return entry.cat;
+    }
+  }
+  return "Outros";
+};
+
+const wordMatch = (text, phrase) => {
+  if (text.toLowerCase() === phrase.toLowerCase()) return true;
+  const base = phrase.replace(/[oa]$/, "");
+  if (base.length < 2) return false;
+  return new RegExp("(?:^|[\\s,])" + escapeRegex(base) + "[oa]?s?(?=[\\s,]|$)", "i").test(text);
+};
+
 const parseInput = (text) => {
   const r = { ...defaultAd };
   let remaining = text;
 
-  // 1. Extract price (priority: Brazilian format, then plain)
-  //   p1: R$ 1.234,56 or R$ 1234,56
-  //   p2: R$ 1234.56
-  //   p3: 1.234,56
-  //   p4: 1234,56 or 199,99
-  //   p5: 1234.56
-  //   p6: plain number >= 2 digits
-  const p1 = remaining.match(/R\$\s*(\d{1,3}(?:\.\d{3})*(?:,\d{2})|\d+(?:,\d{2}))/i);
+  // 1. Extract price (Brazilian format priority)
+  const p1 = remaining.match(/R\$\s*(\d{1,3}(?:\.\d{3})*(?:,\d{2})|\d+(?:,\d{2})|\d+)/i);
   const p2 = !p1 && remaining.match(/R\$\s*(\d+(?:\.\d{2}))/i);
   const p3 = !p1 && !p2 && remaining.match(/(\d{1,3}(?:\.\d{3})+(?:,\d{2}))/);
   const p4 = !p1 && !p2 && !p3 && remaining.match(/(\d+(?:,\d{2}))/);
@@ -34,9 +123,19 @@ const parseInput = (text) => {
     const raw = pm[1] || pm[0];
     r.price = raw.replace(/^R\$\s*/i, "").trim();
     remaining = remaining.replace(pm[0], "");
+    remaining = remaining.replace(/\s*,\s*,/g, ",").replace(/^,\s*/, "").replace(/\s*,$/, "").trim();
   }
 
-  // 2. Split remaining by comma
+  // 2. Extract location (city - state) BEFORE comma split
+  const locMatch = remaining.match(/(?:^|,\s*)([\w\sÀ-ÿ]+)\s*[-–]\s*([A-Za-zÀ-ÿ]+)(?=\s*,|$)/);
+  if (locMatch) {
+    r.city = locMatch[1].trim();
+    r.state = locMatch[2].trim();
+    remaining = remaining.replace(locMatch[0].replace(/^,\s*/, ""), "");
+    remaining = remaining.replace(/\s*,\s*,/g, ",").replace(/^,\s*/, "").replace(/\s*,$/, "").trim();
+  }
+
+  // 3. Split by comma
   const parts = remaining.split(",").map((s) => s.trim()).filter(Boolean);
   if (!parts.length) return r;
   r.title = parts[0];
@@ -44,17 +143,44 @@ const parseInput = (text) => {
   for (let i = 1; i < parts.length; i++) {
     const raw = parts[i];
     const low = raw.toLowerCase();
-    const cat = CATEGORIES.find((c) => c.toLowerCase().includes(low) || low.includes(c.toLowerCase()));
+
+    const cat = CATEGORIES.find((c) => new RegExp(wordBoundary(c.toLowerCase()), "i").test(low));
     if (cat && !r.category) { r.category = cat; continue; }
-    const cond = CONDITIONS.find((c) => c.toLowerCase().includes(low) || low.includes(c.toLowerCase()));
+
+    const cond = CONDITIONS.find((c) => wordMatch(low, c));
     if (cond && !r.condition) { r.condition = cond; continue; }
-    const avail = AVAILABILITIES.find((a) => a.toLowerCase().includes(low) || low.includes(a.toLowerCase()));
+
+    const avail = AVAILABILITIES.find((a) => wordMatch(low, a));
     if (avail && !r.availability) { r.availability = avail; continue; }
+
+    if (!r.city && !r.state && isLocation(raw)) {
+      const words = raw.split(/\s+/);
+      if (words.length >= 2) {
+        const last = words[words.length - 1];
+        if (BRAZIL_STATES.includes(last.toUpperCase()) || STATE_NAMES.includes(last.toLowerCase())) {
+          r.city = words.slice(0, -1).join(" ");
+          r.state = last;
+        } else {
+          r.city = raw;
+        }
+      } else {
+        r.city = raw;
+      }
+      continue;
+    }
+
     r.description += (r.description ? ", " : "") + raw;
   }
 
-  const loc = text.match(/([\w\sÀ-ÿ]+)\s*[-–]\s*([\w\sÀ-ÿ]+)/);
-  if (loc) { r.city = loc[1].trim(); r.state = loc[2].trim(); }
+  // 4. Auto-detect category from title
+  if (!r.category && r.title) r.category = detectCategory(r.title);
+
+  // 5. Clean description: remove any leftover location or known fields
+  [r.city, r.state, r.title, r.price, r.condition, r.availability, r.category].filter(Boolean).forEach((f) => {
+    r.description = r.description.replace(new RegExp(escapeRegex(f), "gi"), "");
+    r.description = r.description.replace(/\s*,\s*,/g, ",").replace(/^,\s*/, "").replace(/\s*,$/, "").replace(/\s{2,}/g, " ").trim();
+  });
+
   return r;
 };
 
