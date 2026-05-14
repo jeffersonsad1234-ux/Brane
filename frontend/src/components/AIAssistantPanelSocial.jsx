@@ -748,9 +748,33 @@ export default function AIAssistantPanelSocial({
           )}
         </div>
 
-        {/* Messages + step cards */}
-        <div className="flex-1 overflow-y-auto px-5 py-3 space-y-2.5 scrollbar-thin min-h-0">
-          {messages.map((m) => (
+        {/* ═══ Mobile: Tutorial + Character (non-scrolling, top) ═══ */}
+        <div className="block md:hidden flex-shrink-0 px-5 pt-3 pb-0">
+          <div className="rounded-xl border border-[#D4A24C]/20 bg-[#D4A24C]/5 p-3">
+            <p className="text-xs text-white/90 whitespace-pre-wrap leading-relaxed">
+              Escreva os dados do seu anúncio separados por vírgula.
+            </p>
+            <p className="text-[10px] text-[#D4A24C]/70 mt-1.5 font-medium">
+              Ex: iPhone 12 Pro, R$1200, Belém Pará, em perfeito estado
+            </p>
+          </div>
+          <div className="flex justify-center mt-1 mb-0.5">
+            <div className="w-12 h-12 opacity-50">
+              <BraneScene state={braneState} />
+            </div>
+          </div>
+        </div>
+
+        {/* Messages + step cards (scrollable) */}
+        <div className="flex-1 overflow-y-auto px-5 py-2 space-y-2.5 scrollbar-thin min-h-0">
+          {/* Desktop: show first tutorial message as chat bubble */}
+          {messages.length > 0 && (
+            <div className="hidden md:block rounded-2xl px-3.5 py-2 text-sm max-w-[80%] mr-auto bg-white/10 text-white">
+              <span className="whitespace-pre-wrap">{messages[0].text}</span>
+            </div>
+          )}
+          {/* All messages after the first */}
+          {messages.slice(1).map((m) => (
             <div key={m.id}
               className={`rounded-2xl px-3.5 py-2 text-sm max-w-[80%] ${
                 m.from === "user"
