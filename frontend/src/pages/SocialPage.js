@@ -1235,37 +1235,35 @@ export default function SocialPage() {
             )}
 
             {aiFilled && !mobileShowForm && (
-              <div className="space-y-3 pt-1">
-                {/* Summary card */}
-                <div className="rounded-xl border border-[#D4A24C]/25 overflow-hidden"
-                  style={{ background: 'linear-gradient(180deg, rgba(212,162,76,0.06), rgba(10,10,15,0.92))' }}>
+              <div className="space-y-4 pt-1">
+                {/* Preview card — central, gold border, solid dark bg */}
+                <div className="rounded-xl border-2 border-[#D4A24C]/40 bg-[#0a0a14] p-4 space-y-2.5"
+                  style={{ boxShadow: '0 0 35px rgba(212,162,76,0.1)' }}>
                   {images.length > 0 && (
-                    <div className="flex gap-1.5 overflow-x-auto p-2 pb-0">
+                    <div className="flex gap-2 overflow-x-auto pb-1">
                       {images.map((img, i) => (
-                        <img key={i} src={img} className="w-16 h-16 rounded-lg object-cover border border-white/10 flex-shrink-0" />
+                        <img key={i} src={img} className="w-20 h-20 rounded-xl object-cover border border-white/10 flex-shrink-0" />
                       ))}
                     </div>
                   )}
-                  <div className="p-3.5 space-y-1.5">
-                    {form.category && (
-                      <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#D4A24C]/15 text-[#D4A24C] border border-[#D4A24C]/30">{form.category}</span>
-                    )}
-                    <p className="text-sm font-black text-white leading-tight">{form.title || "Título do anúncio"}</p>
-                    {form.price && <p className="text-base font-black brane-gold-text">R$ {form.price}</p>}
-                    {(form.city || form.state) && (
-                      <p className="text-[11px] text-[#A6A8B3]">📍 {[form.city, form.state].filter(Boolean).join(" - ")}</p>
-                    )}
-                    {form.productCondition && (
-                      <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#5B1CB5]/20 text-[#7C3AED] border border-[#5B1CB5]/30">{form.productCondition}</span>
-                    )}
-                    {form.description && (
-                      <p className="text-[11px] text-[#A6A8B3] leading-relaxed line-clamp-2">{form.description}</p>
-                    )}
-                  </div>
+                  {form.category && (
+                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#D4A24C]/15 text-[#D4A24C] border border-[#D4A24C]/30">{form.category}</span>
+                  )}
+                  <p className="text-base font-black text-white leading-tight">{form.title || "Título do anúncio"}</p>
+                  {form.price && <p className="text-lg font-black brane-gold-text">R$ {form.price}</p>}
+                  {(form.city || form.state) && (
+                    <p className="text-xs text-[#A6A8B3]">📍 {[form.city, form.state].filter(Boolean).join(" - ")}</p>
+                  )}
+                  {form.productCondition && (
+                    <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#5B1CB5]/20 text-[#7C3AED] border border-[#5B1CB5]/30">{form.productCondition}</span>
+                  )}
+                  {form.description && (
+                    <p className="text-xs text-[#A6A8B3] leading-relaxed line-clamp-2">{form.description}</p>
+                  )}
                 </div>
 
                 {/* Action buttons */}
-                <div className="space-y-2 pt-1 pb-4">
+                <div className="space-y-2 pb-4">
                   <button type="button" onClick={() => setMobileShowForm(true)}
                     className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-sm font-bold text-[#C9CBD6] hover:bg-white/[0.08] active:scale-[0.98]">
                     ✏️ Editar manualmente
