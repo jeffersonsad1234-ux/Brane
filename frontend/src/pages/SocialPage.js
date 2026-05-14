@@ -1254,11 +1254,25 @@ export default function SocialPage() {
                 flex: 1;
                 min-height: 0;
               }
+              .ai-card-footer::before,
+              .ai-card-footer::after,
+              .ai-card-actions::before,
+              .ai-card-actions::after,
+              .ai-card-bottom::before,
+              .ai-card-bottom::after {
+                display: none !important;
+                content: none !important;
+              }
               .ai-card-footer,
               .ai-card-actions,
               .ai-card-bottom {
-                border-top: none !important;
+                border-top: 0 !important;
+                background: transparent !important;
                 box-shadow: none !important;
+              }
+              .mobile-ai-modal::before,
+              .mobile-ai-modal::after {
+                display: none !important;
               }
               .ai-card-footer {
                 margin-top: auto;
