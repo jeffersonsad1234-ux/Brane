@@ -620,7 +620,7 @@ export default function SocialPage() {
       );
 
       setMessage("");
-      openChat({ post_id: getPostKey(selectedPost), sender_name: user?.name || "Você", message });
+      openChat({ post_id: getPostKey(selectedPost), sender_name: selectedPost?.user_name || "Usuário", message });
     } catch (error) {
       console.error(error);
       alert("Erro ao enviar mensagem.");
@@ -945,17 +945,17 @@ export default function SocialPage() {
                   Nenhuma notificação por enquanto.
                 </div>
               ) : (
-                notifications.map((item, index) => {
+                notifications.filter((n) => n.type === "social_message").map((item, index) => {
                   const nPostId = item.data?.post_id || item.post_id;
                   const notifPost = posts.find((p) => (p.post_id || p.id) === nPostId || getPostKey(p) === nPostId);
                   const notifImg = notifPost ? getPostImages(notifPost)[0] || "" : "";
                   const notifTitle = notifPost ? getTitle(notifPost) : (item.title || item.data?.sender_name || "Nova mensagem");
+                  const nSender = item.data?.sender_name || item.sender_name || "Usuário";
                   return (
                     <button
                       key={item.id || index}
                       onClick={() => {
                         setShowNotifications(false);
-                        const nSender = item.data?.sender_name || item.sender_name || "Usuário";
                         if (nPostId) {
                           setSelectedChat({ post_id: nPostId, sender_name: nSender, message: item.message || "" });
                           loadChatMessages(nPostId);
@@ -976,7 +976,7 @@ export default function SocialPage() {
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-white truncate">{notifTitle}</p>
                         <p className="text-[11px] text-[#A6A8B3] mt-0.5">
-                          {item.data?.sender_name || "Alguém"}: {item.message?.replace(/^[^:]+:\s*/, "").slice(0, 80) || item.content?.slice(0, 80) || "Nova mensagem"}
+                          {nSender}: {item.message?.slice(0, 80) || item.content?.slice(0, 80) || "Nova mensagem"}
                         </p>
                       </div>
                     </button>
@@ -1855,10 +1855,17 @@ export default function SocialPage() {
                       (messages || []).forEach((m) => {
                         const pid = m.post_id;
                         if (!pid || notifGrouped[pid]) return;
+                        let otherName = "Usuário";
+                        if (m.sender_id !== user?.user_id) {
+                          otherName = m.sender_name || "Usuário";
+                        } else {
+                          const otherMsg = (messages || []).find((msg) => msg.post_id === pid && msg.sender_id !== user?.user_id);
+                          if (otherMsg) otherName = otherMsg.sender_name || "Usuário";
+                        }
                         notifGrouped[pid] = {
                           post_id: pid,
                           lastMsg: { message: m.message, created_at: m.created_at },
-                          otherName: "Conversa",
+                          otherName,
                           createdAt: m.created_at || ""
                         };
                       });
