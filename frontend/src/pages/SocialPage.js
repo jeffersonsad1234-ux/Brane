@@ -598,7 +598,8 @@ export default function SocialPage() {
         { headers: authHeaders }
       );
 
-      alert("Mensagem enviada.");
+      setMessage("");
+      openChat({ post_id: getPostKey(selectedPost), sender_name: user?.name || "Você", message });
     } catch (error) {
       console.error(error);
       alert("Erro ao enviar mensagem.");
@@ -773,6 +774,13 @@ export default function SocialPage() {
       );
 
       loadChatMessages(selectedChat.post_id);
+      fetchMessages();
+      axios.get(API + "/notifications", { headers: authHeaders })
+        .then((r) => {
+          setNotifications(r.data.notifications || []);
+          setUnreadCount(r.data.unread || 0);
+        })
+        .catch(() => {});
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
       alert("Erro ao enviar mensagem.");
@@ -1822,6 +1830,17 @@ export default function SocialPage() {
                           notifGrouped[pid].createdAt = n.created_at;
                         }
                       });
+                      // Fallback: also use messages for posts without notifications (ex: sender's own messages)
+                      (messages || []).forEach((m) => {
+                        const pid = m.post_id;
+                        if (!pid || notifGrouped[pid]) return;
+                        notifGrouped[pid] = {
+                          post_id: pid,
+                          lastMsg: { message: m.message, created_at: m.created_at },
+                          otherName: "Conversa",
+                          createdAt: m.created_at || ""
+                        };
+                      });
                       const conversations = Object.values(notifGrouped);
                       conversations.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
                       if (conversations.length === 0) {
@@ -2080,10 +2099,15 @@ export default function SocialPage() {
                 setSelectedChat(null);
               }
             }}
-            className={value === (activeFilter === "all" ? "all" : activeFilter) ? "brane-bottom-active" : ""}
+            className={"relative " + (value === (activeFilter === "all" ? "all" : activeFilter) ? "brane-bottom-active" : "")}
           >
             <Icon size={20} />
             <span>{label}</span>
+            {value === "messages" && unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1">
+                {unreadCount}
+              </span>
+            )}
           </button>
         ))}
       </nav>
