@@ -1118,22 +1118,23 @@ export default function SocialPage() {
       )}
 
      {composerOpen && (
-  <div className="fixed inset-0 z-[100] bg-black/80 flex flex-col" style={{ backdropFilter: "blur(6px)" }}>
+  <div className="brane-composer-overlay fixed inset-0 z-[100] bg-black/80 flex flex-col" style={{ backdropFilter: "blur(6px)" }}>
+    <style>{`@media(max-width:767px){.brane-composer-overlay{height:100dvh!important}}`}</style>
      <div className="flex-1 min-h-0 p-0 md:p-3">
       <div className="h-full w-full md:rounded-[24px] overflow-hidden flex flex-col" style={{ animation: "blivreSlideIn 0.28s ease-out" }}>
-        <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 bg-[#08060d]/95 border-b border-white/[0.04]">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#D4A24C]/30">
+        <div className="flex items-center justify-between px-4 md:px-5 py-2.5 md:py-3 flex-shrink-0 bg-[#08060d]/95 border-b border-white/[0.04]">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="w-7 h-7 md:w-8 md:h-8 rounded-xl overflow-hidden ring-1 ring-[#D4A24C]/30">
               <img src="/logo-belivre.png" alt="B Livre" className="w-full h-full object-cover" />
             </div>
             <div>
               <h2 className="text-sm font-black text-white">{editingPost ? "Editar anúncio" : "Novo anúncio"}</h2>
-              <p className="text-[10px] text-[#6F7280] tracking-wide uppercase">B Livre — Anúncios</p>
+              <p className="text-[9px] md:text-[10px] text-[#6F7280] tracking-wide uppercase">B Livre — Anúncios</p>
             </div>
           </div>
           <button type="button" onClick={() => { setComposerOpen(false); setEditingPost(null); setUseAI(true); setGeneratedAd(null); setForm({ category: "", title: "", price: "", state: "", city: "", productCondition: "", description: "", availability: "Item único", phone: "", whatsapp: "" }); setImages([]); }}
-            className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#C9CBD6] hover:bg-white/10 hover:text-white transition-all">
-            <X size={17} />
+            className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#C9CBD6] hover:bg-white/10 hover:text-white transition-all">
+            <X size={16} />
           </button>
         </div>
 
