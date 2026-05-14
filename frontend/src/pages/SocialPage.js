@@ -388,8 +388,8 @@ export default function SocialPage() {
 
   useEffect(() => {
     const handlePop = () => {
-      if (selectedPost) { setSelectedPost(null); return; }
       if (selectedChat) { closeChat(); return; }
+      if (selectedPost) { setSelectedPost(null); return; }
       if (showNotifications) { setShowNotifications(false); return; }
       if (showSettings) { setShowSettings(false); return; }
       if (composerOpen) { setComposerOpen(false); return; }
@@ -605,7 +605,6 @@ export default function SocialPage() {
   const closePost = () => {
     setSelectedPost(null);
     setSelectedImageIndex(0);
-    if (window.history.state?.branePost) window.history.back();
   };
 
   const nextImage = () => {
@@ -789,9 +788,6 @@ export default function SocialPage() {
     setSelectedChat(null);
     setChatMessages([]);
     setChatMessage("");
-    if (window.history.state?.braneChat) {
-      window.history.back();
-    }
   };
 
   const sendChatMessage = async () => {
