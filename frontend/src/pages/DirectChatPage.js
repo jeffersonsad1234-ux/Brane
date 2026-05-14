@@ -20,26 +20,6 @@ export default function DirectChatPage() {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef(null);
 
-  const fetchMessages = async () => {
-    if (!token) return;
-    try {
-      const res = await axios.get(`${API}/direct-chat/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
-      setOther(res.data.other);
-      const sorted = (res.data.messages || []).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
-      setMessages(sorted);
-      setTimeout(() => {
-        if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-      }, 50);
-    } catch (err) {
-      if (err?.response?.status === 404) {
-        toast.error('Usuário não encontrado');
-        navigate(-1);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (!user) {
       navigate(`/auth?next=${encodeURIComponent(`/chat/${userId}`)}`);
@@ -50,14 +30,34 @@ export default function DirectChatPage() {
       navigate(-1);
       return;
     }
+
+    const fetchMessages = async () => {
+      if (!token) return;
+      try {
+        const res = await axios.get(`${API}/direct-chat/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
+        setOther(res.data.other);
+        const sorted = (res.data.messages || []).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        setMessages(sorted);
+        setTimeout(() => {
+          if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }, 50);
+      } catch (err) {
+        if (err?.response?.status === 404) {
+          toast.error('Usuário não encontrado');
+          navigate(-1);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchMessages();
     const interval = setInterval(fetchMessages, 3000);
     const onVisible = () => { if (!document.hidden) fetchMessages(); };
     document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('focus', onVisible);
     return () => { clearInterval(interval); document.removeEventListener('visibilitychange', onVisible); window.removeEventListener('focus', onVisible); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [userId, user, token]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;

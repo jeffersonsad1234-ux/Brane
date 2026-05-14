@@ -373,11 +373,16 @@ export default function SocialPage() {
     }
   }, [selectedChat?.post_id]);
 
+  const loadChatMessagesRef = useRef(loadChatMessages);
+  useEffect(() => {
+    loadChatMessagesRef.current = loadChatMessages;
+  });
+
   // Chat real-time polling using filtered endpoint (complete data)
   useEffect(() => {
     if (!selectedChat?.post_id) return;
     const interval = setInterval(() => {
-      loadChatMessages(selectedChat.post_id);
+      loadChatMessagesRef.current(selectedChat.post_id);
     }, 3000);
     return () => clearInterval(interval);
   }, [selectedChat?.post_id]);
@@ -747,7 +752,9 @@ export default function SocialPage() {
         }));
       setChatMessages(msgs);
       setTimeout(() => {
-        chatScrollRef.current?.scrollIntoView({ behavior: 'smooth' });
+        if (chatScrollRef.current) {
+          chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+        }
       }, 50);
     } catch (e) {
       console.error("Erro ao carregar mensagens:", e);
