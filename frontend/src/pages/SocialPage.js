@@ -351,6 +351,12 @@ export default function SocialPage() {
   }, [selectedChat, showNotifications, showSettings, selectedPost, composerOpen]);
 
   useEffect(() => {
+    if (selectedChat?.post_id) {
+      loadChatMessages(selectedChat.post_id);
+    }
+  }, [selectedChat?.post_id]);
+
+  useEffect(() => {
     expandedRef.current = expanded;
   }, [expanded]);
 
@@ -713,8 +719,9 @@ export default function SocialPage() {
   };
 
   const openChat = (chat) => {
+    setActiveFilter("messages");
     setSelectedChat(chat);
-    loadChatMessages(chat.post_id);
+    fetchMessages();
     window.history.pushState({ braneChat: true }, "", window.location.pathname);
   };
 
