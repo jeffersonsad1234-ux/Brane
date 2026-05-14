@@ -699,6 +699,12 @@ export default function SocialPage() {
     setSelectedChat(null);
     setSelectedCategory("");
     fetchMessages();
+    axios.get(API + "/notifications", { headers: authHeaders })
+      .then((r) => {
+        setNotifications(r.data.notifications || []);
+        setUnreadCount(r.data.unread || 0);
+      })
+      .catch(() => {});
   };
 
   const loadChatMessages = async (postId) => {
@@ -1775,27 +1781,31 @@ export default function SocialPage() {
                       Mensagens
                     </h2>
 
-                    {messages.length === 0 ? (
-                      <p className="text-sm text-[#8C8F9A]">
-                        Nenhuma mensagem por enquanto.
-                      </p>
-                    ) : (
-                      <div className="space-y-3">
-                        {(() => {
-                          const grouped = {};
-                          messages.forEach((m) => {
-                            const pid = m.post_id || "unknown";
-                            if (!grouped[pid]) grouped[pid] = { post_id: pid, messages: [] };
-                            grouped[pid].messages.push(m);
-                          });
-                          const conversations = Object.values(grouped).map((g) => {
-                            g.messages.sort((a, b) => (a.created_at || "").localeCompare(b.created_at || ""));
-                            const last = g.messages[g.messages.length - 1];
-                            const other = g.messages.find((m) => m.sender_id !== user?.user_id) || g.messages[0];
-                            return { post_id: g.post_id, lastMsg: last, otherName: other?.sender_name || "Você" };
-                          });
-                          conversations.sort((a, b) => ((b.lastMsg?.created_at || "") > (a.lastMsg?.created_at || "") ? 1 : -1));
-                          return conversations.map((conv, i) => {
+                    {(() => {
+                      // Build conversations from notifications (primary source = mesma fonte das notificações)
+                      const notifGrouped = {};
+                      (notifications || []).forEach((n) => {
+                        if (n.type !== "social_message") return;
+                        const pid = n.data?.post_id;
+                        if (!pid) return;
+                        const existing = notifGrouped[pid];
+                        if (!existing) {
+                          notifGrouped[pid] = { post_id: pid, lastMsg: null, otherName: n.data?.sender_name || "Usuário", createdAt: n.created_at || "" };
+                        }
+                        if (n.created_at > (notifGrouped[pid].createdAt || "")) {
+                          notifGrouped[pid].lastMsg = { message: n.message, created_at: n.created_at };
+                          notifGrouped[pid].otherName = n.data?.sender_name || notifGrouped[pid].otherName;
+                          notifGrouped[pid].createdAt = n.created_at;
+                        }
+                      });
+                      const conversations = Object.values(notifGrouped);
+                      conversations.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+                      if (conversations.length === 0) {
+                        return <p className="text-sm text-[#8C8F9A]">Nenhuma mensagem por enquanto.</p>;
+                      }
+                      return (
+                        <div className="space-y-3">
+                          {conversations.map((conv, i) => {
                             const convPost = posts.find((p) => (p.post_id || p.id || "") === conv.post_id || getPostKey(p) === conv.post_id);
                             const convImg = convPost ? getPostImages(convPost)[0] || "" : "";
                             const convTitle = convPost ? getTitle(convPost) : "Anúncio";
@@ -1815,17 +1825,17 @@ export default function SocialPage() {
                                 <div className="min-w-0 flex-1">
                                   <div className="flex items-center justify-between gap-2">
                                     <p className="text-sm font-semibold text-white truncate">{convTitle}</p>
-                                    <span className="text-[10px] text-[#6F7280] shrink-0">{conv.lastMsg?.created_at ? new Date(conv.lastMsg.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : ""}</span>
+                                    <span className="text-[10px] text-[#6F7280] shrink-0">{conv.createdAt ? new Date(conv.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : ""}</span>
                                   </div>
                                   <p className="text-xs text-[#D4A24C] mt-0.5 font-medium">{conv.otherName}</p>
                                   <p className="text-[11px] text-[#A6A8B3] mt-0.5 truncate">{conv.lastMsg?.message || "Clique para ver a conversa"}</p>
                                 </div>
                               </button>
                             );
-                          });
-                        })()}
-                      </div>
-                    )}
+                          })}
+                        </div>
+                      );
+                    })()}
                   </div>
                 )
               ) : loading ? (
