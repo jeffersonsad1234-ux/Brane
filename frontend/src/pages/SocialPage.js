@@ -1256,9 +1256,40 @@ export default function SocialPage() {
                       className="w-full p-3.5 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none resize-none focus:border-[#D4A24C]/40"
                       placeholder="Ex: iPhone 15, R$1200, Belém, perfeito estado" />
                     <button type="button" onClick={handleAiFill} disabled={!mobileAiText.trim()}
-                      className="w-full brane-btn-gold py-3 rounded-xl text-sm font-bold disabled:opacity-60 active:scale-[0.98]">
-                      <Sparkles size={16} className="inline mr-2" />Preencher com IA
+                      className="w-full py-2 rounded-xl text-xs font-bold text-[#D4A24C] bg-[#D4A24C]/10 border border-[#D4A24C]/20 hover:bg-[#D4A24C]/20 disabled:opacity-40 transition-all">
+                      <Sparkles size={13} className="inline mr-1.5" />Preencher com IA
                     </button>
+                  </div>
+                  {/* Footer */}
+                  <div className="border-t border-white/[0.04] p-3 space-y-2 flex-shrink-0">
+                    <div className="flex gap-2">
+                      <label className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-white/50 cursor-pointer hover:border-[#D4A24C]/40 flex-shrink-0">
+                        <Camera size={16} />
+                        <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
+                      </label>
+                      <input value={mobileAiText} onChange={(e) => setMobileAiText(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleAiFill()}
+                        placeholder="Descreva seu anúncio..."
+                        className="h-10 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm text-white outline-none focus:border-[#D4A24C]/40 placeholder:text-[#6F7280]" />
+                      <button type="button" onClick={handleAiFill} disabled={!mobileAiText.trim()}
+                        className="h-10 w-10 brane-btn-gold rounded-xl flex items-center justify-center disabled:opacity-50">
+                        <Send size={16} />
+                      </button>
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <button type="button" onClick={handleAiFill} disabled={!mobileAiText.trim()}
+                        className="flex-1 rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-40 transition-all">
+                        <Sparkles size={12} className="inline mr-1" />Melhorar
+                      </button>
+                      <button type="button" onClick={handleNewMobile}
+                        className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-2 text-xs font-bold text-[#C9CBD6] hover:bg-white/[0.08] active:scale-[0.98]">
+                        ➕ Novo
+                      </button>
+                      <button type="button" disabled
+                        className="flex-1 rounded-xl border border-white/5 bg-white/[0.02] py-2 text-xs font-bold text-[#6F7280] cursor-not-allowed">
+                        Publicar
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1342,17 +1373,13 @@ export default function SocialPage() {
                       </button>
                     </div>
                     <div className="flex gap-2 pt-1">
-                      <button type="button" onClick={() => setMobileShowForm(true)}
-                        className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-2 text-xs font-bold text-[#C9CBD6] hover:bg-white/[0.08] active:scale-[0.98]">
-                        ✏️ Editar
-                      </button>
                       <button type="button" onClick={() => { setMobileAiText(form.title + (form.price ? ", R$" + form.price : "") + ", " + [form.city, form.state].filter(Boolean).join(" - ")); setShowMobileAiInput(true); }}
-                        className="flex-1 rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 active:scale-[0.98]">
+                        className="flex-1 rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 transition-all">
                         <Sparkles size={12} className="inline mr-1" />Melhorar
                       </button>
                       <button type="button" onClick={handleNewMobile}
                         className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-2 text-xs font-bold text-[#C9CBD6] hover:bg-white/[0.08] active:scale-[0.98]">
-                        ✨ Novo
+                        ➕ Novo
                       </button>
                       <button type="button" onClick={publishFromModal} disabled={posting}
                         className="flex-1 brane-btn-gold py-2 text-xs font-bold disabled:opacity-60 active:scale-[0.98]">
