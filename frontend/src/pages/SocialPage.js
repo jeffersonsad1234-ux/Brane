@@ -1241,11 +1241,31 @@ export default function SocialPage() {
         <>
           {/* MOBILE: IA-first flow (PC-style card) */}
           <div className="flex md:hidden flex-col flex-1 overflow-hidden">
+            <style>{`@media(max-width:768px){
+              .ai-card-mobile {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                min-height: calc(100vh - 120px);
+                position: relative;
+                padding-bottom: 140px;
+              }
+              .ai-card-footer {
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 16px;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                padding: 0 16px;
+              }
+            }`}</style>
 
             {!aiFilled && !mobileShowForm && (
               <div className="flex-1 flex flex-col px-3 mt-0">
-                <div className="rounded-2xl border border-[#D4A24C]/30 bg-[#0a0a14] overflow-hidden flex flex-col w-full"
-                  style={{ height: 'calc(100dvh - 90px)', boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
+                <div className="ai-card-mobile rounded-2xl border border-[#D4A24C]/30 bg-[#0a0a14] overflow-hidden w-full"
+                  style={{ boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
                   <div className="px-4 py-3 border-b border-white/[0.04] flex-shrink-0">
                     <h2 className="text-sm font-black brane-gold-text tracking-wide">✨ Novo anúncio com IA</h2>
                     <p className="text-[10px] text-[#8C8F9A] mt-0.5">Crie seu anúncio de forma simples e rápida.</p>
@@ -1255,13 +1275,8 @@ export default function SocialPage() {
                       rows={3}
                       className="w-full p-3.5 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none resize-none focus:border-[#D4A24C]/40"
                       placeholder="Ex: iPhone 15, R$1200, Belém, perfeito estado" />
-                    <button type="button" onClick={handleAiFill} disabled={!mobileAiText.trim()}
-                      className="w-full py-2 rounded-xl text-xs font-bold text-[#D4A24C] bg-[#D4A24C]/10 border border-[#D4A24C]/20 hover:bg-[#D4A24C]/20 disabled:opacity-40 transition-all">
-                      <Sparkles size={13} className="inline mr-1.5" />Preencher com IA
-                    </button>
                   </div>
-                  {/* Footer */}
-                  <div className="border-t border-white/[0.04] p-3 space-y-2 flex-shrink-0">
+                  <div className="ai-card-footer">
                     <div className="flex gap-2">
                       <label className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-white/50 cursor-pointer hover:border-[#D4A24C]/40 flex-shrink-0">
                         <Camera size={16} />
@@ -1276,7 +1291,7 @@ export default function SocialPage() {
                         <Send size={16} />
                       </button>
                     </div>
-                    <div className="flex gap-2 pt-1">
+                    <div className="flex gap-2">
                       <button type="button" onClick={handleAiFill} disabled={!mobileAiText.trim()}
                         className="flex-1 rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-40 transition-all">
                         <Sparkles size={12} className="inline mr-1" />Melhorar
@@ -1297,8 +1312,8 @@ export default function SocialPage() {
 
             {aiFilled && !mobileShowForm && (
               <div className="flex-1 flex flex-col px-3 mt-0">
-                <div className="rounded-2xl border border-[#D4A24C]/30 bg-[#0a0a14] overflow-hidden flex flex-col w-full"
-                  style={{ height: 'calc(100dvh - 90px)', boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
+                <div className="ai-card-mobile rounded-2xl border border-[#D4A24C]/30 bg-[#0a0a14] overflow-hidden w-full"
+                  style={{ boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
                   {/* Card Header */}
                   <div className="px-4 py-3 border-b border-white/[0.04] flex-shrink-0">
                     <h2 className="text-sm font-black brane-gold-text tracking-wide">✨ Novo anúncio com IA</h2>
@@ -1356,7 +1371,7 @@ export default function SocialPage() {
                   </div>
 
                   {/* Footer */}
-                  <div className="border-t border-white/[0.04] p-3 space-y-2 flex-shrink-0">
+                  <div className="ai-card-footer">
                     <div className="flex gap-2">
                       <label className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-white/50 cursor-pointer hover:border-[#D4A24C]/40 flex-shrink-0">
                         <Camera size={16} />
@@ -1372,7 +1387,7 @@ export default function SocialPage() {
                         <Send size={16} />
                       </button>
                     </div>
-                    <div className="flex gap-2 pt-1">
+                    <div className="flex gap-2">
                       <button type="button" onClick={() => { setMobileAiText(form.title + (form.price ? ", R$" + form.price : "") + ", " + [form.city, form.state].filter(Boolean).join(" - ")); setShowMobileAiInput(true); }}
                         className="flex-1 rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 transition-all">
                         <Sparkles size={12} className="inline mr-1" />Melhorar
