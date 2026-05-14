@@ -913,6 +913,7 @@ export default function AIAssistantPanelSocial({
 
           <div ref={mobileEndRef} />
         </div>
+        </div>
 
         {/* Input bar fixed above bottom nav */}
         <div className="brane-ad-input-container px-4 py-3">
