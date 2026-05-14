@@ -844,8 +844,8 @@ export default function AIAssistantPanelSocial({
 .brane-ad-mobile .brane-ad-chat{flex:1!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
 .brane-ad-mobile .brane-ad-input{flex-shrink:0!important;border-top:1px solid rgba(255,255,255,0.04);background:#08060d}
 }`}</style>
-        {/* Tutorial card */}
-        <div className="flex-shrink-0 px-4 pt-2.5 pb-0.5">
+        {/* Scrollable chat — tutorial + character at top fills space naturally */}
+        <div className="brane-ad-chat px-4 py-1.5 space-y-2.5">
           <div className="rounded-xl border border-[#D4A24C]/20 bg-[#D4A24C]/6 p-2.5">
             <p className="text-xs text-white/85 leading-relaxed">
               Escreva os dados do seu anúncio separados por vírgula.
@@ -854,15 +854,11 @@ export default function AIAssistantPanelSocial({
               Ex: iPhone 12 Pro, R$1200, Belém Pará, em perfeito estado
             </p>
           </div>
-          <div className="flex justify-center -mt-1">
+          <div className="flex justify-center -mt-1 mb-1">
             <div className="w-8 h-8 opacity-30">
               <BraneScene state={braneState} />
             </div>
           </div>
-        </div>
-
-        {/* Scrollable chat */}
-        <div className="brane-ad-chat px-4 py-1.5 space-y-2.5">
           {messages.slice(1).map((m) => (
             <div key={m.id}
               className={`rounded-2xl px-3 py-2 text-sm max-w-[85%] ${
@@ -909,7 +905,7 @@ export default function AIAssistantPanelSocial({
         </div>
 
         {/* Input bar */}
-        <div className="brane-ad-input flex-shrink-0 px-4 py-2.5">
+        <div className="brane-ad-input flex-shrink-0 px-4 py-2.5" style={{ paddingBottom: "max(0.625rem, env(safe-area-inset-bottom, 0.625rem))" }}>
           <div className="flex gap-2">
             <input value={input} onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSubmitInput()}
