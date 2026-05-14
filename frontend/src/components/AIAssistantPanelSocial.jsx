@@ -16,15 +16,24 @@ const parseInput = (text) => {
   const r = { ...defaultAd };
   let remaining = text;
 
-  // 1. Extract price first (handles R$ 250,00 / 250,00 / 250.00 / R$250,00)
-  const pm = remaining.match(/(?:R\$\s*)?(\d+(?:[.,]\d{2})?)/i);
+  // 1. Extract price (priority: Brazilian format, then plain)
+  //   p1: R$ 1.234,56 or R$ 1234,56
+  //   p2: R$ 1234.56
+  //   p3: 1.234,56
+  //   p4: 1234,56 or 199,99
+  //   p5: 1234.56
+  //   p6: plain number >= 2 digits
+  const p1 = remaining.match(/R\$\s*(\d{1,3}(?:\.\d{3})*(?:,\d{2})|\d+(?:,\d{2}))/i);
+  const p2 = !p1 && remaining.match(/R\$\s*(\d+(?:\.\d{2}))/i);
+  const p3 = !p1 && !p2 && remaining.match(/(\d{1,3}(?:\.\d{3})+(?:,\d{2}))/);
+  const p4 = !p1 && !p2 && !p3 && remaining.match(/(\d+(?:,\d{2}))/);
+  const p5 = !p1 && !p2 && !p3 && !p4 && remaining.match(/(\d+(?:\.\d{2}))/);
+  const p6 = !p1 && !p2 && !p3 && !p4 && !p5 && remaining.match(/(\d{2,8})/);
+  const pm = p1 || p2 || p3 || p4 || p5 || p6;
   if (pm) {
-    const full = pm[0];
-    const num = pm[1];
-    if (/^R\$/i.test(full) || /[.,]\d{2}/.test(num) || /^\d{1,8}$/.test(num)) {
-      r.price = full.replace(/^R\$\s*/i, "").trim();
-      remaining = remaining.replace(full, "");
-    }
+    const raw = pm[1] || pm[0];
+    r.price = raw.replace(/^R\$\s*/i, "").trim();
+    remaining = remaining.replace(pm[0], "");
   }
 
   // 2. Split remaining by comma
