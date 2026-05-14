@@ -1118,8 +1118,7 @@ export default function SocialPage() {
       )}
 
      {composerOpen && (
-  <div className="brane-composer-overlay fixed inset-0 z-[9999] bg-black/80 flex flex-col" style={{ backdropFilter: "blur(6px)" }}>
-    <style>{`@media(max-width:767px){.brane-composer-overlay{height:100dvh!important}}`}</style>
+   <div className="brane-composer-overlay fixed top-0 left-0 right-0 z-[9999] bg-black/80 flex flex-col" style={{ height: '100dvh', backdropFilter: "blur(6px)" }}>
      <div className="flex-1 min-h-0 p-0 md:p-3">
       <div className="h-full w-full md:rounded-[24px] overflow-hidden flex flex-col" style={{ animation: "blivreSlideIn 0.28s ease-out" }}>
         <div className="flex items-center justify-between px-4 md:px-5 py-2.5 md:py-3 flex-shrink-0 bg-[#08060d]/95 border-b border-white/[0.04]">
@@ -2096,7 +2095,7 @@ export default function SocialPage() {
       )}
 
       {/* Mobile bottom navigation */}
-      <nav className="brane-bottom-nav">
+      <nav className="brane-bottom-nav" style={composerOpen ? { display: 'none' } : {}}>
         {[
           ["Início", Package, "all"],
           ["Mensagens", MessageSquare, "messages"],
