@@ -25,7 +25,7 @@ export default function EntryPage() {
       <header className="relative z-10 max-w-[1400px] mx-auto px-6 h-[76px] flex items-center justify-between">
         <Link to="/" className="flex items-center" data-testid="entry-logo">
           <div className="w-11 h-11 rounded-xl overflow-hidden ring-1 ring-[#D4A24C]/35">
-            <img src={BRANE_LOGO_URL} alt="BRANE" className="w-full h-full object-cover" />
+            <img src={BRANE_LOGO_URL} alt="Belivre" className="w-full h-full object-cover" />
           </div>
         </Link>
         <div className="flex items-center gap-3">
@@ -54,7 +54,7 @@ export default function EntryPage() {
                 letterSpacing: '-0.04em',
               }}
             >
-              BRANE
+              Belivre
             </h1>
             <p className="text-[11px] sm:text-sm tracking-[0.45em] uppercase text-white/75 font-semibold mb-6">
               Sua nova experiência
@@ -102,7 +102,7 @@ export default function EntryPage() {
             </div>
             <img
               src="/brand/hero_cube.png?v=6"
-              alt="BRANE 3D"
+              alt="Belivre 3D"
               className="relative w-full max-w-[520px] h-auto brane-hero-cube"
               onError={(e) => { e.currentTarget.style.display = 'none'; }}
             />
@@ -165,7 +165,7 @@ export default function EntryPage() {
             <h3 className="text-3xl md:text-4xl font-bold mb-3 font-['Outfit'] text-white tracking-tight">
               Pronto para <span className="text-[#6D28D9]">começar</span>?
             </h3>
-            <p className="text-[#A6A8B3] text-base">Crie sua conta e faça parte da nova experiência BRANE.</p>
+            <p className="text-[#A6A8B3] text-base">Crie sua conta e faça parte da nova experiência Belivre.</p>
           </div>
           <Link to={user ? '/market' : '/auth?mode=signup'} data-testid="entry-cta-create">
             <button className="brane-btn-primary">
@@ -178,8 +178,8 @@ export default function EntryPage() {
       {/* Footer simple */}
       <div className="relative z-10 border-t border-[#14171F] py-8">
         <div className="max-w-[1400px] mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#6F7280]">
-          <p>&copy; {new Date().getFullYear()} Brane Marketplace. Todos os direitos reservados.</p>
-          <p className="tracking-[0.3em] uppercase">BRANE EM VOCÊ</p>
+          <p>&copy; {new Date().getFullYear()} Belivre. Todos os direitos reservados.</p>
+          <p className="tracking-[0.3em] uppercase">Belivre</p>
         </div>
       </div>
     </div>

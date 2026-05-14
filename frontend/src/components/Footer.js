@@ -54,7 +54,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-2">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-11 h-11 rounded-xl overflow-hidden ring-1 ring-[#D4A24C]/30">
-                <img src={BRANE_LOGO_URL} alt="BRANE" className="w-full h-full object-cover" />
+                <img src={BRANE_LOGO_URL} alt="Belivre" className="w-full h-full object-cover" />
               </div>
             </div>
             <p className="text-sm text-[#A6A8B3] max-w-sm leading-relaxed mb-6">
@@ -83,7 +83,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-14 pt-6 border-t border-[#14171F] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#6F7280]">&copy; {new Date().getFullYear()} Brane Marketplace. Todos os direitos reservados.</p>
+          <p className="text-xs text-[#6F7280]">&copy; {new Date().getFullYear()} Belivre. Todos os direitos reservados.</p>
           <div className="flex items-center gap-2">
             {socialLinks.length === 0 ? null : socialLinks.map(({ key, url, label, Icon }) => (
               <a

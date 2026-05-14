@@ -12,7 +12,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from '../components/ui/dropdown-menu';
 
-export const BRANE_LOGO_URL = 'https://customer-assets.emergentagent.com/job_c29d4fb0-b06c-446b-816c-e3c5d6b5dce5/artifacts/1ed42si8_WhatsApp%20Image%202026-04-24%20at%2019.18.26.jpeg';
+export const BRANE_LOGO_URL = '/logo-belivre.png';
 
 const API = process.env.REACT_APP_BACKEND_URL + '/api';
 
@@ -90,7 +90,7 @@ export default function Navbar({ onSearch }) {
           <div className="h-full flex items-center gap-5">
             <Link to="/market" className="flex items-center shrink-0 group" data-testid="navbar-logo">
               <div className="relative w-11 h-11 rounded-xl overflow-hidden ring-1 ring-[#D4A24C]/30 group-hover:ring-[#D4A24C]/70 transition">
-                <img src={BRANE_LOGO_URL} alt="BRANE" className="w-full h-full object-cover" />
+                <img src={BRANE_LOGO_URL} alt="Belivre" className="w-full h-full object-cover" />
               </div>
             </Link>
 

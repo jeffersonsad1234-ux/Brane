@@ -77,7 +77,7 @@ export default function AuthPage() {
         loginData.password
       );
 
-      toast.success('Bem-vindo ao BRANE!');
+      toast.success('Bem-vindo à Belivre!');
 
       navigate(
         res.user.role === 'admin'
@@ -141,7 +141,7 @@ export default function AuthPage() {
           <div className="w-14 h-14 mx-auto rounded-2xl overflow-hidden ring-1 ring-[#D4A24C]/35 mb-4">
             <img
               src={BRANE_LOGO_URL}
-              alt="BRANE"
+              alt="Belivre"
               className="w-full h-full object-cover"
             />
           </div>
@@ -153,7 +153,7 @@ export default function AuthPage() {
           </div>
 
           <h1 className="text-3xl font-extrabold brane-gold-text mb-2">
-            BRANE
+            Belivre
           </h1>
 
           <p className="text-[11px] text-[#A6A8B3] tracking-[0.3em] uppercase">
