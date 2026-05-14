@@ -740,8 +740,8 @@ export default function AIAssistantPanelSocial({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-2.5 border-b border-white/[0.04] flex-shrink-0">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-lg bg-gradient-to-br from-[#D4A24C] to-[#8A6A24] flex items-center justify-center text-black font-black text-[10px]">B</div>
-            <span className="text-[10px] font-bold uppercase tracking-[0.14em] brane-gold-text">BRANE</span>
+            <img src="/logo-belivre.png" alt="B Livre" className="w-6 h-6 rounded-lg object-cover ring-1 ring-[#D4A24C]/30" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.14em] brane-gold-text">B Livre</span>
           </div>
           {step > 0 && (
             <button type="button" onClick={handleNew} className="text-[9px] font-bold text-[#6F7280] hover:text-[#D4A24C] transition-colors">✨ Novo</button>

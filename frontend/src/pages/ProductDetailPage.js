@@ -519,7 +519,7 @@ export default function ProductDetailPage() {
 
                   <div className="flex justify-between text-xs">
                     <span className="text-gray-500">Entrega</span>
-                    <span className="text-gray-800 font-semibold">BRANE</span>
+                    <span className="text-gray-800 font-semibold">B Livre</span>
                   </div>
 
                   <div className="flex justify-between text-xs">

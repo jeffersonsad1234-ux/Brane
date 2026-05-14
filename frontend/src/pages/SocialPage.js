@@ -1081,10 +1081,8 @@ export default function SocialPage() {
       <div className="h-full w-full rounded-[24px] overflow-hidden flex flex-col" style={{ animation: "blivreSlideIn 0.28s ease-out" }}>
         <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 bg-[#08060d]/95 border-b border-white/[0.04]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#D4A24C] to-[#8A6A24] p-[1px]">
-              <div className="w-full h-full rounded-xl bg-[#08060d] flex items-center justify-center">
-                <span className="text-[#D4A24C] font-black text-sm">B</span>
-              </div>
+            <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#D4A24C]/30">
+              <img src="/logo-belivre.png" alt="B Livre" className="w-full h-full object-cover" />
             </div>
             <div>
               <h2 className="text-sm font-black text-white">{editingPost ? "Editar anúncio" : "Novo anúncio"}</h2>
@@ -1498,10 +1496,8 @@ export default function SocialPage() {
         <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050508]/90 backdrop-blur-xl">
           <div className="max-w-[1600px] mx-auto px-4 py-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1px]">
-                <div className="w-full h-full rounded-2xl bg-[#09090D] flex items-center justify-center">
-                  <span className="text-[#F1D28A] font-black text-xl">B</span>
-                </div>
+              <div className="w-11 h-11 rounded-2xl overflow-hidden ring-1 ring-[#D4A24C]/40">
+                <img src="/logo-belivre.png" alt="B Livre" className="w-full h-full object-cover" />
               </div>
 
               <div>
