@@ -392,7 +392,6 @@ export default function SocialPage() {
       if (selectedChat) { closeChat(); return; }
       if (showNotifications) { setShowNotifications(false); return; }
       if (showSettings) { setShowSettings(false); return; }
-      if (selectedPost) { setSelectedPost(null); return; }
       if (composerOpen) { setComposerOpen(false); return; }
     };
     window.addEventListener("popstate", handlePop);
