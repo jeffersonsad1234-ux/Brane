@@ -1138,116 +1138,201 @@ export default function SocialPage() {
         </div>
 
         {!editingPost ? (
-        <div className="flex-1 min-h-0">
-          <AIAssistantPanelSocial
-            onPhotoUpload={async (files) => {
-              const fileList = Array.from(files || []);
-              const base64List = await Promise.all(
-                fileList.slice(0, 5).map((file) => fileToBase64(file))
-              );
-              setImages(base64List);
-            }}
-            onGenerateAd={(data) => {
-              const finalData = {
-                ...data,
-                photos: images.length > 0 ? images : data.photos || []
-              };
+        <>
+          {/* MOBILE: manual form (no AI) */}
+          <div className="flex md:hidden flex-col flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3">
+            <div>
+              <label className="text-xs text-[#8C8F9A] font-bold">Título *</label>
+              <input value={form.title} onChange={(e) => updateForm("title", e.target.value)}
+                className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none"
+                placeholder="Ex: iPhone 12 Pro" />
+            </div>
+            <div>
+              <label className="text-xs text-[#8C8F9A] font-bold">Preço</label>
+              <input value={form.price} onChange={(e) => updateForm("price", e.target.value)}
+                className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none"
+                placeholder="Ex: 1200" />
+            </div>
+            <div>
+              <label className="text-xs text-[#8C8F9A] font-bold">Categoria</label>
+              <select value={form.category} onChange={(e) => updateForm("category", e.target.value)}
+                className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none">
+                <option value="">Selecionar</option>
+                {categories.map((item) => (<option key={item} value={item}>{item}</option>))}
+              </select>
+            </div>
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <label className="text-xs text-[#8C8F9A] font-bold">Cidade</label>
+                <input value={form.city} onChange={(e) => updateForm("city", e.target.value)}
+                  className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none"
+                  placeholder="Cidade" />
+              </div>
+              <div className="flex-1">
+                <label className="text-xs text-[#8C8F9A] font-bold">Estado</label>
+                <select value={form.state} onChange={(e) => updateForm("state", e.target.value)}
+                  className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none">
+                  <option value="">UF</option>
+                  {states.map((item) => (<option key={item} value={item}>{item}</option>))}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs text-[#8C8F9A] font-bold">Condição</label>
+              <select value={form.productCondition} onChange={(e) => updateForm("productCondition", e.target.value)}
+                className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none">
+                <option value="">Selecionar</option>
+                {productConditions.map((item) => (<option key={item} value={item}>{item}</option>))}
+              </select>
+            </div>
+            <div>
+              <label className="text-xs text-[#8C8F9A] font-bold">Descrição</label>
+              <textarea value={form.description} onChange={(e) => updateForm("description", e.target.value)}
+                rows={3}
+                className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none resize-none"
+                placeholder="Descreva seu produto..." />
+            </div>
+            <div>
+              <label className="text-xs text-[#8C8F9A] font-bold mb-1.5 block">Fotos (máx 5)</label>
+              <div className="flex flex-wrap gap-2">
+                {images.map((img, i) => (
+                  <div key={i} className="relative w-14 h-14 rounded-lg overflow-hidden border border-white/10">
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => removeImageAt(i)}
+                      className="absolute top-0 right-0 w-4 h-4 bg-black/70 text-white text-[8px] rounded-bl-lg flex items-center justify-center">×</button>
+                  </div>
+                ))}
+                {images.length < 5 && (
+                  <label className="w-14 h-14 rounded-lg border-2 border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40">
+                    <Camera size={16} />
+                    <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
+                  </label>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-3 pt-2 pb-8">
+              <button type="button" onClick={publishFromModal} disabled={posting}
+                className="flex-1 brane-btn-gold py-3 rounded-xl text-sm font-bold disabled:opacity-60">
+                {posting ? "⏳ Publicando..." : "Publicar anúncio"}
+              </button>
+              <button type="button" onClick={() => { setComposerOpen(false); setEditingPost(null); }}
+                className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-3 text-sm font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
+                Cancelar
+              </button>
+            </div>
+          </div>
+          {/* DESKTOP/TABLET: AI Assistant */}
+          <div className="hidden md:flex flex-1 min-h-0">
+            <AIAssistantPanelSocial
+              onPhotoUpload={async (files) => {
+                const fileList = Array.from(files || []);
+                const base64List = await Promise.all(
+                  fileList.slice(0, 5).map((file) => fileToBase64(file))
+                );
+                setImages(base64List);
+              }}
+              onGenerateAd={(data) => {
+                const finalData = {
+                  ...data,
+                  photos: images.length > 0 ? images : data.photos || []
+                };
 
-              setForm({
-                category: finalData.category || "",
-                title: finalData.title || finalData.productName || "",
-                price: String(finalData.price || "").replace(/^R\$\s*/i, ""),
-                state: finalData.state || "",
-                city: finalData.city || "",
-                productCondition: finalData.condition || finalData.productCondition || "",
-                description: finalData.description || "",
-                availability: finalData.availability || "Item único"
-              });
+                setForm({
+                  category: finalData.category || "",
+                  title: finalData.title || finalData.productName || "",
+                  price: String(finalData.price || "").replace(/^R\$\s*/i, ""),
+                  state: finalData.state || "",
+                  city: finalData.city || "",
+                  productCondition: finalData.condition || finalData.productCondition || "",
+                  description: finalData.description || "",
+                  availability: finalData.availability || "Item único"
+                });
 
-              setGeneratedAd(finalData);
-              setIsGeneratingAd(false);
-            }}
-            onImproveAd={(improvedAd) => {
-              const finalData = {
-                ...improvedAd,
-                photos: images.length > 0 ? images : improvedAd.photos || []
-              };
+                setGeneratedAd(finalData);
+                setIsGeneratingAd(false);
+              }}
+              onImproveAd={(improvedAd) => {
+                const finalData = {
+                  ...improvedAd,
+                  photos: images.length > 0 ? images : improvedAd.photos || []
+                };
 
-              setForm({
-                category: finalData.category || form.category,
-                title: finalData.title || form.title,
-                price: String(finalData.price || form.price || "").replace(/^R\$\s*/i, ""),
-                state: finalData.state || form.state,
-                city: finalData.city || form.city,
-                productCondition: finalData.condition || finalData.productCondition || form.productCondition,
-                description: finalData.description || form.description,
-                availability: finalData.availability || form.availability,
-                phone: finalData.phone || form.phone,
-                whatsapp: finalData.whatsapp || form.whatsapp
-              });
+                setForm({
+                  category: finalData.category || form.category,
+                  title: finalData.title || form.title,
+                  price: String(finalData.price || form.price || "").replace(/^R\$\s*/i, ""),
+                  state: finalData.state || form.state,
+                  city: finalData.city || form.city,
+                  productCondition: finalData.condition || finalData.productCondition || form.productCondition,
+                  description: finalData.description || form.description,
+                  availability: finalData.availability || form.availability,
+                  phone: finalData.phone || form.phone,
+                  whatsapp: finalData.whatsapp || form.whatsapp
+                });
 
-              setGeneratedAd(finalData);
-            }}
-            onGenerateNew={() => {
-              setGeneratedAd(null);
-              setImages([]);
-              setForm({
-                category: "",
-                title: "",
-                price: "",
-                state: "",
-                city: "",
-                productCondition: "",
-                description: "",
-                availability: "Item único",
-                phone: "",
-                whatsapp: ""
-              });
-            }}
-            onFillForm={(data) => {
-              setForm({
-                category: data.category || "",
-                title: data.title || data.productName || "",
-                price: String(data.price || "").replace(/^R\$\s*/i, ""),
-                state: data.state || "",
-                city: data.city || "",
-                productCondition: data.condition || data.productCondition || "",
-                description: data.description || "",
-                availability: data.availability || "Item único",
-                phone: data.phone || "",
-                whatsapp: data.whatsapp || ""
-              });
-            }}
-            onPublishAd={async (ad) => {
-              const nextForm = {
-                category: ad.category || "",
-                title: ad.title || ad.productName || "",
-                price: String(ad.price || "").replace(/^R\$\s*/i, ""),
-                state: ad.state || "",
-                city: ad.city || "",
-                productCondition: ad.condition || ad.productCondition || "",
-                description: ad.description || "",
-                availability: ad.availability || "Item único",
-                phone: ad.phone || "",
-                whatsapp: ad.whatsapp || ""
-              };
-              setForm(nextForm);
-
-              // Use the already-resized images from SocialPage state (fileToBase64 900px)
-              const nextImages = (images || []).filter(Boolean).slice(0, 5);
-              if (nextImages.length > 0) setImages(nextImages);
-
-              const ok = await createPost(nextForm, nextImages.length > 0 ? nextImages : images);
-              if (ok) {
-                setComposerOpen(false);
+                setGeneratedAd(finalData);
+              }}
+              onGenerateNew={() => {
                 setGeneratedAd(null);
-              }
-              return ok;
-            }}
-            generatedAd={generatedAd}
-            isGenerating={isGeneratingAd}
-          />
-        </div>
+                setImages([]);
+                setForm({
+                  category: "",
+                  title: "",
+                  price: "",
+                  state: "",
+                  city: "",
+                  productCondition: "",
+                  description: "",
+                  availability: "Item único",
+                  phone: "",
+                  whatsapp: ""
+                });
+              }}
+              onFillForm={(data) => {
+                setForm({
+                  category: data.category || "",
+                  title: data.title || data.productName || "",
+                  price: String(data.price || "").replace(/^R\$\s*/i, ""),
+                  state: data.state || "",
+                  city: data.city || "",
+                  productCondition: data.condition || data.productCondition || "",
+                  description: data.description || "",
+                  availability: data.availability || "Item único",
+                  phone: data.phone || "",
+                  whatsapp: data.whatsapp || ""
+                });
+              }}
+              onPublishAd={async (ad) => {
+                const nextForm = {
+                  category: ad.category || "",
+                  title: ad.title || ad.productName || "",
+                  price: String(ad.price || "").replace(/^R\$\s*/i, ""),
+                  state: ad.state || "",
+                  city: ad.city || "",
+                  productCondition: ad.condition || ad.productCondition || "",
+                  description: ad.description || "",
+                  availability: ad.availability || "Item único",
+                  phone: ad.phone || "",
+                  whatsapp: ad.whatsapp || ""
+                };
+                setForm(nextForm);
+
+                // Use the already-resized images from SocialPage state (fileToBase64 900px)
+                const nextImages = (images || []).filter(Boolean).slice(0, 5);
+                if (nextImages.length > 0) setImages(nextImages);
+
+                const ok = await createPost(nextForm, nextImages.length > 0 ? nextImages : images);
+                if (ok) {
+                  setComposerOpen(false);
+                  setGeneratedAd(null);
+                }
+                return ok;
+              }}
+              generatedAd={generatedAd}
+              isGenerating={isGeneratingAd}
+            />
+          </div>
+        </>
       ) : (
         <div className="flex-1 overflow-y-auto pr-1">
           <div className="grid md:grid-cols-2 gap-3">
