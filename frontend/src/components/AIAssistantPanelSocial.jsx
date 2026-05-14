@@ -721,7 +721,7 @@ export default function AIAssistantPanelSocial({
   };
 
   return (
-    <div className="flex h-full w-full rounded-[24px] overflow-hidden bg-[#08060d]"
+    <div className="flex h-full w-full md:rounded-[24px] overflow-hidden bg-[#08060d]"
       style={{ boxShadow: "0 0 80px rgba(212,162,76,0.05), inset 0 0 60px rgba(212,162,76,0.02)" }}>
       {/* ═══ LEFT: Character (25%) ═══ */}
       <div className="w-[25%] min-w-[180px] max-w-[280px] relative hidden md:flex flex-col flex-shrink-0"
@@ -736,9 +736,9 @@ export default function AIAssistantPanelSocial({
       </div>
 
       {/* ═══ CENTER: Chat (flex, full on mobile) ═══ */}
-      <div className="flex-1 flex flex-col min-w-0 md:max-w-[55%] border-r border-white/[0.03]">
-        {/* Header */}
-        <div className="flex items-center justify-between px-5 py-2.5 border-b border-white/[0.04] flex-shrink-0">
+      <div className="flex-1 flex flex-col min-w-0 md:max-w-[55%] md:border-r md:border-white/[0.03]">
+        {/* Header (hidden on mobile — SocialPage provides "Novo anúncio") */}
+        <div className="hidden md:flex items-center justify-between px-5 py-2.5 border-b border-white/[0.04] flex-shrink-0">
           <div className="flex items-center gap-2">
             <img src="/logo-belivre.png" alt="B Livre" className="w-6 h-6 rounded-lg object-cover ring-1 ring-[#D4A24C]/30" />
             <span className="text-[10px] font-bold uppercase tracking-[0.14em] brane-gold-text">B Livre</span>
@@ -799,8 +799,19 @@ export default function AIAssistantPanelSocial({
                     <p className="text-[9px] text-[#6F7280]">Preenchendo dados...</p>
                   </div>
                 )}
+                <button type="button" onClick={handleNew} disabled={publishing}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
+                  ✨ Novo anúncio
+                </button>
               </>
-            ) : null}
+            ) : (
+              step > 0 && (
+                <button type="button" onClick={handleNew}
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
+                  ✨ Novo anúncio
+                </button>
+              )
+            )}
           </div>
 
           <div ref={endRef} />

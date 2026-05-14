@@ -1119,8 +1119,8 @@ export default function SocialPage() {
 
      {composerOpen && (
   <div className="fixed inset-0 z-[100] bg-black/80 flex flex-col" style={{ backdropFilter: "blur(6px)" }}>
-    <div className="flex-1 min-h-0 p-2 md:p-3">
-      <div className="h-full w-full rounded-[24px] overflow-hidden flex flex-col" style={{ animation: "blivreSlideIn 0.28s ease-out" }}>
+     <div className="flex-1 min-h-0 p-0 md:p-3">
+      <div className="h-full w-full md:rounded-[24px] overflow-hidden flex flex-col" style={{ animation: "blivreSlideIn 0.28s ease-out" }}>
         <div className="flex items-center justify-between px-5 py-3 flex-shrink-0 bg-[#08060d]/95 border-b border-white/[0.04]">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl overflow-hidden ring-1 ring-[#D4A24C]/30">
