@@ -735,8 +735,8 @@ export default function AIAssistantPanelSocial({
         </div>
       </div>
 
-      {/* ═══ CENTER: Chat (flex, ~50%) ═══ */}
-      <div className="flex-1 flex flex-col min-w-0 max-w-[55%] border-r border-white/[0.03]">
+      {/* ═══ CENTER: Chat (flex, full on mobile) ═══ */}
+      <div className="flex-1 flex flex-col min-w-0 md:max-w-[55%] border-r border-white/[0.03]">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-2.5 border-b border-white/[0.04] flex-shrink-0">
           <div className="flex items-center gap-2">
@@ -761,6 +761,48 @@ export default function AIAssistantPanelSocial({
             </div>
           ))}
           {renderStepContent()}
+
+          {/* ═══ Mobile-only: Preview + Actions ═══ */}
+          <div className="block md:hidden space-y-3 pt-2">
+            {hasAd ? (
+              <>
+                <PreviewCard ad={ad} images={photoPreviews} />
+                {step === 6 && (
+                  <div className="space-y-2">
+                    <button type="button" onClick={handleImprove} disabled={!ad || isGenerating || publishing}
+                      className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all">
+                      <Sparkles size={13} className="inline mr-1.5" />Melhorar anúncio
+                    </button>
+                    <button type="button" onClick={handlePublish} disabled={!ad || isGenerating || publishing}
+                      className="w-full brane-btn-gold py-2.5 text-xs font-bold disabled:opacity-50">
+                      {publishing ? "⏳ Publicando..." : "Publicar agora"}
+                    </button>
+                    {publishError && (
+                      <p className="text-[10px] text-red-400 text-center">{publishError}</p>
+                    )}
+                    <button type="button" onClick={handleNew} disabled={publishing}
+                      className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
+                      ✨ Novo anúncio
+                    </button>
+                  </div>
+                )}
+                {step > 0 && step < 6 && (
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-1.5 h-1.5 rounded-full ${step > 0 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                      <div className={`w-1.5 h-1.5 rounded-full ${step > 1 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                      <div className={`w-1.5 h-1.5 rounded-full ${step > 2 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                      <div className={`w-1.5 h-1.5 rounded-full ${step > 3 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                      <div className={`w-1.5 h-1.5 rounded-full ${step > 4 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                      <div className={`w-1.5 h-1.5 rounded-full ${step > 5 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                    </div>
+                    <p className="text-[9px] text-[#6F7280]">Preenchendo dados...</p>
+                  </div>
+                )}
+              </>
+            ) : null}
+          </div>
+
           <div ref={endRef} />
         </div>
 

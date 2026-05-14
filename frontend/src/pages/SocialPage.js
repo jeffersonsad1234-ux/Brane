@@ -2088,7 +2088,7 @@ export default function SocialPage() {
       </div>
 
       {/* Mobile FAB anunciar (only on Início/feed) */}
-      {(activeFilter === "all" && !selectedPost && !showNotifications && !showSettings) && (
+      {(activeFilter === "all" && !selectedPost && !showNotifications && !showSettings && !composerOpen) && (
         <button className="brane-fab" onClick={() => { if (!requireAuth()) return; setUseAI(true); setComposerOpen(true); }}>
           +
         </button>
