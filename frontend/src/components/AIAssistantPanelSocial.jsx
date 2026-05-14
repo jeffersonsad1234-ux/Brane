@@ -59,11 +59,11 @@ const STATE_NAMES = [
 
 const CATEGORY_KEYWORDS = [
   { cat: "Veículos", words: ["bicicleta","bike","moto","motocicleta","carro","automóvel","caminhão","caminhonete","ônibus","veículo","patinete","skate"] },
+  { cat: "Serviços", words: ["serviço","conserto","manutenção","aula","reforma","limpeza","entrega","frete","instalação","reparo","pintura","consultoria"] },
   { cat: "Celulares", words: ["celular","iphone","smartphone","tablet","ipad","notebook","computador","pc","laptop","apple","samsung","xiaomi","motorola","fone","carregador","cabo","teclado","mouse","monitor"] },
   { cat: "Imóveis", words: ["casa","apartamento","kitnet","terreno","sala comercial","imóvel","aluguel","condomínio","cobertura"] },
   { cat: "Casa e móveis", words: ["cama","colchão","sofá","mesa","cadeira","armário","estante","móvel","guarda-roupa","geladeira","fogão","micro-ondas","tv","televisão","ventilador","tapete","cortina"] },
   { cat: "Moda", words: ["sapato","roupa","bolsa","vestido","camisa","calça","tênis","jaqueta","blusa","bermuda","short","casaco","sandália","cinto","chapéu","moletom"] },
-  { cat: "Serviços", words: ["serviço","conserto","manutenção","aula","reforma","limpeza","entrega","frete","instalação","reparo","pintura","consultoria"] },
 ];
 
 const isLocation = (s) => {
@@ -81,7 +81,7 @@ const isLocation = (s) => {
   if (words.length >= 2) {
     const last = words[words.length - 1];
     const rest = words.slice(0, -1).join(" ");
-    if (KNOWN_CITIES.includes(rest) && (BRAZIL_STATES.includes(last.toUpperCase()) || STATE_NAMES.includes(last))) return true;
+    if (BRAZIL_STATES.includes(last.toUpperCase()) || STATE_NAMES.includes(last)) return true;
   }
   return false;
 };
@@ -540,9 +540,8 @@ export default function AIAssistantPanelSocial({
   const handleRetype = () => { setStep(0); setLocalAd(defaultAd); addMsg("Digite novamente:"); };
 
   const handleSelectCondition = (cond) => {
-    const needsAvail = !safe(ad.availability) || !safe(ad.availability);
     setLocalAd((prev) => ({ ...prev, condition: cond }));
-    setStep(!safe(ad.availability) && !safe(cond) ? 3 : 4);
+    setStep(!safe(ad.availability) ? 3 : 4);
   };
 
   const handleSelectAvailability = (avail) => {

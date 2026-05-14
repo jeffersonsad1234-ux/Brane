@@ -1360,7 +1360,7 @@ export default function SocialPage() {
                 <div className="flex flex-col h-[85vh] max-h-[650px] brane-modal-sidebar" style={{ background: 'linear-gradient(180deg, rgba(9,10,15,0.98), rgba(5,6,10,1))' }}>
                   <div className="flex-1 overflow-y-auto px-6 pt-6 pb-3">
                     <div className="brane-badge brane-badge-gold mb-3 inline-flex">
-                      {getCategory(selectedPost) || "Produto"}
+                      {getCategory(selectedPost) || "Outros"}
                     </div>
 
                     <h2 className="text-xl font-bold text-[#F7F7FA] leading-tight">
