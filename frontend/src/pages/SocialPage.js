@@ -199,6 +199,14 @@ export default function SocialPage() {
     );
   };
 
+  // Find real name from any object checking all possible fields
+  const findName = (obj) => {
+    if (!obj) return "";
+    return obj.sender_name || obj.name || obj.user_name || obj.buyer_name ||
+           obj.seller_name || obj.receiver_name || obj.owner_name || obj.author ||
+           obj.sender || obj.user?.name || obj.profile?.name || "";
+  };
+
   const fileToBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -374,7 +382,7 @@ export default function SocialPage() {
       .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
       .map((m) => ({
         id: m.message_id || m.id,
-        sender: m.sender_name || "Usuário",
+        sender: findName(m) || "Usuário",
         message: m.message,
         timestamp: new Date(m.created_at || Date.now()),
         isMine: m.sender_id === user?.user_id
@@ -620,7 +628,7 @@ export default function SocialPage() {
       );
 
       setMessage("");
-      openChat({ post_id: getPostKey(selectedPost), sender_name: selectedPost?.user_name || "Usuário", message });
+      openChat({ post_id: getPostKey(selectedPost), sender_name: findName(selectedPost) || "Usuário", message });
     } catch (error) {
       console.error(error);
       alert("Erro ao enviar mensagem.");
@@ -746,7 +754,7 @@ export default function SocialPage() {
         .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
         .map((m) => ({
           id: m.message_id || m.id,
-          sender: m.sender_name || "Usuário",
+          sender: findName(m) || "Usuário",
           message: m.message,
           timestamp: new Date(m.created_at || Date.now()),
           isMine: m.sender_id === user?.user_id
@@ -950,7 +958,7 @@ export default function SocialPage() {
                   const notifPost = posts.find((p) => (p.post_id || p.id) === nPostId || getPostKey(p) === nPostId);
                   const notifImg = notifPost ? getPostImages(notifPost)[0] || "" : "";
                   const notifTitle = notifPost ? getTitle(notifPost) : (item.title || item.data?.sender_name || "Nova mensagem");
-                  const nSender = item.data?.sender_name || item.sender_name || "Usuário";
+                  const nSender = findName(item.data) || findName(item) || "Usuário";
                   return (
                     <button
                       key={item.id || index}
@@ -1768,7 +1776,7 @@ export default function SocialPage() {
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="font-bold text-xl flex items-center gap-2 brane-gold-text">
                         <MessageSquare size={20} />
-                        Chat com {selectedChat.sender_name || selectedChat.name || "Usuário"}
+                        Chat com {findName(selectedChat) || "Usuário"}
                       </h2>
                       <button
                         onClick={closeChat}
@@ -1843,7 +1851,7 @@ export default function SocialPage() {
                         if (!pid) return;
                         const existing = notifGrouped[pid];
                         if (!existing) {
-                          notifGrouped[pid] = { post_id: pid, lastMsg: null, otherName: n.data?.sender_name || "Usuário", createdAt: n.created_at || "" };
+                          notifGrouped[pid] = { post_id: pid, lastMsg: null, otherName: findName(n.data) || findName(n) || "Usuário", createdAt: n.created_at || "" };
                         }
                         if (n.created_at > (notifGrouped[pid].createdAt || "")) {
                           notifGrouped[pid].lastMsg = { message: n.message, created_at: n.created_at };
@@ -1855,12 +1863,10 @@ export default function SocialPage() {
                       (messages || []).forEach((m) => {
                         const pid = m.post_id;
                         if (!pid || notifGrouped[pid]) return;
-                        let otherName = "Usuário";
-                        if (m.sender_id !== user?.user_id) {
-                          otherName = m.sender_name || "Usuário";
-                        } else {
+                        let otherName = findName(m) || "Usuário";
+                        if (m.sender_id === user?.user_id) {
                           const otherMsg = (messages || []).find((msg) => msg.post_id === pid && msg.sender_id !== user?.user_id);
-                          if (otherMsg) otherName = otherMsg.sender_name || "Usuário";
+                          if (otherMsg) otherName = findName(otherMsg) || "Usuário";
                         }
                         notifGrouped[pid] = {
                           post_id: pid,
