@@ -98,6 +98,8 @@ export default function SocialPage() {
   const [unreadCount, setUnreadCount] = useState(0);
   const notifIntervalRef = useRef(null);
   const messagesIntervalRef = useRef(null);
+  const selectedChatRef = useRef(null);
+  const userRef = useRef(user);
 
   useEffect(() => {
     const handler = (e) => {
@@ -336,7 +338,31 @@ export default function SocialPage() {
 
     messagesIntervalRef.current = setInterval(() => {
       axios.get(API + "/social/messages", { headers: authHeaders })
-        .then((r) => setMessages(r.data.messages || []))
+        .then((r) => {
+          const msgs = r.data.messages || [];
+          setMessages(msgs);
+          // Real-time update for open chat using refs (avoids stale closures)
+          const chat = selectedChatRef.current;
+          const curUser = userRef.current;
+          if (chat?.post_id) {
+            const chatMsgs = msgs
+              .filter((m) => m.post_id === chat.post_id)
+              .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+              .map((m) => ({
+                id: m.message_id || m.id,
+                sender: findName(m) || "Usuário",
+                message: m.message,
+                timestamp: new Date(m.created_at || Date.now()),
+                isMine: m.sender_id === curUser?.user_id
+              }));
+            if (chatMsgs.length > 0) {
+              setChatMessages(chatMsgs);
+              setTimeout(() => {
+                chatScrollRef.current?.scrollIntoView({ behavior: "smooth" });
+              }, 50);
+            }
+          }
+        })
         .catch(() => {});
     }, 3000);
 
@@ -356,8 +382,13 @@ export default function SocialPage() {
     };
   }, [token]);
 
+  // Keep refs in sync for polling callbacks
+  useEffect(() => { selectedChatRef.current = selectedChat; }, [selectedChat]);
+  useEffect(() => { userRef.current = user; }, [user]);
+
   useEffect(() => {
     const handlePop = () => {
+      if (selectedPost) { setSelectedPost(null); return; }
       if (selectedChat) { closeChat(); return; }
       if (showNotifications) { setShowNotifications(false); return; }
       if (showSettings) { setShowSettings(false); return; }
@@ -373,27 +404,6 @@ export default function SocialPage() {
       loadChatMessages(selectedChat.post_id);
     }
   }, [selectedChat?.post_id]);
-
-  // Auto-update chat view when new messages arrive via polling
-  useEffect(() => {
-    if (!selectedChat?.post_id) return;
-    const filtered = (messages || [])
-      .filter((m) => m.post_id === selectedChat.post_id)
-      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-      .map((m) => ({
-        id: m.message_id || m.id,
-        sender: findName(m) || "Usuário",
-        message: m.message,
-        timestamp: new Date(m.created_at || Date.now()),
-        isMine: m.sender_id === user?.user_id
-      }));
-    if (filtered.length > 0) {
-      setChatMessages(filtered);
-      setTimeout(() => {
-        chatScrollRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 50);
-    }
-  }, [messages, selectedChat?.post_id]);
 
   useEffect(() => {
     expandedRef.current = expanded;
