@@ -4,7 +4,7 @@ import {
   Image, Send, User, Bell, Search, MessageSquare,
   Settings, BadgeCheck, Package, MapPin, Tags,
   Heart, X, ChevronLeft, ChevronRight, Globe, Camera, ShoppingCart,
-  Copy, Phone
+  Copy, Phone, Sparkles
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import ProductImageZoom from "../components/ProductImageZoom";
@@ -91,6 +91,8 @@ export default function SocialPage() {
   const [isGeneratingAd, setIsGeneratingAd] = useState(false);
 
   const [editingPost, setEditingPost] = useState(null);
+  const [showMobileAiInput, setShowMobileAiInput] = useState(false);
+  const [mobileAiText, setMobileAiText] = useState("");
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
@@ -442,6 +444,67 @@ export default function SocialPage() {
 
   const updateForm = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleAiFill = () => {
+    const text = mobileAiText.trim();
+    if (!text) return;
+
+    const conditions = ["Novo", "Seminovo", "Usado", "Recondicionado"];
+    const catKeywords = {
+      "Celulares": ["celular", "iphone", "smartphone", "tablet", "ipad", "notebook", "computador", "apple", "samsung", "xiaomi", "fone", "carregador"],
+      "Veículos": ["bicicleta", "bike", "moto", "carro", "caminhão", "veículo", "patinete", "skate"],
+      "Imóveis": ["casa", "apartamento", "kitnet", "terreno", "imóvel", "aluguel", "condomínio"],
+      "Casa e móveis": ["cama", "sofá", "mesa", "cadeira", "armário", "móvel", "geladeira", "fogão", "tv", "televisão", "ventilador"],
+      "Moda": ["sapato", "roupa", "bolsa", "vestido", "camisa", "tênis", "jaqueta", "calça", "bermuda", "casaco"],
+      "Serviços": ["serviço", "conserto", "manutenção", "aula", "reforma", "limpeza", "instalação", "frete"]
+    };
+    const ufs = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
+
+    let remaining = text;
+
+    const pm = remaining.match(/R\$\s*(\d{1,3}(?:\.\d{3})*(?:,\d{2})|\d+(?:,\d{2})|\d+)/i);
+    if (pm) {
+      updateForm("price", pm[1].trim());
+      remaining = remaining.replace(pm[0], "").replace(/,\s*,/g, ",").replace(/^,\s*/, "").replace(/,\s*$/, "").trim();
+    }
+
+    const locMatch = remaining.match(/(?:^|,\s*)([\w\sÀ-ÿ]+)\s*[-–]\s*([A-Za-zÀ-ÿ]{2,})(?=\s*,|$)/);
+    if (locMatch) {
+      updateForm("city", locMatch[1].trim());
+      const st = locMatch[2].trim().toUpperCase();
+      if (ufs.includes(st)) updateForm("state", st);
+      remaining = remaining.replace(locMatch[0].replace(/^,\s*/, ""), "");
+    }
+
+    const parts = remaining.split(",").map((s) => s.trim()).filter(Boolean);
+    if (!parts.length) { setShowMobileAiInput(false); setMobileAiText(""); return; }
+    updateForm("title", parts[0]);
+
+    const descParts = [];
+    for (let i = 1; i < parts.length; i++) {
+      const raw = parts[i];
+      const low = raw.toLowerCase();
+
+      const cond = conditions.find((c) => c.toLowerCase() === low || raw.match(new RegExp(c, "i")));
+      if (cond && !form.productCondition) { updateForm("productCondition", cond); continue; }
+
+      for (const [cat, words] of Object.entries(catKeywords)) {
+        if (words.some((w) => low.includes(w)) && !form.category) {
+          updateForm("category", cat); break;
+        }
+      }
+
+      if (!form.city && low.length > 2 && /^[a-zà-ÿ\s]+$/.test(low) && !ufs.includes(raw.toUpperCase())) {
+        updateForm("city", raw); continue;
+      }
+
+      descParts.push(raw);
+    }
+    if (descParts.length) updateForm("description", descParts.join(", "));
+
+    setShowMobileAiInput(false);
+    setMobileAiText("");
   };
 
   const buildContent = (sourceForm = form) => {
@@ -1141,6 +1204,11 @@ export default function SocialPage() {
         <>
           {/* MOBILE: manual form (no AI) */}
           <div className="flex md:hidden flex-col flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3">
+            {/* AI Assist button */}
+            <button type="button" onClick={() => setShowMobileAiInput(true)}
+              className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-sm font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 transition-all active:scale-[0.98]">
+              <Sparkles size={14} className="inline mr-1.5" />Preencher com IA
+            </button>
             <div>
               <label className="text-xs text-[#8C8F9A] font-bold">Título *</label>
               <input value={form.title} onChange={(e) => updateForm("title", e.target.value)}
@@ -1220,6 +1288,30 @@ export default function SocialPage() {
                 Cancelar
               </button>
             </div>
+
+            {/* AI Input Modal */}
+            {showMobileAiInput && (
+              <div className="fixed inset-0 z-[10000] flex items-center justify-center px-6" style={{ background: 'rgba(0,0,0,0.7)' }}>
+                <div className="w-full max-w-sm bg-[#0d0a16] rounded-2xl border border-[#D4A24C]/25 p-5 space-y-3">
+                  <p className="text-sm font-black brane-gold-text">✨ Preencher com IA</p>
+                  <p className="text-[10px] text-[#8C8F9A]">Digite os dados separados por vírgula</p>
+                  <textarea value={mobileAiText} onChange={(e) => setMobileAiText(e.target.value)}
+                    rows={3}
+                    className="w-full p-3 rounded-xl bg-black/40 border border-white/10 text-white text-sm outline-none resize-none"
+                    placeholder="Ex: iPhone 15, R$1200, Belém, perfeito estado" />
+                  <div className="flex gap-2">
+                    <button type="button" onClick={handleAiFill}
+                      className="flex-1 brane-btn-gold py-2.5 rounded-xl text-xs font-bold">
+                      <Sparkles size={13} className="inline mr-1" />Preencher
+                    </button>
+                    <button type="button" onClick={() => { setShowMobileAiInput(false); setMobileAiText(""); }}
+                      className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3]">
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
           {/* DESKTOP/TABLET: AI Assistant */}
           <div className="hidden md:flex flex-1 min-h-0">
