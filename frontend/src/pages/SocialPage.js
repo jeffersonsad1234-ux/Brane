@@ -1240,17 +1240,17 @@ export default function SocialPage() {
         {!editingPost ? (
         <>
           {/* MOBILE: IA-first flow (PC-style card) */}
-          <div className="flex md:hidden flex-col flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-3">
+          <div className="flex md:hidden flex-col flex-1 overflow-hidden">
 
             {!aiFilled && !mobileShowForm && (
-              <div className="flex items-start justify-center flex-1 min-h-0 px-0 py-2">
+              <div className="flex-1 flex items-start justify-center px-3 py-2">
                 <div className="rounded-2xl border border-[#D4A24C]/30 bg-[#0a0a14] overflow-hidden flex flex-col w-full"
-                  style={{ boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
+                  style={{ height: 'calc(100dvh - 120px)', boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
                   <div className="px-4 py-3 border-b border-white/[0.04] flex-shrink-0">
                     <h2 className="text-sm font-black brane-gold-text tracking-wide">✨ Novo anúncio com IA</h2>
                     <p className="text-[10px] text-[#8C8F9A] mt-0.5">Crie seu anúncio de forma simples e rápida.</p>
                   </div>
-                  <div className="p-4 space-y-3">
+                  <div className="flex-1 flex flex-col justify-center p-4 space-y-3">
                     <textarea value={mobileAiText} onChange={(e) => setMobileAiText(e.target.value)}
                       rows={3}
                       className="w-full p-3.5 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none resize-none focus:border-[#D4A24C]/40"
@@ -1265,9 +1265,9 @@ export default function SocialPage() {
             )}
 
             {aiFilled && !mobileShowForm && (
-              <div className="flex items-start justify-center flex-1 min-h-0 px-3 py-2">
-                <div className="rounded-2xl border border-[#D4A24C]/30 bg-[#0a0a14] overflow-hidden flex flex-col"
-                  style={{ width: 'calc(100vw - 24px)', maxHeight: 'calc(100dvh - 90px)', boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
+              <div className="flex-1 flex px-3 py-0">
+                <div className="rounded-2xl border border-[#D4A24C]/30 bg-[#0a0a14] overflow-hidden flex flex-col w-full"
+                  style={{ height: 'calc(100dvh - 110px)', boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
                   {/* Card Header */}
                   <div className="px-4 py-3 border-b border-white/[0.04] flex-shrink-0">
                     <h2 className="text-sm font-black brane-gold-text tracking-wide">✨ Novo anúncio com IA</h2>
@@ -1365,9 +1365,9 @@ export default function SocialPage() {
             )}
 
             {mobileShowForm && (
-              <div className="flex items-start justify-center flex-1 min-h-0 px-0 py-2">
+              <div className="flex-1 flex px-3 py-0">
                 <div className="rounded-2xl border border-[#D4A24C]/30 bg-[#0a0a14] overflow-hidden flex flex-col w-full"
-                  style={{ boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
+                  style={{ height: 'calc(100dvh - 110px)', boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
                   <div className="px-4 py-3 border-b border-white/[0.04] flex-shrink-0 flex items-center justify-between">
                     <h2 className="text-sm font-black brane-gold-text tracking-wide">📝 Editar anúncio</h2>
                     <button type="button" onClick={() => setMobileShowForm(false)}
