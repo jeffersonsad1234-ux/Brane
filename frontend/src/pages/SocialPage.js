@@ -1246,19 +1246,20 @@ export default function SocialPage() {
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-start;
-                min-height: calc(100vh - 120px);
+                min-height: 100vh;
                 position: relative;
-                padding-bottom: 140px;
+                padding-bottom: 20px;
+              }
+              .ai-card-preview {
+                flex: 1;
+                min-height: 0;
               }
               .ai-card-footer {
-                position: absolute;
-                left: 0;
-                right: 0;
-                bottom: 16px;
+                margin-top: auto;
                 display: flex;
                 flex-direction: column;
                 gap: 12px;
-                padding: 0 16px;
+                padding: 0 16px 8px;
               }
             }`}</style>
 
@@ -1270,7 +1271,7 @@ export default function SocialPage() {
                     <h2 className="text-sm font-black brane-gold-text tracking-wide">✨ Novo anúncio com IA</h2>
                     <p className="text-[10px] text-[#8C8F9A] mt-0.5">Crie seu anúncio de forma simples e rápida.</p>
                   </div>
-                  <div className="flex-1 flex flex-col justify-center p-4 space-y-3">
+                  <div className="ai-card-preview flex flex-col justify-center p-4 space-y-3">
                     <textarea value={mobileAiText} onChange={(e) => setMobileAiText(e.target.value)}
                       rows={3}
                       className="w-full p-3.5 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none resize-none focus:border-[#D4A24C]/40"
@@ -1321,7 +1322,7 @@ export default function SocialPage() {
                   </div>
 
                   {/* Scrollable content */}
-                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                  <div className="ai-card-preview overflow-y-auto p-4 space-y-3">
                     {form.price && (
                       <div className="text-center py-1">
                         <p className="text-2xl font-black brane-gold-text">R$ {form.price}</p>
