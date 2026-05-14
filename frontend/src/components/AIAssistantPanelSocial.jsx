@@ -721,7 +721,7 @@ export default function AIAssistantPanelSocial({
   };
 
   return (
-    <div className="flex h-full w-full md:rounded-[24px] overflow-hidden bg-[#08060d]"
+    <div className="flex-col md:flex-row h-full w-full md:rounded-[24px] overflow-hidden bg-[#08060d]"
       style={{ boxShadow: "0 0 80px rgba(212,162,76,0.05), inset 0 0 60px rgba(212,162,76,0.02)" }}>
       {/* ═══ LEFT: Character (25%) ═══ */}
       <div className="w-[25%] min-w-[180px] max-w-[280px] relative hidden md:flex flex-col flex-shrink-0"
