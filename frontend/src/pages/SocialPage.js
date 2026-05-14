@@ -98,9 +98,6 @@ export default function SocialPage() {
   const [unreadCount, setUnreadCount] = useState(0);
   const notifIntervalRef = useRef(null);
   const messagesIntervalRef = useRef(null);
-  const selectedChatRef = useRef(null);
-  const userRef = useRef(user);
-
   useEffect(() => {
     const handler = (e) => {
       e.preventDefault();
@@ -338,31 +335,7 @@ export default function SocialPage() {
 
     messagesIntervalRef.current = setInterval(() => {
       axios.get(API + "/social/messages", { headers: authHeaders })
-        .then((r) => {
-          const msgs = r.data.messages || [];
-          setMessages(msgs);
-          // Real-time update for open chat using refs (avoids stale closures)
-          const chat = selectedChatRef.current;
-          const curUser = userRef.current;
-          if (chat?.post_id) {
-            const chatMsgs = msgs
-              .filter((m) => m.post_id === chat.post_id)
-              .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-              .map((m) => ({
-                id: m.message_id || m.id,
-                sender: findName(m) || "Usuário",
-                message: m.message,
-                timestamp: new Date(m.created_at || Date.now()),
-                isMine: m.sender_id === curUser?.user_id
-              }));
-            if (chatMsgs.length > 0) {
-              setChatMessages(chatMsgs);
-              setTimeout(() => {
-                chatScrollRef.current?.scrollIntoView({ behavior: "smooth" });
-              }, 50);
-            }
-          }
-        })
+        .then((r) => setMessages(r.data.messages || []))
         .catch(() => {});
     }, 3000);
 
@@ -382,10 +355,6 @@ export default function SocialPage() {
     };
   }, [token]);
 
-  // Keep refs in sync for polling callbacks
-  useEffect(() => { selectedChatRef.current = selectedChat; }, [selectedChat]);
-  useEffect(() => { userRef.current = user; }, [user]);
-
   useEffect(() => {
     const handlePop = () => {
       if (selectedChat) { closeChat(); return; }
@@ -402,6 +371,15 @@ export default function SocialPage() {
     if (selectedChat?.post_id) {
       loadChatMessages(selectedChat.post_id);
     }
+  }, [selectedChat?.post_id]);
+
+  // Chat real-time polling using filtered endpoint (complete data)
+  useEffect(() => {
+    if (!selectedChat?.post_id) return;
+    const interval = setInterval(() => {
+      loadChatMessages(selectedChat.post_id);
+    }, 3000);
+    return () => clearInterval(interval);
   }, [selectedChat?.post_id]);
 
   useEffect(() => {
