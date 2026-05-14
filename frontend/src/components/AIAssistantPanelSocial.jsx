@@ -841,7 +841,9 @@ export default function AIAssistantPanelSocial({
       <div className="brane-ad-mobile flex md:hidden flex-col bg-[#08060d] relative" style={{ height: '100dvh' }}>
         <style>{`@media(max-width:768px){
           .brane-ad-mobile { height: 100dvh !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; }
-          .brane-ad-chat { flex: 1 !important; overflow-y: auto !important; padding-bottom: 20px !important; }
+          .brane-ad-chat { flex: 1 !important; overflow-y: auto !important; padding-bottom: 8px !important; }
+          .brane-ad-chat::before { content:''; position:fixed; top:0; left:0; right:0; height:180px; pointer-events:none; background:radial-gradient(ellipse at 50% 0%, rgba(212,162,76,0.08), transparent 80%) !important; z-index:0; }
+          .brane-ad-chat > * { position:relative; z-index:1; }
           .brane-ad-input-container { 
             position: sticky !important; 
             bottom: 0 !important; 
@@ -851,25 +853,32 @@ export default function AIAssistantPanelSocial({
             padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
             z-index: 50 !important;
           }
+          .brane-ad-mobile .brane-card-premium { max-height:140px !important; overflow:hidden !important; border-radius:10px !important; }
+          .brane-ad-mobile .brane-card-premium > div:first-child { height:80px !important; }
+          .brane-ad-mobile .brane-card-premium > div:first-child img { height:80px !important; object-fit:cover !important; }
+          .brane-ad-mobile .brane-card-premium .p-3\\.5 { padding:0.4rem 0.6rem !important; }
+          .brane-ad-mobile .brane-card-premium .text-lg { font-size:0.85rem !important; }
+          .brane-ad-mobile .brane-card-premium .text-sm { font-size:0.7rem !important; }
+          .brane-ad-mobile .brane-card-premium .text-\\[11px\\] { font-size:9px !important; }
         }`}</style>
         
         {/* Scrollable chat area */}
-        <div className="brane-ad-chat px-4 pt-4 space-y-4">
+        <div className="brane-ad-chat px-4 pt-2 space-y-2">
           {/* Tutorial at top */}
-          <div className="rounded-xl border border-[#D4A24C]/20 bg-[#D4A24C]/5 p-3">
+          <div className="rounded-xl border border-[#D4A24C]/20 bg-[#D4A24C]/5 p-2.5">
             <p className="text-xs text-white/90 leading-relaxed">
               Escreva os dados do seu anúncio separados por vírgula.
             </p>
-            <p className="text-[10px] text-[#D4A24C]/80 mt-1.5 font-medium">
+            <p className="text-[10px] text-[#D4A24C]/80 mt-1 font-medium">
               Ex: iPhone 12 Pro, R$1200, Belém Pará, em perfeito estado
             </p>
           </div>
 
           {/* Chat Messages */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             {messages.slice(1).map((m) => (
             <div key={m.id}
-              className={`rounded-2xl px-3 py-2 text-sm max-w-[85%] ${
+              className={`rounded-2xl px-3 py-1.5 text-sm max-w-[85%] ${
                 m.from === "user"
                   ? "ml-auto bg-[#D4A24C] text-black"
                   : "mr-auto bg-white/10 text-white"
@@ -881,22 +890,22 @@ export default function AIAssistantPanelSocial({
 
           {/* Preview only when real data exists */}
           {hasAd && safe(ad.title) && (
-            <div className="space-y-3 pt-2">
+            <div className="space-y-2 pt-1.5">
               <p className="text-[10px] font-bold uppercase tracking-wider text-[#6F7280] ml-1">Prévia do anúncio</p>
               <PreviewCard ad={ad} images={photoPreviews} />
               {step === 6 && (
-                <div className="space-y-2 pb-4">
+                <div className="space-y-1.5 pb-2">
                   <button type="button" onClick={handleImprove} disabled={!ad || isGenerating || publishing}
-                    className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-3 text-sm font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all active:scale-[0.98]">
-                    <Sparkles size={14} className="inline mr-1.5" />Melhorar anúncio
+                    className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-sm font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all active:scale-[0.98]">
+                    <Sparkles size={13} className="inline mr-1" />Melhorar anúncio
                   </button>
                   <button type="button" onClick={handlePublish} disabled={!ad || isGenerating || publishing}
-                    className="w-full brane-btn-gold py-3 text-sm font-bold disabled:opacity-50 active:scale-[0.98]">
+                    className="w-full brane-btn-gold py-2.5 text-sm font-bold disabled:opacity-50 active:scale-[0.98]">
                     {publishing ? "⏳ Publicando..." : "Publicar agora"}
                   </button>
                   {publishError && <p className="text-[10px] text-red-400 text-center mt-1">{publishError}</p>}
                   <button type="button" onClick={handleNew} disabled={publishing}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-3 text-sm font-bold text-[#A6A8B3] hover:bg-white/[0.08] active:scale-[0.98]">
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-sm font-bold text-[#A6A8B3] hover:bg-white/[0.08] active:scale-[0.98]">
                     ✨ Novo anúncio
                   </button>
                 </div>
@@ -906,7 +915,7 @@ export default function AIAssistantPanelSocial({
 
           {step > 0 && step < 6 && (
             <button type="button" onClick={handleNew}
-              className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-sm font-bold text-[#A6A8B3] hover:bg-white/[0.08] active:scale-[0.98]">
+              className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2 text-sm font-bold text-[#A6A8B3] hover:bg-white/[0.08] active:scale-[0.98]">
               ✨ Novo anúncio
             </button>
           )}
@@ -916,15 +925,15 @@ export default function AIAssistantPanelSocial({
         </div>
 
         {/* Input bar fixed above bottom nav */}
-        <div className="brane-ad-input-container px-4 py-3">
+        <div className="brane-ad-input-container px-3 py-2">
           <div className="flex gap-2 max-w-2xl mx-auto">
             <input value={input} onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSubmitInput()}
               placeholder={step === 0 ? "Descreva seu anúncio..." : "Digite para editar..."}
-              className="h-12 flex-1 rounded-xl border border-white/10 bg-white/[0.1] px-4 text-sm text-white outline-none focus:border-[#D4A24C]/40 placeholder:text-[#6F7280]" />
+              className="h-10 flex-1 rounded-xl border border-white/10 bg-white/[0.1] px-3 text-sm text-white outline-none focus:border-[#D4A24C]/40 placeholder:text-[#6F7280]" />
             <button type="button" onClick={handleSubmitInput} disabled={!safe(input)}
-              className="h-12 w-12 flex items-center justify-center brane-btn-gold rounded-xl disabled:opacity-50 active:scale-[0.95]">
-              <Send size={18} />
+              className="h-10 w-10 flex items-center justify-center brane-btn-gold rounded-xl disabled:opacity-50 active:scale-[0.95]">
+              <Send size={16} />
             </button>
           </div>
         </div>

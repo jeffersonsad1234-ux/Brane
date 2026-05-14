@@ -1118,7 +1118,7 @@ export default function SocialPage() {
       )}
 
      {composerOpen && (
-   <div className="brane-composer-overlay fixed top-0 left-0 right-0 z-[9999] bg-black/80 flex flex-col" style={{ height: '100dvh', backdropFilter: "blur(6px)" }}>
+   <div className="brane-composer-overlay fixed top-0 left-0 right-0 z-[9999] bg-[#050608] flex flex-col" style={{ height: '100dvh', background: 'radial-gradient(ellipse at 50% 0%, rgba(212,162,76,0.07), rgba(5,6,8,0.96) 70%)', backdropFilter: 'blur(6px)' }}>
      <div className="flex-1 min-h-0 p-0 md:p-3">
       <div className="h-full w-full md:rounded-[24px] overflow-hidden flex flex-col" style={{ animation: "blivreSlideIn 0.28s ease-out" }}>
         <div className="flex items-center justify-between px-4 md:px-5 py-2.5 md:py-3 flex-shrink-0 bg-[#08060d]/95 border-b border-white/[0.04]">
