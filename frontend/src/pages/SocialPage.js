@@ -1254,12 +1254,23 @@ export default function SocialPage() {
                 flex: 1;
                 min-height: 0;
               }
+              .ai-card-footer,
+              .ai-card-actions,
+              .ai-card-bottom {
+                border-top: none !important;
+                box-shadow: none !important;
+              }
               .ai-card-footer {
                 margin-top: auto;
                 display: flex;
                 flex-direction: column;
                 gap: 12px;
                 padding: 0 16px 8px;
+              }
+              .ai-card-preview-input,
+              .ai-card-example,
+              .ai-card-main-input {
+                margin-top: 12px !important;
               }
             }`}</style>
 
@@ -1271,10 +1282,10 @@ export default function SocialPage() {
                     <h2 className="text-sm font-black brane-gold-text tracking-wide">✨ Novo anúncio com IA</h2>
                     <p className="text-[10px] text-[#8C8F9A] mt-0.5">Crie seu anúncio de forma simples e rápida.</p>
                   </div>
-                  <div className="ai-card-preview flex flex-col justify-center p-4 space-y-3">
+                  <div className="ai-card-preview flex flex-col justify-start p-4 space-y-3">
                     <textarea value={mobileAiText} onChange={(e) => setMobileAiText(e.target.value)}
                       rows={3}
-                      className="w-full p-3.5 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none resize-none focus:border-[#D4A24C]/40"
+                      className="ai-card-main-input w-full p-3.5 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none resize-none focus:border-[#D4A24C]/40"
                       placeholder="Ex: iPhone 15, R$1200, Belém, perfeito estado" />
                   </div>
                   <div className="ai-card-footer">
