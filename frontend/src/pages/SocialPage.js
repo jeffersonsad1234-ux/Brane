@@ -373,11 +373,6 @@ export default function SocialPage() {
     }
   }, [selectedChat?.post_id]);
 
-  const loadChatMessagesRef = useRef(loadChatMessages);
-  useEffect(() => {
-    loadChatMessagesRef.current = loadChatMessages;
-  });
-
   // Chat real-time polling using filtered endpoint (complete data)
   useEffect(() => {
     if (!selectedChat?.post_id) return;
@@ -761,6 +756,11 @@ export default function SocialPage() {
       setChatMessages([]);
     }
   };
+
+  const loadChatMessagesRef = useRef(loadChatMessages);
+  useEffect(() => {
+    loadChatMessagesRef.current = loadChatMessages;
+  });
 
   const openChat = (chat) => {
     setActiveFilter("messages");
