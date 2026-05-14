@@ -494,6 +494,7 @@ export default function AIAssistantPanelSocial({
 
   const fileRef = useRef(null);
   const endRef = useRef(null);
+  const mobileEndRef = useRef(null);
   const initialized = useRef(false);
   const originalDescRef = useRef("");
 
@@ -509,7 +510,10 @@ export default function AIAssistantPanelSocial({
     }
   }, []);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, step]);
+  useEffect(() => {
+    const el = window.innerWidth >= 768 ? endRef.current : mobileEndRef.current;
+    el?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, step]);
 
   const addMsg = useCallback((text, from = "ai") => {
     setMessages((prev) => [...prev, { id: Date.now(), from, text }]);
@@ -721,62 +725,142 @@ export default function AIAssistantPanelSocial({
   };
 
   return (
-    <div className="flex-col md:flex-row h-full w-full md:rounded-[24px] overflow-hidden bg-[#08060d]"
-      style={{ boxShadow: "0 0 80px rgba(212,162,76,0.05), inset 0 0 60px rgba(212,162,76,0.02)" }}>
-      {/* ═══ LEFT: Character (25%) ═══ */}
-      <div className="w-[25%] min-w-[180px] max-w-[280px] relative hidden md:flex flex-col flex-shrink-0"
-        style={{ background: "linear-gradient(180deg, rgba(212,162,76,0.02), rgba(10,8,15,1))" }}>
-        <div className="absolute top-0 left-0 right-0 h-48 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at 30% 0%, rgba(212,162,76,0.06), transparent 60%)" }} />
-        <div className="flex-1 flex items-end justify-center">
-          <div className="w-full h-[82%]">
-            <BraneScene state={braneState} />
+    <>
+      {/* ════════════════════════════════════════════════ */}
+      {/* DESKTOP — 3-column layout (unchanged)           */}
+      {/* ════════════════════════════════════════════════ */}
+      <div className="hidden md:flex md:flex-row h-full w-full md:rounded-[24px] overflow-hidden bg-[#08060d]"
+        style={{ boxShadow: "0 0 80px rgba(212,162,76,0.05), inset 0 0 60px rgba(212,162,76,0.02)" }}>
+        {/* LEFT: Character */}
+        <div className="w-[25%] min-w-[180px] max-w-[280px] relative flex flex-col flex-shrink-0"
+          style={{ background: "linear-gradient(180deg, rgba(212,162,76,0.02), rgba(10,8,15,1))" }}>
+          <div className="absolute top-0 left-0 right-0 h-48 pointer-events-none"
+            style={{ background: "radial-gradient(ellipse at 30% 0%, rgba(212,162,76,0.06), transparent 60%)" }} />
+          <div className="flex-1 flex items-end justify-center">
+            <div className="w-full h-[82%]">
+              <BraneScene state={braneState} />
+            </div>
           </div>
+        </div>
+
+        {/* CENTER: Chat */}
+        <div className="flex-1 flex flex-col min-w-0 max-w-[55%] border-r border-white/[0.03]">
+          <div className="flex items-center justify-between px-5 py-2.5 border-b border-white/[0.04] flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <img src="/logo-belivre.png" alt="B Livre" className="w-6 h-6 rounded-lg object-cover ring-1 ring-[#D4A24C]/30" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] brane-gold-text">B Livre</span>
+            </div>
+            {step > 0 && (
+              <button type="button" onClick={handleNew} className="text-[9px] font-bold text-[#6F7280] hover:text-[#D4A24C] transition-colors">✨ Novo</button>
+            )}
+          </div>
+          <div className="flex-1 overflow-y-auto px-5 py-3 space-y-2.5 scrollbar-thin min-h-0">
+            {messages.map((m) => (
+              <div key={m.id}
+                className={`rounded-2xl px-3.5 py-2 text-sm max-w-[80%] ${
+                  m.from === "user"
+                    ? "ml-auto bg-[#D4A24C] text-black"
+                    : "mr-auto bg-white/10 text-white"
+                }`}>
+                <span className="whitespace-pre-wrap">{m.text}</span>
+              </div>
+            ))}
+            {renderStepContent()}
+            <div ref={endRef} />
+          </div>
+          <div className="flex-shrink-0 px-5 py-3 border-t border-white/[0.04]">
+            <div className="flex gap-2">
+              <input value={input} onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSubmitInput()}
+                placeholder={step === 0 ? "iPhone 12 Pro, R$1200, Belém Pará, em perfeito estado..." : "Digite para editar o anúncio..."}
+                className="h-10 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 text-sm text-white outline-none focus:border-[#D4A24C]/40 focus:shadow-[0_0_12px_rgba(212,162,76,0.06)] placeholder:text-[#6F7280]" />
+              <button type="button" onClick={handleSubmitInput} disabled={!safe(input)}
+                className="h-10 brane-btn-gold px-3.5 text-[12px] disabled:opacity-50">
+                <Send size={15} />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT: Preview + Actions */}
+        <div className="w-[25%] min-w-[180px] max-w-[300px] flex-shrink-0 flex flex-col p-4"
+          style={{ background: "linear-gradient(180deg, rgba(212,162,76,0.02), rgba(10,8,15,1))" }}>
+          <div className="flex-shrink-0 mb-3">
+            <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#6F7280]">Prévia do anúncio</p>
+          </div>
+          {hasAd ? (
+            <div className="flex-1 overflow-y-auto scrollbar-thin space-y-3">
+              <PreviewCard ad={ad} images={photoPreviews} />
+              {step === 6 && (
+                <div className="space-y-2 pt-1">
+                  <button type="button" onClick={handleImprove} disabled={!ad || isGenerating || publishing}
+                    className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all">
+                    <Sparkles size={13} className="inline mr-1.5" />Melhorar anúncio
+                  </button>
+                  <button type="button" onClick={handlePublish} disabled={!ad || isGenerating || publishing}
+                    className="w-full brane-btn-gold py-2.5 text-xs font-bold disabled:opacity-50">
+                    {publishing ? "⏳ Publicando..." : "Publicar agora"}
+                  </button>
+                  {publishError && (
+                    <p className="text-[10px] text-red-400 text-center">{publishError}</p>
+                  )}
+                  <button type="button" onClick={handleNew} disabled={publishing}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
+                    ✨ Novo anúncio
+                  </button>
+                </div>
+              )}
+              {step > 0 && step < 6 && (
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-1.5 h-1.5 rounded-full ${step > 0 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full ${step > 1 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full ${step > 2 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full ${step > 3 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full ${step > 4 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full ${step > 5 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
+                  </div>
+                  <p className="text-[9px] text-[#6F7280]">Preenchendo dados...</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <Camera size={32} className="mx-auto text-[#3a3a45] mb-2" />
+                <p className="text-[11px] text-[#6F7280]">Digite os dados no chat<br />para ver a prévia</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ═══ CENTER: Chat (flex, full on mobile) ═══ */}
-      <div className="flex-1 flex flex-col min-w-0 md:max-w-[55%] md:border-r md:border-white/[0.03]">
-        {/* Header (hidden on mobile — SocialPage provides "Novo anúncio") */}
-        <div className="hidden md:flex items-center justify-between px-5 py-2.5 border-b border-white/[0.04] flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <img src="/logo-belivre.png" alt="B Livre" className="w-6 h-6 rounded-lg object-cover ring-1 ring-[#D4A24C]/30" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.14em] brane-gold-text">B Livre</span>
-          </div>
-          {step > 0 && (
-            <button type="button" onClick={handleNew} className="text-[9px] font-bold text-[#6F7280] hover:text-[#D4A24C] transition-colors">✨ Novo</button>
-          )}
-        </div>
-
-        {/* ═══ Mobile: Tutorial + Character (non-scrolling, top) ═══ */}
-        <div className="block md:hidden flex-shrink-0 px-5 pt-3 pb-0">
+      {/* ════════════════════════════════════════════════ */}
+      {/* MOBILE — clean single-column layout             */}
+      {/* ════════════════════════════════════════════════ */}
+      <div className="flex md:hidden flex-col h-full bg-[#08060d]">
+        {/* Instruction card + small character */}
+        <div className="flex-shrink-0 px-4 pt-3 pb-1">
           <div className="rounded-xl border border-[#D4A24C]/20 bg-[#D4A24C]/5 p-3">
-            <p className="text-xs text-white/90 whitespace-pre-wrap leading-relaxed">
+            <p className="text-xs text-white/90 leading-relaxed">
               Escreva os dados do seu anúncio separados por vírgula.
             </p>
             <p className="text-[10px] text-[#D4A24C]/70 mt-1.5 font-medium">
               Ex: iPhone 12 Pro, R$1200, Belém Pará, em perfeito estado
             </p>
           </div>
-          <div className="flex justify-center mt-1 mb-0.5">
-            <div className="w-12 h-12 opacity-50">
+          <div className="flex justify-center mt-1">
+            <div className="w-10 h-10 opacity-40">
               <BraneScene state={braneState} />
             </div>
           </div>
         </div>
 
-        {/* Messages + step cards (scrollable) */}
-        <div className="flex-1 overflow-y-auto px-5 py-2 space-y-2.5 scrollbar-thin min-h-0">
-          {/* Desktop: show first tutorial message as chat bubble */}
-          {messages.length > 0 && (
-            <div className="hidden md:block rounded-2xl px-3.5 py-2 text-sm max-w-[80%] mr-auto bg-white/10 text-white">
-              <span className="whitespace-pre-wrap">{messages[0].text}</span>
-            </div>
-          )}
-          {/* All messages after the first */}
+        {/* Scrollable chat area */}
+        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-3">
           {messages.slice(1).map((m) => (
             <div key={m.id}
-              className={`rounded-2xl px-3.5 py-2 text-sm max-w-[80%] ${
+              className={`rounded-2xl px-3.5 py-2 text-sm max-w-[85%] ${
                 m.from === "user"
                   ? "ml-auto bg-[#D4A24C] text-black"
                   : "mr-auto bg-white/10 text-white"
@@ -786,132 +870,55 @@ export default function AIAssistantPanelSocial({
           ))}
           {renderStepContent()}
 
-          {/* ═══ Mobile-only: Preview + Actions ═══ */}
-          <div className="block md:hidden space-y-3 pt-2">
-            {hasAd ? (
-              <>
-                <PreviewCard ad={ad} images={photoPreviews} />
-                {step === 6 && (
-                  <div className="space-y-2">
-                    <button type="button" onClick={handleImprove} disabled={!ad || isGenerating || publishing}
-                      className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all">
-                      <Sparkles size={13} className="inline mr-1.5" />Melhorar anúncio
-                    </button>
-                    <button type="button" onClick={handlePublish} disabled={!ad || isGenerating || publishing}
-                      className="w-full brane-btn-gold py-2.5 text-xs font-bold disabled:opacity-50">
-                      {publishing ? "⏳ Publicando..." : "Publicar agora"}
-                    </button>
-                    {publishError && (
-                      <p className="text-[10px] text-red-400 text-center">{publishError}</p>
-                    )}
-                    <button type="button" onClick={handleNew} disabled={publishing}
-                      className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
-                      ✨ Novo anúncio
-                    </button>
-                  </div>
-                )}
-                {step > 0 && step < 6 && (
-                  <div className="space-y-1.5 pt-1">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-1.5 h-1.5 rounded-full ${step > 0 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
-                      <div className={`w-1.5 h-1.5 rounded-full ${step > 1 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
-                      <div className={`w-1.5 h-1.5 rounded-full ${step > 2 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
-                      <div className={`w-1.5 h-1.5 rounded-full ${step > 3 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
-                      <div className={`w-1.5 h-1.5 rounded-full ${step > 4 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
-                      <div className={`w-1.5 h-1.5 rounded-full ${step > 5 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
-                    </div>
-                    <p className="text-[9px] text-[#6F7280]">Preenchendo dados...</p>
-                  </div>
-                )}
-                <button type="button" onClick={handleNew} disabled={publishing}
-                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
-                  ✨ Novo anúncio
-                </button>
-              </>
-            ) : (
-              step > 0 && (
-                <button type="button" onClick={handleNew}
-                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
-                  ✨ Novo anúncio
-                </button>
-              )
-            )}
-          </div>
+          {hasAd && (
+            <div className="space-y-3">
+              <PreviewCard ad={ad} images={photoPreviews} />
+              {step === 6 && (
+                <div className="space-y-2">
+                  <button type="button" onClick={handleImprove} disabled={!ad || isGenerating || publishing}
+                    className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-3 text-sm font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all">
+                    <Sparkles size={14} className="inline mr-1.5" />Melhorar anúncio
+                  </button>
+                  <button type="button" onClick={handlePublish} disabled={!ad || isGenerating || publishing}
+                    className="w-full brane-btn-gold py-3 text-sm font-bold disabled:opacity-50">
+                    {publishing ? "⏳ Publicando..." : "Publicar agora"}
+                  </button>
+                  {publishError && (
+                    <p className="text-[10px] text-red-400 text-center">{publishError}</p>
+                  )}
+                  <button type="button" onClick={handleNew} disabled={publishing}
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-3 text-sm font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
+                    ✨ Novo anúncio
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
 
-          <div ref={endRef} />
+          {step > 0 && step < 6 && (
+            <button type="button" onClick={handleNew}
+              className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-3 text-sm font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
+              ✨ Novo anúncio
+            </button>
+          )}
+
+          <div ref={mobileEndRef} />
         </div>
 
-        {/* Fixed input — always at bottom */}
-        <div className="flex-shrink-0 px-5 py-3 border-t border-white/[0.04]">
+        {/* Fixed input */}
+        <div className="flex-shrink-0 px-4 py-3 border-t border-white/[0.04] bg-[#08060d]">
           <div className="flex gap-2">
             <input value={input} onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSubmitInput()}
               placeholder={step === 0 ? "iPhone 12 Pro, R$1200, Belém Pará, em perfeito estado..." : "Digite para editar o anúncio..."}
-              className="h-10 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 text-sm text-white outline-none focus:border-[#D4A24C]/40 focus:shadow-[0_0_12px_rgba(212,162,76,0.06)] placeholder:text-[#6F7280]" />
+              className="h-11 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 text-sm text-white outline-none focus:border-[#D4A24C]/40 focus:shadow-[0_0_12px_rgba(212,162,76,0.06)] placeholder:text-[#6F7280]" />
             <button type="button" onClick={handleSubmitInput} disabled={!safe(input)}
-              className="h-10 brane-btn-gold px-3.5 text-[12px] disabled:opacity-50">
-              <Send size={15} />
+              className="h-11 brane-btn-gold px-4 text-sm disabled:opacity-50">
+              <Send size={16} />
             </button>
           </div>
         </div>
       </div>
-
-      {/* ═══ RIGHT: Preview + Actions (25%) ═══ */}
-      <div className="w-[25%] min-w-[180px] max-w-[300px] flex-shrink-0 hidden md:flex flex-col p-4"
-        style={{ background: "linear-gradient(180deg, rgba(212,162,76,0.02), rgba(10,8,15,1))" }}>
-        <div className="flex-shrink-0 mb-3">
-          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-[#6F7280]">Prévia do anúncio</p>
-        </div>
-
-        {hasAd ? (
-          <div className="flex-1 overflow-y-auto scrollbar-thin space-y-3">
-            <PreviewCard ad={ad} images={photoPreviews} />
-
-            {/* Action buttons */}
-            {step === 6 && (
-              <div className="space-y-2 pt-1">
-                <button type="button" onClick={handleImprove} disabled={!ad || isGenerating || publishing}
-                  className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all">
-                  <Sparkles size={13} className="inline mr-1.5" />Melhorar anúncio
-                </button>
-                <button type="button" onClick={handlePublish} disabled={!ad || isGenerating || publishing}
-                  className="w-full brane-btn-gold py-2.5 text-xs font-bold disabled:opacity-50">
-                  {publishing ? "⏳ Publicando..." : "Publicar agora"}
-                </button>
-                {publishError && (
-                  <p className="text-[10px] text-red-400 text-center">{publishError}</p>
-                )}
-                <button type="button" onClick={handleNew} disabled={publishing}
-                  className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
-                  ✨ Novo anúncio
-                </button>
-              </div>
-            )}
-
-            {/* Mini step progress */}
-            {step > 0 && step < 6 && (
-              <div className="space-y-1.5 pt-1">
-                <div className="flex items-center gap-2">
-                  <div className={`w-1.5 h-1.5 rounded-full ${step > 0 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
-                  <div className={`w-1.5 h-1.5 rounded-full ${step > 1 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
-                  <div className={`w-1.5 h-1.5 rounded-full ${step > 2 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
-                  <div className={`w-1.5 h-1.5 rounded-full ${step > 3 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
-                  <div className={`w-1.5 h-1.5 rounded-full ${step > 4 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
-                  <div className={`w-1.5 h-1.5 rounded-full ${step > 5 ? 'bg-[#D4A24C]' : 'bg-[#3a3a45]'}`} />
-                </div>
-                <p className="text-[9px] text-[#6F7280]">Preenchendo dados...</p>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <Camera size={32} className="mx-auto text-[#3a3a45] mb-2" />
-              <p className="text-[11px] text-[#6F7280]">Digite os dados no chat<br />para ver a prévia</p>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+    </>
   );
 }
