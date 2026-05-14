@@ -366,6 +366,27 @@ export default function SocialPage() {
     }
   }, [selectedChat?.post_id]);
 
+  // Auto-update chat view when new messages arrive via polling
+  useEffect(() => {
+    if (!selectedChat?.post_id) return;
+    const filtered = (messages || [])
+      .filter((m) => m.post_id === selectedChat.post_id)
+      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+      .map((m) => ({
+        id: m.message_id || m.id,
+        sender: m.sender_name || "Usuário",
+        message: m.message,
+        timestamp: new Date(m.created_at || Date.now()),
+        isMine: m.sender_id === user?.user_id
+      }));
+    if (filtered.length > 0) {
+      setChatMessages(filtered);
+      setTimeout(() => {
+        chatScrollRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 50);
+    }
+  }, [messages, selectedChat?.post_id]);
+
   useEffect(() => {
     expandedRef.current = expanded;
   }, [expanded]);
