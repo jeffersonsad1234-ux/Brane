@@ -863,7 +863,7 @@ export default function AIAssistantPanelSocial({
         }`}</style>
         
         {/* Scrollable chat area */}
-        <div className="brane-ad-chat px-4 pt-2 space-y-2">
+        <div className="brane-ad-chat px-4 pt-6 space-y-2">
           {/* Tutorial at top */}
           <div className="rounded-xl border border-[#D4A24C]/20 bg-[#D4A24C]/5 p-2.5">
             <p className="text-xs text-white/90 leading-relaxed">
