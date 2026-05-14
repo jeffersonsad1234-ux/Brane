@@ -838,28 +838,36 @@ export default function AIAssistantPanelSocial({
       {/* ════════════════════════════════════════════════ */}
       {/* MOBILE — own layout, independent from desktop   */}
       {/* ════════════════════════════════════════════════ */}
-      <div className="brane-ad-mobile flex md:hidden flex-col bg-[#08060d]" style={{ height: '100%' }}>
-        <style>{`@media(max-width:767px){
-.brane-ad-mobile{display:flex!important;flex-direction:column!important;height:100%!important;overflow:hidden!important}
-.brane-ad-mobile .brane-ad-chat{flex:1!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
-.brane-ad-mobile .brane-ad-input{flex-shrink:0!important;border-top:1px solid rgba(255,255,255,0.04);background:#08060d}
-}`}</style>
-        {/* Scrollable chat — tutorial + character at top fills space naturally */}
-        <div className="brane-ad-chat px-4 py-1.5 space-y-2.5">
-          <div className="rounded-xl border border-[#D4A24C]/20 bg-[#D4A24C]/6 p-2.5">
-            <p className="text-xs text-white/85 leading-relaxed">
+      <div className="brane-ad-mobile flex md:hidden flex-col bg-[#08060d] relative" style={{ height: '100dvh' }}>
+        <style>{`@media(max-width:768px){
+          .brane-ad-mobile { height: 100dvh !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; }
+          .brane-ad-chat { flex: 1 !important; overflow-y: auto !important; padding-bottom: 20px !important; }
+          .brane-ad-input-container { 
+            position: sticky !important; 
+            bottom: 0 !important; 
+            width: 100% !important; 
+            background: #08060d !important; 
+            border-top: 1px solid rgba(255,255,255,0.05) !important;
+            padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+            z-index: 50 !important;
+          }
+        }`}</style>
+        
+        {/* Scrollable chat area */}
+        <div className="brane-ad-chat px-4 pt-4 space-y-4">
+          {/* Tutorial at top */}
+          <div className="rounded-xl border border-[#D4A24C]/20 bg-[#D4A24C]/5 p-3">
+            <p className="text-xs text-white/90 leading-relaxed">
               Escreva os dados do seu anúncio separados por vírgula.
             </p>
-            <p className="text-[10px] text-[#D4A24C]/70 mt-1 font-medium">
+            <p className="text-[10px] text-[#D4A24C]/80 mt-1.5 font-medium">
               Ex: iPhone 12 Pro, R$1200, Belém Pará, em perfeito estado
             </p>
           </div>
-          <div className="flex justify-center -mt-1 mb-1">
-            <div className="w-8 h-8 opacity-30">
-              <BraneScene state={braneState} />
-            </div>
-          </div>
-          {messages.slice(1).map((m) => (
+
+          {/* Chat Messages */}
+          <div className="space-y-3">
+            {messages.slice(1).map((m) => (
             <div key={m.id}
               className={`rounded-2xl px-3 py-2 text-sm max-w-[85%] ${
                 m.from === "user"
@@ -871,22 +879,24 @@ export default function AIAssistantPanelSocial({
           ))}
           {renderStepContent()}
 
-          {hasAd && (
-            <div className="space-y-2.5 pt-0.5">
+          {/* Preview only when real data exists */}
+          {hasAd && safe(ad.title) && (
+            <div className="space-y-3 pt-2">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#6F7280] ml-1">Prévia do anúncio</p>
               <PreviewCard ad={ad} images={photoPreviews} />
               {step === 6 && (
-                <div className="space-y-2">
+                <div className="space-y-2 pb-4">
                   <button type="button" onClick={handleImprove} disabled={!ad || isGenerating || publishing}
-                    className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-sm font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all active:scale-[0.98]">
+                    className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-3 text-sm font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all active:scale-[0.98]">
                     <Sparkles size={14} className="inline mr-1.5" />Melhorar anúncio
                   </button>
                   <button type="button" onClick={handlePublish} disabled={!ad || isGenerating || publishing}
-                    className="w-full brane-btn-gold py-2.5 text-sm font-bold disabled:opacity-50 active:scale-[0.98]">
+                    className="w-full brane-btn-gold py-3 text-sm font-bold disabled:opacity-50 active:scale-[0.98]">
                     {publishing ? "⏳ Publicando..." : "Publicar agora"}
                   </button>
-                  {publishError && <p className="text-[10px] text-red-400 text-center">{publishError}</p>}
+                  {publishError && <p className="text-[10px] text-red-400 text-center mt-1">{publishError}</p>}
                   <button type="button" onClick={handleNew} disabled={publishing}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-sm font-bold text-[#A6A8B3] hover:bg-white/[0.08] active:scale-[0.98]">
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-3 text-sm font-bold text-[#A6A8B3] hover:bg-white/[0.08] active:scale-[0.98]">
                     ✨ Novo anúncio
                   </button>
                 </div>
@@ -904,16 +914,16 @@ export default function AIAssistantPanelSocial({
           <div ref={mobileEndRef} />
         </div>
 
-        {/* Input bar */}
-        <div className="brane-ad-input flex-shrink-0 px-4 py-2.5" style={{ paddingBottom: "max(0.625rem, env(safe-area-inset-bottom, 0.625rem))" }}>
-          <div className="flex gap-2">
+        {/* Input bar fixed above bottom nav */}
+        <div className="brane-ad-input-container px-4 py-3">
+          <div className="flex gap-2 max-w-2xl mx-auto">
             <input value={input} onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSubmitInput()}
-              placeholder={step === 0 ? "iPhone 12 Pro, R$1200, Belém Pará, em perfeito estado..." : "Digite para editar o anúncio..."}
-              className="h-10 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm text-white outline-none focus:border-[#D4A24C]/40 focus:shadow-[0_0_12px_rgba(212,162,76,0.06)] placeholder:text-[#6F7280]" />
+              placeholder={step === 0 ? "Descreva seu anúncio..." : "Digite para editar..."}
+              className="h-12 flex-1 rounded-xl border border-white/10 bg-white/[0.1] px-4 text-sm text-white outline-none focus:border-[#D4A24C]/40 placeholder:text-[#6F7280]" />
             <button type="button" onClick={handleSubmitInput} disabled={!safe(input)}
-              className="h-10 brane-btn-gold px-3.5 text-sm disabled:opacity-50 active:scale-[0.98]">
-              <Send size={15} />
+              className="h-12 w-12 flex items-center justify-center brane-btn-gold rounded-xl disabled:opacity-50 active:scale-[0.95]">
+              <Send size={18} />
             </button>
           </div>
         </div>
