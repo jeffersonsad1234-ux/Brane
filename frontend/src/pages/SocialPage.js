@@ -1180,7 +1180,8 @@ export default function SocialPage() {
               };
               setForm(nextForm);
 
-              const nextImages = (ad.photos || images || []).filter(Boolean).slice(0, 5);
+              // Use the already-resized images from SocialPage state (fileToBase64 900px)
+              const nextImages = (images || []).filter(Boolean).slice(0, 5);
               if (nextImages.length > 0) setImages(nextImages);
 
               const ok = await createPost(nextForm, nextImages.length > 0 ? nextImages : images);
@@ -1188,6 +1189,7 @@ export default function SocialPage() {
                 setComposerOpen(false);
                 setGeneratedAd(null);
               }
+              return ok;
             }}
             generatedAd={generatedAd}
             isGenerating={isGeneratingAd}

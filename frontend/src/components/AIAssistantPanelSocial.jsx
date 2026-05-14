@@ -363,6 +363,8 @@ export default function AIAssistantPanelSocial({
   const [contactPhone, setContactPhone] = useState("");
   const [contactWhatsapp, setContactWhatsapp] = useState("");
   const [improveCount, setImproveCount] = useState(0);
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState("");
 
   const fileRef = useRef(null);
   const endRef = useRef(null);
@@ -471,9 +473,27 @@ export default function AIAssistantPanelSocial({
   };
 
   const handlePublish = async () => {
-    setBraneState("success");
-    await new Promise((r) => setTimeout(r, 1500));
-    onPublishAd({ ...ad, photos: photoPreviews });
+    if (!ad || publishing) return;
+    setBraneState("working");
+    setPublishing(true);
+    setPublishError("");
+    try {
+      const ok = await onPublishAd({ ...ad, photos: photoPreviews });
+      if (ok) {
+        setBraneState("success");
+      } else {
+        setBraneState("idle");
+        setPublishError("Não foi possível publicar. Verifique os dados e tente novamente.");
+        addMsg("Erro ao publicar. Verifique título, preço e condição do produto.", "ai");
+      }
+    } catch (err) {
+      console.error("Publish error:", err);
+      setBraneState("idle");
+      setPublishError("Erro de conexão. Tente novamente.");
+      addMsg("Erro de conexão ao publicar. Verifique sua internet e tente novamente.", "ai");
+    } finally {
+      setPublishing(false);
+    }
   };
 
   const handleNew = () => {
@@ -648,15 +668,18 @@ export default function AIAssistantPanelSocial({
             {/* Action buttons */}
             {step === 6 && (
               <div className="space-y-2 pt-1">
-                <button type="button" onClick={handleImprove} disabled={!ad || isGenerating}
+                <button type="button" onClick={handleImprove} disabled={!ad || isGenerating || publishing}
                   className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all">
                   <Sparkles size={13} className="inline mr-1.5" />Melhorar anúncio
                 </button>
-                <button type="button" onClick={handlePublish} disabled={!ad || isGenerating}
+                <button type="button" onClick={handlePublish} disabled={!ad || isGenerating || publishing}
                   className="w-full brane-btn-gold py-2.5 text-xs font-bold disabled:opacity-50">
-                  Publicar agora
+                  {publishing ? "⏳ Publicando..." : "Publicar agora"}
                 </button>
-                <button type="button" onClick={handleNew}
+                {publishError && (
+                  <p className="text-[10px] text-red-400 text-center">{publishError}</p>
+                )}
+                <button type="button" onClick={handleNew} disabled={publishing}
                   className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
                   ✨ Novo anúncio
                 </button>
