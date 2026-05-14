@@ -93,6 +93,7 @@ export default function SocialPage() {
   const [editingPost, setEditingPost] = useState(null);
   const [showMobileAiInput, setShowMobileAiInput] = useState(false);
   const [mobileAiText, setMobileAiText] = useState("");
+  const [mobileEditInput, setMobileEditInput] = useState("");
   const [aiFilled, setAiFilled] = useState(false);
   const [mobileShowForm, setMobileShowForm] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -125,6 +126,7 @@ export default function SocialPage() {
       setAiFilled(false);
       setMobileShowForm(false);
       setMobileAiText("");
+      setMobileEditInput("");
       setShowMobileAiInput(false);
     }
   }, [composerOpen]);
@@ -460,6 +462,30 @@ export default function SocialPage() {
   const handleAiFill = () => {
     const text = mobileAiText.trim();
     if (!text) return;
+    runAiParse(text);
+    setShowMobileAiInput(false);
+    setMobileAiText("");
+  };
+
+  const handleFooterSend = () => {
+    const text = mobileEditInput.trim();
+    if (!text) return;
+    runAiParse(text);
+    setMobileEditInput("");
+  };
+
+  const handleNewMobile = () => {
+    setForm({ category: "", title: "", price: "", state: "", city: "", productCondition: "", description: "", availability: "Item único", phone: "", whatsapp: "" });
+    setImages([]);
+    setAiFilled(false);
+    setMobileShowForm(false);
+    setMobileAiText("");
+    setMobileEditInput("");
+  };
+
+  const runAiParse = (rawText) => {
+    const text = rawText.trim();
+    if (!text) return;
 
     const conditions = ["Novo", "Seminovo", "Usado", "Recondicionado"];
     const catKeywords = {
@@ -489,7 +515,7 @@ export default function SocialPage() {
     }
 
     const parts = remaining.split(",").map((s) => s.trim()).filter(Boolean);
-    if (!parts.length) { setShowMobileAiInput(false); setMobileAiText(""); return; }
+    if (!parts.length) { setAiFilled(true); setMobileShowForm(false); return; }
     updateForm("title", parts[0]);
 
     const descParts = [];
@@ -514,8 +540,6 @@ export default function SocialPage() {
     }
     if (descParts.length) updateForm("description", descParts.join(", "));
 
-    setShowMobileAiInput(false);
-    setMobileAiText("");
     setAiFilled(true);
     setMobileShowForm(false);
   };
@@ -1215,157 +1239,225 @@ export default function SocialPage() {
 
         {!editingPost ? (
         <>
-          {/* MOBILE: IA-first flow */}
-          <div className="flex md:hidden flex-col flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-3">
+          {/* MOBILE: IA-first flow (PC-style card) */}
+          <div className="flex md:hidden flex-col flex-1 min-h-0 overflow-y-auto px-3 py-3 space-y-3">
 
             {!aiFilled && !mobileShowForm && (
-              <div className="space-y-3 pt-2">
-                <p className="text-xs text-[#A6A8B3] leading-relaxed">
-                  Descreva seu anúncio em uma frase. A IA preenche os campos automaticamente para você.
-                </p>
-                <textarea value={mobileAiText} onChange={(e) => setMobileAiText(e.target.value)}
-                  rows={3}
-                  className="w-full p-3.5 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none resize-none focus:border-[#D4A24C]/40"
-                  placeholder="Ex: iPhone 15, R$1200, Belém, perfeito estado" />
-                <button type="button" onClick={handleAiFill} disabled={!mobileAiText.trim()}
-                  className="w-full brane-btn-gold py-3 rounded-xl text-sm font-bold disabled:opacity-60 active:scale-[0.98]">
-                  <Sparkles size={16} className="inline mr-2" />Preencher com IA
-                </button>
+              <div className="flex items-start justify-center flex-1 min-h-0 px-0 py-2">
+                <div className="rounded-2xl border border-[#D4A24C]/30 bg-[#0a0a14] overflow-hidden flex flex-col w-full"
+                  style={{ boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
+                  <div className="px-4 py-3 border-b border-white/[0.04] flex-shrink-0">
+                    <h2 className="text-sm font-black brane-gold-text tracking-wide">✨ Novo anúncio com IA</h2>
+                    <p className="text-[10px] text-[#8C8F9A] mt-0.5">Crie seu anúncio de forma simples e rápida.</p>
+                  </div>
+                  <div className="p-4 space-y-3">
+                    <textarea value={mobileAiText} onChange={(e) => setMobileAiText(e.target.value)}
+                      rows={3}
+                      className="w-full p-3.5 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none resize-none focus:border-[#D4A24C]/40"
+                      placeholder="Ex: iPhone 15, R$1200, Belém, perfeito estado" />
+                    <button type="button" onClick={handleAiFill} disabled={!mobileAiText.trim()}
+                      className="w-full brane-btn-gold py-3 rounded-xl text-sm font-bold disabled:opacity-60 active:scale-[0.98]">
+                      <Sparkles size={16} className="inline mr-2" />Preencher com IA
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 
             {aiFilled && !mobileShowForm && (
-              <div className="space-y-4 pt-1">
-                {/* Preview card — central, gold border, solid dark bg */}
-                <div className="rounded-xl border-2 border-[#D4A24C]/40 bg-[#0a0a14] p-4 space-y-2.5"
-                  style={{ boxShadow: '0 0 35px rgba(212,162,76,0.1)' }}>
-                  {images.length > 0 && (
-                    <div className="flex gap-2 overflow-x-auto pb-1">
-                      {images.map((img, i) => (
-                        <img key={i} src={img} className="w-20 h-20 rounded-xl object-cover border border-white/10 flex-shrink-0" />
-                      ))}
-                    </div>
-                  )}
-                  {form.category && (
-                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-[#D4A24C]/15 text-[#D4A24C] border border-[#D4A24C]/30">{form.category}</span>
-                  )}
-                  <p className="text-base font-black text-white leading-tight">{form.title || "Título do anúncio"}</p>
-                  {form.price && <p className="text-lg font-black brane-gold-text">R$ {form.price}</p>}
-                  {(form.city || form.state) && (
-                    <p className="text-xs text-[#A6A8B3]">📍 {[form.city, form.state].filter(Boolean).join(" - ")}</p>
-                  )}
-                  {form.productCondition && (
-                    <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-bold bg-[#5B1CB5]/20 text-[#7C3AED] border border-[#5B1CB5]/30">{form.productCondition}</span>
-                  )}
-                  {form.description && (
-                    <p className="text-xs text-[#A6A8B3] leading-relaxed line-clamp-2">{form.description}</p>
-                  )}
-                </div>
+              <div className="flex items-start justify-center flex-1 min-h-0 px-3 py-2">
+                <div className="rounded-2xl border border-[#D4A24C]/30 bg-[#0a0a14] overflow-hidden flex flex-col"
+                  style={{ width: 'calc(100vw - 24px)', maxHeight: 'calc(100dvh - 90px)', boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
+                  {/* Card Header */}
+                  <div className="px-4 py-3 border-b border-white/[0.04] flex-shrink-0">
+                    <h2 className="text-sm font-black brane-gold-text tracking-wide">✨ Novo anúncio com IA</h2>
+                    <p className="text-[10px] text-[#8C8F9A] mt-0.5">Crie seu anúncio de forma simples e rápida.</p>
+                  </div>
 
-                {/* Action buttons */}
-                <div className="space-y-2 pb-4">
-                  <button type="button" onClick={() => setMobileShowForm(true)}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-sm font-bold text-[#C9CBD6] hover:bg-white/[0.08] active:scale-[0.98]">
-                    ✏️ Editar manualmente
-                  </button>
-                  <button type="button" onClick={() => { setMobileAiText(form.title + ", R$" + form.price + ", " + [form.city, form.state].filter(Boolean).join(" - ")); setShowMobileAiInput(true); }}
-                    className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-sm font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 active:scale-[0.98]">
-                    <Sparkles size={14} className="inline mr-1.5" />Melhorar com IA
-                  </button>
-                  <button type="button" onClick={publishFromModal} disabled={posting}
-                    className="w-full brane-btn-gold py-3 text-sm font-bold disabled:opacity-60 active:scale-[0.98]">
-                    {posting ? "⏳ Publicando..." : "Publicar agora"}
-                  </button>
+                  {/* Scrollable content */}
+                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                    {form.price && (
+                      <div className="text-center py-1">
+                        <p className="text-2xl font-black brane-gold-text">R$ {form.price}</p>
+                      </div>
+                    )}
+                    {form.title && (
+                      <p className="text-base font-black text-white">{form.title}</p>
+                    )}
+                    {/* Info grid */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {(form.city || form.state) && (
+                        <div className="rounded-lg bg-white/[0.03] border border-white/5 p-2.5">
+                          <p className="text-[9px] text-[#6F7280] font-bold uppercase tracking-wider">📍 Localização</p>
+                          <p className="text-xs text-white font-medium mt-0.5">{[form.city, form.state].filter(Boolean).join(" - ")}</p>
+                        </div>
+                      )}
+                      {form.productCondition && (
+                        <div className="rounded-lg bg-white/[0.03] border border-white/5 p-2.5">
+                          <p className="text-[9px] text-[#6F7280] font-bold uppercase tracking-wider">📦 Estado</p>
+                          <p className="text-xs text-white font-medium mt-0.5">{form.productCondition}</p>
+                        </div>
+                      )}
+                      {form.category && (
+                        <div className="rounded-lg bg-white/[0.03] border border-white/5 p-2.5">
+                          <p className="text-[9px] text-[#6F7280] font-bold uppercase tracking-wider">📂 Categoria</p>
+                          <p className="text-xs text-white font-medium mt-0.5">{form.category}</p>
+                        </div>
+                      )}
+                      <div className="rounded-lg bg-white/[0.03] border border-white/5 p-2.5">
+                        <p className="text-[9px] text-[#6F7280] font-bold uppercase tracking-wider">📦 Disponibilidade</p>
+                        <p className="text-xs text-white font-medium mt-0.5">{form.availability || "Item único"}</p>
+                      </div>
+                    </div>
+                    {form.description && (
+                      <div className="rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/5 p-3">
+                        <p className="text-[9px] text-[#6F7280] font-bold uppercase tracking-wider mb-1">📝 Descrição</p>
+                        <p className="text-[13px] text-[#C9CBD6] leading-relaxed whitespace-pre-wrap">{form.description}</p>
+                      </div>
+                    )}
+                    {images.length > 0 && (
+                      <div className="flex gap-2 overflow-x-auto pb-1">
+                        {images.map((img, i) => (
+                          <img key={i} src={img} className="w-16 h-16 rounded-lg object-cover border border-white/10 flex-shrink-0" />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="border-t border-white/[0.04] p-3 space-y-2 flex-shrink-0">
+                    <div className="flex gap-2">
+                      <label className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-white/50 cursor-pointer hover:border-[#D4A24C]/40 flex-shrink-0">
+                        <Camera size={16} />
+                        <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
+                      </label>
+                      <input value={mobileEditInput} onChange={(e) => setMobileEditInput(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleFooterSend()}
+                        placeholder="Editar anúncio..."
+                        className="h-10 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-sm text-white outline-none focus:border-[#D4A24C]/40 placeholder:text-[#6F7280]" />
+                      <button type="button" onClick={handleFooterSend}
+                        className="h-10 w-10 brane-btn-gold rounded-xl flex items-center justify-center disabled:opacity-50"
+                        disabled={!mobileEditInput.trim()}>
+                        <Send size={16} />
+                      </button>
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <button type="button" onClick={() => setMobileShowForm(true)}
+                        className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-2 text-xs font-bold text-[#C9CBD6] hover:bg-white/[0.08] active:scale-[0.98]">
+                        ✏️ Editar
+                      </button>
+                      <button type="button" onClick={() => { setMobileAiText(form.title + (form.price ? ", R$" + form.price : "") + ", " + [form.city, form.state].filter(Boolean).join(" - ")); setShowMobileAiInput(true); }}
+                        className="flex-1 rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 active:scale-[0.98]">
+                        <Sparkles size={12} className="inline mr-1" />Melhorar
+                      </button>
+                      <button type="button" onClick={handleNewMobile}
+                        className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-2 text-xs font-bold text-[#C9CBD6] hover:bg-white/[0.08] active:scale-[0.98]">
+                        ✨ Novo
+                      </button>
+                      <button type="button" onClick={publishFromModal} disabled={posting}
+                        className="flex-1 brane-btn-gold py-2 text-xs font-bold disabled:opacity-60 active:scale-[0.98]">
+                        {posting ? "⏳" : "Publicar"}
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
 
             {mobileShowForm && (
-              <>
-                <div className="flex items-center gap-2 pb-1">
-                  <button type="button" onClick={() => setMobileShowForm(false)}
-                    className="text-[11px] font-bold text-[#8C8F9A] hover:text-white transition-colors">← Voltar ao resumo</button>
-                </div>
-                <div>
-                  <label className="text-xs text-[#8C8F9A] font-bold">Título *</label>
-                  <input value={form.title} onChange={(e) => updateForm("title", e.target.value)}
-                    className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none"
-                    placeholder="Ex: iPhone 12 Pro" />
-                </div>
-                <div>
-                  <label className="text-xs text-[#8C8F9A] font-bold">Preço</label>
-                  <input value={form.price} onChange={(e) => updateForm("price", e.target.value)}
-                    className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none"
-                    placeholder="Ex: 1200" />
-                </div>
-                <div>
-                  <label className="text-xs text-[#8C8F9A] font-bold">Categoria</label>
-                  <select value={form.category} onChange={(e) => updateForm("category", e.target.value)}
-                    className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none">
-                    <option value="">Selecionar</option>
-                    {categories.map((item) => (<option key={item} value={item}>{item}</option>))}
-                  </select>
-                </div>
-                <div className="flex gap-3">
-                  <div className="flex-1">
-                    <label className="text-xs text-[#8C8F9A] font-bold">Cidade</label>
-                    <input value={form.city} onChange={(e) => updateForm("city", e.target.value)}
-                      className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none"
-                      placeholder="Cidade" />
+              <div className="flex items-start justify-center flex-1 min-h-0 px-0 py-2">
+                <div className="rounded-2xl border border-[#D4A24C]/30 bg-[#0a0a14] overflow-hidden flex flex-col w-full"
+                  style={{ boxShadow: '0 0 40px rgba(212,162,76,0.08)' }}>
+                  <div className="px-4 py-3 border-b border-white/[0.04] flex-shrink-0 flex items-center justify-between">
+                    <h2 className="text-sm font-black brane-gold-text tracking-wide">📝 Editar anúncio</h2>
+                    <button type="button" onClick={() => setMobileShowForm(false)}
+                      className="text-[11px] font-bold text-[#8C8F9A] hover:text-white transition-colors">← Voltar</button>
                   </div>
-                  <div className="flex-1">
-                    <label className="text-xs text-[#8C8F9A] font-bold">Estado</label>
-                    <select value={form.state} onChange={(e) => updateForm("state", e.target.value)}
-                      className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none">
-                      <option value="">UF</option>
-                      {states.map((item) => (<option key={item} value={item}>{item}</option>))}
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-xs text-[#8C8F9A] font-bold">Condição</label>
-                  <select value={form.productCondition} onChange={(e) => updateForm("productCondition", e.target.value)}
-                    className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none">
-                    <option value="">Selecionar</option>
-                    {productConditions.map((item) => (<option key={item} value={item}>{item}</option>))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs text-[#8C8F9A] font-bold">Descrição</label>
-                  <textarea value={form.description} onChange={(e) => updateForm("description", e.target.value)}
-                    rows={3}
-                    className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none resize-none"
-                    placeholder="Descreva seu produto..." />
-                </div>
-                <div>
-                  <label className="text-xs text-[#8C8F9A] font-bold mb-1.5 block">Fotos (máx 5)</label>
-                  <div className="flex flex-wrap gap-2">
-                    {images.map((img, i) => (
-                      <div key={i} className="relative w-14 h-14 rounded-lg overflow-hidden border border-white/10">
-                        <img src={img} alt="" className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => removeImageAt(i)}
-                          className="absolute top-0 right-0 w-4 h-4 bg-black/70 text-white text-[8px] rounded-bl-lg flex items-center justify-center">×</button>
+                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                    <div>
+                      <label className="text-xs text-[#8C8F9A] font-bold">Título *</label>
+                      <input value={form.title} onChange={(e) => updateForm("title", e.target.value)}
+                        className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none"
+                        placeholder="Ex: iPhone 12 Pro" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-[#8C8F9A] font-bold">Preço</label>
+                      <input value={form.price} onChange={(e) => updateForm("price", e.target.value)}
+                        className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none"
+                        placeholder="Ex: 1200" />
+                    </div>
+                    <div>
+                      <label className="text-xs text-[#8C8F9A] font-bold">Categoria</label>
+                      <select value={form.category} onChange={(e) => updateForm("category", e.target.value)}
+                        className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none">
+                        <option value="">Selecionar</option>
+                        {categories.map((item) => (<option key={item} value={item}>{item}</option>))}
+                      </select>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="flex-1">
+                        <label className="text-xs text-[#8C8F9A] font-bold">Cidade</label>
+                        <input value={form.city} onChange={(e) => updateForm("city", e.target.value)}
+                          className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none"
+                          placeholder="Cidade" />
                       </div>
-                    ))}
-                    {images.length < 5 && (
-                      <label className="w-14 h-14 rounded-lg border-2 border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40">
-                        <Camera size={16} />
-                        <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
-                      </label>
-                    )}
+                      <div className="flex-1">
+                        <label className="text-xs text-[#8C8F9A] font-bold">Estado</label>
+                        <select value={form.state} onChange={(e) => updateForm("state", e.target.value)}
+                          className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none">
+                          <option value="">UF</option>
+                          {states.map((item) => (<option key={item} value={item}>{item}</option>))}
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs text-[#8C8F9A] font-bold">Condição</label>
+                      <select value={form.productCondition} onChange={(e) => updateForm("productCondition", e.target.value)}
+                        className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none">
+                        <option value="">Selecionar</option>
+                        {productConditions.map((item) => (<option key={item} value={item}>{item}</option>))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-[#8C8F9A] font-bold">Descrição</label>
+                      <textarea value={form.description} onChange={(e) => updateForm("description", e.target.value)}
+                        rows={3}
+                        className="mt-1 w-full p-3 rounded-xl bg-black/30 border border-white/10 text-white text-sm outline-none resize-none"
+                        placeholder="Descreva seu produto..." />
+                    </div>
+                    <div>
+                      <label className="text-xs text-[#8C8F9A] font-bold mb-1.5 block">Fotos (máx 5)</label>
+                      <div className="flex flex-wrap gap-2">
+                        {images.map((img, i) => (
+                          <div key={i} className="relative w-14 h-14 rounded-lg overflow-hidden border border-white/10">
+                            <img src={img} alt="" className="w-full h-full object-cover" />
+                            <button type="button" onClick={() => removeImageAt(i)}
+                              className="absolute top-0 right-0 w-4 h-4 bg-black/70 text-white text-[8px] rounded-bl-lg flex items-center justify-center">×</button>
+                          </div>
+                        ))}
+                        {images.length < 5 && (
+                          <label className="w-14 h-14 rounded-lg border-2 border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40">
+                            <Camera size={16} />
+                            <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
+                          </label>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="border-t border-white/[0.04] p-3 flex-shrink-0">
+                    <div className="flex gap-3">
+                      <button type="button" onClick={publishFromModal} disabled={posting}
+                        className="flex-1 brane-btn-gold py-3 rounded-xl text-sm font-bold disabled:opacity-60">
+                        {posting ? "⏳ Publicando..." : "Publicar"}
+                      </button>
+                      <button type="button" onClick={() => setMobileShowForm(false)}
+                        className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-3 text-sm font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
+                        Cancelar
+                      </button>
+                    </div>
                   </div>
                 </div>
-                <div className="flex gap-3 pt-2 pb-8">
-                  <button type="button" onClick={publishFromModal} disabled={posting}
-                    className="flex-1 brane-btn-gold py-3 rounded-xl text-sm font-bold disabled:opacity-60">
-                    {posting ? "⏳ Publicando..." : "Publicar"}
-                  </button>
-                  <button type="button" onClick={() => setMobileShowForm(false)}
-                    className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-3 text-sm font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
-                    Cancelar
-                  </button>
-                </div>
-              </>
+              </div>
             )}
 
             {/* AI Improvement Modal (for "Melhorar com IA") */}
