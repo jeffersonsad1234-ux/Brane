@@ -1855,7 +1855,7 @@ export default function SocialPage() {
                         }
                         if (n.created_at > (notifGrouped[pid].createdAt || "")) {
                           notifGrouped[pid].lastMsg = { message: n.message, created_at: n.created_at };
-                          notifGrouped[pid].otherName = n.data?.sender_name || notifGrouped[pid].otherName;
+                          notifGrouped[pid].otherName = findName(n.data) || findName(n) || notifGrouped[pid].otherName;
                           notifGrouped[pid].createdAt = n.created_at;
                         }
                       });
