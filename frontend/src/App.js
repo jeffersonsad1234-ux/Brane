@@ -31,6 +31,7 @@ import DesapegaPage from "./pages/DesapegaPage";
 import BraneCoinsPage from "./pages/BraneCoinsPage";
 import AddProductPage from "./pages/AddProductPage";
 import SocialPage from "./pages/SocialPage";
+import BLivreAdminPage from "./pages/admin/AdminPage";
 import BLivreAuthPage from "./pages/BLivreAuthPage";
 import BLivreMessagesPage from "./pages/BLivreMessagesPage";
 import { BLivreAuthProvider } from "./contexts/BLivreAuthContext";
@@ -158,6 +159,7 @@ function AppRouter() {
               <Route path="/blivre/login" element={<BLivreAuthPage />} />
               <Route path="/blivre/register" element={<BLivreAuthPage />} />
               <Route path="/blivre/messages" element={<BLivreMessagesPage />} />
+              <Route path="/blivre/admin" element={<BLivreAdminPage />} />
               <Route path="/blivre" element={<SocialPage />} />
               <Route path="/blivre/*" element={<SocialPage />} />
               <Route path="/social" element={<Navigate to="/blivre" replace />} />
