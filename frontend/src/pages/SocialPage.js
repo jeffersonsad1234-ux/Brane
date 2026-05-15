@@ -1136,6 +1136,24 @@ export default function SocialPage() {
             will-change: transform;
           }
 
+          @media (max-width: 768px) {
+            .blivre-grid,
+            .blivre-grid-focused {
+              grid-template-columns: repeat(2, 1fr) !important;
+              gap: 10px !important;
+            }
+            .blivre-product-card img,
+            .blivre-product-card .aspect-square {
+              min-height: 160px;
+            }
+            .blivre-product-card .text-sm.line-clamp-2 {
+              font-size: 13px !important;
+            }
+            .blivre-product-card .text-lg {
+              font-size: 17px !important;
+            }
+          }
+
           body.ai-modal-open .bottom-nav,
           body.ai-modal-open .mobile-bottom-nav,
           body.ai-modal-open .mobile-tabbar,
