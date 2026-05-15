@@ -123,12 +123,16 @@ export default function SocialPage() {
 
   useEffect(() => {
     if (composerOpen) {
+      document.body.classList.add('ai-modal-open');
       setAiFilled(false);
       setMobileShowForm(false);
       setMobileAiText("");
       setMobileEditInput("");
       setShowMobileAiInput(false);
+    } else {
+      document.body.classList.remove('ai-modal-open');
     }
+    return () => document.body.classList.remove('ai-modal-open');
   }, [composerOpen]);
 
   const handleInstall = async () => {
@@ -1011,6 +1015,24 @@ export default function SocialPage() {
             will-change: transform;
           }
 
+          body.ai-modal-open .bottom-nav,
+          body.ai-modal-open .mobile-bottom-nav,
+          body.ai-modal-open .mobile-tabbar,
+          body.ai-modal-open .safe-area-bottom,
+          body.ai-modal-open .bottom-safe-area,
+          body.ai-modal-open .brane-bottom-nav {
+            display: none !important;
+          }
+
+          .mobile-ai-overlay {
+            position: fixed;
+            inset: 0;
+            bottom: 0;
+            min-height: 100dvh;
+            background: #05050a !important;
+            z-index: 9999;
+          }
+
         `}
       </style>
 
@@ -1279,6 +1301,33 @@ export default function SocialPage() {
                 display: none !important;
                 content: none !important;
                 background: transparent !important;
+              }
+              .mobile-ai-overlay,
+              .mobile-ai-modal,
+              .mobile-ai-card {
+                background: #05050a !important;
+                background-image: none !important;
+              }
+              .mobile-bottom-gradient,
+              .bottom-gradient,
+              .safe-area-gradient,
+              .mobile-footer-bg {
+                display: none !important;
+              }
+              .mobile-ai-overlay > div[style*="bottom"],
+              .mobile-ai-modal > div[style*="bottom"] {
+                background: transparent !important;
+                background-image: none !important;
+              }
+              .brane-composer-overlay {
+                background: #050608 !important;
+                background-image: none !important;
+                backdrop-filter: none !important;
+              }
+              .brane-composer-overlay::before,
+              .brane-composer-overlay::after {
+                display: none !important;
+                content: none !important;
               }
               .mobile-ai-modal,
               .ai-mobile-container,
