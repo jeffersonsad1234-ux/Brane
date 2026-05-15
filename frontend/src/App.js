@@ -36,6 +36,10 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminProducts from "./pages/admin/AdminProducts";
 import AdminReports from "./pages/admin/AdminReports";
+import AdminDenuncias from "./pages/admin/AdminDenuncias";
+import AdminFinanceiro from "./pages/admin/AdminFinanceiro";
+import AdminSuporte from "./pages/admin/AdminSuporte";
+import AdminConfiguracoes from "./pages/admin/AdminConfiguracoes";
 import BLivreAuthPage from "./pages/BLivreAuthPage";
 import BLivreMessagesPage from "./pages/BLivreMessagesPage";
 import { BLivreAuthProvider } from "./contexts/BLivreAuthContext";
@@ -165,6 +169,10 @@ function AppRouter() {
               <Route path="users" element={<AdminUsers />} />
               <Route path="products" element={<AdminProducts />} />
               <Route path="reports" element={<AdminReports />} />
+              <Route path="denuncias" element={<AdminDenuncias />} />
+              <Route path="financeiro" element={<AdminFinanceiro />} />
+              <Route path="suporte" element={<AdminSuporte />} />
+              <Route path="configuracoes" element={<AdminConfiguracoes />} />
             </Route>
 
             <Route element={<BLivreLayout />}>
