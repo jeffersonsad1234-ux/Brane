@@ -39,10 +39,10 @@ const descriptionExamples = [
 export default function SocialPage() {
   const mainAuth = useAuth();
   const blivreAuth = useBLivreAuth();
-  const user = blivreAuth.user || mainAuth.user;
-  const token = blivreAuth.token || mainAuth.token;
+  const currentUser = blivreAuth.user || mainAuth.user || null;
+  const currentToken = blivreAuth.token || mainAuth.token || localStorage.getItem('blivre_token') || localStorage.getItem('brane_token') || null;
   const logout = blivreAuth.logout || mainAuth.logout;
-  const authHeaders = token ? { Authorization: "Bearer " + token } : {};
+  const authHeaders = currentToken ? { Authorization: "Bearer " + currentToken } : {};
   const API = mainAuth.API || `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
 
   const imageInputRef = useRef(null);
@@ -53,7 +53,7 @@ export default function SocialPage() {
   const chatScrollRef = useRef(null);
   const lastMsgCount = useRef(0);
   const userRef = useRef(null);
-  userRef.current = user;
+  userRef.current = currentUser;
 
   const [posts, setPosts] = useState([]);
   const [images, setImages] = useState([]);
@@ -150,7 +150,7 @@ export default function SocialPage() {
   };
 
   const requireAuth = () => {
-    if (!user) {
+    if (!currentUser) {
       navigate("/blivre/login");
       return false;
     }
@@ -212,14 +212,14 @@ export default function SocialPage() {
     getPostLines(post).find((line) => categories.includes(line)) || post.category || "";
 
   const isMine = (post) => {
-    if (!user) return false;
+    if (!currentUser) return false;
     return (
-      post.user_id === user.id ||
-      post.user_id === user.user_id ||
-      post.owner_id === user.id ||
-      post.email === user.email ||
-      post.user_email === user.email ||
-      post.user_name === user.name
+      post.user_id === currentUser.id ||
+      post.user_id === currentUser.user_id ||
+      post.owner_id === currentUser.id ||
+      post.email === currentUser.email ||
+      post.user_email === currentUser.email ||
+      post.user_name === currentUser.name
     );
   };
 
@@ -272,7 +272,7 @@ export default function SocialPage() {
   };
 
   const loadSocialData = async () => {
-    if (!token) return;
+    if (!currentToken) return;
 
     try {
       const [favoritesRes, statsRes, notificationsRes, messagesRes] =
@@ -348,7 +348,7 @@ export default function SocialPage() {
   }, []);
 
   useEffect(() => {
-    if (!token) return;
+    if (!currentToken) return;
     loadSocialData();
 
     notifIntervalRef.current = setInterval(() => {
@@ -392,7 +392,7 @@ export default function SocialPage() {
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('focus', onVisible);
     };
-  }, [token]);
+  }, [currentToken]);
 
   useEffect(() => {
     const handlePop = () => {
@@ -760,8 +760,8 @@ export default function SocialPage() {
     if (selectedCategory && category !== selectedCategory) return false;
 
     if (activeFilter === "near") {
-      const userCity = String(user?.city || "").toLowerCase();
-      const userState = String(user?.state || "").toLowerCase();
+      const userCity = String(currentUser?.city || "").toLowerCase();
+      const userState = String(currentUser?.state || "").toLowerCase();
 
       if (userCity || userState) {
         if (!location.includes(userCity) && !location.includes(userState)) return false;
@@ -835,7 +835,7 @@ export default function SocialPage() {
   };
 
   const fetchMessages = async () => {
-    if (!token) return;
+    if (!currentToken) return;
     try {
       const res = await axios.get(API + "/social/messages", { headers: authHeaders });
       setMessages(res.data.messages || []);
@@ -867,7 +867,7 @@ export default function SocialPage() {
           sender: findName(m) || "Usuário",
           message: m.message,
           timestamp: new Date(m.created_at || Date.now()),
-          isMine: m.sender_id === user?.user_id
+          isMine: m.sender_id === currentUser?.user_id
         }));
       setChatMessages(msgs);
       setTimeout(() => {
@@ -1082,7 +1082,7 @@ export default function SocialPage() {
             <div className="space-y-3 max-h-[56vh] overflow-y-auto pr-1">
               {(() => {
                 const notifItems = notifications.filter((n) => n.type === "social_message");
-                const uid = String(user?.user_id || user?.id || "");
+                const uid = String(currentUser?.user_id || currentUser?.id || "");
                 const recentMsgs = uid ? messages.filter(m => String(m.sender_id || "") !== uid).slice(-10).reverse() : [];
                 const items = notifItems.length > 0 ? notifItems : recentMsgs;
                 const isFromMessages = notifItems.length === 0;
@@ -1847,25 +1847,25 @@ export default function SocialPage() {
               <button
                 onClick={() => {
                   setProfileForm({
-                    name: user?.name || "",
-                    city: user?.city || "",
-                    state: user?.state || "",
-                    avatar: user?.avatar || user?.photo || user?.picture || ""
+                    name: currentUser?.name || "",
+                    city: currentUser?.city || "",
+                    state: currentUser?.state || "",
+                    avatar: currentUser?.avatar || currentUser?.photo || currentUser?.picture || ""
                   });
                   setShowSettings(true);
                 }}
                 className="w-9 h-9 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1.5px] shrink-0 hover:brightness-110 transition-all shadow-[0_0_12px_rgba(212,162,76,0.2)]"
               >
                 <div className="w-full h-full rounded-full bg-[#0B0D12] overflow-hidden flex items-center justify-center">
-                  {(user?.avatar || user?.photo || user?.picture) ? (
+                  {(currentUser?.avatar || currentUser?.photo || currentUser?.picture) ? (
                     <img
-                      src={user?.avatar || user?.photo || user?.picture}
+                      src={currentUser?.avatar || currentUser?.photo || currentUser?.picture}
                       alt=""
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     <span className="text-[#D4A24C] font-black text-[11px]">
-                      {(user?.name || "B")[0].toUpperCase()}
+                      {(currentUser?.name || "B")[0].toUpperCase()}
                     </span>
                   )}
                 </div>
@@ -1902,10 +1902,10 @@ export default function SocialPage() {
               <button
                 onClick={() => {
                   setProfileForm({
-                    name: user?.name || "",
-                    city: user?.city || "",
-                    state: user?.state || "",
-                    avatar: user?.avatar || user?.photo || ""
+                    name: currentUser?.name || "",
+                    city: currentUser?.city || "",
+                    state: currentUser?.state || "",
+                    avatar: currentUser?.avatar || currentUser?.photo || ""
                   });
                   setShowSettings(true);
                 }}
@@ -1929,7 +1929,7 @@ export default function SocialPage() {
           <button
             onClick={() => {
               if (!requireAuth()) return;
-              const uid = String(user?.user_id || user?.id || "");
+              const uid = String(currentUser?.user_id || currentUser?.id || "");
               lastMsgCount.current = uid ? messages.filter(m => String(m.sender_id || "") !== uid).length : 0;
               setUnreadCount(0);
               setShowNotifications(true);
@@ -1966,32 +1966,32 @@ export default function SocialPage() {
                   <button
                     onClick={() => {
                       setProfileForm({
-                        name: user?.name || "",
-                        city: user?.city || "",
-                        state: user?.state || "",
-                        avatar: user?.avatar || user?.photo || user?.picture || ""
+                        name: currentUser?.name || "",
+                        city: currentUser?.city || "",
+                        state: currentUser?.state || "",
+                        avatar: currentUser?.avatar || currentUser?.photo || currentUser?.picture || ""
                       });
                       setShowSettings(true);
                     }}
                     className="w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[2px] shrink-0 hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.25)]"
                   >
                     <div className="w-full h-full rounded-full bg-[#0B0D12] overflow-hidden flex items-center justify-center">
-                      {(user?.avatar || user?.photo || user?.picture) ? (
+                      {(currentUser?.avatar || currentUser?.photo || currentUser?.picture) ? (
                         <img
-                          src={user?.avatar || user?.photo || user?.picture}
+                          src={currentUser?.avatar || currentUser?.photo || currentUser?.picture}
                           alt=""
                           className="w-full h-full object-cover"
                         />
                       ) : (
                         <span className="text-[#D4A24C] font-black text-sm">
-                          {(user?.name || "B")[0].toUpperCase()}
+                          {(currentUser?.name || "B")[0].toUpperCase()}
                         </span>
                       )}
                     </div>
                   </button>
                   <div className="min-w-0">
                     <h3 className="font-black text-lg flex items-center gap-2 brane-gold-text truncate">
-                      {user && user.name ? user.name : "Usuário B Livre"}
+                      {currentUser && currentUser.name ? currentUser.name : "Usuário B Livre"}
                       <BadgeCheck size={17} className="text-[#D4A24C] shrink-0" />
                     </h3>
                   </div>
@@ -2155,8 +2155,8 @@ export default function SocialPage() {
                         const pid = m.post_id;
                         if (!pid || notifGrouped[pid]) return;
                         let otherName = findName(m) || "Usuário";
-                        if (m.sender_id === user?.user_id) {
-                          const otherMsg = (messages || []).find((msg) => msg.post_id === pid && msg.sender_id !== user?.user_id);
+                        if (m.sender_id === currentUser?.user_id) {
+                          const otherMsg = (messages || []).find((msg) => msg.post_id === pid && msg.sender_id !== currentUser?.user_id);
                           if (otherMsg) otherName = findName(otherMsg) || "Usuário";
                         }
                         notifGrouped[pid] = {
@@ -2409,10 +2409,10 @@ export default function SocialPage() {
             onClick={() => {
               if (value === "settings") {
                 setProfileForm({
-                  name: user?.name || "",
-                  city: user?.city || "",
-                  state: user?.state || "",
-                  avatar: user?.avatar || user?.photo || ""
+                  name: currentUser?.name || "",
+                  city: currentUser?.city || "",
+                  state: currentUser?.state || "",
+                  avatar: currentUser?.avatar || currentUser?.photo || ""
                 });
                 setShowSettings(true);
                 window.history.pushState({ braneSettings: true }, "", window.location.pathname);
