@@ -951,11 +951,10 @@ export default function SocialPage() {
     setActiveFilter("messages");
     setSelectedChat(null);
     setSelectedCategory("");
-    fetchMessages();
-    axios.get(API + "/notifications", { headers: authHeaders })
+    axios.get(API + "/social/messages", { headers: authHeaders })
       .then((r) => {
-        setNotifications(r.data.notifications || []);
-        refreshUnreadCount(r.data, messages);
+        setMessages(r.data.messages || []);
+        refreshUnreadCount({}, r.data.messages || []);
       })
       .catch(() => {});
   };
