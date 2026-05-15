@@ -1817,7 +1817,7 @@ export default function SocialPage() {
 
                     <div className="mt-5 pt-4 border-t border-[#1E2230]">
                       <p className="text-sm leading-relaxed text-[#A6A8B3] whitespace-pre-wrap">
-                        {selectedPost.content || selectedPost.description || "Sem descrição disponível."}
+                        {selectedPost.description || "Sem descrição disponível."}
                       </p>
                     </div>
 
