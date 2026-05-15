@@ -31,7 +31,11 @@ import DesapegaPage from "./pages/DesapegaPage";
 import BraneCoinsPage from "./pages/BraneCoinsPage";
 import AddProductPage from "./pages/AddProductPage";
 import SocialPage from "./pages/SocialPage";
-import BLivreAdminPage from "./pages/admin/AdminPage";
+import BLivreAdminPage from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminReports from "./pages/admin/AdminReports";
 import BLivreAuthPage from "./pages/BLivreAuthPage";
 import BLivreMessagesPage from "./pages/BLivreMessagesPage";
 import { BLivreAuthProvider } from "./contexts/BLivreAuthContext";
@@ -155,11 +159,18 @@ function AppRouter() {
 
             <Route path="/desapega" element={<DesapegaPage />} />
 
+            {/* Admin — completamente separado do BLivreLayout */}
+            <Route path="/blivre/admin" element={<BLivreAdminPage />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="reports" element={<AdminReports />} />
+            </Route>
+
             <Route element={<BLivreLayout />}>
               <Route path="/blivre/login" element={<BLivreAuthPage />} />
               <Route path="/blivre/register" element={<BLivreAuthPage />} />
               <Route path="/blivre/messages" element={<BLivreMessagesPage />} />
-              <Route path="/blivre/admin" element={<BLivreAdminPage />} />
               <Route path="/blivre" element={<SocialPage />} />
               <Route path="/blivre/*" element={<SocialPage />} />
               <Route path="/social" element={<Navigate to="/blivre" replace />} />
