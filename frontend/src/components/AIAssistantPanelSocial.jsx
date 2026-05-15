@@ -849,8 +849,9 @@ export default function AIAssistantPanelSocial({
             bottom: 0 !important; 
             width: 100% !important; 
             background: #08060d !important; 
-            border-top: 1px solid rgba(255,255,255,0.05) !important;
-            padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px)) !important;
+            padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+            margin-bottom: 0 !important;
+            min-height: auto !important;
             z-index: 50 !important;
           }
           .brane-ad-mobile .brane-card-premium { max-height:140px !important; overflow:hidden !important; border-radius:10px !important; }
