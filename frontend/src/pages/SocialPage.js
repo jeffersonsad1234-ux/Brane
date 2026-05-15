@@ -1271,8 +1271,19 @@ export default function SocialPage() {
                 box-shadow: none !important;
               }
               .mobile-ai-modal::before,
-              .mobile-ai-modal::after {
+              .mobile-ai-modal::after,
+              .ai-mobile-container::before,
+              .ai-mobile-container::after,
+              .ai-card::before,
+              .ai-card::after {
                 display: none !important;
+                content: none !important;
+                background: transparent !important;
+              }
+              .mobile-ai-modal,
+              .ai-mobile-container,
+              .ai-card {
+                background-image: none !important;
               }
               .ai-card-footer {
                 margin-top: auto;
