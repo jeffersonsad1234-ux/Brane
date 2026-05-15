@@ -43,6 +43,8 @@ export default function SocialPage() {
     ? { Authorization: "Bearer " + token }
     : {};
 
+  console.info("[BLivNotify] user:", user?.user_id, user?.id, user?.email, user?.name, "token:", !!token);
+
   const imageInputRef = useRef(null);
   const avatarInputRef = useRef(null);
   const loadMoreRef = useRef(null);
@@ -294,12 +296,23 @@ export default function SocialPage() {
       }
 
       if (notificationsRes.status === "fulfilled") {
-        setNotifications(notificationsRes.value.data.notifications || []);
-        setUnreadCount(notificationsRes.value.data.unread || 0);
+        const nd = notificationsRes.value.data;
+        console.info("[BLivNotify] /notifications:", nd?.notifications?.length, "items, unread:", nd?.unread, "endpoint:", API + "/notifications");
+        setNotifications(nd.notifications || []);
+        setUnreadCount(nd.unread || 0);
+      } else {
+        console.info("[BLivNotify] /notifications FAILED:", notificationsRes.reason);
       }
 
       if (messagesRes.status === "fulfilled") {
-        setMessages(messagesRes.value.data.messages || []);
+        const md = messagesRes.value.data;
+        const msgs = md.messages || [];
+        const uid = String(user?.user_id || user?.id || "");
+        const fromOthers = uid ? msgs.filter(m => String(m.sender_id || "") !== uid) : [];
+        console.info("[BLivNotify] /social/messages:", msgs.length, "total,", fromOthers.length, "from others, sender_ids:", msgs.map(m => m.sender_id), "uid:", uid);
+        setMessages(msgs);
+      } else {
+        console.info("[BLivNotify] /social/messages FAILED:", messagesRes.reason);
       }
     } catch (error) {
       console.error("Erro ao carregar dados sociais:", error);
@@ -350,6 +363,7 @@ export default function SocialPage() {
     notifIntervalRef.current = setInterval(() => {
       axios.get(API + "/notifications", { headers: authHeaders })
         .then((r) => {
+          console.info("[BLivNotify] poll /notifications:", r.data?.notifications?.length, "unread:", r.data?.unread, "types:", [...new Set((r.data?.notifications || []).map(n => n.type))]);
           setNotifications(r.data.notifications || []);
           setUnreadCount(r.data.unread || 0);
         })
@@ -360,12 +374,17 @@ export default function SocialPage() {
       axios.get(API + "/social/messages", { headers: authHeaders })
         .then((r) => {
           const msgs = r.data.messages || [];
+          console.info("[BLivNotify] poll /social/messages:", msgs.length, "msgs, endpoint:", API + "/social/messages");
           setMessages(msgs);
           const uid = String(userRef.current?.user_id || userRef.current?.id || "");
+          console.info("[BLivNotify] uid:", uid, "userRef:", userRef.current?.user_id, userRef.current?.id);
           if (uid) {
             const fromOthers = msgs.filter(m => String(m.sender_id || "") !== uid);
+            console.info("[BLivNotify] fromOthers:", fromOthers.length, "lastMsgCount:", lastMsgCount.current, "senders:", msgs.map(m => ({ id: m.sender_id, isUid: String(m.sender_id) === uid })));
             if (fromOthers.length > lastMsgCount.current) {
-              setUnreadCount(prev => prev + (fromOthers.length - lastMsgCount.current));
+              const inc = fromOthers.length - lastMsgCount.current;
+              console.info("[BLivNotify] incrementing unread by", inc);
+              setUnreadCount(prev => prev + inc);
             }
             lastMsgCount.current = fromOthers.length;
           }
@@ -1925,6 +1944,7 @@ export default function SocialPage() {
             onClick={() => {
               if (!requireAuth()) return;
               const uid = String(user?.user_id || user?.id || "");
+              console.info("[BLivNotify] bell click: uid:", uid, "messages:", messages.length, "msgs from others:", messages.filter(m => String(m.sender_id || "") !== uid).length, "unreadCount before:", unreadCount);
               lastMsgCount.current = uid ? messages.filter(m => String(m.sender_id || "") !== uid).length : 0;
               setUnreadCount(0);
               setShowNotifications(true);
