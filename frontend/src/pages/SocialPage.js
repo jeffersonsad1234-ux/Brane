@@ -99,6 +99,7 @@ export default function SocialPage() {
 
   const [posts, setPosts] = useState([]);
   const [images, setImages] = useState([]);
+  const [thumbnails, setThumbnails] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [posting, setPosting] = useState(false);
@@ -223,18 +224,20 @@ export default function SocialPage() {
 
   const getPostKey = (post) => String(post?.post_id || post?.id || post?.created_at || JSON.stringify(post));
 
-  const getPostImages = (post) => {
-    if (!post || !post.image) return [];
+  const getPostImages = (post, preferThumb = false) => {
+    if (!post) return [];
+    const source = preferThumb && post.thumbnail ? post.thumbnail : post.image;
+    if (!source) return [];
 
     try {
-      const parsed = JSON.parse(post.image);
+      const parsed = JSON.parse(source);
       if (Array.isArray(parsed)) return parsed.filter(Boolean);
     } catch {}
 
-    return [post.image];
+    return [source];
   };
 
-  const getCoverImage = (post) => getPostImages(post)[0] || "";
+  const getCoverImage = (post) => getPostImages(post, true)[0] || getPostImages(post)[0] || "";
 
   const getPostLines = (post) => String(post.content || "").split("\n").filter(Boolean);
   const getTitle = (post) => getPostLines(post)[0] || post.title || "Produto anunciado";
@@ -326,6 +329,26 @@ export default function SocialPage() {
         resolve(canvas.toDataURL("image/jpeg", 0.6));
       };
 
+      reader.readAsDataURL(file);
+    });
+
+  const fileToThumbnail = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      const img = new window.Image();
+      reader.onload = () => { img.src = reader.result; };
+      reader.onerror = reject;
+      img.onerror = reject;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const maxWidth = 200;
+        const scale = Math.min(1, maxWidth / img.width);
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL("image/jpeg", 0.35));
+      };
       reader.readAsDataURL(file);
     });
 
@@ -536,11 +559,12 @@ export default function SocialPage() {
 
     return () => observer.disconnect();
   }, [page, loading, loadingMore, hasMore]);
+
   const handleImage = async (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
 
-    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    const MAX_FILE_SIZE = 5 * 1024 * 1024;
     for (const f of files) {
       if (f.size > MAX_FILE_SIZE) {
         alert("Imagem muito grande. Máximo 5MB por foto.");
@@ -552,11 +576,13 @@ export default function SocialPage() {
     const availableSlots = Math.max(0, 5 - images.length);
     const selectedFiles = files.slice(0, availableSlots);
 
-    const base64List = await Promise.all(
-      selectedFiles.map((file) => fileToBase64(file))
-    );
+    const [base64List, thumbList] = await Promise.all([
+      Promise.all(selectedFiles.map((file) => fileToBase64(file))),
+      Promise.all(selectedFiles.map((file) => fileToThumbnail(file)))
+    ]);
 
     setImages((prev) => [...prev, ...base64List].slice(0, 5));
+    setThumbnails((prev) => [...prev, ...thumbList].slice(0, 5));
 
     if (imageInputRef.current) imageInputRef.current.value = "";
   };
@@ -573,10 +599,12 @@ export default function SocialPage() {
 
   const removeImageAt = (indexToRemove) => {
     setImages((prev) => prev.filter((_, index) => index !== indexToRemove));
+    setThumbnails((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
   const clearImages = () => {
     setImages([]);
+    setThumbnails([]);
   };
 
   const updateForm = (field, value) => {
@@ -680,7 +708,7 @@ export default function SocialPage() {
     ].filter(Boolean).join("\n");
   };
 
-  const createPost = async (sourceForm = form, sourceImages = images) => {
+  const createPost = async (sourceForm = form, sourceImages = images, sourceThumbs = thumbnails) => {
     if (!requireAuth()) return false;
 
     if (!sourceForm.title.trim()) {
@@ -701,24 +729,23 @@ export default function SocialPage() {
     try {
       setPosting(true);
 
-      await axios.post(
-        API + "/social/posts",
-        {
-          content: buildContent(sourceForm),
-          image: JSON.stringify(sourceImages),
-          category: sourceForm.category,
-          title: sourceForm.title,
-          price: sourceForm.price,
-          state: sourceForm.state,
-          city: sourceForm.city,
-          product_condition: sourceForm.productCondition,
-          description: sourceForm.description,
-          availability: sourceForm.availability,
-          phone: sourceForm.phone || "",
-          whatsapp: sourceForm.whatsapp || ""
-        },
-        { headers: authHeaders }
-      );
+      const payload = {
+        content: buildContent(sourceForm),
+        image: JSON.stringify(sourceImages),
+        category: sourceForm.category,
+        title: sourceForm.title,
+        price: sourceForm.price,
+        state: sourceForm.state,
+        city: sourceForm.city,
+        product_condition: sourceForm.productCondition,
+        description: sourceForm.description,
+        availability: sourceForm.availability,
+        phone: sourceForm.phone || "",
+        whatsapp: sourceForm.whatsapp || ""
+      };
+      if (sourceThumbs.length) payload.thumbnail = JSON.stringify(sourceThumbs);
+
+      await axios.post(API + "/social/posts", payload, { headers: authHeaders });
 
       setForm({
         category: "",
@@ -845,7 +872,7 @@ export default function SocialPage() {
     }
   };
 
-  const filteredPosts = posts.filter((post) => {
+  const filteredPosts = useMemo(() => posts.filter((post) => {
     const title = getTitle(post).toLowerCase();
     const content = String(post.content || "").toLowerCase();
     const description = String(post.description || "").toLowerCase();
@@ -879,7 +906,7 @@ export default function SocialPage() {
     }
 
     return true;
-  });
+  }), [posts, searchTerm, activeFilter, selectedCategory, favorites, currentUser]);
 
   const selectedImages = selectedPost ? getPostImages(selectedPost) : [];
   const selectedImage = selectedImages[selectedImageIndex] || "";
@@ -1086,7 +1113,7 @@ export default function SocialPage() {
     });
   };
 
-  const SkeletonCard = () => (
+  const SkeletonCard = React.memo(() => (
     <div className="brane-card-premium overflow-hidden" style={{ borderRadius: 22 }}>
       <div className="aspect-square bg-[#0B0D12] animate-pulse" />
       <div className="p-3 space-y-3" style={{ background: 'linear-gradient(180deg, rgba(9,10,15,0.96), rgba(5,6,10,1))' }}>
@@ -1096,7 +1123,7 @@ export default function SocialPage() {
         <div className="h-8 rounded-xl bg-[#1E2230] animate-pulse" />
       </div>
     </div>
-  );
+  ));
 
   return (
     <div className="min-h-screen text-white relative overflow-hidden bg-[#040407]">
@@ -1153,6 +1180,11 @@ export default function SocialPage() {
             z-index: 9999;
           }
 
+          @media (max-width: 768px) {
+            .blivre-product-card { animation: none !important; }
+            .blivre-shell, .blivre-grid, .blivre-grid-focused { transition: none !important; }
+            .blivre-side { transition: opacity 180ms ease !important; }
+          }
         `}
       </style>
 
@@ -1383,7 +1415,7 @@ export default function SocialPage() {
               <p className="text-[9px] md:text-[10px] text-[#6F7280] tracking-wide uppercase">B Livre — Anúncios</p>
             </div>
           </div>
-          <button type="button" onClick={() => { setComposerOpen(false); setEditingPost(null); setUseAI(true); setGeneratedAd(null); setForm({ category: "", title: "", price: "", state: "", city: "", productCondition: "", description: "", availability: "Item único", phone: "", whatsapp: "" }); setImages([]); }}
+          <button type="button" onClick={() => { setComposerOpen(false); setEditingPost(null); setUseAI(true); setGeneratedAd(null); setForm({ category: "", title: "", price: "", state: "", city: "", productCondition: "", description: "", availability: "Item único", phone: "", whatsapp: "" }); clearImages(); }}
             className="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#C9CBD6] hover:bg-white/10 hover:text-white transition-all">
             <X size={16} />
           </button>
@@ -1507,7 +1539,7 @@ export default function SocialPage() {
                   className="flex-1 h-11 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(212,162,76,0.25)]">
                   {posting ? "⏳ Publicando..." : "Publicar anúncio"}
                 </button>
-                <button type="button" onClick={() => { setComposerOpen(false); setEditingPost(null); setForm({ category: "", title: "", price: "", state: "", city: "", productCondition: "", description: "", availability: "Item único", phone: "", whatsapp: "" }); setImages([]); setFormError(""); }}
+                <button type="button" onClick={() => { setComposerOpen(false); setEditingPost(null); setForm({ category: "", title: "", price: "", state: "", city: "", productCondition: "", description: "", availability: "Item único", phone: "", whatsapp: "" }); clearImages(); setFormError(""); }}
                   className="flex-1 h-11 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all">
                   Cancelar
                 </button>
@@ -1567,7 +1599,7 @@ export default function SocialPage() {
               }}
               onGenerateNew={() => {
                 setGeneratedAd(null);
-                setImages([]);
+                clearImages();
                 setForm({
                   category: "",
                   title: "",
@@ -1614,7 +1646,7 @@ export default function SocialPage() {
                 const nextImages = (images || []).filter(Boolean).slice(0, 5);
                 if (nextImages.length > 0) setImages(nextImages);
 
-                const ok = await createPost(nextForm, nextImages.length > 0 ? nextImages : images);
+                const ok = await createPost(nextForm, nextImages.length > 0 ? nextImages : images, thumbnails);
                 if (ok) {
                   setComposerOpen(false);
                   setGeneratedAd(null);
@@ -2292,8 +2324,8 @@ export default function SocialPage() {
                               </button>
                             );
                           })}
-                        </div>
-                      );
+                      </div>
+                    );
                     })()}
                   </div>
                 )
