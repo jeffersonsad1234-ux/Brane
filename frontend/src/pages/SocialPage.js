@@ -273,39 +273,46 @@ export default function SocialPage() {
   const getMessageSenderId = (msg) =>
     String(msg?.sender_id || msg?.sender_user_id || msg?.from_user_id || msg?.sender?.id || msg?.user_id || "");
 
-  const getMessageTime = (msg) => {
-    const raw = msg?.created_at || msg?.timestamp || msg?.date || msg?.sent_at;
-    const parsed = raw ? new Date(raw).getTime() : 0;
-    return Number.isFinite(parsed) ? parsed : 0;
+  const getMessageId = (msg) => String(msg?.message_id || msg?.id || msg?._id || "");
+
+  const getReadMessageIds = () => {
+    if (typeof window === "undefined") return new Set();
+    try {
+      return new Set(JSON.parse(window.localStorage.getItem("blivre_read_message_ids") || "[]"));
+    } catch { return new Set(); }
   };
 
-  const getNotificationsReadAt = () => {
-    if (typeof window === "undefined") return 0;
-    return Number(window.localStorage.getItem("blivre_notifications_read_at") || "0");
-  };
-
-  const markNotificationsReadLocally = () => {
-    const now = Date.now();
+  const saveReadMessageIds = (ids) => {
     if (typeof window !== "undefined") {
-      window.localStorage.setItem("blivre_notifications_read_at", String(now));
+      window.localStorage.setItem("blivre_read_message_ids", JSON.stringify([...ids]));
     }
-    const uid = getCurrentUserId();
-    lastMsgCount.current = uid
-      ? (messages || []).filter((m) => getMessageSenderId(m) !== uid).length
-      : 0;
-    setUnreadCount(0);
   };
 
   const computeUnreadFromMessages = (msgList = []) => {
     const uid = getCurrentUserId();
     if (!uid) return 0;
-    const readAt = getNotificationsReadAt();
+    const readIds = getReadMessageIds();
     return (msgList || []).filter((m) => {
       const senderId = getMessageSenderId(m);
       if (!senderId || senderId === uid) return false;
-      const msgTime = getMessageTime(m);
-      return !readAt || !msgTime || msgTime > readAt;
+      const msgId = getMessageId(m);
+      return !msgId || !readIds.has(msgId);
     }).length;
+  };
+
+  const markNotificationsReadLocally = () => {
+    const uid = getCurrentUserId();
+    if (typeof window === "undefined" || !uid) return;
+    const ids = getReadMessageIds();
+    (messages || []).forEach((m) => {
+      if (getMessageSenderId(m) !== uid) {
+        const msgId = getMessageId(m);
+        if (msgId && msgId !== "undefined" && msgId !== "null") ids.add(msgId);
+      }
+    });
+    saveReadMessageIds(ids);
+    lastMsgCount.current = (messages || []).filter((m) => getMessageSenderId(m) !== uid).length;
+    setUnreadCount(0);
   };
 
   const refreshUnreadCount = (notifData = {}, msgList = messages) => {
