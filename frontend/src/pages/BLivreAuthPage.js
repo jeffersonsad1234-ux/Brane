@@ -2,10 +2,13 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { User, Mail, Lock, ArrowLeft } from "lucide-react";
 import { useBLivreAuth } from "../contexts/BLivreAuthContext";
+import BLivreSEO from "../components/BLivreSEO";
+
 export default function BLivreAuthPage() {
   const { pathname } = useLocation();
   const isLogin = !pathname.endsWith("/register");
-  const { login, register } = useBLivreAuth();  const navigate = useNavigate();
+  const { login, register } = useBLivreAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -58,6 +61,7 @@ export default function BLivreAuthPage() {
 
   return (
     <div className="min-h-screen bg-[#050608] flex flex-col">
+      <BLivreSEO page={isLogin ? "login" : "register"} />
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.04]">
         <button onClick={() => navigate("/blivre")}

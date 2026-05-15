@@ -1,6 +1,7 @@
 import { X, Send, MessageSquare, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { BLivreMessageProvider, useBLivreMessages } from "../contexts/BLivreMessageContext";
+import BLivreSEO from "../components/BLivreSEO";
 
 function MessagesContent() {
   const {
@@ -44,6 +45,7 @@ function MessagesContent() {
 
   return (
     <div className="min-h-screen bg-[#050608] flex flex-col">
+      <BLivreSEO page="messages" />
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.04]">
         <h1 className="text-sm font-black text-white">Mensagens</h1>
         <button onClick={() => navigate("/blivre")}

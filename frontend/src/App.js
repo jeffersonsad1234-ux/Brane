@@ -34,6 +34,16 @@ import SocialPage from "./pages/SocialPage";
 import BLivreAuthPage from "./pages/BLivreAuthPage";
 import BLivreMessagesPage from "./pages/BLivreMessagesPage";
 import { BLivreAuthProvider } from "./contexts/BLivreAuthContext";
+import BLivreSEO from "./components/BLivreSEO";
+
+function BLivreLayout() {
+  return (
+    <BLivreAuthProvider>
+      <BLivreSEO page="home" />
+      <Outlet />
+    </BLivreAuthProvider>
+  );
+}
 import { Toaster } from "./components/ui/sonner";
 import AddStoreProductPage from "./pages/AddStoreProductPage";
 import AddDesapegaProductPage from "./pages/AddDesapegaProductPage";
@@ -144,7 +154,7 @@ function AppRouter() {
 
             <Route path="/desapega" element={<DesapegaPage />} />
 
-            <Route element={<BLivreAuthProvider><Outlet /></BLivreAuthProvider>}>
+            <Route element={<BLivreLayout />}>
               <Route path="/blivre/login" element={<BLivreAuthPage />} />
               <Route path="/blivre/register" element={<BLivreAuthPage />} />
               <Route path="/blivre/messages" element={<BLivreMessagesPage />} />

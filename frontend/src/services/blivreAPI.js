@@ -1,5 +1,6 @@
-const DEFAULT_BACKEND = process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app";
-const BLIVRE_API_BASE = `${DEFAULT_BACKEND}/api/blivre`;
+import env from "./blivreEnv";
+
+const BLIVRE_API_BASE = env.API_BASE;
 
 export const blivreAPI = {
   base: BLIVRE_API_BASE,
