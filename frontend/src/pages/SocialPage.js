@@ -1064,20 +1064,8 @@ export default function SocialPage() {
         <div className="h-5 rounded bg-[#1E2230] w-2/3 animate-pulse" />
         <div className="h-3 rounded bg-[#1E2230] w-1/2 animate-pulse" />
         <div className="h-8 rounded-xl bg-[#1E2230] animate-pulse" />
-              </div>
-              <div>
-                <label className="text-[11px] font-bold text-[#8C8F9A] uppercase tracking-wider">Telefone para contato</label>
-                <input value={form.phone} onChange={(e) => updateForm("phone", e.target.value)}
-                  className="mt-1.5 w-full h-11 px-4 rounded-xl bg-[#0A0A0C] border border-white/10 text-white text-[13px] outline-none focus:border-[#D4A24C]/40 placeholder:text-[#6F7280]"
-                  placeholder="(91) 99999-9999" />
-              </div>
-              <div>
-                <label className="text-[11px] font-bold text-[#8C8F9A] uppercase tracking-wider">WhatsApp</label>
-                <input value={form.whatsapp} onChange={(e) => updateForm("whatsapp", e.target.value)}
-                  className="mt-1.5 w-full h-11 px-4 rounded-xl bg-[#0A0A0C] border border-white/10 text-white text-[13px] outline-none focus:border-[#D4A24C]/40 placeholder:text-[#6F7280]"
-                  placeholder="(91) 98888-8888" />
-              </div>
-            </div>
+      </div>
+    </div>
   );
 
   return (
