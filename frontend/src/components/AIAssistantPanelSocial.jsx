@@ -848,12 +848,16 @@ export default function AIAssistantPanelSocial({
             position: sticky !important; 
             bottom: 0 !important; 
             width: 100% !important; 
-            background: #08060d !important; 
-            padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+            background: transparent !important;
+            border-top: none !important;
+            box-shadow: none !important;
+            padding-bottom: 0 !important;
             margin-bottom: 0 !important;
-            min-height: auto !important;
             z-index: 50 !important;
+            overflow: hidden !important;
           }
+           
+            
           .brane-ad-mobile .brane-card-premium { max-height:140px !important; overflow:hidden !important; border-radius:10px !important; }
           .brane-ad-mobile .brane-card-premium > div:first-child { height:80px !important; }
           .brane-ad-mobile .brane-card-premium > div:first-child img { height:80px !important; object-fit:cover !important; }
