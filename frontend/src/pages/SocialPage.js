@@ -273,66 +273,32 @@ export default function SocialPage() {
   const getMessageSenderId = (msg) =>
     String(msg?.sender_id || msg?.sender_user_id || msg?.from_user_id || msg?.sender?.id || msg?.user_id || "");
 
-  const getMessageId = (msg) => String(msg?.message_id || msg?.id || msg?._id || "");
+  const [unreadConversations, setUnreadConversations] = useState([]);
 
-  const getSeenChats = () => {
-    if (typeof window === "undefined") return {};
+  const fetchUnreadMessages = async () => {
+    if (!currentToken) return;
     try {
-      return JSON.parse(window.localStorage.getItem("blivre_seen_chats") || "{}");
-    } catch { return {}; }
-  };
-
-  const saveSeenChats = (chats) => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("blivre_seen_chats", JSON.stringify(chats));
+      const res = await axios.get(API + "/social/messages/unread", { headers: authHeaders });
+      const data = res.data;
+      setUnreadConversations(data.conversations || []);
+      setUnreadCount(data.conversation_count || 0);
+    } catch (e) {
+      console.error("Erro ao buscar mensagens não lidas:", e);
     }
   };
 
-  /** Returns { postId: lastMessage } for messages received from others */
-  const getLastMessagePerChat = (msgList = []) => {
-    const uid = getCurrentUserId();
-    if (!uid) return {};
-    const chats = {};
-    (msgList || []).forEach((m) => {
-      const senderId = getMessageSenderId(m);
-      if (!senderId || senderId === uid) return;
-      const postId = String(m?.post_id || "");
-      if (!postId) return;
-      const prev = chats[postId];
-      if (!prev || new Date(m?.created_at || m?.timestamp || 0).getTime() > new Date(prev?.created_at || prev?.timestamp || 0).getTime()) {
-        chats[postId] = m;
-      }
-    });
-    return chats;
-  };
-
-  const computeUnreadFromMessages = (msgList = []) => {
-    const seen = getSeenChats();
-    const lastMsgs = getLastMessagePerChat(msgList);
-    let unread = 0;
-    Object.entries(lastMsgs).forEach(([postId, msg]) => {
-      const msgId = getMessageId(msg);
-      if (msgId && seen[postId] !== msgId) unread++;
-    });
-    return unread;
-  };
-
-  const markChatAsRead = (postId) => {
-    const uid = getCurrentUserId();
-    if (typeof window === "undefined" || !uid || !postId) return;
-    const seen = getSeenChats();
-    const lastMsgs = getLastMessagePerChat(messages);
-    const lastMsg = lastMsgs[postId];
-    if (lastMsg) {
-      const msgId = getMessageId(lastMsg);
-      if (msgId) seen[postId] = msgId;
+  const markChatAsRead = async (postId) => {
+    if (!postId || !currentToken) return;
+    try {
+      await axios.post(API + "/social/messages/read-conversation/" + postId, {}, { headers: authHeaders });
+      await fetchUnreadMessages();
+    } catch (e) {
+      console.error("Erro ao marcar conversa como lida:", e);
     }
-    saveSeenChats(seen);
-    setUnreadCount(computeUnreadFromMessages(messages));
   };
 
-  const refreshUnreadCount = (notifData = {}, msgList = messages) => {
-    setUnreadCount(computeUnreadFromMessages(msgList));
+  const refreshUnreadCount = () => {
+    fetchUnreadMessages();
   };
 
   const fileToBase64 = (file) =>
@@ -406,7 +372,7 @@ export default function SocialPage() {
 
       setNotifications(nextNotifications);
       setMessages(nextMessages);
-      refreshUnreadCount(nd, nextMessages);
+      refreshUnreadCount();
     } catch (error) {
       console.error("Erro ao carregar dados sociais:", error);
     }
@@ -467,12 +433,13 @@ export default function SocialPage() {
 
         setNotifications(nextNotifications);
         setMessages(nextMessages);
-        refreshUnreadCount(nd, nextMessages);
 
         const uid = getCurrentUserId();
         if (uid) {
           lastMsgCount.current = nextMessages.filter((m) => getMessageSenderId(m) !== uid).length;
         }
+
+        fetchUnreadMessages();
       } catch {
         // keep silent polling failures from breaking the UI
       }
@@ -954,7 +921,7 @@ export default function SocialPage() {
     axios.get(API + "/social/messages", { headers: authHeaders })
       .then((r) => {
         setMessages(r.data.messages || []);
-        refreshUnreadCount({}, r.data.messages || []);
+        refreshUnreadCount();
       })
       .catch(() => {});
   };
@@ -1024,7 +991,7 @@ export default function SocialPage() {
       axios.get(API + "/notifications", { headers: authHeaders })
         .then((r) => {
           setNotifications(r.data.notifications || []);
-          refreshUnreadCount(r.data, messages);
+          refreshUnreadCount();
         })
         .catch(() => {});
     } catch (error) {
@@ -1184,30 +1151,24 @@ export default function SocialPage() {
 
             <div className="space-y-3 max-h-[56vh] overflow-y-auto pr-1">
               {(() => {
-                const uid = getCurrentUserId();
-                const seen = getSeenChats();
-                const lastMsgs = getLastMessagePerChat(messages);
-                const unreadEntries = Object.entries(lastMsgs).filter(([postId, msg]) => {
-                  const msgId = getMessageId(msg);
-                  return msgId && seen[postId] !== msgId;
-                });
+                const items = unreadConversations;
 
-                if (unreadEntries.length === 0) {
+                if (items.length === 0) {
                   return <div className="brane-card-soft p-4 text-sm text-[#8C8F9A]">Nenhuma notificação por enquanto.</div>;
                 }
 
-                return unreadEntries.map(([postId, msg]) => {
-                  const nPostId = postId;
+                return items.map((msg) => {
+                  const nPostId = msg?.post_id;
                   const notifPost = posts.find((p) => (p.post_id || p.id) === nPostId || getPostKey(p) === nPostId);
                   const notifImg = notifPost ? getPostImages(notifPost)[0] || "" : "";
                   const notifTitle = notifPost ? getTitle(notifPost) : "Anúncio";
                   const nSender = findName(msg) || "Usuário";
                   return (
                     <button
-                      key={postId}
+                      key={nPostId}
                       onClick={() => {
                         setShowNotifications(false);
-                        markChatAsRead(postId);
+                        markChatAsRead(nPostId);
                         setSelectedChat({ post_id: nPostId, sender_name: nSender, message: msg.message || "" });
                         loadChatMessages(nPostId);
                         setActiveFilter("messages");

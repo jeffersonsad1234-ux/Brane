@@ -978,22 +978,39 @@ async def get_stats(request: Request):
 async def send_message(data: dict, request: Request):
     user = await get_current_user(request)
 
+    # Determine receiver (post owner)
+    pid = data.get("post_id")
+    post = await db.social_posts.find_one({"post_id": pid})
+    if not post:
+        post = await db.products.find_one({"product_id": pid})
+    owner_id = (post.get("user_id") if post else None) or (post.get("seller_id") if post else None)
+
+    # Determine receiver_id:
+    #   - If sender is NOT the owner, receiver is the owner
+    #   - If sender IS the owner, receiver is the other participant in the conversation
+    if owner_id and owner_id != user["user_id"]:
+        receiver_id = owner_id
+    else:
+        # Look up the most recent message in this conversation from another sender
+        other = await db.social_messages.find_one(
+            {"post_id": pid, "sender_id": {"$ne": user["user_id"]}},
+            sort=[("created_at", -1)]
+        )
+        receiver_id = other["sender_id"] if other else None
+
     message = {
-        "post_id": data.get("post_id"),
+        "post_id": pid,
         "message": data.get("message"),
         "sender_id": user["user_id"],
         "sender_name": user.get("name", ""),
+        "receiver_id": receiver_id,
+        "read_at": None,
         "created_at": datetime.now(timezone.utc)
     }
 
     await db.social_messages.insert_one(message)
 
     # Notify the post owner (social post OR marketplace product)
-    pid = data.get("post_id")
-    post = await db.social_posts.find_one({"post_id": pid})
-    if not post:
-        post = await db.products.find_one({"product_id": pid})
-    owner_id = (post.get("user_id") if post else None) or (post.get("seller_id") if post else None)
     if post and owner_id and owner_id != user["user_id"]:
         await db.notifications.insert_one({
             "notification_id": f"notif_{uuid.uuid4().hex[:12]}",
@@ -1059,6 +1076,44 @@ async def get_messages(request: Request, post_id: Optional[str] = None):
     result.sort(key=lambda x: x.get("created_at", ""), reverse=True)
 
     return {"messages": result}
+
+
+@api_router.get("/social/messages/unread")
+async def get_unread_messages(request: Request):
+    user = await get_current_user(request)
+    messages = []
+    async for m in db.social_messages.find(
+        {"receiver_id": user["user_id"], "read_at": None}
+    ).sort("created_at", -1):
+        m.pop("_id", None)
+        messages.append(m)
+
+    # Group by post_id -> last message per conversation
+    seen_posts = {}
+    for m in messages:
+        pid = m.get("post_id")
+        if pid and pid not in seen_posts:
+            seen_posts[pid] = m
+
+    conversations = list(seen_posts.values())
+
+    return {
+        "messages": messages,
+        "conversations": conversations,
+        "unread_count": len(messages),
+        "conversation_count": len(conversations)
+    }
+
+
+@api_router.post("/social/messages/read-conversation/{post_id}")
+async def read_conversation(post_id: str, request: Request):
+    user = await get_current_user(request)
+    now = datetime.now(timezone.utc)
+    await db.social_messages.update_many(
+        {"post_id": post_id, "receiver_id": user["user_id"], "read_at": None},
+        {"$set": {"read_at": now}}
+    )
+    return {"ok": True}
 
 
 # =========================
