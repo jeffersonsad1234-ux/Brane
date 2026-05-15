@@ -1901,6 +1901,22 @@ export default function SocialPage() {
             placeholder="Buscar na B Livre..."
             className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-[#6F7280]"
           />
+          <button
+            onClick={() => {
+              if (!requireAuth()) return;
+              setUnreadCount(0);
+              setShowNotifications(true);
+              axios.put(API + "/notifications/read-all", {}, { headers: authHeaders }).catch(() => {});
+            }}
+            className="relative w-9 h-9 rounded-xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] hover:bg-white/[0.08] transition-colors shrink-0"
+          >
+            <Bell size={17} />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-[#D4A24C] text-[9px] font-black text-black flex items-center justify-center shadow-[0_0_6px_rgba(212,162,76,0.5)]">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
         </div>
 
         <div className="max-w-[1600px] mx-auto px-4 py-4">
