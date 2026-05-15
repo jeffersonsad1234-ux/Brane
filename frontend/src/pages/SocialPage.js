@@ -316,9 +316,7 @@ export default function SocialPage() {
   };
 
   const refreshUnreadCount = (notifData = {}, msgList = messages) => {
-    const apiUnread = Number(notifData?.unread || 0);
-    const messageUnread = computeUnreadFromMessages(msgList);
-    setUnreadCount(Math.max(apiUnread, messageUnread));
+    setUnreadCount(computeUnreadFromMessages(msgList));
   };
 
   const fileToBase64 = (file) =>
@@ -937,6 +935,7 @@ export default function SocialPage() {
     setActiveFilter("messages");
     setSelectedChat(null);
     setSelectedCategory("");
+    markNotificationsReadLocally();
     fetchMessages();
     axios.get(API + "/notifications", { headers: authHeaders })
       .then((r) => {
@@ -978,6 +977,7 @@ export default function SocialPage() {
   const openChat = (chat) => {
     setActiveFilter("messages");
     setSelectedChat(chat);
+    markNotificationsReadLocally();
     fetchMessages();
     window.history.pushState({ braneChat: true }, "", window.location.pathname);
   };
