@@ -49,6 +49,9 @@ export default function SocialPage() {
   const scrollFrameRef = useRef(null);
   const expandedRef = useRef(false);
   const chatScrollRef = useRef(null);
+  const lastMsgCount = useRef(0);
+  const userRef = useRef(null);
+  userRef.current = user;
 
   const [posts, setPosts] = useState([]);
   const [images, setImages] = useState([]);
@@ -355,7 +358,18 @@ export default function SocialPage() {
 
     messagesIntervalRef.current = setInterval(() => {
       axios.get(API + "/social/messages", { headers: authHeaders })
-        .then((r) => setMessages(r.data.messages || []))
+        .then((r) => {
+          const msgs = r.data.messages || [];
+          setMessages(msgs);
+          const uid = String(userRef.current?.user_id || userRef.current?.id || "");
+          if (uid) {
+            const fromOthers = msgs.filter(m => String(m.sender_id || "") !== uid);
+            if (fromOthers.length > lastMsgCount.current) {
+              setUnreadCount(prev => prev + (fromOthers.length - lastMsgCount.current));
+            }
+            lastMsgCount.current = fromOthers.length;
+          }
+        })
         .catch(() => {});
     }, 3000);
 
@@ -1061,17 +1075,23 @@ export default function SocialPage() {
             </div>
 
             <div className="space-y-3 max-h-[56vh] overflow-y-auto pr-1">
-              {notifications.length === 0 ? (
-                <div className="brane-card-soft p-4 text-sm text-[#8C8F9A]">
-                  Nenhuma notificação por enquanto.
-                </div>
-              ) : (
-                notifications.filter((n) => n.type === "social_message").map((item, index) => {
+              {(() => {
+                const notifItems = notifications.filter((n) => n.type === "social_message");
+                const uid = String(user?.user_id || user?.id || "");
+                const recentMsgs = uid ? messages.filter(m => String(m.sender_id || "") !== uid).slice(-10).reverse() : [];
+                const items = notifItems.length > 0 ? notifItems : recentMsgs;
+                const isFromMessages = notifItems.length === 0;
+
+                if (items.length === 0) {
+                  return <div className="brane-card-soft p-4 text-sm text-[#8C8F9A]">Nenhuma notificação por enquanto.</div>;
+                }
+
+                return items.map((item, index) => {
                   const nPostId = item.data?.post_id || item.post_id;
                   const notifPost = posts.find((p) => (p.post_id || p.id) === nPostId || getPostKey(p) === nPostId);
                   const notifImg = notifPost ? getPostImages(notifPost)[0] || "" : "";
-                  const notifTitle = notifPost ? getTitle(notifPost) : (item.title || item.data?.sender_name || "Nova mensagem");
-                  const nSender = findName(item.data) || findName(item) || "Usuário";
+                  const notifTitle = notifPost ? getTitle(notifPost) : (item.title || item.data?.sender_name || item.sender_name || "Nova mensagem");
+                  const nSender = isFromMessages ? (findName(item) || "Usuário") : (findName(item.data) || findName(item) || "Usuário");
                   return (
                     <button
                       key={item.id || index}
@@ -1102,8 +1122,8 @@ export default function SocialPage() {
                       </div>
                     </button>
                   );
-                })
-              )}
+                });
+              })()}
             </div>
           </div>
         </div>
@@ -1904,6 +1924,8 @@ export default function SocialPage() {
           <button
             onClick={() => {
               if (!requireAuth()) return;
+              const uid = String(user?.user_id || user?.id || "");
+              lastMsgCount.current = uid ? messages.filter(m => String(m.sender_id || "") !== uid).length : 0;
               setUnreadCount(0);
               setShowNotifications(true);
               axios.put(API + "/notifications/read-all", {}, { headers: authHeaders }).catch(() => {});
