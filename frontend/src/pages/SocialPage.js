@@ -275,42 +275,58 @@ export default function SocialPage() {
 
   const getMessageId = (msg) => String(msg?.message_id || msg?.id || msg?._id || "");
 
-  const getReadMessageIds = () => {
-    if (typeof window === "undefined") return new Set();
+  const getSeenChats = () => {
+    if (typeof window === "undefined") return {};
     try {
-      return new Set(JSON.parse(window.localStorage.getItem("blivre_read_message_ids") || "[]"));
-    } catch { return new Set(); }
+      return JSON.parse(window.localStorage.getItem("blivre_seen_chats") || "{}");
+    } catch { return {}; }
   };
 
-  const saveReadMessageIds = (ids) => {
+  const saveSeenChats = (chats) => {
     if (typeof window !== "undefined") {
-      window.localStorage.setItem("blivre_read_message_ids", JSON.stringify([...ids]));
+      window.localStorage.setItem("blivre_seen_chats", JSON.stringify(chats));
     }
   };
 
-  const computeUnreadFromMessages = (msgList = []) => {
+  /** Returns { postId: lastMessage } for messages received from others */
+  const getLastMessagePerChat = (msgList = []) => {
     const uid = getCurrentUserId();
-    if (!uid) return 0;
-    const readIds = getReadMessageIds();
-    return (msgList || []).filter((m) => {
+    if (!uid) return {};
+    const chats = {};
+    (msgList || []).forEach((m) => {
       const senderId = getMessageSenderId(m);
-      if (!senderId || senderId === uid) return false;
-      const msgId = getMessageId(m);
-      return !msgId || !readIds.has(msgId);
-    }).length;
+      if (!senderId || senderId === uid) return;
+      const postId = String(m?.post_id || "");
+      if (!postId) return;
+      const prev = chats[postId];
+      if (!prev || new Date(m?.created_at || m?.timestamp || 0).getTime() > new Date(prev?.created_at || prev?.timestamp || 0).getTime()) {
+        chats[postId] = m;
+      }
+    });
+    return chats;
+  };
+
+  const computeUnreadFromMessages = (msgList = []) => {
+    const seen = getSeenChats();
+    const lastMsgs = getLastMessagePerChat(msgList);
+    let unread = 0;
+    Object.entries(lastMsgs).forEach(([postId, msg]) => {
+      const msgId = getMessageId(msg);
+      if (msgId && seen[postId] !== msgId) unread++;
+    });
+    return unread;
   };
 
   const markNotificationsReadLocally = () => {
     const uid = getCurrentUserId();
     if (typeof window === "undefined" || !uid) return;
-    const ids = getReadMessageIds();
-    (messages || []).forEach((m) => {
-      if (getMessageSenderId(m) !== uid) {
-        const msgId = getMessageId(m);
-        if (msgId && msgId !== "undefined" && msgId !== "null") ids.add(msgId);
-      }
+    const seen = getSeenChats();
+    const lastMsgs = getLastMessagePerChat(messages);
+    Object.entries(lastMsgs).forEach(([postId, msg]) => {
+      const msgId = getMessageId(msg);
+      if (msgId) seen[postId] = msgId;
     });
-    saveReadMessageIds(ids);
+    saveSeenChats(seen);
     lastMsgCount.current = (messages || []).filter((m) => getMessageSenderId(m) !== uid).length;
     setUnreadCount(0);
   };
