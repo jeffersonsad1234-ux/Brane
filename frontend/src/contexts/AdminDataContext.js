@@ -1,13 +1,12 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { useAuth } from "./AuthContext";
 
 const API = `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
 
 const AdminDataContext = createContext(null);
 
 export function AdminDataProvider({ children }) {
-  const { user, token } = useAuth();
+  const [token, setToken] = useState(null);
   const authHeaders = token ? { Authorization: "Bearer " + token } : {};
 
   const [dashboard, setDashboard] = useState(null);
@@ -15,41 +14,55 @@ export function AdminDataProvider({ children }) {
   const [posts, setPosts] = useState([]);
   const [supportTickets, setSupportTickets] = useState([]);
   const [notifications, setNotifications] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Grab token from main auth
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("auth_token") || localStorage.getItem("token");
+      if (stored) setToken(stored);
+    } catch { /* noop */ }
+    // Also watch for auth changes
+    const check = () => {
+      const t = localStorage.getItem("auth_token") || localStorage.getItem("token");
+      if (t !== token) setToken(t);
+    };
+    window.addEventListener("storage", check);
+    return () => window.removeEventListener("storage", check);
+  }, [token]);
+
   const fetchAll = useCallback(async () => {
+    if (!token) { setLoading(false); return; }
     setLoading(true);
     try {
-      const [usersRes, postsRes, supportRes, notifRes] = await Promise.allSettled([
-        axios.get(API + "/admin/users", { headers: authHeaders }).catch(() => ({ value: { data: { users: [] } } })),
-        axios.get(API + "/social/posts?limit=100&page=1", { headers: authHeaders }).catch(() => ({ value: { data: { posts: [] } } })),
-        axios.get(API + "/admin/support", { headers: authHeaders }).catch(() => ({ value: { data: { tickets: [] } } })),
-        axios.get(API + "/notifications", { headers: authHeaders }).catch(() => ({ value: { data: { notifications: [], unread: 0 } } })),
+      const [usersRes, postsRes, supportRes, notifRes, financeRes] = await Promise.allSettled([
+        axios.get(API + "/admin/users", { headers: authHeaders }),
+        axios.get(API + "/social/posts?limit=200&page=1", { headers: authHeaders }),
+        axios.get(API + "/admin/support", { headers: authHeaders }),
+        axios.get(API + "/notifications", { headers: authHeaders }),
+        axios.get(API + "/admin/finance/dashboard", { headers: authHeaders }),
       ]);
 
       if (usersRes.status === "fulfilled") setUsers(usersRes.value.data.users || []);
       if (postsRes.status === "fulfilled") setPosts(postsRes.value.data.posts || []);
       if (supportRes.status === "fulfilled") setSupportTickets(supportRes.value.data.tickets || []);
-      if (notifRes.status === "fulfilled") {
-        setNotifications(notifRes.value.data.notifications || []);
-      }
+      if (notifRes.status === "fulfilled") setNotifications(notifRes.value.data.notifications || []);
+      if (financeRes.status === "fulfilled") setTransactions(financeRes.value.data.transactions || []);
 
-      // Dashboard — aggregated
+      // Dashboard — computed from real data only
       const userList = usersRes.status === "fulfilled" ? usersRes.value.data.users || [] : [];
       const postList = postsRes.status === "fulfilled" ? postsRes.value.data.posts || [] : [];
-      setDashboard({
+      const txList = financeRes.status === "fulfilled" ? financeRes.value.data.transactions || [] : [];
+
+      setDashboard(userList.length > 0 || postList.length > 0 ? {
         totalUsers: userList.length,
         totalPosts: postList.length,
-        activePosts: postList.filter(p => (p.status || "active") !== "blocked").length,
-        blockedPosts: postList.filter(p => p.status === "blocked").length,
-        pendingPosts: postList.filter(p => p.status === "pending").length,
-        totalReports: 0,
-        totalMessages: 0,
-        growthUsers: "+8%",
-        growthPosts: "+12%",
-        growthRevenue: "+23%",
-        revenue: "R$ 47.890",
-      });
+        activePosts: postList.filter(p => (p.status || "active") !== "blocked" && p.status !== "bloqueado").length,
+        blockedPosts: postList.filter(p => p.status === "blocked" || p.status === "bloqueado").length,
+        pendingPosts: postList.filter(p => p.status === "pending" || p.status === "pendente").length,
+        totalTransactions: txList.length,
+      } : null);
     } catch (e) {
       console.error("AdminData fetch error:", e);
     } finally {
@@ -57,7 +70,7 @@ export function AdminDataProvider({ children }) {
     }
   }, [token]);
 
-  useEffect(() => { if (token) fetchAll(); else setLoading(false); }, [token, fetchAll]);
+  useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const blockUser = async (uid) => {
     try {
@@ -75,8 +88,8 @@ export function AdminDataProvider({ children }) {
 
   return (
     <AdminDataContext.Provider value={{
-      dashboard, users, posts, supportTickets, notifications, loading,
-      fetchAll, blockUser, deletePost, API, authHeaders
+      dashboard, users, posts, supportTickets, notifications, transactions, loading,
+      fetchAll, blockUser, deletePost, API, authHeaders, token
     }}>
       {children}
     </AdminDataContext.Provider>

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAdminData } from "../../contexts/AdminDataContext";
-import { Search, Send, CheckCircle, XCircle, Mail, Calendar, Shield, AlertTriangle } from "lucide-react";
+import { Search, Send, Shield, AlertTriangle } from "lucide-react";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
@@ -10,14 +10,6 @@ import BLivreSEO from "../../components/BLivreSEO";
 const glassCard = "rounded-2xl border bg-[#121216]/80 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.3)]";
 const API = `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
 
-const MOCK_REQUESTS = [
-  { id: "R-001", email: "maria@email.com", user: "Maria Silva", data: "15/05/2026 14:32", status: "pendente" },
-  { id: "R-002", email: "joao.pereira@email.com", user: "João Pereira", data: "15/05/2026 10:15", status: "enviado" },
-  { id: "R-003", email: "ana.lucia@email.com", user: "Ana Lúcia", data: "14/05/2026 22:40", status: "pendente" },
-  { id: "R-004", email: "carlos.m@email.com", user: "Carlos Mendes", data: "14/05/2026 18:00", status: "resolvido" },
-  { id: "R-005", email: "pedro.alves@email.com", user: "Pedro Alves", data: "13/05/2026 09:20", status: "pendente" },
-];
-
 export default function AdminPasswordReset() {
   const { authHeaders } = useAdminData();
   const [requests, setRequests] = useState([]);
@@ -25,17 +17,14 @@ export default function AdminPasswordReset() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Try API, fallback to mock
     const fetchRequests = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(API + "/admin/password-resets", { headers: authHeaders }).catch(() => null);
-        if (res?.data?.requests) {
-          setRequests(res.data.requests);
-        } else {
-          setRequests(MOCK_REQUESTS);
-        }
+        if (res?.data?.requests) setRequests(res.data.requests);
+        else setRequests([]);
       } catch {
-        setRequests(MOCK_REQUESTS);
+        setRequests([]);
       } finally {
         setLoading(false);
       }
@@ -46,15 +35,15 @@ export default function AdminPasswordReset() {
   const sendReset = async (req) => {
     try {
       await axios.post(API + "/admin/password-resets/" + req.id + "/send", {}, { headers: authHeaders }).catch(() => {});
-      setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: "enviado" } : r));
-    } catch { setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: "enviado" } : r)); }
+    } catch {}
+    setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: "enviado" } : r));
   };
 
   const blockUser = async (req) => {
     try {
       await axios.put(API + "/admin/users/" + req.email + "/block", {}, { headers: authHeaders }).catch(() => {});
-      alert("Conta bloqueada: " + req.email);
-    } catch { alert("Conta bloqueada: " + req.email); }
+    } catch {}
+    setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: "resolvido" } : r));
   };
 
   const filtered = requests.filter(r => {
@@ -83,6 +72,11 @@ export default function AdminPasswordReset() {
           <div className="flex items-center justify-center h-32 text-[#8C8F9A]">
             <div className="w-6 h-6 border-2 border-[#D4A24C] border-t-transparent rounded-full animate-spin" />
           </div>
+        ) : requests.length === 0 ? (
+          <div className="p-12 text-center">
+            <p className="text-lg font-bold text-white mb-1">Nenhuma solicitação encontrada</p>
+            <p className="text-sm text-[#8C8F9A]">Nenhum pedido de recuperação de senha no momento.</p>
+          </div>
         ) : (
           <Table>
             <TableHeader>
@@ -101,7 +95,7 @@ export default function AdminPasswordReset() {
                   <TableCell className="text-[#8C8F9A] font-mono text-[12px]">{r.id}</TableCell>
                   <TableCell className="text-white font-medium">{r.user || "—"}</TableCell>
                   <TableCell className="text-[#8C8F9A]">{r.email}</TableCell>
-                  <TableCell className="text-[#8C8F9A] text-[12px]">{r.data}</TableCell>
+                  <TableCell className="text-[#8C8F9A] text-[12px]">{r.data || (r.created_at ? new Date(r.created_at).toLocaleString("pt-BR") : "—")}</TableCell>
                   <TableCell>
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
                       r.status === "resolvido" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" :
@@ -131,7 +125,6 @@ export default function AdminPasswordReset() {
         )}
       </div>
 
-      {/* Info Card */}
       <div className={`${glassCard} p-5`}>
         <div className="flex items-start gap-3">
           <AlertTriangle size={18} className="text-[#D4A24C] mt-0.5" />
