@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import {
-  Image, Send, User, Bell, Search, MessageSquare,
+  Send, User, Bell, Search, MessageSquare,
   Settings, BadgeCheck, Package, MapPin, Tags,
   Heart, X, ChevronLeft, ChevronRight, Globe, Camera, ShoppingCart,
-  Copy, Phone, Sparkles
+  Copy, Phone
 } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useBLivreAuth } from "../contexts/BLivreAuthContext";
@@ -94,7 +94,6 @@ export default function SocialPage() {
   const scrollFrameRef = useRef(null);
   const expandedRef = useRef(false);
   const chatScrollRef = useRef(null);
-  const lastMsgCount = useRef(0);
   const userRef = useRef(null);
   userRef.current = currentUser;
 
@@ -151,7 +150,7 @@ export default function SocialPage() {
 
   const [unreadCount, setUnreadCount] = useState(0);
   const notifIntervalRef = useRef(null);
-  const messagesIntervalRef = useRef(null);
+
   useEffect(() => {
     const handler = (e) => {
       e.preventDefault();
@@ -317,14 +316,14 @@ export default function SocialPage() {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
 
-        const maxWidth = 900;
+        const maxWidth = 800;
         const scale = Math.min(1, maxWidth / img.width);
 
         canvas.width = Math.round(img.width * scale);
         canvas.height = Math.round(img.height * scale);
 
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.68));
+        resolve(canvas.toDataURL("image/jpeg", 0.6));
       };
 
       reader.readAsDataURL(file);
@@ -378,10 +377,28 @@ export default function SocialPage() {
     }
   };
 
+  const CACHE_KEY = "blivre_posts_cache";
+
   const loadPosts = async (pageNumber = 1, append = false) => {
     try {
       if (append) setLoadingMore(true);
-      else setLoading(true);
+      else {
+        // Show cached posts immediately while loading fresh ones
+        const fromCache = pageNumber === 1 && !append;
+        if (fromCache) {
+          try {
+            const cached = localStorage.getItem(CACHE_KEY);
+            if (cached) {
+              const parsed = JSON.parse(cached);
+              if (Array.isArray(parsed) && parsed.length) {
+                setPosts(parsed);
+                setHasMore(parsed.length >= PAGE_SIZE);
+              }
+            }
+          } catch {}
+        }
+        setLoading(true);
+      }
 
       const res = await axios.get(
         API + "/social/posts?limit=" + PAGE_SIZE + "&page=" + pageNumber
@@ -398,12 +415,14 @@ export default function SocialPage() {
       } else {
         setPosts(list);
         setHasMore(list.length >= PAGE_SIZE);
+        // Cache page 1 results
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(list)); } catch {}
       }
 
       if (list.length < PAGE_SIZE) setHasMore(false);
     } catch (error) {
       console.error(error);
-      if (!append) setPosts([]);
+      if (!append && !posts.length) setPosts([]);
       setHasMore(false);
     } finally {
       setLoading(false);
@@ -420,6 +439,7 @@ export default function SocialPage() {
     loadSocialData();
 
     const pollSocial = async () => {
+      if (document.hidden) return;
       try {
         const [notificationsRes, messagesRes] = await Promise.allSettled([
           axios.get(API + "/notifications", { headers: authHeaders }),
@@ -431,13 +451,16 @@ export default function SocialPage() {
         const nextNotifications = nd.notifications || [];
         const nextMessages = md.messages || [];
 
-        setNotifications(nextNotifications);
-        setMessages(nextMessages);
-
-        const uid = getCurrentUserId();
-        if (uid) {
-          lastMsgCount.current = nextMessages.filter((m) => getMessageSenderId(m) !== uid).length;
-        }
+        const notifLen = nextNotifications.length;
+        const msgLen = nextMessages.length;
+        setNotifications((prev) => prev.length !== notifLen ? nextNotifications : prev);
+        setMessages((prev) => {
+          if (prev.length !== msgLen) return nextMessages;
+          for (let i = 0; i < msgLen; i++) {
+            if (prev[i]?.message_id !== nextMessages[i]?.message_id) return nextMessages;
+          }
+          return prev;
+        });
 
         fetchUnreadMessages();
       } catch {
@@ -446,7 +469,6 @@ export default function SocialPage() {
     };
 
     notifIntervalRef.current = setInterval(pollSocial, 3000);
-    messagesIntervalRef.current = notifIntervalRef.current;
 
     const onVisible = () => {
       if (document.hidden) return;
@@ -458,7 +480,6 @@ export default function SocialPage() {
     return () => {
       if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
       if (notifIntervalRef.current) clearInterval(notifIntervalRef.current);
-      if (messagesIntervalRef.current) clearInterval(messagesIntervalRef.current);
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('focus', onVisible);
     };
@@ -518,6 +539,15 @@ export default function SocialPage() {
   const handleImage = async (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
+
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    for (const f of files) {
+      if (f.size > MAX_FILE_SIZE) {
+        alert("Imagem muito grande. Máximo 5MB por foto.");
+        if (imageInputRef.current) imageInputRef.current.value = "";
+        return;
+      }
+    }
 
     const availableSlots = Math.max(0, 5 - images.length);
     const selectedFiles = files.slice(0, availableSlots);
@@ -1993,8 +2023,6 @@ export default function SocialPage() {
           <button
             onClick={() => {
               if (!requireAuth()) return;
-              const uid = getCurrentUserId();
-              lastMsgCount.current = uid ? messages.filter(m => getMessageSenderId(m) !== uid).length : 0;
               setShowNotifications(true);
               axios.put(API + "/notifications/read-all", {}, { headers: authHeaders }).catch(() => {});
             }}
@@ -2295,7 +2323,6 @@ export default function SocialPage() {
                       <div
                         key={key}
                         className="brane-card-premium blivre-product-card animate-brane-fade-in"
-                        style={{ animationDelay: filteredPosts.indexOf(post) * 0.03 + 's', animationFillMode: 'both' }}
                       >
                         <button
                           type="button"

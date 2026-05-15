@@ -686,7 +686,13 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
     if user_id:
         query["user_id"] = user_id
     skip = (page - 1) * limit
-    posts = await db.social_posts.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    posts = await db.social_posts.find(
+        query,
+        {"_id": 0, "post_id": 1, "user_id": 1, "user_name": 1, "user_picture": 1,
+         "content": 1, "image": 1, "title": 1, "price": 1, "city": 1, "state": 1,
+         "category": 1, "product_condition": 1, "description": 1, "availability": 1,
+         "phone": 1, "whatsapp": 1, "created_at": 1}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     total = await db.social_posts.count_documents(query)
 
     # Fallback to products when social_posts is empty or has no actual posts
@@ -1041,23 +1047,29 @@ async def get_messages(request: Request, post_id: Optional[str] = None):
     query_sent = {**base_query, "sender_id": user["user_id"]}
 
     # Messages about user's posts/products (so they can see replies)
+    my_post_ids = []
     my_posts = await db.social_posts.find(
         {"user_id": user["user_id"]},
         {"post_id": 1, "_id": 0}
     ).to_list(200)
     my_post_ids = [p["post_id"] for p in my_posts]
-    my_products = await db.products.find(
-        {"seller_id": user["user_id"]},
-        {"product_id": 1, "_id": 0}
-    ).to_list(200)
-    my_post_ids += [p["product_id"] for p in my_products]
+    if not my_post_ids:
+        my_products = await db.products.find(
+            {"seller_id": user["user_id"]},
+            {"product_id": 1, "_id": 0}
+        ).to_list(200)
+        my_post_ids = [p["product_id"] for p in my_products]
 
+    projection = {"_id": 0, "post_id": 1, "message": 1, "sender_id": 1,
+                  "sender_name": 1, "receiver_id": 1, "read_at": 1, "created_at": 1}
     result = []
     seen = set()
 
-    # Fetch messages user sent
-    async for m in db.social_messages.find(query_sent).sort("created_at", -1):
-        m.pop("_id", None)
+    # Fetch messages user sent (max 100 recent)
+    sent = await db.social_messages.find(
+        query_sent, projection
+    ).sort("created_at", -1).limit(100).to_list(100)
+    for m in sent:
         key = f"{m.get('post_id')}_{m.get('sender_id')}_{m.get('created_at')}"
         if key not in seen:
             seen.add(key)
@@ -1066,8 +1078,10 @@ async def get_messages(request: Request, post_id: Optional[str] = None):
     # Fetch messages about user's posts (from other people)
     if my_post_ids:
         query_received = {"post_id": {"$in": my_post_ids}, **base_query}
-        for m in await db.social_messages.find(query_received).sort("created_at", -1).to_list(200):
-            m.pop("_id", None)
+        received = await db.social_messages.find(
+            query_received, projection
+        ).sort("created_at", -1).limit(100).to_list(100)
+        for m in received:
             key = f"{m.get('post_id')}_{m.get('sender_id')}_{m.get('created_at')}"
             if key not in seen:
                 seen.add(key)
@@ -1081,12 +1095,12 @@ async def get_messages(request: Request, post_id: Optional[str] = None):
 @api_router.get("/social/messages/unread")
 async def get_unread_messages(request: Request):
     user = await get_current_user(request)
-    messages = []
-    async for m in db.social_messages.find(
-        {"receiver_id": user["user_id"], "read_at": None}
-    ).sort("created_at", -1):
-        m.pop("_id", None)
-        messages.append(m)
+    projection = {"_id": 0, "post_id": 1, "message": 1, "sender_id": 1,
+                  "sender_name": 1, "receiver_id": 1, "read_at": 1, "created_at": 1}
+    messages = await db.social_messages.find(
+        {"receiver_id": user["user_id"], "read_at": None},
+        projection
+    ).sort("created_at", -1).limit(50).to_list(50)
 
     # Group by post_id -> last message per conversation
     seen_posts = {}
@@ -1944,7 +1958,11 @@ async def get_affiliate_earnings(request: Request):
 @api_router.get("/notifications")
 async def get_notifications(request: Request):
     user = await get_current_user(request)
-    notifs = await db.notifications.find({"user_id": user["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    notifs = await db.notifications.find(
+        {"user_id": user["user_id"]},
+        {"_id": 0, "notification_id": 1, "user_id": 1, "type": 1, "title": 1,
+         "message": 1, "data": 1, "read": 1, "created_at": 1}
+    ).sort("created_at", -1).to_list(50)
     unread = sum(1 for n in notifs if not n.get("read"))
     return {"notifications": notifs, "unread": unread}
 
@@ -4158,6 +4176,18 @@ async def startup():
             logger.info("MongoDB storage ready - no external storage needed")
         except Exception as e:
             logger.error(f"Storage init failed: {e}")
+
+        # Database indexes for performance
+        try:
+            await db.social_posts.create_index([("created_at", -1)])
+            await db.social_posts.create_index([("user_id", 1)])
+            await db.social_messages.create_index([("post_id", 1), ("created_at", -1)])
+            await db.social_messages.create_index([("receiver_id", 1)])
+            await db.notifications.create_index([("user_id", 1), ("created_at", -1)])
+            logger.info("Database indexes ensured")
+        except Exception as e:
+            logger.error(f"Index creation failed: {e}")
+
         logger.info("BRANE Marketplace started!")
     except Exception as e:
         logger.error(f"Startup database initialization failed: {e}")
