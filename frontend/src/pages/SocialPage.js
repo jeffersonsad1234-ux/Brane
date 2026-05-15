@@ -258,11 +258,7 @@ export default function SocialPage() {
     if (!currentUser) return false;
     return (
       String(post.user_id) === getCurrentUserId() ||
-      String(post.user_id) === getCurrentUserId() ||
-      String(post.owner_id) === getCurrentUserId() ||
-      post.email === currentUser.email ||
-      post.user_email === currentUser.email ||
-      post.user_name === currentUser.name
+      String(post.owner_id) === getCurrentUserId()
     );
   };
 
