@@ -40,6 +40,8 @@ import AdminDenuncias from "./pages/admin/AdminDenuncias";
 import AdminFinanceiro from "./pages/admin/AdminFinanceiro";
 import AdminSuporte from "./pages/admin/AdminSuporte";
 import AdminConfiguracoes from "./pages/admin/AdminConfiguracoes";
+import AdminPasswordReset from "./pages/admin/AdminPasswordReset";
+import { AdminDataProvider } from "./contexts/AdminDataContext";
 import BLivreAuthPage from "./pages/BLivreAuthPage";
 import BLivreMessagesPage from "./pages/BLivreMessagesPage";
 import { BLivreAuthProvider } from "./contexts/BLivreAuthContext";
@@ -164,7 +166,7 @@ function AppRouter() {
             <Route path="/desapega" element={<DesapegaPage />} />
 
             {/* Admin — completamente separado do BLivreLayout */}
-            <Route path="/blivre/admin" element={<BLivreAdminPage />}>
+            <Route path="/blivre/admin" element={<AdminDataProvider><BLivreAdminPage /></AdminDataProvider>}>
               <Route index element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="products" element={<AdminProducts />} />
@@ -172,6 +174,7 @@ function AppRouter() {
               <Route path="denuncias" element={<AdminDenuncias />} />
               <Route path="financeiro" element={<AdminFinanceiro />} />
               <Route path="suporte" element={<AdminSuporte />} />
+              <Route path="password-reset" element={<AdminPasswordReset />} />
               <Route path="configuracoes" element={<AdminConfiguracoes />} />
             </Route>
 
