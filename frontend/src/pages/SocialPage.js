@@ -99,6 +99,7 @@ export default function SocialPage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const [unreadCount, setUnreadCount] = useState(0);
   const notifIntervalRef = useRef(null);
@@ -1336,6 +1337,18 @@ export default function SocialPage() {
                 </div>
               </div>
               <div>
+                <label className="text-[11px] font-bold text-[#8C8F9A] uppercase tracking-wider">Estado do produto *</label>
+                <select value={form.productCondition} onChange={(e) => { updateForm("productCondition", e.target.value); setFormError(""); }}
+                  className="mt-1.5 w-full h-11 px-4 rounded-xl bg-[#0A0A0C] border border-white/10 text-white text-[13px] outline-none focus:border-[#D4A24C]/40">
+                  <option value="">Selecionar</option>
+                  <option value="Novo">Novo</option>
+                  <option value="Usado">Usado</option>
+                  <option value="Seminovo">Seminovo</option>
+                  <option value="Com defeito">Com defeito</option>
+                  <option value="Recondicionado">Recondicionado</option>
+                </select>
+              </div>
+              <div>
                 <label className="text-[11px] font-bold text-[#8C8F9A] uppercase tracking-wider">Descrição</label>
                 <textarea value={form.description} onChange={(e) => updateForm("description", e.target.value)}
                   rows={3}
@@ -1362,12 +1375,19 @@ export default function SocialPage() {
               </div>
             </div>
             <div className="flex-shrink-0 px-4 py-3 border-t border-white/[0.06] bg-[#050608]">
+              {formError && (
+                <p className="text-[11px] text-red-400 font-medium text-center mb-3">{formError}</p>
+              )}
               <div className="flex gap-3">
-                <button type="button" onClick={publishFromModal} disabled={posting}
+                <button type="button" onClick={() => {
+                  if (!form.productCondition) { setFormError("Selecione o estado do produto."); return; }
+                  setFormError("");
+                  publishFromModal();
+                }} disabled={posting}
                   className="flex-1 h-11 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(212,162,76,0.25)]">
                   {posting ? "⏳ Publicando..." : "Publicar anúncio"}
                 </button>
-                <button type="button" onClick={() => { setComposerOpen(false); setEditingPost(null); setForm({ category: "", title: "", price: "", state: "", city: "", productCondition: "", description: "", availability: "Item único", phone: "", whatsapp: "" }); setImages([]); }}
+                <button type="button" onClick={() => { setComposerOpen(false); setEditingPost(null); setForm({ category: "", title: "", price: "", state: "", city: "", productCondition: "", description: "", availability: "Item único", phone: "", whatsapp: "" }); setImages([]); setFormError(""); }}
                   className="flex-1 h-11 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all">
                   Cancelar
                 </button>
