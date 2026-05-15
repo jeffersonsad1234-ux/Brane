@@ -1100,7 +1100,7 @@ export default function SocialPage() {
   );
 
   return (
-    <div className="min-h-screen text-white relative overflow-hidden bg-[#040407]">
+    <div className="min-h-screen text-white relative overflow-hidden" style={{ background: '#020814' }}>
       <style>
         {`
           @keyframes blivreSlideIn {
@@ -1176,7 +1176,7 @@ export default function SocialPage() {
       </style>
 
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_5%,rgba(212,162,76,0.16),transparent_30%),radial-gradient(circle_at_85%_8%,rgba(124,58,237,0.16),transparent_34%),radial-gradient(circle_at_50%_95%,rgba(212,162,76,0.08),transparent_38%),linear-gradient(135deg,#040407_0%,#090914_48%,#12070C_100%)]" />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(circle at center, rgba(0,120,255,0.28), transparent 45%), linear-gradient(180deg, #031633 0%, #020814 55%, #01040A 100%)' }} />
       </div>
 
       {showNotifications && (
