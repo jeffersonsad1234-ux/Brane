@@ -37,11 +37,54 @@ const descriptionExamples = [
 ];
 
 export default function SocialPage() {
-  const mainAuth = useAuth();
-  const blivreAuth = useBLivreAuth();
-  const currentUser = blivreAuth.user || mainAuth.user || null;
-  const currentToken = blivreAuth.token || mainAuth.token || localStorage.getItem('blivre_token') || localStorage.getItem('brane_token') || null;
-  const logout = blivreAuth.logout || mainAuth.logout;
+  const mainAuth = useAuth() || {};
+  const blivreAuth = useBLivreAuth() || {};
+
+  const readStoredToken = () => {
+    if (typeof window === "undefined") return null;
+    return (
+      window.localStorage.getItem("blivre_token") ||
+      window.localStorage.getItem("brane_token") ||
+      null
+    );
+  };
+
+  const decodeTokenUser = (jwt) => {
+    try {
+      if (!jwt || typeof window === "undefined") return null;
+      const payload = JSON.parse(window.atob(jwt.split(".")[1] || ""));
+      return {
+        id: payload.id || payload.user_id || payload.sub || payload._id,
+        user_id: payload.user_id || payload.id || payload.sub || payload._id,
+        email: payload.email,
+        name: payload.name || payload.username || payload.full_name
+      };
+    } catch {
+      return null;
+    }
+  };
+
+  const currentToken =
+    blivreAuth.token ||
+    mainAuth.token ||
+    readStoredToken();
+
+  const currentUser =
+    blivreAuth.user ||
+    mainAuth.user ||
+    decodeTokenUser(currentToken) ||
+    null;
+
+  const getCurrentUserId = () =>
+    String(currentUser?.user_id || currentUser?.id || currentUser?.sub || currentUser?._id || "");
+
+  const logout = blivreAuth.logout || mainAuth.logout || (() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem("blivre_token");
+      window.localStorage.removeItem("brane_token");
+    }
+  });
+
   const authHeaders = currentToken ? { Authorization: "Bearer " + currentToken } : {};
   const API = mainAuth.API || `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
 
@@ -151,7 +194,7 @@ export default function SocialPage() {
 
   const requireAuth = () => {
     if (!currentUser) {
-      navigate("/blivre/login");
+      window.location.href = "/blivre/login";
       return false;
     }
     return true;
@@ -214,9 +257,9 @@ export default function SocialPage() {
   const isMine = (post) => {
     if (!currentUser) return false;
     return (
-      post.user_id === currentUser.id ||
-      post.user_id === currentUser.user_id ||
-      post.owner_id === currentUser.id ||
+      String(post.user_id) === getCurrentUserId() ||
+      String(post.user_id) === getCurrentUserId() ||
+      String(post.owner_id) === getCurrentUserId() ||
       post.email === currentUser.email ||
       post.user_email === currentUser.email ||
       post.user_name === currentUser.name
@@ -229,6 +272,50 @@ export default function SocialPage() {
     return obj.sender_name || obj.name || obj.user_name || obj.buyer_name ||
            obj.seller_name || obj.receiver_name || obj.owner_name || obj.author ||
            obj.sender || obj.user?.name || obj.profile?.name || "";
+  };
+
+  const getMessageSenderId = (msg) =>
+    String(msg?.sender_id || msg?.sender_user_id || msg?.from_user_id || msg?.sender?.id || msg?.user_id || "");
+
+  const getMessageTime = (msg) => {
+    const raw = msg?.created_at || msg?.timestamp || msg?.date || msg?.sent_at;
+    const parsed = raw ? new Date(raw).getTime() : 0;
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const getNotificationsReadAt = () => {
+    if (typeof window === "undefined") return 0;
+    return Number(window.localStorage.getItem("blivre_notifications_read_at") || "0");
+  };
+
+  const markNotificationsReadLocally = () => {
+    const now = Date.now();
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("blivre_notifications_read_at", String(now));
+    }
+    const uid = getCurrentUserId();
+    lastMsgCount.current = uid
+      ? (messages || []).filter((m) => getMessageSenderId(m) !== uid).length
+      : 0;
+    setUnreadCount(0);
+  };
+
+  const computeUnreadFromMessages = (msgList = []) => {
+    const uid = getCurrentUserId();
+    if (!uid) return 0;
+    const readAt = getNotificationsReadAt();
+    return (msgList || []).filter((m) => {
+      const senderId = getMessageSenderId(m);
+      if (!senderId || senderId === uid) return false;
+      const msgTime = getMessageTime(m);
+      return !readAt || !msgTime || msgTime > readAt;
+    }).length;
+  };
+
+  const refreshUnreadCount = (notifData = {}, msgList = messages) => {
+    const apiUnread = Number(notifData?.unread || 0);
+    const messageUnread = computeUnreadFromMessages(msgList);
+    setUnreadCount(Math.max(apiUnread, messageUnread));
   };
 
   const fileToBase64 = (file) =>
@@ -295,16 +382,14 @@ export default function SocialPage() {
         });
       }
 
-      if (notificationsRes.status === "fulfilled") {
-        const nd = notificationsRes.value.data;
-        setNotifications(nd.notifications || []);
-        setUnreadCount(nd.unread || 0);
-      }
+      const nd = notificationsRes.status === "fulfilled" ? notificationsRes.value.data : {};
+      const md = messagesRes.status === "fulfilled" ? messagesRes.value.data : {};
+      const nextNotifications = nd.notifications || [];
+      const nextMessages = md.messages || [];
 
-      if (messagesRes.status === "fulfilled") {
-        const md = messagesRes.value.data;
-        setMessages(md.messages || []);
-      }
+      setNotifications(nextNotifications);
+      setMessages(nextMessages);
+      refreshUnreadCount(nd, nextMessages);
     } catch (error) {
       console.error("Erro ao carregar dados sociais:", error);
     }
@@ -351,32 +436,33 @@ export default function SocialPage() {
     if (!currentToken) return;
     loadSocialData();
 
-    notifIntervalRef.current = setInterval(() => {
-      axios.get(API + "/notifications", { headers: authHeaders })
-        .then((r) => {
-          setNotifications(r.data.notifications || []);
-          setUnreadCount(r.data.unread || 0);
-        })
-        .catch(() => {});
-    }, 5000);
+    const pollSocial = async () => {
+      try {
+        const [notificationsRes, messagesRes] = await Promise.allSettled([
+          axios.get(API + "/notifications", { headers: authHeaders }),
+          axios.get(API + "/social/messages", { headers: authHeaders })
+        ]);
 
-    messagesIntervalRef.current = setInterval(() => {
-      axios.get(API + "/social/messages", { headers: authHeaders })
-        .then((r) => {
-          const msgs = r.data.messages || [];
-          setMessages(msgs);
-          const uid = String(userRef.current?.user_id || userRef.current?.id || "");
-          if (uid) {
-            const fromOthers = msgs.filter(m => String(m.sender_id || "") !== uid);
-            if (fromOthers.length > lastMsgCount.current) {
-              const inc = fromOthers.length - lastMsgCount.current;
-              setUnreadCount(prev => prev + inc);
-            }
-            lastMsgCount.current = fromOthers.length;
-          }
-        })
-        .catch(() => {});
-    }, 3000);
+        const nd = notificationsRes.status === "fulfilled" ? notificationsRes.value.data : {};
+        const md = messagesRes.status === "fulfilled" ? messagesRes.value.data : {};
+        const nextNotifications = nd.notifications || [];
+        const nextMessages = md.messages || [];
+
+        setNotifications(nextNotifications);
+        setMessages(nextMessages);
+        refreshUnreadCount(nd, nextMessages);
+
+        const uid = getCurrentUserId();
+        if (uid) {
+          lastMsgCount.current = nextMessages.filter((m) => getMessageSenderId(m) !== uid).length;
+        }
+      } catch {
+        // keep silent polling failures from breaking the UI
+      }
+    };
+
+    notifIntervalRef.current = setInterval(pollSocial, 3000);
+    messagesIntervalRef.current = notifIntervalRef.current;
 
     const onVisible = () => {
       if (document.hidden) return;
@@ -852,7 +938,7 @@ export default function SocialPage() {
     axios.get(API + "/notifications", { headers: authHeaders })
       .then((r) => {
         setNotifications(r.data.notifications || []);
-        setUnreadCount(r.data.unread || 0);
+        refreshUnreadCount(r.data, messages);
       })
       .catch(() => {});
   };
@@ -867,7 +953,7 @@ export default function SocialPage() {
           sender: findName(m) || "Usuário",
           message: m.message,
           timestamp: new Date(m.created_at || Date.now()),
-          isMine: m.sender_id === currentUser?.user_id
+          isMine: getMessageSenderId(m) === getCurrentUserId()
         }));
       setChatMessages(msgs);
       setTimeout(() => {
@@ -921,7 +1007,7 @@ export default function SocialPage() {
       axios.get(API + "/notifications", { headers: authHeaders })
         .then((r) => {
           setNotifications(r.data.notifications || []);
-          setUnreadCount(r.data.unread || 0);
+          refreshUnreadCount(r.data, messages);
         })
         .catch(() => {});
     } catch (error) {
@@ -1082,8 +1168,8 @@ export default function SocialPage() {
             <div className="space-y-3 max-h-[56vh] overflow-y-auto pr-1">
               {(() => {
                 const notifItems = notifications.filter((n) => n.type === "social_message");
-                const uid = String(currentUser?.user_id || currentUser?.id || "");
-                const recentMsgs = uid ? messages.filter(m => String(m.sender_id || "") !== uid).slice(-10).reverse() : [];
+                const uid = getCurrentUserId();
+                const recentMsgs = uid ? messages.filter(m => getMessageSenderId(m) !== uid).slice(-10).reverse() : [];
                 const items = notifItems.length > 0 ? notifItems : recentMsgs;
                 const isFromMessages = notifItems.length === 0;
 
@@ -1261,7 +1347,7 @@ export default function SocialPage() {
                 Configurações da conta
               </button>
               <button
-                onClick={() => { logout(); setShowSettings(false); navigate("/blivre"); }}
+                onClick={() => { logout(); setShowSettings(false); window.location.href = "/blivre"; }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/[0.06] transition-colors"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
@@ -1885,7 +1971,7 @@ export default function SocialPage() {
               )}
               <button
                 onClick={() => {
-                  setUnreadCount(0);
+                  markNotificationsReadLocally();
                   setShowNotifications(true);
                   axios.put(API + "/notifications/read-all", {}, { headers: authHeaders }).catch(() => {});
                 }}
@@ -1929,9 +2015,9 @@ export default function SocialPage() {
           <button
             onClick={() => {
               if (!requireAuth()) return;
-              const uid = String(currentUser?.user_id || currentUser?.id || "");
-              lastMsgCount.current = uid ? messages.filter(m => String(m.sender_id || "") !== uid).length : 0;
-              setUnreadCount(0);
+              const uid = getCurrentUserId();
+              lastMsgCount.current = uid ? messages.filter(m => getMessageSenderId(m) !== uid).length : 0;
+              markNotificationsReadLocally();
               setShowNotifications(true);
               axios.put(API + "/notifications/read-all", {}, { headers: authHeaders }).catch(() => {});
             }}
@@ -2155,8 +2241,8 @@ export default function SocialPage() {
                         const pid = m.post_id;
                         if (!pid || notifGrouped[pid]) return;
                         let otherName = findName(m) || "Usuário";
-                        if (m.sender_id === currentUser?.user_id) {
-                          const otherMsg = (messages || []).find((msg) => msg.post_id === pid && msg.sender_id !== currentUser?.user_id);
+                        if (getMessageSenderId(m) === getCurrentUserId()) {
+                          const otherMsg = (messages || []).find((msg) => msg.post_id === pid && getMessageSenderId(msg) !== getCurrentUserId());
                           if (otherMsg) otherName = findName(otherMsg) || "Usuário";
                         }
                         notifGrouped[pid] = {
