@@ -1876,32 +1876,20 @@ export default function SocialPage() {
                         </button>
                       </div>
                     ) : (
-                      <div className="flex gap-2">
+                      <div className="relative w-full">
+                        <input
+                          value={message}
+                          onChange={(e) => setMessage(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                          className="w-full h-11 rounded-2xl brane-input pr-12"
+                          placeholder="Esse anúncio ainda está disponível?"
+                        />
                         <button
-                          onClick={() => {
-                            if (!requireAuth()) return;
-                            setShowContactModal(getPostKey(selectedPost));
-                          }}
-                          className="brane-btn-gold h-11 flex-1 justify-center"
+                          onClick={sendMessage}
+                          className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
                         >
-                          <MessageSquare size={16} />
-                          Entrar em contato
+                          <Send size={14} />
                         </button>
-                        <div className="relative flex-1">
-                          <input
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                            className="w-full h-11 rounded-2xl brane-input pr-12"
-                            placeholder="Enviar mensagem..."
-                          />
-                          <button
-                            onClick={sendMessage}
-                            className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
-                          >
-                            <Send size={14} />
-                          </button>
-                        </div>
                       </div>
                     )}
                   </div>
