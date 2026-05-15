@@ -32,6 +32,7 @@ import BraneCoinsPage from "./pages/BraneCoinsPage";
 import AddProductPage from "./pages/AddProductPage";
 import SocialPage from "./pages/SocialPage";
 import BLivreAuthPage from "./pages/BLivreAuthPage";
+import BLivreMessagesPage from "./pages/BLivreMessagesPage";
 import { Toaster } from "./components/ui/sonner";
 import AddStoreProductPage from "./pages/AddStoreProductPage";
 import AddDesapegaProductPage from "./pages/AddDesapegaProductPage";
@@ -144,6 +145,7 @@ function AppRouter() {
 
             <Route path="/blivre/login" element={<BLivreAuthPage />} />
             <Route path="/blivre/register" element={<BLivreAuthPage />} />
+            <Route path="/blivre/messages" element={<BLivreMessagesPage />} />
             <Route path="/blivre" element={<SocialPage />} />
             <Route path="/blivre/*" element={<SocialPage />} />
             <Route path="/social" element={<Navigate to="/blivre" replace />} />
