@@ -1,5 +1,5 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate, Outlet } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import AuthCallback from "./components/AuthCallback";
@@ -33,6 +33,7 @@ import AddProductPage from "./pages/AddProductPage";
 import SocialPage from "./pages/SocialPage";
 import BLivreAuthPage from "./pages/BLivreAuthPage";
 import BLivreMessagesPage from "./pages/BLivreMessagesPage";
+import { BLivreAuthProvider } from "./contexts/BLivreAuthContext";
 import { Toaster } from "./components/ui/sonner";
 import AddStoreProductPage from "./pages/AddStoreProductPage";
 import AddDesapegaProductPage from "./pages/AddDesapegaProductPage";
@@ -143,15 +144,16 @@ function AppRouter() {
 
             <Route path="/desapega" element={<DesapegaPage />} />
 
-            <Route path="/blivre/login" element={<BLivreAuthPage />} />
-            <Route path="/blivre/register" element={<BLivreAuthPage />} />
-            <Route path="/blivre/messages" element={<BLivreMessagesPage />} />
-            <Route path="/blivre" element={<SocialPage />} />
-            <Route path="/blivre/*" element={<SocialPage />} />
-            <Route path="/social" element={<Navigate to="/blivre" replace />} />
-            <Route path="/social/*" element={<Navigate to="/blivre" replace />} />
-
-            <Route path="/market/blivre" element={<Navigate to="/blivre" replace />} />
+            <Route element={<BLivreAuthProvider><Outlet /></BLivreAuthProvider>}>
+              <Route path="/blivre/login" element={<BLivreAuthPage />} />
+              <Route path="/blivre/register" element={<BLivreAuthPage />} />
+              <Route path="/blivre/messages" element={<BLivreMessagesPage />} />
+              <Route path="/blivre" element={<SocialPage />} />
+              <Route path="/blivre/*" element={<SocialPage />} />
+              <Route path="/social" element={<Navigate to="/blivre" replace />} />
+              <Route path="/social/*" element={<Navigate to="/blivre" replace />} />
+              <Route path="/market/blivre" element={<Navigate to="/blivre" replace />} />
+            </Route>
 
             <Route
               path="/add-product"

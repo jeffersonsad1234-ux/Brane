@@ -1,13 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { User, Mail, Lock, ArrowLeft } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
-
+import { useBLivreAuth } from "../contexts/BLivreAuthContext";
 export default function BLivreAuthPage() {
   const { pathname } = useLocation();
   const isLogin = !pathname.endsWith("/register");
-  const { login, register } = useAuth();
-  const navigate = useNavigate();
+  const { login, register } = useBLivreAuth();  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",

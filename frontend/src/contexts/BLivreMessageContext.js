@@ -1,12 +1,12 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
-import { useAuth } from "./AuthContext";
+import { useBLivreAuth } from "./BLivreAuthContext";
+import blivreAPI from "../services/blivreAPI";
 
 const BLivreMessageContext = createContext(null);
 
 export function BLivreMessageProvider({ children }) {
-  const { user, token, API } = useAuth();
-  const authHeaders = token ? { Authorization: "Bearer " + token } : {};
+  const { user, token, authHeaders } = useBLivreAuth();
 
   const [messages, setMessages] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
@@ -21,16 +21,16 @@ export function BLivreMessageProvider({ children }) {
   const fetchMessages = useCallback(async () => {
     if (!token) return;
     try {
-      const res = await axios.get(API + "/social/messages", { headers: authHeaders });
+      const res = await axios.get(blivreAPI.messages.list(), { headers: authHeaders });
       setMessages(res.data.messages || []);
     } catch (e) {
       console.error("Erro ao buscar mensagens:", e);
     }
-  }, [token, API, authHeaders]);
+  }, [token, authHeaders]);
 
   const loadChatMessages = useCallback(async (postId) => {
     try {
-      const res = await axios.get(API + "/social/messages?post_id=" + postId, { headers: authHeaders });
+      const res = await axios.get(blivreAPI.messages.conversation(postId), { headers: authHeaders });
       const msgs = (res.data.messages || [])
         .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
         .map((m) => ({
@@ -50,7 +50,7 @@ export function BLivreMessageProvider({ children }) {
       console.error("Erro ao carregar mensagens:", e);
       setChatMessages([]);
     }
-  }, [API, authHeaders, user]);
+  }, [authHeaders, user]);
 
   const loadChatMessagesRef = useRef(loadChatMessages);
   useEffect(() => { loadChatMessagesRef.current = loadChatMessages; }, [loadChatMessages]);
@@ -71,13 +71,13 @@ export function BLivreMessageProvider({ children }) {
     const text = chatMessage;
     setChatMessage("");
     try {
-      await axios.post(API + "/social/messages", {
+      await axios.post(blivreAPI.messages.send(), {
         post_id: selectedChat.post_id,
         message: text
       }, { headers: authHeaders });
       loadChatMessages(selectedChat.post_id);
       fetchMessages();
-      axios.get(API + "/notifications", { headers: authHeaders })
+      axios.get(blivreAPI.notifications.list(), { headers: authHeaders })
         .then((r) => {
           setNotifications(r.data.notifications || []);
           setUnreadCount(r.data.unread || 0);
@@ -87,25 +87,25 @@ export function BLivreMessageProvider({ children }) {
       console.error("Erro ao enviar mensagem:", error);
       alert("Erro ao enviar mensagem.");
     }
-  }, [chatMessage, selectedChat, API, authHeaders, loadChatMessages, fetchMessages]);
+  }, [chatMessage, selectedChat, authHeaders, loadChatMessages, fetchMessages]);
 
   const openMessagesTab = useCallback(() => {
     setSelectedChat(null);
     fetchMessages();
-    axios.get(API + "/notifications", { headers: authHeaders })
+    axios.get(blivreAPI.notifications.list(), { headers: authHeaders })
       .then((r) => {
         setNotifications(r.data.notifications || []);
         setUnreadCount(r.data.unread || 0);
       })
       .catch(() => {});
-  }, [API, authHeaders, fetchMessages]);
+  }, [authHeaders, fetchMessages]);
 
   useEffect(() => {
     if (!token) return;
     openMessagesTab();
 
     notifIntervalRef.current = setInterval(() => {
-      axios.get(API + "/notifications", { headers: authHeaders })
+      axios.get(blivreAPI.notifications.list(), { headers: authHeaders })
         .then((r) => {
           setNotifications(r.data.notifications || []);
           setUnreadCount(r.data.unread || 0);
@@ -114,7 +114,7 @@ export function BLivreMessageProvider({ children }) {
     }, 5000);
 
     messagesIntervalRef.current = setInterval(() => {
-      axios.get(API + "/social/messages", { headers: authHeaders })
+      axios.get(blivreAPI.messages.list(), { headers: authHeaders })
         .then((r) => setMessages(r.data.messages || []))
         .catch(() => {});
     }, 3000);

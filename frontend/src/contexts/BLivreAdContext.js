@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
-import { useAuth } from "./AuthContext";
+import { useBLivreAuth } from "./BLivreAuthContext";
+import blivreAPI from "../services/blivreAPI";
 
 const PAGE_SIZE = 24;
 
@@ -125,9 +126,7 @@ const buildContent = (sourceForm) =>
 const BLivreAdContext = createContext(null);
 
 export function BLivreAdProvider({ children }) {
-  const { user, token, API: AUTH_API } = useAuth();
-  const API = AUTH_API || `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
-  const authHeaders = token ? { Authorization: "Bearer " + token } : {};
+  const { user, token, authHeaders } = useBLivreAuth();
 
   // ── State ──────────────────────────────────────────
   const [posts, setPosts] = useState([]);
@@ -208,9 +207,9 @@ export function BLivreAdProvider({ children }) {
     if (!token) return;
     try {
       const [favoritesRes, statsRes, notificationsRes] = await Promise.allSettled([
-        axios.get(API + "/social/favorites", { headers: authHeaders }),
-        axios.get(API + "/social/stats", { headers: authHeaders }),
-        axios.get(API + "/notifications", { headers: authHeaders }),
+        axios.get(blivreAPI.favorites.list(), { headers: authHeaders }),
+        axios.get(blivreAPI.stats.get(), { headers: authHeaders }),
+        axios.get(blivreAPI.notifications.list(), { headers: authHeaders }),
       ]);
       if (favoritesRes.status === "fulfilled")
         setFavorites((favoritesRes.value.data.favorites || []).map(String));
@@ -227,12 +226,12 @@ export function BLivreAdProvider({ children }) {
     } catch (error) {
       console.error("Erro ao carregar dados sociais:", error);
     }
-  }, [token, API, authHeaders]);
+  }, [token, authHeaders]);
 
   const loadPosts = useCallback(async (pageNumber = 1, append = false) => {
     try {
       if (append) setLoadingMore(true); else setLoading(true);
-      const res = await axios.get(API + "/social/posts?limit=" + PAGE_SIZE + "&page=" + pageNumber);
+      const res = await axios.get(blivreAPI.posts.list(PAGE_SIZE, pageNumber));
       const list = res.data.posts || [];
       if (append) {
         setPosts((prev) => {
@@ -253,7 +252,7 @@ export function BLivreAdProvider({ children }) {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [API]);
+  }, []);
 
   // ── Image handling ─────────────────────────────────
   const handleImage = useCallback(async (e) => {
@@ -323,7 +322,7 @@ export function BLivreAdProvider({ children }) {
     }
     setPosting(true);
     try {
-      await axios.post(API + "/social/posts", {
+      await axios.post(blivreAPI.posts.create(), {
         title: sourceForm.title,
         price: "R$ " + sourceForm.price.replace("R$ ", ""),
         category: sourceForm.category || "Outros",
@@ -349,12 +348,12 @@ export function BLivreAdProvider({ children }) {
     } finally {
       setPosting(false);
     }
-  }, [API, authHeaders, handleNewMobile, loadPosts]);
+  }, [authHeaders, handleNewMobile, loadPosts]);
 
   const updatePost = useCallback(async (key) => {
     setPosting(true);
     try {
-      await axios.put(API + "/social/posts/" + key, {
+      await axios.put(blivreAPI.posts.update(key), {
         title: form.title, price: "R$ " + form.price.replace("R$ ", ""),
         category: form.category || "Outros", product_condition: form.productCondition,
         city: form.city || "", state: form.state || "",
@@ -373,19 +372,19 @@ export function BLivreAdProvider({ children }) {
     } finally {
       setPosting(false);
     }
-  }, [API, authHeaders, form, images, loadPosts]);
+  }, [authHeaders, form, images, loadPosts]);
 
   const deletePost = useCallback(async (post) => {
     if (!window.confirm("Tem certeza que deseja excluir este anúncio?")) return;
     const key = getPostKey(post);
     try {
-      await axios.delete(API + "/social/posts/" + key, { headers: authHeaders });
+      await axios.delete(blivreAPI.posts.delete(key), { headers: authHeaders });
       loadPosts(1, false);
     } catch (error) {
       console.error(error);
       alert("Erro ao excluir anúncio.");
     }
-  }, [API, authHeaders, loadPosts]);
+  }, [authHeaders, loadPosts]);
 
   const publishFromModal = useCallback(async () => {
     if (editingPost) {
@@ -437,7 +436,7 @@ export function BLivreAdProvider({ children }) {
     e.stopPropagation();
     const key = getPostKey(post);
     try {
-      const res = await axios.post(API + "/social/favorites/" + key, {}, { headers: authHeaders });
+      const res = await axios.post(blivreAPI.favorites.toggle(key), {}, { headers: authHeaders });
       setFavorites((prev) => {
         if (res.data.favorited) return [...prev, key];
         return prev.filter((item) => item !== key);
@@ -446,12 +445,12 @@ export function BLivreAdProvider({ children }) {
       console.error(err);
       alert("Erro ao favoritar.");
     }
-  }, [API, authHeaders]);
+  }, [authHeaders]);
 
   const saveProfile = useCallback(async () => {
     setSavingProfile(true);
     try {
-      await axios.put(API + "/social/profile", profileForm, { headers: authHeaders });
+      await axios.put(blivreAPI.profile.update(), profileForm, { headers: authHeaders });
       setShowSettings(false);
       alert("Perfil atualizado.");
     } catch (error) {
@@ -460,7 +459,7 @@ export function BLivreAdProvider({ children }) {
     } finally {
       setSavingProfile(false);
     }
-  }, [API, authHeaders, profileForm]);
+  }, [authHeaders, profileForm]);
 
   const updateForm = useCallback((field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
