@@ -317,18 +317,18 @@ export default function SocialPage() {
     return unread;
   };
 
-  const markNotificationsReadLocally = () => {
+  const markChatAsRead = (postId) => {
     const uid = getCurrentUserId();
-    if (typeof window === "undefined" || !uid) return;
+    if (typeof window === "undefined" || !uid || !postId) return;
     const seen = getSeenChats();
     const lastMsgs = getLastMessagePerChat(messages);
-    Object.entries(lastMsgs).forEach(([postId, msg]) => {
-      const msgId = getMessageId(msg);
+    const lastMsg = lastMsgs[postId];
+    if (lastMsg) {
+      const msgId = getMessageId(lastMsg);
       if (msgId) seen[postId] = msgId;
-    });
+    }
     saveSeenChats(seen);
-    lastMsgCount.current = (messages || []).filter((m) => getMessageSenderId(m) !== uid).length;
-    setUnreadCount(0);
+    setUnreadCount(computeUnreadFromMessages(messages));
   };
 
   const refreshUnreadCount = (notifData = {}, msgList = messages) => {
@@ -951,7 +951,6 @@ export default function SocialPage() {
     setActiveFilter("messages");
     setSelectedChat(null);
     setSelectedCategory("");
-    markNotificationsReadLocally();
     fetchMessages();
     axios.get(API + "/notifications", { headers: authHeaders })
       .then((r) => {
@@ -993,7 +992,7 @@ export default function SocialPage() {
   const openChat = (chat) => {
     setActiveFilter("messages");
     setSelectedChat(chat);
-    markNotificationsReadLocally();
+    if (chat?.post_id) markChatAsRead(chat.post_id);
     fetchMessages();
     window.history.pushState({ braneChat: true }, "", window.location.pathname);
   };
@@ -1186,34 +1185,35 @@ export default function SocialPage() {
 
             <div className="space-y-3 max-h-[56vh] overflow-y-auto pr-1">
               {(() => {
-                const notifItems = notifications.filter((n) => n.type === "social_message");
                 const uid = getCurrentUserId();
-                const recentMsgs = uid ? messages.filter(m => getMessageSenderId(m) !== uid).slice(-10).reverse() : [];
-                const items = notifItems.length > 0 ? notifItems : recentMsgs;
-                const isFromMessages = notifItems.length === 0;
+                const seen = getSeenChats();
+                const lastMsgs = getLastMessagePerChat(messages);
+                const unreadEntries = Object.entries(lastMsgs).filter(([postId, msg]) => {
+                  const msgId = getMessageId(msg);
+                  return msgId && seen[postId] !== msgId;
+                });
 
-                if (items.length === 0) {
+                if (unreadEntries.length === 0) {
                   return <div className="brane-card-soft p-4 text-sm text-[#8C8F9A]">Nenhuma notificação por enquanto.</div>;
                 }
 
-                return items.map((item, index) => {
-                  const nPostId = item.data?.post_id || item.post_id;
+                return unreadEntries.map(([postId, msg]) => {
+                  const nPostId = postId;
                   const notifPost = posts.find((p) => (p.post_id || p.id) === nPostId || getPostKey(p) === nPostId);
                   const notifImg = notifPost ? getPostImages(notifPost)[0] || "" : "";
-                  const notifTitle = notifPost ? getTitle(notifPost) : (item.title || item.data?.sender_name || item.sender_name || "Nova mensagem");
-                  const nSender = isFromMessages ? (findName(item) || "Usuário") : (findName(item.data) || findName(item) || "Usuário");
+                  const notifTitle = notifPost ? getTitle(notifPost) : "Anúncio";
+                  const nSender = findName(msg) || "Usuário";
                   return (
                     <button
-                      key={item.id || index}
+                      key={postId}
                       onClick={() => {
                         setShowNotifications(false);
-                        if (nPostId) {
-                          setSelectedChat({ post_id: nPostId, sender_name: nSender, message: item.message || "" });
-                          loadChatMessages(nPostId);
-                          setActiveFilter("messages");
-                          fetchMessages();
-                          window.history.pushState({ braneChat: true }, "", window.location.pathname);
-                        }
+                        markChatAsRead(postId);
+                        setSelectedChat({ post_id: nPostId, sender_name: nSender, message: msg.message || "" });
+                        loadChatMessages(nPostId);
+                        setActiveFilter("messages");
+                        fetchMessages();
+                        window.history.pushState({ braneChat: true }, "", window.location.pathname);
                       }}
                       className="w-full text-left brane-card-soft p-3 hover:bg-white/[0.08] transition-colors cursor-pointer flex items-start gap-3"
                     >
@@ -1227,7 +1227,7 @@ export default function SocialPage() {
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-white truncate">{notifTitle}</p>
                         <p className="text-[11px] text-[#A6A8B3] mt-0.5">
-                          {nSender}: {item.message?.slice(0, 80) || item.content?.slice(0, 80) || "Nova mensagem"}
+                          {nSender}: {msg.message?.slice(0, 80) || msg.content?.slice(0, 80) || "Nova mensagem"}
                         </p>
                       </div>
                     </button>
@@ -1990,7 +1990,6 @@ export default function SocialPage() {
               )}
               <button
                 onClick={() => {
-                  markNotificationsReadLocally();
                   setShowNotifications(true);
                   axios.put(API + "/notifications/read-all", {}, { headers: authHeaders }).catch(() => {});
                 }}
@@ -2036,7 +2035,6 @@ export default function SocialPage() {
               if (!requireAuth()) return;
               const uid = getCurrentUserId();
               lastMsgCount.current = uid ? messages.filter(m => getMessageSenderId(m) !== uid).length : 0;
-              markNotificationsReadLocally();
               setShowNotifications(true);
               axios.put(API + "/notifications/read-all", {}, { headers: authHeaders }).catch(() => {});
             }}
