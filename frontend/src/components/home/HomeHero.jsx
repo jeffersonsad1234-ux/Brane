@@ -168,7 +168,7 @@ export default function HomeHero({
             {/* Parte Inferior: B Livre */}
             <button
               type="button"
-              onClick={() => navigate('/market/blivre')}
+              onClick={() => navigate('/blivre')}
               className="relative flex-1 rounded-[24px] bg-gradient-to-br from-[#090B10] via-[#1A1F2E] to-[#090B10] border border-[#D4A24C]/20 p-4 text-left"
             >
               <h3 className="text-white font-black">

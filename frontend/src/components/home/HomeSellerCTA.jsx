@@ -73,7 +73,7 @@ export default function HomeSellerCTA({ user }) {
                   </p>
                 </div>
 
-                <Link to="/market/blivre">
+                <Link to="/blivre">
                   <button
                     type="button"
                     className="h-11 px-5 rounded-2xl bg-gradient-to-r from-[#D4A24C] via-[#F1D28A] to-[#B98228] text-white font-black inline-flex items-center gap-2 hover:from-[#B98228] hover:via-[#D4A24C] hover:to-[#8B6914] transition"

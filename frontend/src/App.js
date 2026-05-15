@@ -146,7 +146,7 @@ function AppRouter() {
             <Route path="/social" element={<Navigate to="/blivre" replace />} />
             <Route path="/social/*" element={<Navigate to="/blivre" replace />} />
 
-            <Route path="/market/blivre" element={<SocialPage />} />
+            <Route path="/market/blivre" element={<Navigate to="/blivre" replace />} />
 
             <Route
               path="/add-product"
