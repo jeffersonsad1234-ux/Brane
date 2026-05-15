@@ -492,10 +492,11 @@ export default function SocialPage() {
       if (showNotifications) { setShowNotifications(false); return; }
       if (showSettings) { setShowSettings(false); return; }
       if (composerOpen) { setComposerOpen(false); return; }
+      if (activeFilter !== "all") { setActiveFilter("all"); return; }
     };
     window.addEventListener("popstate", handlePop);
     return () => window.removeEventListener("popstate", handlePop);
-  }, [selectedChat, showNotifications, showSettings, selectedPost, composerOpen]);
+  }, [selectedChat, showNotifications, showSettings, selectedPost, composerOpen, activeFilter]);
 
   useEffect(() => {
     if (selectedChat?.post_id) {
@@ -2086,6 +2087,7 @@ export default function SocialPage() {
                     <button
                       key={label}
                       onClick={() => {
+                        if (window.innerWidth < 768) window.history.pushState({ braneTab: value }, "");
                         if (value === "messages") {
                           openMessagesTab();
                         } else {
