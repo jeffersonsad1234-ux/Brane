@@ -47,6 +47,7 @@ export default function BLivreAuthModal({ isOpen, onClose, onAuthSuccess }) {
       }
     } catch (err) {
       const apiMessage =
+        err?.response?.data?.detail ||
         err?.response?.data?.message ||
         err?.response?.data?.error ||
         "";

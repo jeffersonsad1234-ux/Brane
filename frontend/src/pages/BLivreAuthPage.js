@@ -43,6 +43,7 @@ export default function BLivreAuthPage() {
       }
     } catch (err) {
       const apiMessage =
+        err?.response?.data?.detail ||
         err?.response?.data?.message ||
         err?.response?.data?.error ||
         "";

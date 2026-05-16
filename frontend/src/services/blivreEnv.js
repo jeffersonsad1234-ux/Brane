@@ -4,7 +4,7 @@ const env = {
     return process.env.REACT_APP_BLIVRE_API_URL || process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app";
   },
   get API_BASE() {
-    return `${this.API_URL}/api/blivre`;
+    return `${this.API_URL}/api`;
   },
 
   // B Livre identity
