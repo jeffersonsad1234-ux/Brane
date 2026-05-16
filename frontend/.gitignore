@@ -10,6 +10,14 @@
 
 # production
 /build
+/dist-electron
+
+# Capacitor native platforms (generated)
+/android
+/ios
+
+# Electron dist
+/dist-electron
 
 # misc
 .DS_Store

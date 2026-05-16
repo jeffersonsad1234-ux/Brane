@@ -1,8 +1,17 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "blivre",
+  "version": "1.0.0",
   "private": true,
+  "description": "B Livre — Classificados Gratuitos",
+  "homepage": "./",
+  "main": "electron/main.js",
+  "author": "B Livre",
+  "license": "UNLICENSED",
   "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/ios": "^8.3.4",
     "@hookform/resolvers": "^5.0.1",
     "@radix-ui/react-accordion": "^1.2.8",
     "@radix-ui/react-alert-dialog": "^1.1.11",
@@ -59,7 +68,22 @@
   "scripts": {
     "start": "craco start",
     "build": "cross-env CI=false DISABLE_ESLINT_PLUGIN=true SKIP_PREFLIGHT_CHECK=true craco build",
-    "test": "craco test"
+    "test": "craco test",
+    "cap:init": "npx cap init \"B Livre\" com.blivre.app --web-dir build",
+    "cap:add:android": "npx cap add android",
+    "cap:add:ios": "npx cap add ios",
+    "cap:sync": "npx cap sync",
+    "cap:copy": "npx cap copy",
+    "cap:open:android": "npx cap open android",
+    "cap:open:ios": "npx cap open ios",
+    "cap:build:android": "npm run build && npx cap sync && npx cap open android",
+    "cap:build:ios": "npm run build && npx cap sync && npx cap open ios",
+    "electron:dev": "NODE_ENV=development electron .",
+    "electron:build": "npm run build && electron-builder build --publish never",
+    "electron:build:win": "npm run build && electron-builder build --win --publish never",
+    "electron:build:mac": "npm run build && electron-builder build --mac --publish never",
+    "electron:build:linux": "npm run build && electron-builder build --linux --publish never",
+    "pwa:start": "serve -s build -l 3000"
   },
   "browserslist": {
     "production": [
@@ -81,6 +105,8 @@
     "ajv-keywords": "^5.1.0",
     "autoprefixer": "^10.4.20",
     "cross-env": "^7.0.3",
+    "electron": "^42.1.0",
+    "electron-builder": "^26.8.1",
     "eslint": "9.23.0",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
@@ -92,6 +118,46 @@
   },
   "optionalDependencies": {
     "@emergentbase/visual-edits": "https://assets.emergent.sh/npm/emergentbase-visual-edits-1.0.8.tgz"
+  },
+  "build": {
+    "appId": "com.blivre.app",
+    "productName": "B Livre",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "build/**/*",
+      "electron/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "public/logo-belivre.png",
+        "to": "icon.png"
+      }
+    ],
+    "win": {
+      "target": ["nsis"],
+      "icon": "public/logo-belivre.png",
+      "artifactName": "B-Livre-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "mac": {
+      "target": ["dmg", "zip"],
+      "icon": "public/logo-belivre.png",
+      "category": "public.app-category.shopping"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "public/logo-belivre.png",
+      "category": "Network"
+    }
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
