@@ -294,16 +294,32 @@ export default function SocialPage() {
 
   const getPostImages = (post) => {
     if (!post || !post.image) return [];
-
     try {
       const parsed = JSON.parse(post.image);
-      if (Array.isArray(parsed)) return parsed.filter(Boolean);
+      if (Array.isArray(parsed)) {
+        return parsed.filter(Boolean).map((x) => (typeof x === "string" ? x : x.full || x));
+      }
     } catch {}
+    return [post.image];
+  };
 
+  const getPostThumbnails = (post) => {
+    if (!post || !post.image) return [];
+    try {
+      const parsed = JSON.parse(post.image);
+      if (Array.isArray(parsed)) {
+        return parsed.filter(Boolean).map((x) => (typeof x === "string" ? x : x.thumb || x.full || x));
+      }
+    } catch {}
     return [post.image];
   };
 
   const getCoverImage = (post) => getPostImages(post)[0] || "";
+
+  const getCoverThumb = (post) => {
+    const thumbs = getPostThumbnails(post);
+    return thumbs[0] || "";
+  };
 
   const getPostLines = (post) => String(post.content || "").split("\n").filter(Boolean);
   const getTitle = (post) => post.enhanced_title || getPostLines(post)[0] || post.title || "Produto anunciado";
@@ -382,17 +398,21 @@ export default function SocialPage() {
       img.onerror = reject;
 
       img.onload = () => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
+        const scaleFull = Math.min(1, 1280 / Math.max(img.width, img.height));
+        const cFull = document.createElement("canvas");
+        cFull.width = Math.round(img.width * scaleFull);
+        cFull.height = Math.round(img.height * scaleFull);
+        cFull.getContext("2d").drawImage(img, 0, 0, cFull.width, cFull.height);
+        const full = cFull.toDataURL("image/webp", 0.7);
 
-        const maxWidth = 800;
-        const scale = Math.min(1, maxWidth / img.width);
+        const scaleThumb = Math.min(1, 400 / img.width);
+        const cThumb = document.createElement("canvas");
+        cThumb.width = Math.round(img.width * scaleThumb);
+        cThumb.height = Math.round(img.height * scaleThumb);
+        cThumb.getContext("2d").drawImage(img, 0, 0, cThumb.width, cThumb.height);
+        const thumb = cThumb.toDataURL("image/webp", 0.7);
 
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
-
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.6));
+        resolve({ full, thumb });
       };
 
       reader.readAsDataURL(file);
@@ -622,11 +642,11 @@ export default function SocialPage() {
     const availableSlots = Math.max(0, 5 - images.length);
     const selectedFiles = files.slice(0, availableSlots);
 
-    const base64List = await Promise.all(
+    const results = await Promise.all(
       selectedFiles.map((file) => fileToBase64(file))
     );
 
-    setImages((prev) => [...prev, ...base64List].slice(0, 5));
+    setImages((prev) => [...prev, ...results].slice(0, 5));
 
     if (imageInputRef.current) imageInputRef.current.value = "";
   };
@@ -635,8 +655,8 @@ export default function SocialPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const base64 = await fileToBase64(file);
-    setProfileForm((prev) => ({ ...prev, avatar: base64 }));
+    const result = await fileToBase64(file);
+    setProfileForm((prev) => ({ ...prev, avatar: result.full }));
 
     if (avatarInputRef.current) avatarInputRef.current.value = "";
   };
@@ -1514,7 +1534,7 @@ export default function SocialPage() {
                 return items.map((msg) => {
                   const nPostId = msg?.post_id;
                   const notifPost = posts.find((p) => (p.post_id || p.id) === nPostId || getPostKey(p) === nPostId);
-                  const notifImg = notifPost ? getPostImages(notifPost)[0] || "" : "";
+                  const notifImg = notifPost ? getPostThumbnails(notifPost)[0] || "" : "";
                   const notifTitle = notifPost ? getTitle(notifPost) : "Anúncio";
                   const nSender = findName(msg) || "Usuário";
                   return (
@@ -1858,7 +1878,7 @@ export default function SocialPage() {
                 <div className="brane-card-premium overflow-hidden" style={{ borderRadius: 22 }}>
                   {images.length > 0 && (
                     <div className="aspect-square bg-[#050608] overflow-hidden">
-                      <img src={images[0]} alt="" className="w-full h-full object-cover" />
+                      <img src={images[0]?.full || images[0]} alt="" className="w-full h-full object-cover" />
                     </div>
                   )}
                   <div className="p-5 space-y-3">
@@ -1976,10 +1996,10 @@ export default function SocialPage() {
             <AIAssistantPanelSocial
               onPhotoUpload={async (files) => {
                 const fileList = Array.from(files || []);
-                const base64List = await Promise.all(
+                const results = await Promise.all(
                   fileList.slice(0, 5).map((file) => fileToBase64(file))
                 );
-                setImages(base64List);
+                setImages(results);
               }}
               onGenerateAd={(data) => {
                 const finalData = {
@@ -2237,7 +2257,7 @@ export default function SocialPage() {
                             selectedImageIndex === i ? 'border-[#D4A24C] opacity-100' : 'border-transparent opacity-60'
                           }`}
                         >
-                          <img src={img} alt="" className="w-full h-full object-cover" />
+                        <img src={img?.thumb || img?.full || img} alt="" className="w-full h-full object-cover" />
                         </button>
                       ))}
                     </div>
@@ -2803,7 +2823,7 @@ export default function SocialPage() {
                         <div className="space-y-3">
                           {conversations.map((conv, i) => {
                             const convPost = posts.find((p) => (p.post_id || p.id || "") === conv.post_id || getPostKey(p) === conv.post_id);
-                            const convImg = convPost ? getPostImages(convPost)[0] || "" : "";
+                            const convImg = convPost ? getPostThumbnails(convPost)[0] || "" : "";
                             const convTitle = convPost ? getTitle(convPost) : "Anúncio";
                             return (
                               <button
@@ -2867,9 +2887,9 @@ export default function SocialPage() {
                           className="w-full text-left"
                         >
                           <div className="relative aspect-square bg-[#050608] overflow-hidden rounded-t-[22px]">
-                            {getCoverImage(post) ? (
+                            {getCoverThumb(post) ? (
                               <ProductImageZoom
-                                src={getCoverImage(post)}
+                                src={getCoverThumb(post)}
                                 alt="Anúncio"
                                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                                 wrapperClassName="w-full h-full"
