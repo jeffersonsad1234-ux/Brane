@@ -19,6 +19,7 @@
 # Build artifacts
 *.apk
 !releases/*.apk
+!public/*.apk
 *.aab
 local.properties
 

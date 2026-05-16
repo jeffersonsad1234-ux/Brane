@@ -146,6 +146,7 @@ export default function SocialPage() {
   const [aiFilled, setAiFilled] = useState(false);
   const [mobileShowForm, setMobileShowForm] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showApkDownload, setShowApkDownload] = useState(true);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
   const [formError, setFormError] = useState("");
@@ -215,6 +216,9 @@ export default function SocialPage() {
   const notifIntervalRef = useRef(null);
 
   useEffect(() => {
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setShowApkDownload(false);
+    }
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -2482,6 +2486,20 @@ export default function SocialPage() {
                   Instalar
                 </button>
               )}
+              {showApkDownload && (
+                <a
+                  href="/B-Livre-v1.0.apk"
+                  download="B-Livre-v1.0.apk"
+                  className="h-10 px-3.5 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center gap-1.5 text-[12px] font-black text-[#D4A24C] hover:bg-white/[0.08] transition-colors"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Baixar app
+                </a>
+              )}
               <button
                 onClick={() => {
                   setShowNotifications(true);
@@ -2539,6 +2557,20 @@ export default function SocialPage() {
               </span>
             )}
           </button>
+          {showApkDownload && (
+            <a
+              href="/B-Livre-v1.0.apk"
+              download="B-Livre-v1.0.apk"
+              className="w-9 h-9 rounded-xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] hover:bg-white/[0.08] transition-colors shrink-0"
+              title="Baixar app"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+            </a>
+          )}
         </div>
 
         <div className="max-w-[1600px] mx-auto px-4 py-4">
