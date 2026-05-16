@@ -876,13 +876,18 @@ export default function SocialPage() {
       updateForm("title", parts[0]);
     }
 
-    // Category detection
+    // Category detection with fallback
     const allText = parts.join(" ").toLowerCase();
+    let detected = false;
     for (const [cat, words] of Object.entries(catKeywords)) {
       if (words.some((w) => allText.includes(w))) {
         updateForm("category", cat);
+        detected = true;
         break;
       }
+    }
+    if (!detected) {
+      updateForm("category", "Outros");
     }
 
     const knownIdx = new Set([0, priceIdx, cityIdx].filter(i => i >= 0 && i !== 0));
@@ -1926,7 +1931,7 @@ export default function SocialPage() {
                   </button>
                   <button
                     onClick={async () => {
-                      if (!form.title.trim() || !form.price.trim() || !form.city.trim() || !form.description.trim() || !form.productCondition || images.length === 0) {
+                      if (!form.title.trim() || !form.price.trim() || !(form.city.trim() || form.state.trim()) || !form.description.trim() || !form.productCondition || !form.availability || !form.category || images.length === 0) {
                         setFormError("Preencha todos os campos e adicione pelo menos 1 foto.");
                         return;
                       }
@@ -1934,7 +1939,7 @@ export default function SocialPage() {
                       const ok = await createPost();
                       if (ok) { setComposerOpen(false); setAiFilled(false); setMobileAiText(""); setAiChatMessages([]); setAiStep('greeting'); }
                     }}
-                    disabled={posting || !form.title.trim() || !form.price.trim() || !form.productCondition || images.length === 0}
+                    disabled={posting || !form.title.trim() || !form.price.trim() || !(form.city.trim() || form.state.trim()) || !form.description.trim() || !form.productCondition || !form.availability || !form.category || images.length === 0}
                     className="flex-1 h-12 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(212,162,76,0.25)]"
                   >
                     {posting ? "⏳ Publicando..." : "Publicar"}
