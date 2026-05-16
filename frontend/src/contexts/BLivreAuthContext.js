@@ -46,10 +46,11 @@ export function BLivreAuthProvider({ children }) {
   };
 
   const logout = async () => {
-    try { await axios.post(blivreAPI.auth.logout(), {}, { headers: authHeaders }); } catch {}
-    setUser(null);
-    setToken(null);
     localStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(STORAGE_KEY);
+    setToken(null);
+    setUser(null);
+    try { await axios.post(blivreAPI.auth.logout(), {}, { headers: authHeaders }); } catch {}
   };
 
   return (

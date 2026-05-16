@@ -82,6 +82,7 @@ export default function SocialPage() {
     if (typeof window !== "undefined") {
       window.localStorage.removeItem("blivre_token");
       window.localStorage.removeItem("brane_token");
+      window.sessionStorage.removeItem("blivre_token");
     }
   });
 
@@ -1675,7 +1676,7 @@ export default function SocialPage() {
                 Configurações da conta
               </button>
               <button
-                onClick={() => { logout(); setShowSettings(false); window.location.href = "/blivre"; }}
+                onClick={async () => { await logout(); setShowSettings(false); window.location.href = "/blivre/login"; }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/[0.06] transition-colors"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
