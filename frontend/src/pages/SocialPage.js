@@ -151,6 +151,39 @@ export default function SocialPage() {
 
   const [aiChatMessages, setAiChatMessages] = useState([]);
   const [aiStep, setAiStep] = useState('greeting');
+  const [emojiCycle, setEmojiCycle] = useState(0);
+  const [enhancedTitle, setEnhancedTitle] = useState("");
+  const [enhancedDesc, setEnhancedDesc] = useState("");
+  const [marketingLine, setMarketingLine] = useState("");
+
+  const titleEmojiSets = [
+    ["🏷️", "💎"],
+    ["🔥", "⭐"],
+    ["👑", "⚡"],
+    ["💫", "🎯"],
+  ];
+  const descEmojiSets = [
+    ["📌", "🔹"],
+    ["✅", "➡️"],
+    ["📍", "🔸"],
+    ["💡", "▫️"],
+  ];
+  const marketingLines = [
+    "Entre em contato e confira mais detalhes.",
+    "Produto disponível para negociação.",
+    "Chame no chat e tire suas dúvidas.",
+    "Aproveite essa oportunidade.",
+    "Fale com o vendedor para combinar.",
+  ];
+
+  const applyEnhancement = (cycle) => {
+    const te = titleEmojiSets[cycle % titleEmojiSets.length];
+    const de = descEmojiSets[cycle % descEmojiSets.length];
+    const ml = marketingLines[cycle % marketingLines.length];
+    if (form.title) setEnhancedTitle(`${te[0]} ${form.title} ${te[1]}`);
+    if (form.description) setEnhancedDesc(`${de[0]} ${form.description} ${de[1]}`);
+    setMarketingLine(ml);
+  };
 
   const conditionOptions = ["Novo", "Seminovo", "Usado", "Com defeito", "Recondicionado"];
   const availabilityOptions = ["Item único", "Tenho unidades", "Sob encomenda"];
@@ -646,6 +679,10 @@ export default function SocialPage() {
     setMobileEditInput("");
     setAiStep('greeting');
     setAiChatMessages([]);
+    setEmojiCycle(0);
+    setEnhancedTitle("");
+    setEnhancedDesc("");
+    setMarketingLine("");
   };
 
   const handleConditionSelect = (condition) => {
@@ -663,6 +700,13 @@ export default function SocialPage() {
   useEffect(() => {
     if (aiStep === 'asking_photo' && images.length > 0) {
       setAiStep('preview');
+      setEmojiCycle(0);
+      const te = titleEmojiSets[0];
+      const de = descEmojiSets[0];
+      const ml = marketingLines[0];
+      if (form.title) setEnhancedTitle(`${te[0]} ${form.title} ${te[1]}`);
+      if (form.description) setEnhancedDesc(`${de[0]} ${form.description} ${de[1]}`);
+      setMarketingLine(ml);
     }
   }, [images, aiStep]);
 
@@ -1722,7 +1766,7 @@ export default function SocialPage() {
                     {form.category && (
                       <span className="inline-block px-3 py-1 rounded-full bg-[#D4A24C]/10 text-[#F1D28A] text-[10px] font-bold">{form.category}</span>
                     )}
-                    {form.title && <h3 className="text-base font-black text-white">{form.title}</h3>}
+                    {enhancedTitle && <h3 className="text-base font-black text-white">{enhancedTitle}</h3>}
                     {form.price && <p className="brane-gold-text font-black text-xl">R$ {form.price}</p>}
                     {(form.city || form.state) && (
                       <p className="text-[12px] text-[#A6A8B3] flex items-center gap-1">
@@ -1732,7 +1776,10 @@ export default function SocialPage() {
                     {form.productCondition && (
                       <span className="inline-block px-3 py-1 rounded-full bg-[#8A2CFF]/10 text-[#B66DFF] text-[10px] font-bold">{form.productCondition}</span>
                     )}
-                    {form.description && <p className="text-[12px] text-[#A6A8B3] leading-relaxed">{form.description}</p>}
+                    {enhancedDesc && <p className="text-[12px] text-[#A6A8B3] leading-relaxed">{enhancedDesc}</p>}
+                    {marketingLine && (
+                      <p className="text-[11px] text-[#D4A24C] italic font-medium pt-1 border-t border-white/[0.06]">{marketingLine}</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -1781,7 +1828,16 @@ export default function SocialPage() {
                     <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
                   </label>
                   <button
-                    onClick={() => { setMobileAiText(""); setAiChatMessages([]); setAiStep('greeting'); setAiFilled(false); }}
+                    onClick={() => {
+                      const next = emojiCycle + 1;
+                      setEmojiCycle(next);
+                      const te = titleEmojiSets[next % titleEmojiSets.length];
+                      const de = descEmojiSets[next % descEmojiSets.length];
+                      const ml = marketingLines[next % marketingLines.length];
+                      if (form.title) setEnhancedTitle(`${te[0]} ${form.title} ${te[1]}`);
+                      if (form.description) setEnhancedDesc(`${de[0]} ${form.description} ${de[1]}`);
+                      setMarketingLine(ml);
+                    }}
                     className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
                   >
                     Melhorar anúncio
