@@ -1400,7 +1400,7 @@ export default function SocialPage() {
 
      {composerOpen && (
    <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center" style={{ animation: "braneFadeIn 0.2s ease" }}>
-     <div className="w-full max-w-md max-h-[90dvh] md:max-h-[85dvh] rounded-t-[24px] md:rounded-[24px] overflow-hidden flex flex-col bg-[#050608]" style={{ animation: "braneSlideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1)" }}>
+     <div className="w-full max-w-[95%] mx-auto md:max-w-md max-h-[95dvh] md:max-h-[85dvh] rounded-t-[24px] md:rounded-[24px] overflow-hidden flex flex-col bg-[#050608]" style={{ animation: "braneSlideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1)" }}>
        <div className="flex items-center justify-between px-4 md:px-5 py-2.5 md:py-3 flex-shrink-0 bg-[#08060d]/95 border-b border-white/[0.04]">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="w-7 h-7 md:w-8 md:h-8 rounded-xl overflow-hidden ring-1 ring-[#D4A24C]/30">
@@ -1422,17 +1422,17 @@ export default function SocialPage() {
           {/* MOBILE: painel IA full screen */}
           <div className="flex md:hidden flex-col flex-1 overflow-hidden">
             {/* Instrução */}
-            <div className="px-4 pt-3 pb-1">
-              <p className="text-[12px] text-[#8C8F9A] leading-relaxed">
+            <div className="px-5 pt-4 pb-2">
+              <p className="text-[13px] text-[#8C8F9A] leading-relaxed">
                 Escreva os dados do seu anúncio separados por vírgula.
               </p>
-              <p className="text-[11px] text-[#6F7280] mt-0.5">
+              <p className="text-[12px] text-[#6F7280] mt-0.5">
                 Ex: iPhone 15, R$ 1200, Belém, perfeito estado
               </p>
             </div>
 
             {/* Preview card + conteúdo */}
-            <div className="flex-1 overflow-y-auto px-4 py-2">
+            <div className="flex-1 overflow-y-auto px-5 py-3">
               {aiFilled ? (
                 <div className="brane-card-premium overflow-hidden" style={{ borderRadius: 22 }}>
                   {images.length > 0 && (
@@ -1440,7 +1440,7 @@ export default function SocialPage() {
                       <img src={images[0]} alt="" className="w-full h-full object-cover" />
                     </div>
                   )}
-                  <div className="p-4 space-y-2">
+                  <div className="p-5 space-y-3">
                     {form.title && <h3 className="text-base font-black text-white">{form.title}</h3>}
                     {form.price && <p className="brane-gold-text font-black text-xl">R$ {form.price}</p>}
                     {form.category && (
@@ -1458,8 +1458,8 @@ export default function SocialPage() {
                   </div>
                 </div>
               ) : (
-                <div className="brane-card-soft p-6 text-center">
-                  <Package size={36} className="mx-auto text-[#D4A24C] mb-3" />
+                <div className="brane-card-soft p-8 text-center">
+                  <Package size={44} className="mx-auto text-[#D4A24C] mb-4" />
                   <p className="text-sm text-[#A6A8B3]">
                 Digite os dados do anúncio no campo abaixo e envie para preencher automaticamente.
                   </p>
@@ -1468,32 +1468,32 @@ export default function SocialPage() {
             </div>
 
             {/* Input de texto + camera */}
-            <div className="flex-shrink-0 px-4 py-3 border-t border-white/[0.06] bg-[#050608]">
-              <div className="flex gap-2 items-center">
+            <div className="flex-shrink-0 px-5 py-4 border-t border-white/[0.06] bg-[#050608]">
+              <div className="flex gap-2.5 items-center">
                 <div className="relative flex-1">
                   <input
                     value={mobileAiText}
                     onChange={(e) => setMobileAiText(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") handleAiFill(); }}
-                    className="w-full h-11 rounded-2xl brane-input pr-12 text-[13px]"
+                    className="w-full h-12 rounded-2xl brane-input pr-12 text-[14px]"
                     placeholder="Digite os dados do anúncio..."
                   />
                   <button
                     onClick={handleAiFill}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
                   >
                     <Send size={14} />
                   </button>
                 </div>
-                <label className="shrink-0 w-11 h-11 rounded-2xl border border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40 hover:text-[#D4A24C] transition-all">
+                <label className="shrink-0 w-12 h-12 rounded-2xl border border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40 hover:text-[#D4A24C] transition-all">
                   <Camera size={18} />
                   <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
                 </label>
               </div>
               {images.length > 0 && (
-                <div className="flex gap-1.5 mt-2">
+                <div className="flex gap-2 mt-3">
                   {images.map((img, i) => (
-                    <div key={i} className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10">
+                    <div key={i} className="relative w-12 h-12 rounded-xl overflow-hidden border border-white/10">
                       <img src={img} alt="" className="w-full h-full object-cover" />
                       <button type="button" onClick={() => removeImageAt(i)}
                         className="absolute top-0 right-0 w-4 h-4 bg-black/80 text-white text-[8px] rounded-full flex items-center justify-center">×</button>
@@ -1504,20 +1504,20 @@ export default function SocialPage() {
             </div>
 
             {/* Botões de ação — sempre visíveis */}
-            <div className="flex-shrink-0 px-4 py-3 border-t border-white/[0.06] bg-[#050608]">
+            <div className="flex-shrink-0 px-5 py-4 border-t border-white/[0.06] bg-[#050608]">
               {formError && (
-                <p className="text-[11px] text-red-400 font-medium text-center mb-2">{formError}</p>
+                <p className="text-[12px] text-red-400 font-medium text-center mb-2">{formError}</p>
               )}
-              <div className="flex gap-2">
+              <div className="flex gap-2.5">
                 <button
                   onClick={() => { setMobileAiText(""); setAiFilled(false); }}
-                  className="flex-1 h-11 rounded-xl border border-white/10 bg-white/[0.04] text-[12px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
+                  className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
                 >
                   Melhorar anúncio
                 </button>
                 <button
                   onClick={handleNewMobile}
-                  className="flex-1 h-11 rounded-xl border border-white/10 bg-white/[0.04] text-[12px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
+                  className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
                 >
                   Novo
                 </button>
@@ -1532,7 +1532,7 @@ export default function SocialPage() {
                     if (ok) { setComposerOpen(false); setAiFilled(false); setMobileAiText(""); }
                   }}
                   disabled={posting}
-                  className="flex-1 h-11 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[12px] font-black hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(212,162,76,0.25)]"
+                  className="flex-1 h-12 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(212,162,76,0.25)]"
                 >
                   {posting ? "⏳ Publicando..." : "Publicar"}
                 </button>
