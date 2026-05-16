@@ -547,6 +547,7 @@ export default function AIAssistantPanelSocial({
 
     setBraneState("idle");
     setStep(1);
+    if (onFillForm) onFillForm(improved);
   };
 
   const handleReviewContinue = () => {
@@ -560,26 +561,34 @@ export default function AIAssistantPanelSocial({
   const handleRetype = () => { setStep(0); setLocalAd(defaultAd); addMsg("Digite novamente:"); };
 
   const handleSelectCondition = (cond) => {
-    setLocalAd((prev) => ({ ...prev, condition: cond }));
+    const updated = { ...ad, condition: cond };
+    setLocalAd(updated);
     setStep(!safe(ad.availability) ? 3 : 4);
+    if (onFillForm) onFillForm(updated);
   };
 
   const handleSelectAvailability = (avail) => {
-    setLocalAd((prev) => ({ ...prev, availability: avail }));
+    const updated = { ...ad, availability: avail };
+    setLocalAd(updated);
     setStep(4);
+    if (onFillForm) onFillForm(updated);
   };
 
   const handleContactChoice = (choice) => {
     if (choice === "skip") {
       setContactPhone(""); setContactWhatsapp("");
-      setLocalAd((prev) => ({ ...prev, phone: "", whatsapp: "" }));
+      const updated = { ...ad, phone: "", whatsapp: "" };
+      setLocalAd(updated);
       setStep(5);
+      if (onFillForm) onFillForm(updated);
     } else setStep(7);
   };
 
   const handleContactDone = () => {
-    setLocalAd((prev) => ({ ...prev, phone: safe(contactPhone), whatsapp: safe(contactWhatsapp) }));
+    const updated = { ...ad, phone: safe(contactPhone), whatsapp: safe(contactWhatsapp) };
+    setLocalAd(updated);
     setStep(5);
+    if (onFillForm) onFillForm(updated);
   };
 
   const handlePhotoSelect = async (e) => {
@@ -626,12 +635,7 @@ export default function AIAssistantPanelSocial({
     setPublishing(true);
     setPublishError("");
     try {
-      const payload = {
-        ...ad,
-        marketing_text: ad.marketing_text || marketingText || "",
-        photos: photoPreviews
-      };
-      const ok = await onPublishAd(payload);
+      const ok = await onPublishAd();
       if (ok) {
         setBraneState("success");
       } else {

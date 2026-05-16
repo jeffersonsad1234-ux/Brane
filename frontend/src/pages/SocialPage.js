@@ -2064,27 +2064,8 @@ export default function SocialPage() {
                   whatsapp: data.whatsapp || ""
                 });
               }}
-              onPublishAd={async (ad) => {
-                const nextForm = {
-                  category: ad.category || "",
-                  title: ad.title || ad.productName || "",
-                  price: String(ad.price || "").replace(/^R\$\s*/i, ""),
-                  state: ad.state || "",
-                  city: ad.city || "",
-                  productCondition: ad.condition || ad.productCondition || "",
-                  description: ad.description || "",
-                  availability: ad.availability || "Item único",
-                  phone: ad.phone || "",
-                  whatsapp: ad.whatsapp || ""
-                };
-                setForm(nextForm);
-                setEnhancedTitle(ad.title || "");
-                setMarketingLine(ad.marketing_text || "");
-
-                const nextImages = (images || []).filter(Boolean).slice(0, 5);
-                if (nextImages.length > 0) setImages(nextImages);
-
-                const ok = await createPost(nextForm, nextImages.length > 0 ? nextImages : images);
+              onPublishAd={async () => {
+                const ok = await createPost();
                 if (ok) {
                   setComposerOpen(false);
                   setGeneratedAd(null);
