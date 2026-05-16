@@ -1410,128 +1410,119 @@ export default function SocialPage() {
 
         {!editingPost ? (
         <>
-          {/* MOBILE: formulario direto */}
+          {/* MOBILE: painel IA full screen */}
           <div className="flex md:hidden flex-col flex-1 overflow-hidden">
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-              <div>
-                <label className="text-[11px] font-bold text-[#8C8F9A] uppercase tracking-wider">Título *</label>
-                <input value={form.title} onChange={(e) => updateForm("title", e.target.value)}
-                  className="mt-1.5 w-full h-11 px-4 rounded-xl bg-[#0A0A0C] border border-white/10 text-white text-[13px] outline-none focus:border-[#D4A24C]/40 placeholder:text-[#6F7280]"
-                  placeholder="Ex: iPhone 12 Pro" />
-              </div>
-              <div>
-                <label className="text-[11px] font-bold text-[#8C8F9A] uppercase tracking-wider">Preço</label>
-                <input value={form.price} onChange={(e) => updateForm("price", e.target.value)}
-                  className="mt-1.5 w-full h-11 px-4 rounded-xl bg-[#0A0A0C] border border-white/10 text-white text-[13px] outline-none focus:border-[#D4A24C]/40 placeholder:text-[#6F7280]"
-                  placeholder="Ex: 1200" />
-              </div>
-              <div>
-                <label className="text-[11px] font-bold text-[#8C8F9A] uppercase tracking-wider">Categoria</label>
-                <select value={form.category} onChange={(e) => updateForm("category", e.target.value)}
-                  className="mt-1.5 w-full h-11 px-4 rounded-xl bg-[#0A0A0C] border border-white/10 text-white text-[13px] outline-none focus:border-[#D4A24C]/40">
-                  <option value="">Selecionar</option>
-                  {categories.map((item) => (<option key={item} value={item}>{item}</option>))}
-                </select>
-              </div>
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <label className="text-[11px] font-bold text-[#8C8F9A] uppercase tracking-wider">Cidade</label>
-                  <input value={form.city} onChange={(e) => updateForm("city", e.target.value)}
-                    className="mt-1.5 w-full h-11 px-4 rounded-xl bg-[#0A0A0C] border border-white/10 text-white text-[13px] outline-none focus:border-[#D4A24C]/40 placeholder:text-[#6F7280]"
-                    placeholder="Sua cidade" />
+            {/* Instrução */}
+            <div className="px-4 pt-3 pb-1">
+              <p className="text-[12px] text-[#8C8F9A] leading-relaxed">
+                Escreva os dados do seu anúncio separados por vírgula.
+              </p>
+              <p className="text-[11px] text-[#6F7280] mt-0.5">
+                Ex: iPhone 15, R$ 1200, Belém, perfeito estado
+              </p>
+            </div>
+
+            {/* Preview card + conteúdo */}
+            <div className="flex-1 overflow-y-auto px-4 py-2">
+              {aiFilled ? (
+                <div className="brane-card-premium overflow-hidden" style={{ borderRadius: 22 }}>
+                  {images.length > 0 && (
+                    <div className="aspect-square bg-[#050608] overflow-hidden">
+                      <img src={images[0]} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="p-4 space-y-2">
+                    {form.title && <h3 className="text-base font-black text-white">{form.title}</h3>}
+                    {form.price && <p className="brane-gold-text font-black text-xl">R$ {form.price}</p>}
+                    {form.category && (
+                      <span className="inline-block px-3 py-1 rounded-full bg-[#D4A24C]/10 text-[#F1D28A] text-[10px] font-bold">{form.category}</span>
+                    )}
+                    {form.productCondition && (
+                      <span className="inline-block px-3 py-1 rounded-full bg-[#8A2CFF]/10 text-[#B66DFF] text-[10px] font-bold ml-1">{form.productCondition}</span>
+                    )}
+                    {(form.city || form.state) && (
+                      <p className="text-[12px] text-[#A6A8B3] flex items-center gap-1">
+                        <MapPin size={12} /> {[form.city, form.state].filter(Boolean).join(" - ")}
+                      </p>
+                    )}
+                    {form.description && <p className="text-[12px] text-[#A6A8B3] leading-relaxed">{form.description}</p>}
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <label className="text-[11px] font-bold text-[#8C8F9A] uppercase tracking-wider">Estado</label>
-                  <select value={form.state} onChange={(e) => updateForm("state", e.target.value)}
-                    className="mt-1.5 w-full h-11 px-4 rounded-xl bg-[#0A0A0C] border border-white/10 text-white text-[13px] outline-none focus:border-[#D4A24C]/40">
-                    <option value="">UF</option>
-                    <option value="PA">Pará</option>
-                    <option value="SP">São Paulo</option>
-                    <option value="RJ">Rio de Janeiro</option>
-                    <option value="MG">Minas Gerais</option>
-                    <option value="BA">Bahia</option>
-                    <option value="CE">Ceará</option>
-                    <option value="PE">Pernambuco</option>
-                    <option value="AM">Amazonas</option>
-                    <option value="MA">Maranhão</option>
-                    <option value="RS">Rio Grande do Sul</option>
-                    <option value="PR">Paraná</option>
-                    <option value="SC">Santa Catarina</option>
-                    <option value="GO">Goiás</option>
-                    <option value="DF">Distrito Federal</option>
-                    <option value="ES">Espírito Santo</option>
-                    <option value="MT">Mato Grosso</option>
-                    <option value="MS">Mato Grosso do Sul</option>
-                    <option value="TO">Tocantins</option>
-                    <option value="AL">Alagoas</option>
-                    <option value="PB">Paraíba</option>
-                    <option value="RN">Rio Grande do Norte</option>
-                    <option value="PI">Piauí</option>
-                    <option value="RO">Rondônia</option>
-                    <option value="AC">Acre</option>
-                    <option value="AP">Amapá</option>
-                    <option value="RR">Roraima</option>
-                    <option value="SE">Sergipe</option>
-                  </select>
+              ) : (
+                <div className="brane-card-soft p-6 text-center">
+                  <Package size={36} className="mx-auto text-[#D4A24C] mb-3" />
+                  <p className="text-sm text-[#A6A8B3]">
+                Digite os dados do anúncio no campo abaixo e envie para preencher automaticamente.
+                  </p>
                 </div>
+              )}
+            </div>
+
+            {/* Input de texto + camera */}
+            <div className="flex-shrink-0 px-4 py-3 border-t border-white/[0.06] bg-[#050608]">
+              <div className="flex gap-2 items-center">
+                <div className="relative flex-1">
+                  <input
+                    value={mobileAiText}
+                    onChange={(e) => setMobileAiText(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleAiFill(); }}
+                    className="w-full h-11 rounded-2xl brane-input pr-12 text-[13px]"
+                    placeholder="Digite os dados do anúncio..."
+                  />
+                  <button
+                    onClick={handleAiFill}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
+                  >
+                    <Send size={14} />
+                  </button>
+                </div>
+                <label className="shrink-0 w-11 h-11 rounded-2xl border border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40 hover:text-[#D4A24C] transition-all">
+                  <Camera size={18} />
+                  <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
+                </label>
               </div>
-              <div>
-                <label className="text-[11px] font-bold text-[#8C8F9A] uppercase tracking-wider">Estado do produto *</label>
-                <select value={form.productCondition} onChange={(e) => { updateForm("productCondition", e.target.value); setFormError(""); }}
-                  className="mt-1.5 w-full h-11 px-4 rounded-xl bg-[#0A0A0C] border border-white/10 text-white text-[13px] outline-none focus:border-[#D4A24C]/40">
-                  <option value="">Selecionar</option>
-                  <option value="Novo">Novo</option>
-                  <option value="Usado">Usado</option>
-                  <option value="Seminovo">Seminovo</option>
-                  <option value="Com defeito">Com defeito</option>
-                  <option value="Recondicionado">Recondicionado</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-[11px] font-bold text-[#8C8F9A] uppercase tracking-wider">Descrição</label>
-                <textarea value={form.description} onChange={(e) => updateForm("description", e.target.value)}
-                  rows={3}
-                  className="mt-1.5 w-full px-4 py-3 rounded-xl bg-[#0A0A0C] border border-white/10 text-white text-[13px] outline-none focus:border-[#D4A24C]/40 placeholder:text-[#6F7280] resize-none"
-                  placeholder="Descreva seu produto..." />
-              </div>
-              <div>
-                <label className="text-[11px] font-bold text-[#8C8F9A] uppercase tracking-wider">Fotos (máx 5)</label>
-                <div className="flex flex-wrap gap-2 mt-1.5">
+              {images.length > 0 && (
+                <div className="flex gap-1.5 mt-2">
                   {images.map((img, i) => (
-                    <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 ring-1 ring-white/[0.04]">
+                    <div key={i} className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10">
                       <img src={img} alt="" className="w-full h-full object-cover" />
                       <button type="button" onClick={() => removeImageAt(i)}
-                        className="absolute top-0.5 right-0.5 w-5 h-5 bg-black/80 text-white text-[10px] rounded-full flex items-center justify-center hover:bg-red-500/80 transition-colors">×</button>
+                        className="absolute top-0 right-0 w-4 h-4 bg-black/80 text-white text-[8px] rounded-full flex items-center justify-center">×</button>
                     </div>
                   ))}
-                  {images.length < 5 && (
-                    <label className="w-16 h-16 rounded-xl border-2 border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40 hover:text-[#D4A24C] transition-all">
-                      <Camera size={18} />
-                      <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
-                    </label>
-                  )}
                 </div>
-              </div>
-            </div>
-            <div className="flex-shrink-0 px-4 py-3 border-t border-white/[0.06] bg-[#050608]">
-              {formError && (
-                <p className="text-[11px] text-red-400 font-medium text-center mb-3">{formError}</p>
               )}
-              <div className="flex gap-3">
-                <button type="button" onClick={() => {
-                  if (!form.productCondition) { setFormError("Selecione o estado do produto."); return; }
-                  setFormError("");
-                  publishFromModal();
-                }} disabled={posting}
-                  className="flex-1 h-11 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(212,162,76,0.25)]">
-                  {posting ? "⏳ Publicando..." : "Publicar anúncio"}
+            </div>
+
+            {/* Botões de ação */}
+            {aiFilled && (
+              <div className="flex-shrink-0 px-4 py-3 border-t border-white/[0.06] bg-[#050608] flex gap-2">
+                <button
+                  onClick={() => { setMobileAiText(""); setAiFilled(false); }}
+                  className="flex-1 h-11 rounded-xl border border-white/10 bg-white/[0.04] text-[12px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
+                >
+                  Melhorar anúncio
                 </button>
-                <button type="button" onClick={() => { setComposerOpen(false); setEditingPost(null); setForm({ category: "", title: "", price: "", state: "", city: "", productCondition: "", description: "", availability: "Item único", phone: "", whatsapp: "" }); setImages([]); setFormError(""); }}
-                  className="flex-1 h-11 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all">
-                  Cancelar
+                <button
+                  onClick={handleNewMobile}
+                  className="flex-1 h-11 rounded-xl border border-white/10 bg-white/[0.04] text-[12px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
+                >
+                  Novo
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!form.productCondition) { setFormError("Selecione o estado do produto."); return; }
+                    setFormError("");
+                    const ok = await createPost();
+                    if (ok) { setComposerOpen(false); setAiFilled(false); setMobileAiText(""); }
+                  }}
+                  disabled={posting}
+                  className="flex-1 h-11 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[12px] font-black hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(212,162,76,0.25)]"
+                >
+                  {posting ? "⏳ Publicando..." : "Publicar"}
                 </button>
               </div>
-            </div>
+            )}
           </div>
           {/* DESKTOP/TABLET: AI Assistant */}
           <div className="hidden md:flex flex-1 min-h-0">
