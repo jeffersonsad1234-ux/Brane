@@ -1692,37 +1692,27 @@ export default function SocialPage() {
 
               {/* Step: asking condition */}
               {aiStep === 'asking_condition' && (
-                <div className="space-y-3">
-                  <div className="bg-white/[0.06] px-4 py-3 rounded-2xl text-[13px] text-[#C9CBD6]">
-                    Agora, qual o estado do produto?
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {conditionOptions.map(c => (
-                      <button key={c} onClick={() => handleConditionSelect(c)}
-                        className="px-5 py-3 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.3)]"
-                      >
-                        {c}
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex flex-wrap gap-2">
+                  {conditionOptions.map(c => (
+                    <button key={c} onClick={() => handleConditionSelect(c)}
+                      className="px-5 py-3 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.3)]"
+                    >
+                      {c}
+                    </button>
+                  ))}
                 </div>
               )}
 
               {/* Step: asking availability */}
               {aiStep === 'asking_availability' && (
-                <div className="space-y-3">
-                  <div className="bg-white/[0.06] px-4 py-3 rounded-2xl text-[13px] text-[#C9CBD6]">
-                    Perfeito. Qual a disponibilidade?
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {availabilityOptions.map(a => (
-                      <button key={a} onClick={() => handleAvailabilitySelect(a)}
-                        className="px-5 py-3 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.3)]"
-                      >
-                        {a}
-                      </button>
-                    ))}
-                  </div>
+                <div className="flex flex-wrap gap-2">
+                  {availabilityOptions.map(a => (
+                    <button key={a} onClick={() => handleAvailabilitySelect(a)}
+                      className="px-5 py-3 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.3)]"
+                    >
+                      {a}
+                    </button>
+                  ))}
                 </div>
               )}
 
