@@ -97,8 +97,12 @@ export default function SocialPage() {
   const chatScrollRef = useRef(null);
   const aiChatScrollRef = useRef(null);
   const userRef = useRef(null);
-  userRef.current = currentUser;
+  const formRef = useRef(form);
+  const imagesRef = useRef(images);
 
+  userRef.current = currentUser;
+  formRef.current = form;
+  imagesRef.current = images;
   const [posts, setPosts] = useState([]);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -936,20 +940,23 @@ export default function SocialPage() {
     ].filter(Boolean).join("\n");
   };
 
-  const createPost = async (sourceForm = form, sourceImages = images) => {
+  const createPost = async (sourceForm, sourceImages) => {
     if (!requireAuth()) return false;
 
-    if (!sourceForm.title.trim()) {
+    const sf = sourceForm || formRef.current;
+    const si = sourceImages || imagesRef.current;
+
+    if (!sf.title.trim()) {
       alert("Digite o nome do produto.");
       return false;
     }
 
-    if (!sourceForm.price.trim()) {
+    if (!sf.price.trim()) {
       alert("Digite o preço.");
       return false;
     }
 
-    if (!sourceForm.productCondition.trim()) {
+    if (!sf.productCondition.trim()) {
       alert("Selecione o estado do produto.");
       return false;
     }
@@ -959,18 +966,18 @@ export default function SocialPage() {
 
       const markSuffix = marketingLine ? "\n" + marketingLine : "";
       const payload = {
-        content: buildContent(sourceForm) + markSuffix,
-        image: JSON.stringify(sourceImages),
-        category: sourceForm.category,
-        title: sourceForm.title,
-        price: sourceForm.price,
-        state: sourceForm.state,
-        city: sourceForm.city,
-        product_condition: sourceForm.productCondition,
-        description: sourceForm.description,
-        availability: sourceForm.availability,
-        phone: sourceForm.phone || "",
-        whatsapp: sourceForm.whatsapp || "",
+        content: buildContent(sf) + markSuffix,
+        image: JSON.stringify(si),
+        category: sf.category,
+        title: sf.title,
+        price: sf.price,
+        state: sf.state,
+        city: sf.city,
+        product_condition: sf.productCondition,
+        description: sf.description,
+        availability: sf.availability,
+        phone: sf.phone || "",
+        whatsapp: sf.whatsapp || "",
         enhanced_title: enhancedTitle || "",
         enhanced_description: enhancedDesc || "",
         marketing_text: marketingLine || ""
@@ -978,7 +985,9 @@ export default function SocialPage() {
       console.log("[B Livre Publish] URL:", API + "/social/posts");
       console.log("[B Livre Publish] hasToken:", !!currentToken);
       console.log("[B Livre Publish] payload keys:", Object.keys(payload).join(", "));
-      console.log("[B Livre Publish] images:", sourceImages.length, "total chars:", JSON.stringify(sourceImages).length);
+      const payloadStr = JSON.stringify(payload);
+      console.log("[B Livre Publish] images:", si.length, "total chars:", JSON.stringify(si).length);
+      console.log("[B Livre Publish] payload total bytes:", new Blob([payloadStr]).size);
       await axios.post(API + "/social/posts", payload, {
         headers: { ...authHeaders, "Content-Type": "application/json" },
         timeout: 30000
@@ -1036,19 +1045,21 @@ export default function SocialPage() {
       setPosting(true);
 
       const key = getPostKey(editingPost);
+      const uf = formRef.current;
+      const ui = imagesRef.current;
       await axios.put(
         API + "/social/posts/" + key,
         {
-          content: buildContent(),
-          image: JSON.stringify(images),
-          category: form.category,
-          title: form.title,
-          price: form.price,
-          state: form.state,
-          city: form.city,
-          product_condition: form.productCondition,
-          phone: form.phone,
-          whatsapp: form.whatsapp
+          content: buildContent(uf),
+          image: JSON.stringify(ui),
+          category: uf.category,
+          title: uf.title,
+          price: uf.price,
+          state: uf.state,
+          city: uf.city,
+          product_condition: uf.productCondition,
+          phone: uf.phone,
+          whatsapp: uf.whatsapp
         },
         { headers: authHeaders }
       );
