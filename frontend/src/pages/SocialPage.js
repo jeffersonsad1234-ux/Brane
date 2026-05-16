@@ -2238,7 +2238,7 @@ export default function SocialPage() {
                       {getPrice(selectedPost)}
                     </p>
 
-                    <div className="flex items-center gap-3 mt-3 text-sm">
+                    <div className="flex items-center gap-3 mt-3 text-sm flex-wrap">
                       <span className="flex items-center gap-1.5 text-[#A6A8B3]">
                         <MapPin size={15} />
                         {getLocation(selectedPost)}
@@ -2247,6 +2247,12 @@ export default function SocialPage() {
                       {getCondition(selectedPost) && (
                         <span className="brane-badge brane-badge-purple">
                           {getCondition(selectedPost)}
+                        </span>
+                      )}
+
+                      {selectedPost.availability && (
+                        <span className="inline-block px-3 py-1 rounded-full bg-[#D4A24C]/15 text-[#EAC871] text-[10px] font-bold">
+                          {selectedPost.availability}
                         </span>
                       )}
                     </div>
@@ -2368,14 +2374,14 @@ export default function SocialPage() {
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                            className="w-full h-11 rounded-2xl brane-input pr-12"
+                            className="w-full h-14 rounded-2xl brane-input pr-14 text-[14px]"
                             placeholder="Esse anúncio ainda está disponível?"
                           />
                           <button
                             onClick={sendMessage}
-                            className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
+                            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
                           >
-                            <Send size={14} />
+                            <Send size={18} />
                           </button>
                         </div>
                       </div>
