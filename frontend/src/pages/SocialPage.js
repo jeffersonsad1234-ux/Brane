@@ -1108,6 +1108,16 @@ export default function SocialPage() {
             to { opacity: 1; transform: translateX(0) scale(1); }
           }
 
+          @keyframes braneFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+
+          @keyframes braneSlideUp {
+            from { opacity: 0; transform: translateY(40px) scale(0.96); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+          }
+
           .blivre-shell {
             transition: grid-template-columns 280ms cubic-bezier(0.22, 1, 0.36, 1);
             will-change: grid-template-columns;
@@ -1389,10 +1399,9 @@ export default function SocialPage() {
       )}
 
      {composerOpen && (
-   <div className="brane-composer-overlay fixed top-0 left-0 right-0 z-[9999] bg-[#050608] flex flex-col" style={{ height: '100dvh' }}>
-     <div className="flex-1 min-h-0 p-0 md:p-3">
-      <div className="h-full w-full md:rounded-[24px] overflow-hidden flex flex-col" style={{ animation: "blivreSlideIn 0.28s ease-out" }}>
-        <div className="flex items-center justify-between px-4 md:px-5 py-2.5 md:py-3 flex-shrink-0 bg-[#08060d]/95 border-b border-white/[0.04]">
+   <div className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-end md:items-center justify-center" style={{ animation: "braneFadeIn 0.2s ease" }}>
+     <div className="w-full max-w-md max-h-[90dvh] md:max-h-[85dvh] rounded-t-[24px] md:rounded-[24px] overflow-hidden flex flex-col bg-[#050608]" style={{ animation: "braneSlideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1)" }}>
+       <div className="flex items-center justify-between px-4 md:px-5 py-2.5 md:py-3 flex-shrink-0 bg-[#08060d]/95 border-b border-white/[0.04]">
           <div className="flex items-center gap-2 md:gap-3">
             <div className="w-7 h-7 md:w-8 md:h-8 rounded-xl overflow-hidden ring-1 ring-[#D4A24C]/30">
               <img src="/logo-belivre.png" alt="B Livre" className="w-full h-full object-cover" />
@@ -1738,7 +1747,6 @@ export default function SocialPage() {
         </div>
       )}
     </div>
-  </div>
   </div>
 )}
 
