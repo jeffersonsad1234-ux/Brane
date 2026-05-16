@@ -949,6 +949,9 @@ body[data-card-shape="minimal"] .theme-product-card:hover {
   transition: all 0.15s ease;
   cursor: pointer;
   min-width: 48px;
+  max-width: 72px;
+  overflow: hidden;
+  white-space: nowrap;
 }
 .brane-bottom-nav button:active {
   transform: scale(0.92);
