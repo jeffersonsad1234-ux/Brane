@@ -2273,11 +2273,13 @@ export default function SocialPage() {
                     </div>
 
                     <div className="mt-5 pt-4 border-t border-[#1E2230]">
-                      <p className="text-sm leading-relaxed text-[#A6A8B3] whitespace-pre-wrap">
-                        {selectedPost.enhanced_description || selectedPost.description || "Sem descrição disponível."}
-                      </p>
+                      {(selectedPost.enhanced_description || selectedPost.description) && (
+                        <p className="text-sm leading-relaxed text-[#A6A8B3] whitespace-pre-wrap">
+                          {selectedPost.enhanced_description || selectedPost.description}
+                        </p>
+                      )}
                       {selectedPost.marketing_text && (
-                        <div className="mt-4 pt-3 border-t border-[#1E2230]">
+                        <div className={selectedPost.enhanced_description || selectedPost.description ? "mt-4 pt-3 border-t border-[#1E2230]" : ""}>
                           {selectedPost.marketing_text.split("\n").map((line, i) => (
                             <p key={i} className="text-[13px] text-[#D4A24C] leading-relaxed">{line}</p>
                           ))}
