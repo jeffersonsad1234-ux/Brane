@@ -151,6 +151,8 @@ export default function SocialPage() {
 
   const [aiChatMessages, setAiChatMessages] = useState([]);
   const [aiStep, setAiStep] = useState('greeting');
+  const [contactInput, setContactInput] = useState("");
+  const [contactType, setContactType] = useState(null); // 'whatsapp' | 'phone' | null
   const [emojiCycle, setEmojiCycle] = useState(0);
   const [enhancedTitle, setEnhancedTitle] = useState("");
   const [enhancedDesc, setEnhancedDesc] = useState("");
@@ -679,6 +681,8 @@ export default function SocialPage() {
     setMobileEditInput("");
     setAiStep('greeting');
     setAiChatMessages([]);
+    setContactInput("");
+    setContactType(null);
     setEmojiCycle(0);
     setEnhancedTitle("");
     setEnhancedDesc("");
@@ -693,8 +697,39 @@ export default function SocialPage() {
 
   const handleAvailabilitySelect = (availability) => {
     setForm(prev => ({ ...prev, availability }));
-    setAiChatMessages(prev => [...prev, { role: 'assistant', text: 'Agora envie pelo menos uma foto do produto.' }]);
-    setAiStep('asking_photo');
+    setAiChatMessages(prev => [...prev, { role: 'assistant', text: 'Deseja adicionar número para contato?' }]);
+    setAiStep('asking_contact');
+  };
+
+  const handleContactChoice = (type) => {
+    if (type === 'skip') {
+      setAiChatMessages(prev => [...prev, { role: 'assistant', text: 'Agora envie pelo menos uma foto do produto.' }]);
+      setAiStep('asking_photo');
+      return;
+    }
+    setContactType(type);
+    const label = type === 'whatsapp' ? 'WhatsApp' : 'Chamada normal';
+    setAiChatMessages(prev => [...prev, {
+      role: 'assistant',
+      text: `Digite o número de ${label}:`
+    }]);
+    setAiStep('typing_contact');
+  };
+
+  const handleContactSubmit = () => {
+    const num = contactInput.trim();
+    if (!num) return;
+    if (contactType === 'whatsapp') {
+      setForm(prev => ({ ...prev, whatsapp: num }));
+    } else {
+      setForm(prev => ({ ...prev, phone: num }));
+    }
+    setContactInput("");
+    setAiChatMessages(prev => [...prev, { role: 'assistant', text: 'Número salvo ✅' }]);
+    setTimeout(() => {
+      setAiChatMessages(prev => [...prev, { role: 'assistant', text: 'Agora envie pelo menos uma foto do produto.' }]);
+      setAiStep('asking_photo');
+    }, 500);
   };
 
   useEffect(() => {
@@ -1747,6 +1782,41 @@ export default function SocialPage() {
                 </div>
               )}
 
+              {/* Step: asking contact */}
+              {aiStep === 'asking_contact' && (
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: 'WhatsApp', value: 'whatsapp' },
+                    { label: 'Chamada normal', value: 'phone' },
+                    { label: 'Continuar sem número', value: 'skip' },
+                  ].map(opt => (
+                    <button key={opt.value} onClick={() => handleContactChoice(opt.value)}
+                      className="px-5 py-3 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.3)]"
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Step: typing contact */}
+              {aiStep === 'typing_contact' && (
+                <div className="flex gap-2 items-center">
+                  <input
+                    value={contactInput}
+                    onChange={(e) => setContactInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleContactSubmit(); }}
+                    placeholder="Digite o número com DDD..."
+                    className="flex-1 h-12 rounded-2xl brane-input px-4 text-[14px]"
+                  />
+                  <button onClick={handleContactSubmit}
+                    className="shrink-0 h-12 px-4 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 transition-all"
+                  >
+                    OK
+                  </button>
+                </div>
+              )}
+
               {/* Step: asking photo */}
               {aiStep === 'asking_photo' && (
                 <div className="bg-white/[0.06] px-4 py-3 rounded-2xl text-[13px] text-[#C9CBD6]">
@@ -1777,6 +1847,12 @@ export default function SocialPage() {
                       <span className="inline-block px-3 py-1 rounded-full bg-[#8A2CFF]/10 text-[#B66DFF] text-[10px] font-bold">{form.productCondition}</span>
                     )}
                     {enhancedDesc && <p className="text-[12px] text-[#A6A8B3] leading-relaxed">{enhancedDesc}</p>}
+                    {(form.phone || form.whatsapp) && (
+                      <p className="text-[11px] text-[#25D366] font-medium flex items-center gap-1">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        Contato disponível
+                      </p>
+                    )}
                     {marketingLine && (
                       <p className="text-[11px] text-[#D4A24C] italic font-medium pt-1 border-t border-white/[0.06]">{marketingLine}</p>
                     )}
@@ -2221,27 +2297,36 @@ export default function SocialPage() {
                           </div>
                         )}
                         {!selectedPost.phone && !selectedPost.whatsapp && (
-                          <p className="text-sm text-[#6F7280]">Vendedor não disponibilizou contato.</p>
+                          <p className="text-sm text-[#6F7280]">Nenhum contato disponível.</p>
                         )}
                         <button onClick={() => setShowContactModal(null)} className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
                           Voltar
                         </button>
                       </div>
                     ) : (
-                      <div className="relative w-full">
-                        <input
-                          value={message}
-                          onChange={(e) => setMessage(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                          className="w-full h-11 rounded-2xl brane-input pr-12"
-                          placeholder="Esse anúncio ainda está disponível?"
-                        />
-                        <button
-                          onClick={sendMessage}
-                          className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
-                        >
-                          <Send size={14} />
-                        </button>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <input
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                            className="w-full h-11 rounded-2xl brane-input pr-12"
+                            placeholder="Esse anúncio ainda está disponível?"
+                          />
+                          <button
+                            onClick={sendMessage}
+                            className="absolute right-1 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
+                          >
+                            <Send size={14} />
+                          </button>
+                        </div>
+                        {(selectedPost.phone || selectedPost.whatsapp) && (
+                          <button onClick={() => setShowContactModal(getPostKey(selectedPost))}
+                            className="shrink-0 h-11 px-4 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[11px] font-black hover:brightness-110 transition-all shadow-[0_0_12px_rgba(212,162,76,0.2)]"
+                          >
+                            Ver contato
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
