@@ -1,5 +1,5 @@
 {
-  "name": "B Livre",
+  "name": "B Livre — Classificados Gratuitos",
   "short_name": "B Livre",
   "description": "B Livre — plataforma de classificados gratuitos. Anuncie, converse e venda.",
   "start_url": "/blivre",
@@ -9,8 +9,14 @@
   "theme_color": "#0A0A0C",
   "icons": [
     {
-      "src": "/brane-favicon-final-v2.png?v=2",
-      "sizes": "any",
+      "src": "/logo-belivre.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-belivre.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
