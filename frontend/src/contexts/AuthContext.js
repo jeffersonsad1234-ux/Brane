@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import axios from 'axios';
 
 const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app").trim();
@@ -93,12 +93,16 @@ export function AuthProvider({ children }) {
     return res.data;
   };
 
-  return (
-    <AuthContext.Provider value={{
-      user, token, loading, login, register, logout,
+  const value = useMemo(() => ({
+    user, token, loading, login, register, logout,
+    loginWithGoogle, exchangeSession, switchRole,
+    getHeaders, API, setUser, setToken
+  }), [user, token, loading, login, register, logout,
       loginWithGoogle, exchangeSession, switchRole,
-      getHeaders, API, setUser, setToken
-    }}>
+      getHeaders, API, setUser, setToken]);
+
+  return (
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

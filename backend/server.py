@@ -17,6 +17,7 @@ from datetime import datetime, timezone, timedelta
 import json
 from passlib.context import CryptContext
 from jose import jwt, JWTError
+import httpx
 import asyncio
 import resend
 
@@ -504,12 +505,13 @@ async def exchange_session(request: Request):
         raise HTTPException(status_code=400, detail="session_id required")
     # REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
     try:
-        resp = http_requests.get(
-            "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
-            headers={"X-Session-ID": session_id}, timeout=10
-        )
-        resp.raise_for_status()
-        auth_data = resp.json()
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(
+                "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
+                headers={"X-Session-ID": session_id}
+            )
+            resp.raise_for_status()
+            auth_data = resp.json()
     except Exception as e:
         logger.error(f"Auth exchange failed: {e}")
         raise HTTPException(status_code=401, detail="Autenticacao falhou")
@@ -741,8 +743,15 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
             return {"posts": [], "total": 0, "page": page}
 
         posts = []
+        seller_ids = list(set(p.get("seller_id") for p in products if p.get("seller_id")))
+        if seller_ids:
+            sellers_cursor = db.users.find({"user_id": {"$in": seller_ids}}, {"_id": 0, "name": 1, "picture": 1, "avatar": 1})
+            sellers_map = {s["user_id"]: s for s in await sellers_cursor.to_list(len(seller_ids))}
+        else:
+            sellers_map = {}
+
         for p in products:
-            seller = await db.users.find_one({"user_id": p.get("seller_id")}, {"_id": 0, "name": 1, "picture": 1, "avatar": 1})
+            seller = sellers_map.get(p.get("seller_id"))
             images_list = p.get("images") or ([p["image"]] if p.get("image") else [])
             image_json = json.dumps(images_list) if images_list else ""
             condition = p.get("condition", "Novo")
@@ -920,25 +929,6 @@ async def get_favorites(request: Request):
 # =========================
 # VISUALIZAÇÕES
 # =========================
-
-@api_router.put("/social/profile")
-async def update_profile(data: dict, request: Request):
-    user = await get_current_user(request)
-
-    await db.users.update_one(
-        {"user_id": user["user_id"]},
-        {"$set": {
-            "name": data.get("name", ""),
-            "city": data.get("city", ""),
-            "state": data.get("state", ""),
-            "avatar": data.get("avatar", "")
-        }},
-        upsert=True
-    )
-
-    return {"ok": True}
-
-
 # =========================
 # INTERESSE
 # =========================
@@ -1252,6 +1242,9 @@ def compress_base64_image(image_data: str) -> str:
 
     except Exception:
         return image_data
+
+async def compress_base64_image_async(image_data: str) -> str:
+    return await asyncio.to_thread(compress_base64_image, image_data)
 @api_router.post("/products")
 async def create_product(data: ProductCreate, request: Request):
     user = await require_seller(request)
@@ -1262,8 +1255,8 @@ async def create_product(data: ProductCreate, request: Request):
         "product_id": product_id, "title": data.title, "description": data.description,
         "price": data.price, "category": data.category, "city": data.city or "",
         "location": data.location or "",
-"image": compress_base64_image(data.images[0]) if data.images else "",
-"images": [compress_base64_image(img) for img in data.images] if data.images else [],
+"image": await compress_base64_image_async(data.images[0]) if data.images else "",
+"images": [await compress_base64_image_async(img) for img in data.images] if data.images else [],
 "product_type": data.product_type or "store",
         "condition": data.condition or "new",
         "seller_id": user["user_id"], "seller_name": user["name"],
@@ -1318,9 +1311,7 @@ async def delete_product(product_id: str, request: Request):
             detail="Sem permissao"
         )
 
-    await db.products.delete_many({
-        "seller_id": "JXTRHT"
-    })
+    await db.products.delete_one({"product_id": product_id, "seller_id": user["user_id"]})
 
     return {"message": "Produto removido"}
 
@@ -2226,9 +2217,13 @@ async def list_desapega_products(skip: int = 0, limit: int = 20):
         {"product_type": {"$in": ["unique", "secondhand"]}, "is_deleted": {"$ne": True}},
         {"_id": 0}
     ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    for p in products:
-        seller = await db.users.find_one({"user_id": p["seller_id"]}, {"_id": 0, "password_hash": 0})
-        p["seller_name"] = seller["name"] if seller else "Vendedor"
+    if products:
+        seller_ids = list(set(p["seller_id"] for p in products))
+        sellers_cursor = db.users.find({"user_id": {"$in": seller_ids}}, {"_id": 0, "name": 1})
+        sellers_map = {s["user_id"]: s for s in await sellers_cursor.to_list(len(seller_ids))}
+        for p in products:
+            seller = sellers_map.get(p["seller_id"])
+            p["seller_name"] = seller["name"] if seller else "Vendedor"
     return {"products": products, "total": await db.products.count_documents({"product_type": {"$in": ["unique", "secondhand"]}, "is_deleted": {"$ne": True}})}
 
 # ==================== SUPPORT CHAT ====================
@@ -4125,28 +4120,6 @@ app.add_middleware(
 
 app.include_router(api_router)
 
-@app.get("/api/social/profile")
-async def get_social_profile_test():
-    return {"status": "ok"}
-    
-@app.put("/api/social/profile")
-async def update_social_profile_direct(data: dict, request: Request):
-    user = await get_current_user(request)
-
-    await db.users.update_one(
-        {"user_id": user["user_id"]},
-        {"$set": {
-            "user_id": user["user_id"],
-            "name": data.get("name", ""),
-            "city": data.get("city", ""),
-            "state": data.get("state", ""),
-            "avatar": data.get("avatar", "")
-        }},
-        upsert=True
-    )
-
-    return {"ok": True}
-
 @app.on_event("startup")
 async def startup():
     try:
@@ -4185,11 +4158,67 @@ async def startup():
 
         # Database indexes for performance
         try:
+            # Social
             await db.social_posts.create_index([("created_at", -1)])
             await db.social_posts.create_index([("user_id", 1)])
             await db.social_messages.create_index([("post_id", 1), ("created_at", -1)])
             await db.social_messages.create_index([("receiver_id", 1)])
             await db.notifications.create_index([("user_id", 1), ("created_at", -1)])
+            await db.social_favorites.create_index([("user_id", 1), ("post_id", 1)])
+            await db.social_views.create_index([("post_id", 1)])
+            await db.social_interests.create_index([("post_id", 1)])
+            await db.social_comments.create_index([("post_id", 1), ("created_at", 1)])
+
+            # Products
+            await db.products.create_index([("status", 1), ("is_deleted", 1), ("created_at", -1)])
+            await db.products.create_index([("seller_id", 1), ("created_at", -1)])
+            await db.products.create_index([("category", 1), ("status", 1), ("created_at", -1)])
+            await db.products.create_index([("product_type", 1), ("is_deleted", 1), ("created_at", -1)])
+
+            # Orders
+            await db.orders.create_index([("buyer_id", 1), ("created_at", -1)])
+            await db.orders.create_index([("items.seller_id", 1), ("created_at", -1)])
+            await db.orders.create_index([("status", 1), ("created_at", -1)])
+
+            # Users
+            await db.users.create_index([("email", 1)], unique=True)
+            await db.users.create_index([("user_id", 1)])
+
+            # Direct messages
+            await db.direct_messages.create_index([("thread_id", 1), ("created_at", 1)])
+            await db.direct_messages.create_index([("sender_id", 1)])
+            await db.direct_messages.create_index([("recipient_id", 1)])
+
+            # Store messages
+            await db.store_messages.create_index([("store_id", 1), ("created_at", -1)])
+            await db.store_messages.create_index([("store_id", 1), ("sender_id", 1), ("read", 1)])
+
+            # Support messages
+            await db.support_messages.create_index([("user_id", 1), ("created_at", -1)])
+            await db.support_messages.create_index([("status", 1), ("created_at", -1)])
+
+            # Stores
+            await db.stores.create_index([("owner_id", 1)])
+            await db.stores.create_index([("store_id", 1)])
+            await db.stores.create_index([("slug", 1)])
+
+            # Wallet
+            await db.wallets.create_index([("user_id", 1)])
+            await db.wallet_transactions.create_index([("user_id", 1), ("created_at", -1)])
+
+            # Cart
+            await db.cart_items.create_index([("user_id", 1)])
+
+            # Ads
+            await db.ads.create_index([("active", 1), ("position", 1), ("created_at", -1)])
+
+            # Sessions
+            await db.user_sessions.create_index([("session_token", 1)])
+
+            # Affiliates
+            await db.affiliate_links.create_index([("affiliate_id", 1)])
+            await db.affiliate_links.create_index([("code", 1)])
+
             logger.info("Database indexes ensured")
         except Exception as e:
             logger.error(f"Index creation failed: {e}")
