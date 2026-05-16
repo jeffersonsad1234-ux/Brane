@@ -788,20 +788,9 @@ export default function SocialPage() {
     if (parsedCity) updateForm("city", parsedCity);
     if (parsedState) updateForm("state", parsedState);
 
-    // Step 3: extract title (first part before price)
-    const titleParts = [];
-    const descParts = [];
-    for (let i = 0; i < parts.length; i++) {
-      if (i === priceIdx || i === cityIdx) continue;
-      if (i < priceIdx || (priceIdx < 0 && i < cityIdx)) {
-        titleParts.push(parts[i]);
-      } else {
-        descParts.push(parts[i]);
-      }
-    }
-
-    if (titleParts.length > 0) {
-      updateForm("title", titleParts.join(", "));
+    // Step 3: title = first part, description = everything else not price/city
+    if (parts.length > 0) {
+      updateForm("title", parts[0]);
     }
 
     // Category detection
@@ -813,19 +802,14 @@ export default function SocialPage() {
       }
     }
 
-    // Description = whatever is left after title and known fields
-    const knownFields = [priceIdx, cityIdx].filter(i => i >= 0);
-    const descParts2 = [];
-    for (let i = 0; i < parts.length; i++) {
-      if (knownFields.includes(i)) continue;
-      // Skip if it's part of the title (before price)
-      if (priceIdx >= 0 && i < priceIdx) continue;
-      // Skip if it's part of the title (before city when no price)
-      if (priceIdx < 0 && cityIdx >= 0 && i < cityIdx) continue;
-      descParts2.push(parts[i]);
+    const knownIdx = new Set([0, priceIdx, cityIdx].filter(i => i >= 0 && i !== 0));
+    const descParts = [];
+    for (let i = 1; i < parts.length; i++) {
+      if (knownIdx.has(i)) continue;
+      descParts.push(parts[i]);
     }
-    if (descParts2.length > 0) {
-      updateForm("description", descParts2.join(", "));
+    if (descParts.length > 0) {
+      updateForm("description", descParts.join(", "));
     }
 
     setAiFilled(true);
