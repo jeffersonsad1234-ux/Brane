@@ -110,6 +110,8 @@ class SocialPostCreate(BaseModel):
     availability: Optional[str] = None
     phone: Optional[str] = None
     whatsapp: Optional[str] = None
+    enhanced_title: Optional[str] = None
+    marketing_text: Optional[str] = None
 
 class SocialCommentCreate(BaseModel):
     content: str
@@ -675,7 +677,9 @@ async def create_social_post(data: SocialPostCreate, request: Request):
         "description": data.description or "",
         "availability": data.availability or "Item único",
         "phone": data.phone or "",
-        "whatsapp": data.whatsapp or ""
+        "whatsapp": data.whatsapp or "",
+        "enhanced_title": data.enhanced_title or "",
+        "marketing_text": data.marketing_text or ""
     }
     await db.social_posts.insert_one(post)
     return {k: v for k, v in post.items() if k != "_id"}
@@ -688,10 +692,10 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
     skip = (page - 1) * limit
     posts = await db.social_posts.find(
         query,
-        {"_id": 0, "post_id": 1, "user_id": 1, "user_name": 1, "user_picture": 1,
-         "content": 1, "image": 1, "title": 1, "price": 1, "city": 1, "state": 1,
-         "category": 1, "product_condition": 1, "description": 1, "availability": 1,
-         "phone": 1, "whatsapp": 1, "created_at": 1}
+         {"_id": 0, "post_id": 1, "user_id": 1, "user_name": 1, "user_picture": 1,
+          "content": 1, "image": 1, "title": 1, "price": 1, "city": 1, "state": 1,
+          "category": 1, "product_condition": 1, "description": 1, "availability": 1,
+          "phone": 1, "whatsapp": 1, "enhanced_title": 1, "marketing_text": 1, "created_at": 1}
     ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     total = await db.social_posts.count_documents(query)
 

@@ -281,7 +281,7 @@ export default function SocialPage() {
   const getCoverImage = (post) => getPostImages(post)[0] || "";
 
   const getPostLines = (post) => String(post.content || "").split("\n").filter(Boolean);
-  const getTitle = (post) => getPostLines(post)[0] || post.title || "Produto anunciado";
+  const getTitle = (post) => post.enhanced_title || getPostLines(post)[0] || post.title || "Produto anunciado";
   const getPrice = (post) => getPostLines(post).find((line) => line.includes("R$")) || (post.price ? "R$ " + post.price : "R$ consultar");
 
   const getCondition = (post) => {
@@ -937,10 +937,11 @@ export default function SocialPage() {
     try {
       setPosting(true);
 
+      const markSuffix = marketingLine ? "\n" + marketingLine : "";
       await axios.post(
         API + "/social/posts",
         {
-          content: buildContent(sourceForm),
+          content: buildContent(sourceForm) + markSuffix,
           image: JSON.stringify(sourceImages),
           category: sourceForm.category,
           title: sourceForm.title,
@@ -951,7 +952,9 @@ export default function SocialPage() {
           description: sourceForm.description,
           availability: sourceForm.availability,
           phone: sourceForm.phone || "",
-          whatsapp: sourceForm.whatsapp || ""
+          whatsapp: sourceForm.whatsapp || "",
+          enhanced_title: enhancedTitle || "",
+          marketing_text: marketingLine || ""
         },
         { headers: authHeaders }
       );
@@ -2252,7 +2255,57 @@ export default function SocialPage() {
                       <p className="text-sm leading-relaxed text-[#A6A8B3] whitespace-pre-wrap">
                         {selectedPost.description || "Sem descrição disponível."}
                       </p>
+                      {selectedPost.marketing_text && (
+                        <p className="text-[11px] text-[#D4A24C] italic font-medium mt-3">{selectedPost.marketing_text}</p>
+                      )}
                     </div>
+
+                    {(selectedPost.phone || selectedPost.whatsapp) && (
+                      <div className="mt-4">
+                        {showContactModal === getPostKey(selectedPost) ? (
+                          <div className="space-y-2">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-[#8C8F9A]">Contato do vendedor</p>
+                            {selectedPost.phone && (
+                              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 p-3">
+                                <Phone size={16} className="text-[#D4A24C]" />
+                                <span className="flex-1 text-sm text-white">{selectedPost.phone}</span>
+                                <div className="flex gap-1">
+                                  <button onClick={() => navigator.clipboard.writeText(selectedPost.phone)} className="p-2 rounded-xl bg-white/[0.06] text-[#C9CBD6] hover:bg-white/[0.1]" title="Copiar">
+                                    <Copy size={14} />
+                                  </button>
+                                  <button onClick={() => window.location.href = "tel:" + selectedPost.phone} className="p-2 rounded-xl bg-white/[0.06] text-[#C9CBD6] hover:bg-white/[0.1]" title="Ligar">
+                                    <Phone size={14} />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            {selectedPost.whatsapp && (
+                              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-black/30 p-3">
+                                <MessageSquare size={16} className="text-[#25D366]" />
+                                <span className="flex-1 text-sm text-white">{selectedPost.whatsapp}</span>
+                                <div className="flex gap-1">
+                                  <button onClick={() => navigator.clipboard.writeText(selectedPost.whatsapp)} className="p-2 rounded-xl bg-white/[0.06] text-[#C9CBD6] hover:bg-white/[0.1]" title="Copiar">
+                                    <Copy size={14} />
+                                  </button>
+                                  <button onClick={() => window.open("https://wa.me/" + selectedPost.whatsapp.replace(/\D/g, ""), "_blank")} className="p-2 rounded-xl bg-white/[0.06] text-[#25D366] hover:bg-white/[0.1]" title="WhatsApp">
+                                    <MessageSquare size={14} />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            <button onClick={() => setShowContactModal(null)} className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
+                              Voltar
+                            </button>
+                          </div>
+                        ) : (
+                          <button onClick={() => setShowContactModal(getPostKey(selectedPost))}
+                            className="w-full h-11 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[12px] font-black hover:brightness-110 transition-all shadow-[0_0_12px rgba(212,162,76,0.2)]"
+                          >
+                            Ver contato
+                          </button>
+                        )}
+                      </div>
+                    )}
 
                     {selectedPost.seller_name && (
                       <div className="mt-4 pt-4 border-t border-[#1E2230] flex items-center gap-3">
@@ -2325,13 +2378,6 @@ export default function SocialPage() {
                             <Send size={14} />
                           </button>
                         </div>
-                        {(selectedPost.phone || selectedPost.whatsapp) && (
-                          <button onClick={() => setShowContactModal(getPostKey(selectedPost))}
-                            className="shrink-0 h-11 px-4 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[11px] font-black hover:brightness-110 transition-all shadow-[0_0_12px_rgba(212,162,76,0.2)]"
-                          >
-                            Ver contato
-                          </button>
-                        )}
                       </div>
                     )}
                   </div>
