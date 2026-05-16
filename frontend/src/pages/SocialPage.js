@@ -1002,7 +1002,8 @@ export default function SocialPage() {
 
     } catch (error) {
       console.error(error);
-      alert("Erro ao anunciar.");
+      const detail = error?.response?.data?.detail || error?.message || "";
+      alert(detail || "Erro ao anunciar.");
       return false;
     } finally {
       setPosting(false);
@@ -2066,8 +2067,9 @@ export default function SocialPage() {
                   whatsapp: ad.whatsapp || ""
                 };
                 setForm(nextForm);
+                setEnhancedTitle(ad.title || "");
+                setMarketingLine(ad.marketing_text || "");
 
-                // Use the already-resized images from SocialPage state (fileToBase64 900px)
                 const nextImages = (images || []).filter(Boolean).slice(0, 5);
                 if (nextImages.length > 0) setImages(nextImages);
 
@@ -2075,6 +2077,8 @@ export default function SocialPage() {
                 if (ok) {
                   setComposerOpen(false);
                   setGeneratedAd(null);
+                  setEnhancedTitle("");
+                  setMarketingLine("");
                 }
                 return ok;
               }}

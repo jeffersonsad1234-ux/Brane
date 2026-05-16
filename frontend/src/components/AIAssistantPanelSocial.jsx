@@ -185,8 +185,8 @@ const parseInput = (text) => {
 };
 
 /* ─── Improvement data ─── */
-const TITLE_PREFIXES = ["", "✨ ", "📱 ", "💎 ", "🚀 ", "⭐ ", "🎯 ", "📌 ", "🔖 "];
-const DESC_APPENDS = [
+const TITLE_PREFIXES = ["✨ ", "📱 ", "💎 ", "🚀 ", "⭐ ", "🎯 ", "📌 ", "🔖 "];
+const MARKETING_TEXTS = [
   "✨ Produto bem conservado, pronto para uso",
   "👍 Não perca essa oportunidade",
   "🔥 Entre em contato e garanta o seu",
@@ -464,6 +464,9 @@ function PreviewCard({ ad, images }) {
         {p.description && (
           <p className="text-[11px] text-[#A6A8B3] leading-relaxed line-clamp-3">{p.description}</p>
         )}
+        {p.marketing_text && (
+          <p className="text-[10px] text-[#D4A24C] leading-relaxed">{p.marketing_text}</p>
+        )}
       </div>
     </div>
   );
@@ -489,6 +492,7 @@ export default function AIAssistantPanelSocial({
   const [contactPhone, setContactPhone] = useState("");
   const [contactWhatsapp, setContactWhatsapp] = useState("");
   const [improveCount, setImproveCount] = useState(0);
+  const [marketingText, setMarketingText] = useState("");
   const [publishing, setPublishing] = useState(false);
   const [publishError, setPublishError] = useState("");
 
@@ -497,6 +501,7 @@ export default function AIAssistantPanelSocial({
   const mobileEndRef = useRef(null);
   const initialized = useRef(false);
   const originalDescRef = useRef("");
+  const initialImproved = useRef(false);
 
   const ad = generatedAd || localAd;
   const hasAd = safe(ad.title) || safe(ad.price);
@@ -527,8 +532,19 @@ export default function AIAssistantPanelSocial({
     setBraneState("working");
     await new Promise((r) => setTimeout(r, 1800));
     const parsed = parseInput(text);
-    setLocalAd(parsed);
     originalDescRef.current = safe(parsed.description);
+
+    // Auto-apply first improvement: emoji in title + marketing text
+    const prefix = TITLE_PREFIXES[0];
+    const rawTitle = safe(parsed.title).replace(/^vendo\s+/i, "").replace(/^[✨📱💎🚀⭐🎯📌🔖]\s*/, "");
+    const newTitle = `${prefix}${rawTitle}`;
+    const mkt = MARKETING_TEXTS[0];
+    const improved = { ...parsed, title: newTitle, marketing_text: mkt };
+    setLocalAd(improved);
+    setMarketingText(mkt);
+    setImproveCount(1);
+    initialImproved.current = true;
+
     setBraneState("idle");
     setStep(1);
   };
@@ -588,14 +604,13 @@ export default function AIAssistantPanelSocial({
     const prefixIdx = improveCount % TITLE_PREFIXES.length;
     const prefix = TITLE_PREFIXES[prefixIdx];
     const rawTitle = safe(ad.title).replace(/^vendo\s+/i, "").replace(/^[✨📱💎🚀⭐🎯📌🔖]\s*/, "");
-    const newTitle = prefix ? `${prefix}${rawTitle}` : rawTitle;
-    const appendIdx = improveCount % DESC_APPENDS.length;
-    const suffix = DESC_APPENDS[appendIdx];
-    const base = originalDescRef.current || safe(ad.description);
-    const newDesc = base ? `${base} ${suffix}` : suffix;
+    const newTitle = `${prefix}${rawTitle}`;
+    const mktIdx = improveCount % MARKETING_TEXTS.length;
+    const newMkt = MARKETING_TEXTS[mktIdx];
     setImproveCount((c) => c + 1);
-    const improved = { ...ad, title: newTitle, description: newDesc };
+    const improved = { ...ad, title: newTitle, description: originalDescRef.current || safe(ad.description), marketing_text: newMkt };
     setLocalAd(improved);
+    setMarketingText(newMkt);
     onImproveAd(improved);
     onFillForm(improved);
     setBraneState("idle");
@@ -607,7 +622,12 @@ export default function AIAssistantPanelSocial({
     setPublishing(true);
     setPublishError("");
     try {
-      const ok = await onPublishAd({ ...ad, photos: photoPreviews });
+      const payload = {
+        ...ad,
+        marketing_text: ad.marketing_text || marketingText || "",
+        photos: photoPreviews
+      };
+      const ok = await onPublishAd(payload);
       if (ok) {
         setBraneState("success");
       } else {
@@ -630,6 +650,7 @@ export default function AIAssistantPanelSocial({
     setPhotoPreviews([]); setContactPhone(""); setContactWhatsapp("");
     setBraneState("idle"); setMessages([]);
     initialized.current = false; originalDescRef.current = "";
+    initialImproved.current = false; setMarketingText("");
     onGenerateNew();
   };
 
@@ -651,7 +672,9 @@ export default function AIAssistantPanelSocial({
                 </div>
               ))}
             <div className="flex gap-2 mt-2">
-              <button type="button" onClick={handleReviewContinue} className="flex-1 brane-btn-gold py-2 text-xs font-bold">✓ Continuar</button>
+              <button type="button" onClick={handleReviewContinue}
+                className="flex-1 py-2 text-xs font-bold rounded-xl text-[#161000]"
+                style={{ background: "linear-gradient(180deg, #F8E0A0, #EAC871, #C89A2E)" }}>✓ Continuar</button>
               <button type="button" onClick={handleRetype} className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-2 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">Redigitar</button>
             </div>
           </div>
@@ -702,7 +725,9 @@ export default function AIAssistantPanelSocial({
                 placeholder="WhatsApp" className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-[#6F7280]" />
             </div>
             <div className="flex gap-2">
-              <button type="button" onClick={handleContactDone} className="flex-1 brane-btn-gold py-2 text-xs font-bold">✓ Confirmar</button>
+              <button type="button" onClick={handleContactDone}
+                className="flex-1 py-2 text-xs font-bold rounded-xl text-[#161000]"
+                style={{ background: "linear-gradient(180deg, #F8E0A0, #EAC871, #C89A2E)" }}>✓ Confirmar</button>
               <button type="button" onClick={() => handleContactChoice("skip")}
                 className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">Pular</button>
             </div>
@@ -775,7 +800,8 @@ export default function AIAssistantPanelSocial({
                 placeholder={step === 0 ? "iPhone 12 Pro, R$1200, Belém Pará, em perfeito estado..." : "Digite para editar o anúncio..."}
                 className="h-10 flex-1 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 text-sm text-white outline-none focus:border-[#D4A24C]/40 focus:shadow-[0_0_12px_rgba(212,162,76,0.06)] placeholder:text-[#6F7280]" />
               <button type="button" onClick={handleSubmitInput} disabled={!safe(input)}
-                className="h-10 brane-btn-gold px-3.5 text-[12px] disabled:opacity-50">
+                className="h-10 px-3.5 text-[12px] font-bold rounded-xl disabled:opacity-50 text-[#161000]"
+                style={{ background: "linear-gradient(180deg, #F8E0A0, #EAC871, #C89A2E)" }}>
                 <Send size={15} />
               </button>
             </div>
@@ -798,7 +824,8 @@ export default function AIAssistantPanelSocial({
                     <Sparkles size={13} className="inline mr-1.5" />Melhorar anúncio
                   </button>
                   <button type="button" onClick={handlePublish} disabled={!ad || isGenerating || publishing}
-                    className="w-full brane-btn-gold py-2.5 text-xs font-bold disabled:opacity-50">
+                    className="w-full py-2.5 text-xs font-bold rounded-xl disabled:opacity-50 text-[#161000]"
+                    style={{ background: "linear-gradient(180deg, #F8E0A0, #EAC871, #C89A2E)" }}>
                     {publishing ? "⏳ Publicando..." : "Publicar agora"}
                   </button>
                   {publishError && (
