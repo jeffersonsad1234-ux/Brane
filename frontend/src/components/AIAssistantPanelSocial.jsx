@@ -585,7 +585,11 @@ export default function AIAssistantPanelSocial({
   const handlePhotoSelect = async (e) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
-    await onPhotoUpload(files);
+    try {
+      await onPhotoUpload(files);
+    } catch (err) {
+      console.error("[B Livre AI Panel] onPhotoUpload error:", err);
+    }
     const previews = await Promise.all(
       files.slice(0, 5).map((f) => new Promise((resolve) => {
         const r2 = new FileReader();

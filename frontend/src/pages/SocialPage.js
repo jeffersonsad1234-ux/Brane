@@ -958,27 +958,31 @@ export default function SocialPage() {
       setPosting(true);
 
       const markSuffix = marketingLine ? "\n" + marketingLine : "";
-      await axios.post(
-        API + "/social/posts",
-        {
-          content: buildContent(sourceForm) + markSuffix,
-          image: JSON.stringify(sourceImages),
-          category: sourceForm.category,
-          title: sourceForm.title,
-          price: sourceForm.price,
-          state: sourceForm.state,
-          city: sourceForm.city,
-          product_condition: sourceForm.productCondition,
-          description: sourceForm.description,
-          availability: sourceForm.availability,
-          phone: sourceForm.phone || "",
-          whatsapp: sourceForm.whatsapp || "",
-          enhanced_title: enhancedTitle || "",
-          enhanced_description: enhancedDesc || "",
-          marketing_text: marketingLine || ""
-        },
-        { headers: authHeaders }
-      );
+      const payload = {
+        content: buildContent(sourceForm) + markSuffix,
+        image: JSON.stringify(sourceImages),
+        category: sourceForm.category,
+        title: sourceForm.title,
+        price: sourceForm.price,
+        state: sourceForm.state,
+        city: sourceForm.city,
+        product_condition: sourceForm.productCondition,
+        description: sourceForm.description,
+        availability: sourceForm.availability,
+        phone: sourceForm.phone || "",
+        whatsapp: sourceForm.whatsapp || "",
+        enhanced_title: enhancedTitle || "",
+        enhanced_description: enhancedDesc || "",
+        marketing_text: marketingLine || ""
+      };
+      console.log("[B Livre Publish] URL:", API + "/social/posts");
+      console.log("[B Livre Publish] hasToken:", !!currentToken);
+      console.log("[B Livre Publish] payload keys:", Object.keys(payload).join(", "));
+      console.log("[B Livre Publish] images:", sourceImages.length, "total chars:", JSON.stringify(sourceImages).length);
+      await axios.post(API + "/social/posts", payload, {
+        headers: { ...authHeaders, "Content-Type": "application/json" },
+        timeout: 30000
+      });
 
       setForm({
         category: "",
@@ -1001,8 +1005,11 @@ export default function SocialPage() {
       return true;
 
     } catch (error) {
-      console.error(error);
-      const detail = error?.response?.data?.detail || error?.message || "";
+      console.error("[B Livre Publish Error] message:", error.message);
+      console.error("[B Livre Publish Error] code:", error.code);
+      console.error("[B Livre Publish Error] status:", error?.response?.status);
+      console.error("[B Livre Publish Error] data:", error?.response?.data);
+      const detail = error?.response?.data?.detail || error?.response?.data?.message || error?.message || "";
       alert(detail || "Erro ao anunciar.");
       return false;
     } finally {
@@ -1976,11 +1983,15 @@ export default function SocialPage() {
           <div className="hidden md:flex flex-1 min-h-0">
             <AIAssistantPanelSocial
               onPhotoUpload={async (files) => {
-                const fileList = Array.from(files || []);
-                const base64List = await Promise.all(
-                  fileList.slice(0, 5).map((file) => fileToBase64(file))
-                );
-                setImages(base64List);
+                try {
+                  const fileList = Array.from(files || []);
+                  const base64List = await Promise.all(
+                    fileList.slice(0, 5).map((file) => fileToBase64(file))
+                  );
+                  if (base64List.length > 0) setImages(base64List);
+                } catch (err) {
+                  console.error("[B Livre PhotoUpload Error]", err);
+                }
               }}
               onGenerateAd={(data) => {
                 const finalData = {
