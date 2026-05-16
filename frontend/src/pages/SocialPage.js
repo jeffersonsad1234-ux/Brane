@@ -1475,28 +1475,22 @@ export default function SocialPage() {
               )}
             </div>
 
-            {/* Input de texto + camera */}
+            {/* Input de texto */}
             <div className="flex-shrink-0 px-5 py-4 border-t border-white/[0.06] bg-[#050608]">
-              <div className="flex gap-2.5 items-center">
-                <div className="relative flex-1">
-                  <input
-                    value={mobileAiText}
-                    onChange={(e) => setMobileAiText(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === "Enter") handleAiFill(); }}
-                    className="w-full h-12 rounded-2xl brane-input pr-12 text-[14px]"
-                    placeholder="Digite os dados do anúncio..."
-                  />
-                  <button
-                    onClick={handleAiFill}
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
-                  >
-                    <Send size={14} />
-                  </button>
-                </div>
-                <label className="shrink-0 w-12 h-12 rounded-2xl border border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40 hover:text-[#D4A24C] transition-all">
-                  <Camera size={18} />
-                  <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
-                </label>
+              <div className="relative">
+                <input
+                  value={mobileAiText}
+                  onChange={(e) => setMobileAiText(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleAiFill(); }}
+                  className="w-full h-12 rounded-2xl brane-input pr-12 text-[14px]"
+                  placeholder="Digite os dados do anúncio..."
+                />
+                <button
+                  onClick={handleAiFill}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
+                >
+                  <Send size={14} />
+                </button>
               </div>
               {images.length > 0 && (
                 <div className="flex gap-2 mt-3">
@@ -1516,7 +1510,11 @@ export default function SocialPage() {
               {formError && (
                 <p className="text-[12px] text-red-400 font-medium text-center mb-2">{formError}</p>
               )}
-              <div className="flex gap-2.5">
+              <div className="flex gap-2.5 items-center">
+                <label className="shrink-0 w-12 h-12 rounded-2xl border border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40 hover:text-[#D4A24C] transition-all">
+                  <Camera size={18} />
+                  <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
+                </label>
                 <button
                   onClick={() => { setMobileAiText(""); setAiFilled(false); }}
                   className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
