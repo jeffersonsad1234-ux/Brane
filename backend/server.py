@@ -1047,12 +1047,17 @@ async def send_message(data: dict, request: Request):
 async def get_messages(request: Request, post_id: Optional[str] = None):
     user = await get_current_user(request)
 
-    base_query = {} if not post_id else {"post_id": post_id}
+    # When viewing a specific conversation, return ALL messages for that post
+    if post_id:
+        projection = {"_id": 0, "post_id": 1, "message": 1, "sender_id": 1,
+                      "sender_name": 1, "receiver_id": 1, "read_at": 1, "created_at": 1}
+        messages = await db.social_messages.find(
+            {"post_id": post_id}, projection
+        ).sort("created_at", -1).limit(200).to_list(200)
+        messages.reverse()
+        return {"messages": messages}
 
-    # Messages user sent
-    query_sent = {**base_query, "sender_id": user["user_id"]}
-
-    # Messages about user's posts/products (so they can see replies)
+    # Inbox view: messages user sent + messages about user's own posts
     my_post_ids = []
     my_posts = await db.social_posts.find(
         {"user_id": user["user_id"]},
@@ -1071,9 +1076,8 @@ async def get_messages(request: Request, post_id: Optional[str] = None):
     result = []
     seen = set()
 
-    # Fetch messages user sent (max 100 recent)
     sent = await db.social_messages.find(
-        query_sent, projection
+        {"sender_id": user["user_id"]}, projection
     ).sort("created_at", -1).limit(100).to_list(100)
     for m in sent:
         key = f"{m.get('post_id')}_{m.get('sender_id')}_{m.get('created_at')}"
@@ -1081,11 +1085,9 @@ async def get_messages(request: Request, post_id: Optional[str] = None):
             seen.add(key)
             result.append(m)
 
-    # Fetch messages about user's posts (from other people)
     if my_post_ids:
-        query_received = {"post_id": {"$in": my_post_ids}, **base_query}
         received = await db.social_messages.find(
-            query_received, projection
+            {"post_id": {"$in": my_post_ids}}, projection
         ).sort("created_at", -1).limit(100).to_list(100)
         for m in received:
             key = f"{m.get('post_id')}_{m.get('sender_id')}_{m.get('created_at')}"
