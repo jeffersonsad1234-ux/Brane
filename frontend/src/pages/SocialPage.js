@@ -1494,9 +1494,12 @@ export default function SocialPage() {
               )}
             </div>
 
-            {/* Botões de ação */}
-            {aiFilled && (
-              <div className="flex-shrink-0 px-4 py-3 border-t border-white/[0.06] bg-[#050608] flex gap-2">
+            {/* Botões de ação — sempre visíveis */}
+            <div className="flex-shrink-0 px-4 py-3 border-t border-white/[0.06] bg-[#050608]">
+              {formError && (
+                <p className="text-[11px] text-red-400 font-medium text-center mb-2">{formError}</p>
+              )}
+              <div className="flex gap-2">
                 <button
                   onClick={() => { setMobileAiText(""); setAiFilled(false); }}
                   className="flex-1 h-11 rounded-xl border border-white/10 bg-white/[0.04] text-[12px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
@@ -1511,7 +1514,10 @@ export default function SocialPage() {
                 </button>
                 <button
                   onClick={async () => {
-                    if (!form.productCondition) { setFormError("Selecione o estado do produto."); return; }
+                    if (!form.title.trim() || !form.price.trim() || !form.productCondition) {
+                      setFormError("Preencha título, preço e estado do produto.");
+                      return;
+                    }
                     setFormError("");
                     const ok = await createPost();
                     if (ok) { setComposerOpen(false); setAiFilled(false); setMobileAiText(""); }
@@ -1522,7 +1528,7 @@ export default function SocialPage() {
                   {posting ? "⏳ Publicando..." : "Publicar"}
                 </button>
               </div>
-            )}
+            </div>
           </div>
           {/* DESKTOP/TABLET: AI Assistant */}
           <div className="hidden md:flex flex-1 min-h-0">
