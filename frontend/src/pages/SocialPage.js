@@ -662,8 +662,7 @@ export default function SocialPage() {
 
   useEffect(() => {
     if (aiStep === 'asking_photo' && images.length > 0) {
-      setAiChatMessages(prev => [...prev, { role: 'assistant', text: '✅ Foto recebida! Aqui está a prévia do seu anúncio.' }]);
-      setTimeout(() => setAiStep('preview'), 300);
+      setAiStep('preview');
     }
   }, [images, aiStep]);
 
