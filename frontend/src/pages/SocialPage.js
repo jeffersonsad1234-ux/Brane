@@ -1118,6 +1118,34 @@ export default function SocialPage() {
             to { opacity: 1; transform: translateY(0) scale(1); }
           }
 
+          @keyframes braneFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+          }
+
+          @keyframes braneTilt {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-1.5deg); }
+            75% { transform: rotate(1.5deg); }
+          }
+
+          @keyframes braneBreathe {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.02); }
+          }
+
+          @keyframes braneArmLeft {
+            0%, 100% { transform: rotate(0deg); }
+            33% { transform: rotate(6deg); }
+            66% { transform: rotate(-3deg); }
+          }
+
+          @keyframes braneArmRight {
+            0%, 100% { transform: rotate(0deg); }
+            33% { transform: rotate(-6deg); }
+            66% { transform: rotate(3deg); }
+          }
+
           @media (max-width: 767px) {
             .brane-glass-mobile {
               background: rgba(5, 6, 8, 0.72) !important;
@@ -1466,11 +1494,61 @@ export default function SocialPage() {
                   </div>
                 </div>
               ) : (
-                <div className="brane-card-soft p-8 text-center">
-                  <Package size={44} className="mx-auto text-[#D4A24C] mb-4" />
-                  <p className="text-sm text-[#A6A8B3]">
-                Digite os dados do anúncio no campo abaixo e envie para preencher automaticamente.
-                  </p>
+                <div className="flex flex-col items-center justify-center h-full px-6 py-4">
+                  <svg viewBox="0 0 200 240" className="w-32 h-auto md:w-36" style={{ animation: "braneFloat 3s ease-in-out infinite" }}>
+                    <defs>
+                      <linearGradient id="skinGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#FCE4C8" />
+                        <stop offset="100%" stopColor="#F0CAA0" />
+                      </linearGradient>
+                      <linearGradient id="hairGrad" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#4A2810" />
+                        <stop offset="100%" stopColor="#2D1508" />
+                      </linearGradient>
+                      <linearGradient id="dressGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#D4A24C" />
+                        <stop offset="100%" stopColor="#B8862E" />
+                      </linearGradient>
+                      <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.15" />
+                        <stop offset="100%" stopColor="#D4A24C" stopOpacity="0" />
+                      </radialGradient>
+                    </defs>
+                    <circle cx="100" cy="140" r="50" fill="url(#glow)" />
+                    <g style={{ animation: "braneTilt 4s ease-in-out infinite" }}>
+                      <ellipse cx="100" cy="85" rx="32" ry="36" fill="url(#skinGrad)" />
+                      <ellipse cx="100" cy="85" rx="32" ry="36" fill="none" stroke="#E8B88A" strokeWidth="0.5" opacity="0.3" />
+                      <path d="M85 80 Q88 76 92 80" fill="none" stroke="#4A2810" strokeWidth="1.2" strokeLinecap="round" opacity="0.4" />
+                      <path d="M108 80 Q112 76 115 80" fill="none" stroke="#4A2810" strokeWidth="1.2" strokeLinecap="round" opacity="0.4" />
+                      <ellipse cx="92" cy="78" rx="3" ry="3.5" fill="#4A2810" opacity="0.8" />
+                      <ellipse cx="108" cy="78" rx="3" ry="3.5" fill="#4A2810" opacity="0.8" />
+                      <path d="M95 95 Q100 100 105 95" fill="none" stroke="#D4737A" strokeWidth="1.5" strokeLinecap="round" />
+                      <path d="M68 85 Q60 60 65 50 Q70 38 90 42" fill="url(#hairGrad)" opacity="0.9" />
+                      <path d="M132 85 Q140 60 135 50 Q130 38 110 42" fill="url(#hairGrad)" opacity="0.9" />
+                      <path d="M72 70 Q60 45 70 35 Q80 22 100 30 Q120 22 130 35 Q140 45 128 70" fill="url(#hairGrad)" opacity="0.7" />
+                      <path d="M125 55 Q135 50 138 65 Q140 75 132 85" fill="url(#hairGrad)" opacity="0.6" />
+                    </g>
+                    <g style={{ animation: "braneBreathe 3s ease-in-out infinite" }}>
+                      <path d="M100 120 Q70 125 65 150 L60 200 L140 200 L135 150 Q130 125 100 120Z" fill="url(#dressGrad)" />
+                      <path d="M100 120 Q70 125 65 150" fill="none" stroke="#C99A3E" strokeWidth="0.5" opacity="0.3" />
+                      <path d="M65 150 L55 170 L60 173 L68 152" fill="#C99A3E" opacity="0.2" />
+                      <path d="M135 150 L145 170 L140 173 L132 152" fill="#C99A3E" opacity="0.2" />
+                    </g>
+                    <g style={{ animation: "braneArmLeft 5s ease-in-out infinite", transformOrigin: "65px 135px" }}>
+                      <path d="M65 130 L45 145 L40 155" fill="none" stroke="url(#skinGrad)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+                    </g>
+                    <g style={{ animation: "braneArmRight 5s ease-in-out infinite", transformOrigin: "135px 135px" }}>
+                      <path d="M135 130 L155 145 L158 155" fill="none" stroke="url(#skinGrad)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+                    </g>
+                  </svg>
+                  <div className="text-center mt-3">
+                    <p className="text-[13px] text-[#A6A8B3] leading-relaxed font-medium">
+                      Olá! 👋 Sou sua assistente virtual.
+                    </p>
+                    <p className="text-[12px] text-[#6F7280] mt-1">
+                      Digite os dados do seu anúncio no campo abaixo.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
