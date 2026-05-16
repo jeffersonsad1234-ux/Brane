@@ -7,6 +7,7 @@ import AnimatedBackground from "./components/AnimatedBackground";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FloatingSupport from "./components/FloatingSupport";
+import InstallPWA from "./components/InstallPWA";
 
 import HomePage from "./pages/HomePage";
 import SuppliersPage from "./pages/SuppliersPage";
@@ -341,6 +342,7 @@ function AppRouter() {
 
         {!isAdmin && !isSocial && <Footer />}
         {!isAdmin && !isSocial && <FloatingSupport />}
+        <InstallPWA />
       </div>
 
       <Toaster position="top-right" />

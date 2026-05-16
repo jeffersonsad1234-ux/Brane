@@ -1,17 +1,32 @@
 {
-  "name": "BRANE",
-  "short_name": "BRANE",
-  "description": "BRANE — marketplace completo. Compre e venda com segurança.",
+  "name": "B Livre — Classificados Gratuitos",
+  "short_name": "B Livre",
+  "description": "B Livre — plataforma de classificados gratuitos. Anuncie, converse e venda com segurança.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
   "background_color": "#050608",
   "theme_color": "#0A0A0C",
+  "categories": ["classifieds", "shopping", "lifestyle"],
+  "lang": "pt-BR",
+  "dir": "ltr",
   "icons": [
     {
-      "src": "/brane-favicon-final-v2.png?v=2",
-      "sizes": "any",
+      "src": "/logo-belivre.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-belivre.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false,
+  "related_applications": []
 }
