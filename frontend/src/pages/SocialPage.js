@@ -608,11 +608,14 @@ export default function SocialPage() {
     setTimeout(() => {
       setForm(currentForm => {
         if (currentForm.title && currentForm.price) {
-          setAiStep('parsed');
+          setAiChatMessages(prev => [...prev, {
+            role: 'assistant',
+            text: 'Ótimo, entendi.'
+          }]);
           setTimeout(() => {
             setAiChatMessages(prev => [...prev, {
               role: 'assistant',
-              text: `Ótimo! Entendi:\n📱 ${currentForm.title}\n💰 R$ ${currentForm.price}${currentForm.city ? `\n📍 ${currentForm.city}` : ''}${currentForm.description ? `\n📝 ${currentForm.description}` : ''}\n\nAgora, qual o estado do produto?`
+              text: 'Agora, qual o estado do produto?'
             }]);
             setAiStep('asking_condition');
           }, 600);
@@ -647,26 +650,14 @@ export default function SocialPage() {
 
   const handleConditionSelect = (condition) => {
     setForm(prev => ({ ...prev, productCondition: condition }));
-    setAiChatMessages(prev => [...prev, { role: 'assistant', text: `Estado: ${condition} ✓` }]);
-    setTimeout(() => {
-      setAiChatMessages(prev => [...prev, {
-        role: 'assistant',
-        text: 'Qual a disponibilidade?'
-      }]);
-      setAiStep('asking_availability');
-    }, 400);
+    setAiChatMessages(prev => [...prev, { role: 'assistant', text: `Perfeito. Qual a disponibilidade?` }]);
+    setAiStep('asking_availability');
   };
 
   const handleAvailabilitySelect = (availability) => {
     setForm(prev => ({ ...prev, availability }));
-    setAiChatMessages(prev => [...prev, { role: 'assistant', text: `Disponibilidade: ${availability} ✓` }]);
-    setTimeout(() => {
-      setAiChatMessages(prev => [...prev, {
-        role: 'assistant',
-        text: 'Envie pelo menos uma foto do produto.'
-      }]);
-      setAiStep('asking_photo');
-    }, 400);
+    setAiChatMessages(prev => [...prev, { role: 'assistant', text: 'Agora envie pelo menos uma foto do produto.' }]);
+    setAiStep('asking_photo');
   };
 
   useEffect(() => {
@@ -1699,27 +1690,16 @@ export default function SocialPage() {
                 </>
               )}
 
-              {/* Step: parsed data card */}
-              {aiStep === 'parsed' && form.title && (
-                <div className="bg-white/[0.04] rounded-2xl p-4 space-y-1.5 border border-white/[0.06]">
-                  <p className="text-[11px] text-[#D4A24C] font-bold uppercase tracking-wide">Dados interpretados</p>
-                  {form.title && <p className="text-sm font-bold text-white">📱 {form.title}</p>}
-                  {form.price && <p className="text-sm text-[#D4A24C] font-semibold">💰 R$ {form.price}</p>}
-                  {form.city && <p className="text-sm text-[#A6A8B3]">📍 {form.city}</p>}
-                  {form.description && <p className="text-sm text-[#A6A8B3]">📝 {form.description}</p>}
-                </div>
-              )}
-
               {/* Step: asking condition */}
               {aiStep === 'asking_condition' && (
                 <div className="space-y-3">
                   <div className="bg-white/[0.06] px-4 py-3 rounded-2xl text-[13px] text-[#C9CBD6]">
-                    Qual o estado do produto?
+                    Agora, qual o estado do produto?
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {conditionOptions.map(c => (
                       <button key={c} onClick={() => handleConditionSelect(c)}
-                        className="px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/10 text-[13px] font-medium text-[#C9CBD6] hover:bg-[#D4A24C]/20 hover:border-[#D4A24C]/30 hover:text-white transition-all"
+                        className="px-5 py-3 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.3)]"
                       >
                         {c}
                       </button>
@@ -1732,12 +1712,12 @@ export default function SocialPage() {
               {aiStep === 'asking_availability' && (
                 <div className="space-y-3">
                   <div className="bg-white/[0.06] px-4 py-3 rounded-2xl text-[13px] text-[#C9CBD6]">
-                    Qual a disponibilidade?
+                    Perfeito. Qual a disponibilidade?
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {availabilityOptions.map(a => (
                       <button key={a} onClick={() => handleAvailabilitySelect(a)}
-                        className="px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/10 text-[13px] font-medium text-[#C9CBD6] hover:bg-[#D4A24C]/20 hover:border-[#D4A24C]/30 hover:text-white transition-all"
+                        className="px-5 py-3 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.3)]"
                       >
                         {a}
                       </button>
