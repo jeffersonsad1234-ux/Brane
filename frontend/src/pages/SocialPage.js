@@ -3025,7 +3025,7 @@ export default function SocialPage() {
       {/* Mobile bottom navigation */}
       <nav className="brane-bottom-nav" style={composerOpen ? { display: 'none' } : {}}>
         {[
-          ["Início", Package, "all"],
+          ["Home", Package, "all"],
           ["Mensagens", MessageSquare, "messages"],
           ["Favoritos", Heart, "favorites"],
           ["Anúncios", User, "mine"],
