@@ -170,21 +170,41 @@ export default function SocialPage() {
     ["📍", "🔸"],
     ["💡", "▫️"],
   ];
-  const marketingLines = [
-    "Entre em contato e confira mais detalhes.",
-    "Produto disponível para negociação.",
-    "Chame no chat e tire suas dúvidas.",
-    "Aproveite essa oportunidade.",
-    "Fale com o vendedor para combinar.",
+  const marketingEmojis = ["✨", "🔥", "💬", "📞", "💎", "⚡", "🎯", "🏆", "👉", "💫"];
+  const marketingPhrases = [
+    "Aproveite essa oportunidade imperdível!",
+    "Atendimento rápido e facilitado.",
+    "Entre em contato para mais informações.",
+    "Disponível para negociação.",
+    "Não perca tempo, chame agora!",
+    "Qualidade e bom negócio esperam por você.",
+    "Oferta especial por tempo limitado.",
+    "Garanta já o seu produto!",
+    "Solicite mais fotos e detalhes.",
+    "Estoque limitado, aproveite!",
   ];
+
+  const generateMarketingText = (descLength, cycleOffset) => {
+    let count;
+    if (descLength < 50) count = 4;
+    else if (descLength < 150) count = 3;
+    else count = 2;
+    const start = cycleOffset % Math.max(1, marketingPhrases.length - count + 1);
+    const lines = [];
+    for (let i = 0; i < count; i++) {
+      const emoji = marketingEmojis[(cycleOffset + i) % marketingEmojis.length];
+      const phrase = marketingPhrases[(start + i) % marketingPhrases.length];
+      lines.push(`${emoji} ${phrase}`);
+    }
+    return lines.join("\n");
+  };
 
   const applyEnhancement = (cycle) => {
     const te = titleEmojiSets[cycle % titleEmojiSets.length];
     const de = descEmojiSets[cycle % descEmojiSets.length];
-    const ml = marketingLines[cycle % marketingLines.length];
     if (form.title) setEnhancedTitle(`${te[0]} ${form.title} ${te[1]}`);
     if (form.description) setEnhancedDesc(`${de[0]} ${form.description} ${de[1]}`);
-    setMarketingLine(ml);
+    setMarketingLine(generateMarketingText((form.description || "").length, cycle));
   };
 
   const conditionOptions = ["Novo", "Seminovo", "Usado", "Com defeito", "Recondicionado"];
@@ -736,12 +756,7 @@ export default function SocialPage() {
     if (aiStep === 'asking_photo' && images.length > 0) {
       setAiStep('preview');
       setEmojiCycle(0);
-      const te = titleEmojiSets[0];
-      const de = descEmojiSets[0];
-      const ml = marketingLines[0];
-      if (form.title) setEnhancedTitle(`${te[0]} ${form.title} ${te[1]}`);
-      if (form.description) setEnhancedDesc(`${de[0]} ${form.description} ${de[1]}`);
-      setMarketingLine(ml);
+      applyEnhancement(0);
     }
   }, [images, aiStep]);
 
@@ -954,6 +969,7 @@ export default function SocialPage() {
           phone: sourceForm.phone || "",
           whatsapp: sourceForm.whatsapp || "",
           enhanced_title: enhancedTitle || "",
+          enhanced_description: enhancedDesc || "",
           marketing_text: marketingLine || ""
         },
         { headers: authHeaders }
@@ -1862,7 +1878,11 @@ export default function SocialPage() {
                       </p>
                     )}
                     {marketingLine && (
-                      <p className="text-[11px] text-[#D4A24C] italic font-medium pt-1 border-t border-white/[0.06]">{marketingLine}</p>
+                      <div className="pt-2 border-t border-white/[0.06] space-y-0.5">
+                        {marketingLine.split("\n").map((line, i) => (
+                          <p key={i} className="text-[11px] text-[#D4A24C] leading-relaxed">{line}</p>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1915,12 +1935,7 @@ export default function SocialPage() {
                     onClick={() => {
                       const next = emojiCycle + 1;
                       setEmojiCycle(next);
-                      const te = titleEmojiSets[next % titleEmojiSets.length];
-                      const de = descEmojiSets[next % descEmojiSets.length];
-                      const ml = marketingLines[next % marketingLines.length];
-                      if (form.title) setEnhancedTitle(`${te[0]} ${form.title} ${te[1]}`);
-                      if (form.description) setEnhancedDesc(`${de[0]} ${form.description} ${de[1]}`);
-                      setMarketingLine(ml);
+                      applyEnhancement(next);
                     }}
                     className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
                   >
@@ -1940,7 +1955,7 @@ export default function SocialPage() {
                       }
                       setFormError("");
                       const ok = await createPost();
-                      if (ok) { setComposerOpen(false); setAiFilled(false); setMobileAiText(""); setAiChatMessages([]); setAiStep('greeting'); }
+                      if (ok) { setComposerOpen(false); setAiFilled(false); setMobileAiText(""); setAiChatMessages([]); setAiStep('greeting'); setEmojiCycle(0); setEnhancedTitle(""); setEnhancedDesc(""); setMarketingLine(""); setContactInput(""); setContactType(null); }
                     }}
                     disabled={posting || !form.title.trim() || !form.price.trim() || !(form.city.trim() || form.state.trim()) || !form.description.trim() || !form.productCondition || !form.availability || !form.category || images.length === 0}
                     className="flex-1 h-12 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(212,162,76,0.25)]"
@@ -2259,10 +2274,14 @@ export default function SocialPage() {
 
                     <div className="mt-5 pt-4 border-t border-[#1E2230]">
                       <p className="text-sm leading-relaxed text-[#A6A8B3] whitespace-pre-wrap">
-                        {selectedPost.description || "Sem descrição disponível."}
+                        {selectedPost.enhanced_description || selectedPost.description || "Sem descrição disponível."}
                       </p>
                       {selectedPost.marketing_text && (
-                        <p className="text-[11px] text-[#D4A24C] italic font-medium mt-3">{selectedPost.marketing_text}</p>
+                        <div className="mt-4 pt-3 border-t border-[#1E2230]">
+                          {selectedPost.marketing_text.split("\n").map((line, i) => (
+                            <p key={i} className="text-[13px] text-[#D4A24C] leading-relaxed">{line}</p>
+                          ))}
+                        </div>
                       )}
                     </div>
 
