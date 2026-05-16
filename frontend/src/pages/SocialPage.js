@@ -698,13 +698,17 @@ export default function SocialPage() {
       stateNameToUf[name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase()] = uf;
     }
 
-    const parts = text.split(",").map((s) => s.trim()).filter(Boolean);
+    // Protect Brazilian price commas before splitting by comma
+    const priceCommaReplacer = (match) => match.replace(",", "__PC__");
+    const textProtected = text.replace(/(?:R\$\s*)?\d{1,3}(?:\.\d{3})*,\d{2}/g, priceCommaReplacer);
+
+    const parts = textProtected.split(",").map((s) => s.trim()).filter(Boolean);
     if (!parts.length) return;
 
     // Step 1: find price — any part that is a number (with or without R$, commas/dots)
     let priceIdx = -1;
     for (let i = 0; i < parts.length; i++) {
-      const p = parts[i];
+      const p = parts[i].replace(/__PC__/g, ",");
       const stripped = p.replace(/^R\$\s*/i, "").trim();
       const digitsOnly = stripped.replace(/[^\d,]/g, "");
       const isPrice = digitsOnly.length >= 1 && digitsOnly.length <= 10 &&
@@ -719,7 +723,7 @@ export default function SocialPage() {
 
     let parsedPrice = "";
     if (priceIdx >= 0) {
-      const rawPrice = parts[priceIdx].replace(/^R\$\s*/i, "").trim();
+      const rawPrice = parts[priceIdx].replace(/__PC__/g, ",").replace(/^R\$\s*/i, "").trim();
       parsedPrice = rawPrice.replace(/\./g, "").replace(",", ".");
       updateForm("price", parsedPrice);
     }
