@@ -94,6 +94,7 @@ export default function SocialPage() {
   const scrollFrameRef = useRef(null);
   const expandedRef = useRef(false);
   const chatScrollRef = useRef(null);
+  const aiChatScrollRef = useRef(null);
   const userRef = useRef(null);
   userRef.current = currentUser;
 
@@ -148,6 +149,12 @@ export default function SocialPage() {
   const [showInstall, setShowInstall] = useState(false);
   const [formError, setFormError] = useState("");
 
+  const [aiChatMessages, setAiChatMessages] = useState([]);
+  const [aiStep, setAiStep] = useState('greeting');
+
+  const conditionOptions = ["Novo", "Seminovo", "Usado", "Com defeito", "Recondicionado"];
+  const availabilityOptions = ["Item único", "Tenho unidades", "Sob encomenda"];
+
   const [unreadCount, setUnreadCount] = useState(0);
   const notifIntervalRef = useRef(null);
 
@@ -177,6 +184,8 @@ export default function SocialPage() {
       setMobileAiText("");
       setMobileEditInput("");
       setShowMobileAiInput(false);
+      setAiStep('greeting');
+      setAiChatMessages([]);
     } else {
       document.body.classList.remove('ai-modal-open');
     }
@@ -587,9 +596,35 @@ export default function SocialPage() {
   const handleAiFill = () => {
     const text = mobileAiText.trim();
     if (!text) return;
+
+    setAiChatMessages(prev => [...prev, { role: 'user', text }]);
+
     runAiParse(text);
     setShowMobileAiInput(false);
     setMobileAiText("");
+
+    // Check if parsing produced essential data
+    // We check via setTimeout since form state updates are batched
+    setTimeout(() => {
+      setForm(currentForm => {
+        if (currentForm.title && currentForm.price) {
+          setAiStep('parsed');
+          setTimeout(() => {
+            setAiChatMessages(prev => [...prev, {
+              role: 'assistant',
+              text: `Ótimo! Entendi:\n📱 ${currentForm.title}\n💰 R$ ${currentForm.price}${currentForm.city ? `\n📍 ${currentForm.city}` : ''}${currentForm.description ? `\n📝 ${currentForm.description}` : ''}\n\nAgora, qual o estado do produto?`
+            }]);
+            setAiStep('asking_condition');
+          }, 600);
+        } else {
+          setAiChatMessages(prev => [...prev, {
+            role: 'assistant',
+            text: 'Não consegui interpretar. Tente no formato: "produto, R$ preço, cidade, descrição"'
+          }]);
+        }
+        return currentForm;
+      });
+    }, 50);
   };
 
   const handleFooterSend = () => {
@@ -606,7 +641,46 @@ export default function SocialPage() {
     setMobileShowForm(false);
     setMobileAiText("");
     setMobileEditInput("");
+    setAiStep('greeting');
+    setAiChatMessages([]);
   };
+
+  const handleConditionSelect = (condition) => {
+    setForm(prev => ({ ...prev, productCondition: condition }));
+    setAiChatMessages(prev => [...prev, { role: 'assistant', text: `Estado: ${condition} ✓` }]);
+    setTimeout(() => {
+      setAiChatMessages(prev => [...prev, {
+        role: 'assistant',
+        text: 'Qual a disponibilidade?'
+      }]);
+      setAiStep('asking_availability');
+    }, 400);
+  };
+
+  const handleAvailabilitySelect = (availability) => {
+    setForm(prev => ({ ...prev, availability }));
+    setAiChatMessages(prev => [...prev, { role: 'assistant', text: `Disponibilidade: ${availability} ✓` }]);
+    setTimeout(() => {
+      setAiChatMessages(prev => [...prev, {
+        role: 'assistant',
+        text: 'Envie pelo menos uma foto do produto.'
+      }]);
+      setAiStep('asking_photo');
+    }, 400);
+  };
+
+  useEffect(() => {
+    if (aiStep === 'asking_photo' && images.length > 0) {
+      setAiChatMessages(prev => [...prev, { role: 'assistant', text: '✅ Foto recebida! Aqui está a prévia do seu anúncio.' }]);
+      setTimeout(() => setAiStep('preview'), 300);
+    }
+  }, [images, aiStep]);
+
+  useEffect(() => {
+    if (aiChatScrollRef.current) {
+      aiChatScrollRef.current.scrollTop = aiChatScrollRef.current.scrollHeight;
+    }
+  }, [aiChatMessages, aiStep]);
 
   const runAiParse = (rawText) => {
     const text = rawText.trim();
@@ -1455,21 +1529,133 @@ export default function SocialPage() {
 
         {!editingPost ? (
         <>
-          {/* MOBILE: painel IA full screen */}
+          {/* MOBILE: painel IA em etapas */}
           <div className="flex md:hidden flex-col flex-1 overflow-hidden">
-            {/* Instrução */}
-            <div className="px-5 pt-4 pb-2">
-              <p className="text-[13px] text-[#8C8F9A] leading-relaxed">
-                Escreva os dados do seu anúncio separados por vírgula.
-              </p>
-              <p className="text-[12px] text-[#6F7280] mt-0.5">
-                Ex: iPhone 15, R$ 1200, Belém, perfeito estado
-              </p>
-            </div>
+            {/* Área de chat com assistente */}
+            <div ref={aiChatScrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+              {aiChatMessages.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full px-4">
+                  <svg viewBox="0 0 200 240" className="w-24 h-auto" style={{ animation: "braneFloat 3s ease-in-out infinite" }}>
+                    <defs>
+                      <linearGradient id="skinGradM" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#FCE4C8" />
+                        <stop offset="100%" stopColor="#F0CAA0" />
+                      </linearGradient>
+                      <linearGradient id="hairGradM" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0%" stopColor="#4A2810" />
+                        <stop offset="100%" stopColor="#2D1508" />
+                      </linearGradient>
+                      <linearGradient id="dressGradM" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#D4A24C" />
+                        <stop offset="100%" stopColor="#B8862E" />
+                      </linearGradient>
+                      <radialGradient id="glowM" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.15" />
+                        <stop offset="100%" stopColor="#D4A24C" stopOpacity="0" />
+                      </radialGradient>
+                    </defs>
+                    <circle cx="100" cy="140" r="50" fill="url(#glowM)" />
+                    <g style={{ animation: "braneTilt 4s ease-in-out infinite" }}>
+                      <ellipse cx="100" cy="85" rx="32" ry="36" fill="url(#skinGradM)" />
+                      <ellipse cx="100" cy="85" rx="32" ry="36" fill="none" stroke="#E8B88A" strokeWidth="0.5" opacity="0.3" />
+                      <path d="M85 80 Q88 76 92 80" fill="none" stroke="#4A2810" strokeWidth="1.2" strokeLinecap="round" opacity="0.4" />
+                      <path d="M108 80 Q112 76 115 80" fill="none" stroke="#4A2810" strokeWidth="1.2" strokeLinecap="round" opacity="0.4" />
+                      <ellipse cx="92" cy="78" rx="3" ry="3.5" fill="#4A2810" opacity="0.8" />
+                      <ellipse cx="108" cy="78" rx="3" ry="3.5" fill="#4A2810" opacity="0.8" />
+                      <path d="M95 95 Q100 100 105 95" fill="none" stroke="#D4737A" strokeWidth="1.5" strokeLinecap="round" />
+                      <path d="M68 85 Q60 60 65 50 Q70 38 90 42" fill="url(#hairGradM)" opacity="0.9" />
+                      <path d="M132 85 Q140 60 135 50 Q130 38 110 42" fill="url(#hairGradM)" opacity="0.9" />
+                      <path d="M72 70 Q60 45 70 35 Q80 22 100 30 Q120 22 130 35 Q140 45 128 70" fill="url(#hairGradM)" opacity="0.7" />
+                      <path d="M125 55 Q135 50 138 65 Q140 75 132 85" fill="url(#hairGradM)" opacity="0.6" />
+                    </g>
+                    <g style={{ animation: "braneBreathe 3s ease-in-out infinite" }}>
+                      <path d="M100 120 Q70 125 65 150 L60 200 L140 200 L135 150 Q130 125 100 120Z" fill="url(#dressGradM)" />
+                      <path d="M100 120 Q70 125 65 150" fill="none" stroke="#C99A3E" strokeWidth="0.5" opacity="0.3" />
+                      <path d="M65 150 L55 170 L60 173 L68 152" fill="#C99A3E" opacity="0.2" />
+                      <path d="M135 150 L145 170 L140 173 L132 152" fill="#C99A3E" opacity="0.2" />
+                    </g>
+                    <g style={{ animation: "braneArmLeft 5s ease-in-out infinite", transformOrigin: "65px 135px" }}>
+                      <path d="M65 130 L45 145 L40 155" fill="none" stroke="url(#skinGradM)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+                    </g>
+                    <g style={{ animation: "braneArmRight 5s ease-in-out infinite", transformOrigin: "135px 135px" }}>
+                      <path d="M135 130 L155 145 L158 155" fill="none" stroke="url(#skinGradM)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
+                    </g>
+                  </svg>
+                  <p className="text-[13px] text-[#A6A8B3] mt-3 font-medium">Olá! 👋 Sou sua assistente virtual.</p>
+                  <p className="text-[11px] text-[#6F7280] mt-1 text-center">Digite abaixo o nome, preço, cidade e descrição do seu anúncio.</p>
+                </div>
+              ) : (
+                <>
+                  {aiChatMessages.map((msg, i) => (
+                    <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[85%] px-4 py-2.5 text-[13px] leading-relaxed whitespace-pre-line ${
+                        msg.role === 'user'
+                          ? 'bg-[#D4A24C]/20 text-white rounded-2xl rounded-br-md'
+                          : 'bg-white/[0.06] text-[#C9CBD6] rounded-2xl rounded-bl-md'
+                      }`}>
+                        {msg.text}
+                      </div>
+                    </div>
+                  ))}
+                </>
+              )}
 
-            {/* Preview card + conteúdo */}
-            <div className="flex-1 overflow-y-auto px-5 py-3">
-              {aiFilled ? (
+              {/* Step: parsed data card */}
+              {aiStep === 'parsed' && form.title && (
+                <div className="bg-white/[0.04] rounded-2xl p-4 space-y-1.5 border border-white/[0.06]">
+                  <p className="text-[11px] text-[#D4A24C] font-bold uppercase tracking-wide">Dados interpretados</p>
+                  {form.title && <p className="text-sm font-bold text-white">📱 {form.title}</p>}
+                  {form.price && <p className="text-sm text-[#D4A24C] font-semibold">💰 R$ {form.price}</p>}
+                  {form.city && <p className="text-sm text-[#A6A8B3]">📍 {form.city}</p>}
+                  {form.description && <p className="text-sm text-[#A6A8B3]">📝 {form.description}</p>}
+                </div>
+              )}
+
+              {/* Step: asking condition */}
+              {aiStep === 'asking_condition' && (
+                <div className="space-y-3">
+                  <div className="bg-white/[0.06] px-4 py-3 rounded-2xl text-[13px] text-[#C9CBD6]">
+                    Qual o estado do produto?
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {conditionOptions.map(c => (
+                      <button key={c} onClick={() => handleConditionSelect(c)}
+                        className="px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/10 text-[13px] font-medium text-[#C9CBD6] hover:bg-[#D4A24C]/20 hover:border-[#D4A24C]/30 hover:text-white transition-all"
+                      >
+                        {c}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Step: asking availability */}
+              {aiStep === 'asking_availability' && (
+                <div className="space-y-3">
+                  <div className="bg-white/[0.06] px-4 py-3 rounded-2xl text-[13px] text-[#C9CBD6]">
+                    Qual a disponibilidade?
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {availabilityOptions.map(a => (
+                      <button key={a} onClick={() => handleAvailabilitySelect(a)}
+                        className="px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/10 text-[13px] font-medium text-[#C9CBD6] hover:bg-[#D4A24C]/20 hover:border-[#D4A24C]/30 hover:text-white transition-all"
+                      >
+                        {a}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Step: asking photo */}
+              {aiStep === 'asking_photo' && (
+                <div className="bg-white/[0.06] px-4 py-3 rounded-2xl text-[13px] text-[#C9CBD6]">
+                  Envie pelo menos uma foto do produto.
+                </div>
+              )}
+
+              {/* Step: preview */}
+              {aiStep === 'preview' && (
                 <div className="brane-card-premium overflow-hidden" style={{ borderRadius: 22 }}>
                   {images.length > 0 && (
                     <div className="aspect-square bg-[#050608] overflow-hidden">
@@ -1477,149 +1663,95 @@ export default function SocialPage() {
                     </div>
                   )}
                   <div className="p-5 space-y-3">
-                    {form.title && <h3 className="text-base font-black text-white">{form.title}</h3>}
-                    {form.price && <p className="brane-gold-text font-black text-xl">R$ {form.price}</p>}
                     {form.category && (
                       <span className="inline-block px-3 py-1 rounded-full bg-[#D4A24C]/10 text-[#F1D28A] text-[10px] font-bold">{form.category}</span>
                     )}
-                    {form.productCondition && (
-                      <span className="inline-block px-3 py-1 rounded-full bg-[#8A2CFF]/10 text-[#B66DFF] text-[10px] font-bold ml-1">{form.productCondition}</span>
-                    )}
+                    {form.title && <h3 className="text-base font-black text-white">{form.title}</h3>}
+                    {form.price && <p className="brane-gold-text font-black text-xl">R$ {form.price}</p>}
                     {(form.city || form.state) && (
                       <p className="text-[12px] text-[#A6A8B3] flex items-center gap-1">
                         <MapPin size={12} /> {[form.city, form.state].filter(Boolean).join(" - ")}
                       </p>
                     )}
+                    {form.productCondition && (
+                      <span className="inline-block px-3 py-1 rounded-full bg-[#8A2CFF]/10 text-[#B66DFF] text-[10px] font-bold">{form.productCondition}</span>
+                    )}
                     {form.description && <p className="text-[12px] text-[#A6A8B3] leading-relaxed">{form.description}</p>}
                   </div>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full px-6 py-4">
-                  <svg viewBox="0 0 200 240" className="w-32 h-auto md:w-36" style={{ animation: "braneFloat 3s ease-in-out infinite" }}>
-                    <defs>
-                      <linearGradient id="skinGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#FCE4C8" />
-                        <stop offset="100%" stopColor="#F0CAA0" />
-                      </linearGradient>
-                      <linearGradient id="hairGrad" x1="0" y1="0" x2="1" y2="1">
-                        <stop offset="0%" stopColor="#4A2810" />
-                        <stop offset="100%" stopColor="#2D1508" />
-                      </linearGradient>
-                      <linearGradient id="dressGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#D4A24C" />
-                        <stop offset="100%" stopColor="#B8862E" />
-                      </linearGradient>
-                      <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stopColor="#D4A24C" stopOpacity="0.15" />
-                        <stop offset="100%" stopColor="#D4A24C" stopOpacity="0" />
-                      </radialGradient>
-                    </defs>
-                    <circle cx="100" cy="140" r="50" fill="url(#glow)" />
-                    <g style={{ animation: "braneTilt 4s ease-in-out infinite" }}>
-                      <ellipse cx="100" cy="85" rx="32" ry="36" fill="url(#skinGrad)" />
-                      <ellipse cx="100" cy="85" rx="32" ry="36" fill="none" stroke="#E8B88A" strokeWidth="0.5" opacity="0.3" />
-                      <path d="M85 80 Q88 76 92 80" fill="none" stroke="#4A2810" strokeWidth="1.2" strokeLinecap="round" opacity="0.4" />
-                      <path d="M108 80 Q112 76 115 80" fill="none" stroke="#4A2810" strokeWidth="1.2" strokeLinecap="round" opacity="0.4" />
-                      <ellipse cx="92" cy="78" rx="3" ry="3.5" fill="#4A2810" opacity="0.8" />
-                      <ellipse cx="108" cy="78" rx="3" ry="3.5" fill="#4A2810" opacity="0.8" />
-                      <path d="M95 95 Q100 100 105 95" fill="none" stroke="#D4737A" strokeWidth="1.5" strokeLinecap="round" />
-                      <path d="M68 85 Q60 60 65 50 Q70 38 90 42" fill="url(#hairGrad)" opacity="0.9" />
-                      <path d="M132 85 Q140 60 135 50 Q130 38 110 42" fill="url(#hairGrad)" opacity="0.9" />
-                      <path d="M72 70 Q60 45 70 35 Q80 22 100 30 Q120 22 130 35 Q140 45 128 70" fill="url(#hairGrad)" opacity="0.7" />
-                      <path d="M125 55 Q135 50 138 65 Q140 75 132 85" fill="url(#hairGrad)" opacity="0.6" />
-                    </g>
-                    <g style={{ animation: "braneBreathe 3s ease-in-out infinite" }}>
-                      <path d="M100 120 Q70 125 65 150 L60 200 L140 200 L135 150 Q130 125 100 120Z" fill="url(#dressGrad)" />
-                      <path d="M100 120 Q70 125 65 150" fill="none" stroke="#C99A3E" strokeWidth="0.5" opacity="0.3" />
-                      <path d="M65 150 L55 170 L60 173 L68 152" fill="#C99A3E" opacity="0.2" />
-                      <path d="M135 150 L145 170 L140 173 L132 152" fill="#C99A3E" opacity="0.2" />
-                    </g>
-                    <g style={{ animation: "braneArmLeft 5s ease-in-out infinite", transformOrigin: "65px 135px" }}>
-                      <path d="M65 130 L45 145 L40 155" fill="none" stroke="url(#skinGrad)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-                    </g>
-                    <g style={{ animation: "braneArmRight 5s ease-in-out infinite", transformOrigin: "135px 135px" }}>
-                      <path d="M135 130 L155 145 L158 155" fill="none" stroke="url(#skinGrad)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
-                    </g>
-                  </svg>
-                  <div className="text-center mt-3">
-                    <p className="text-[13px] text-[#A6A8B3] leading-relaxed font-medium">
-                      Olá! 👋 Sou sua assistente virtual.
-                    </p>
-                    <p className="text-[12px] text-[#6F7280] mt-1">
-                      Digite os dados do seu anúncio no campo abaixo.
-                    </p>
+              )}
+            </div>
+
+            {/* Bottom bar: input + camera + botoes */}
+            <div className="flex-shrink-0 bg-[#050608] border-t border-white/[0.06]">
+              {/* Input chat */}
+              <div className="px-4 pt-3 pb-2">
+                <div className="relative">
+                  <input
+                    value={mobileAiText}
+                    onChange={(e) => setMobileAiText(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleAiFill(); }}
+                    className="w-full h-12 rounded-2xl brane-input pr-12 text-[14px]"
+                    placeholder="Digite os dados do anúncio..."
+                  />
+                  <button
+                    onClick={handleAiFill}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
+                  >
+                    <Send size={14} />
+                  </button>
+                </div>
+                {images.length > 0 && (
+                  <div className="flex gap-2 mt-2">
+                    {images.map((img, i) => (
+                      <div key={i} className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10">
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        <button type="button" onClick={() => removeImageAt(i)}
+                          className="absolute top-0 right-0 w-4 h-4 bg-black/80 text-white text-[8px] rounded-full flex items-center justify-center">×</button>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              )}
-            </div>
-
-            {/* Input de texto */}
-            <div className="flex-shrink-0 px-5 py-4 border-t border-white/[0.06] bg-[#050608]">
-              <div className="relative">
-                <input
-                  value={mobileAiText}
-                  onChange={(e) => setMobileAiText(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") handleAiFill(); }}
-                  className="w-full h-12 rounded-2xl brane-input pr-12 text-[14px]"
-                  placeholder="Digite os dados do anúncio..."
-                />
-                <button
-                  onClick={handleAiFill}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
-                >
-                  <Send size={14} />
-                </button>
+                )}
               </div>
-              {images.length > 0 && (
-                <div className="flex gap-2 mt-3">
-                  {images.map((img, i) => (
-                    <div key={i} className="relative w-12 h-12 rounded-xl overflow-hidden border border-white/10">
-                      <img src={img} alt="" className="w-full h-full object-cover" />
-                      <button type="button" onClick={() => removeImageAt(i)}
-                        className="absolute top-0 right-0 w-4 h-4 bg-black/80 text-white text-[8px] rounded-full flex items-center justify-center">×</button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
 
-            {/* Botões de ação — sempre visíveis */}
-            <div className="flex-shrink-0 px-5 pt-4 pb-2 border-t border-white/[0.06] bg-[#050608]">
-              {formError && (
-                <p className="text-[12px] text-red-400 font-medium text-center mb-2">{formError}</p>
-              )}
-              <div className="flex gap-2.5 items-center">
-                <label className="shrink-0 w-12 h-12 rounded-2xl border border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40 hover:text-[#D4A24C] transition-all">
-                  <Camera size={18} />
-                  <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
-                </label>
-                <button
-                  onClick={() => { setMobileAiText(""); setAiFilled(false); }}
-                  className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
-                >
-                  Melhorar anúncio
-                </button>
-                <button
-                  onClick={handleNewMobile}
-                  className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
-                >
-                  Novo
-                </button>
-                <button
-                  onClick={async () => {
-                    if (!form.title.trim() || !form.price.trim() || !form.productCondition) {
-                      setFormError("Preencha título, preço e estado do produto.");
-                      return;
-                    }
-                    setFormError("");
-                    const ok = await createPost();
-                    if (ok) { setComposerOpen(false); setAiFilled(false); setMobileAiText(""); }
-                  }}
-                  disabled={posting}
-                  className="flex-1 h-12 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(212,162,76,0.25)]"
-                >
-                  {posting ? "⏳ Publicando..." : "Publicar"}
-                </button>
+              {/* Botoes */}
+              <div className="px-4 pb-3">
+                {formError && (
+                  <p className="text-[11px] text-red-400 font-medium text-center mb-2">{formError}</p>
+                )}
+                <div className="flex gap-2 items-center">
+                  <label className="shrink-0 w-12 h-12 rounded-2xl border border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40 hover:text-[#D4A24C] transition-all">
+                    <Camera size={18} />
+                    <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
+                  </label>
+                  <button
+                    onClick={() => { setMobileAiText(""); setAiChatMessages([]); setAiStep('greeting'); setAiFilled(false); }}
+                    className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
+                  >
+                    Melhorar anúncio
+                  </button>
+                  <button
+                    onClick={handleNewMobile}
+                    className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
+                  >
+                    Novo
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (!form.title.trim() || !form.price.trim() || !form.city.trim() || !form.description.trim() || !form.productCondition || images.length === 0) {
+                        setFormError("Preencha todos os campos e adicione pelo menos 1 foto.");
+                        return;
+                      }
+                      setFormError("");
+                      const ok = await createPost();
+                      if (ok) { setComposerOpen(false); setAiFilled(false); setMobileAiText(""); setAiChatMessages([]); setAiStep('greeting'); }
+                    }}
+                    disabled={posting || !form.title.trim() || !form.price.trim() || !form.productCondition || images.length === 0}
+                    className="flex-1 h-12 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(212,162,76,0.25)]"
+                  >
+                    {posting ? "⏳ Publicando..." : "Publicar"}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
