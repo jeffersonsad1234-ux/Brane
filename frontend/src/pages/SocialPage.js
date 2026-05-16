@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import {
   Send, User, Bell, Search, MessageSquare,
-  Settings, BadgeCheck, MapPin, Tags,
+  Settings, BadgeCheck, Package, MapPin, Tags,
   Heart, X, ChevronLeft, ChevronRight, Globe, Camera, ShoppingCart,
   Copy, Phone
 } from "lucide-react";
@@ -3025,16 +3025,12 @@ export default function SocialPage() {
       {/* Mobile bottom navigation */}
       <nav className="brane-bottom-nav" style={composerOpen ? { display: 'none' } : {}}>
         {[
-          ["Início", "all"],
+          ["Início", Package, "all"],
           ["Mensagens", MessageSquare, "messages"],
           ["Favoritos", Heart, "favorites"],
           ["Anúncios", User, "mine"],
           ["Conta", Settings, "settings"]
-        ].map((item) => {
-          const label = item[0];
-          const value = item[item.length - 1];
-          const Icon = item.length === 2 ? null : item[1];
-          return (
+        ].map(([label, Icon, value]) => (
           <button
             key={value}
             onClick={() => {
@@ -3057,16 +3053,7 @@ export default function SocialPage() {
             }}
             className={"relative " + (value === (activeFilter === "all" ? "all" : activeFilter) ? "brane-bottom-active" : "")}
           >
-            {value === "all" ? (
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="brane-bottom-icon" style={{ width: 20, height: 20, flexShrink: 0 }}>
-                <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" />
-                <path d="M12 22V12" />
-                <polyline points="3.29 7 12 12 20.71 7" />
-                <path d="m7.5 4.27 9 5.15" />
-              </svg>
-            ) : (
-              <Icon size={20} />
-            )}
+            <Icon size={20} />
             <span>{label}</span>
             {value === "messages" && unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1">
@@ -3074,8 +3061,7 @@ export default function SocialPage() {
               </span>
             )}
           </button>
-          );
-        })}
+        ))}
       </nav>
 
       <BLivreAuthModal
