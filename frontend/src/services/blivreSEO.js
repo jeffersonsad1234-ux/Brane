@@ -65,13 +65,15 @@ function setMeta(name, content) {
 }
 
 function setLink(rel, href) {
-  let el = document.querySelector(`link[rel="${rel}"]`);
-  if (!el) {
-    el = document.createElement("link");
-    el.setAttribute("rel", rel);
-    document.head.appendChild(el);
-  }
+  // Remove ALL existing link tags with this rel (including legacy sized/typed variants for icons)
+  const selectors = rel === "icon"
+    ? 'link[rel="icon"], link[rel="shortcut icon"], link[rel~="icon"]'
+    : `link[rel="${rel}"]`;
+  document.querySelectorAll(selectors).forEach((node) => node.parentNode && node.parentNode.removeChild(node));
+  const el = document.createElement("link");
+  el.setAttribute("rel", rel);
   el.setAttribute("href", href);
+  document.head.appendChild(el);
 }
 
 export default SEO;

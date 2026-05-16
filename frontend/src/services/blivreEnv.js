@@ -21,8 +21,8 @@ const env = {
   get ACCENT_COLOR() { return process.env.REACT_APP_BLIVRE_ACCENT_COLOR || "#D4A24C"; },
 
   // Assets
-  get FAVICON() { return process.env.REACT_APP_BLIVRE_FAVICON || "/blivre-assets/favicon.svg"; },
-  get LOGO() { return process.env.REACT_APP_BLIVRE_LOGO || "/blivre-assets/logo.svg"; },
+  get FAVICON() { return process.env.REACT_APP_BLIVRE_FAVICON || "/brane-favicon-final-v2.png?v=2"; },
+  get LOGO() { return process.env.REACT_APP_BLIVRE_LOGO || "/brane-favicon-final-v2.png?v=2"; },
   get MANIFEST() { return process.env.REACT_APP_BLIVRE_MANIFEST || "/blivre-manifest.json"; },
 
   // PWA

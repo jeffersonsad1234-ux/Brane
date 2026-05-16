@@ -1,71 +1,26 @@
-# BRANE Marketplace - PRD
+# Brane / B Livre — PRD
 
-## Visão Geral
-Marketplace brasileiro full-stack (React + FastAPI + MongoDB) com produtos novos (Lojas), produtos únicos e seção de itens usados (Desapega).
+## Problema atual (Jan 2026)
+Favicon antigo permanecia em cache no navegador na rota `/blivre`. Solução definitiva: um único arquivo de ícone com cache-bust `?v=2`.
 
-## Infraestrutura de Produção
-- **Backend**: Railway → https://brane-production-3c87.up.railway.app
-- **Frontend**: Cloudflare Pages
-- **Database**: MongoDB Atlas (cluster0.f2m0c4y.mongodb.net / brane_db)
-- **Repo**: GitHub (origem do deploy Railway/Cloudflare)
+## Implementado nesta sessão
+- Criado `frontend/public/brane-favicon-final-v2.png` (cópia da logo oficial `logo-belivre.png`, cubo dourado).
+- `frontend/public/index.html`: removidas TODAS as referências a `favicon.ico`, `favicon.png`, `favicon-192x192`, `favicon-512x512`, `apple-touch-icon.png`, `brane-favicon-oficial-real.png`. Apenas 3 tags de ícone (`icon`, `shortcut icon`, `apple-touch-icon`) + `og:image`/`twitter:image` apontam para `/brane-favicon-final-v2.png?v=2`.
+- `frontend/public/manifest.json` e `frontend/public/blivre-manifest.json`: usam apenas `/brane-favicon-final-v2.png?v=2`.
+- `frontend/src/services/blivreEnv.js`: `FAVICON` e `LOGO` default → `/brane-favicon-final-v2.png?v=2`.
+- `frontend/src/services/blivreSEO.js`: `setLink("icon", ...)` agora REMOVE todas as `<link rel~="icon">` antigas antes de injetar a nova → impede cache de favicon de rotas anteriores ao acessar `/blivre`.
+- Arquivos removidos: `favicon.ico`, `favicon.png`, `favicon-192x192.png`, `favicon-512x512.png`, `apple-touch-icon.png`, `bane-favicon-oficial-real.png`, `brane-favicon-oficial-real.png`, `brane-real-icon-v1.png`, `blivre-assets/favicon.svg`.
 
-## Funcionalidades Implementadas (Feb 2026)
-- Cards de produto com animação 3D (`Product3DCard.js`, `product3d.css`)
-- Seção "Lojas" estilo Instagram (`StoreCard.js`, `StoresPage.js`)
-- Seção "Desapega" com 0% de comissão da plataforma
-- Cadastro de loja (com horário de funcionamento)
-- Chat por loja (`/api/stores/{store_id}/messages`)
-- Código de rastreio em pedidos (`/api/orders/{order_id}/tracking`)
-- Anúncios admin nas posições top, sidebar, between_products, bottom
-- Admin role correto no registro
+## Build verificado
+`yarn build` finalizado com sucesso. HTML final contém exatamente:
+```
+<link rel="icon" href="/brane-favicon-final-v2.png?v=2"/>
+<link rel="shortcut icon" href="/brane-favicon-final-v2.png?v=2"/>
+<link rel="apple-touch-icon" href="/brane-favicon-final-v2.png?v=2"/>
+<link rel="manifest" href="/manifest.json"/>
+```
+Sem referências a `favicon.ico`, `favicon-192`, `favicon-512` ou `BL`.
 
-## Funcionalidades Implementadas (Apr 2026)
-- **Newsletter** completa: footer com captura + admin (lista, busca, exporta CSV, copia emails, exclui)
-- **Resend Email Campaigns**: admin envia campanhas para todos inscritos com preview HTML, histórico (RESEND_API_KEY no backend/Railway)
-- **Footer Config dinâmico**: admin cadastra Instagram/Facebook/Twitter/Outro, ativa/desativa cada um. Frontend lê de `/api/footer-config`.
-- **Links públicos & compartilhar**: produtos e lojas têm botões "Copiar link" e "Compartilhar" (Web Share API + fallback)
-- **Chat dentro da plataforma**: rota `/stores/:slug/chat` (StoreChatPage) e `/chat/:userId` (DirectChatPage para Desapega/seller). Endpoints aceitam slug ou store_id.
-- **Admin Chat Moderation**: GET `/api/admin/chats/store-messages` e `/api/admin/chats/direct-messages`
-- **Perfil Comprador**: carteira/saldo/saque ocultos para role buyer no Profile, Wallet e Navbar dropdown
-
-## Status Produção (atualizado 2026-04-25)
-| Item | Status |
-|------|--------|
-| Backend Railway → MongoDB Atlas | OK |
-| Atlas Network Access | Liberado |
-| DB Seed | OK (12 produtos, 1 loja, 4 ads) |
-| Frontend Cloudflare | Aguarda confirmação do usuário (REACT_APP_BACKEND_URL) |
-| Mobile responsivo (2 cols) | OK (commit 07c8463 local) |
-| Admin Personalização aplica nos produtos | OK (commit 07c8463 local) |
-
-### Dados em produção
-- 6 produtos Loja + 6 produtos Desapega (12 total)
-- 1 loja aprovada (Tech Store Premium)
-- 4 anúncios ativos (top, sidebar, 2x between_products)
-- 1 admin (admin@brane.com)
-
-## Backlog (P1/P2)
-- **P1** Verificar `REACT_APP_BACKEND_URL` no Cloudflare e fazer redeploy
-- **P1** Bug: criar loja com admin troca role para `seller` (reset manual no DB necessário)
-- **P1** Implementar Favoritos (backend novo `/api/favorites` GET/POST/DELETE + hook frontend + filtro `?favorites=1` em ProductsPage). Adiado por orçamento.
-- **P2** Refatorar `backend/server.py` (3000+ linhas) em `routes/` e `models/`
-- **P2** Criar testes em `/app/backend/tests` (regressão)
-- **P2** Página de gestão de tracking_code para vendedores
-- **P2** Endpoint para admin enviar notificação manual a usuários (broadcast/individual)
-
-## Histórico recente (Feb 2026)
-- **25/02** Removida feature `Store Experience` (loja 3D) — arquivo `StoreExperiencePage.js`, import e rota `/store-experience` em `App.js` deletados.
-- **25/02** Permissão Anunciar Produto restrita a `seller`/`admin`:
-  - Frontend: `ProtectedRoute` ganhou prop `sellerOnly`. Rotas `/add-product`, `/add-product/store`, `/add-product/desapega` agora redirecionam buyer/affiliate para `/dashboard`.
-  - Frontend: Navbar esconde botão "Anunciar produto" e item "Adicionar Produto" do dropdown para não-sellers.
-  - Backend: já protegia via `require_seller` (sem mudança).
-- **25/02** Notificações — sino corrigido:
-  - Bug: Navbar lia `(r.data || []).filter(...)` mas backend retorna `{notifications, unread}`. Badge ficava sempre em 0.
-  - Fix: agora lê `r.data?.unread || 0` corretamente.
-  - Adicionado polling de 45s para o sino atualizar sem refresh.
-
-## Arquitetura
-- `/app/backend/server.py` - FastAPI monolítico
-- `/app/frontend/src/pages/` - HomePage, StoresPage, AdminPage, CreateStorePage
-- `/app/frontend/src/components/` - Product3DCard, StoreCard, AdSlot
-- `/app/seed_production.py` - Script de seed via API Railway
+## Next Action Items
+- Push para origin (`https://github.com/jeffersonsad1234-ux/Brane.git`) via botão "Save to Github" da Emergent.
+- Após deploy, abrir `/blivre` em aba anônima ou forçar `Ctrl+Shift+R` para validar (o `?v=2` quebra cache de quem já visitou).

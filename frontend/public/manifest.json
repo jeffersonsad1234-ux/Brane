@@ -8,14 +8,8 @@
   "theme_color": "#0A0A0C",
   "icons": [
     {
-      "src": "/brane-favicon-oficial-real.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/brane-favicon-oficial-real.png",
-      "sizes": "512x512",
+      "src": "/brane-favicon-final-v2.png?v=2",
+      "sizes": "any",
       "type": "image/png",
       "purpose": "any maskable"
     }
