@@ -9,13 +9,13 @@
   "theme_color": "#0A0A0C",
   "icons": [
     {
-      "src": "/brane-real-icon-v1.png",
+      "src": "/brane-favicon-oficial-real.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/brane-real-icon-v1.png",
+      "src": "/brane-favicon-oficial-real.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
