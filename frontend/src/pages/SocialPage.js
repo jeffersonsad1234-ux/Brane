@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import {
   Send, User, Bell, Search, MessageSquare,
@@ -86,7 +86,7 @@ export default function SocialPage() {
     }
   });
 
-  const authHeaders = useMemo(() => currentToken ? { Authorization: "Bearer " + currentToken } : {}, [currentToken]);
+  const authHeaders = currentToken ? { Authorization: "Bearer " + currentToken } : {};
   const API = mainAuth.API || `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
 
   const imageInputRef = useRef(null);
@@ -444,10 +444,7 @@ export default function SocialPage() {
 
   const CACHE_KEY = "blivre_posts_cache";
 
-  const latestReq = useRef(0);
   const loadPosts = async (pageNumber = 1, append = false) => {
-    const reqId = ++latestReq.current;
-    const controller = new AbortController();
     try {
       if (append) setLoadingMore(true);
       else {
@@ -469,11 +466,8 @@ export default function SocialPage() {
       }
 
       const res = await axios.get(
-        API + "/social/posts?limit=" + PAGE_SIZE + "&page=" + pageNumber,
-        { signal: controller.signal }
+        API + "/social/posts?limit=" + PAGE_SIZE + "&page=" + pageNumber
       );
-
-      if (reqId !== latestReq.current) return;
 
       const list = res.data.posts || [];
 
@@ -492,7 +486,6 @@ export default function SocialPage() {
 
       if (list.length < PAGE_SIZE) setHasMore(false);
     } catch (error) {
-      if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') return;
       console.error(error);
       if (!append && !posts.length) setPosts([]);
       setHasMore(false);
@@ -506,20 +499,16 @@ export default function SocialPage() {
     loadPosts(1, false);
   }, []);
 
-  const pollIntervalRef = useRef(null);
-
   useEffect(() => {
     if (!currentToken) return;
     loadSocialData();
 
-    let backoff = 5000;
     const pollSocial = async () => {
       if (document.hidden) return;
       try {
-        const controller = new AbortController();
         const [notificationsRes, messagesRes] = await Promise.allSettled([
-          axios.get(API + "/notifications", { headers: authHeaders, signal: controller.signal }),
-          axios.get(API + "/social/messages", { headers: authHeaders, signal: controller.signal })
+          axios.get(API + "/notifications", { headers: authHeaders }),
+          axios.get(API + "/social/messages", { headers: authHeaders })
         ]);
 
         const nd = notificationsRes.status === "fulfilled" ? notificationsRes.value.data : {};
@@ -539,16 +528,12 @@ export default function SocialPage() {
         });
 
         fetchUnreadMessages();
-        backoff = 5000;
       } catch {
         // keep silent polling failures from breaking the UI
       }
     };
 
-    const startPolling = () => {
-      pollSocial();
-      pollIntervalRef.current = setInterval(pollSocial, 15000);
-    };
+    notifIntervalRef.current = setInterval(pollSocial, 3000);
 
     const onVisible = () => {
       if (document.hidden) return;
@@ -557,11 +542,9 @@ export default function SocialPage() {
     document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('focus', onVisible);
 
-    startPolling();
-
     return () => {
       if (scrollFrameRef.current) cancelAnimationFrame(scrollFrameRef.current);
-      if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+      if (notifIntervalRef.current) clearInterval(notifIntervalRef.current);
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('focus', onVisible);
     };
@@ -1545,7 +1528,7 @@ export default function SocialPage() {
                       className="w-full text-left brane-card-soft p-3 hover:bg-white/[0.08] transition-colors cursor-pointer flex items-start gap-3"
                     >
                       {notifImg ? (
-                        <img src={notifImg} alt="" loading="lazy" className="w-10 h-10 rounded-xl object-cover shrink-0" />
+                        <img src={notifImg} alt="" className="w-10 h-10 rounded-xl object-cover shrink-0" />
                       ) : (
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A24C]/20 to-[#8A2CFF]/20 flex items-center justify-center text-[#D4A24C] shrink-0">
                           <Package size={16} />
@@ -1930,7 +1913,7 @@ export default function SocialPage() {
                   <div className="flex gap-2 mt-2">
                     {images.map((img, i) => (
                       <div key={i} className="relative w-10 h-10 rounded-xl overflow-hidden border border-white/10">
-                        <img src={img} alt="" loading="lazy" className="w-full h-full object-cover" />
+                        <img src={img} alt="" className="w-full h-full object-cover" />
                         <button type="button" onClick={() => removeImageAt(i)}
                           className="absolute top-0 right-0 w-4 h-4 bg-black/80 text-white text-[8px] rounded-full flex items-center justify-center">×</button>
                       </div>
@@ -2250,12 +2233,13 @@ export default function SocialPage() {
                             selectedImageIndex === i ? 'border-[#D4A24C] opacity-100' : 'border-transparent opacity-60'
                           }`}
                         >
-                          <img src={img} alt="" loading="lazy" className="w-full h-full object-cover" />
+                          <img src={img} alt="" className="w-full h-full object-cover" />
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
+
                 <div className="flex flex-col h-[85vh] max-h-[650px] brane-modal-sidebar" style={{ background: 'linear-gradient(180deg, rgba(9,10,15,0.98), rgba(5,6,10,1))' }}>
                   <div className="flex-1 overflow-y-auto px-6 pt-6 pb-3">
                     <div className="brane-badge brane-badge-gold mb-3 inline-flex">
@@ -2796,7 +2780,7 @@ export default function SocialPage() {
                                 className="w-full text-left brane-card-soft p-3 hover:bg-white/[0.08] transition-colors flex items-start gap-3"
                               >
                                 {convImg ? (
-                                  <img src={convImg} alt="" loading="lazy" className="w-11 h-11 rounded-xl object-cover shrink-0" />
+                                  <img src={convImg} alt="" className="w-11 h-11 rounded-xl object-cover shrink-0" />
                                 ) : (
                                   <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#D4A24C]/20 to-[#8A2CFF]/20 flex items-center justify-center text-[#D4A24C] shrink-0">
                                     <Package size={18} />
@@ -2852,11 +2836,11 @@ export default function SocialPage() {
                         >
                           <div className="relative aspect-square bg-[#050608] overflow-hidden rounded-t-[22px]">
                             {getCoverImage(post) ? (
-                              <img
+                              <ProductImageZoom
                                 src={getCoverImage(post)}
                                 alt="Anúncio"
-                                loading="lazy"
                                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                                wrapperClassName="w-full h-full"
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-[#D4A24C]">

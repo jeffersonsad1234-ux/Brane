@@ -2,56 +2,50 @@ import "./App.css";
 import { BrowserRouter, Routes, Route, useLocation, Navigate, Outlet } from "react-router-dom";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { lazy, Suspense } from "react";
 import AuthCallback from "./components/AuthCallback";
 import AnimatedBackground from "./components/AnimatedBackground";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import FloatingSupport from "./components/FloatingSupport";
+
+import HomePage from "./pages/HomePage";
+import SuppliersPage from "./pages/SuppliersPage";
+import AuthPage from "./pages/AuthPage";
+import ProductsPage from "./pages/ProductsPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
+import DashboardPage from "./pages/DashboardPage";
+import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import WalletPage from "./pages/WalletPage";
+import OrdersPage from "./pages/OrdersPage";
+import NotificationsPage from "./pages/NotificationsPage";
+import ProfilePage from "./pages/ProfilePage";
+import StaticPage from "./pages/StaticPage";
+import StoresPage from "./pages/StoresPage";
+import StoreDetailPage from "./pages/StoreDetailPage";
+import StoreChatPage from "./pages/StoreChatPage";
+import DirectChatPage from "./pages/DirectChatPage";
+import CreateStorePage from "./pages/CreateStorePage";
+import SupportPage from "./pages/SupportPage";
+import DesapegaPage from "./pages/DesapegaPage";
+import BraneCoinsPage from "./pages/BraneCoinsPage";
+import AddProductPage from "./pages/AddProductPage";
+import SocialPage from "./pages/SocialPage";
+import BLivreAdminPage from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminProducts from "./pages/admin/AdminProducts";
+import AdminReports from "./pages/admin/AdminReports";
+import AdminDenuncias from "./pages/admin/AdminDenuncias";
+import AdminFinanceiro from "./pages/admin/AdminFinanceiro";
+import AdminSuporte from "./pages/admin/AdminSuporte";
+import AdminConfiguracoes from "./pages/admin/AdminConfiguracoes";
+import AdminPasswordReset from "./pages/admin/AdminPasswordReset";
+import { AdminDataProvider } from "./contexts/AdminDataContext";
+import BLivreAuthPage from "./pages/BLivreAuthPage";
+import BLivreMessagesPage from "./pages/BLivreMessagesPage";
 import { BLivreAuthProvider } from "./contexts/BLivreAuthContext";
 import BLivreSEO from "./components/BLivreSEO";
-import { AdminDataProvider } from "./contexts/AdminDataContext";
-import { Toaster } from "./components/ui/sonner";
-
-const HomePage = lazy(() => import("./pages/HomePage"));
-const SuppliersPage = lazy(() => import("./pages/SuppliersPage"));
-const AuthPage = lazy(() => import("./pages/AuthPage"));
-const ProductsPage = lazy(() => import("./pages/ProductsPage"));
-const ProductDetailPage = lazy(() => import("./pages/ProductDetailPage"));
-const DashboardPage = lazy(() => import("./pages/DashboardPage"));
-const CartPage = lazy(() => import("./pages/CartPage"));
-const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
-const WalletPage = lazy(() => import("./pages/WalletPage"));
-const OrdersPage = lazy(() => import("./pages/OrdersPage"));
-const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
-const ProfilePage = lazy(() => import("./pages/ProfilePage"));
-const StaticPage = lazy(() => import("./pages/StaticPage"));
-const StoresPage = lazy(() => import("./pages/StoresPage"));
-const StoreDetailPage = lazy(() => import("./pages/StoreDetailPage"));
-const StoreChatPage = lazy(() => import("./pages/StoreChatPage"));
-const DirectChatPage = lazy(() => import("./pages/DirectChatPage"));
-const CreateStorePage = lazy(() => import("./pages/CreateStorePage"));
-const SupportPage = lazy(() => import("./pages/SupportPage"));
-const DesapegaPage = lazy(() => import("./pages/DesapegaPage"));
-const BraneCoinsPage = lazy(() => import("./pages/BraneCoinsPage"));
-const AddProductPage = lazy(() => import("./pages/AddProductPage"));
-const SocialPage = lazy(() => import("./pages/SocialPage"));
-const BLivreAdminPage = lazy(() => import("./pages/admin/AdminLayout"));
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
-const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
-const AdminProducts = lazy(() => import("./pages/admin/AdminProducts"));
-const AdminReports = lazy(() => import("./pages/admin/AdminReports"));
-const AdminDenuncias = lazy(() => import("./pages/admin/AdminDenuncias"));
-const AdminFinanceiro = lazy(() => import("./pages/admin/AdminFinanceiro"));
-const AdminSuporte = lazy(() => import("./pages/admin/AdminSuporte"));
-const AdminConfiguracoes = lazy(() => import("./pages/admin/AdminConfiguracoes"));
-const AdminPasswordReset = lazy(() => import("./pages/admin/AdminPasswordReset"));
-const BLivreAuthPage = lazy(() => import("./pages/BLivreAuthPage"));
-const BLivreMessagesPage = lazy(() => import("./pages/BLivreMessagesPage"));
-const AddStoreProductPage = lazy(() => import("./pages/AddStoreProductPage"));
-const AddDesapegaProductPage = lazy(() => import("./pages/AddDesapegaProductPage"));
-const AdminPage = lazy(() => import("./pages/AdminPage"));
-const PromotionPlansPage = lazy(() => import("./pages/PromotionPlansPage"));
 
 function BLivreLayout() {
   return (
@@ -61,14 +55,11 @@ function BLivreLayout() {
     </BLivreAuthProvider>
   );
 }
-
-function PageFallback() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[#050608]">
-      <div className="w-9 h-9 border-2 border-[#8A2CFF] border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
-}
+import { Toaster } from "./components/ui/sonner";
+import AddStoreProductPage from "./pages/AddStoreProductPage";
+import AddDesapegaProductPage from "./pages/AddDesapegaProductPage";
+import AdminPage from "./pages/AdminPage";
+import PromotionPlansPage from "./pages/PromotionPlansPage";
 
 function ProtectedRoute({ children, adminOnly = false, sellerOnly = false }) {
   const { user, loading } = useAuth();
@@ -111,12 +102,10 @@ function AppRouter() {
   if (isAuth) {
     return (
       <>
-        <Suspense fallback={<PageFallback />}>
-          <Routes>
-            <Route path="/auth" element={<AuthPage />} />
-            <Route path="*" element={<Navigate to="/market" replace />} />
-          </Routes>
-        </Suspense>
+        <Routes>
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="*" element={<Navigate to="/market" replace />} />
+        </Routes>
 
         <Toaster position="top-right" />
       </>
@@ -134,8 +123,7 @@ function AppRouter() {
         {!isAdmin && !isSocial && <Navbar />}
 
         <main className="min-h-screen">
-          <Suspense fallback={<PageFallback />}>
-            <Routes>
+          <Routes>
             <Route path="/" element={<Navigate to="/market" replace />} />
             <Route path="/market" element={<HomePage />} />
 
@@ -349,7 +337,6 @@ function AppRouter() {
 
             <Route path="*" element={<Navigate to="/market" replace />} />
           </Routes>
-          </Suspense>
         </main>
 
         {!isAdmin && !isSocial && <Footer />}
