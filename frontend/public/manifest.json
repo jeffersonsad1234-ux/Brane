@@ -1,9 +1,8 @@
 {
-  "name": "B Livre",
-  "short_name": "B Livre",
-  "description": "B Livre — plataforma de classificados gratuitos. Anuncie, converse e venda.",
-  "start_url": "/blivre",
-  "scope": "/blivre",
+  "name": "BRANE",
+  "short_name": "BRANE",
+  "description": "BRANE — marketplace completo. Compre e venda com segurança.",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#050608",
   "theme_color": "#0A0A0C",
