@@ -696,48 +696,147 @@ export default function SocialPage() {
       "Serviços": ["serviço", "conserto", "manutenção", "aula", "reforma", "limpeza", "instalação", "frete"]
     };
     const ufs = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
-
-    let remaining = text;
-
-    const pm = remaining.match(/R\$\s*(\d{1,3}(?:\.\d{3})*(?:,\d{2})|\d+(?:,\d{2})|\d+)/i);
-    if (pm) {
-      updateForm("price", pm[1].trim());
-      remaining = remaining.replace(pm[0], "").replace(/,\s*,/g, ",").replace(/^,\s*/, "").replace(/,\s*$/, "").trim();
+    const fullStateNames = {
+      "AC":"Acre","AL":"Alagoas","AP":"Amapá","AM":"Amazonas","BA":"Bahia","CE":"Ceará","DF":"Distrito Federal",
+      "ES":"Espírito Santo","GO":"Goiás","MA":"Maranhão","MT":"Mato Grosso","MS":"Mato Grosso do Sul",
+      "MG":"Minas Gerais","PA":"Pará","PB":"Paraíba","PR":"Paraná","PE":"Pernambuco","PI":"Piauí",
+      "RJ":"Rio de Janeiro","RN":"Rio Grande do Norte","RS":"Rio Grande do Sul","RO":"Rondônia",
+      "RR":"Roraima","SC":"Santa Catarina","SP":"São Paulo","SE":"Sergipe","TO":"Tocantins"
+    };
+    const stateNameToUf = {};
+    for (const [uf, name] of Object.entries(fullStateNames)) {
+      stateNameToUf[name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase()] = uf;
     }
 
-    const locMatch = remaining.match(/(?:^|,\s*)([\w\sÀ-ÿ]+)\s*[-–]\s*([A-Za-zÀ-ÿ]{2,})(?=\s*,|$)/);
-    if (locMatch) {
-      updateForm("city", locMatch[1].trim());
-      const st = locMatch[2].trim().toUpperCase();
-      if (ufs.includes(st)) updateForm("state", st);
-      remaining = remaining.replace(locMatch[0].replace(/^,\s*/, ""), "");
+    const parts = text.split(",").map((s) => s.trim()).filter(Boolean);
+    if (!parts.length) return;
+
+    // Step 1: find price — any part that is a number (with or without R$, commas/dots)
+    let priceIdx = -1;
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i];
+      const stripped = p.replace(/^R\$\s*/i, "").trim();
+      const digitsOnly = stripped.replace(/[^\d,]/g, "");
+      const isPrice = digitsOnly.length >= 1 && digitsOnly.length <= 10 &&
+        stripped.replace(/[.,\d]/g, "").length <= 1 &&
+        /[\d,.]/.test(stripped) &&
+        !/^\d{4,}$/.test(stripped);
+      if (isPrice) {
+        priceIdx = i;
+        break;
+      }
     }
 
-    const parts = remaining.split(",").map((s) => s.trim()).filter(Boolean);
-    if (!parts.length) { setAiFilled(true); setMobileShowForm(false); return; }
-    updateForm("title", parts[0]);
+    let parsedPrice = "";
+    if (priceIdx >= 0) {
+      const rawPrice = parts[priceIdx].replace(/^R\$\s*/i, "").trim();
+      parsedPrice = rawPrice.replace(/\./g, "").replace(",", ".");
+      updateForm("price", parsedPrice);
+    }
 
-    const descParts = [];
-    for (let i = 1; i < parts.length; i++) {
+    // Step 2: find city/state in the last part(s)
+    let cityIdx = -1;
+    let parsedCity = "";
+    let parsedState = "";
+    for (let i = parts.length - 1; i >= 0; i--) {
+      if (i === priceIdx) continue;
       const raw = parts[i];
-      const low = raw.toLowerCase();
+      const words = raw.split(/\s+/).filter(Boolean);
+      if (words.length >= 1) {
+        const lastWord = words[words.length - 1];
+        const lastWordClean = lastWord.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+        const lastWordUF = ufs.includes(lastWordClean) ? lastWordClean : (stateNameToUf[lastWordClean] || null);
+        const secondToLast = words.length >= 2 ? words.slice(0, -1).join(" ") : null;
 
-      const cond = conditions.find((c) => c.toLowerCase() === low || raw.match(new RegExp(c, "i")));
-      if (cond && !form.productCondition) { updateForm("productCondition", cond); continue; }
-
-      for (const [cat, words] of Object.entries(catKeywords)) {
-        if (words.some((w) => low.includes(w)) && !form.category) {
-          updateForm("category", cat); break;
+        if (lastWordUF) {
+          if (secondToLast) {
+            const secondToLastClean = secondToLast.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+            if (!ufs.includes(secondToLastClean) && secondToLast.length > 2) {
+              parsedCity = secondToLast;
+              parsedState = lastWordUF;
+            } else {
+              if (i > 0 && i !== priceIdx) {
+                const prevPart = parts[i - 1];
+                const prevWords = prevPart.split(/\s+/);
+                const possibleCity = prevWords[prevWords.length - 1];
+                const possibleCityClean = possibleCity?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+                if (possibleCity && possibleCity.length > 2 && !ufs.includes(possibleCityClean)) {
+                  parsedCity = possibleCity;
+                  parsedState = lastWordUF;
+                  cityIdx = i - 1;
+                }
+              }
+              if (!parsedCity) {
+                const stateName = fullStateNames[lastWordUF] || lastWord;
+                parsedCity = raw.replace(new RegExp(lastWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "i"), "").trim() || raw;
+                parsedState = lastWordUF;
+              }
+            }
+          } else {
+            parsedState = lastWordUF;
+          }
+          cityIdx = i;
+          break;
         }
       }
-
-      if (!form.city && low.length > 2 && /^[a-zà-ÿ\s]+$/.test(low) && !ufs.includes(raw.toUpperCase())) {
-        updateForm("city", raw); continue;
-      }
-
-      descParts.push(raw);
     }
-    if (descParts.length) updateForm("description", descParts.join(", "));
+
+    // If no UF found, check if last part looks like a city name
+    if (cityIdx < 0) {
+      for (let i = parts.length - 1; i >= 0; i--) {
+        if (i === priceIdx) continue;
+        const raw = parts[i];
+        // A city name: 3+ chars, only letters/spaces, not a price
+        if (/^[A-Za-zÀ-ÿ\s]{3,}$/.test(raw) && !/\d/.test(raw)) {
+          parsedCity = raw;
+          cityIdx = i;
+          break;
+        }
+      }
+    }
+
+    if (parsedCity) updateForm("city", parsedCity);
+    if (parsedState) updateForm("state", parsedState);
+
+    // Step 3: extract title (first part before price)
+    const titleParts = [];
+    const descParts = [];
+    for (let i = 0; i < parts.length; i++) {
+      if (i === priceIdx || i === cityIdx) continue;
+      if (i < priceIdx || (priceIdx < 0 && i < cityIdx)) {
+        titleParts.push(parts[i]);
+      } else {
+        descParts.push(parts[i]);
+      }
+    }
+
+    if (titleParts.length > 0) {
+      updateForm("title", titleParts.join(", "));
+    }
+
+    // Category detection
+    const allText = parts.join(" ").toLowerCase();
+    for (const [cat, words] of Object.entries(catKeywords)) {
+      if (words.some((w) => allText.includes(w))) {
+        updateForm("category", cat);
+        break;
+      }
+    }
+
+    // Description = whatever is left after title and known fields
+    const knownFields = [priceIdx, cityIdx].filter(i => i >= 0);
+    const descParts2 = [];
+    for (let i = 0; i < parts.length; i++) {
+      if (knownFields.includes(i)) continue;
+      // Skip if it's part of the title (before price)
+      if (priceIdx >= 0 && i < priceIdx) continue;
+      // Skip if it's part of the title (before city when no price)
+      if (priceIdx < 0 && cityIdx >= 0 && i < cityIdx) continue;
+      descParts2.push(parts[i]);
+    }
+    if (descParts2.length > 0) {
+      updateForm("description", descParts2.join(", "));
+    }
 
     setAiFilled(true);
     setMobileShowForm(false);
