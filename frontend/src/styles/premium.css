@@ -936,10 +936,8 @@ body[data-card-shape="minimal"] .theme-product-card:hover {
   justify-content: space-around;
   padding: 0.35rem 0.5rem;
   padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0.35rem));
-  background: rgba(10, 12, 20, 0.95);
-  border-top: 1px solid rgba(212, 162, 76, 0.2);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: transparent;
+  border-top: none;
 }
 .brane-bottom-nav button {
   display: flex;
