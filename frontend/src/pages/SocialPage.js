@@ -1465,6 +1465,9 @@ export default function SocialPage() {
             .blivre-product-card .text-lg {
               font-size: 19px !important;
             }
+            .blivre-shell > * {
+              height: calc(100dvh - 95px) !important;
+            }
           }
 
           body.ai-modal-open .bottom-nav,
