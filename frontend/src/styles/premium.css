@@ -5,7 +5,7 @@
 
 :root {
   /* ----- Backgrounds ----- */
-  --brane-bg: #F3F4F6;
+  --brane-bg: #e5e7eb;
   --brane-bg-card: #0B0D12;
   --brane-bg-soft: #11131A;
   --brane-bg-deep: #08090D;
@@ -122,7 +122,7 @@ html, body { background: var(--brane-bg); color: var(--brane-text); }
 .brane-purple-text { color: var(--brane-purple-light); }
 .brane-gold-solid { color: var(--brane-gold); }
 
-/* Gold text for light/neutral surfaces (sidebar on #F3F4F6) – richer gradient, no heavy shadows */
+/* Gold text for light/neutral surfaces (sidebar on #e5e7eb) – richer gradient, no heavy shadows */
 .brane-gold-text-light {
   background: linear-gradient(180deg, #D4A24C 0%, #B38B36 50%, #8A6A24 100%);
   -webkit-background-clip: text;

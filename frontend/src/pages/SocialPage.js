@@ -1367,7 +1367,7 @@ export default function SocialPage() {
   );
 
   return (
-    <div className="min-h-screen relative" style={{ background: '#F3F4F6' }}>
+    <div className="min-h-screen relative" style={{ background: '#e5e7eb' }}>
       <style>
         {`
           @keyframes blivreSlideIn {
