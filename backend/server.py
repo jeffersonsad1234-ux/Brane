@@ -689,16 +689,11 @@ async def create_social_post(data: SocialPostCreate, request: Request):
     return {k: v for k, v in post.items() if k != "_id"}
 
 async def seed_blivre_posts():
-    """Auto-seed B Livre with example posts when collection is empty."""
-    # Remove old seed posts (they may have wrong images from previous seed)
-    removed = await db.social_posts.delete_many({"user_id": "seed_b_livre"})
-    if removed.deleted_count > 0:
-        logger.info(f"[B Livre] Removidos {removed.deleted_count} anúncios seed antigos para recriar com imagens corretas")
+    """Ensure B Livre always has seed example posts."""
+    # Remove old seed posts so we can recreate with latest titles
+    await db.social_posts.delete_many({"user_id": "seed_b_livre"})
 
-    count = await db.social_posts.count_documents({})
-    if count > 0:
-        return False
-    logger.info("[B Livre] social_posts vazio — populando com anúncios de exemplo")
+    logger.info("[B Livre] Criando anúncios seed de boas-vindas")
     now = datetime.now(timezone.utc)
     base_time = now - timedelta(hours=48)
     sellers = [
@@ -748,6 +743,9 @@ async def seed_blivre_posts():
 
 @api_router.get("/social/posts")
 async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[str] = None):
+    if not user_id:
+        await seed_blivre_posts()
+
     query = {}
     if user_id:
         query["user_id"] = user_id
@@ -761,20 +759,6 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
     ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     total = await db.social_posts.count_documents(query)
 
-    if not posts or total == 0:
-        if not user_id:
-            seeded = await seed_blivre_posts()
-            if seeded:
-                posts = await db.social_posts.find(
-                    {},
-                    {"_id": 0, "post_id": 1, "user_id": 1, "user_name": 1, "user_picture": 1,
-                     "content": 1, "image": 1, "title": 1, "price": 1, "city": 1, "state": 1,
-                     "category": 1, "product_condition": 1, "description": 1, "availability": 1,
-                     "phone": 1, "whatsapp": 1, "enhanced_title": 1, "enhanced_description": 1, "marketing_text": 1, "created_at": 1}
-                ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-                total = await db.social_posts.count_documents({})
-        if not posts:
-            return {"posts": [], "total": 0, "page": page}
     return {"posts": posts, "total": total, "page": page}
 
 @api_router.post("/social/posts/{post_id}/like")
