@@ -4296,6 +4296,64 @@ async def blivre_admin_delete_banner(banner_id: str, request: Request):
     await db.ads.delete_one({"ad_id": banner_id})
     return {"message": "Banner removido"}
 
+@api_router.get("/admin/blivre/reports")
+async def blivre_admin_list_reports(request: Request):
+    await require_admin(request)
+    reports = await db.social_reports.find({}, {"_id": 0}).sort("created_at", -1).to_list(200)
+    return {"reports": reports}
+
+@api_router.get("/admin/blivre/password-resets")
+async def blivre_admin_list_password_resets(request: Request):
+    await require_admin(request)
+    raw = await db.password_resets.find({}).sort("created_at", -1).to_list(100)
+    resets = [{
+        "id": str(r["_id"]), "email": r.get("email", ""),
+        "status": r.get("status", "pendente"),
+        "created_at": r.get("created_at", ""),
+        "expires_at": r.get("expires_at", ""),
+    } for r in raw]
+    return {"requests": resets}
+
+@api_router.post("/admin/blivre/password-resets/{reset_id}/send")
+async def blivre_admin_send_password_reset(reset_id: str, request: Request):
+    from bson.objectid import ObjectId
+    await require_admin(request)
+    await db.password_resets.update_one({"_id": ObjectId(reset_id)}, {"$set": {"status": "enviado"}})
+    return {"message": "Reset enviado"}
+
+@api_router.put("/admin/blivre/password-resets/{reset_id}/status")
+async def blivre_admin_update_password_reset_status(reset_id: str, request: Request):
+    from bson.objectid import ObjectId
+    await require_admin(request)
+    body = await request.json()
+    new_status = body.get("status", "resolvido")
+    await db.password_resets.update_one({"_id": ObjectId(reset_id)}, {"$set": {"status": new_status}})
+    return {"message": f"Status alterado para {new_status}"}
+
+@api_router.get("/admin/blivre/settings")
+async def blivre_admin_get_settings(request: Request):
+    await require_admin(request)
+    s = await db.platform_settings.find_one({"key": "blivre_admin_config"}, {"_id": 0})
+    return s["value"] if s else {
+        "platform_name": "B Livre", "base_url": "", "contact_email": "",
+        "currency": "BRL", "auto_approve": True, "notify_reports": True,
+        "auto_block_reports": 3, "max_ads_per_user": 50,
+        "two_factor_auth": False, "recaptcha": True,
+        "email_verification": False, "activity_log": True,
+        "dark_theme": True, "compact_mode": False, "show_indicators": True,
+    }
+
+@api_router.put("/admin/blivre/settings")
+async def blivre_admin_update_settings(request: Request):
+    await require_admin(request)
+    body = await request.json()
+    await db.platform_settings.update_one(
+        {"key": "blivre_admin_config"},
+        {"$set": {"key": "blivre_admin_config", "value": body}},
+        upsert=True
+    )
+    return {"message": "Configuracoes salvas"}
+
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r".*",

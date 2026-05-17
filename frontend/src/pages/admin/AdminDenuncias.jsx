@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Search, CheckCircle } from "lucide-react";
+import { Search, CheckCircle, Flag } from "lucide-react";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Avatar, AvatarFallback } from "../../components/ui/avatar";
@@ -11,54 +11,62 @@ const glassCard = "rounded-2xl border bg-[#121216]/80 backdrop-blur-xl shadow-[0
 const API = `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
 
 export default function AdminDenuncias() {
-  const { authHeaders, deletePost } = useAdminData();
+  const { authHeaders } = useAdminData();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("todas");
 
-  useEffect(() => {
-    const fetch = async () => {
-      setLoading(true);
-      try {
-        const res = await axios.get(API + "/admin/reports", { headers: authHeaders }).catch(() => null);
-        if (res?.data?.reports) setReports(res.data.reports);
-        else setReports([]);
-      } catch {
-        setReports([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetch();
-  }, [authHeaders]);
+  const fetchReports = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.get(API + "/admin/blivre/reports", { headers: authHeaders }).catch(() => null);
+      if (res?.data?.reports) setReports(res.data.reports);
+      else setReports([]);
+    } catch {
+      setReports([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchReports(); }, [authHeaders]);
 
   const filtered = reports.filter(r => {
     if (tab !== "todas" && r.status !== tab) return false;
     if (search) {
       const q = search.toLowerCase();
-      return (r.anuncio || r.title || "").toLowerCase().includes(q) || (r.autor || r.author || "").toLowerCase().includes(q) || (r.denunciante || "").toLowerCase().includes(q);
+      return (r.post_id || r.anuncio_id || r.title || "").toLowerCase().includes(q) || (r.reported_user || r.author || r.autor || "").toLowerCase().includes(q) || (r.reporter || "").toLowerCase().includes(q);
     }
     return true;
   });
 
   const handleRemove = async (report) => {
-    if (!window.confirm(`Remover anúncio "${report.anuncio || report.title}" de ${report.autor || report.author}?`)) return;
-    await deletePost(report.anuncio || report.title);
-    setReports(prev => prev.map(r => r.id === report.id ? { ...r, status: "resolvido" } : r));
+    if (!window.confirm(`Remover conteúdo da denúncia?`)) return;
+    try {
+      await axios.put(API + "/admin/blivre/reports/" + report.id + "/remove-content", {}, { headers: authHeaders });
+      await fetchReports();
+    } catch {}
   };
 
   const handleBan = async (report) => {
-    if (!window.confirm(`Banir usuário "${report.autor || report.author}" (${report.email})?`)) return;
+    if (!window.confirm(`Banir usuário "${report.reported_user || report.author || report.autor || report.reporter}"?`)) return;
     try {
-      await axios.put(API + "/admin/users/" + report.email + "/block", {}, { headers: authHeaders });
+      const uid = report.reported_user || report.author_email || report.reporter;
+      if (uid) await axios.put(API + "/admin/users/" + uid + "/block", {}, { headers: authHeaders });
     } catch {}
-    setReports(prev => prev.map(r => r.id === report.id ? { ...r, status: "resolvido" } : r));
+    try {
+      await axios.put(API + "/admin/blivre/reports/" + report.id + "/resolve", {}, { headers: authHeaders });
+      await fetchReports();
+    } catch {}
   };
 
-  const handleIgnore = (report) => {
-    if (!window.confirm(`Ignorar denúncia #${report.id}?`)) return;
-    setReports(prev => prev.map(r => r.id === report.id ? { ...r, status: "resolvido" } : r));
+  const handleIgnore = async (report) => {
+    if (!window.confirm(`Ignorar denúncia?`)) return;
+    try {
+      await axios.put(API + "/admin/blivre/reports/" + report.id + "/resolve", {}, { headers: authHeaders });
+      await fetchReports();
+    } catch {}
   };
 
   if (loading) {
@@ -123,25 +131,25 @@ export default function AdminDenuncias() {
             </TableHeader>
             <TableBody>
               {filtered.map((r) => (
-                <TableRow key={r.id} className="border-white/[0.04] hover:bg-white/[0.02]">
+                <TableRow key={r.id || r.post_id} className="border-white/[0.04] hover:bg-white/[0.02]">
                   <TableCell>
-                    <p className="text-white font-medium text-[13px]">{r.anuncio || r.title || "—"}</p>
-                    <p className="text-[10px] text-[#8C8F9A] font-mono">{r.id}</p>
+                    <p className="text-white font-medium text-[13px]">{r.post_id || r.title || "—"}</p>
+                    <p className="text-[10px] text-[#8C8F9A] font-mono">{r.id || ""}</p>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Avatar className="h-7 w-7">
-                        <AvatarFallback className="text-[10px] bg-[#D4A24C]/10 text-[#D4A24C]">{(r.autor || r.author || "?")[0]}</AvatarFallback>
+                        <AvatarFallback className="text-[10px] bg-[#D4A24C]/10 text-[#D4A24C]">{(r.reported_user || r.author || r.autor || "?")[0]}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="text-[12px] text-white">{r.autor || r.author || "—"}</p>
-                        <p className="text-[10px] text-[#8C8F9A]">{r.email}</p>
+                        <p className="text-[12px] text-white">{r.reported_user || r.author || r.autor || "—"}</p>
+                        <p className="text-[10px] text-[#8C8F9A]">{r.reason || r.motivo || ""}</p>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="text-[#8C8F9A] text-[12px]">{r.denunciante || "—"}</TableCell>
+                  <TableCell className="text-[#8C8F9A] text-[12px]">{r.reporter || "—"}</TableCell>
                   <TableCell className="max-w-[200px]">
-                    <p className="text-white text-[12px]">{r.motivo || r.reason || "—"}</p>
+                    <p className="text-white text-[12px]">{r.reason || r.motivo || "—"}</p>
                   </TableCell>
                   <TableCell className="text-right">
                     {r.status !== "resolvido" ? (

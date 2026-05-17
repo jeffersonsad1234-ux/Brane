@@ -20,7 +20,7 @@ export default function AdminPasswordReset() {
     const fetchRequests = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(API + "/admin/password-resets", { headers: authHeaders }).catch(() => null);
+        const res = await axios.get(API + "/admin/blivre/password-resets", { headers: authHeaders }).catch(() => null);
         if (res?.data?.requests) setRequests(res.data.requests);
         else setRequests([]);
       } catch {
@@ -34,14 +34,14 @@ export default function AdminPasswordReset() {
 
   const sendReset = async (req) => {
     try {
-      await axios.post(API + "/admin/password-resets/" + req.id + "/send", {}, { headers: authHeaders }).catch(() => {});
+      await axios.post(API + "/admin/blivre/password-resets/" + req.id + "/send", {}, { headers: authHeaders }).catch(() => {});
     } catch {}
     setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: "enviado" } : r));
   };
 
   const blockUser = async (req) => {
     try {
-      await axios.put(API + "/admin/users/" + req.email + "/block", {}, { headers: authHeaders }).catch(() => {});
+      await axios.put(API + "/admin/blivre/password-resets/" + req.id + "/status", { status: "resolvido" }, { headers: authHeaders }).catch(() => {});
     } catch {}
     setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: "resolvido" } : r));
   };

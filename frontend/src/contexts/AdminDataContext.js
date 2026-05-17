@@ -75,7 +75,7 @@ export function AdminDataProvider({ children }) {
   const blockUser = async (uid) => {
     try {
       await axios.put(API + "/admin/users/" + uid + "/block", {}, { headers: authHeaders });
-      setUsers(prev => prev.map(u => u.id === uid ? { ...u, blocked: !u.blocked } : u));
+      setUsers(prev => prev.map(u => (u.user_id || u.id) === uid ? { ...u, is_blocked: !u.is_blocked } : u));
     } catch (e) { console.error(e); }
   };
 
