@@ -274,7 +274,7 @@ export default function SocialPage() {
     state: "",
     avatar: ""
   });
-  const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
+
 
   const [form, setForm] = useState({
     category: "",
@@ -1202,29 +1202,6 @@ export default function SocialPage() {
       setSavingProfile(false);
     }
   };
-
-  const changePassword = async () => {
-    const cp = passwordForm.currentPassword.trim();
-    const np = passwordForm.newPassword.trim();
-    if (!cp || !np) { alert("Preencha senha atual e nova senha."); return; }
-    if (np.length < 6) { alert("Nova senha deve ter pelo menos 6 caracteres."); return; }
-    try {
-      setSavingProfile(true);
-      await axios.put(
-        API + "/social/change-password",
-        { current_password: cp, new_password: np },
-        { headers: authHeaders }
-      );
-      setPasswordForm({ currentPassword: "", newPassword: "" });
-      alert("Senha alterada com sucesso.");
-    } catch (error) {
-      const detail = error?.response?.data?.detail || error?.message || "Erro ao alterar senha.";
-      alert(detail);
-    } finally {
-      setSavingProfile(false);
-    }
-  };
-
   const fetchMessages = async () => {
     if (!currentToken) return;
     try {
@@ -1692,40 +1669,6 @@ export default function SocialPage() {
               >
                 {savingProfile ? "Salvando..." : "Salvar perfil"}
               </button>
-
-              <div className="mt-4 pt-4 border-t border-[#1E2230] space-y-3">
-                <p className="text-xs font-semibold text-[#D4A24C] uppercase tracking-wide">Trocar senha</p>
-                <div className="grid md:grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] text-[#8C8F9A] font-semibold">Senha atual</label>
-                    <input
-                      type="password"
-                      value={passwordForm.currentPassword}
-                      onChange={(e) => setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))}
-                      className="mt-1 w-full p-2.5 brane-input text-sm"
-                      placeholder="Senha atual"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] text-[#8C8F9A] font-semibold">Nova senha</label>
-                    <input
-                      type="password"
-                      value={passwordForm.newPassword}
-                      onChange={(e) => setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))}
-                      className="mt-1 w-full p-2.5 brane-input text-sm"
-                      placeholder="Nova senha (6+ caracteres)"
-                    />
-                  </div>
-                </div>
-                <button
-                  onClick={changePassword}
-                  disabled={savingProfile}
-                  className="w-full py-2.5 rounded-xl text-xs font-bold text-[#161000] disabled:opacity-50"
-                  style={{ background: "linear-gradient(180deg, #F8E0A0, #EAC871, #C89A2E)" }}
-                >
-                  {savingProfile ? "Alterando..." : "Mudar senha"}
-                </button>
-              </div>
             </div>
 
             <div className="flex-shrink-0 border-t border-[#1E2230] px-6 py-3 space-y-1 bg-[#08060d]">
@@ -2496,13 +2439,13 @@ export default function SocialPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
+                  const cityVal = currentUser?.city && !currentUser.city.includes("@") ? currentUser.city.trim() : "";
                   setProfileForm({
                     name: currentUser?.name || "",
-                    city: currentUser?.city || "",
+                    city: cityVal,
                     state: currentUser?.state || "",
                     avatar: currentUser?.avatar || currentUser?.photo || currentUser?.picture || ""
                   });
-                  setPasswordForm({ currentPassword: "", newPassword: "" });
                   setShowSettings(true);
                 }}
                 className="w-9 h-9 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1.5px] shrink-0 hover:brightness-110 transition-all shadow-[0_0_12px_rgba(212,162,76,0.2)]"
@@ -2565,13 +2508,13 @@ export default function SocialPage() {
 
               <button
                 onClick={() => {
+                  const cityVal = currentUser?.city && !currentUser.city.includes("@") ? currentUser.city.trim() : "";
                   setProfileForm({
                     name: currentUser?.name || "",
-                    city: currentUser?.city || "",
+                    city: cityVal,
                     state: currentUser?.state || "",
                     avatar: currentUser?.avatar || currentUser?.photo || ""
                   });
-                  setPasswordForm({ currentPassword: "", newPassword: "" });
                   setShowSettings(true);
                 }}
                 className="w-11 h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C]"
@@ -2641,13 +2584,13 @@ export default function SocialPage() {
                 <div className="flex items-center gap-3 mb-3">
                   <button
                     onClick={() => {
+                      const cityVal = currentUser?.city && !currentUser.city.includes("@") ? currentUser.city.trim() : "";
                       setProfileForm({
                         name: currentUser?.name || "",
-                        city: currentUser?.city || "",
+                        city: cityVal,
                         state: currentUser?.state || "",
                         avatar: currentUser?.avatar || currentUser?.photo || currentUser?.picture || ""
                       });
-                      setPasswordForm({ currentPassword: "", newPassword: "" });
                       setShowSettings(true);
                     }}
                     className="w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[2px] shrink-0 hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.25)]"
@@ -3085,13 +3028,13 @@ export default function SocialPage() {
             key={value}
             onClick={() => {
               if (value === "settings") {
+                const cityVal = currentUser?.city && !currentUser.city.includes("@") ? currentUser.city.trim() : "";
                 setProfileForm({
                   name: currentUser?.name || "",
-                  city: currentUser?.city || "",
+                  city: cityVal,
                   state: currentUser?.state || "",
                   avatar: currentUser?.avatar || currentUser?.photo || ""
                 });
-                setPasswordForm({ currentPassword: "", newPassword: "" });
                 setShowSettings(true);
                 window.history.pushState({ braneSettings: true }, "", window.location.pathname);
               } else if (value === "messages") {
