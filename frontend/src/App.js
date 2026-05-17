@@ -42,6 +42,8 @@ import AdminFinanceiro from "./pages/admin/AdminFinanceiro";
 import AdminSuporte from "./pages/admin/AdminSuporte";
 import AdminConfiguracoes from "./pages/admin/AdminConfiguracoes";
 import AdminPasswordReset from "./pages/admin/AdminPasswordReset";
+import AdminMessages from "./pages/admin/AdminMessages";
+import AdminBanners from "./pages/admin/AdminBanners";
 import { AdminDataProvider } from "./contexts/AdminDataContext";
 import BLivreAuthPage from "./pages/BLivreAuthPage";
 import BLivreMessagesPage from "./pages/BLivreMessagesPage";
@@ -167,10 +169,12 @@ function AppRouter() {
             <Route path="/desapega" element={<DesapegaPage />} />
 
             {/* Admin — completamente separado do BLivreLayout */}
-            <Route path="/blivre/admin" element={<AdminDataProvider><BLivreAdminPage /></AdminDataProvider>}>
+            <Route path="/blivre/admin" element={<ProtectedRoute adminOnly><AdminDataProvider><BLivreAdminPage /></AdminDataProvider></ProtectedRoute>}>
               <Route index element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="products" element={<AdminProducts />} />
+              <Route path="messages" element={<AdminMessages />} />
+              <Route path="banners" element={<AdminBanners />} />
               <Route path="reports" element={<AdminReports />} />
               <Route path="denuncias" element={<AdminDenuncias />} />
               <Route path="financeiro" element={<AdminFinanceiro />} />

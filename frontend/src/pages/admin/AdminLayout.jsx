@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users, ShoppingBag, FileText, Bell, Settings,
-  LogOut, Menu, Search, ChevronRight, Flag, DollarSign, HeadphonesIcon
+  LogOut, Menu, Search, ChevronRight, Flag, DollarSign, HeadphonesIcon,
+  MessageSquare, Image
 } from "lucide-react";
 import { Input } from "../../components/ui/input";
 import { Avatar, AvatarFallback } from "../../components/ui/avatar";
@@ -13,6 +14,8 @@ const navItems = [
   { path: "/blivre/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { path: "/blivre/admin/users", label: "Usuários", icon: Users },
   { path: "/blivre/admin/products", label: "Anúncios", icon: ShoppingBag },
+  { path: "/blivre/admin/messages", label: "Mensagens", icon: MessageSquare },
+  { path: "/blivre/admin/banners", label: "Banners", icon: Image },
   { path: "/blivre/admin/reports", label: "Relatórios", icon: FileText },
   { path: "/blivre/admin/denuncias", label: "Denúncias", icon: Flag },
   { path: "/blivre/admin/financeiro", label: "Financeiro", icon: DollarSign },

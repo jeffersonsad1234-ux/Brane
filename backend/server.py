@@ -4135,6 +4135,167 @@ async def update_footer_config(payload: FooterConfigUpdate, request: Request):
     )
     return value
 
+# ==================== BLIVRE ADMIN ENDPOINTS ====================
+@api_router.get("/admin/blivre/dashboard")
+async def blivre_admin_dashboard(request: Request):
+    await require_admin(request)
+    now = datetime.now(timezone.utc)
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+    fifteen_ago = (now - timedelta(minutes=15)).isoformat()
+
+    total_users = await db.users.count_documents({})
+    total_posts = await db.social_posts.count_documents({})
+    total_messages = await db.social_messages.count_documents({})
+    total_reports = await db.social_reports.count_documents({})
+
+    online_users = await db.users.count_documents({"last_active_at": {"$gte": fifteen_ago}})
+    active_today = await db.users.count_documents({"last_active_at": {"$gte": today_start}})
+    new_today = await db.users.count_documents({"created_at": {"$gte": today_start}})
+    posts_today = await db.social_posts.count_documents({"created_at": {"$gte": today_start}})
+    messages_today = await db.social_messages.count_documents({"created_at": {"$gte": today_start}})
+    pending_reports = await db.social_reports.count_documents({"status": "pendente"})
+
+    # Top 5 most viewed posts
+    top_posts = await db.social_posts.find({}, {"_id": 0, "post_id": 1, "title": 1, "author": 1, "views": 1, "interests": 1}).sort("views", -1).limit(5).to_list(5)
+
+    # Users per day (last 7 days)
+    seven_days_ago = (now - timedelta(days=7)).isoformat()
+    pipeline_days = [{"$match": {"created_at": {"$gte": seven_days_ago}}}, {"$group": {"_id": {"$substr": ["$created_at", 0, 10]}, "count": {"$sum": 1}}}, {"$sort": {"_id": 1}}]
+    users_per_day = await db.users.aggregate(pipeline_days).to_list(7)
+    posts_per_day = await db.social_posts.aggregate(pipeline_days).to_list(7)
+
+    return {
+        "total_users": total_users, "online_users": online_users,
+        "active_today": active_today, "new_today": new_today,
+        "total_posts": total_posts, "posts_today": posts_today,
+        "total_messages": total_messages, "messages_today": messages_today,
+        "total_reports": total_reports, "pending_reports": pending_reports,
+        "top_posts": top_posts,
+        "users_per_day": [{"date": d["_id"], "count": d["count"]} for d in users_per_day],
+        "posts_per_day": [{"date": d["_id"], "count": d["count"]} for d in posts_per_day],
+    }
+
+@api_router.put("/admin/blivre/products/{post_id}/status")
+async def blivre_admin_update_post_status(post_id: str, request: Request):
+    await require_admin(request)
+    body = await request.json()
+    new_status = body.get("status", "active")
+    await db.social_posts.update_one({"post_id": post_id}, {"$set": {"status": new_status}})
+    return {"message": f"Status alterado para {new_status}"}
+
+@api_router.put("/admin/blivre/products/{post_id}/promote")
+async def blivre_admin_toggle_promote(post_id: str, request: Request):
+    await require_admin(request)
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post: raise HTTPException(status_code=404, detail="Post nao encontrado")
+    current = post.get("featured", False)
+    await db.social_posts.update_one({"post_id": post_id}, {"$set": {"featured": not current}})
+    return {"featured": not current}
+
+@api_router.post("/admin/blivre/products")
+async def blivre_admin_create_product(data: dict, request: Request):
+    await require_admin(request)
+    admin = await get_current_user(request)
+    pid = f"sp_{uuid.uuid4().hex[:12]}"
+    post = {
+        "post_id": pid, "user_id": admin["user_id"],
+        "author": admin.get("name", "Admin"), "email": admin.get("email", ""),
+        "title": data.get("title", ""), "description": data.get("description", ""),
+        "category": data.get("category", "Outros"), "price": data.get("price", "0"),
+        "city": data.get("city", ""), "state": data.get("state", ""),
+        "whatsapp": data.get("whatsapp", ""), "image": data.get("image", ""),
+        "status": "active", "featured": True, "views": 0, "interests": 0,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.social_posts.insert_one(post)
+    return post
+
+@api_router.get("/admin/blivre/messages")
+async def blivre_admin_list_conversations(request: Request, limit: int = 100):
+    await require_admin(request)
+    # Group by post_id to build conversation summaries
+    pipeline = [
+        {"$sort": {"created_at": -1}},
+        {"$group": {"_id": "$post_id", "last_message": {"$first": "$$ROOT"}, "count": {"$sum": 1}}},
+        {"$limit": limit}
+    ]
+    grouped = await db.social_messages.aggregate(pipeline).to_list(limit)
+    convos = []
+    for g in grouped:
+        msg = g["last_message"]
+        post = await db.social_posts.find_one({"post_id": g["_id"]}, {"_id": 0, "title": 1, "author": 1})
+        convos.append({
+            "post_id": g["_id"],
+            "post_title": (post.get("title") if post else "Anúncio") or "Anúncio",
+            "post_author": (post.get("author") if post else "—") or "—",
+            "last_message": msg.get("message", ""),
+            "sender_name": msg.get("sender_name", ""),
+            "message_count": g["count"],
+            "last_at": msg.get("created_at").isoformat() if isinstance(msg.get("created_at"), datetime) else msg.get("created_at", ""),
+        })
+    return {"conversations": convos}
+
+@api_router.get("/admin/blivre/messages/{post_id}")
+async def blivre_admin_get_conversation(post_id: str, request: Request):
+    await require_admin(request)
+    projection = {"_id": 0, "post_id": 1, "message": 1, "sender_id": 1, "sender_name": 1, "receiver_id": 1, "read_at": 1, "created_at": 1}
+    messages = await db.social_messages.find({"post_id": post_id}, projection).sort("created_at", 1).to_list(500)
+    # Format datetime
+    for m in messages:
+        if isinstance(m.get("created_at"), datetime):
+            m["created_at"] = m["created_at"].isoformat()
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0, "title": 1, "author": 1})
+    return {"messages": messages, "post": post}
+
+@api_router.put("/admin/blivre/reports/{report_id}/resolve")
+async def blivre_admin_resolve_report(report_id: str, request: Request):
+    await require_admin(request)
+    await db.social_reports.update_one({"id": report_id}, {"$set": {"status": "resolvido"}})
+    return {"message": "Denuncia resolvida"}
+
+@api_router.put("/admin/blivre/reports/{report_id}/remove-content")
+async def blivre_admin_remove_reported_content(report_id: str, request: Request):
+    await require_admin(request)
+    report = await db.social_reports.find_one({"id": report_id}, {"_id": 0})
+    if report and report.get("post_id"):
+        await db.social_posts.delete_one({"post_id": report["post_id"]})
+    await db.social_reports.update_one({"id": report_id}, {"$set": {"status": "resolvido"}})
+    return {"message": "Conteudo removido e denuncia resolvida"}
+
+@api_router.get("/admin/blivre/banners")
+async def blivre_admin_list_banners(request: Request):
+    await require_admin(request)
+    banners = await db.ads.find({"owner_id": "admin"}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return {"banners": banners}
+
+@api_router.post("/admin/blivre/banners")
+async def blivre_admin_create_banner(data: dict, request: Request):
+    await require_admin(request)
+    banner_id = f"banner_{uuid.uuid4().hex[:12]}"
+    banner = {
+        "ad_id": banner_id, "owner_id": "admin", "owner_name": "Admin",
+        "title": data.get("title", ""), "image": data.get("image", ""),
+        "link": data.get("link", ""), "position": data.get("position", "topo"),
+        "active": data.get("active", True), "clicks": 0, "views": 0,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    await db.ads.insert_one(banner)
+    return banner
+
+@api_router.put("/admin/blivre/banners/{banner_id}")
+async def blivre_admin_update_banner(banner_id: str, data: dict, request: Request):
+    await require_admin(request)
+    updates = {k: v for k, v in data.items() if k in ("title", "image", "link", "position", "active")}
+    if updates:
+        await db.ads.update_one({"ad_id": banner_id}, {"$set": updates})
+    return await db.ads.find_one({"ad_id": banner_id}, {"_id": 0})
+
+@api_router.delete("/admin/blivre/banners/{banner_id}")
+async def blivre_admin_delete_banner(banner_id: str, request: Request):
+    await require_admin(request)
+    await db.ads.delete_one({"ad_id": banner_id})
+    return {"message": "Banner removido"}
+
 app.add_middleware(
     CORSMiddleware,
     allow_origin_regex=r".*",
