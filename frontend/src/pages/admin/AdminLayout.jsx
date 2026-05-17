@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 import {
   LayoutDashboard, Users, ShoppingBag, FileText, Bell, Settings,
   LogOut, Menu, Search, ChevronRight, Flag, DollarSign, HeadphonesIcon,
@@ -7,8 +8,10 @@ import {
 } from "lucide-react";
 import { Input } from "../../components/ui/input";
 import { Avatar, AvatarFallback } from "../../components/ui/avatar";
+import { useAdminData } from "../../contexts/AdminDataContext";
 
 const gold = "#D4A24C";
+const API = `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
 
 const navItems = [
   { path: "/blivre/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -26,8 +29,22 @@ const navItems = [
 export default function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [adminOnline, setAdminOnline] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { authHeaders } = useAdminData();
+
+  useEffect(() => {
+    const ping = async () => {
+      try {
+        await axios.post(API + "/admin/presence", {}, { headers: authHeaders });
+        setAdminOnline(true);
+      } catch { setAdminOnline(false); }
+    };
+    ping();
+    const interval = setInterval(ping, 30000);
+    return () => clearInterval(interval);
+  }, [authHeaders]);
 
   const isActive = (item) => {
     if (item.exact) return location.pathname === item.path;
@@ -108,6 +125,13 @@ export default function AdminLayout() {
               <span className="font-semibold text-white">
                 {navItems.find(i => isActive(i))?.label || "Dashboard"}
               </span>
+            </div>
+            <div className="flex items-center gap-1.5 ml-3 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+              <span className={`relative flex h-2 w-2 ${adminOnline ? "" : "opacity-30"}`}>
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 ${adminOnline ? "" : "hidden"}`} />
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${adminOnline ? "bg-emerald-400" : "bg-gray-500"}`} />
+              </span>
+              <span className="text-[10px] font-semibold text-emerald-400">{adminOnline ? "Admin online" : "offline"}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">

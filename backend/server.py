@@ -2824,20 +2824,34 @@ async def admin_list_support(request: Request):
     msgs = await db.support_messages.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return {"messages": msgs}
 
+@api_router.post("/admin/presence")
+async def admin_update_presence(request: Request):
+    admin_user = await require_admin(request)
+    await db.users.update_one({"user_id": admin_user["user_id"]}, {"$set": {"last_active_at": datetime.now(timezone.utc).isoformat()}})
+    return {"status": "online"}
+
 @api_router.get("/admin/stats")
 async def admin_stats(request: Request):
     await require_admin(request)
     now = datetime.now(timezone.utc)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+    two_min_ago = (now - timedelta(minutes=2)).isoformat()
+
     total_users = await db.users.count_documents({})
     total_posts = await db.social_posts.count_documents({})
     total_messages = await db.social_messages.count_documents({})
+    total_reports = await db.social_reports.count_documents({})
     posts_today = await db.social_posts.count_documents({"created_at": {"$gte": today_start}})
     users_today = await db.users.count_documents({"created_at": {"$gte": today_start}})
+    messages_today = await db.social_messages.count_documents({"created_at": {"$gte": today_start}})
+    online_users = await db.users.count_documents({"last_active_at": {"$gte": two_min_ago}})
+    pending_reports = await db.social_reports.count_documents({"status": "pendente"})
     return {
         "total_users": total_users, "total_posts": total_posts,
-        "total_messages": total_messages, "posts_today": posts_today,
-        "users_today": users_today,
+        "total_messages": total_messages, "total_reports": total_reports,
+        "posts_today": posts_today, "users_today": users_today,
+        "messages_today": messages_today,
+        "online_users": online_users, "pending_reports": pending_reports,
     }
 
 @api_router.get("/admin/posts")
@@ -2851,6 +2865,33 @@ async def admin_messages(request: Request, limit: int = 200, skip: int = 0):
     await require_admin(request)
     messages = await db.social_messages.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     return {"messages": messages}
+
+@api_router.get("/admin/posts/categories")
+async def admin_posts_categories(request: Request):
+    await require_admin(request)
+    pipeline = [{"$group": {"_id": "$category", "count": {"$sum": 1}}}, {"$sort": {"count": -1}}]
+    cats = await db.social_posts.aggregate(pipeline).to_list(50)
+    return {"categories": [{"name": c["_id"] or "Outros", "count": c["count"]} for c in cats]}
+
+@api_router.get("/admin/daily-activity")
+async def admin_daily_activity(request: Request, days: int = 7):
+    await require_admin(request)
+    now = datetime.now(timezone.utc)
+    start = (now - timedelta(days=days)).isoformat()
+    pipeline = [{"$match": {"created_at": {"$gte": start}}}, {"$group": {"_id": {"$substr": ["$created_at", 0, 10]}, "count": {"$sum": 1}}}, {"$sort": {"_id": 1}}]
+    users_per_day = await db.users.aggregate(pipeline).to_list(days + 2)
+    posts_per_day = await db.social_posts.aggregate(pipeline).to_list(days + 2)
+    messages_per_day = await db.social_messages.aggregate(pipeline).to_list(days + 2)
+    def to_map(items):
+        return {d["_id"]: d["count"] for d in items}
+    user_map = to_map(users_per_day)
+    post_map = to_map(posts_per_day)
+    msg_map = to_map(messages_per_day)
+    result = []
+    for i in range(days, -1, -1):
+        day = (now - timedelta(days=i)).strftime("%Y-%m-%d")
+        result.append({"date": day, "users": user_map.get(day, 0), "posts": post_map.get(day, 0), "messages": msg_map.get(day, 0)})
+    return {"days": result}
 
 @api_router.get("/admin/pages/{slug}")
 async def admin_get_page(slug: str, request: Request):
