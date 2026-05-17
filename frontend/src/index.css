@@ -80,15 +80,7 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
-/* Hide Emergent platform badge */
-[class*="emergent-visual"], [data-emergent], #emergent-badge,
-div[style*="Made with Emergent"], a[href*="emergent.sh"][style],
-div[style*="z-index: 2147483647"], div[style*="position: fixed"][style*="bottom"] > a[href*="emergent"] {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-}
+
 @media (max-width: 768px) {
   html {
     font-size: 13px;

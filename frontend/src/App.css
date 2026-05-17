@@ -341,10 +341,6 @@
     animation: pulse-slow 4s ease-in-out infinite;
 }
 
-/* Hide Emergent badge */
-div[class*="visual-edits"], div[id*="emergent"] {
-    display: none !important;
-}
 /* OTIMIZAÇÃO: fundo BRANE parado, sem animações pesadas */
 .animated-bg .cube,
 .animated-bg .orb {
