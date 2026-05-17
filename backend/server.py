@@ -690,6 +690,11 @@ async def create_social_post(data: SocialPostCreate, request: Request):
 
 async def seed_blivre_posts():
     """Auto-seed B Livre with example posts when collection is empty."""
+    # Remove old seed posts (they may have wrong images from previous seed)
+    removed = await db.social_posts.delete_many({"user_id": "seed_b_livre"})
+    if removed.deleted_count > 0:
+        logger.info(f"[B Livre] Removidos {removed.deleted_count} anúncios seed antigos para recriar com imagens corretas")
+
     count = await db.social_posts.count_documents({})
     if count > 0:
         return False
@@ -709,16 +714,16 @@ async def seed_blivre_posts():
         {"name": "Larissa Mendes", "city": "Florianópolis",   "state": "SC"},
     ]
     seed_data = [
-        {"title": "Bicicleta usada",    "price": "180", "condition": "Usado",    "desc": "Bicicleta aro 28, marchas, em bom estado. Ideal para lazer ou transporte diário.", "img": "bike"},
-        {"title": "Ventilador seminovo","price": "60",  "condition": "Seminovo", "desc": "Ventilador de parede 40cm, 3 velocidades, controle remoto. Funciona perfeitamente.", "img": "fan"},
-        {"title": "Mesa pequena",       "price": "90",  "condition": "Usado",    "desc": "Mesa retangular 80x50cm, madeira maciça. Leve desgaste na superfície, ótimo custo.", "img": "table"},
-        {"title": "Celular usado",      "price": "250", "condition": "Usado",    "desc": "Smartphone Android 64GB, tela 6.1, câmera 12MP. Acompanha carregador e capa.", "img": "phone"},
-        {"title": "Mochila escolar",    "price": "35",  "condition": "Seminovo", "desc": "Mochila 35L, compartimento para notebook, várias cores. Usada por 1 semestre.", "img": "backpack"},
-        {"title": "Tênis usado",        "price": "70",  "condition": "Usado",    "desc": "Tênis casual tamanho 40/41, pouco uso. Confortável para o dia a dia.", "img": "sneakers"},
-        {"title": "Cadeira de escritório","price": "120","condition": "Usado",   "desc": "Cadeira ergonômica com braços ajustáveis, encosto reclinável. Bastante confortável.", "img": "chair"},
-        {"title": "Liquidificador",     "price": "50",  "condition": "Seminovo", "desc": "Liquidificador 2L, 5 velocidades, copo de vidro. Pouquíssimo uso.", "img": "blender"},
-        {"title": "Capacete moto",      "price": "80",  "condition": "Novo",     "desc": "Capacete fechado, tamanho M, viseira fumê. Certificado INMETRO. Nunca usado.", "img": "helmet"},
-        {"title": "Violão usado",       "price": "200", "condition": "Usado",    "desc": "Violão aço EAG, som encorpado. Cordas novas, leves marcas de uso no braço.", "img": "guitar"},
+        {"title": "Bicicleta usada",    "price": "180", "condition": "Usado",    "desc": "Bicicleta aro 28, marchas, em bom estado. Ideal para lazer ou transporte diário.", "img": "https://images.unsplash.com/photo-1532298229144-0ec0c57515c7?w=400&h=400&fit=crop&auto=format"},
+        {"title": "Ventilador seminovo","price": "60",  "condition": "Seminovo", "desc": "Ventilador de parede 40cm, 3 velocidades, controle remoto. Funciona perfeitamente.", "img": "https://images.unsplash.com/photo-1565151443833-29bf2ba5dd8d?w=400&h=400&fit=crop&auto=format"},
+        {"title": "Mesa pequena",       "price": "90",  "condition": "Usado",    "desc": "Mesa retangular 80x50cm, madeira maciça. Leve desgaste na superfície, ótimo custo.", "img": "https://images.unsplash.com/photo-1737534884876-426964ba462a?w=400&h=400&fit=crop&auto=format"},
+        {"title": "Celular usado",      "price": "250", "condition": "Usado",    "desc": "Smartphone Android 64GB, tela 6.1, câmera 12MP. Acompanha carregador e capa.", "img": "https://images.unsplash.com/photo-1758186355698-bd0183fc75ed?w=400&h=400&fit=crop&auto=format"},
+        {"title": "Mochila escolar",    "price": "35",  "condition": "Seminovo", "desc": "Mochila 35L, compartimento para notebook, várias cores. Usada por 1 semestre.", "img": "https://images.unsplash.com/photo-1583300418584-8332e32b710e?w=400&h=400&fit=crop&auto=format"},
+        {"title": "Tênis usado",        "price": "70",  "condition": "Usado",    "desc": "Tênis casual tamanho 40/41, pouco uso. Confortável para o dia a dia.", "img": "https://images.unsplash.com/photo-1680204101489-2c1319c872b2?w=400&h=400&fit=crop&auto=format"},
+        {"title": "Cadeira de escritório","price": "120","condition": "Usado",   "desc": "Cadeira ergonômica com braços ajustáveis, encosto reclinável. Bastante confortável.", "img": "https://images.unsplash.com/photo-1611001476049-a59a2736d410?w=400&h=400&fit=crop&auto=format"},
+        {"title": "Liquidificador",     "price": "50",  "condition": "Seminovo", "desc": "Liquidificador 2L, 5 velocidades, copo de vidro. Pouquíssimo uso.", "img": "https://images.unsplash.com/photo-1725419281114-9e9fddbdec6d?w=400&h=400&fit=crop&auto=format"},
+        {"title": "Capacete moto",      "price": "80",  "condition": "Novo",     "desc": "Capacete fechado, tamanho M, viseira fumê. Certificado INMETRO. Nunca usado.", "img": "https://images.unsplash.com/photo-1718941144539-1d90956a117d?w=400&h=400&fit=crop&auto=format"},
+        {"title": "Violão usado",       "price": "200", "condition": "Usado",    "desc": "Violão aço EAG, som encorpado. Cordas novas, leves marcas de uso no braço.", "img": "https://images.unsplash.com/photo-1505859208100-4a17362f784b?w=400&h=400&fit=crop&auto=format"},
     ]
     posts = []
     for i, s in enumerate(seed_data):
@@ -727,7 +732,7 @@ async def seed_blivre_posts():
         pid = f"sp_{uuid.uuid4().hex[:12]}"
         loc = f"{seller['city']} - {seller['state']}"
         content = f"{s['title']}\nR$ {s['price']}\nProdutos\n{s['condition']}\n{loc}\nItem único\n{s['desc']}"
-        image_url = json.dumps([f"https://picsum.photos/seed/{s['img']}/400/400"])
+        image_url = json.dumps([s['img']])
         posts.append({
             "post_id": pid, "user_id": "seed_b_livre", "user_name": seller["name"],
             "author": seller["name"], "title": s["title"], "price": s["price"],
