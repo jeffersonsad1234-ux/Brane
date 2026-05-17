@@ -49,6 +49,7 @@ import BLivreAuthPage from "./pages/BLivreAuthPage";
 import BLivreMessagesPage from "./pages/BLivreMessagesPage";
 import { BLivreAuthProvider } from "./contexts/BLivreAuthContext";
 import BLivreSEO from "./components/BLivreSEO";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 function BLivreLayout() {
   return (
@@ -169,7 +170,7 @@ function AppRouter() {
             <Route path="/desapega" element={<DesapegaPage />} />
 
             {/* Admin — completamente separado do BLivreLayout */}
-            <Route path="/blivre/admin" element={<ProtectedRoute adminOnly><AdminDataProvider><BLivreAdminPage /></AdminDataProvider></ProtectedRoute>}>
+            <Route path="/blivre/admin" element={<ErrorBoundary><AdminDataProvider><BLivreAdminPage /></AdminDataProvider></ErrorBoundary>}>
               <Route index element={<AdminDashboard />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="products" element={<AdminProducts />} />
