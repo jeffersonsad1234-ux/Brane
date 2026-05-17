@@ -1367,7 +1367,7 @@ export default function SocialPage() {
   );
 
   return (
-    <div className="min-h-screen text-white relative overflow-hidden" style={{ background: '#1E1E1E' }}>
+    <div className="min-h-screen text-white relative overflow-hidden" style={{ background: 'radial-gradient(ellipse 80% 30% at 50% -10%, rgba(212,162,76,0.04) 0%, transparent 100%), linear-gradient(175deg, #0B0F1A 0%, #0D1224 40%, #0A0E1A 100%)' }}>
       <style>
         {`
           @keyframes blivreSlideIn {
