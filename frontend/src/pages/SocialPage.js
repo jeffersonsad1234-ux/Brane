@@ -97,6 +97,7 @@ export default function SocialPage() {
   const chatScrollRef = useRef(null);
   const aiChatScrollRef = useRef(null);
   const userRef = useRef(null);
+  const lastProfileRef = useRef(null);
   userRef.current = currentUser;
 
   const [posts, setPosts] = useState([]);
@@ -556,8 +557,13 @@ export default function SocialPage() {
   }, [currentToken]);
 
   useEffect(() => {
-    const handlePop = () => {
-      if (selectedChat) { closeChat(); return; }
+    const handlePop = (e) => {
+      const state = e.state || {};
+      if (state.braneChat) { closeChat(); if (activeFilter === "messages") setActiveFilter("all"); return; }
+      if (state.branePost) { setSelectedPost(null); return; }
+      if (state.braneSettings) { setShowSettings(false); return; }
+      if (state.braneTab) { setActiveFilter("all"); setSelectedCategory(""); return; }
+      if (selectedChat) { closeChat(); if (activeFilter === "messages") setActiveFilter("all"); return; }
       if (selectedPost) { setSelectedPost(null); return; }
       if (showNotifications) { setShowNotifications(false); return; }
       if (showSettings) { setShowSettings(false); return; }
@@ -1041,6 +1047,7 @@ export default function SocialPage() {
         API + "/social/posts/" + key,
         {
           content: buildContent(),
+          description: form.description || buildContent(),
           image: JSON.stringify(images),
           category: form.category,
           title: form.title,
@@ -1049,7 +1056,11 @@ export default function SocialPage() {
           city: form.city,
           product_condition: form.productCondition,
           phone: form.phone,
-          whatsapp: form.whatsapp
+          whatsapp: form.whatsapp,
+          availability: form.availability || "disponivel",
+          enhanced_title: enhancedTitle || form.title,
+          enhanced_description: enhancedDesc || form.description || buildContent(),
+          marketing_text: marketingLine || form.title
         },
         { headers: authHeaders }
       );
@@ -1193,6 +1204,7 @@ export default function SocialPage() {
         { headers: authHeaders }
       );
 
+      lastProfileRef.current = { ...profileForm };
       setShowSettings(false);
       alert("Perfil atualizado.");
     } catch (error) {
@@ -2452,11 +2464,12 @@ export default function SocialPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
-                  const cityVal = currentUser?.city && !currentUser.city.includes("@") ? currentUser.city.trim() : "";
+                  const savedCity = lastProfileRef.current?.city;
+                  const cityVal = (currentUser?.city && !currentUser.city.includes("@") ? currentUser.city.trim() : savedCity) || "";
                   setProfileForm({
-                    name: currentUser?.name || "",
+                    name: currentUser?.name || lastProfileRef.current?.name || "",
                     city: cityVal,
-                    state: currentUser?.state || "",
+                    state: currentUser?.state || lastProfileRef.current?.state || "",
                     avatar: currentUser?.avatar || currentUser?.photo || currentUser?.picture || ""
                   });
                   setShowSettings(true);
@@ -2569,15 +2582,16 @@ export default function SocialPage() {
                 <div className="flex items-center gap-3 mb-3">
                   <button
                     onClick={() => {
-                      const cityVal = currentUser?.city && !currentUser.city.includes("@") ? currentUser.city.trim() : "";
-                      setProfileForm({
-                        name: currentUser?.name || "",
-                        city: cityVal,
-                        state: currentUser?.state || "",
-                        avatar: currentUser?.avatar || currentUser?.photo || currentUser?.picture || ""
-                      });
-                      setShowSettings(true);
-                    }}
+                const savedCity = lastProfileRef.current?.city;
+                const cityVal = (currentUser?.city && !currentUser.city.includes("@") ? currentUser.city.trim() : savedCity) || "";
+                setProfileForm({
+                  name: currentUser?.name || lastProfileRef.current?.name || "",
+                  city: cityVal,
+                  state: currentUser?.state || lastProfileRef.current?.state || "",
+                  avatar: currentUser?.avatar || currentUser?.photo || currentUser?.picture || ""
+                });
+                setShowSettings(true);
+              }}
                     className="w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[2px] shrink-0 hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.25)]"
                   >
                     <div className="w-full h-full rounded-full bg-[#0B0D12] overflow-hidden flex items-center justify-center">
@@ -3013,7 +3027,8 @@ export default function SocialPage() {
             key={value}
             onClick={() => {
               if (value === "settings") {
-                const cityVal = currentUser?.city && !currentUser.city.includes("@") ? currentUser.city.trim() : "";
+                const savedCity = lastProfileRef.current?.city;
+                const cityVal = (currentUser?.city && !currentUser.city.includes("@") ? currentUser.city.trim() : savedCity) || "";
                 setProfileForm({
                   name: currentUser?.name || "",
                   city: cityVal,
@@ -3024,10 +3039,16 @@ export default function SocialPage() {
                 window.history.pushState({ braneSettings: true }, "", window.location.pathname);
               } else if (value === "messages") {
                 openMessagesTab();
+                if (window.innerWidth < 768) window.history.pushState({ braneTab: value }, "", window.location.pathname);
+              } else if (value === "all") {
+                setActiveFilter("all");
+                setSelectedCategory("");
+                closeChat();
               } else {
-                setActiveFilter(value === "all" ? "all" : value);
+                setActiveFilter(value);
                 setSelectedCategory("");
                 setSelectedChat(null);
+                if (window.innerWidth < 768) window.history.pushState({ braneTab: value }, "", window.location.pathname);
               }
             }}
             className={"relative " + (value === (activeFilter === "all" ? "all" : activeFilter) ? "brane-bottom-active" : "")}

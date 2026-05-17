@@ -20,11 +20,11 @@ export function AdminDataProvider({ children }) {
   // Grab token from B Livre auth (blivre_token) or main auth
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("blivre_token") || localStorage.getItem("auth_token") || localStorage.getItem("token");
+      const stored = localStorage.getItem("blivre_token") || localStorage.getItem("brane_token") || localStorage.getItem("auth_token") || localStorage.getItem("token");
       if (stored) setToken(stored);
     } catch { /* noop */ }
     const check = () => {
-      const t = localStorage.getItem("blivre_token") || localStorage.getItem("auth_token") || localStorage.getItem("token");
+      const t = localStorage.getItem("blivre_token") || localStorage.getItem("brane_token") || localStorage.getItem("auth_token") || localStorage.getItem("token");
       if (t !== token) setToken(t);
     };
     window.addEventListener("storage", check);
