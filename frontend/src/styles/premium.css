@@ -936,8 +936,8 @@ body[data-card-shape="minimal"] .theme-product-card:hover {
   justify-content: space-around;
   padding: 0.35rem 0.5rem;
   padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0.35rem));
-  background: transparent;
-  border-top: none;
+  background: #0B0B0D;
+  border-top: 1px solid rgba(212, 162, 76, 0.2);
 }
 .brane-bottom-nav button {
   display: flex;
