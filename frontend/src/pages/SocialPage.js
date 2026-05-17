@@ -274,6 +274,7 @@ export default function SocialPage() {
     state: "",
     avatar: ""
   });
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: "", newPassword: "" });
 
   const [form, setForm] = useState({
     category: "",
@@ -1202,6 +1203,28 @@ export default function SocialPage() {
     }
   };
 
+  const changePassword = async () => {
+    const cp = passwordForm.currentPassword.trim();
+    const np = passwordForm.newPassword.trim();
+    if (!cp || !np) { alert("Preencha senha atual e nova senha."); return; }
+    if (np.length < 6) { alert("Nova senha deve ter pelo menos 6 caracteres."); return; }
+    try {
+      setSavingProfile(true);
+      await axios.put(
+        API + "/social/change-password",
+        { current_password: cp, new_password: np },
+        { headers: authHeaders }
+      );
+      setPasswordForm({ currentPassword: "", newPassword: "" });
+      alert("Senha alterada com sucesso.");
+    } catch (error) {
+      const detail = error?.response?.data?.detail || error?.message || "Erro ao alterar senha.";
+      alert(detail);
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
   const fetchMessages = async () => {
     if (!currentToken) return;
     try {
@@ -1626,6 +1649,16 @@ export default function SocialPage() {
                 />
               </div>
 
+              <div className="md:col-span-2">
+                <label className="text-xs text-[#8C8F9A] font-semibold">E-mail</label>
+                <input
+                  value={currentUser?.email || ""}
+                  readOnly
+                  className="mt-1.5 w-full p-3 brane-input opacity-60 cursor-not-allowed"
+                />
+                <p className="text-[10px] text-[#6F7280] mt-1">E-mail associado à sua conta</p>
+              </div>
+
               <div>
                 <label className="text-xs text-[#8C8F9A] font-semibold">Estado</label>
                 <select
@@ -1659,43 +1692,59 @@ export default function SocialPage() {
               {savingProfile ? "Salvando..." : "Salvar perfil"}
             </button>
 
-            <div className="mt-5 pt-4 border-t border-[#1E2230] space-y-1">
+            <div className="mt-5 pt-4 border-t border-[#1E2230] space-y-3">
+              <p className="text-xs font-semibold text-[#D4A24C] uppercase tracking-wide">Trocar senha</p>
+              <div className="grid md:grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] text-[#8C8F9A] font-semibold">Senha atual</label>
+                  <input
+                    type="password"
+                    value={passwordForm.currentPassword}
+                    onChange={(e) => setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))}
+                    className="mt-1 w-full p-2.5 brane-input text-sm"
+                    placeholder="Senha atual"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-[#8C8F9A] font-semibold">Nova senha</label>
+                  <input
+                    type="password"
+                    value={passwordForm.newPassword}
+                    onChange={(e) => setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))}
+                    className="mt-1 w-full p-2.5 brane-input text-sm"
+                    placeholder="Nova senha (6+ caracteres)"
+                  />
+                </div>
+              </div>
               <button
-                onClick={() => { setShowSettings(false); window.location.href = '/support'; }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A6A8B3] hover:text-white hover:bg-white/[0.04] transition-colors"
+                onClick={changePassword}
+                disabled={savingProfile}
+                className="w-full py-2.5 rounded-xl text-xs font-bold text-[#161000] disabled:opacity-50"
+                style={{ background: "linear-gradient(180deg, #F8E0A0, #EAC871, #C89A2E)" }}
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-[#D4A24C]">
-                  <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
-                Falar com suporte
+                {savingProfile ? "Alterando..." : "Mudar senha"}
               </button>
-              <button
-                onClick={() => { setShowSettings(false); window.location.href = '/auth'; }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A6A8B3] hover:text-white hover:bg-white/[0.04] transition-colors"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-[#D4A24C]">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
-                Esqueci minha senha
-              </button>
-              <button
-                onClick={() => { setShowSettings(false); window.location.href = '/dashboard'; }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A6A8B3] hover:text-white hover:bg-white/[0.04] transition-colors"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-[#D4A24C]">
-                  <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                </svg>
-                Configurações da conta
-              </button>
-              <button
-                onClick={async () => { await logout(); setShowSettings(false); window.location.href = "/blivre/login"; }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/[0.06] transition-colors"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-                </svg>
-                Sair da conta
-              </button>
+
+              <div className="pt-2 space-y-1">
+                <button
+                  onClick={() => { setShowSettings(false); window.location.href = '/support'; }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A6A8B3] hover:text-white hover:bg-white/[0.04] transition-colors"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-[#D4A24C]">
+                    <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                  Falar com suporte
+                </button>
+                <button
+                  onClick={async () => { await logout(); setShowSettings(false); window.location.href = "/blivre/login"; }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/[0.06] transition-colors"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                  Sair da conta
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -2451,6 +2500,7 @@ export default function SocialPage() {
                     state: currentUser?.state || "",
                     avatar: currentUser?.avatar || currentUser?.photo || currentUser?.picture || ""
                   });
+                  setPasswordForm({ currentPassword: "", newPassword: "" });
                   setShowSettings(true);
                 }}
                 className="w-9 h-9 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1.5px] shrink-0 hover:brightness-110 transition-all shadow-[0_0_12px_rgba(212,162,76,0.2)]"
@@ -2519,6 +2569,7 @@ export default function SocialPage() {
                     state: currentUser?.state || "",
                     avatar: currentUser?.avatar || currentUser?.photo || ""
                   });
+                  setPasswordForm({ currentPassword: "", newPassword: "" });
                   setShowSettings(true);
                 }}
                 className="w-11 h-11 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C]"
@@ -2594,6 +2645,7 @@ export default function SocialPage() {
                         state: currentUser?.state || "",
                         avatar: currentUser?.avatar || currentUser?.photo || currentUser?.picture || ""
                       });
+                      setPasswordForm({ currentPassword: "", newPassword: "" });
                       setShowSettings(true);
                     }}
                     className="w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[2px] shrink-0 hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.25)]"
@@ -3037,6 +3089,7 @@ export default function SocialPage() {
                   state: currentUser?.state || "",
                   avatar: currentUser?.avatar || currentUser?.photo || ""
                 });
+                setPasswordForm({ currentPassword: "", newPassword: "" });
                 setShowSettings(true);
                 window.history.pushState({ braneSettings: true }, "", window.location.pathname);
               } else if (value === "messages") {

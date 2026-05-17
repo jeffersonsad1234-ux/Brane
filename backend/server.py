@@ -939,6 +939,25 @@ async def update_profile(data: dict, request: Request):
     return {"ok": True}
 
 
+@api_router.put("/social/change-password")
+async def change_password(data: dict, request: Request):
+    user = await get_current_user(request)
+    current_pw = data.get("current_password", "")
+    new_pw = data.get("new_password", "")
+    if not current_pw or not new_pw:
+        raise HTTPException(status_code=400, detail="Preencha senha atual e nova senha")
+    if len(new_pw) < 6:
+        raise HTTPException(status_code=400, detail="Nova senha deve ter pelo menos 6 caracteres")
+    stored = user.get("password_hash", "")
+    if not stored or not verify_password(current_pw, stored):
+        raise HTTPException(status_code=400, detail="Senha atual incorreta")
+    await db.users.update_one(
+        {"user_id": user["user_id"]},
+        {"$set": {"password_hash": hash_password(new_pw)}}
+    )
+    return {"ok": True}
+
+
 # =========================
 # INTERESSE
 # =========================
