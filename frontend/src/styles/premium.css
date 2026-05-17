@@ -5,7 +5,7 @@
 
 :root {
   /* ----- Backgrounds ----- */
-  --brane-bg: #050608;
+  --brane-bg: #F3F4F6;
   --brane-bg-card: #0B0D12;
   --brane-bg-soft: #11131A;
   --brane-bg-deep: #08090D;
@@ -66,9 +66,7 @@ html, body { background: var(--brane-bg); color: var(--brane-text); }
 .brane-page::before {
   content: '';
   position: fixed; inset: 0;
-  background:
-    radial-gradient(900px 700px at 10% -10%, rgba(91, 28, 181, 0.10), transparent 65%),
-    radial-gradient(700px 600px at 90% 5%, rgba(179, 139, 54, 0.07), transparent 60%);
+  background: none;
   pointer-events: none;
   z-index: 0;
 }
