@@ -1585,9 +1585,9 @@ export default function SocialPage() {
       )}
 
       {showSettings && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4">
-          <div className="w-full max-w-[620px] brane-card-premium p-6" style={{ borderRadius: 28 }}>
-            <div className="flex items-center justify-between mb-6">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 py-4">
+          <div className="w-full max-w-[720px] max-h-[85vh] brane-card-premium flex flex-col" style={{ borderRadius: 28 }}>
+            <div className="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[1px]">
                   <div className="w-full h-full rounded-xl bg-[#09090D] flex items-center justify-center">
@@ -1604,147 +1604,149 @@ export default function SocialPage() {
 
               <button
                 onClick={() => setShowSettings(false)}
-                className="w-9 h-9 brane-btn-gold flex items-center justify-center"
+                className="w-9 h-9 brane-btn-gold flex items-center justify-center flex-shrink-0"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="flex flex-col items-center gap-4 mb-6 pb-6 border-b border-[#1E2230]">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[2px] shadow-[0_0_30px_rgba(212,162,76,0.2)]">
-                <div className="w-full h-full rounded-full bg-[#0B0B0F] overflow-hidden flex items-center justify-center">
-                  {profileForm.avatar ? (
-                    <img
-                      src={profileForm.avatar}
-                      alt="Perfil"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User className="text-[#F1D28A]" size={38} />
-                  )}
+            <div className="flex-1 overflow-y-auto px-6 pb-2 scrollbar-thin">
+              <div className="flex flex-col items-center gap-4 mb-5 pb-5 border-b border-[#1E2230]">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#D4A24C] via-[#F1D28A] to-[#8A2CFF] p-[2px] shadow-[0_0_30px_rgba(212,162,76,0.2)]">
+                  <div className="w-full h-full rounded-full bg-[#0B0B0F] overflow-hidden flex items-center justify-center">
+                    {profileForm.avatar ? (
+                      <img
+                        src={profileForm.avatar}
+                        alt="Perfil"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="text-[#F1D28A]" size={38} />
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-[#D4A24C]/25 bg-[#D4A24C]/10 text-[#F1D28A] text-sm font-semibold cursor-pointer hover:bg-[#D4A24C]/20 transition-colors">
-                <Camera size={16} />
-                Trocar foto
-                <input
-                  ref={avatarInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleAvatarImage}
-                />
-              </label>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-3">
-              <div className="md:col-span-2">
-                <label className="text-xs text-[#8C8F9A] font-semibold">Nome</label>
-                <input
-                  value={profileForm.name}
-                  onChange={(e) => setProfileForm((prev) => ({ ...prev, name: e.target.value }))}
-                  className="mt-1.5 w-full p-3 brane-input"
-                  placeholder="Seu nome"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="text-xs text-[#8C8F9A] font-semibold">E-mail</label>
-                <input
-                  value={currentUser?.email || ""}
-                  readOnly
-                  className="mt-1.5 w-full p-3 brane-input opacity-60 cursor-not-allowed"
-                />
-                <p className="text-[10px] text-[#6F7280] mt-1">E-mail associado à sua conta</p>
-              </div>
-
-              <div>
-                <label className="text-xs text-[#8C8F9A] font-semibold">Estado</label>
-                <select
-                  value={profileForm.state}
-                  onChange={(e) => setProfileForm((prev) => ({ ...prev, state: e.target.value }))}
-                  className="mt-1.5 w-full p-3 brane-input"
-                >
-                  <option value="">Selecionar estado</option>
-                  {states.map((item) => (
-                    <option key={item} value={item}>{item}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs text-[#8C8F9A] font-semibold">Cidade</label>
-                <input
-                  value={profileForm.city}
-                  onChange={(e) => setProfileForm((prev) => ({ ...prev, city: e.target.value }))}
-                  className="mt-1.5 w-full p-3 brane-input"
-                  placeholder="Sua cidade"
-                />
-              </div>
-            </div>
-
-            <button
-              onClick={saveProfile}
-              disabled={savingProfile}
-              className="mt-6 w-full brane-btn-gold disabled:opacity-60"
-            >
-              {savingProfile ? "Salvando..." : "Salvar perfil"}
-            </button>
-
-            <div className="mt-5 pt-4 border-t border-[#1E2230] space-y-3">
-              <p className="text-xs font-semibold text-[#D4A24C] uppercase tracking-wide">Trocar senha</p>
-              <div className="grid md:grid-cols-2 gap-2">
-                <div>
-                  <label className="text-[10px] text-[#8C8F9A] font-semibold">Senha atual</label>
+                <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border border-[#D4A24C]/25 bg-[#D4A24C]/10 text-[#F1D28A] text-sm font-semibold cursor-pointer hover:bg-[#D4A24C]/20 transition-colors">
+                  <Camera size={16} />
+                  Trocar foto
                   <input
-                    type="password"
-                    value={passwordForm.currentPassword}
-                    onChange={(e) => setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))}
-                    className="mt-1 w-full p-2.5 brane-input text-sm"
-                    placeholder="Senha atual"
+                    ref={avatarInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleAvatarImage}
+                  />
+                </label>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-3">
+                <div className="md:col-span-2">
+                  <label className="text-xs text-[#8C8F9A] font-semibold">Nome</label>
+                  <input
+                    value={profileForm.name}
+                    onChange={(e) => setProfileForm((prev) => ({ ...prev, name: e.target.value }))}
+                    className="mt-1.5 w-full p-3 brane-input"
+                    placeholder="Seu nome"
                   />
                 </div>
-                <div>
-                  <label className="text-[10px] text-[#8C8F9A] font-semibold">Nova senha</label>
+
+                <div className="md:col-span-2">
+                  <label className="text-xs text-[#8C8F9A] font-semibold">E-mail</label>
                   <input
-                    type="password"
-                    value={passwordForm.newPassword}
-                    onChange={(e) => setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))}
-                    className="mt-1 w-full p-2.5 brane-input text-sm"
-                    placeholder="Nova senha (6+ caracteres)"
+                    value={currentUser?.email || ""}
+                    readOnly
+                    className="mt-1.5 w-full p-3 brane-input opacity-60 cursor-not-allowed"
+                  />
+                  <p className="text-[10px] text-[#6F7280] mt-1">E-mail associado à sua conta</p>
+                </div>
+
+                <div>
+                  <label className="text-xs text-[#8C8F9A] font-semibold">Estado</label>
+                  <select
+                    value={profileForm.state}
+                    onChange={(e) => setProfileForm((prev) => ({ ...prev, state: e.target.value }))}
+                    className="mt-1.5 w-full p-3 brane-input"
+                  >
+                    <option value="">Selecionar estado</option>
+                    {states.map((item) => (
+                      <option key={item} value={item}>{item}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs text-[#8C8F9A] font-semibold">Cidade</label>
+                  <input
+                    value={profileForm.city}
+                    onChange={(e) => setProfileForm((prev) => ({ ...prev, city: e.target.value }))}
+                    className="mt-1.5 w-full p-3 brane-input"
+                    placeholder="Sua cidade"
                   />
                 </div>
               </div>
+
               <button
-                onClick={changePassword}
+                onClick={saveProfile}
                 disabled={savingProfile}
-                className="w-full py-2.5 rounded-xl text-xs font-bold text-[#161000] disabled:opacity-50"
-                style={{ background: "linear-gradient(180deg, #F8E0A0, #EAC871, #C89A2E)" }}
+                className="mt-5 w-full brane-btn-gold disabled:opacity-60"
               >
-                {savingProfile ? "Alterando..." : "Mudar senha"}
+                {savingProfile ? "Salvando..." : "Salvar perfil"}
               </button>
 
-              <div className="pt-2 space-y-1">
+              <div className="mt-4 pt-4 border-t border-[#1E2230] space-y-3">
+                <p className="text-xs font-semibold text-[#D4A24C] uppercase tracking-wide">Trocar senha</p>
+                <div className="grid md:grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-[#8C8F9A] font-semibold">Senha atual</label>
+                    <input
+                      type="password"
+                      value={passwordForm.currentPassword}
+                      onChange={(e) => setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))}
+                      className="mt-1 w-full p-2.5 brane-input text-sm"
+                      placeholder="Senha atual"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-[#8C8F9A] font-semibold">Nova senha</label>
+                    <input
+                      type="password"
+                      value={passwordForm.newPassword}
+                      onChange={(e) => setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))}
+                      className="mt-1 w-full p-2.5 brane-input text-sm"
+                      placeholder="Nova senha (6+ caracteres)"
+                    />
+                  </div>
+                </div>
                 <button
-                  onClick={() => { setShowSettings(false); window.location.href = '/support'; }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A6A8B3] hover:text-white hover:bg-white/[0.04] transition-colors"
+                  onClick={changePassword}
+                  disabled={savingProfile}
+                  className="w-full py-2.5 rounded-xl text-xs font-bold text-[#161000] disabled:opacity-50"
+                  style={{ background: "linear-gradient(180deg, #F8E0A0, #EAC871, #C89A2E)" }}
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-[#D4A24C]">
-                    <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                  </svg>
-                  Falar com suporte
-                </button>
-                <button
-                  onClick={async () => { await logout(); setShowSettings(false); window.location.href = "/blivre/login"; }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/[0.06] transition-colors"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-                  </svg>
-                  Sair da conta
+                  {savingProfile ? "Alterando..." : "Mudar senha"}
                 </button>
               </div>
+            </div>
+
+            <div className="flex-shrink-0 border-t border-[#1E2230] px-6 py-3 space-y-1 bg-[#08060d]">
+              <button
+                onClick={() => { setShowSettings(false); window.location.href = '/support'; }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A6A8B3] hover:text-white hover:bg-white/[0.04] transition-colors"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-[#D4A24C]">
+                  <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Falar com suporte
+              </button>
+              <button
+                onClick={async () => { await logout(); setShowSettings(false); window.location.href = "/blivre/login"; }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-red-400 hover:text-red-300 hover:bg-red-500/[0.06] transition-colors"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+                Sair da conta
+              </button>
             </div>
           </div>
         </div>
