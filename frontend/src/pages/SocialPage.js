@@ -1453,17 +1453,17 @@ export default function SocialPage() {
             .blivre-grid,
             .blivre-grid-focused {
               grid-template-columns: repeat(2, 1fr) !important;
-              gap: 10px !important;
+              gap: 8px !important;
             }
             .blivre-product-card img,
             .blivre-product-card .aspect-square {
-              min-height: 160px;
+              min-height: 180px;
             }
             .blivre-product-card .text-sm.line-clamp-2 {
-              font-size: 13px !important;
+              font-size: 14px !important;
             }
             .blivre-product-card .text-lg {
-              font-size: 17px !important;
+              font-size: 19px !important;
             }
           }
 
@@ -2408,15 +2408,15 @@ export default function SocialPage() {
 
       <div className="relative z-10">
         <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050508]/90 backdrop-blur-xl">
-          <div className="max-w-[1600px] mx-auto px-4 py-4 flex items-center justify-between gap-4">
+          <div className="max-w-[1600px] mx-auto px-3 md:px-4 py-2.5 md:py-4 flex items-center justify-between gap-3 md:gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl overflow-hidden ring-1 ring-[#D4A24C]/40">
+              <div className="w-10 h-10 md:w-11 md:h-11 rounded-2xl overflow-hidden ring-1 ring-[#D4A24C]/40">
                 <img src="/logo-belivre.png" alt="B Livre" className="w-full h-full object-cover" />
               </div>
 
               <div>
-                <h1 className="font-black tracking-wide leading-none">B Livre</h1>
-                <p className="text-[11px] text-[#8C8F9A] uppercase tracking-[0.2em]">
+                <h1 className="font-black tracking-wide leading-none text-sm md:text-base">B Livre</h1>
+                <p className="text-[8px] md:text-[11px] text-[#8C8F9A] uppercase tracking-[0.12em] md:tracking-[0.2em] leading-tight md:leading-normal">
                   compras, vendas e oportunidades locais
                 </p>
               </div>
@@ -2489,6 +2489,16 @@ export default function SocialPage() {
               )}
               <button
                 onClick={() => {
+                  const el = document.querySelector('.hidden\\.md\\:flex');
+                  if (el) el.querySelector('input')?.focus();
+                }}
+                className="md:hidden w-9 h-9 rounded-xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] hover:bg-white/[0.08] transition-colors"
+                title="Buscar"
+              >
+                <Search size={16} />
+              </button>
+              <button
+                onClick={() => {
                   setShowNotifications(true);
                   axios.put(API + "/notifications/read-all", {}, { headers: authHeaders }).catch(() => {});
                 }}
@@ -2521,47 +2531,9 @@ export default function SocialPage() {
           </div>
         </header>
 
-        {/* Mobile search bar */}
-        <div className="brane-mobile-search">
-          <Search size={16} className="text-[#D4A24C] shrink-0" />
-          <input
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar na B Livre..."
-            className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-[#6F7280]"
-          />
-          <button
-            onClick={() => {
-              if (!requireAuth()) return;
-              setShowNotifications(true);
-              axios.put(API + "/notifications/read-all", {}, { headers: authHeaders }).catch(() => {});
-            }}
-            className="relative w-9 h-9 rounded-xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] hover:bg-white/[0.08] transition-colors shrink-0"
-          >
-            <Bell size={17} />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 rounded-full bg-[#D4A24C] text-[9px] font-black text-black flex items-center justify-center shadow-[0_0_6px_rgba(212,162,76,0.5)]">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </button>
-          {showApkDownload && (
-            <a
-              href="/B-Livre-v1.0.apk"
-              download="B-Livre-v1.0.apk"
-              className="w-9 h-9 rounded-xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] hover:bg-white/[0.08] transition-colors shrink-0"
-              title="Baixar app"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="7 10 12 15 17 10" />
-                <line x1="12" y1="15" x2="12" y2="3" />
-              </svg>
-            </a>
-          )}
-        </div>
 
-        <div className="max-w-[1600px] mx-auto px-4 py-4">
+
+        <div className="max-w-[1600px] mx-auto px-3 md:px-4 py-2 md:py-4">
           <div
             className="grid gap-4 items-start h-[calc(100vh-92px)] overflow-hidden blivre-shell"
             style={{
