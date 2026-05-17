@@ -688,6 +688,59 @@ async def create_social_post(data: SocialPostCreate, request: Request):
     await db.social_posts.insert_one(post)
     return {k: v for k, v in post.items() if k != "_id"}
 
+async def seed_blivre_posts():
+    """Auto-seed B Livre with example posts when collection is empty."""
+    count = await db.social_posts.count_documents({})
+    if count > 0:
+        return False
+    logger.info("[B Livre] social_posts vazio — populando com anúncios de exemplo")
+    now = datetime.now(timezone.utc)
+    base_time = now - timedelta(hours=48)
+    sellers = [
+        {"name": "Carlos Silva",   "city": "São Paulo",      "state": "SP"},
+        {"name": "Ana Oliveira",   "city": "Rio de Janeiro",  "state": "RJ"},
+        {"name": "Rafael Costa",   "city": "Belo Horizonte",  "state": "MG"},
+        {"name": "Juliana Santos", "city": "Curitiba",        "state": "PR"},
+        {"name": "Marcos Pereira", "city": "Salvador",        "state": "BA"},
+        {"name": "Fernanda Lima",  "city": "Fortaleza",       "state": "CE"},
+        {"name": "Thiago Alves",   "city": "Brasília",        "state": "DF"},
+        {"name": "Camila Souza",   "city": "Recife",          "state": "PE"},
+        {"name": "Pedro Rocha",    "city": "Porto Alegre",    "state": "RS"},
+        {"name": "Larissa Mendes", "city": "Florianópolis",   "state": "SC"},
+    ]
+    seed_data = [
+        {"title": "Bicicleta usada",    "price": "180", "condition": "Usado",    "desc": "Bicicleta aro 28, marchas, em bom estado. Ideal para lazer ou transporte diário.", "img": "bike"},
+        {"title": "Ventilador seminovo","price": "60",  "condition": "Seminovo", "desc": "Ventilador de parede 40cm, 3 velocidades, controle remoto. Funciona perfeitamente.", "img": "fan"},
+        {"title": "Mesa pequena",       "price": "90",  "condition": "Usado",    "desc": "Mesa retangular 80x50cm, madeira maciça. Leve desgaste na superfície, ótimo custo.", "img": "table"},
+        {"title": "Celular usado",      "price": "250", "condition": "Usado",    "desc": "Smartphone Android 64GB, tela 6.1, câmera 12MP. Acompanha carregador e capa.", "img": "phone"},
+        {"title": "Mochila escolar",    "price": "35",  "condition": "Seminovo", "desc": "Mochila 35L, compartimento para notebook, várias cores. Usada por 1 semestre.", "img": "backpack"},
+        {"title": "Tênis usado",        "price": "70",  "condition": "Usado",    "desc": "Tênis casual tamanho 40/41, pouco uso. Confortável para o dia a dia.", "img": "sneakers"},
+        {"title": "Cadeira de escritório","price": "120","condition": "Usado",   "desc": "Cadeira ergonômica com braços ajustáveis, encosto reclinável. Bastante confortável.", "img": "chair"},
+        {"title": "Liquidificador",     "price": "50",  "condition": "Seminovo", "desc": "Liquidificador 2L, 5 velocidades, copo de vidro. Pouquíssimo uso.", "img": "blender"},
+        {"title": "Capacete moto",      "price": "80",  "condition": "Novo",     "desc": "Capacete fechado, tamanho M, viseira fumê. Certificado INMETRO. Nunca usado.", "img": "helmet"},
+        {"title": "Violão usado",       "price": "200", "condition": "Usado",    "desc": "Violão aço EAG, som encorpado. Cordas novas, leves marcas de uso no braço.", "img": "guitar"},
+    ]
+    posts = []
+    for i, s in enumerate(seed_data):
+        seller = sellers[i % len(sellers)]
+        ts = base_time + timedelta(hours=i * 4)
+        pid = f"sp_{uuid.uuid4().hex[:12]}"
+        loc = f"{seller['city']} - {seller['state']}"
+        content = f"{s['title']}\nR$ {s['price']}\nProdutos\n{s['condition']}\n{loc}\nItem único\n{s['desc']}"
+        image_url = json.dumps([f"https://picsum.photos/seed/{s['img']}/400/400"])
+        posts.append({
+            "post_id": pid, "user_id": "seed_b_livre", "user_name": seller["name"],
+            "author": seller["name"], "title": s["title"], "price": s["price"],
+            "description": s["desc"], "city": seller["city"], "state": seller["state"],
+            "category": "Produtos", "product_condition": s["condition"],
+            "availability": "Item único", "image": image_url, "content": content,
+            "status": "active", "featured": False, "views": 0, "interests": 0,
+            "whatsapp": "", "phone": "", "created_at": ts.isoformat(),
+        })
+    await db.social_posts.insert_many(posts)
+    logger.info(f"[B Livre] {len(posts)} anúncios de exemplo inseridos")
+    return True
+
 @api_router.get("/social/posts")
 async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[str] = None):
     query = {}
@@ -703,111 +756,20 @@ async def list_social_posts(page: int = 1, limit: int = 20, user_id: Optional[st
     ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     total = await db.social_posts.count_documents(query)
 
-    # Fallback to products when social_posts is empty or has no actual posts
     if not posts or total == 0:
-        logger.info("[B Livre] social_posts vazio — fazendo fallback para products")
-
-        # Query 1: active + não deletado (strict)
-        product_query = {
-            "status": "active",
-            "$or": [
-                {"is_deleted": False},
-                {"is_deleted": {"$exists": False}}
-            ]
-        }
-        if user_id:
-            product_query["seller_id"] = user_id
-
-        products = await db.products.find(
-            product_query,
-            {"_id": 0}
-        ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-        total = await db.products.count_documents(product_query)
-
-        # Query 2: fallback amplo — sem filtro de deleted, aceita qualquer status
-        if not products:
-            logger.info("[B Livre] Nenhum produto ativo encontrado — tentando query ampla")
-            broad_query = {}
-            if user_id:
-                broad_query["seller_id"] = user_id
-            products = await db.products.find(
-                broad_query,
-                {"_id": 0}
-            ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-            total = await db.products.count_documents(broad_query)
-            if products:
-                logger.info(f"[B Livre] Query ampla retornou {len(products)} produtos")
-
-        if not products:
-            logger.warning("[B Livre] Nenhum produto encontrado em nenhuma query")
+        if not user_id:
+            seeded = await seed_blivre_posts()
+            if seeded:
+                posts = await db.social_posts.find(
+                    {},
+                    {"_id": 0, "post_id": 1, "user_id": 1, "user_name": 1, "user_picture": 1,
+                     "content": 1, "image": 1, "title": 1, "price": 1, "city": 1, "state": 1,
+                     "category": 1, "product_condition": 1, "description": 1, "availability": 1,
+                     "phone": 1, "whatsapp": 1, "enhanced_title": 1, "enhanced_description": 1, "marketing_text": 1, "created_at": 1}
+                ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+                total = await db.social_posts.count_documents({})
+        if not posts:
             return {"posts": [], "total": 0, "page": page}
-
-        posts = []
-        for p in products:
-            seller = await db.users.find_one({"user_id": p.get("seller_id")}, {"_id": 0, "name": 1, "picture": 1, "avatar": 1})
-            images_list = p.get("images") or ([p["image"]] if p.get("image") else [])
-            image_json = json.dumps(images_list) if images_list else ""
-            condition = p.get("condition", "Novo")
-            if isinstance(condition, str):
-                c = condition.lower()
-                if c in ("new", "like_new", "novo"):
-                    condition = "Novo"
-                elif c in ("seminovo", "like_new", "semi-novo"):
-                    condition = "Seminovo"
-                elif c in ("recondicionado", "refurbished"):
-                    condition = "Recondicionado"
-                elif c in ("good", "bom", "em bom estado"):
-                    condition = "Em bom estado"
-                elif c in ("fair", "com detalhes"):
-                    condition = "Com detalhes"
-                elif c in ("used", "usado"):
-                    condition = "Usado"
-
-            city = p.get("city") or p.get("location", "").split(",")[0].strip() or ""
-            state = p.get("state") or ""
-            location_str = f"{city} - {state}" if city and state else city
-
-            content_lines = [
-                p.get("title", "Produto"),
-                f"R$ {p['price']}" if p.get("price") is not None else "",
-                p.get("category", ""),
-                condition,
-                location_str,
-                "Item único",
-                p.get("description", "")
-            ]
-            content = "\n".join(line for line in content_lines if line)
-            price_str = str(p.get("price", "")) if p.get("price") is not None else "consultar"
-
-            seller_name = None
-            seller_picture = None
-            if seller:
-                seller_name = seller.get("name") or p.get("seller_name", "")
-                seller_picture = seller.get("picture") or seller.get("avatar", "")
-            else:
-                seller_name = p.get("seller_name", "Vendedor")
-                seller_picture = ""
-
-            posts.append({
-                "post_id": p.get("product_id", f"prod_{uuid.uuid4().hex[:12]}"),
-                "user_id": p.get("seller_id", ""),
-                "user_name": seller_name,
-                "user_picture": seller_picture,
-                "content": content,
-                "image": image_json,
-                "title": p.get("title", "Produto"),
-                "price": price_str,
-                "city": city,
-                "state": state,
-                "category": p.get("category", ""),
-                "product_condition": condition,
-                "description": p.get("description", ""),
-                "availability": p.get("availability", "Item único"),
-                "phone": p.get("phone", ""),
-                "whatsapp": p.get("whatsapp", ""),
-                "created_at": p.get("created_at", "")
-            })
-
     return {"posts": posts, "total": total, "page": page}
 
 @api_router.post("/social/posts/{post_id}/like")
