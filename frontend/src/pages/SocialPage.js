@@ -1432,13 +1432,13 @@ export default function SocialPage() {
           }
 
           .blivre-grid {
-            grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             transition: grid-template-columns 280ms cubic-bezier(0.22, 1, 0.36, 1);
             will-change: grid-template-columns;
           }
 
           .blivre-grid-focused {
-            grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             transition: grid-template-columns 280ms cubic-bezier(0.22, 1, 0.36, 1);
             will-change: grid-template-columns;
           }
@@ -1473,6 +1473,14 @@ export default function SocialPage() {
             }
             .blivre-shell > * {
               height: calc(100dvh - 95px) !important;
+            }
+          }
+          @media (min-width: 769px) {
+            .blivre-product-card {
+              border-radius: 8px !important;
+            }
+            .blivre-product-card .aspect-square {
+              border-radius: 8px 8px 0 0 !important;
             }
           }
 
@@ -2805,7 +2813,7 @@ export default function SocialPage() {
                   </div>
                 )
               ) : loading ? (
-                <div className="grid gap-4 blivre-grid">
+                <div className="grid gap-3 blivre-grid">
                   {Array.from({ length: 12 }, (_, index) => (
                     <SkeletonCard key={index} />
                   ))}
@@ -2821,7 +2829,7 @@ export default function SocialPage() {
                   </p>
                 </div>
               ) : (
-                <div className={expanded ? "grid gap-4 blivre-grid-focused" : "grid gap-4 blivre-grid"}>
+                <div className={expanded ? "grid gap-3 blivre-grid-focused" : "grid gap-3 blivre-grid"}>
                   {filteredPosts.map((post) => {
                     const key = getPostKey(post);
                     const isFavorite = favorites.includes(key);
