@@ -169,20 +169,8 @@ function AppRouter() {
 
             <Route path="/desapega" element={<DesapegaPage />} />
 
-            {/* Admin — completamente separado do BLivreLayout */}
-            <Route path="/blivre/admin" element={<ErrorBoundary><AdminDataProvider><BLivreAdminPage /></AdminDataProvider></ErrorBoundary>}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="users" element={<AdminUsers />} />
-              <Route path="products" element={<AdminProducts />} />
-              <Route path="messages" element={<AdminMessages />} />
-              <Route path="banners" element={<AdminBanners />} />
-              <Route path="reports" element={<AdminReports />} />
-              <Route path="denuncias" element={<AdminDenuncias />} />
-              <Route path="financeiro" element={<AdminFinanceiro />} />
-              <Route path="suporte" element={<AdminSuporte />} />
-              <Route path="password-reset" element={<AdminPasswordReset />} />
-              <Route path="configuracoes" element={<AdminConfiguracoes />} />
-            </Route>
+            {/* Admin — teste mínimo */}
+            <Route path="/blivre/admin" element={<div style={{background:"#111", color:"#fff", minHeight:"100vh", padding:"40px", fontSize:"24px", fontWeight:"bold"}}>ADMIN B LIVRE OK</div>} />
 
             <Route element={<BLivreLayout />}>
               <Route path="/blivre/login" element={<BLivreAuthPage />} />
