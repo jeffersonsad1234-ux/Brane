@@ -799,7 +799,7 @@ body[data-card-shape="minimal"] .theme-product-card:hover {
   }
   .blivre-shell > main {
     height: calc(100vh - 100px) !important;
-    padding-bottom: 80px !important;
+    padding-bottom: 60px !important;
   }
   .blivre-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
