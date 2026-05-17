@@ -2576,7 +2576,7 @@ export default function SocialPage() {
                 (expanded ? "opacity-0 pointer-events-none scale-95" : "opacity-100 scale-100")
               }
             >
-              <div className="brane-card-soft p-5">
+              <div className="p-5">
                 <div className="flex items-center gap-3 mb-3">
                   <button
                     onClick={() => {
@@ -2643,7 +2643,7 @@ export default function SocialPage() {
                 </div>
               </div>
 
-              <div className="brane-card-soft p-5">
+              <div className="p-5">
                 <h3 className="font-black mb-4 flex items-center gap-2 brane-gold-text">
                   <Tags size={18} className="text-[#D4A24C]" />
                   Categorias
@@ -2955,7 +2955,7 @@ export default function SocialPage() {
                 </button>
               ) : (
                 <div className="space-y-5">
-                  <div className="brane-card-premium p-5">
+                  <div className="p-5">
                     <h3 className="font-black mb-3 flex items-center gap-2 brane-gold-text">
                       <Package size={18} className="text-[#D4A24C]" />
                       Anunciar produto
@@ -2974,7 +2974,7 @@ export default function SocialPage() {
                     </button>
                   </div>
 
-                  <div className="brane-card-soft p-5">
+                  <div className="p-5">
                     <h3 className="font-black mb-4 flex items-center gap-2 brane-gold-text">
                       <Globe size={18} className="text-[#D4A24C]" />
                       Alcance
