@@ -122,6 +122,15 @@ html, body { background: var(--brane-bg); color: var(--brane-text); }
 .brane-purple-text { color: var(--brane-purple-light); }
 .brane-gold-solid { color: var(--brane-gold); }
 
+/* Gold text for light/neutral surfaces (sidebar on #F3F4F6) – richer gradient, no heavy shadows */
+.brane-gold-text-light {
+  background: linear-gradient(180deg, #D4A24C 0%, #B38B36 50%, #8A6A24 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0.5px 1px rgba(0,0,0,0.05);
+}
+
 @keyframes brane-grad-sweep {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
