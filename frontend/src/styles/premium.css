@@ -798,8 +798,8 @@ body[data-card-shape="minimal"] .theme-product-card:hover {
     display: none !important;
   }
   .blivre-shell > main {
-    height: calc(100vh - 100px) !important;
-    padding-bottom: 60px !important;
+    height: calc(100vh - 92px) !important;
+    padding-bottom: 45px !important;
   }
   .blivre-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -936,7 +936,7 @@ body[data-card-shape="minimal"] .theme-product-card:hover {
   align-items: center;
   justify-content: space-around;
   padding: 0.35rem 0.5rem;
-  padding-bottom: max(0.35rem, env(safe-area-inset-bottom, 0.35rem));
+  padding-bottom: env(safe-area-inset-bottom, 0.35rem);
   background: #0B0B0D;
   border-top: 1px solid rgba(212, 162, 76, 0.2);
 }
