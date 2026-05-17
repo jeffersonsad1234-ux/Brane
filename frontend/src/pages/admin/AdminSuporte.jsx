@@ -185,8 +185,21 @@ function ChatView() {
 
 // ── Main Page ──
 export default function AdminSuporte() {
-  const { authHeaders } = useAdminData();
+  const { authHeaders, token } = useAdminData();
   const [showList, setShowList] = useState(true);
+
+  if (!token) {
+    return (
+      <div className="space-y-6">
+        <BLivreSEO page="home" title="Suporte" description="Tickets de suporte B Livre" />
+        <h1 className="text-xl font-black text-white">Suporte</h1>
+        <div className="p-12 text-center">
+          <p className="text-lg font-bold text-white mb-1">Faça login na B Livre primeiro</p>
+          <p className="text-sm text-[#8C8F9A]">Você precisa estar logado com uma conta administradora.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AdminSupportProvider authHeaders={authHeaders}>

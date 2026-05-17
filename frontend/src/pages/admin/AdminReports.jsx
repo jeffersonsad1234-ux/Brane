@@ -5,9 +5,22 @@ import BLivreSEO from "../../components/BLivreSEO";
 const glassCard = "rounded-2xl border bg-[#121216]/80 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.3)]";
 
 export default function AdminReports() {
-  const { dashboard, posts, users, loading } = useAdminData();
+  const { dashboard, posts, users, loading, token } = useAdminData();
 
   const hasData = dashboard && (dashboard.totalUsers > 0 || dashboard.totalPosts > 0);
+
+  if (!token) {
+    return (
+      <div className="space-y-6">
+        <BLivreSEO page="home" title="Relatórios" description="Relatórios e analytics" />
+        <h1 className="text-xl font-black text-white">Relatórios</h1>
+        <div className={`${glassCard} p-12 text-center`}>
+          <p className="text-lg font-bold text-white mb-1">Faça login na B Livre primeiro</p>
+          <p className="text-sm text-[#8C8F9A]">Você precisa estar logado com uma conta administradora.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

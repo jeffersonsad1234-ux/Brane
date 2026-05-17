@@ -4175,6 +4175,12 @@ async def blivre_admin_dashboard(request: Request):
         "posts_per_day": [{"date": d["_id"], "count": d["count"]} for d in posts_per_day],
     }
 
+@api_router.get("/admin/blivre/posts")
+async def blivre_admin_list_posts(request: Request, limit: int = 200, skip: int = 0):
+    await require_admin(request)
+    posts = await db.social_posts.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return {"posts": posts}
+
 @api_router.put("/admin/blivre/products/{post_id}/status")
 async def blivre_admin_update_post_status(post_id: str, request: Request):
     await require_admin(request)

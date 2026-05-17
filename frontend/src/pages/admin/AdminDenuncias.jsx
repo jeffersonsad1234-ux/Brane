@@ -11,7 +11,7 @@ const glassCard = "rounded-2xl border bg-[#121216]/80 backdrop-blur-xl shadow-[0
 const API = `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
 
 export default function AdminDenuncias() {
-  const { authHeaders } = useAdminData();
+  const { authHeaders, token } = useAdminData();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -68,6 +68,19 @@ export default function AdminDenuncias() {
       await fetchReports();
     } catch {}
   };
+
+  if (!token) {
+    return (
+      <div className="space-y-6">
+        <BLivreSEO page="home" title="Denúncias" description="Moderação de denúncias B Livre" />
+        <div className="flex items-center justify-between"><div><h1 className="text-xl font-black text-white">Denúncias</h1></div></div>
+        <div className={`${glassCard} p-12 text-center`}>
+          <p className="text-lg font-bold text-white mb-1">Faça login na B Livre primeiro</p>
+          <p className="text-sm text-[#8C8F9A]">Você precisa estar logado com uma conta administradora.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

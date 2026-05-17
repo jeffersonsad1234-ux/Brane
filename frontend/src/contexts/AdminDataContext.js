@@ -17,19 +17,19 @@ export function AdminDataProvider({ children }) {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Grab token from main auth
+  // Grab token from B Livre auth (blivre_token) or main auth
   useEffect(() => {
     try {
-      const stored = localStorage.getItem("auth_token") || localStorage.getItem("token");
+      const stored = localStorage.getItem("blivre_token") || localStorage.getItem("auth_token") || localStorage.getItem("token");
       if (stored) setToken(stored);
     } catch { /* noop */ }
-    // Also watch for auth changes
     const check = () => {
-      const t = localStorage.getItem("auth_token") || localStorage.getItem("token");
+      const t = localStorage.getItem("blivre_token") || localStorage.getItem("auth_token") || localStorage.getItem("token");
       if (t !== token) setToken(t);
     };
     window.addEventListener("storage", check);
-    return () => window.removeEventListener("storage", check);
+    const poll = setInterval(check, 2000);
+    return () => { window.removeEventListener("storage", check); clearInterval(poll); };
   }, [token]);
 
   const fetchAll = useCallback(async () => {
@@ -38,7 +38,7 @@ export function AdminDataProvider({ children }) {
     try {
       const [usersRes, postsRes, supportRes, notifRes, financeRes] = await Promise.allSettled([
         axios.get(API + "/admin/users", { headers: authHeaders }),
-        axios.get(API + "/social/posts?limit=200&page=1", { headers: authHeaders }),
+        axios.get(API + "/admin/blivre/posts?limit=200", { headers: authHeaders }),
         axios.get(API + "/admin/support", { headers: authHeaders }),
         axios.get(API + "/notifications", { headers: authHeaders }),
         axios.get(API + "/admin/finance/dashboard", { headers: authHeaders }),
@@ -82,7 +82,7 @@ export function AdminDataProvider({ children }) {
   const deletePost = async (key) => {
     try {
       await axios.delete(API + "/social/posts/" + key, { headers: authHeaders });
-      setPosts(prev => prev.filter(p => p.key !== key && p.id !== key));
+      setPosts(prev => prev.filter(p => (p.post_id || p.key || p.id) !== key));
     } catch (e) { console.error(e); }
   };
 

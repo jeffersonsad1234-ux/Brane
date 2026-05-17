@@ -36,19 +36,20 @@ function ChartTooltip({ active, payload, label }) {
 }
 
 export default function AdminDashboard() {
-  const { authHeaders } = useAdminData();
+  const { authHeaders, token } = useAdminData();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(false);
 
   const fetchDashboard = useCallback(async () => {
+    if (!token) { setLoading(false); return; }
     try {
       const res = await axios.get(API + "/admin/blivre/dashboard", { headers: authHeaders }).catch(() => null);
       if (res?.data) { setStats(res.data); setErr(false); }
       else setErr(true);
     } catch { setErr(true); }
     finally { setLoading(false); }
-  }, [authHeaders]);
+  }, [authHeaders, token]);
 
   useEffect(() => {
     fetchDashboard();
@@ -72,6 +73,20 @@ export default function AdminDashboard() {
     );
   }
 
+  if (!token) {
+    return (
+      <div className="space-y-6">
+        <BLivreSEO page="home" title="Dashboard" description="Painel administrativo B Livre" />
+        <h1 className="text-xl font-black text-white">Dashboard</h1>
+        <div className={`${glassCard} p-12 text-center`}>
+          <Megaphone size={48} className="mx-auto mb-4 text-[#8C8F9A] opacity-20" />
+          <p className="text-lg font-bold text-white mb-1">Faça login na B Livre primeiro</p>
+          <p className="text-sm text-[#8C8F9A]">Você precisa estar logado com uma conta administradora para acessar o painel.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (err || !stats) {
     return (
       <div className="space-y-6">
@@ -79,8 +94,8 @@ export default function AdminDashboard() {
         <h1 className="text-xl font-black text-white">Dashboard</h1>
         <div className={`${glassCard} p-12 text-center`}>
           <Megaphone size={48} className="mx-auto mb-4 text-[#8C8F9A] opacity-20" />
-          <p className="text-lg font-bold text-white mb-1">Aguardando dados do backend</p>
-          <p className="text-sm text-[#8C8F9A]">O painel será atualizado automaticamente quando houver dados.</p>
+          <p className="text-lg font-bold text-white mb-1">Erro ao carregar dados</p>
+          <p className="text-sm text-[#8C8F9A]">Sua conta pode não ter permissão de admin ou o backend está indisponível. Tente recarregar a página.</p>
         </div>
       </div>
     );

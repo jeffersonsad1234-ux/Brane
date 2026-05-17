@@ -12,7 +12,7 @@ const glassCard = "rounded-2xl border bg-[#121216]/80 backdrop-blur-xl shadow-[0
 const API = `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
 
 export default function AdminProducts() {
-  const { posts: ctxPosts, loading, deletePost, authHeaders } = useAdminData();
+  const { posts: ctxPosts, loading, deletePost, authHeaders, token } = useAdminData();
   const [search, setSearch] = useState("");
   const [cat, setCat] = useState("Todas");
   const [showForm, setShowForm] = useState(false);
@@ -53,6 +53,19 @@ export default function AdminProducts() {
       window.location.reload();
     } catch (e) { console.error(e); }
   };
+
+  if (!token) {
+    return (
+      <div className="space-y-6">
+        <BLivreSEO page="home" title="Anúncios" description="Gerenciar anúncios B Livre" />
+        <h1 className="text-xl font-black text-white">Anúncios</h1>
+        <div className={`${glassCard} p-12 text-center`}>
+          <p className="text-lg font-bold text-white mb-1">Faça login na B Livre primeiro</p>
+          <p className="text-sm text-[#8C8F9A]">Você precisa estar logado com uma conta administradora.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

@@ -8,7 +8,7 @@ import BLivreSEO from "../../components/BLivreSEO";
 const glassCard = "rounded-2xl border bg-[#121216]/80 backdrop-blur-xl shadow-[0_4px_24px_rgba(0,0,0,0.3)]";
 
 export default function AdminFinanceiro() {
-  const { API, authHeaders, loading } = useAdminData();
+  const { API, authHeaders, loading, token } = useAdminData();
   const [transactions, setTransactions] = useState([]);
   const [txLoading, setTxLoading] = useState(true);
   const [stats, setStats] = useState(null);
@@ -41,6 +41,19 @@ export default function AdminFinanceiro() {
 
   const isLoading = loading || txLoading;
   const hasData = transactions.length > 0;
+
+  if (!token) {
+    return (
+      <div className="space-y-6">
+        <BLivreSEO page="home" title="Financeiro" description="Transações e receitas" />
+        <h1 className="text-xl font-black text-white">Financeiro</h1>
+        <div className={`${glassCard} p-12 text-center`}>
+          <p className="text-lg font-bold text-white mb-1">Faça login na B Livre primeiro</p>
+          <p className="text-sm text-[#8C8F9A]">Você precisa estar logado com uma conta administradora.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

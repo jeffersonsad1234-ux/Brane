@@ -18,7 +18,7 @@ function Toggle({ value, onChange }) {
 }
 
 export default function AdminConfiguracoes() {
-  const { authHeaders } = useAdminData();
+  const { authHeaders, token } = useAdminData();
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -53,6 +53,19 @@ export default function AdminConfiguracoes() {
         <h1 className="text-xl font-black text-white">Configurações</h1>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {[1, 2, 3, 4].map(i => <div key={i} className={`${glassCard} p-5`}><div className="h-32 bg-white/[0.03] rounded-xl animate-pulse" /></div>)}
+        </div>
+      </div>
+    );
+  }
+
+  if (!token) {
+    return (
+      <div className="space-y-6">
+        <BLivreSEO page="home" title="Configurações" description="Configurações B Livre" />
+        <h1 className="text-xl font-black text-white">Configurações</h1>
+        <div className={`${glassCard} p-12 text-center`}>
+          <p className="text-lg font-bold text-white mb-1">Faça login na B Livre primeiro</p>
+          <p className="text-sm text-[#8C8F9A]">Você precisa estar logado com uma conta administradora.</p>
         </div>
       </div>
     );
