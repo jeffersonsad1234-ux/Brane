@@ -2176,9 +2176,9 @@ export default function SocialPage() {
         <div className="fixed inset-0 z-[90] flex items-center justify-center px-4 brane-modal-detail-wrapper" style={{ background: 'rgba(5,6,8,0.82)', backdropFilter: 'blur(4px)' }}>
           <button
             onClick={closePost}
-            className="absolute top-4 right-4 z-30 w-10 h-10 brane-btn-gold flex items-center justify-center"
+            className="fixed top-4 right-4 z-[100] w-8 h-8 rounded-full bg-black/70 border border-white/15 flex items-center justify-center text-white/70 hover:text-white hover:bg-black/90 transition-colors shadow-lg"
           >
-            <X size={20} />
+            <X size={15} />
           </button>
 
           <div className="relative w-full max-w-[1200px] mx-auto px-4 z-10 brane-modal-detail">
