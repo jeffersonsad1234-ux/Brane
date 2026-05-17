@@ -1453,7 +1453,13 @@ export default function SocialPage() {
             .blivre-grid,
             .blivre-grid-focused {
               grid-template-columns: repeat(2, 1fr) !important;
-              gap: 8px !important;
+              gap: 6px !important;
+            }
+            .blivre-product-card {
+              border-radius: 6px !important;
+            }
+            .blivre-product-card .aspect-square {
+              border-radius: 6px 6px 0 0 !important;
             }
             .blivre-product-card img,
             .blivre-product-card .aspect-square {
@@ -2651,7 +2657,7 @@ export default function SocialPage() {
 
             <main
               onScroll={handleProductsScroll}
-              className="h-[calc(100vh-110px)] overflow-y-auto pr-2"
+              className="h-[calc(100vh-110px)] overflow-y-auto md:pr-2"
             >
               {activeFilter === "messages" ? (
                 selectedChat ? (
