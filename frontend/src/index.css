@@ -11,8 +11,8 @@ body {
     font-family: 'Manrope', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #e5e7eb;
-    color: #12141A;
+    background-color: #1E1E1E;
+    color: #F7F7FA;
 }
 
 h1, h2, h3, h4, h5, h6 {

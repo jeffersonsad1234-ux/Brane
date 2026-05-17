@@ -1367,7 +1367,7 @@ export default function SocialPage() {
   );
 
   return (
-    <div className="min-h-screen relative" style={{ background: '#e5e7eb' }}>
+    <div className="min-h-screen text-white relative overflow-hidden" style={{ background: '#1E1E1E' }}>
       <style>
         {`
           @keyframes blivreSlideIn {
@@ -2576,7 +2576,7 @@ export default function SocialPage() {
                 (expanded ? "opacity-0 pointer-events-none scale-95" : "opacity-100 scale-100")
               }
             >
-              <div className="p-5">
+              <div className="brane-card-soft p-5">
                 <div className="flex items-center gap-3 mb-3">
                   <button
                     onClick={() => {
@@ -2606,9 +2606,9 @@ export default function SocialPage() {
                     </div>
                   </button>
                   <div className="min-w-0">
-                    <h3 className="font-black text-lg flex items-center gap-2 brane-gold-text-light truncate">
+                    <h3 className="font-black text-lg flex items-center gap-2 brane-gold-text truncate">
                       {currentUser && currentUser.name ? currentUser.name : "Usuário B Livre"}
-                      <BadgeCheck size={17} className="text-[#C89A2E] shrink-0" />
+                      <BadgeCheck size={17} className="text-[#D4A24C] shrink-0" />
                     </h3>
                   </div>
                 </div>
@@ -2633,19 +2633,19 @@ export default function SocialPage() {
                       }}
                       className={
                         "w-full flex items-center gap-3 text-sm rounded-xl px-3 py-3 transition-all " +
-                        (activeFilter === value ? "bg-[#D4A24C]/10 brane-gold-text-light font-bold" : "brane-gold-text-light hover:bg-white/[0.04] hover:opacity-80")
+                        (activeFilter === value ? "bg-[#D4A24C]/10 brane-gold-text font-bold" : "brane-gold-text hover:bg-white/[0.04] hover:opacity-80")
                       }
                     >
-                      <Icon size={17} className="text-[#C89A2E]" />
+                      <Icon size={17} className="text-[#D4A24C]" />
                       {label}
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="p-5">
-                <h3 className="font-black mb-4 flex items-center gap-2 brane-gold-text-light">
-                  <Tags size={18} className="text-[#C89A2E]" />
+              <div className="brane-card-soft p-5">
+                <h3 className="font-black mb-4 flex items-center gap-2 brane-gold-text">
+                  <Tags size={18} className="text-[#D4A24C]" />
                   Categorias
                 </h3>
 
@@ -2955,9 +2955,9 @@ export default function SocialPage() {
                 </button>
               ) : (
                 <div className="space-y-5">
-                  <div className="p-5">
-                    <h3 className="font-black mb-3 flex items-center gap-2 brane-gold-text-light">
-                      <Package size={18} className="text-[#C89A2E]" />
+                  <div className="brane-card-premium p-5">
+                    <h3 className="font-black mb-3 flex items-center gap-2 brane-gold-text">
+                      <Package size={18} className="text-[#D4A24C]" />
                       Anunciar produto
                     </h3>
 
@@ -2974,26 +2974,26 @@ export default function SocialPage() {
                     </button>
                   </div>
 
-                  <div className="p-5">
-                    <h3 className="font-black mb-4 flex items-center gap-2 brane-gold-text-light">
-                      <Globe size={18} className="text-[#C89A2E]" />
+                  <div className="brane-card-soft p-5">
+                    <h3 className="font-black mb-4 flex items-center gap-2 brane-gold-text">
+                      <Globe size={18} className="text-[#D4A24C]" />
                       Alcance
                     </h3>
 
-                    <div className="space-y-3 text-sm brane-gold-text-light">
+                    <div className="space-y-3 text-sm brane-gold-text">
                       <div className="flex items-center justify-between">
                         <span>Visualizações</span>
-                        <span className="brane-gold-text-light font-bold">{totalViews}</span>
+                        <span className="brane-gold-text font-bold">{totalViews}</span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <span>Interesses</span>
-                        <span className="brane-gold-text-light font-bold">{totalInterests}</span>
+                        <span className="brane-gold-text font-bold">{totalInterests}</span>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <span>Meus anúncios</span>
-                        <span className="brane-gold-text-light font-bold">{totalMyAds}</span>
+                        <span className="brane-gold-text font-bold">{totalMyAds}</span>
                       </div>
                     </div>
                   </div>
