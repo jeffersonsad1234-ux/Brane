@@ -2633,7 +2633,7 @@ export default function SocialPage() {
                       }}
                       className={
                         "w-full flex items-center gap-3 text-sm rounded-xl px-3 py-3 transition-all " +
-                        (activeFilter === value ? "text-[#F1D28A] bg-[#D4A24C]/10 brane-gold-text font-bold" : "text-[#A6A8B3] hover:bg-white/[0.04] hover:text-white")
+                        (activeFilter === value ? "bg-[#D4A24C]/10 brane-gold-text font-bold" : "brane-gold-text hover:bg-white/[0.04] hover:opacity-80")
                       }
                     >
                       <Icon size={17} className="text-[#D4A24C]" />
@@ -2654,7 +2654,7 @@ export default function SocialPage() {
                     setSelectedCategory("");
                     setActiveFilter("all");
                   }}
-                  className="w-full py-2.5 border-b border-[#1E2230] text-sm text-[#F1D28A] text-left hover:text-white transition-colors"
+                  className="w-full py-2.5 border-b border-[#1E2230] text-sm brane-gold-text text-left hover:opacity-80 transition-opacity"
                 >
                   Todas
                 </button>
@@ -2666,7 +2666,7 @@ export default function SocialPage() {
                       setSelectedCategory(item);
                       setActiveFilter("all");
                     }}
-                    className="w-full py-2.5 border-b border-[#1E2230] last:border-b-0 text-sm text-left text-[#A6A8B3] hover:text-white transition-colors"
+                    className="w-full py-2.5 border-b border-[#1E2230] last:border-b-0 text-sm text-left brane-gold-text hover:opacity-80 transition-opacity"
                   >
                     {item}
                   </button>
@@ -2980,7 +2980,7 @@ export default function SocialPage() {
                       Alcance
                     </h3>
 
-                    <div className="space-y-3 text-sm text-[#A6A8B3]">
+                    <div className="space-y-3 text-sm brane-gold-text">
                       <div className="flex items-center justify-between">
                         <span>Visualizações</span>
                         <span className="brane-gold-text font-bold">{totalViews}</span>
