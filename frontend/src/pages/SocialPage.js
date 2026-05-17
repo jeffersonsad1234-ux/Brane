@@ -562,7 +562,7 @@ export default function SocialPage() {
       if (state.braneChat) { closeChat(); if (activeFilter === "messages") setActiveFilter("all"); return; }
       if (state.branePost) { setSelectedPost(null); return; }
       if (state.braneSettings) { setShowSettings(false); return; }
-      if (state.braneTab) { setActiveFilter("all"); setSelectedCategory(""); return; }
+      if (state.braneTab) { setActiveFilter("all"); setSelectedCategory(""); setSelectedChat(null); return; }
       if (selectedChat) { closeChat(); if (activeFilter === "messages") setActiveFilter("all"); return; }
       if (selectedPost) { setSelectedPost(null); return; }
       if (showNotifications) { setShowNotifications(false); return; }
@@ -1043,11 +1043,12 @@ export default function SocialPage() {
       setPosting(true);
 
       const key = getPostKey(editingPost);
+      const content = buildContent();
       await axios.put(
         API + "/social/posts/" + key,
         {
-          content: buildContent(),
-          description: form.description || buildContent(),
+          content,
+          description: form.description || content,
           image: JSON.stringify(images),
           category: form.category,
           title: form.title,
@@ -1058,15 +1059,18 @@ export default function SocialPage() {
           phone: form.phone,
           whatsapp: form.whatsapp,
           availability: form.availability || "disponivel",
-          enhanced_title: enhancedTitle || form.title,
-          enhanced_description: enhancedDesc || form.description || buildContent(),
-          marketing_text: marketingLine || form.title
+          enhanced_title: enhancedTitle || "",
+          enhanced_description: enhancedDesc || "",
+          marketing_text: marketingLine || ""
         },
         { headers: authHeaders }
       );
 
       setComposerOpen(false);
       setEditingPost(null);
+      setEnhancedTitle("");
+      setEnhancedDesc("");
+      setMarketingLine("");
       await loadPosts(1, false);
       alert("Anúncio atualizado com sucesso!");
 
@@ -1544,7 +1548,7 @@ export default function SocialPage() {
                   return <div className="brane-card-soft p-4 text-sm text-[#8C8F9A]">Nenhuma notificação por enquanto.</div>;
                 }
 
-                return items.map((msg) => {
+                return items.map((msg, msgIdx) => {
                   const nPostId = msg?.post_id;
                   const notifPost = posts.find((p) => (p.post_id || p.id) === nPostId || getPostKey(p) === nPostId);
                   const notifImg = notifPost ? getPostImages(notifPost)[0] || "" : "";
@@ -1552,7 +1556,7 @@ export default function SocialPage() {
                   const nSender = findName(msg) || "Usuário";
                   return (
                     <button
-                      key={nPostId}
+                      key={nPostId || msg.message_id || msg.id || msgIdx}
                       onClick={() => {
                         setShowNotifications(false);
                         markChatAsRead(nPostId);

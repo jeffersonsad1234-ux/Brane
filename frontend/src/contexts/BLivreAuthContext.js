@@ -54,7 +54,7 @@ export function BLivreAuthProvider({ children }) {
   };
 
   return (
-    <BLivreAuthContext.Provider value={{ user, token, loading, login, register, logout, authHeaders }}>
+    <BLivreAuthContext.Provider value={{ user, token, loading, login, register, logout, authHeaders, checkAuth }}>
       {children}
     </BLivreAuthContext.Provider>
   );
