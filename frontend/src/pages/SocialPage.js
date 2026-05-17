@@ -148,6 +148,7 @@ export default function SocialPage() {
   const [mobileShowForm, setMobileShowForm] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showApkDownload, setShowApkDownload] = useState(true);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
   const [formError, setFormError] = useState("");
@@ -2508,18 +2509,42 @@ export default function SocialPage() {
                 </button>
               )}
               {showApkDownload && (
-                <a
-                  href="/B-Livre-v1.0.apk"
-                  download="B-Livre-v1.0.apk"
-                  className="h-10 px-3.5 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center gap-1.5 text-[12px] font-black text-[#D4A24C] hover:bg-white/[0.08] transition-colors"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                  Baixar app
-                </a>
+                <>
+                  <button
+                    onClick={() => setShowDownloadModal(true)}
+                    className="h-10 px-3.5 rounded-2xl border border-white/10 bg-white/[0.04] flex items-center gap-1.5 text-[12px] font-black text-[#D4A24C] hover:bg-white/[0.08] transition-colors"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Baixar app
+                  </button>
+                  {showDownloadModal && (
+                    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-300" onClick={() => setShowDownloadModal(false)}>
+                      <div className="bg-[#0B0F1A] border border-[#D4A24C]/20 rounded-3xl p-8 max-w-sm mx-4 text-center shadow-2xl shadow-[#D4A24C]/5 animate-in zoom-in-95 duration-300" onClick={e => e.stopPropagation()}>
+                        <div className="text-5xl mb-4">📱</div>
+                        <p className="text-white text-lg font-bold mb-2">Disponível também em breve na Play Store.</p>
+                        <div className="w-12 h-0.5 bg-[#D4A24C]/30 mx-auto my-4 rounded-full" />
+                        <button
+                          onClick={() => {
+                            setShowDownloadModal(false);
+                            const a = document.createElement("a");
+                            a.href = "/B-Livre-v1.0.apk";
+                            a.download = "B-Livre-v1.0.apk";
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                          }}
+                          className="mt-2 h-11 px-8 bg-[#D4A24C] text-black font-black rounded-2xl text-[13px] hover:bg-[#C49542] transition-all active:scale-95"
+                        >
+                          Continuar download
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
               <button
                 onClick={() => {
