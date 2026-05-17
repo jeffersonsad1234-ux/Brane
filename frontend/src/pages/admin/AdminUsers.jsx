@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import axios from "axios";
 import { useAdminData } from "../../contexts/AdminDataContext";
-import { Search, UserCheck, UserX, Trash2, Eye, MapPin, Calendar, Shield, MoreHorizontal } from "lucide-react";
+import { Search, UserCheck, UserX, Trash2, Eye, MapPin, Calendar, Shield, MoreHorizontal, CheckCircle, XCircle } from "lucide-react";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Avatar, AvatarFallback } from "../../components/ui/avatar";
@@ -12,11 +12,16 @@ const glassCard = "rounded-2xl border bg-[#121216]/80 backdrop-blur-xl shadow-[0
 const API = `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
 
 export default function AdminUsers() {
-  const { users: ctxUsers, loading, blockUser, authHeaders, token } = useAdminData();
+  const { users: ctxUsers, loading, blockUser, authHeaders, token, fetchAll } = useAdminData();
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("todos");
+  const [feedback, setFeedback] = useState(null);
 
-  // Merge with online status from context users
+  const showFeedback = useCallback((msg, type) => {
+    setFeedback({ msg, type });
+    setTimeout(() => setFeedback(null), 3000);
+  }, []);
+
   const users = ctxUsers || [];
 
   const filtered = users.filter(u => {
@@ -34,11 +39,25 @@ export default function AdminUsers() {
     return diff < 15 * 60 * 1000;
   };
 
+  const handleBlock = async (uid, currentlyBlocked) => {
+    if (currentlyBlocked) {
+      if (!window.confirm("Desbloquear este usuário?")) return;
+    } else {
+      if (!window.confirm("Bloquear este usuário? Ele não poderá mais acessar a plataforma.")) return;
+    }
+    await blockUser(uid);
+    showFeedback(currentlyBlocked ? "Usuário desbloqueado" : "Usuário bloqueado", "success");
+  };
+
   const deleteUser = async (uid) => {
-    if (!window.confirm(`Excluir permanentemente o usuário ${uid}? Esta ação não pode ser desfeita.`)) return;
+    if (!window.confirm(`Excluir permanentemente este usuário? Esta ação não pode ser desfeita.`)) return;
     try {
-      await axios.delete(API + "/users/" + uid, { headers: authHeaders }).catch(() => {});
-    } catch {}
+      await axios.delete(API + "/admin/users/" + uid, { headers: authHeaders });
+      showFeedback("Usuário excluído", "success");
+      fetchAll();
+    } catch (e) {
+      showFeedback(e.response?.data?.detail || "Erro ao excluir usuário", "error");
+    }
   };
 
   if (!token) {
@@ -80,6 +99,15 @@ export default function AdminUsers() {
             placeholder="Buscar..." className="pl-9 h-9 w-52 bg-[#0A0A0C] border-white/10 text-white text-[12px] placeholder:text-[#8C8F9A] rounded-xl" />
         </div>
       </div>
+
+      {feedback && (
+        <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-[13px] font-medium ${
+          feedback.type === "success" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"
+        }`}>
+          {feedback.type === "success" ? <CheckCircle size={14} /> : <XCircle size={14} />}
+          {feedback.msg}
+        </div>
+      )}
 
       {users.length === 0 ? (
         <div className={`${glassCard} p-12 text-center`}>
@@ -159,7 +187,7 @@ export default function AdminUsers() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Button onClick={() => blockUser(u.user_id || u.id)}
+                      <Button onClick={() => handleBlock(u.user_id || u.id, u.is_blocked || u.blocked)}
                         className={`h-8 px-3 rounded-xl text-[11px] font-semibold border ${
                           u.is_blocked || u.blocked
                             ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20"

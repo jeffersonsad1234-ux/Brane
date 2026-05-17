@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import axios from "axios";
 import { useAdminData } from "../../contexts/AdminDataContext";
-import { Search, Eye, Trash2, Filter, Plus, CheckCircle, XCircle, Star, Edit3, X } from "lucide-react";
+import { Search, Eye, Trash2, Filter, Plus, CheckCircle, XCircle, Star, ExternalLink, X } from "lucide-react";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
@@ -12,11 +12,17 @@ const glassCard = "rounded-2xl border bg-[#121216]/80 backdrop-blur-xl shadow-[0
 const API = `${process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app"}/api`;
 
 export default function AdminProducts() {
-  const { posts: ctxPosts, loading, deletePost, authHeaders, token } = useAdminData();
+  const { posts: ctxPosts, loading, authHeaders, token, fetchAll } = useAdminData();
   const [search, setSearch] = useState("");
   const [cat, setCat] = useState("Todas");
   const [showForm, setShowForm] = useState(false);
+  const [feedback, setFeedback] = useState(null);
   const [form, setForm] = useState({ title: "", description: "", category: "Outros", price: "", city: "", state: "", whatsapp: "", image: "" });
+
+  const showFeedback = useCallback((msg, type) => {
+    setFeedback({ msg, type });
+    setTimeout(() => setFeedback(null), 3000);
+  }, []);
 
   const posts = ctxPosts || [];
   const categories = ["Todas", ...new Set(posts.map(p => p.category || p.categoria || "Outros"))];
@@ -35,13 +41,32 @@ export default function AdminProducts() {
   const updateStatus = async (pid, status) => {
     try {
       await axios.put(API + "/admin/blivre/products/" + pid + "/status", { status }, { headers: authHeaders });
-    } catch (e) { console.error(e); }
+      showFeedback(status === "active" ? "Anúncio reativado" : "Anúncio ocultado", "success");
+      fetchAll();
+    } catch (e) {
+      showFeedback(e.response?.data?.detail || "Erro ao atualizar status", "error");
+    }
   };
 
   const toggleFeatured = async (pid) => {
     try {
-      await axios.put(API + "/admin/blivre/products/" + pid + "/promote", {}, { headers: authHeaders });
-    } catch (e) { console.error(e); }
+      const res = await axios.put(API + "/admin/blivre/products/" + pid + "/promote", {}, { headers: authHeaders });
+      showFeedback(res.data.featured ? "Anúncio destacado" : "Destaque removido", "success");
+      fetchAll();
+    } catch (e) {
+      showFeedback(e.response?.data?.detail || "Erro ao alternar destaque", "error");
+    }
+  };
+
+  const handleDeletePost = async (pid) => {
+    if (!window.confirm(`Excluir permanentemente este anúncio? Esta ação não pode ser desfeita.`)) return;
+    try {
+      await axios.delete(API + "/admin/posts/" + pid, { headers: authHeaders });
+      showFeedback("Anúncio excluído", "success");
+      fetchAll();
+    } catch (e) {
+      showFeedback(e.response?.data?.detail || "Erro ao excluir anúncio", "error");
+    }
   };
 
   const handleCreate = async () => {
@@ -50,8 +75,15 @@ export default function AdminProducts() {
       await axios.post(API + "/admin/blivre/products", form, { headers: authHeaders });
       setShowForm(false);
       setForm({ title: "", description: "", category: "Outros", price: "", city: "", state: "", whatsapp: "", image: "" });
-      window.location.reload();
-    } catch (e) { console.error(e); }
+      showFeedback("Anúncio criado", "success");
+      fetchAll();
+    } catch (e) {
+      showFeedback(e.response?.data?.detail || "Erro ao criar anúncio", "error");
+    }
+  };
+
+  const viewPost = (pid) => {
+    window.open("/blivre/post/" + pid, "_blank");
   };
 
   if (!token) {
@@ -97,6 +129,15 @@ export default function AdminProducts() {
           </Button>
         </div>
       </div>
+
+      {feedback && (
+        <div className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-[13px] font-medium ${
+          feedback.type === "success" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"
+        }`}>
+          {feedback.type === "success" ? <CheckCircle size={14} /> : <XCircle size={14} />}
+          {feedback.msg}
+        </div>
+      )}
 
       {showForm && (
         <div className={`${glassCard} p-5 border-[#D4A24C]/20`}>
@@ -198,6 +239,10 @@ export default function AdminProducts() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => viewPost(p.post_id || p.key || p.id)}
+                          className="h-8 px-2 bg-white/[0.04] text-[#8C8F9A] border border-white/10 rounded-xl text-[11px] font-semibold hover:text-white" title="Ver">
+                          <ExternalLink size={12} />
+                        </button>
                         {(p.status || "active") !== "blocked" && p.status !== "bloqueado" && p.status !== "hidden" ? (
                           <button onClick={() => updateStatus(p.post_id || p.key || p.id, "hidden")}
                             className="h-8 px-2 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-xl text-[11px] font-semibold hover:bg-amber-500/20" title="Ocultar">
@@ -213,7 +258,7 @@ export default function AdminProducts() {
                           className={`h-8 px-2 rounded-xl border text-[11px] font-semibold ${p.featured ? "bg-[#D4A24C]/10 text-[#D4A24C] border-[#D4A24C]/20 hover:bg-[#D4A24C]/20" : "bg-white/[0.04] text-[#8C8F9A] border-white/10 hover:text-white"}`} title="Destaque">
                           <Star size={12} />
                         </button>
-                        <button onClick={() => deletePost(p.post_id || p.key || p.id)}
+                        <button onClick={() => handleDeletePost(p.post_id || p.key || p.id)}
                           className="h-8 px-2 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl text-[11px] font-semibold hover:bg-red-500/20" title="Excluir">
                           <Trash2 size={12} />
                         </button>

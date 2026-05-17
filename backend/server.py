@@ -2759,6 +2759,32 @@ async def admin_toggle_block(user_id: str, request: Request):
     await db.users.update_one({"user_id": user_id}, {"$set": {"is_blocked": new_status}})
     return {"message": "Bloqueado" if new_status else "Desbloqueado", "is_blocked": new_status}
 
+@api_router.delete("/admin/users/{user_id}")
+async def admin_delete_user(user_id: str, request: Request):
+    await require_admin(request)
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario nao encontrado")
+    await db.users.delete_one({"user_id": user_id})
+    await db.wallets.delete_one({"user_id": user_id})
+    return {"message": "Usuario excluido"}
+
+@api_router.patch("/admin/users/{user_id}/block")
+async def admin_block_user(user_id: str, request: Request):
+    await require_admin(request)
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    if not user: raise HTTPException(status_code=404, detail="Usuario nao encontrado")
+    await db.users.update_one({"user_id": user_id}, {"$set": {"is_blocked": True}})
+    return {"message": "Bloqueado", "is_blocked": True}
+
+@api_router.patch("/admin/users/{user_id}/unblock")
+async def admin_unblock_user(user_id: str, request: Request):
+    await require_admin(request)
+    user = await db.users.find_one({"user_id": user_id}, {"_id": 0})
+    if not user: raise HTTPException(status_code=404, detail="Usuario nao encontrado")
+    await db.users.update_one({"user_id": user_id}, {"$set": {"is_blocked": False}})
+    return {"message": "Desbloqueado", "is_blocked": False}
+
 @api_router.get("/admin/withdrawals")
 async def admin_list_withdrawals(request: Request):
     await require_admin(request)
@@ -2859,6 +2885,18 @@ async def admin_posts(request: Request, limit: int = 200, skip: int = 0):
     await require_admin(request)
     posts = await db.social_posts.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     return {"posts": posts}
+
+@api_router.delete("/admin/posts/{post_id}")
+async def admin_delete_post(post_id: str, request: Request):
+    await require_admin(request)
+    post = await db.social_posts.find_one({"post_id": post_id}, {"_id": 0})
+    if not post:
+        raise HTTPException(status_code=404, detail="Anuncio nao encontrado")
+    await db.social_posts.delete_one({"post_id": post_id})
+    await db.social_comments.delete_many({"post_id": post_id})
+    await db.social_favorites.delete_many({"post_id": post_id})
+    await db.social_messages.delete_many({"post_id": post_id})
+    return {"message": "Anuncio excluido"}
 
 @api_router.get("/admin/messages")
 async def admin_messages(request: Request, limit: int = 200, skip: int = 0):
