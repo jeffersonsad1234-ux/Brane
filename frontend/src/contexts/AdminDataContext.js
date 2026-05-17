@@ -36,33 +36,31 @@ export function AdminDataProvider({ children }) {
     if (!token) { setLoading(false); return; }
     setLoading(true);
     try {
-      const [usersRes, postsRes, supportRes, notifRes, financeRes] = await Promise.allSettled([
+      const [usersRes, postsRes, supportRes, statsRes] = await Promise.allSettled([
         axios.get(API + "/admin/users", { headers: authHeaders }),
-        axios.get(API + "/admin/blivre/posts?limit=200", { headers: authHeaders }),
+        axios.get(API + "/admin/posts?limit=200", { headers: authHeaders }),
         axios.get(API + "/admin/support", { headers: authHeaders }),
-        axios.get(API + "/notifications", { headers: authHeaders }),
-        axios.get(API + "/admin/finance/dashboard", { headers: authHeaders }),
+        axios.get(API + "/admin/stats", { headers: authHeaders }),
       ]);
 
       if (usersRes.status === "fulfilled") setUsers(usersRes.value.data.users || []);
       if (postsRes.status === "fulfilled") setPosts(postsRes.value.data.posts || []);
-      if (supportRes.status === "fulfilled") setSupportTickets(supportRes.value.data.tickets || []);
-      if (notifRes.status === "fulfilled") setNotifications(notifRes.value.data.notifications || []);
-      if (financeRes.status === "fulfilled") setTransactions(financeRes.value.data.transactions || []);
+      if (supportRes.status === "fulfilled") {
+        const d = supportRes.value.data;
+        setSupportTickets(d.tickets || d.messages || []);
+      }
 
-      // Dashboard — computed from real data only
-      const userList = usersRes.status === "fulfilled" ? usersRes.value.data.users || [] : [];
-      const postList = postsRes.status === "fulfilled" ? postsRes.value.data.posts || [] : [];
-      const txList = financeRes.status === "fulfilled" ? financeRes.value.data.transactions || [] : [];
-
-      setDashboard(userList.length > 0 || postList.length > 0 ? {
-        totalUsers: userList.length,
-        totalPosts: postList.length,
-        activePosts: postList.filter(p => (p.status || "active") !== "blocked" && p.status !== "bloqueado").length,
-        blockedPosts: postList.filter(p => p.status === "blocked" || p.status === "bloqueado").length,
-        pendingPosts: postList.filter(p => p.status === "pending" || p.status === "pendente").length,
-        totalTransactions: txList.length,
-      } : null);
+      // Dashboard from real /admin/stats
+      if (statsRes.status === "fulfilled") {
+        const s = statsRes.value.data;
+        setDashboard({
+          totalUsers: s.total_users || 0,
+          totalPosts: s.total_posts || 0,
+          totalMessages: s.total_messages || 0,
+          postsToday: s.posts_today || 0,
+          usersToday: s.users_today || 0,
+        });
+      }
     } catch (e) {
       console.error("AdminData fetch error:", e);
     } finally {
