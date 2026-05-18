@@ -247,6 +247,9 @@ export default function SocialPage() {
 
   useEffect(() => {
     if (composerOpen) {
+      if (!editingPost) {
+        setForm({ category: "", title: "", price: "", state: "", city: "", productCondition: "", description: "", availability: "Item único", phone: "", whatsapp: "" });
+      }
       document.body.classList.add('ai-modal-open');
       setAiFilled(false);
       setMobileShowForm(false);
@@ -259,7 +262,7 @@ export default function SocialPage() {
       document.body.classList.remove('ai-modal-open');
     }
     return () => document.body.classList.remove('ai-modal-open');
-  }, [composerOpen]);
+  }, [composerOpen, editingPost]);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
@@ -324,10 +327,12 @@ export default function SocialPage() {
     return line || post.product_condition || "";
   };
 
-  const getLocation = (post) =>
-    [post.city, post.state].filter(Boolean).join(" - ") ||
-    getPostLines(post).find((line) => line.includes(" - ")) ||
-    "Localização a combinar";
+  const getLocation = (post) => {
+    const result = [post.city, post.state].filter(Boolean).join(" - ") ||
+      getPostLines(post).find((line) => line.includes(" - ")) ||
+      "Localização a combinar";
+    return result;
+  };
 
   const getCategory = (post) =>
     getPostLines(post).find((line) => categories.includes(line)) || post.category || "";
@@ -796,9 +801,17 @@ export default function SocialPage() {
     const text = rawText.trim();
     if (!text) return;
 
-    // Clear previous city/state so stale values never leak if parsing fails
+    // Reset ALL form fields before parse to prevent stale value leaks
+    updateForm("title", "");
+    updateForm("price", "");
+    updateForm("category", "");
+    updateForm("productCondition", "");
     updateForm("city", "");
     updateForm("state", "");
+    updateForm("description", "");
+    updateForm("availability", "Item único");
+    updateForm("phone", "");
+    updateForm("whatsapp", "");
 
     const conditions = ["Novo", "Seminovo", "Usado", "Recondicionado"];
     const catKeywords = {
@@ -834,10 +847,9 @@ export default function SocialPage() {
     for (let i = 0; i < parts.length; i++) {
       const p = parts[i].replace(/__PC__/g, ",");
       const stripped = p.replace(/^R\$\s*/i, "").trim();
-      const digitsOnly = stripped.replace(/[^\d,]/g, "");
-      const isPrice = digitsOnly.length >= 1 && digitsOnly.length <= 10 &&
-        stripped.replace(/[.,\d]/g, "").length <= 1 &&
-        /[\d,.]/.test(stripped) &&
+      const digitsOnly = stripped.replace(/[^\d,.]/g, "");
+      const isPrice = digitsOnly.length >= 1 && digitsOnly.length <= 12 &&
+        /[\d.,]/.test(stripped) &&
         !/^\d{4,}$/.test(stripped);
       if (isPrice) {
         priceIdx = i;
@@ -852,59 +864,28 @@ export default function SocialPage() {
       updateForm("price", parsedPrice);
     }
 
-    // Step 2: find city/state in the last part(s)
+    // Step 2: find city/state via regex anywhere in the text
     let cityIdx = -1;
     let parsedCity = "";
     let parsedState = "";
+    const locRegex = new RegExp("([A-Za-zÀ-ÿ\\s]+)\\s*[-–—]\\s*(" + ufs.join("|") + ")", "i");
     for (let i = parts.length - 1; i >= 0; i--) {
       if (i === priceIdx) continue;
       const raw = parts[i];
-      const words = raw.split(/\s+/).filter(Boolean);
-      if (words.length >= 1) {
-        const lastWord = words[words.length - 1];
-        const lastWordClean = lastWord.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-        const lastWordUF = ufs.includes(lastWordClean) ? lastWordClean : (stateNameToUf[lastWordClean] || null);
-        const secondToLast = words.length >= 2 ? words.slice(0, -1).join(" ") : null;
-
-        if (lastWordUF) {
-          if (secondToLast) {
-            const secondToLastClean = secondToLast.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-            if (!ufs.includes(secondToLastClean) && secondToLast.length > 2) {
-              parsedCity = secondToLast;
-              parsedState = lastWordUF;
-            } else {
-              if (i > 0 && i !== priceIdx) {
-                const prevPart = parts[i - 1];
-                const prevWords = prevPart.split(/\s+/);
-                const possibleCity = prevWords[prevWords.length - 1];
-                const possibleCityClean = possibleCity?.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-                if (possibleCity && possibleCity.length > 2 && !ufs.includes(possibleCityClean)) {
-                  parsedCity = possibleCity;
-                  parsedState = lastWordUF;
-                  cityIdx = i - 1;
-                }
-              }
-              if (!parsedCity) {
-                const stateName = fullStateNames[lastWordUF] || lastWord;
-                parsedCity = raw.replace(new RegExp(lastWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), "i"), "").trim() || raw;
-                parsedState = lastWordUF;
-              }
-            }
-          } else {
-            parsedState = lastWordUF;
-          }
-          cityIdx = i;
-          break;
-        }
+      const locMatch = raw.match(locRegex);
+      if (locMatch) {
+        parsedCity = locMatch[1].trim().replace(/[-\s]+$/, "").trim();
+        parsedState = locMatch[2].toUpperCase();
+        cityIdx = i;
+        break;
       }
     }
 
-    // If no UF found, check if last part looks like a city name
+    // If no UF found, check if last non-price part looks like a city name
     if (cityIdx < 0) {
       for (let i = parts.length - 1; i >= 0; i--) {
         if (i === priceIdx) continue;
         const raw = parts[i];
-        // A city name: 3+ chars, only letters/spaces, not a price
         if (/^[A-Za-zÀ-ÿ\s]{3,}$/.test(raw) && !/\d/.test(raw)) {
           parsedCity = raw;
           cityIdx = i;
@@ -913,12 +894,29 @@ export default function SocialPage() {
       }
     }
 
-      if (parsedCity) updateForm("city", parsedCity.replace(/[-\s]+$/, "").trim());
-      if (parsedState) updateForm("state", parsedState);
+    if (parsedCity) updateForm("city", parsedCity);
+    if (parsedState) updateForm("state", parsedState);
 
-    // Step 3: title = first part, description = everything else not price/city
-    if (parts.length > 0) {
-      updateForm("title", parts[0]);
+    // Step 3: title = first non-price part that is not the city part
+    let titlePart = "";
+    for (let i = 0; i < parts.length; i++) {
+      if (i === priceIdx || i === cityIdx) continue;
+      titlePart = parts[i];
+      break;
+    }
+    if (!titlePart) titlePart = parts[0];
+    updateForm("title", titlePart);
+
+    // Step 4: description = all parts except price and city
+    const knownIdx = new Set([priceIdx, cityIdx].filter(i => i >= 0));
+    const descParts = [];
+    for (let i = 0; i < parts.length; i++) {
+      if (knownIdx.has(i)) continue;
+      if (parts[i] === titlePart && !descParts.length) continue; // skip title
+      descParts.push(parts[i]);
+    }
+    if (descParts.length > 0) {
+      updateForm("description", descParts.join(", "));
     }
 
     // Category detection with fallback
@@ -933,16 +931,6 @@ export default function SocialPage() {
     }
     if (!detected) {
       updateForm("category", "Outros");
-    }
-
-    const knownIdx = new Set([0, priceIdx, cityIdx].filter(i => i >= 0 && i !== 0));
-    const descParts = [];
-    for (let i = 1; i < parts.length; i++) {
-      if (knownIdx.has(i)) continue;
-      descParts.push(parts[i]);
-    }
-    if (descParts.length > 0) {
-      updateForm("description", descParts.join(", "));
     }
 
     setAiFilled(true);
@@ -3231,7 +3219,7 @@ export default function SocialPage() {
 
       {/* Mobile FAB anunciar (only on Início/feed) */}
       {(activeFilter === "all" && !selectedPost && !showNotifications && !showSettings && !composerOpen) && (
-          <button className="brane-fab" onClick={() => { if (!requireAuth()) return; setComposerOpen(true); }}>
+          <button className="brane-fab" onClick={() => { if (!requireAuth()) return; setForm(prev => ({ ...prev, city: "", state: "" })); setComposerOpen(true); }}>
           +
         </button>
       )}
