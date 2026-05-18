@@ -497,10 +497,10 @@ export default function SocialPage() {
           return merged;
         });
       } else {
-        setPosts(list);
-        setHasMore(list.length >= PAGE_SIZE);
-        // Cache page 1 results
-        try { localStorage.setItem(CACHE_KEY, JSON.stringify(list)); } catch {}
+        const deduped = mergePosts([], list);
+        setPosts(deduped);
+        setHasMore(deduped.length >= PAGE_SIZE);
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(deduped)); } catch {}
       }
 
       if (list.length < PAGE_SIZE) setHasMore(false);
@@ -1144,7 +1144,13 @@ export default function SocialPage() {
     }
   };
 
-  const filteredPosts = posts.filter((post) => {
+  const filteredPosts = Object.values(
+    posts.reduce((acc, post) => {
+      const key = getPostKey(post);
+      if (!acc[key]) acc[key] = post;
+      return acc;
+    }, {})
+  ).filter((post) => {
     const title = getTitle(post).toLowerCase();
     const content = String(post.content || "").toLowerCase();
     const description = String(post.description || "").toLowerCase();
