@@ -325,8 +325,8 @@ export default function SocialPage() {
   };
 
   const getLocation = (post) =>
-    getPostLines(post).find((line) => line.includes(" - ")) ||
     [post.city, post.state].filter(Boolean).join(" - ") ||
+    getPostLines(post).find((line) => line.includes(" - ")) ||
     "Localização a combinar";
 
   const getCategory = (post) =>
@@ -909,8 +909,8 @@ export default function SocialPage() {
       }
     }
 
-    if (parsedCity) updateForm("city", parsedCity);
-    if (parsedState) updateForm("state", parsedState);
+      if (parsedCity) updateForm("city", parsedCity.replace(/[-\s]+$/, "").trim());
+      if (parsedState) updateForm("state", parsedState);
 
     // Step 3: title = first part, description = everything else not price/city
     if (parts.length > 0) {
