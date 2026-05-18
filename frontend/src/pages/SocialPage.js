@@ -150,6 +150,7 @@ export default function SocialPage() {
   const [showApkDownload, setShowApkDownload] = useState(true);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [showSupportChat, setShowSupportChat] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [supportMessages, setSupportMessages] = useState([]);
   const [supportMsgText, setSupportMsgText] = useState("");
   const [sendingSupport, setSendingSupport] = useState(false);
@@ -2666,10 +2667,7 @@ export default function SocialPage() {
                 </>
               )}
               <button
-                onClick={() => {
-                  const el = document.querySelector('.hidden\\.md\\:flex');
-                  if (el) el.querySelector('input')?.focus();
-                }}
+                onClick={() => setShowMobileSearch(true)}
                 className="md:hidden w-9 h-9 rounded-xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#D4A24C] hover:bg-white/[0.08] transition-colors"
                 title="Buscar"
               >
@@ -2709,9 +2707,30 @@ export default function SocialPage() {
           </div>
         </header>
 
+        {showMobileSearch && (
+          <div className="md:hidden flex items-center gap-2 px-3 pb-2">
+            <div className="flex-1 flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-2.5">
+              <Search size={15} className="text-[#D4A24C]" />
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar produtos..."
+                className="flex-1 bg-transparent outline-none text-sm text-white placeholder:text-[#6F7280]"
+                autoFocus
+              />
+            </div>
+            <button
+              onClick={() => { setShowMobileSearch(false); setSearchTerm(""); }}
+              className="w-9 h-9 rounded-xl border border-white/10 bg-white/[0.04] flex items-center justify-center text-[#8C8F9A] hover:text-white"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        )}
 
 
-        <div className="max-w-[1600px] mx-auto px-3 md:px-4 py-2 md:py-4">
+
+          <div className="max-w-[1600px] mx-auto px-3 md:px-4 py-2 md:py-4">
           <div
             className="grid gap-4 items-start h-[calc(100vh-92px)] overflow-hidden blivre-shell"
             style={{
