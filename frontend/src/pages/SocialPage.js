@@ -367,6 +367,11 @@ export default function SocialPage() {
     if (!postId || !currentToken) return;
     try {
       await axios.post(API + "/social/messages/read-conversation/" + postId, {}, { headers: authHeaders });
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.post_id === postId && !m.read_at ? { ...m, read_at: new Date().toISOString() } : m
+        )
+      );
       await fetchUnreadMessages();
     } catch (e) {
       console.error("Erro ao marcar conversa como lida:", e);
@@ -2923,6 +2928,15 @@ export default function SocialPage() {
                     </h2>
 
                     {(() => {
+                      // Build unread count per conversation from messages
+                      const uid = getCurrentUserId();
+                      const unreadMap = {};
+                      (messages || []).forEach((m) => {
+                        const pid = m.post_id;
+                        if (pid && !m.read_at && String(m.receiver_id) === uid) {
+                          unreadMap[pid] = (unreadMap[pid] || 0) + 1;
+                        }
+                      });
                       // Build conversations from notifications (primary source = mesma fonte das notificações)
                       const notifGrouped = {};
                       (notifications || []).forEach((n) => {
@@ -2982,7 +2996,12 @@ export default function SocialPage() {
                                 <div className="min-w-0 flex-1">
                                   <div className="flex items-center justify-between gap-2">
                                     <p className="text-sm font-semibold text-white truncate">{convTitle}</p>
-                                    <span className="text-[10px] text-[#6F7280] shrink-0">{conv.createdAt ? new Date(conv.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : ""}</span>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      {unreadMap[conv.post_id] > 0 && (
+                                        <span className="min-w-[18px] h-[18px] rounded-full bg-[#D4A24C] flex items-center justify-center text-[10px] font-bold text-[#0A0E1A] px-1">{unreadMap[conv.post_id]}</span>
+                                      )}
+                                      <span className="text-[10px] text-[#6F7280]">{conv.createdAt ? new Date(conv.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : ""}</span>
+                                    </div>
                                   </div>
                                   <p className="text-xs text-[#D4A24C] mt-0.5 font-medium">{conv.otherName}</p>
                                   <p className="text-[11px] text-[#A6A8B3] mt-0.5 truncate">{conv.lastMsg?.message || "Clique para ver a conversa"}</p>
