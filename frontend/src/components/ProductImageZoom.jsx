@@ -10,6 +10,7 @@ export default function ProductImageZoom({
   zoomSize = 220,
   zoomPanelSize = 180,
   lensSize = 180,
+  zoomLevel,
   style = {}
 }) {
   const [canZoom, setCanZoom] = useState(false);
@@ -37,7 +38,7 @@ export default function ProductImageZoom({
 
   const pointerRef = imageRef || wrapperRef;
   const detailMode = mode === "detailPro";
-  const effectiveZoom = detailMode ? 300 : zoomSize;
+  const effectiveZoom = detailMode ? (zoomLevel ?? 400) : zoomSize;
 
   const handlePointerMove = (event) => {
     if (!canZoom) return;

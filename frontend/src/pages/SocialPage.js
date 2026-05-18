@@ -2373,8 +2373,9 @@ export default function SocialPage() {
                         alt="Produto"
                         className="max-h-[650px] w-full object-contain"
                         wrapperClassName="w-full h-full"
-                        zoomPanelSize={240}
-                        lensSize={220}
+                        zoomPanelSize={360}
+                        lensSize={280}
+                        zoomLevel={450}
                       />
                     </>
                   ) : (
