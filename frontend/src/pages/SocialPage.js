@@ -560,11 +560,11 @@ export default function SocialPage() {
   useEffect(() => {
     const handlePop = (e) => {
       const state = e.state || {};
-      if (state.braneChat) { closeChat(); if (activeFilter === "messages") setActiveFilter("all"); return; }
+      if (state.braneChat) { closeChat(); return; }
       if (state.branePost) { setSelectedPost(null); return; }
       if (state.braneSettings) { setShowSettings(false); return; }
       if (state.braneTab) { setActiveFilter("all"); setSelectedCategory(""); setSelectedChat(null); return; }
-      if (selectedChat) { closeChat(); if (activeFilter === "messages") setActiveFilter("all"); return; }
+      if (selectedChat) { closeChat(); return; }
       if (selectedPost) { setSelectedPost(null); return; }
       if (showNotifications) { setShowNotifications(false); return; }
       if (showSettings) { setShowSettings(false); return; }
