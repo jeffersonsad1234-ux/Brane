@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import {
-  Send, User, Bell, Search, MessageSquare,
+  Send, User, Bell, Search, MessageSquare, Sparkles,
   Settings, BadgeCheck, Package, MapPin, Tags,
   Heart, X, ChevronLeft, ChevronRight, Globe, Camera, ShoppingCart,
   Copy, Phone
@@ -2023,7 +2023,7 @@ export default function SocialPage() {
                   <p className="text-[11px] text-red-400 font-medium text-center mb-2">{formError}</p>
                 )}
                 <div className="flex gap-2 items-center">
-                  <label className="shrink-0 w-12 h-12 rounded-2xl border border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40 hover:text-[#D4A24C] transition-all">
+                  <label className="shrink-0 w-12 h-12 rounded-2xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 flex items-center justify-center text-[#D4A24C] cursor-pointer hover:bg-[#D4A24C]/20 transition-all shadow-[0_0_12px_rgba(212,162,76,0.15)]">
                     <Camera size={18} />
                     <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
                   </label>
@@ -2033,15 +2033,15 @@ export default function SocialPage() {
                       setEmojiCycle(next);
                       applyEnhancement(next);
                     }}
-                    className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
+                    className="flex-1 h-12 rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 transition-all"
                   >
-                    Melhorar anúncio
+                    <Sparkles size={13} className="inline mr-1" />Melhorar anúncio
                   </button>
                   <button
                     onClick={handleNewMobile}
-                    className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
+                    className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08] transition-all"
                   >
-                    Novo
+                    ✨ Novo
                   </button>
                   <button
                     onClick={async () => {
@@ -2054,7 +2054,7 @@ export default function SocialPage() {
                       if (ok) { setComposerOpen(false); setAiFilled(false); setMobileAiText(""); setAiChatMessages([]); setAiStep('greeting'); setEmojiCycle(0); setEnhancedTitle(""); setEnhancedDesc(""); setMarketingLine(""); setContactInput(""); setContactType(null); }
                     }}
                     disabled={posting || !form.title.trim() || !form.price.trim() || !(form.city.trim() || form.state.trim()) || !form.description.trim() || !form.productCondition || !form.availability || !form.category || images.length === 0}
-                    className="flex-1 h-12 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(212,162,76,0.25)]"
+                    className="flex-1 h-12 rounded-xl brane-btn-gold text-xs font-black disabled:opacity-50"
                   >
                     {posting ? "⏳ Publicando..." : "Publicar"}
                   </button>
