@@ -1300,6 +1300,7 @@ export default function SocialPage() {
   };
 
   const openSupportChat = () => {
+    setShowSettings(false);
     setShowSupportChat(true);
     loadSupportMessages();
   };
@@ -3173,6 +3174,7 @@ export default function SocialPage() {
           <button
             key={value}
             onClick={() => {
+              setShowSupportChat(false);
               if (value === "settings") {
                 const savedCity = lastProfileRef.current?.city;
                 const cityVal = (currentUser?.city && !currentUser.city.includes("@") ? currentUser.city.trim() : savedCity) || "";
