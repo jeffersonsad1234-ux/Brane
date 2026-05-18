@@ -796,6 +796,10 @@ export default function SocialPage() {
     const text = rawText.trim();
     if (!text) return;
 
+    // Clear previous city/state so stale values never leak if parsing fails
+    updateForm("city", "");
+    updateForm("state", "");
+
     const conditions = ["Novo", "Seminovo", "Usado", "Recondicionado"];
     const catKeywords = {
       "Celulares": ["celular", "iphone", "smartphone", "tablet", "ipad", "notebook", "computador", "apple", "samsung", "xiaomi", "fone", "carregador"],
