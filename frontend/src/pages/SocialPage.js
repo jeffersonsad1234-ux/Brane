@@ -565,11 +565,11 @@ export default function SocialPage() {
     const handlePop = (e) => {
       const state = e.state || {};
       if (state.braneChat) { closeChat(); return; }
-      if (state.branePost) { setSelectedPost(null); return; }
+      if (state.branePost) { setSelectedPost(null); setSelectedImageIndex(0); return; }
       if (state.braneSettings) { setShowSettings(false); return; }
       if (state.braneTab) { setActiveFilter("all"); setSelectedCategory(""); setSelectedChat(null); return; }
       if (selectedChat) { closeChat(); return; }
-      if (selectedPost) { setSelectedPost(null); return; }
+      if (selectedPost) { setSelectedPost(null); setSelectedImageIndex(0); return; }
       if (showNotifications) { setShowNotifications(false); return; }
       if (showSettings) { setShowSettings(false); return; }
       if (showSupportChat) { setShowSupportChat(false); return; }
@@ -2774,6 +2774,8 @@ export default function SocialPage() {
                     <button
                       key={label}
                       onClick={() => {
+                        setSelectedPost(null);
+                        setSelectedImageIndex(0);
                         if (window.innerWidth < 768) window.history.pushState({ braneTab: value }, "");
                         if (value === "messages") {
                           openMessagesTab();
@@ -3175,6 +3177,8 @@ export default function SocialPage() {
             key={value}
             onClick={() => {
               setShowSupportChat(false);
+              setSelectedPost(null);
+              setSelectedImageIndex(0);
               if (value === "settings") {
                 const savedCity = lastProfileRef.current?.city;
                 const cityVal = (currentUser?.city && !currentUser.city.includes("@") ? currentUser.city.trim() : savedCity) || "";
