@@ -110,6 +110,8 @@ export default function SocialPage() {
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [message, setMessage] = useState("Esse anúncio ainda está disponível?");
+  const [messageSent, setMessageSent] = useState(false);
+  const SUGGESTIONS = ["Esse anúncio ainda está disponível?", "Qual o menor preço?", "Aceita negociação?", "Posso buscar hoje?"];
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
@@ -1134,7 +1136,8 @@ export default function SocialPage() {
       );
 
       setMessage("");
-      openChat({ post_id: getPostKey(selectedPost), sender_name: findName(selectedPost) || "Usuário", message });
+      setMessageSent(true);
+      setTimeout(() => setMessageSent(false), 3000);
     } catch (error) {
       console.error(error);
       alert("Erro ao enviar mensagem.");
@@ -2539,21 +2542,41 @@ export default function SocialPage() {
                         </button>
                       </div>
                     ) : (
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <input
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                            className="w-full h-14 rounded-2xl brane-input pr-14 text-[14px]"
-                            placeholder="Esse anúncio ainda está disponível?"
-                          />
-                          <button
-                            onClick={sendMessage}
-                            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
-                          >
-                            <Send size={18} />
-                          </button>
+                      <div className="space-y-2">
+                        {messageSent && (
+                          <p className="text-[11px] text-[#25D366] font-medium text-center">Mensagem enviada</p>
+                        )}
+                        <div className="flex flex-wrap gap-1.5">
+                          {SUGGESTIONS.map((s) => (
+                            <button
+                              key={s}
+                              onClick={() => setMessage(s)}
+                              className={`text-[10px] px-2.5 py-1.5 rounded-xl border transition-colors ${
+                                message === s
+                                  ? "border-[#D4A24C] bg-[#D4A24C]/10 text-[#D4A24C]"
+                                  : "border-white/10 bg-white/[0.03] text-[#A6A8B3] hover:bg-white/[0.06]"
+                              }`}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <input
+                              value={message}
+                              onChange={(e) => setMessage(e.target.value)}
+                              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                              className="w-full h-14 rounded-2xl brane-input pr-14 text-[14px]"
+                              placeholder="Esse anúncio ainda está disponível?"
+                            />
+                            <button
+                              onClick={sendMessage}
+                              className="absolute right-1.5 top-1/2 -translate-y-1/2 w-11 h-11 rounded-xl bg-[#D4A24C]/20 flex items-center justify-center text-[#D4A24C] hover:bg-[#D4A24C]/30"
+                            >
+                              <Send size={18} />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     )}
