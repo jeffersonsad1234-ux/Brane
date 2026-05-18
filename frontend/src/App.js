@@ -32,6 +32,7 @@ import DesapegaPage from "./pages/DesapegaPage";
 import BraneCoinsPage from "./pages/BraneCoinsPage";
 import AddProductPage from "./pages/AddProductPage";
 import SocialPage from "./pages/SocialPage";
+import VirtualShoppingBrane from "./pages/VirtualShoppingBrane";
 import BLivreAdminPage from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -117,7 +118,7 @@ function AppRouter() {
   }
 
   const isAdmin = path.startsWith("/admin");
-  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre");
+  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane");
 
   return (
     <>
@@ -194,6 +195,8 @@ function AppRouter() {
               <Route path="/social/*" element={<Navigate to="/blivre" replace />} />
               <Route path="/market/blivre" element={<Navigate to="/blivre" replace />} />
             </Route>
+
+            <Route path="/virtualshoppingbrane" element={<VirtualShoppingBrane />} />
 
             <Route
               path="/add-product"
