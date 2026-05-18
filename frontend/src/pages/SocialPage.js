@@ -149,6 +149,10 @@ export default function SocialPage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showApkDownload, setShowApkDownload] = useState(true);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [showSupportChat, setShowSupportChat] = useState(false);
+  const [supportMessages, setSupportMessages] = useState([]);
+  const [supportMsgText, setSupportMsgText] = useState("");
+  const [sendingSupport, setSendingSupport] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstall, setShowInstall] = useState(false);
   const [formError, setFormError] = useState("");
@@ -568,12 +572,13 @@ export default function SocialPage() {
       if (selectedPost) { setSelectedPost(null); return; }
       if (showNotifications) { setShowNotifications(false); return; }
       if (showSettings) { setShowSettings(false); return; }
+      if (showSupportChat) { setShowSupportChat(false); return; }
       if (composerOpen) { setComposerOpen(false); return; }
       if (activeFilter !== "all") { setActiveFilter("all"); return; }
     };
     window.addEventListener("popstate", handlePop);
     return () => window.removeEventListener("popstate", handlePop);
-  }, [selectedChat, showNotifications, showSettings, selectedPost, composerOpen, activeFilter]);
+  }, [selectedChat, showNotifications, showSettings, selectedPost, composerOpen, activeFilter, showSupportChat]);
 
   useEffect(() => {
     if (selectedChat?.post_id) {
@@ -1284,6 +1289,50 @@ export default function SocialPage() {
     setChatMessage("");
   };
 
+  const loadSupportMessages = async () => {
+    try {
+      const res = await axios.get(API + "/support/messages", { headers: authHeaders });
+      const msgs = res.data.messages || [];
+      setSupportMessages(msgs);
+    } catch {
+      setSupportMessages([]);
+    }
+  };
+
+  const openSupportChat = () => {
+    setShowSupportChat(true);
+    loadSupportMessages();
+  };
+
+  const sendSupportMessage = async () => {
+    if (!supportMsgText.trim()) return;
+    const text = supportMsgText;
+    setSupportMsgText("");
+    setSendingSupport(true);
+    try {
+      const res = await axios.post(API + "/support/message", { message: text }, { headers: authHeaders });
+      setSupportMessages(prev => [...prev, {
+        message_id: res.data.message_id,
+        user_id: currentUser?.user_id || "",
+        user_name: currentUser?.name || "",
+        message: text,
+        is_admin_reply: false,
+        created_at: new Date().toISOString()
+      }]);
+    } catch {
+      setSupportMessages(prev => [...prev, {
+        message_id: "local_" + Date.now(),
+        user_id: currentUser?.user_id || "",
+        user_name: currentUser?.name || "",
+        message: text,
+        is_admin_reply: false,
+        created_at: new Date().toISOString()
+      }]);
+    } finally {
+      setSendingSupport(false);
+    }
+  };
+
   const sendChatMessage = async () => {
     if (!chatMessage.trim() || !selectedChat) return;
 
@@ -1703,7 +1752,7 @@ export default function SocialPage() {
 
             <div className="flex-shrink-0 border-t border-[#1E2230] px-6 py-3 space-y-1 bg-[#08060d]">
               <button
-                onClick={() => { setShowSettings(false); window.location.href = '/support'; }}
+                onClick={openSupportChat}
                 className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-[#A6A8B3] hover:text-white hover:bg-white/[0.04] transition-colors"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4 text-[#D4A24C]">
@@ -2198,6 +2247,75 @@ export default function SocialPage() {
           </button>
         </div>
       )}
+    </div>
+  </div>
+)}
+
+{showSupportChat && (
+  <div className="fixed inset-0 z-[90] flex items-center justify-center px-4" style={{ background: 'rgba(5,6,8,0.82)', backdropFilter: 'blur(4px)' }}>
+    <div className="w-full max-w-md h-[85dvh] max-h-[700px] rounded-3xl overflow-hidden flex flex-col border border-white/[0.06] bg-[#0B0F1A] shadow-2xl shadow-[#D4A24C]/5 animate-in zoom-in-95 duration-200">
+      <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06] bg-[#0A0E1A] flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-[#D4A24C]/10 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#D4A24C" strokeWidth="2" className="w-4 h-4">
+              <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-bold text-white">Suporte B Livre</p>
+            <p className="text-[10px] text-emerald-400">Online</p>
+          </div>
+        </div>
+        <button onClick={() => setShowSupportChat(false)} className="w-7 h-7 rounded-lg bg-white/[0.04] flex items-center justify-center text-[#8C8F9A] hover:text-white">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
+        {supportMessages.length === 0 && (
+          <div className="flex items-start gap-3">
+            <div className="w-7 h-7 rounded-full bg-[#D4A24C]/20 flex items-center justify-center flex-shrink-0 mt-1">
+              <span className="text-[10px] text-[#D4A24C] font-black">B</span>
+            </div>
+            <div className="bg-[#1E2230] rounded-2xl rounded-tl-sm px-4 py-3 max-w-[85%]">
+              <p className="text-[13px] text-white leading-relaxed">Olá! Como podemos ajudar?</p>
+              <p className="text-[10px] text-[#8C8F9A] mt-1.5">Suporte B Livre</p>
+            </div>
+          </div>
+        )}
+        {supportMessages.map((m, i) => {
+          const isAdmin = m.is_admin_reply;
+          return (
+            <div key={m.message_id || i} className={`flex items-start gap-3 ${isAdmin ? "" : "flex-row-reverse"}`}>
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-1 ${isAdmin ? "bg-[#D4A24C]/20" : "bg-[#D4A24C]"}`}>
+                <span className={`text-[10px] font-black ${isAdmin ? "text-[#D4A24C]" : "text-black"}`}>B</span>
+              </div>
+              <div className={`${isAdmin ? "bg-[#1E2230]" : "bg-[#D4A24C]/10"} rounded-2xl ${isAdmin ? "rounded-tl-sm" : "rounded-tr-sm"} px-4 py-3 max-w-[85%]`}>
+                <p className="text-[13px] text-white leading-relaxed">{m.message}</p>
+                <p className={`text-[10px] mt-1.5 ${isAdmin ? "text-[#8C8F9A]" : "text-[#D4A24C]/60"}`}>{m.user_name || (isAdmin ? "Suporte B Livre" : "Você")}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div className="flex-shrink-0 px-4 py-3 border-t border-white/[0.06] bg-[#0A0E1A]">
+        <form onSubmit={(e) => { e.preventDefault(); sendSupportMessage(); }} className="flex items-center gap-2">
+          <input
+            value={supportMsgText}
+            onChange={(e) => setSupportMsgText(e.target.value)}
+            placeholder="Digite sua mensagem..."
+            className="flex-1 h-10 px-4 bg-[#12161F] border border-white/10 rounded-xl text-[13px] text-white placeholder:text-[#5C5F6E] focus:outline-none focus:border-[#D4A24C]/30"
+          />
+          <button
+            type="submit"
+            disabled={!supportMsgText.trim() || sendingSupport}
+            className="h-10 w-10 rounded-xl bg-[#D4A24C] flex items-center justify-center disabled:opacity-40 hover:bg-[#C49542] transition-all active:scale-95"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="2.5" className="w-4 h-4">
+              <line x1="22" y1="2" x2="11" y2="13"/><polyline points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 )}
