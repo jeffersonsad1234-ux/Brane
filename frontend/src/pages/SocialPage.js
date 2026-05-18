@@ -2023,7 +2023,7 @@ export default function SocialPage() {
                   <p className="text-[11px] text-red-400 font-medium text-center mb-2">{formError}</p>
                 )}
                 <div className="flex gap-2 items-center">
-                  <label className="shrink-0 w-12 h-12 rounded-2xl border border-dashed border-white/20 flex items-center justify-center text-white/40 cursor-pointer hover:border-[#D4A24C]/40 hover:text-[#D4A24C] transition-all">
+                  <label className="shrink-0 w-12 h-12 rounded-2xl border border-[#D4A24C]/30 bg-gradient-to-b from-[#F8E0A0]/10 via-[#EAC871]/10 to-[#C89A2E]/10 flex items-center justify-center text-[#D4A24C] cursor-pointer hover:brightness-110 transition-all shadow-[0_0_12px_rgba(212,162,76,0.15)]">
                     <Camera size={18} />
                     <input type="file" accept="image/*" className="hidden" multiple onChange={handleImage} ref={imageInputRef} />
                   </label>
@@ -2033,13 +2033,13 @@ export default function SocialPage() {
                       setEmojiCycle(next);
                       applyEnhancement(next);
                     }}
-                    className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
+                    className="flex-1 h-12 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.2)]"
                   >
                     Melhorar anúncio
                   </button>
                   <button
                     onClick={handleNewMobile}
-                    className="flex-1 h-12 rounded-xl border border-white/10 bg-white/[0.04] text-[13px] font-bold text-[#C9CBD6] hover:bg-white/[0.08] transition-all"
+                    className="flex-1 h-12 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 transition-all shadow-[0_0_16px_rgba(212,162,76,0.2)]"
                   >
                     Novo
                   </button>
@@ -2054,7 +2054,7 @@ export default function SocialPage() {
                       if (ok) { setComposerOpen(false); setAiFilled(false); setMobileAiText(""); setAiChatMessages([]); setAiStep('greeting'); setEmojiCycle(0); setEnhancedTitle(""); setEnhancedDesc(""); setMarketingLine(""); setContactInput(""); setContactType(null); }
                     }}
                     disabled={posting || !form.title.trim() || !form.price.trim() || !(form.city.trim() || form.state.trim()) || !form.description.trim() || !form.productCondition || !form.availability || !form.category || images.length === 0}
-                    className="flex-1 h-12 rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] text-[#161000] text-[13px] font-black hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_20px_rgba(212,162,76,0.25)]"
+                    className="flex-1 h-12 rounded-xl bg-gradient-to-b from-[#FDEAB5] via-[#EAC871] to-[#B5872A] text-[#0F0D00] text-[13px] font-black hover:brightness-125 disabled:opacity-50 transition-all shadow-[0_0_24px_rgba(212,162,76,0.45)] border border-[#D4A24C]/20"
                   >
                     {posting ? "⏳ Publicando..." : "Publicar"}
                   </button>

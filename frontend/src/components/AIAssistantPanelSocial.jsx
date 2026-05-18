@@ -828,19 +828,19 @@ export default function AIAssistantPanelSocial({
               {step === 6 && (
                 <div className="space-y-2 pt-1">
                   <button type="button" onClick={handleImprove} disabled={!ad || isGenerating || publishing}
-                    className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-xs font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all">
+                    className="w-full rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] py-2.5 text-xs font-black text-[#161000] hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_16px_rgba(212,162,76,0.2)]">
                     <Sparkles size={13} className="inline mr-1.5" />Melhorar anúncio
                   </button>
                   <button type="button" onClick={handlePublish} disabled={!ad || isGenerating || publishing}
-                    className="w-full py-2.5 text-xs font-bold rounded-xl disabled:opacity-50 text-[#161000]"
-                    style={{ background: "linear-gradient(180deg, #F8E0A0, #EAC871, #C89A2E)" }}>
+                    className="w-full py-2.5 text-xs font-black rounded-xl disabled:opacity-50 text-[#0F0D00] hover:brightness-125 transition-all shadow-[0_0_24px_rgba(212,162,76,0.45)] border border-[#D4A24C]/20"
+                    style={{ background: "linear-gradient(180deg, #FDEAB5, #EAC871, #B5872A)" }}>
                     {publishing ? "⏳ Publicando..." : "Publicar agora"}
                   </button>
                   {publishError && (
                     <p className="text-[10px] text-red-400 text-center">{publishError}</p>
                   )}
                   <button type="button" onClick={handleNew} disabled={publishing}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-bold text-[#A6A8B3] hover:bg-white/[0.08]">
+                    className="w-full rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] py-2.5 text-xs font-black text-[#161000] hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_16px_rgba(212,162,76,0.2)]">
                     ✨ Novo anúncio
                   </button>
                 </div>
@@ -936,16 +936,17 @@ export default function AIAssistantPanelSocial({
               {step === 6 && (
                 <div className="space-y-1.5 pb-2">
                   <button type="button" onClick={handleImprove} disabled={!ad || isGenerating || publishing}
-                    className="w-full rounded-xl border border-[#D4A24C]/30 bg-[#D4A24C]/10 py-2.5 text-sm font-bold text-[#F1D28A] hover:bg-[#D4A24C]/20 disabled:opacity-50 transition-all active:scale-[0.98]">
+                    className="w-full rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] py-2.5 text-sm font-black text-[#161000] hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_16px_rgba(212,162,76,0.2)] active:scale-[0.98]">
                     <Sparkles size={13} className="inline mr-1" />Melhorar anúncio
                   </button>
                   <button type="button" onClick={handlePublish} disabled={!ad || isGenerating || publishing}
-                    className="w-full brane-btn-gold py-2.5 text-sm font-bold disabled:opacity-50 active:scale-[0.98]">
+                    className="w-full py-2.5 text-sm font-black rounded-xl disabled:opacity-50 text-[#0F0D00] hover:brightness-125 transition-all shadow-[0_0_24px_rgba(212,162,76,0.45)] border border-[#D4A24C]/20 active:scale-[0.98]"
+                    style={{ background: "linear-gradient(180deg, #FDEAB5, #EAC871, #B5872A)" }}>
                     {publishing ? "⏳ Publicando..." : "Publicar agora"}
                   </button>
                   {publishError && <p className="text-[10px] text-red-400 text-center mt-1">{publishError}</p>}
                   <button type="button" onClick={handleNew} disabled={publishing}
-                    className="w-full rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-sm font-bold text-[#A6A8B3] hover:bg-white/[0.08] active:scale-[0.98]">
+                    className="w-full rounded-xl bg-gradient-to-b from-[#F8E0A0] via-[#EAC871] to-[#C89A2E] py-2.5 text-sm font-black text-[#161000] hover:brightness-110 disabled:opacity-50 transition-all shadow-[0_0_16px_rgba(212,162,76,0.2)] active:scale-[0.98]">
                     ✨ Novo anúncio
                   </button>
                 </div>
