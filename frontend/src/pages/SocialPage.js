@@ -1848,8 +1848,8 @@ export default function SocialPage() {
                       <path d="M135 130 L155 145 L158 155" fill="none" stroke="url(#skinGradM)" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" />
                     </g>
                   </svg>
-                  <p className="text-[13px] text-[#A6A8B3] mt-3 font-medium">Olá! 👋 Sou sua assistente virtual.</p>
-                  <p className="text-[11px] text-[#6F7280] mt-1 text-center">Digite abaixo o nome, preço, cidade e descrição do seu anúncio.</p>
+                  <p className="text-[13px] text-[#A6A8B3] mt-3 font-medium">Olá! 👋 Sou a assistente B Livre.</p>
+                  <p className="text-[11px] text-[#6F7280] mt-1 text-center">Digite seu anúncio separado por vírgulas. Exemplo: iPhone 12, R$ 900, São Paulo, em ótimo estado, acompanha carregador.</p>
                 </div>
               ) : (
                 <>
