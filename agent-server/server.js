@@ -7,8 +7,8 @@ const rateLimit = require("express-rate-limit");
 const fs = require("fs");
 const path = require("path");
 const { exec, execSync } = require("child_process");
+const crypto = require("crypto");
 const initSqlJs = require("sql.js");
-const { v4: uuid } = require("uuid");
 
 const app = express();
 const PORT = process.env.PORT || 3200;
@@ -39,9 +39,9 @@ async function initDb() {
     const existing = db.exec("SELECT id FROM projects");
     if (existing.length === 0) {
       const ts = new Date().toISOString();
-      db.run("INSERT INTO projects VALUES (?,?,?,?,?)", [uuid(), "Brane (main)", PROJECT_ROOT, "", ts]);
-      db.run("INSERT INTO projects VALUES (?,?,?,?,?)", [uuid(), "Jogo Survival", path.join(PROJECT_ROOT, "frontend", "src", "pages", "VirtualShoppingBrane"), "", ts]);
-      db.run("INSERT INTO projects VALUES (?,?,?,?,?)", [uuid(), "Brane Agent", __dirname, "", ts]);
+      db.run("INSERT INTO projects VALUES (?,?,?,?,?)", [crypto.randomUUID(), "Brane (main)", PROJECT_ROOT, "", ts]);
+      db.run("INSERT INTO projects VALUES (?,?,?,?,?)", [crypto.randomUUID(), "Jogo Survival", path.join(PROJECT_ROOT, "frontend", "src", "pages", "VirtualShoppingBrane"), "", ts]);
+      db.run("INSERT INTO projects VALUES (?,?,?,?,?)", [crypto.randomUUID(), "Brane Agent", __dirname, "", ts]);
       saveDb();
     }
     console.log("Database initialized");
@@ -150,7 +150,7 @@ app.get("/api/projects", auth, (req, res) => {
 });
 app.post("/api/projects", auth, (req, res) => {
   const { name, root, rules } = req.body;
-  const id = uuid();
+  const id = crypto.randomUUID();
   qr("INSERT INTO projects VALUES (?,?,?,?,?)", [id, name, root, rules || "", new Date().toISOString()]);
   res.json({ id });
 });
@@ -181,7 +181,7 @@ app.get("/api/memory", auth, (req, res) => {
 app.post("/api/memory", auth, (req, res) => {
   const { project, key, value } = req.body;
   db.run("DELETE FROM memory WHERE project=? AND key=?", [project, key]);
-  qr("INSERT INTO memory VALUES (?,?,?,?,?)", [uuid(), project, key, value, new Date().toISOString()]);
+  qr("INSERT INTO memory VALUES (?,?,?,?,?)", [crypto.randomUUID(), project, key, value, new Date().toISOString()]);
   res.json({ ok: true });
 });
 
@@ -196,7 +196,7 @@ app.get("/api/conversations/:id", auth, (req, res) => {
   res.json({ ...rows[0], messages: JSON.parse(rows[0].messages || "[]") });
 });
 app.post("/api/conversations", auth, (req, res) => {
-  const id = uuid();
+  const id = crypto.randomUUID();
   qr("INSERT INTO conversations VALUES (?,?,?,?,?)", [id, req.body.project || "", JSON.stringify(req.body.messages || []), new Date().toISOString(), new Date().toISOString()]);
   res.json({ id });
 });
@@ -215,7 +215,7 @@ app.get("/api/tasks", auth, (req, res) => {
   res.json(rows);
 });
 app.post("/api/tasks", auth, (req, res) => {
-  const id = uuid();
+  const id = crypto.randomUUID();
   const ts = new Date().toISOString();
   qr("INSERT INTO tasks VALUES (?,?,?,?,?,?,?,?,?)", [id, req.body.project || "", req.body.type || "manual", "pending", 0, req.body.message || "", "", ts, ts]);
   res.json({ id });
@@ -339,7 +339,7 @@ app.post("/api/files/write", auth, (req, res) => {
       const bName = path.basename(target).replace(/[<>:"/\\|?*]/g, "_") + "." + Date.now() + ".bak";
       const bPath = path.join(backupDir, bName);
       fs.copyFileSync(target, bPath);
-      qr("INSERT INTO backups VALUES (?,?,?,?)", [uuid(), req.body.path, bPath, new Date().toISOString()]);
+      qr("INSERT INTO backups VALUES (?,?,?,?)", [crypto.randomUUID(), req.body.path, bPath, new Date().toISOString()]);
     }
     fs.writeFileSync(target, req.body.content, "utf-8");
     res.json({ ok: true });
