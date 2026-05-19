@@ -308,10 +308,11 @@ export default function VirtualShoppingBrane() {
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       el.appendChild(renderer.domElement);
 
-      // Scene
+      // Scene — midday sky from frame zero
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x141420);
-      scene.fog = new THREE.FogExp2(0x141420, 0.006);
+      const MIDDAY_SKY = new THREE.Color(0x88aacc);
+      scene.background = MIDDAY_SKY.clone();
+      scene.fog = new THREE.FogExp2(0x88aacc, 0.004);
 
       // Camera
       const camera = new THREE.PerspectiveCamera(50, el.clientWidth / el.clientHeight, 0.1, 120);
@@ -587,29 +588,16 @@ export default function VirtualShoppingBrane() {
         camera.fov += (targetFov.current - camera.fov) * delta * 3;
         camera.updateProjectionMatrix();
 
-        // Fixed midday lighting — no day/night cycle
+        // Fixed midday lighting — locked every frame, no time progression, no auto-exposure
+        renderer.toneMappingExposure = 0.9;
         sun.intensity = 1.25;
         ambient.intensity = 0.25;
         hemi.intensity = 0.35;
-        const sky = new THREE.Color(0x88aacc);
-        scene.background.copy(sky);
-        scene.fog.color.copy(sky);
+        scene.background.copy(MIDDAY_SKY);
+        scene.fog.color.copy(MIDDAY_SKY);
         scene.fog.density = 0.004;
         bloom.strength = 0.15;
         rain.visible = false;
-
-        // Rain update
-        const rp = rain.geometry.attributes.position.array;
-        for (let i = 0; i < rc; i++) {
-          rp[i * 3 + 1] -= rVel[i] * delta;
-          rp[i * 3] += Math.sin(t + i) * 0.5 * delta;
-          if (rp[i * 3 + 1] < -1) {
-            rp[i * 3 + 1] = 12 + Math.random() * 8;
-            rp[i * 3] = (Math.random() - 0.5) * 70;
-            rp[i * 3 + 2] = (Math.random() - 0.5) * 70;
-          }
-        }
-        rain.geometry.attributes.position.needsUpdate = true;
 
         // Particles
         particles.rotation.y += delta * 0.015;
