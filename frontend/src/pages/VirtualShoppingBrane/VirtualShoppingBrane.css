@@ -216,9 +216,45 @@
   font-family:'Inter',-apple-system,sans-serif
 }
 
+/* Health bar wider + value */
+.bar-health .vsb-hud-track{width:90px}
+.vsb-hud-val{font-size:.45rem;color:#ee4444;width:20px!important;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* Enemy alert */
+.vsb-enemy-alert{
+  position:absolute;top:6%;left:50%;transform:translateX(-50%);
+  z-index:12;font-size:.65rem;color:#ff4444;font-weight:700;
+  letter-spacing:.12em;animation:alertPulse .8s ease-in-out infinite;
+  text-shadow:0 0 20px rgba(255,0,0,.3)
+}
+@keyframes alertPulse{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* Death screen */
+.vsb-death{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,.92);display:flex;
+  align-items:center;justify-content:center;
+  font-family:'Inter',-apple-system,sans-serif;color:#fff
+}
+.vsb-death-box{text-align:center;padding:2rem}
+.vsb-death-title{
+  font-size:2.5rem;font-weight:900;letter-spacing:.12em;
+  color:#cc2222;margin-bottom:.5rem
+}
+.vsb-death-sub{color:#666;font-size:.8rem;margin-bottom:2rem;letter-spacing:.06em}
+
+/* Use button in inventory */
+.vsb-inv-use{
+  margin-top:4px;padding:2px 8px;border:none;border-radius:3px;
+  background:linear-gradient(135deg,#22aa44,#22cc55);color:#fff;
+  font-size:.5rem;font-weight:600;font-family:inherit;cursor:pointer;
+  transition:all .15s;letter-spacing:.05em
+}
+.vsb-inv-use:hover{transform:translateY(-1px);box-shadow:0 2px 8px rgba(34,170,68,.3)}
+
 /* ══════════════════════════════════════════════════════
-   RESPONSIVE
-   ══════════════════════════════════════════════════════ */
+    RESPONSIVE
+    ══════════════════════════════════════════════════════ */
 @media(max-width:600px){
   .vsb-hud-bars{left:.8rem;top:2%}
   .vsb-hud-track{width:55px}

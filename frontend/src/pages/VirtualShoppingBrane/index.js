@@ -7,7 +7,6 @@ import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import "./VirtualShoppingBrane.css";
 
-// ── CONSTANTS ──
 const WORLD = { size: 200, treeCount: 120, deadTreeCount: 30 };
 
 const BUILDINGS = [
@@ -31,14 +30,21 @@ const BUILDINGS = [
   { x: 16, z: 18, w: 4.5, h: 3.8, d: 4, story: 1, type: "house" },
 ];
 
+const ENEMIES = [
+  { x: -10, z: -12 }, { x: 6, z: 4 }, { x: -14, z: 12 }, { x: 12, z: -8 }, { x: -4, z: 18 },
+];
+
 const INTERACTIVES = [
-  { name: "Kit Médico", emoji: "🩹", color: "#ff4444", desc: "Bandagens e antisséptico.", x: -12, z: -8 },
+  { name: "Kit Médico", emoji: "🩹", color: "#ff4444", desc: "Bandagens e antisséptico. Cura 30 de vida.", x: -12, z: -8 },
   { name: "Ração Militar", emoji: "🥫", color: "#cc8833", desc: "Alimento enlatado não perecível.", x: 5, z: 2 },
   { name: "Munição 9mm", emoji: "🔫", color: "#aaaacc", desc: "Caixa de munição calibre 9mm.", x: -4, z: -12 },
   { name: "Gasolina", emoji: "⛽", color: "#33cc33", desc: "Galão de gasolina 5L.", x: 10, z: -4 },
   { name: "Faca Tática", emoji: "🔪", color: "#888888", desc: "Faca de combate tática.", x: -8, z: 10 },
   { name: "Lampião", emoji: "💡", color: "#ffdd44", desc: "Lanterna de mão com pilhas.", x: 2, z: 14 },
 ];
+
+const ENEMY_DETECT = 14, ENEMY_ATTACK_DIST = 1.8, ENEMY_DMG = 9, ENEMY_HP = 60;
+const PLAYER_ATTACK_DIST = 2.2, PLAYER_ATTACK_DMG = 30, HEAL_AMOUNT = 30;
 
 // ── PBR TEXTURES ──
 
@@ -61,7 +67,6 @@ function pbrTex(w, h, baseR, baseG, baseB, intensity, repeat, opt) {
   const seed = opt?.seed || 1, contrast = opt?.contrast || 1;
   const groutH = opt?.groutH || 0, groutV = opt?.groutV || 0, gw = opt?.groutWidth || 2;
   const sc = opt?.scratchCount || 10;
-
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
     const f1 = heightNoise(x, y, w, h, seed);
     const f2 = heightNoise(x + 53, y + 71, w, h, seed + 1);
@@ -112,7 +117,6 @@ function getTex(name, fn) { if (!texCache[name]) texCache[name] = fn(); return t
 
 function concTex(r) { return pbrTex(256, 256, 120, 125, 130, 30, r || 2, { groutH: 48, groutV: 64, gw: 2, scratchCount: 15, normalStrength: 3, contrast: 1.2, seed: 10 }); }
 function aspTex(r) { return pbrTex(256, 256, 50, 52, 58, 25, r || 3, { scratchCount: 10, normalStrength: 3.5, contrast: 1.5, seed: 20 }); }
-function dirtTex(r) { return pbrTex(128, 128, 75, 60, 45, 30, r || 4, { scratchCount: 5, normalStrength: 2, contrast: 1.3, seed: 25 }); }
 function mudTex(r) { return pbrTex(128, 128, 55, 45, 35, 25, r || 3, { scratchCount: 3, normalStrength: 1.5, contrast: 1, seed: 26 }); }
 function roofTex(r) { return pbrTex(128, 128, 65, 60, 55, 18, r || 2, { scratchCount: 12, normalStrength: 2.5, contrast: 1.2, seed: 30 }); }
 function woodTex(r) { return pbrTex(128, 128, 95, 75, 55, 20, r || 2, { groutV: 8, gw: 3, scratchCount: 20, normalStrength: 4, contrast: 1.4, seed: 40 }); }
@@ -121,6 +125,7 @@ function leafTex(r) { return pbrTex(128, 128, 30, 70, 20, 28, r || 2, { scratchC
 function rustTex(r) { return pbrTex(64, 64, 100, 55, 30, 25, r || 1, { scratchCount: 8, normalStrength: 3, contrast: 1.6, seed: 70 }); }
 function fabricTex(r) { return pbrTex(64, 64, 60, 60, 75, 12, r || 1, { groutH: 4, groutV: 4, gw: 1, scratchCount: 0, normalStrength: 0.8, contrast: 0.6, seed: 80 }); }
 function skinTex() { return pbrTex(64, 64, 200, 155, 115, 8, 1, { scratchCount: 0, normalStrength: 0.5, contrast: 0.3, seed: 90 }); }
+function zombieSkinTex() { return pbrTex(64, 64, 70, 90, 60, 15, 1, { scratchCount: 10, normalStrength: 0.8, contrast: 1.2, seed: 95 }); }
 
 function mat(ts, roughness, metalness, color) {
   return new THREE.MeshStandardMaterial({ map: ts.map, normalMap: ts.normalMap, roughness, metalness, color: color || 0xffffff, envMapIntensity: 0.2 });
@@ -165,16 +170,10 @@ function makeTerrain() {
   const pos = geo.attributes.position;
   const colors = new Float32Array(pos.count * 3);
   const grassSet = getTex("grass", () => pbrTex(128, 128, 55, 105, 30, 28, 15, { scratchCount: 0, normalStrength: 2, contrast: 1.2, seed: 100 }));
-  const mudSet = getTex("mud", () => mudTex(8));
-
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i), z = pos.getZ(i);
-    const h = Math.sin(x * 0.025 + z * 0.02) * 0.8
-      + Math.sin(x * 0.05 - z * 0.04 + 0.8) * 0.4
-      + Math.cos(x * 0.08 + z * 0.07 + 0.5) * 0.2
-      + Math.sin(x * 0.12 + z * 0.14) * 0.08;
+    const h = Math.sin(x * 0.025 + z * 0.02) * 0.8 + Math.sin(x * 0.05 - z * 0.04 + 0.8) * 0.4 + Math.cos(x * 0.08 + z * 0.07 + 0.5) * 0.2 + Math.sin(x * 0.12 + z * 0.14) * 0.08;
     pos.setY(i, h);
-    const m = 0.2 + 0.5 * Math.max(0, Math.sin(x * 0.03 + z * 0.02));
     const mudAmt = Math.min(1, Math.abs(h) * 1.5 + Math.random() * 0.2);
     const r = mudAmt * 0.3 + (1 - mudAmt) * (0.1 + Math.random() * 0.08 + Math.max(0, h * 0.03));
     const g = mudAmt * 0.25 + (1 - mudAmt) * (0.12 + Math.random() * 0.1 + Math.max(0, h * 0.05));
@@ -207,15 +206,6 @@ function makeRoadBroken(px, pz, w, d, angle) {
   m2.position.set(px, 0.015, pz);
   m2.rotation.y = angle;
   m2.receiveShadow = true;
-
-  const crackMat = new THREE.MeshBasicMaterial({ color: 0x333322, transparent: true, opacity: 0.15, depthWrite: false });
-  for (let i = 0; i < 8; i++) {
-    const ck = new THREE.Mesh(new THREE.PlaneGeometry(0.01 + Math.random() * 0.03, 0.1 + Math.random() * 0.3), crackMat);
-    ck.rotation.x = -Math.PI / 2;
-    ck.position.set((Math.random() - 0.5) * w * 0.7, 0.005, (Math.random() - 0.5) * d * 0.7);
-    ck.rotation.z = Math.random() * Math.PI;
-    m2.add(ck);
-  }
   return m2;
 }
 
@@ -232,11 +222,9 @@ function makeTreePine(x, z, s) {
     const yr = 0.7 + i * 0.2;
     const rad = (0.4 - i * 0.06) * s;
     const fol = new THREE.Mesh(new THREE.ConeGeometry(rad, 0.35 * s, 6), i % 2 ? folM : folM2);
-    fol.position.y = yr * s;
-    fol.castShadow = true; g.add(fol);
+    fol.position.y = yr * s; fol.castShadow = true; g.add(fol);
   }
-  g.position.set(x, 0, z);
-  g.rotation.y = Math.random() * 6.28;
+  g.position.set(x, 0, z); g.rotation.y = Math.random() * 6.28;
   return g;
 }
 
@@ -249,8 +237,7 @@ function makeTreeDead(x, z, s) {
   for (let i = 0; i < 4; i++) {
     const br = new THREE.Mesh(new THREE.CylinderGeometry(0.01 * s, 0.02 * s, 0.15 * s * (0.5 + Math.random() * 0.5), 3), trunkM);
     br.position.set((Math.random() - 0.5) * 0.15 * s, 0.4 * s + Math.random() * 0.3 * s, (Math.random() - 0.5) * 0.15 * s);
-    br.rotation.z = (Math.random() - 0.5) * 1.2;
-    br.rotation.x = (Math.random() - 0.5) * 1.2;
+    br.rotation.z = (Math.random() - 0.5) * 1.2; br.rotation.x = (Math.random() - 0.5) * 1.2;
     g.add(br);
   }
   g.position.set(x, 0, z);
@@ -264,31 +251,26 @@ function makeBuildingAbandoned(p) {
   const wallMat = mat(concS, 0.9, 0.05, p.type === "store" ? 0x9a8a7a : 0x7a7a82);
   const body = new THREE.Mesh(new THREE.BoxGeometry(p.w, h, p.d), wallMat);
   body.position.y = h / 2; body.castShadow = true; body.receiveShadow = true; g.add(body);
-
   const roofS = getTex("roof", () => roofTex(2));
   const roofMat2 = mat(roofS, 0.9, 0);
   const roof = new THREE.Mesh(new THREE.ConeGeometry(Math.max(p.w, p.d) * 0.48, h * 0.15 + 0.15, 4), roofMat2);
   roof.position.y = h + 0.05; roof.rotation.y = Math.PI / 4; roof.castShadow = true; g.add(roof);
-
   const winTex = windowDarkTex();
   const winMat = new THREE.MeshStandardMaterial({ map: winTex, transparent: true, opacity: 0.6, roughness: 0.1, metalness: 0.05, color: 0x111122 });
   const frameMat2 = new THREE.MeshStandardMaterial({ color: 0x2a2a32, roughness: 0.8, metalness: 0.1 });
   const winN = Math.floor(p.w * 1.5);
-  for (let side of [-1, 1]) {
-    for (let i = 0; i < winN; i++) {
-      const wx = (i / (winN - 1 || 1) - 0.5) * p.w * 0.5;
-      const wy = h * (0.35 + 0.3 * (i % 2));
-      if (Math.random() > 0.2 || true) {
-        const glass = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.4), winMat);
-        glass.position.set(wx, wy, side * (p.d / 2 + 0.01)); g.add(glass);
-        for (let ft of [{ dy: 0.22 }, { dy: -0.22 }, { dx: -0.16 }, { dx: 0.16 }]) {
-          const f = new THREE.Mesh(new THREE.BoxGeometry(ft.dx ? 0.02 : 0.36, ft.dy ? 0.02 : 0.42, 0.02), frameMat2);
-          f.position.set(wx + (ft.dx || 0), wy + (ft.dy || 0), side * (p.d / 2 + 0.015)); g.add(f);
-        }
+  for (let side of [-1, 1]) for (let i = 0; i < winN; i++) {
+    const wx = (i / (winN - 1 || 1) - 0.5) * p.w * 0.5;
+    const wy = h * (0.35 + 0.3 * (i % 2));
+    if (Math.random() > 0.2 || true) {
+      const glass = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.4), winMat);
+      glass.position.set(wx, wy, side * (p.d / 2 + 0.01)); g.add(glass);
+      for (let ft of [{ dy: 0.22 }, { dy: -0.22 }, { dx: -0.16 }, { dx: 0.16 }]) {
+        const f = new THREE.Mesh(new THREE.BoxGeometry(ft.dx ? 0.02 : 0.36, ft.dy ? 0.02 : 0.42, 0.02), frameMat2);
+        f.position.set(wx + (ft.dx || 0), wy + (ft.dy || 0), side * (p.d / 2 + 0.015)); g.add(f);
       }
     }
   }
-
   if (p.broken) {
     const debS = getTex("debris", () => concTex(1));
     const debM = mat(debS, 0.95, 0.05, p.type === "store" ? 0x9a8a7a : 0x7a7a82);
@@ -306,7 +288,6 @@ function makeBuildingAbandoned(p) {
       g.add(bm);
     }
   }
-
   const vineMat = new THREE.MeshBasicMaterial({ color: 0x2a3a1a, transparent: true, opacity: 0.15 + Math.random() * 0.1, side: THREE.DoubleSide, depthWrite: false });
   for (let i = 0; i < 3 + Math.floor(Math.random() * 3); i++) {
     const vine = new THREE.Mesh(new THREE.PlaneGeometry(0.02, 0.3 + Math.random() * 0.8), vineMat);
@@ -314,7 +295,6 @@ function makeBuildingAbandoned(p) {
     vine.rotation.z = (Math.random() - 0.5) * 0.3;
     g.add(vine);
   }
-
   g.position.set(p.x, 0, p.z);
   return g;
 }
@@ -327,13 +307,6 @@ function makePowerPole(x, z) {
   pole.position.y = 0.8; pole.castShadow = true; g.add(pole);
   const cross = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.4, 5), woodM);
   cross.rotation.z = Math.PI / 2; cross.position.set(0, 1.35, 0); g.add(cross);
-  const wireMat = new THREE.MeshBasicMaterial({ color: 0x222222 });
-  for (let s of [-1, 1]) {
-    const wire = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.003, 0.5, 3), wireMat);
-    wire.position.set(s * 0.15, 1.3, 0);
-    wire.rotation.z = 0.1 * s;
-    g.add(wire);
-  }
   g.position.set(x, 0.02, z);
   return g;
 }
@@ -343,7 +316,6 @@ function makeDestroyedCar(x, z, angle) {
   const bodyS = getTex("car_body", () => pbrTex(128, 64, 68, 30, 25, 20, 1, { scratchCount: 15, normalStrength: 2.5, contrast: 1.3, seed: 400 }));
   const rustS = getTex("rust", () => rustTex(1));
   const bodyMat2 = mat(bodyS, 0.6, 0.5, 0x552222);
-  const wheelMat2 = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.95 });
   const body2 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.3, 1.6), bodyMat2);
   body2.position.y = 0.2; body2.castShadow = true; g.add(body2);
   const cabin2 = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.2, 0.7), mat(rustS, 0.5, 0.3, 0x443333));
@@ -352,15 +324,10 @@ function makeDestroyedCar(x, z, angle) {
   windshield.position.set(0, 0.35, -0.48); g.add(windshield);
   const hood = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.4), mat(rustS, 0.8, 0.2, 0x552222));
   hood.position.set(0, 0.37, 0.5); g.add(hood);
-
-  const flatWheelM = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.95 });
-  for (let s of [-1, 1]) {
-    for (let f of [-1, 1]) {
-      if (Math.random() > 0.3) {
-        const w = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.03, 5, 6), wheelMat2);
-        w.position.set(s * 0.35, 0.1, f * 0.5);
-        w.rotation.y = Math.PI / 2; w.castShadow = true; g.add(w);
-      }
+  for (let s of [-1, 1]) for (let f of [-1, 1]) {
+    if (Math.random() > 0.3) {
+      const w = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.03, 5, 6), new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.95 }));
+      w.position.set(s * 0.35, 0.1, f * 0.5); w.rotation.y = Math.PI / 2; w.castShadow = true; g.add(w);
     }
   }
   g.position.set(x, 0.05, z); g.rotation.y = angle;
@@ -434,7 +401,6 @@ function makeSkyCinematic() {
   const skyM = new THREE.MeshBasicMaterial({ map: skyT, side: THREE.BackSide, fog: false });
   const sky = new THREE.Mesh(skyG, skyM);
   sky.position.y = -5; g.add(sky);
-
   const sunG = document.createElement("canvas");
   sunG.width = 128; sunG.height = 128;
   const sctx = sunG.getContext("2d");
@@ -445,7 +411,6 @@ function makeSkyCinematic() {
   const sMat = new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(sunG), blending: THREE.AdditiveBlending, transparent: true, opacity: 0.4, depthWrite: false });
   const sprite = new THREE.Sprite(sMat);
   sprite.position.set(30, 35, 20); sprite.scale.set(18, 18, 1); g.add(sprite);
-
   return g;
 }
 
@@ -463,78 +428,54 @@ function makeCharacter() {
   const bagS = getTex("bag", () => pbrTex(64, 64, 85, 70, 55, 10, 1, { scratchCount: 8, normalStrength: 1.5, contrast: 0.8, seed: 510 }));
   const bagM = mat(bagS, 0.85, 0.02, 0x5a4a3a);
   const hairM = new THREE.MeshStandardMaterial({ color: 0x2a1a0a, roughness: 0.9 });
-
-  const bodyParts = {};
-
-  bodyParts.head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), skinM);
-  bodyParts.head.position.y = 1.62; bodyParts.head.castShadow = true; g.add(bodyParts.head);
-
-  bodyParts.neck = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.06, 7), skinM);
-  bodyParts.neck.position.y = 1.48; g.add(bodyParts.neck);
-
-  bodyParts.chest = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.3, 0.22), jacketM);
-  bodyParts.chest.position.set(0, 1.18, 0); bodyParts.chest.castShadow = true; g.add(bodyParts.chest);
-
-  bodyParts.hips = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.18, 0.2), pantsM);
-  bodyParts.hips.position.set(0, 0.92, 0); g.add(bodyParts.hips);
-
+  const parts = {};
+  parts.head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), skinM);
+  parts.head.position.y = 1.62; parts.head.castShadow = true; g.add(parts.head);
+  parts.neck = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.08, 0.06, 7), skinM);
+  parts.neck.position.y = 1.48; g.add(parts.neck);
+  parts.chest = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.3, 0.22), jacketM);
+  parts.chest.position.set(0, 1.18, 0); parts.chest.castShadow = true; g.add(parts.chest);
+  parts.hips = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.18, 0.2), pantsM);
+  parts.hips.position.set(0, 0.92, 0); g.add(parts.hips);
   const collarM = new THREE.MeshStandardMaterial({ color: 0x3a4a2a, roughness: 0.8 });
   const collar = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.04, 0.06), collarM);
   collar.position.set(0, 1.35, -0.12); g.add(collar);
-
-  bodyParts.bag = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.28, 0.14), bagM);
-  bodyParts.bag.position.set(0, 1.18, -0.18); g.add(bodyParts.bag);
-
-  bodyParts.leftUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.2, 6), jacketM);
-  bodyParts.leftUpperArm.position.set(-0.28, 1.2, 0); bodyParts.leftUpperArm.castShadow = true; g.add(bodyParts.leftUpperArm);
-
-  bodyParts.rightUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.2, 6), jacketM);
-  bodyParts.rightUpperArm.position.set(0.28, 1.2, 0); bodyParts.rightUpperArm.castShadow = true; g.add(bodyParts.rightUpperArm);
-
-  bodyParts.leftForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.18, 6), jacketM);
-  bodyParts.leftForearm.position.set(-0.32, 1.0, 0); g.add(bodyParts.leftForearm);
-
-  bodyParts.rightForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.18, 6), jacketM);
-  bodyParts.rightForearm.position.set(0.32, 1.0, 0); g.add(bodyParts.rightForearm);
-
-  bodyParts.leftHand = new THREE.Mesh(new THREE.SphereGeometry(0.03, 5, 5), skinM);
-  bodyParts.leftHand.position.set(-0.34, 0.82, 0); g.add(bodyParts.leftHand);
-
-  bodyParts.rightHand = new THREE.Mesh(new THREE.SphereGeometry(0.03, 5, 5), skinM);
-  bodyParts.rightHand.position.set(0.34, 0.82, 0); g.add(bodyParts.rightHand);
-
-  bodyParts.leftThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.3, 6), pantsM);
-  bodyParts.leftThigh.position.set(-0.12, 0.65, 0); bodyParts.leftThigh.castShadow = true; g.add(bodyParts.leftThigh);
-
-  bodyParts.rightThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.3, 6), pantsM);
-  bodyParts.rightThigh.position.set(0.12, 0.65, 0); bodyParts.rightThigh.castShadow = true; g.add(bodyParts.rightThigh);
-
-  bodyParts.leftCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.28, 6), pantsM);
-  bodyParts.leftCalf.position.set(-0.12, 0.35, 0); g.add(bodyParts.leftCalf);
-
-  bodyParts.rightCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.28, 6), pantsM);
-  bodyParts.rightCalf.position.set(0.12, 0.35, 0); g.add(bodyParts.rightCalf);
-
-  bodyParts.leftFoot = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.12), bootM);
-  bodyParts.leftFoot.position.set(-0.12, 0.015, 0.03); g.add(bodyParts.leftFoot);
-
-  bodyParts.rightFoot = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.12), bootM);
-  bodyParts.rightFoot.position.set(0.12, 0.015, 0.03); g.add(bodyParts.rightFoot);
-
-  return { group: g, parts: bodyParts };
+  parts.bag = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.28, 0.14), bagM);
+  parts.bag.position.set(0, 1.18, -0.18); g.add(parts.bag);
+  parts.leftUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.2, 6), jacketM);
+  parts.leftUpperArm.position.set(-0.28, 1.2, 0); parts.leftUpperArm.castShadow = true; g.add(parts.leftUpperArm);
+  parts.rightUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.2, 6), jacketM);
+  parts.rightUpperArm.position.set(0.28, 1.2, 0); parts.rightUpperArm.castShadow = true; g.add(parts.rightUpperArm);
+  parts.leftForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.18, 6), jacketM);
+  parts.leftForearm.position.set(-0.32, 1.0, 0); g.add(parts.leftForearm);
+  parts.rightForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.03, 0.18, 6), jacketM);
+  parts.rightForearm.position.set(0.32, 1.0, 0); g.add(parts.rightForearm);
+  parts.leftHand = new THREE.Mesh(new THREE.SphereGeometry(0.03, 5, 5), skinM);
+  parts.leftHand.position.set(-0.34, 0.82, 0); g.add(parts.leftHand);
+  parts.rightHand = new THREE.Mesh(new THREE.SphereGeometry(0.03, 5, 5), skinM);
+  parts.rightHand.position.set(0.34, 0.82, 0); g.add(parts.rightHand);
+  parts.leftThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.3, 6), pantsM);
+  parts.leftThigh.position.set(-0.12, 0.65, 0); parts.leftThigh.castShadow = true; g.add(parts.leftThigh);
+  parts.rightThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.05, 0.3, 6), pantsM);
+  parts.rightThigh.position.set(0.12, 0.65, 0); parts.rightThigh.castShadow = true; g.add(parts.rightThigh);
+  parts.leftCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.28, 6), pantsM);
+  parts.leftCalf.position.set(-0.12, 0.35, 0); g.add(parts.leftCalf);
+  parts.rightCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.28, 6), pantsM);
+  parts.rightCalf.position.set(0.12, 0.35, 0); g.add(parts.rightCalf);
+  parts.leftFoot = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.12), bootM);
+  parts.leftFoot.position.set(-0.12, 0.015, 0.03); g.add(parts.leftFoot);
+  parts.rightFoot = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.12), bootM);
+  parts.rightFoot.position.set(0.12, 0.015, 0.03); g.add(parts.rightFoot);
+  return { group: g, parts };
 }
 
 let charAnimTime = 0;
-
 function animateChar(parts, speed, delta, isMoving, isRunning) {
   charAnimTime += delta * (isRunning ? 2.2 : 1.3);
   const t = charAnimTime;
-
   if (isMoving) {
     const legSwing = Math.sin(t * 5) * 0.4 * (isRunning ? 1.4 : 1);
     const armSwing = Math.sin(t * 5) * 0.3 * (isRunning ? 1.3 : 1);
-    const bodySway = Math.sin(t * 5) * 0.02;
-
     parts.leftThigh.rotation.x = legSwing;
     parts.rightThigh.rotation.x = -legSwing;
     parts.leftCalf.rotation.x = Math.max(0, Math.sin(t * 5 - 1) * 0.2);
@@ -543,20 +484,14 @@ function animateChar(parts, speed, delta, isMoving, isRunning) {
     parts.rightUpperArm.rotation.x = armSwing;
     parts.leftForearm.rotation.x = Math.min(0, Math.sin(t * 5 - 0.5) * 0.1);
     parts.rightForearm.rotation.x = Math.min(0, -Math.sin(t * 5 - 0.5) * 0.1);
-
-    parts.chest.position.z = bodySway;
-    parts.head.position.z = bodySway * 0.7;
+    parts.chest.position.z = Math.sin(t * 5) * 0.02;
+    parts.head.position.z = Math.sin(t * 5) * 0.014;
     parts.chest.position.y = 1.18 + Math.abs(Math.sin(t * 5)) * 0.005;
     parts.head.position.y = 1.62 + Math.abs(Math.sin(t * 5)) * 0.003;
   } else {
-    parts.leftThigh.rotation.x *= 0.9;
-    parts.rightThigh.rotation.x *= 0.9;
-    parts.leftCalf.rotation.x *= 0.9;
-    parts.rightCalf.rotation.x *= 0.9;
-    parts.leftUpperArm.rotation.x *= 0.9;
-    parts.rightUpperArm.rotation.x *= 0.9;
-    parts.leftForearm.rotation.x *= 0.9;
-    parts.rightForearm.rotation.x *= 0.9;
+    for (let k of ["leftThigh", "rightThigh", "leftCalf", "rightCalf", "leftUpperArm", "rightUpperArm", "leftForearm", "rightForearm"]) {
+      if (parts[k]) parts[k].rotation.x *= 0.9;
+    }
     parts.chest.position.z *= 0.95;
     parts.head.position.z *= 0.95;
     parts.chest.position.y = 1.18 + Math.sin(t * 2) * 0.003;
@@ -564,48 +499,81 @@ function animateChar(parts, speed, delta, isMoving, isRunning) {
   }
 }
 
+// ── ENEMY ──
+
+function makeEnemy(pos) {
+  const g = new THREE.Group();
+  const zSkinS = getTex("zskin", () => zombieSkinTex());
+  const zSkinM = mat(zSkinS, 0.7, 0, 0x4a5a3a);
+  const ragS = pbrTex(64, 64, 40, 35, 30, 15, 1, { scratchCount: 12, normalStrength: 1.5, contrast: 1.2, seed: 96 });
+  const ragM = mat(ragS, 0.9, 0, 0x2a2a1a);
+  const eyeM = new THREE.MeshBasicMaterial({ color: 0xff2200 });
+  const parts = {};
+  parts.head = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), zSkinM);
+  parts.head.position.y = 1.55; parts.head.castShadow = true; g.add(parts.head);
+  parts.neck = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.05, 5), zSkinM);
+  parts.neck.position.y = 1.42; g.add(parts.neck);
+  parts.chest = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.25, 0.2), ragM);
+  parts.chest.position.set(0, 1.12, 0); parts.chest.castShadow = true; g.add(parts.chest);
+  parts.hips = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.15, 0.18), ragM);
+  parts.hips.position.set(0, 0.88, 0); g.add(parts.hips);
+  parts.leftUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.18, 5), ragM);
+  parts.leftUpperArm.position.set(-0.24, 1.14, 0); g.add(parts.leftUpperArm);
+  parts.rightUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.18, 5), ragM);
+  parts.rightUpperArm.position.set(0.24, 1.14, 0); g.add(parts.rightUpperArm);
+  parts.leftForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.16, 5), ragM);
+  parts.leftForearm.position.set(-0.27, 0.96, 0); g.add(parts.leftForearm);
+  parts.rightForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.16, 5), ragM);
+  parts.rightForearm.position.set(0.27, 0.96, 0); g.add(parts.rightForearm);
+  parts.leftThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.045, 0.25, 5), ragM);
+  parts.leftThigh.position.set(-0.1, 0.62, 0); g.add(parts.leftThigh);
+  parts.rightThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.045, 0.25, 5), ragM);
+  parts.rightThigh.position.set(0.1, 0.62, 0); g.add(parts.rightThigh);
+  parts.leftCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.24, 5), ragM);
+  parts.leftCalf.position.set(-0.1, 0.35, 0); g.add(parts.leftCalf);
+  parts.rightCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.24, 5), ragM);
+  parts.rightCalf.position.set(0.1, 0.35, 0); g.add(parts.rightCalf);
+  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.025, 5, 5), eyeM);
+  eyeL.position.set(-0.08, 1.6, -0.14); g.add(eyeL);
+  const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.025, 5, 5), eyeM);
+  eyeR.position.set(0.08, 1.6, -0.14); g.add(eyeR);
+  g.position.set(pos.x, 0, pos.z);
+  return { group: g, parts };
+}
+
+function animateEnemy(parts, delta, speed) {
+  const t = performance.now() / 1000;
+  if (speed > 0.1) {
+    const swing = Math.sin(t * 4) * 0.2 * Math.min(1, speed);
+    parts.leftThigh.rotation.x = swing;
+    parts.rightThigh.rotation.x = -swing;
+    parts.leftUpperArm.rotation.x = -swing * 0.7;
+    parts.rightUpperArm.rotation.x = swing * 0.7;
+  }
+  parts.chest.position.y = 1.12 + Math.sin(t * 2) * 0.004;
+  parts.head.rotation.z = Math.sin(t * 0.5) * 0.03;
+}
+
 // ── WORLD GENERATION ──
 
 function buildWorld(scene) {
   scene.add(makeTerrain());
-
-  const roads = [
-    [0, -10, 2.5, 18, 0], [0, 12, 2.5, 12, 0], [-14, 0, 12, 2.5, 0],
-    [12, 0, 10, 2.5, 0], [-10, 8, 2.5, 10, Math.PI / 3], [8, -6, 2.5, 10, -Math.PI / 4],
-  ];
+  const roads = [[0, -10, 2.5, 18, 0], [0, 12, 2.5, 12, 0], [-14, 0, 12, 2.5, 0], [12, 0, 10, 2.5, 0], [-10, 8, 2.5, 10, Math.PI / 3], [8, -6, 2.5, 10, -Math.PI / 4]];
   roads.forEach(r => scene.add(makeRoadBroken(r[0], r[1], r[2], r[3], r[4])));
-
-  BUILDINGS.forEach(b => {
-    scene.add(makeBuildingAbandoned(b));
-    if (Math.random() > 0.5) scene.add(makeDebrisPile(b.x + (Math.random() - 0.5) * 2, b.z + (Math.random() - 0.5) * 2, 0.3 + Math.random() * 0.5));
-  });
-
+  BUILDINGS.forEach(b => { scene.add(makeBuildingAbandoned(b)); if (Math.random() > 0.5) scene.add(makeDebrisPile(b.x + (Math.random() - 0.5) * 2, b.z + (Math.random() - 0.5) * 2, 0.3 + Math.random() * 0.5)); });
   const treePos = [];
   for (let i = 0; i < WORLD.treeCount; i++) {
     let x, z, ok = false, att = 0;
-    do {
-      x = (Math.random() - 0.5) * WORLD.size * 0.7;
-      z = (Math.random() - 0.5) * WORLD.size * 0.7;
-      ok = !BUILDINGS.some(b => Math.hypot(x - b.x, z - b.z) < 3.5) && !treePos.some(t => Math.hypot(x - t.x, z - t.z) < 2);
-      att++;
-    } while (!ok && att < 20);
+    do { x = (Math.random() - 0.5) * WORLD.size * 0.7; z = (Math.random() - 0.5) * WORLD.size * 0.7; ok = !BUILDINGS.some(b => Math.hypot(x - b.x, z - b.z) < 3.5) && !treePos.some(t => Math.hypot(x - t.x, z - t.z) < 2); att++; } while (!ok && att < 20);
     if (ok) { scene.add(makeTreePine(x, z, 0.5 + Math.random() * 0.6)); treePos.push({ x, z }); }
   }
-
   for (let i = 0; i < WORLD.deadTreeCount; i++) {
     let x, z, ok = false, att = 0;
-    do {
-      x = (Math.random() - 0.5) * WORLD.size * 0.7;
-      z = (Math.random() - 0.5) * WORLD.size * 0.7;
-      ok = !BUILDINGS.some(b => Math.hypot(x - b.x, z - b.z) < 3);
-      att++;
-    } while (!ok && att < 20);
+    do { x = (Math.random() - 0.5) * WORLD.size * 0.7; z = (Math.random() - 0.5) * WORLD.size * 0.7; ok = !BUILDINGS.some(b => Math.hypot(x - b.x, z - b.z) < 3); att++; } while (!ok && att < 20);
     if (ok) scene.add(makeTreeDead(x, z, 0.4 + Math.random() * 0.5));
   }
-
   for (let i = 0; i < 60; i++) {
-    const x = (Math.random() - 0.5) * WORLD.size * 0.65;
-    const z = (Math.random() - 0.5) * WORLD.size * 0.65;
+    const x = (Math.random() - 0.5) * WORLD.size * 0.65, z = (Math.random() - 0.5) * WORLD.size * 0.65;
     if (!BUILDINGS.some(b => Math.hypot(x - b.x, z - b.z) < 2.5)) {
       const bush = new THREE.Group();
       const leafS = getTex("bush_leaf", () => leafTex(2));
@@ -620,69 +588,36 @@ function buildWorld(scene) {
       scene.add(bush);
     }
   }
-
   for (let i = 0; i < 30; i++) {
-    const x = (Math.random() - 0.5) * WORLD.size * 0.7;
-    const z = (Math.random() - 0.5) * WORLD.size * 0.7;
+    const x = (Math.random() - 0.5) * WORLD.size * 0.7, z = (Math.random() - 0.5) * WORLD.size * 0.7;
     if (!BUILDINGS.some(b => Math.hypot(x - b.x, z - b.z) < 2.5)) scene.add(makeDebrisPile(x, z, 0.3 + Math.random() * 0.6));
   }
-
-  const powerPoles = [[-18, -14], [18, -14], [-18, 14], [18, 14], [-2, -20], [20, -2], [-20, 6], [6, 20]];
-  powerPoles.forEach(p => scene.add(makePowerPole(p[0], p[1])));
-
-  const lampPosts = [[-4, -6], [8, -2], [-10, 4], [6, 10], [-6, -14], [14, -8]];
-  lampPosts.forEach(p => scene.add(makeLampPost(p[0], p[1])));
-
-  const cars = [[-6, -6, 0.3], [4, 6, -0.6], [-12, 14, 1.2], [12, -6, -0.3], [-20, -8, 0.8], [8, -14, -0.5]];
-  cars.forEach(c => scene.add(makeDestroyedCar(c[0], c[1], c[2])));
-
-  const barricades = [[-3, -8, 0], [5, -2, Math.PI / 2], [-11, 6, 0.5], [7, 9, -0.8]];
-  barricades.forEach(b => scene.add(makeBarricade(b[0], b[1], b[2])));
-
-  const fences = [[-8, -16, 0.3, 1.8], [14, 12, -0.5, 1.5], [-22, 10, 0.8, 1.2]];
-  fences.forEach(f => scene.add(makeFence(f[0], f[1], f[2], f[3])));
-
+  [[-18, -14], [18, -14], [-18, 14], [18, 14], [-2, -20], [20, -2], [-20, 6], [6, 20]].forEach(p => scene.add(makePowerPole(p[0], p[1])));
+  [[-4, -6], [8, -2], [-10, 4], [6, 10], [-6, -14], [14, -8]].forEach(p => scene.add(makeLampPost(p[0], p[1])));
+  [[-6, -6, 0.3], [4, 6, -0.6], [-12, 14, 1.2], [12, -6, -0.3], [-20, -8, 0.8], [8, -14, -0.5]].forEach(c => scene.add(makeDestroyedCar(c[0], c[1], c[2])));
+  [[-3, -8, 0], [5, -2, Math.PI / 2], [-11, 6, 0.5], [7, 9, -0.8]].forEach(b => scene.add(makeBarricade(b[0], b[1], b[2])));
+  [[-8, -16, 0.3, 1.8], [14, 12, -0.5, 1.5], [-22, 10, 0.8, 1.2]].forEach(f => scene.add(makeFence(f[0], f[1], f[2], f[3])));
   scene.add(makeSkyCinematic());
 }
 
 // ── ATMOSPHERE ──
 
 function makeAtmosphereParticles(scene) {
-  const lc = 800;
-  const lGeo = new THREE.BufferGeometry();
-  const lPos = new Float32Array(lc * 3);
+  const lc = 800, lGeo = new THREE.BufferGeometry(), lPos = new Float32Array(lc * 3);
   for (let i = 0; i < lc * 3; i++) lPos[i] = (Math.random() - 0.5) * 80;
   lGeo.setAttribute("position", new THREE.BufferAttribute(lPos, 3));
-  const leaves = new THREE.Points(lGeo, new THREE.PointsMaterial({
-    color: 0x887755, size: 0.03, transparent: true, opacity: 0.03,
-    blending: THREE.AdditiveBlending, depthWrite: false,
-  }));
-  leaves.position.y = 8;
-  scene.add(leaves);
-
-  const dc = 500;
-  const dGeo = new THREE.BufferGeometry();
-  const dPos = new Float32Array(dc * 3);
+  const leaves = new THREE.Points(lGeo, new THREE.PointsMaterial({ color: 0x887755, size: 0.03, transparent: true, opacity: 0.03, blending: THREE.AdditiveBlending, depthWrite: false }));
+  leaves.position.y = 8; scene.add(leaves);
+  const dc = 500, dGeo = new THREE.BufferGeometry(), dPos = new Float32Array(dc * 3);
   for (let i = 0; i < dc * 3; i++) dPos[i] = (Math.random() - 0.5) * 70;
   dGeo.setAttribute("position", new THREE.BufferAttribute(dPos, 3));
-  const dust = new THREE.Points(dGeo, new THREE.PointsMaterial({
-    color: 0x998877, size: 0.015, transparent: true, opacity: 0.02,
-    blending: THREE.AdditiveBlending, depthWrite: false,
-  }));
-  dust.position.y = 0.1;
-  scene.add(dust);
-
-  const bc = 20;
-  const bGeo = new THREE.BufferGeometry();
-  const bPos = new Float32Array(bc * 3);
+  const dust = new THREE.Points(dGeo, new THREE.PointsMaterial({ color: 0x998877, size: 0.015, transparent: true, opacity: 0.02, blending: THREE.AdditiveBlending, depthWrite: false }));
+  dust.position.y = 0.1; scene.add(dust);
+  const bc = 20, bGeo = new THREE.BufferGeometry(), bPos = new Float32Array(bc * 3);
   for (let i = 0; i < bc; i++) { bPos[i * 3] = (Math.random() - 0.5) * 60; bPos[i * 3 + 1] = 5 + Math.random() * 15; bPos[i * 3 + 2] = (Math.random() - 0.5) * 60; }
   bGeo.setAttribute("position", new THREE.BufferAttribute(bPos, 3));
-  const birds = new THREE.Points(bGeo, new THREE.PointsMaterial({
-    color: 0x111111, size: 0.06, transparent: true, opacity: 0.04,
-    depthWrite: false,
-  }));
+  const birds = new THREE.Points(bGeo, new THREE.PointsMaterial({ color: 0x111111, size: 0.06, transparent: true, opacity: 0.04, depthWrite: false }));
   scene.add(birds);
-
   return { leaves, dust, birds };
 }
 
@@ -692,9 +627,7 @@ function makeAudio() {
     const bufSize = ctx.sampleRate * 3;
     const buffer = ctx.createBuffer(1, bufSize, ctx.sampleRate);
     const data = buffer.getChannelData(0);
-    for (let i = 0; i < bufSize; i++) {
-      data[i] = Math.sin(i * 0.01) * 0.01 + (Math.random() - 0.5) * 0.3;
-    }
+    for (let i = 0; i < bufSize; i++) data[i] = Math.sin(i * 0.01) * 0.01 + (Math.random() - 0.5) * 0.3;
     const source = ctx.createBufferSource();
     source.buffer = buffer; source.loop = true;
     const filter = ctx.createBiquadFilter();
@@ -703,13 +636,9 @@ function makeAudio() {
     gain.gain.value = 0.025;
     source.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
     source.start();
-
     const birdBuf = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
     const bData = birdBuf.getChannelData(0);
-    for (let i = 0; i < bData.length; i++) {
-      const t2 = i / ctx.sampleRate;
-      bData[i] = Math.sin(t2 * 2000 + Math.sin(t2 * 8) * 500) * Math.max(0, Math.sin(t2 * 3)) * 0.04;
-    }
+    for (let i = 0; i < bData.length; i++) { const t2 = i / ctx.sampleRate; bData[i] = Math.sin(t2 * 2000 + Math.sin(t2 * 8) * 500) * Math.max(0, Math.sin(t2 * 3)) * 0.04; }
     const birdSource = ctx.createBufferSource();
     birdSource.buffer = birdBuf; birdSource.loop = true;
     birdSource.playbackRate.value = 0.5 + Math.random() * 0.3;
@@ -717,7 +646,6 @@ function makeAudio() {
     birdGain.gain.value = 0.008;
     birdSource.connect(birdGain); birdGain.connect(ctx.destination);
     birdSource.start();
-
     return { ctx, source, gain, birdGain };
   } catch (e) { return null; }
 }
@@ -737,6 +665,18 @@ function Loading({ p, onStart }) {
         <div className="vsb-loading-bar"><div className="vsb-loading-fill" style={{ width: `${p}%` }} /></div>
         <p className="vsb-loading-pct">{Math.floor(p)}%</p>
         {ready && <button className="vsb-loading-go" onClick={onStart}>▶ ENTRAR</button>}
+      </div>
+    </div>
+  );
+}
+
+function DeathScreen({ onRestart }) {
+  return (
+    <div className="vsb-death">
+      <div className="vsb-death-box">
+        <h1 className="vsb-death-title">VOCÊ MORREU</h1>
+        <p className="vsb-death-sub">A Zona Morta reivindicou mais um.</p>
+        <button className="vsb-loading-go" onClick={onRestart}>TENTAR NOVAMENTE</button>
       </div>
     </div>
   );
@@ -774,20 +714,51 @@ export default function VirtualShoppingBrane() {
   const [foundItem, setFoundItem] = useState(null);
   const [notif, setNotif] = useState("");
   const [view, setView] = useState("world");
+  const [dead, setDead] = useState(false);
+  const [alertEnemy, setAlertEnemy] = useState(false);
 
   const container = useRef(null);
   const keys = useRef({});
   const charPos = useRef(new THREE.Vector3(0, 0, -2));
   const charRot = useRef(0);
-  const walkT = useRef(0);
   const mouseX = useRef(0);
   const mouseY = useRef(0);
   const targetFov = useRef(48);
   const charParts = useRef(null);
   const charGroup = useRef(null);
   const velocity = useRef(0);
+  const enemiesRef = useRef([]);
+  const lastAttackRef = useRef(0);
+  const lastDmgRef = useRef(0);
 
   const notify = useCallback(m => setNotif(m), []);
+
+  function useMedkit() {
+    setInv(prev => {
+      const idx = prev.findIndex(i => i.name === "Kit Médico");
+      if (idx === -1) return prev;
+      setHud(h => ({ ...h, health: Math.min(100, h.health + HEAL_AMOUNT) }));
+      const next = [...prev];
+      if (next[idx].qty > 1) next[idx] = { ...next[idx], qty: next[idx].qty - 1 };
+      else next.splice(idx, 1);
+      return next;
+    });
+    notify("Kit Médico usado. +30 de vida.");
+  }
+
+  function restart() {
+    setDead(false);
+    setPhase("loading");
+    setHud({ health: 100, stamina: 100, hunger: 70, thirst: 60 });
+    setInv([]);
+    charPos.current.set(0, 0, -2);
+    charRot.current = 0;
+    velocity.current = 0;
+    mouseX.current = 0;
+    mouseY.current = 0;
+    const p = 0;
+    const int = setInterval(() => { p + 2 + Math.random() * 3; if (p > 100) p = 100; setLoadP(p); if (p >= 100) clearInterval(int); }, 100);
+  }
 
   useEffect(() => {
     let p = 0;
@@ -799,7 +770,7 @@ export default function VirtualShoppingBrane() {
     if (phase !== "world") return;
     const el = container.current;
     if (!el) return;
-    let dead = false;
+    let animDead = false;
 
     try {
       const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance", stencil: false });
@@ -811,27 +782,18 @@ export default function VirtualShoppingBrane() {
       renderer.shadowMap.type = THREE.PCFSoftShadowMap;
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       el.appendChild(renderer.domElement);
-
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x4a6a7a);
-
       const camera = new THREE.PerspectiveCamera(48, el.clientWidth / el.clientHeight, 0.1, 200);
-
-      // ── Post-processing ──
       const composer = new EffectComposer(renderer);
       composer.addPass(new RenderPass(scene, camera));
       const ssaoPass = new SSAOPass(scene, camera, el.clientWidth, el.clientHeight);
-      ssaoPass.kernelRadius = 0.6;
-      ssaoPass.minDistance = 0.005;
-      ssaoPass.maxDistance = 0.08;
-      ssaoPass.renderToScreen = false;
+      ssaoPass.kernelRadius = 0.6; ssaoPass.minDistance = 0.005; ssaoPass.maxDistance = 0.08; ssaoPass.renderToScreen = false;
       composer.addPass(ssaoPass);
       const bloom = new UnrealBloomPass(new THREE.Vector2(el.clientWidth, el.clientHeight), 0.08, 0.3, 0.85);
       bloom.renderToScreen = false;
       composer.addPass(bloom);
       composer.addPass(new OutputPass());
-
-      // ── Lighting ──
       const ambient = new THREE.AmbientLight(0x8899aa, 0.12);
       scene.add(ambient);
       const hemi = new THREE.HemisphereLight(0x8899aa, 0x554433, 0.25);
@@ -840,14 +802,10 @@ export default function VirtualShoppingBrane() {
       sun.position.set(25, 35, 15);
       sun.castShadow = true;
       sun.shadow.mapSize.set(2048, 2048);
-      sun.shadow.camera.near = 1;
-      sun.shadow.camera.far = 80;
-      sun.shadow.camera.left = -45;
-      sun.shadow.camera.right = 45;
-      sun.shadow.camera.top = 45;
-      sun.shadow.camera.bottom = -45;
-      sun.shadow.bias = -0.0005;
-      sun.shadow.normalBias = 0.02;
+      sun.shadow.camera.near = 1; sun.shadow.camera.far = 80;
+      sun.shadow.camera.left = -45; sun.shadow.camera.right = 45;
+      sun.shadow.camera.top = 45; sun.shadow.camera.bottom = -45;
+      sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.02;
       scene.add(sun);
       const warmFill = new THREE.DirectionalLight(0xffcc88, 0.15);
       warmFill.position.set(-20, 10, -25);
@@ -855,32 +813,39 @@ export default function VirtualShoppingBrane() {
       const rim = new THREE.DirectionalLight(0x8888aa, 0.1);
       rim.position.set(-30, 8, 35);
       scene.add(rim);
-
-      // ── Fog ──
       scene.fog = new THREE.FogExp2(0x7a8a8a, 0.002);
-
-      // ── World ──
       buildWorld(scene);
-
-      // ── Character ──
       const hero = makeCharacter();
       charGroup.current = hero.group;
       charParts.current = hero.parts;
       scene.add(hero.group);
 
+      // ── Enemies ──
+      const enemyData = ENEMIES.map(e => {
+        const ent = makeEnemy(e);
+        scene.add(ent.group);
+        return {
+          group: ent.group, parts: ent.parts, alive: true,
+          pos: new THREE.Vector3(e.x, 0, e.z),
+          spawnX: e.x, spawnZ: e.z,
+          rot: Math.random() * 6.28,
+          state: "wander",
+          hp: ENEMY_HP,
+          wanderTarget: new THREE.Vector3(e.x + (Math.random() - 0.5) * 8, 0, e.z + (Math.random() - 0.5) * 8),
+          wanderTimer: 0,
+        };
+      });
+      enemiesRef.current = enemyData;
+
       // ── Interactives ──
       const interactiveMeshes = [];
       INTERACTIVES.forEach((item) => {
-        const glow = new THREE.Mesh(
-          new THREE.SphereGeometry(0.12, 6, 6),
-          new THREE.MeshBasicMaterial({ color: item.color, transparent: true, opacity: 0.2 })
-        );
+        const glow = new THREE.Mesh(new THREE.SphereGeometry(0.12, 6, 6), new THREE.MeshBasicMaterial({ color: item.color, transparent: true, opacity: 0.2 }));
         glow.position.set(item.x, 0.12, item.z);
         scene.add(glow);
         interactiveMeshes.push({ mesh: glow, item, collected: false });
       });
 
-      // ── Atmosphere ──
       const particles = makeAtmosphereParticles(scene);
       const audio = makeAudio();
 
@@ -889,10 +854,35 @@ export default function VirtualShoppingBrane() {
         keys.current[e.key.toLowerCase()] = down;
         if (e.key.toLowerCase() === "i" && down && view === "world") setView("inventory");
         if (e.key.toLowerCase() === "escape" && down && document.pointerLockElement) document.exitPointerLock();
+        if ((e.key.toLowerCase() === "f" || e.key.toLowerCase() === " ") && down && !dead) {
+          const now = performance.now();
+          if (now - lastAttackRef.current > 500) {
+            lastAttackRef.current = now;
+            const angle = mouseX.current;
+            const px = charPos.current.x, pz = charPos.current.z;
+            enemyData.forEach(en => {
+              if (!en.alive) return;
+              const dx = en.pos.x - px, dz = en.pos.z - pz;
+              const dist = Math.hypot(dx, dz);
+              const enemyAngle = Math.atan2(dx, dz);
+              let diff = enemyAngle - angle;
+              while (diff > Math.PI) diff -= Math.PI * 2;
+              while (diff < -Math.PI) diff += Math.PI * 2;
+              if (dist < PLAYER_ATTACK_DIST && Math.abs(diff) < 1.2) {
+                en.hp -= PLAYER_ATTACK_DMG;
+                if (en.hp <= 0) {
+                  en.alive = false;
+                  scene.remove(en.group);
+                } else {
+                  en.state = "chase";
+                }
+              }
+            });
+          }
+        }
       };
       document.addEventListener("keydown", (e) => onKey(e, true));
       document.addEventListener("keyup", (e) => onKey(e, false));
-
       const onMouse = (e) => {
         if (document.pointerLockElement === renderer.domElement) {
           mouseX.current += e.movementX * 0.002;
@@ -901,7 +891,6 @@ export default function VirtualShoppingBrane() {
       };
       renderer.domElement.addEventListener("click", () => renderer.domElement.requestPointerLock());
       document.addEventListener("mousemove", onMouse);
-
       const onResize = () => {
         const w = el.clientWidth, h = el.clientHeight;
         camera.aspect = w / h; camera.updateProjectionMatrix();
@@ -910,25 +899,28 @@ export default function VirtualShoppingBrane() {
       };
       window.addEventListener("resize", onResize);
 
-      // ── Game Loop ──
       const clock = new THREE.Clock();
-      const CAM_DIST = 4.5;
-      const CAM_HEIGHT = 1.8;
-      const CAM_LERP = 6;
-      const camSmooth = { x: 0, y: 0, z: 0, targetX: 0, targetY: 0, targetZ: 0 };
+      const CAM_DIST = 4.5, CAM_HEIGHT = 1.8, CAM_LERP = 6;
+      const camSmooth = { x: 0, y: 0, z: 0 };
 
       const animate = () => {
-        if (dead) return;
+        if (animDead) return;
         const delta = Math.min(clock.getDelta(), 0.05);
         const t = clock.getElapsedTime();
         const k = keys.current;
 
+        if (dead) { composer.render(); animRef.current = requestAnimationFrame(animate); return; }
+
         const fwd = k["w"] || k["arrowup"], bwd = k["s"] || k["arrowdown"];
         const lft = k["a"] || k["arrowleft"], rgt = k["d"] || k["arrowright"];
-        const run = k["shift"];
         const moving = fwd || bwd || lft || rgt;
+        const run = k["shift"] && hud.stamina > 5;
 
-        // Acceleration-based movement
+        // Stamina
+        if (run && moving) setHud(h => ({ ...h, stamina: Math.max(0, h.stamina - 14 * delta) }));
+        else if (!moving) setHud(h => ({ ...h, stamina: Math.min(100, h.stamina + 8 * delta) }));
+        else setHud(h => ({ ...h, stamina: Math.min(100, h.stamina + 3 * delta) }));
+
         const targetSpeed = moving ? (run ? 3.5 : 1.8) : 0;
         const accel = moving ? (run ? 8 : 5) : 6;
         velocity.current += (targetSpeed - velocity.current) * delta * accel;
@@ -944,31 +936,86 @@ export default function VirtualShoppingBrane() {
           charRot.current += diff * delta * (run ? 12 : 8);
           charPos.current.x += Math.sin(charRot.current) * velocity.current * delta;
           charPos.current.z += Math.cos(charRot.current) * velocity.current * delta;
-          walkT.current += delta * velocity.current * 1.5;
         }
 
         hero.group.position.copy(charPos.current);
         hero.group.rotation.y = charRot.current;
-
         animateChar(charParts.current, velocity.current, delta, moving, run);
 
-        // Camera — smooth spring arm
+        // ── Enemy AI ──
+        let nearEnemy = false;
+        enemyData.forEach(en => {
+          if (!en.alive) return;
+          const dx = charPos.current.x - en.pos.x, dz = charPos.current.z - en.pos.z;
+          const dist = Math.hypot(dx, dz);
+          if (dist < ENEMY_DETECT * 1.2) nearEnemy = true;
+
+          if (en.state === "wander") {
+            en.wanderTimer += delta;
+            if (en.wanderTimer > 3 + Math.random() * 2) {
+              en.wanderTarget.set(en.spawnX + (Math.random() - 0.5) * 8, 0, en.spawnZ + (Math.random() - 0.5) * 8);
+              en.wanderTimer = 0;
+              en.rot = Math.atan2(en.wanderTarget.x - en.pos.x, en.wanderTarget.z - en.pos.z);
+            }
+            if (dist < ENEMY_DETECT) { en.state = "chase"; }
+          }
+
+          if (en.state === "chase") {
+            if (dist > ENEMY_DETECT * 1.5) { en.state = "wander"; en.wanderTimer = 3; }
+            else {
+              en.rot = Math.atan2(dx, dz);
+              const spd = 1.8 * delta;
+              if (dist > ENEMY_ATTACK_DIST) {
+                en.pos.x += Math.sin(en.rot) * spd;
+                en.pos.z += Math.cos(en.rot) * spd;
+              }
+              if (dist < ENEMY_ATTACK_DIST + 0.3) {
+                const now = performance.now();
+                if (now - lastDmgRef.current > 1200) {
+                  lastDmgRef.current = now;
+                  setHud(h => ({ ...h, health: Math.max(0, h.health - ENEMY_DMG) }));
+                }
+                en.state = "attack";
+              }
+            }
+          }
+
+          if (en.state === "attack") {
+            if (dist > ENEMY_ATTACK_DIST + 0.8) { en.state = "chase"; }
+            else {
+              en.rot = Math.atan2(dx, dz);
+              const now = performance.now();
+              if (now - lastDmgRef.current > 1200) {
+                lastDmgRef.current = now;
+                setHud(h => ({ ...h, health: Math.max(0, h.health - ENEMY_DMG) }));
+              }
+            }
+          }
+
+          en.group.position.copy(en.pos);
+          en.group.rotation.y = en.rot;
+          animateEnemy(en.parts, delta, en.state === "chase" ? 1.8 : 0.3);
+        });
+        setAlertEnemy(nearEnemy);
+
+        // Death check
+        setHud(h => {
+          if (h.health <= 0 && !dead) setDead(true);
+          return h;
+        });
+
+        // Camera
         const angle = mouseX.current;
         const vert = Math.max(-0.3, Math.min(0.6, mouseY.current * 0.4));
         const dist = run ? 5.0 : CAM_DIST;
         const targetX = charPos.current.x + Math.sin(angle) * dist * Math.cos(vert);
         const targetY = charPos.current.y + CAM_HEIGHT + Math.sin(vert) * dist;
         const targetZ = charPos.current.z + Math.cos(angle) * dist * Math.cos(vert);
-
         camSmooth.x += (targetX - camSmooth.x) * delta * CAM_LERP;
         camSmooth.y += (targetY - camSmooth.y) * delta * CAM_LERP;
         camSmooth.z += (targetZ - camSmooth.z) * delta * CAM_LERP;
-
         camera.position.set(camSmooth.x, camSmooth.y, camSmooth.z);
-        const lookX = charPos.current.x + Math.sin(angle) * 0.5;
-        const lookZ = charPos.current.z + Math.cos(angle) * 0.5;
-        camera.lookAt(lookX, 1.2 + vert * 0.5, lookZ);
-
+        camera.lookAt(charPos.current.x + Math.sin(angle) * 0.5, 1.2 + vert * 0.5, charPos.current.z + Math.cos(angle) * 0.5);
         targetFov.current = run ? 55 : 48;
         camera.fov += (targetFov.current - camera.fov) * delta * 3;
         camera.updateProjectionMatrix();
@@ -980,25 +1027,15 @@ export default function VirtualShoppingBrane() {
           if (dist2 < 1.5 && k["e"]) { obj.collected = true; scene.remove(obj.mesh); setFoundItem(obj.item); }
         });
 
-        // Lock atmosphere
         renderer.toneMappingExposure = 0.7;
-        sun.intensity = 1.0;
-        ambient.intensity = 0.12;
-        hemi.intensity = 0.25;
-        warmFill.intensity = 0.15;
-        rim.intensity = 0.1;
+        sun.intensity = 1.0; ambient.intensity = 0.12; hemi.intensity = 0.25;
+        warmFill.intensity = 0.15; rim.intensity = 0.1;
         scene.background.setHex(0x4a6a7a);
-        scene.fog.color.setHex(0x7a8a8a);
-        scene.fog.density = 0.002;
+        scene.fog.color.setHex(0x7a8a8a); scene.fog.density = 0.002;
         bloom.strength = 0.08;
-
         particles.leaves.rotation.y += delta * 0.005;
         particles.dust.rotation.y += delta * 0.004;
-
-        if (run && moving) setHud(h => ({ ...h, stamina: Math.max(0, h.stamina - 8 * delta) }));
-        else if (!moving) setHud(h => ({ ...h, stamina: Math.min(100, h.stamina + 6 * delta) }));
         setHud(h => ({ ...h, hunger: Math.max(0, h.hunger - delta * 0.3), thirst: Math.max(0, h.thirst - delta * 0.4) }));
-
         composer.render();
         animRef.current = requestAnimationFrame(animate);
       };
@@ -1006,7 +1043,7 @@ export default function VirtualShoppingBrane() {
       const animRef = { current: requestAnimationFrame(animate) };
 
       return () => {
-        dead = true;
+        animDead = true;
         cancelAnimationFrame(animRef.current);
         if (audio) try { audio.source.stop(); audio.ctx.close(); } catch (e) { }
         document.removeEventListener("keydown", (e) => onKey(e, true));
@@ -1018,6 +1055,8 @@ export default function VirtualShoppingBrane() {
       };
     } catch (err) { console.error("[VSB Error]", err); }
   }, [phase]);
+
+  if (dead) return <DeathScreen onRestart={restart} />;
 
   if (phase === "loading") return <Loading p={loadP} onStart={() => setPhase("world")} />;
 
@@ -1032,6 +1071,7 @@ export default function VirtualShoppingBrane() {
                 <span className="vsb-inv-emoji">{item.emoji}</span>
                 <span className="vsb-inv-name">{item.name}</span>
                 <span className="vsb-inv-qty">x{item.qty || 1}</span>
+                {item.name === "Kit Médico" && <button className="vsb-inv-use" onClick={useMedkit}>USAR</button>}
               </div>
             ))
           }
@@ -1051,12 +1091,13 @@ export default function VirtualShoppingBrane() {
       <div className="vsb-vignette" />
       <div className="vsb-hud">
         <div className="vsb-hud-bars">
-          <div className="vsb-hud-bar"><span>❤️</span><div className="vsb-hud-track"><div className="vsb-hud-fill health" style={{ width: `${hud.health}%` }} /></div></div>
+          <div className="vsb-hud-bar bar-health"><span>❤️</span><div className="vsb-hud-track"><div className="vsb-hud-fill health" style={{ width: `${hud.health}%` }} /></div><span className="vsb-hud-val">{Math.floor(hud.health)}</span></div>
           <div className="vsb-hud-bar"><span>⚡</span><div className="vsb-hud-track"><div className="vsb-hud-fill stamina" style={{ width: `${hud.stamina}%` }} /></div></div>
           <div className="vsb-hud-bar"><span>🍞</span><div className="vsb-hud-track"><div className="vsb-hud-fill hunger" style={{ width: `${hud.hunger}%` }} /></div></div>
           <div className="vsb-hud-bar"><span>💧</span><div className="vsb-hud-track"><div className="vsb-hud-fill thirst" style={{ width: `${hud.thirst}%` }} /></div></div>
         </div>
-        <div className="vsb-hud-controls"><span>WASD</span><span>Shift correr</span><span>I inventário</span><span>Mouse olhar</span><span>E pegar</span></div>
+        {alertEnemy && <div className="vsb-enemy-alert">⚠ INIMIGO PRÓXIMO</div>}
+        <div className="vsb-hud-controls"><span>WASD</span><span>Shift correr</span><span>F/Espaço atacar</span><span>I inventário</span><span>E pegar</span></div>
         <div className="vsb-hud-location">ZONA MORTA — SETOR 7</div>
         <button className="vsb-hud-inv" onClick={() => setView("inventory")}>🎒<span className="vsb-hud-count">{inv.length}</span></button>
         <div className="vsb-hud-interact">Pressione E para interagir</div>
