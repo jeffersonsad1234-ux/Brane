@@ -33,6 +33,7 @@ import BraneCoinsPage from "./pages/BraneCoinsPage";
 import AddProductPage from "./pages/AddProductPage";
 import SocialPage from "./pages/SocialPage";
 import VirtualShoppingBrane from "./pages/VirtualShoppingBrane";
+import BraneAgent from "./pages/BraneAgent";
 import BLivreAdminPage from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -118,7 +119,7 @@ function AppRouter() {
   }
 
   const isAdmin = path.startsWith("/admin");
-  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane");
+  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane") || path.startsWith("/brane-agent");
 
   return (
     <>
@@ -197,6 +198,7 @@ function AppRouter() {
             </Route>
 
             <Route path="/virtualshoppingbrane" element={<VirtualShoppingBrane />} />
+            <Route path="/brane-agent" element={<BraneAgent />} />
 
             <Route
               path="/add-product"
