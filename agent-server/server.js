@@ -16,7 +16,7 @@ const PROJECT_ROOT = process.env.PROJECT_ROOT || path.resolve(__dirname, "..");
 const AGENT_PASSWORD = process.env.AGENT_PASSWORD || "admin123";
 
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({ origin: ["http://localhost:3000", "http://localhost:3001", "https://branded.page.br", "https://www.branded.page.br"], credentials: true }));
 app.use(express.json({ limit: "10mb" }));
 app.use(morgan("dev"));
 app.use(rateLimit({ windowMs: 60 * 1000, max: 300 }));
@@ -462,5 +462,5 @@ app.get("/api/status", auth, (req, res) => {
 
 // ── Init ──
 initDb().then(() => {
-  app.listen(PORT, () => console.log(`Brane Agent API running on http://localhost:${PORT}`));
+  app.listen(PORT, "0.0.0.0", () => console.log(`Brane Agent API running on port ${PORT}`));
 });

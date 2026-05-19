@@ -119,7 +119,7 @@ function AppRouter() {
   }
 
   const isAdmin = path.startsWith("/admin");
-  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane") || path.startsWith("/brane-agent");
+  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane") || path.startsWith("/brane-agent") || path.startsWith("/agente");
 
   return (
     <>
@@ -199,6 +199,7 @@ function AppRouter() {
 
             <Route path="/virtualshoppingbrane" element={<VirtualShoppingBrane />} />
             <Route path="/brane-agent" element={<BraneAgent />} />
+            <Route path="/agente" element={<BraneAgent />} />
 
             <Route
               path="/add-product"
