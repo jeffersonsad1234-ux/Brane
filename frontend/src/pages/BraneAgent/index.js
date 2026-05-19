@@ -13,7 +13,6 @@ async function api(method, path, body) {
   return r.json();
 }
 
-// ── Icons ──
 const ICONS = { chat: "💬", files: "📁", tasks: "📋", plan: "🎯", settings: "⚙️", user: "👤", brain: "🧠", terminal: "🖥️" };
 
 // ── Markdown ──
@@ -51,6 +50,20 @@ function DiffView({ diff }) {
   })}</div>;
 }
 
+// ── Confirm Dialog ──
+function ConfirmDialog({ msg, onConfirm, onCancel }) {
+  return <div className="ba-overlay" onClick={onCancel}>
+    <div className="ba-confirm" onClick={e => e.stopPropagation()}>
+      <div className="ba-confirm-icon">⚠️</div>
+      <div className="ba-confirm-msg">{msg}</div>
+      <div className="ba-confirm-btns">
+        <button className="ba-btn" onClick={onCancel}>Cancelar</button>
+        <button className="ba-btn primary" style={{ background: "var(--re)", borderColor: "var(--re)", color: "#fff" }} onClick={onConfirm}>Confirmar</button>
+      </div>
+    </div>
+  </div>;
+}
+
 // ── Main ──
 export default function BraneAgent() {
   const [loggedIn, setLoggedIn] = useState(!!PASSWORD);
@@ -76,9 +89,16 @@ export default function BraneAgent() {
   const [status, setStatus] = useState({ gitLog: "", projects: [] });
   const [agentPlan, setAgentPlan] = useState(null);
   const [agentRunning, setAgentRunning] = useState(false);
+  const [agentInstruction, setAgentInstruction] = useState("");
   const [diffData, setDiffData] = useState(null);
   const [memory, setMemory] = useState([]);
   const [showSide, setShowSide] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [modelData, setModelData] = useState(null);
+  const [selectedModel, setSelectedModel] = useState(null);
+  const [selectedProvider, setSelectedProvider] = useState(null);
+  const [confirm, setConfirm] = useState(null);
 
   const chatRef = useRef(null);
   const termRef = useRef(null);
@@ -90,6 +110,7 @@ export default function BraneAgent() {
   useEffect(() => {
     if (!loggedIn) return;
     api("GET", "/api/status").then(d => { setStatus(d); setProjects(d.projects || []); if (d.projects?.length && !projectId) switchProject(d.projects[0].id); });
+    api("GET", "/api/models").then(d => { setModelData(d); if (d.current) { setSelectedModel(d.current.model); setSelectedProvider(d.current.provider); } });
   }, [loggedIn]);
 
   function switchProject(id) {
@@ -102,6 +123,19 @@ export default function BraneAgent() {
       setMemory(ctx?.memory || []);
     });
     api("GET", `/api/tasks?project=${id}`).then(d => setTasks(d || []));
+  }
+
+  // ── Model selector ──
+  function switchModel(modelId) {
+    const def = modelData?.available?.[modelId];
+    if (def) { setSelectedModel(modelId); setSelectedProvider(def.provider); }
+  }
+
+  function getModelBadge() {
+    const def = modelData?.available?.[selectedModel];
+    if (!def) return "?";
+    const modeLabels = { powerful: "⚡", fast: "🚀", cheap: "💰", local: "💻", custom: "🔧" };
+    return `${modeLabels[def.mode] || "?"} ${def.label}`;
   }
 
   // ── Login ──
@@ -123,8 +157,8 @@ export default function BraneAgent() {
     const newMsgs = [...msgs, { role: "user", content: txt }];
     setMsgs(newMsgs);
     try {
-      const r = await api("POST", "/api/chat", { messages: newMsgs, rules, context });
-      setMsgs([...newMsgs, { role: "assistant", content: r.content || r.error || "(no response)" }]);
+      const r = await api("POST", "/api/chat", { messages: newMsgs, rules, context, provider: selectedProvider, model: selectedModel });
+      setMsgs([...newMsgs, { role: "assistant", content: r.content || r.error || "(no response)", _model: r.model }]);
       if (!convId) {
         const c = await api("POST", "/api/conversations", { project: projectId, messages: newMsgs });
         if (c.id) setConvId(c.id);
@@ -142,6 +176,14 @@ export default function BraneAgent() {
     setRulesDirty(false);
     if (projectId) api("PUT", `/api/projects/${projectId}`, { rules });
     addTask("Regras salvas");
+  }
+
+  // ── Search ──
+  async function doSearch() {
+    const q = searchQuery.trim();
+    if (!q) return;
+    try { const r = await api("GET", `/api/search?project=${projectId}&q=${encodeURIComponent(q)}&limit=20`); setSearchResults(r.results || []); addTask("Busca: " + q.slice(0, 60)); }
+    catch (e) {}
   }
 
   // ── Files ──
@@ -226,60 +268,80 @@ export default function BraneAgent() {
 
   // ── Agent Mode ──
   async function runAgent() {
-    const instruction = prompt("O que o agente deve fazer?");
+    const instruction = agentInstruction.trim();
     if (!instruction) return;
     setAgentRunning(true); setAgentPlan(null); addTask("Agent: " + instruction.slice(0, 60));
     setActiveTab("plan");
-    setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> Planejando: ${instruction}`]);
+    setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> Planejando usando ${getModelBadge()}...`]);
     try {
-      const planR = await api("POST", "/api/agent/plan", { projectId, instruction, rules, stack: context?.stack, structure: context?.structure });
+      const planR = await api("POST", "/api/agent/plan", { projectId, instruction, rules, stack: context?.stack, structure: context?.structure, provider: selectedProvider, model: selectedModel });
       const steps = planR.steps || [];
       setAgentPlan(steps);
-      setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> Plano: ${steps.length} passos`]);
+      setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> Plano: ${steps.length} passos (${planR.model?.label || selectedModel})`]);
       for (let idx = 0; idx < steps.length; idx++) {
         const step = steps[idx];
-        setTermOut(p => [...p, `<span class="ba-prompt">[Agent ${idx + 1}/${steps.length}]</span> ${step.description}`]);
+        setTermOut(p => [...p, `<span class="ba-prompt">[Agent ${idx + 1}/${steps.length}]</span> ${step.action}: ${step.description}`]);
         if (step.action === "edit" || step.action === "create") {
-          const filePath = step.file;
           try {
-            const existing = await api("GET", `/api/files/read?project=${projectId}&path=${encodeURIComponent(filePath)}`);
-            const fullPrompt = `You are Brane Agent. Edit the file "${filePath}" in the project "${context?.name}".
-
-CONTEXT:
-${step.description}
-${step.details ? `Details: ${step.details}` : ""}
-
-Current file content:
-\`\`\`
-${existing.content || "(new file)"}
-\`\`\`
-
-Respond with ONLY the complete new file content in a code block. Do not explain, just output the code.`;
-            const editR = await api("POST", "/api/chat", { messages: [{ role: "user", content: fullPrompt }], rules, context });
-            let code = editR.content || "";
-            const m = code.match(/```[\w]*\n([\s\S]*?)```/);
-            if (m) code = m[1];
-            if (step.action === "create") {
-              await api("POST", `/api/files/create?project=${projectId}`, { path: filePath, content: code });
-            } else {
-              await api("POST", `/api/files/write?project=${projectId}`, { path: filePath, content: code });
+            const exeR = await api("POST", "/api/agent/execute", { projectId, step, context, rules, provider: selectedProvider, model: selectedModel });
+            if (exeR.content) {
+              if (step.action === "create") {
+                await api("POST", `/api/files/create?project=${projectId}`, { path: step.file, content: exeR.content });
+              } else {
+                await api("POST", `/api/files/write?project=${projectId}`, { path: step.file, content: exeR.content });
+              }
+              setTermOut(p => [...p, `  ✓ ${step.file} ${step.action === "create" ? "criado" : "editado"}`]);
             }
-            setTermOut(p => [...p, `  ✓ ${filePath} ${step.action === "create" ? "criado" : "editado"}`]);
-          } catch (e) { setTermOut(p => [...p, `  <span class="ba-err">✗ ${filePath}: ${e.message}</span>`]); }
+          } catch (e) { setTermOut(p => [...p, `  <span class="ba-err">✗ ${step.file}: ${e.message}</span>`]); }
         } else if (step.action === "command") {
           try {
             const cmdR = await api("POST", "/api/terminal", { command: step.details || step.file });
-            setTermOut(p => [...p, `  → ${(cmdR.stdout || "").slice(0, 200)}`]);
-            if (cmdR.stderr) setTermOut(p => [...p, `  <span class="ba-err">${(cmdR.stderr || "").slice(0, 200)}</span>`]);
+            setTermOut(p => [...p, `  → ${(cmdR.stdout || "").slice(0, 300)}`]);
+            if (cmdR.stderr) setTermOut(p => [...p, `  <span class="ba-err">${(cmdR.stderr || "").slice(0, 300)}</span>`]);
           } catch (e) { setTermOut(p => [...p, `  <span class="ba-err">✗ ${e.message}</span>`]); }
         } else if (step.action === "done") {
           setTermOut(p => [...p, `  ✓ ${step.description}`]);
         }
         await new Promise(r => setTimeout(r, 500));
+        // Update plan step status
+        setAgentPlan(prev => prev?.map((s, i) => i === idx ? { ...s, _done: true } : s));
       }
-      setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> ✅ Plano executado. Executando build...`]);
+      // Auto-build after plan
+      setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> ✅ Plano executado. Build...`]);
       const buildR = await api("POST", "/api/build", { projectId });
-      setTermOut(p => [...p, buildR.code === 0 ? "  ✓ Build OK" : `  <span class="ba-err">✗ Build: ${(buildR.stderr || "").slice(0, 300)}</span>`]);
+      setTermOut(p => [...p, buildR.code === 0 ? "  ✓ Build OK" : `  <span class="ba-err">✗ Build: ${(buildR.stderr || "").slice(0, 500)}</span>`]);
+      // Auto-fix if build fails (up to 3 attempts)
+      if (buildR.code !== 0) {
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> 🔧 Auto-fix tentativa ${attempt}/3...`]);
+          try {
+            const fixR = await api("POST", "/api/agent/autofix", { projectId, buildOutput: (buildR.stderr || "") + "\n" + (buildR.stdout || ""), instruction, rules, context, provider: selectedProvider, model: selectedModel });
+            if (fixR.fixes && fixR.fixes.length > 0) {
+              for (const fix of fixR.fixes) {
+                setTermOut(p => [...p, `  Fix: ${fix.file} — ${fix.description}`]);
+                try {
+                  const existing = await api("GET", `/api/files/read?project=${projectId}&path=${encodeURIComponent(fix.file)}`);
+                  const fixPrompt = `Apply this fix to "${fix.file}":\n${fix.description}\n${fix.details || ""}\n\nCurrent:\n\`\`\`\n${existing.content}\n\`\`\`\nOutput only the complete fixed file.`;
+                  const fixR2 = await api("POST", "/api/chat", { messages: [{ role: "user", content: fixPrompt }], rules, context, provider: selectedProvider, model: selectedModel });
+                  let code = fixR2.content || "";
+                  const m = code.match(/```[\w]*\n([\s\S]*?)```/);
+                  if (m) code = m[1];
+                  if (code) { await api("POST", `/api/files/write?project=${projectId}`, { path: fix.file, content: code }); setTermOut(p => [...p, `  ✓ ${fix.file} corrigido`]); }
+                } catch (e) { setTermOut(p => [...p, `  <span class="ba-err">✗ ${fix.file}: ${e.message}</span>`]); }
+              }
+              // Rebuild
+              setTermOut(p => [...p, `  Rebuild...`]);
+              const retryR = await api("POST", "/api/build", { projectId });
+              setTermOut(p => [...p, retryR.code === 0 ? "  ✓ Build OK após fix" : `  <span class="ba-err">✗ Ainda falhou</span>`]);
+              if (retryR.code === 0) break;
+            } else {
+              setTermOut(p => [...p, `  Sem sugestão de fix`]);
+              break;
+            }
+          } catch (e) { setTermOut(p => [...p, `  <span class="ba-err">✗ Auto-fix: ${e.message}</span>`]); break; }
+        }
+      }
+      setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> ✅ Missão completa.`]);
     } catch (e) { setTermOut(p => [...p, `<span class="ba-err">[Agent] Erro: ${e.message}</span>`]); }
     setAgentRunning(false);
   }
@@ -302,6 +364,9 @@ Respond with ONLY the complete new file content in a code block. Do not explain,
     </div></div>
   );
 
+  // ── Confirmation overlay ──
+  if (confirm) return <ConfirmDialog msg={confirm.msg} onConfirm={() => { confirm.onOk(); setConfirm(null); }} onCancel={() => setConfirm(null)} />;
+
   const curProject = projects.find(x => x.id === projectId) || status?.projects?.find(x => x.id === projectId);
 
   return (
@@ -312,8 +377,18 @@ Respond with ONLY the complete new file content in a code block. Do not explain,
         <select className="ba-top-select" value={projectId || ""} onChange={e => switchProject(e.target.value)}>
           {(projects.length ? projects : status.projects || []).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
         </select>
+        {/* Model Selector */}
+        <select className="ba-top-select ba-model-select" value={selectedModel || ""} onChange={e => switchModel(e.target.value)}>
+          {modelData?.grouped && Object.entries(modelData.grouped).map(([mode, models]) => {
+            const labels = { powerful: "⚡ Poderoso", fast: "🚀 Rápido", cheap: "💰 Barato", local: "💻 Local" };
+            return <optgroup key={mode} label={labels[mode] || mode}>
+              {models.map(m => <option key={m.id} value={m.id}>{m.label} {m.cost === "gratis" ? "(grátis)" : ""}</option>)}
+            </optgroup>;
+          })}
+        </select>
         <div className="ba-top-info">
           <span className="ba-top-dot" /> Online
+          <span className="ba-model-badge" title={selectedModel}>{getModelBadge()}</span>
           <span className="ba-top-git">{status.gitLog?.split("\n")?.[0] || ""}</span>
           {context?.stack?.frameworks?.length > 0 && <span className="ba-top-stack">{context.stack.frameworks.join(", ")}</span>}
         </div>
@@ -334,16 +409,16 @@ Respond with ONLY the complete new file content in a code block. Do not explain,
           {/* ── Chat ── */}
           {activeTab === "chat" && (
             <div className="ba-panel">
-              <div className="ba-ph"><span>{ICONS.chat} Chat com Agente</span><span className="ba-ms">{msgs.length} msg</span></div>
+              <div className="ba-ph"><span>{ICONS.chat} Chat com Agente</span><span className="ba-ms">{msgs.length} msg · {getModelBadge()}</span></div>
               <div className="ba-pc" ref={chatRef}>
-                {msgs.length === 0 && <div className="ba-empty">Converse com o agente. Ele segue suas regras e tem contexto do projeto.</div>}
+                {msgs.length === 0 && <div className="ba-empty">Converse com o agente. Modelo ativo: {getModelBadge()}</div>}
                 {msgs.map((m, i) => (
                   <div key={i} className={`ba-msg ${m.role}`}>
-                    {m.role === "assistant" && <div className="ba-mlabel">⬡ Brane Agent</div>}
+                    {m.role === "assistant" && <div className="ba-mlabel">⬡ Brane Agent {m._model ? <span className="ba-ms">({m._model.label})</span> : ""}</div>}
                     {typeof m.content === "string" ? renderMsg(m.content) : m.content}
                   </div>
                 ))}
-                {sending && <div className="ba-msg assistant"><div className="ba-mlabel">⬡ Brane Agent</div><div className="ba-thinking">⏳ <span>pensando</span></div></div>}
+                {sending && <div className="ba-msg assistant"><div className="ba-mlabel">⬡ Brane Agent ({getModelBadge()})</div><div className="ba-thinking">⏳ <span>pensando</span></div></div>}
               </div>
               <div className="ba-chat-inp">
                 <textarea value={chatMsg} onChange={e => setChatMsg(e.target.value)} onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }} placeholder="Digite..." rows={1} />
@@ -352,11 +427,27 @@ Respond with ONLY the complete new file content in a code block. Do not explain,
             </div>
           )}
 
-          {/* ── Files ── */}
+          {/* ── Files + Search ── */}
           {activeTab === "files" && (
             <div className="ba-panel">
-              <div className="ba-ph"><span>{ICONS.files} Explorador</span></div>
-              <div className="ba-pc ba-tree">{tree ? buildTree(tree, "") : <div className="ba-empty">Carregando...</div>}</div>
+              <div className="ba-ph">
+                <span>{ICONS.files} Explorador</span>
+                <div className="ba-ph-actions">
+                  <input className="ba-search-inp" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} onKeyDown={e => e.key === "Enter" && doSearch()} placeholder="Buscar arquivos..." />
+                  <button className="ba-btn sm" onClick={doSearch} disabled={!searchQuery.trim()}>🔍</button>
+                </div>
+              </div>
+              <div className="ba-pc ba-tree">
+                {searchResults.length > 0 ? (
+                  <div>{searchResults.map((r, i) => (
+                    <div key={i} className="ba-ti" onClick={() => { const rel = pathRelative(r.path, curProject?.root); openFile(rel); }} style={{ paddingLeft: "12px" }}>
+                      <span className="ba-ic">📄</span>
+                      <span className="ba-tn">{r.path}</span>
+                      <span className="ba-ms" style={{ marginLeft: "auto", fontSize: ".5rem" }}>{r.size}b</span>
+                    </div>
+                  ))}</div>
+                ) : tree ? buildTree(tree, "") : <div className="ba-empty">Carregando...</div>}
+              </div>
             </div>
           )}
 
@@ -382,11 +473,20 @@ Respond with ONLY the complete new file content in a code block. Do not explain,
             <div className="ba-panel">
               <div className="ba-ph"><span>{ICONS.plan} Agente — Plano de Execução</span>{agentRunning && <span className="ba-ms running">⏳ executando...</span>}</div>
               <div className="ba-pc ba-plan">
-                {!agentPlan && !agentRunning && <div className="ba-empty">Clique em "🤖 Modo Agente" na barra inferior para iniciar.</div>}
+                {!agentPlan && !agentRunning && (
+                  <div className="ba-empty">
+                    <div style={{ marginBottom: ".6rem" }}>Digite a tarefa e clique em "🤖 Modo Agente":</div>
+                    <div className="ba-agent-inp-row">
+                      <input className="ba-agent-inp" value={agentInstruction} onChange={e => setAgentInstruction(e.target.value)} onKeyDown={e => e.key === "Enter" && runAgent()} placeholder="Ex: Adicione um botão de exportar CSV na página de produtos..." />
+                      <button className="ba-act agent" onClick={runAgent} disabled={agentRunning || !agentInstruction.trim()}>🤖 Executar</button>
+                    </div>
+                    <div className="ba-ms" style={{ marginTop: ".4rem" }}>Modelo: {getModelBadge()}</div>
+                  </div>
+                )}
                 {agentRunning && !agentPlan && <div className="ba-empty">⏳ Gerando plano de execução...</div>}
                 {agentPlan && agentPlan.map((step, i) => (
-                  <div key={i} className="ba-plan-step">
-                    <span className="ba-ps-num">{i + 1}</span>
+                  <div key={i} className={`ba-plan-step ${step._done ? "done" : ""}`}>
+                    <span className="ba-ps-num">{step._done ? "✓" : i + 1}</span>
                     <div className="ba-ps-body">
                       <span className="ba-ps-action">{step.action}</span>
                       <span className="ba-ps-file">{step.file}</span>
@@ -395,12 +495,16 @@ Respond with ONLY the complete new file content in a code block. Do not explain,
                     </div>
                   </div>
                 ))}
-                {agentPlan && !agentRunning && <button className="ba-plan-run" onClick={runAgent}>▶ Executar Plano</button>}
+                {agentPlan && !agentRunning && (
+                  <div className="ba-empty" style={{ color: "var(--gr)", border: "1px solid var(--gr)" }}>
+                    ✅ Plano executado com sucesso
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {/* ── Editor ── (overlays when activeTab === editor) */}
+          {/* ── Editor ── */}
           {activeTab === "editor" && (
             <div className="ba-panel">
               <div className="ba-ph">
@@ -415,7 +519,7 @@ Respond with ONLY the complete new file content in a code block. Do not explain,
             </div>
           )}
 
-          {/* ── Diff Viewer ── (overlays when activeTab === diff) */}
+          {/* ── Diff Viewer ── */}
           {activeTab === "diff" && (
             <div className="ba-panel">
               <div className="ba-ph"><span>📋 Diff: {currentFile}</span><button className="ba-btn sm" onClick={() => setActiveTab("editor")}>✕ Fechar</button></div>
@@ -437,6 +541,7 @@ Respond with ONLY the complete new file content in a code block. Do not explain,
               <div><span className="ba-ctx-l">Stack:</span> {context?.stack?.frameworks?.join(", ") || "detectando..."}</div>
               <div><span className="ba-ctx-l">Build:</span> {context?.stack?.buildCmd || "n/a"}</div>
               {context?.structure && <div><span className="ba-ctx-l">Arquivos:</span> {context.structure.length} pastas/arquivos</div>}
+              <div><span className="ba-ctx-l">Modelo:</span> {getModelBadge()}</div>
             </div>
           </div>
           <div className="ba-side-section">
@@ -463,7 +568,7 @@ Respond with ONLY the complete new file content in a code block. Do not explain,
       <div className="ba-actions">
         <button className="ba-act primary" onClick={doBuild} disabled={loading.build}>{loading.build ? "⏳" : "🔨"} Build</button>
         <button className="ba-act green" onClick={doCommit} disabled={loading.commit}>{loading.commit ? "⏳" : "⬆"} Commit + Push</button>
-        <button className="ba-act agent" onClick={runAgent} disabled={agentRunning}>{agentRunning ? "⏳" : "🤖"} Modo Agente</button>
+        <button className="ba-act agent" onClick={runAgent} disabled={agentRunning || !agentInstruction.trim()}>{agentRunning ? "⏳" : "🤖"} Modo Agente</button>
         <button className="ba-act" onClick={async () => {
           const rows = await api("GET", `/api/backups?path=${currentFile || ""}`);
           if (rows.length && confirm(`Restaurar backup mais recente de ${currentFile}?`)) {
@@ -471,9 +576,18 @@ Respond with ONLY the complete new file content in a code block. Do not explain,
             if (r.ok) { setFileDirty(true); addTask("Backup restaurado: " + currentFile); }
           }
         }} disabled={!currentFile}>↩ Rollback</button>
+        {/* Agent instruction inline */}
+        <input className="ba-agent-quick" value={agentInstruction} onChange={e => setAgentInstruction(e.target.value)} onKeyDown={e => e.key === "Enter" && runAgent()} placeholder="Tarefa do agente..." />
         <div style={{ flex: 1 }} />
         <button className="ba-act" style={{ color: "var(--red)" }} onClick={() => { sessionStorage.removeItem("ba_pwd"); window.location.reload(); }}>Sair</button>
       </div>
     </div>
   );
+}
+
+// Helper to compute relative path
+function pathRelative(full, root) {
+  if (!root) return full;
+  const rel = full.replace(root.replace(/\\/g, "/"), "");
+  return rel.startsWith("/") ? rel.slice(1) : rel;
 }

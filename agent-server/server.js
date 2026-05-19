@@ -15,6 +15,99 @@ const PORT = process.env.PORT || 3200;
 const PROJECT_ROOT = process.env.PROJECT_ROOT || path.resolve(__dirname, "..");
 const AGENT_PASSWORD = process.env.AGENT_PASSWORD || "admin123";
 
+// ── Provider / Model config ──
+const AI_PROVIDER = process.env.AI_PROVIDER || "openrouter";
+const AI_MODEL = process.env.AI_MODEL || "anthropic/claude-3.5-sonnet";
+const LOCAL_MODEL_URL = process.env.LOCAL_MODEL_URL || "http://localhost:11434/api/generate";
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+
+const MODEL_DEFS = {
+  "anthropic/claude-3.5-sonnet":  { provider: "openrouter", label: "Claude 3.5 Sonnet", mode: "powerful", cost: "medio" },
+  "anthropic/claude-3-haiku":     { provider: "openrouter", label: "Claude 3 Haiku",    mode: "fast",    cost: "barato" },
+  "openai/gpt-4o":                { provider: "openrouter", label: "GPT-4o",             mode: "powerful",cost: "medio" },
+  "openai/gpt-4o-mini":           { provider: "openrouter", label: "GPT-4o Mini",        mode: "cheap",   cost: "barato" },
+  "google/gemini-2.0-flash-001":  { provider: "openrouter", label: "Gemini Flash",       mode: "fast",    cost: "barato" },
+  "deepseek/deepseek-coder":     { provider: "openrouter", label: "DeepSeek Coder",     mode: "cheap",   cost: "barato" },
+  "gpt-4o":                       { provider: "openai",     label: "GPT-4o (OpenAI)",    mode: "powerful",cost: "medio" },
+  "gpt-4o-mini":                  { provider: "openai",     label: "GPT-4o Mini (OpenAI)",mode: "cheap",  cost: "barato" },
+  "llama3.1":                     { provider: "ollama",     label: "Llama 3.1 (Local)",  mode: "local",   cost: "gratis" },
+  "codellama":                    { provider: "ollama",     label: "CodeLlama (Local)",  mode: "local",   cost: "gratis" },
+};
+
+function getModelDef(model) {
+  return MODEL_DEFS[model] || { provider: AI_PROVIDER, label: model, mode: "custom", cost: "?" };
+}
+
+// ── callAI: unifica OpenRouter / OpenAI / Ollama ──
+async function callAI(messages, options = {}) {
+  const provider = options.provider || AI_PROVIDER;
+  const model = options.model || AI_MODEL;
+  const systemMsg = options.system || "You are Brane Agent, a senior software engineer.";
+  const jsonMode = options.json || false;
+  const maxTokens = options.maxTokens || 8192;
+
+  if (provider === "openrouter") {
+    const key = options.apiKey || OPENROUTER_API_KEY;
+    if (!key) throw new Error("OPENROUTER_API_KEY not configured");
+    const resp = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${key}`,
+        "HTTP-Referer": "https://branded.page.br",
+        "X-Title": "Brane Agent"
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: "system", content: systemMsg }, ...messages],
+        max_tokens: maxTokens,
+        ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
+      })
+    });
+    if (!resp.ok) {
+      const errText = await resp.text().catch(() => "");
+      throw new Error(`OpenRouter ${resp.status}: ${errText.slice(0, 200)}`);
+    }
+    const data = await resp.json();
+    if (!data.choices?.[0]?.message?.content) throw new Error("OpenRouter: empty response");
+    return data.choices[0].message.content;
+  }
+
+  if (provider === "openai") {
+    const key = options.apiKey || process.env.OPENAI_API_KEY;
+    if (!key) throw new Error("OPENAI_API_KEY not configured");
+    const OpenAI = require("openai");
+    const openai = new OpenAI({ apiKey: key });
+    const completion = await openai.chat.completions.create({
+      model,
+      messages: [{ role: "system", content: systemMsg }, ...messages],
+      max_tokens: maxTokens,
+      ...(jsonMode ? { response_format: { type: "json_object" } } : {}),
+    });
+    if (!completion.choices?.[0]?.message?.content) throw new Error("OpenAI: empty response");
+    return completion.choices[0].message.content;
+  }
+
+  if (provider === "ollama") {
+    const url = options.localUrl || LOCAL_MODEL_URL;
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        prompt: `${systemMsg}\n\n${messages.map(m => `${m.role}: ${m.content}`).join("\n")}`,
+        stream: false,
+        options: { num_predict: maxTokens }
+      })
+    });
+    if (!resp.ok) throw new Error(`Ollama ${resp.status}`);
+    const data = await resp.json();
+    return data.response || data.content || "(no response)";
+  }
+
+  throw new Error(`Unknown provider: ${provider}. Use: openrouter, openai, or ollama`);
+}
+
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: ["http://localhost:3000", "http://localhost:3001", "https://branded.page.br", "https://www.branded.page.br"], credentials: true }));
 app.use(express.json({ limit: "10mb" }));
@@ -117,7 +210,7 @@ function detectStack(root) {
   return info;
 }
 
-// ── Structure summary for context ──
+// ── Structure summary ──
 function summarizeStructure(root, depth = 2) {
   const items = [];
   function scan(p, d) {
@@ -138,10 +231,54 @@ function summarizeStructure(root, depth = 2) {
   return items;
 }
 
+// ── Search files by content ──
+function searchFiles(root, query, maxResults = 20) {
+  const exts = [".js",".jsx",".ts",".tsx",".json",".css",".html",".md",".yml",".yaml",".py",".rb",".java",".c",".cpp",".h",".hpp",".env",".txt",".xml",".svg",".sh",".bat",".toml",".cfg",".ini",".vue",".svelte",".php",".sql",".yaml",".mjs",".cjs"];
+  const results = [], q = query.toLowerCase();
+  function scan(p) {
+    if (results.length >= maxResults) return;
+    try {
+      const stat = fs.statSync(p);
+      if (stat.isDirectory()) {
+        const n = path.basename(p);
+        if (n.startsWith(".") || n === "node_modules" || n === "__pycache__" || n === ".git" || n === "backups") return;
+        for (const e of fs.readdirSync(p)) scan(path.join(p, e));
+      } else if (stat.isFile()) {
+        if (!exts.includes(path.extname(p).toLowerCase())) return;
+        const content = fs.readFileSync(p, "utf-8");
+        if (content.toLowerCase().includes(q)) {
+          results.push({ path: p, size: stat.size, snippet: content.slice(0, 200).replace(/\n/g, " ") });
+        }
+      }
+    } catch (e) {}
+  }
+  scan(root);
+  return results.slice(0, maxResults);
+}
+
 // ── Login ──
 app.post("/api/login", (req, res) => {
   if (req.body.password === AGENT_PASSWORD) return res.json({ ok: true });
   res.status(401).json({ error: "Invalid password" });
+});
+
+// ── Models ──
+app.get("/api/models", auth, (req, res) => {
+  const grouped = {};
+  for (const [id, def] of Object.entries(MODEL_DEFS)) {
+    if (!grouped[def.mode]) grouped[def.mode] = [];
+    grouped[def.mode].push({ id, ...def });
+  }
+  res.json({
+    current: { provider: AI_PROVIDER, model: AI_MODEL, def: getModelDef(AI_MODEL) },
+    available: MODEL_DEFS,
+    grouped,
+    env: {
+      hasOpenRouter: !!OPENROUTER_API_KEY,
+      hasOpenAI: !!process.env.OPENAI_API_KEY,
+      hasOllama: true,
+    }
+  });
 });
 
 // ── Projects ──
@@ -171,6 +308,17 @@ app.get("/api/projects/:id/analyze", auth, (req, res) => {
   const stack = detectStack(root);
   const structure = summarizeStructure(root, 2);
   res.json({ stack, structure, name: proj[0].name, root });
+});
+
+// ── File search ──
+app.get("/api/search", auth, (req, res) => {
+  const base = req.query.project ? (q("SELECT root FROM projects WHERE id=?", [req.query.project])[0]?.root || PROJECT_ROOT) : PROJECT_ROOT;
+  const query = req.query.q || "";
+  if (!query) return res.json({ results: [] });
+  try {
+    const results = searchFiles(base, query, Number(req.query.limit) || 20);
+    res.json({ results });
+  } catch (e) { res.status(400).json({ error: e.message }); }
 });
 
 // ── Memory ──
@@ -228,7 +376,7 @@ app.put("/api/tasks/:id", auth, (req, res) => {
   res.json({ ok: true });
 });
 
-// ── Auto Context (before chat) ──
+// ── Auto Context ──
 app.post("/api/context", auth, async (req, res) => {
   const { projectId, files } = req.body;
   const proj = q("SELECT * FROM projects WHERE id=?", [projectId]);
@@ -238,7 +386,6 @@ app.post("/api/context", auth, async (req, res) => {
   const structure = summarizeStructure(root, files ? 3 : 2);
   const memory = q("SELECT * FROM memory WHERE project=? ORDER BY created_at DESC LIMIT 20", [projectId]);
   const rules = proj[0].rules || "";
-  // Read key files for deeper context
   const keyFiles = {};
   const targets = ["package.json", "frontend/package.json", "README.md", "wrangler.toml", "docker-compose.yml", "dockerfile", ".env.example"];
   for (const t of targets) {
@@ -250,11 +397,12 @@ app.post("/api/context", auth, async (req, res) => {
 
 // ── Agent Mode: Plan ──
 app.post("/api/agent/plan", auth, async (req, res) => {
-  const { projectId, instruction, rules, stack, structure } = req.body;
+  const { projectId, instruction, rules, stack, structure, provider, model } = req.body;
   const proj = q("SELECT * FROM projects WHERE id=?", [projectId]);
   const root = proj.length ? proj[0].root : PROJECT_ROOT;
   const stackInfo = stack || detectStack(root);
   const structInfo = structure || summarizeStructure(root, 2);
+  const modelDef = getModelDef(model || AI_MODEL);
   const prompt = `You are Brane Agent, an AI coding assistant. Create a detailed execution plan for the following task.
 
 PROJECT CONTEXT:
@@ -272,31 +420,98 @@ Respond with a JSON array of steps. Each step has: { "action": "edit"|"create"|"
 
 Example:
 [
-  { "action": "edit", "file": "frontend/src/App.js", "description": "Add new route for /brane-agent", "details": "Import and add Route element" },
+  { "action": "edit", "file": "frontend/src/App.js", "description": "Add new route", "details": "Import and add Route element" },
   { "action": "command", "file": "", "description": "Install dependencies", "details": "npm install" },
   { "action": "done", "file": "", "description": "Verify build", "details": "" }
 ]
 
 Only respond with valid JSON, no other text.`;
   try {
-    if (!process.env.OPENAI_API_KEY) return res.status(500).json({ error: "OPENAI_API_KEY not configured" });
-    const OpenAI = require("openai");
-    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "system", content: "You are a senior software engineer. Respond ONLY with valid JSON." }, { role: "user", content: prompt }],
-      max_tokens: 4096, response_format: { type: "json_object" }
-    });
-    const text = completion.choices[0].message.content;
+    const text = await callAI(
+      [{ role: "user", content: prompt }],
+      { system: "You are a senior software engineer. Respond ONLY with valid JSON.", provider, model, json: true, maxTokens: 4096 }
+    );
     const plan = JSON.parse(text);
     const steps = plan.steps || plan.plan || (Array.isArray(plan) ? plan : [plan]);
-    res.json({ steps: Array.isArray(steps) ? steps : [], raw: text });
+    res.json({ steps: Array.isArray(steps) ? steps : [], raw: text, model: modelDef });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
 });
 
-// ── File Operations (existing enhanced) ──
+// ── Agent: Execute step ──
+app.post("/api/agent/execute", auth, async (req, res) => {
+  const { projectId, step, context, rules, provider, model } = req.body;
+  if (!step || !step.action) return res.status(400).json({ error: "No step" });
+  const proj = q("SELECT * FROM projects WHERE id=?", [projectId]);
+  const root = proj.length ? proj[0].root : PROJECT_ROOT;
+  const modelDef = getModelDef(model || AI_MODEL);
+
+  if (step.action === "edit" || step.action === "create") {
+    try {
+      const existing = { content: "" };
+      const fp = path.join(root, step.file);
+      if (fs.existsSync(fp)) existing.content = fs.readFileSync(fp, "utf-8");
+      const fullPrompt = `You are Brane Agent. ${step.action === "create" ? "Create" : "Edit"} the file "${step.file}" in the project "${proj[0]?.name || "project"}".
+
+TASK: ${step.description}
+${step.details ? `DETAILS: ${step.details}` : ""}
+
+Current file content:
+\`\`\`
+${existing.content || "(new file)"}
+\`\`\`
+
+Rules:
+${rules || "No specific rules."}
+
+Respond with ONLY the complete new file content in a code block. Do not explain.`;
+      const result = await callAI(
+        [{ role: "user", content: fullPrompt }],
+        { system: "You are a senior software engineer. Output only the file content inside a code block.", provider, model, maxTokens: 8192 }
+      );
+      let code = result;
+      const m = code.match(/```[\w]*\n([\s\S]*?)```/);
+      if (m) code = m[1];
+      res.json({ action: step.action, file: step.file, content: code, model: modelDef });
+    } catch (e) { res.status(500).json({ error: e.message }); }
+  } else {
+    res.json({ action: step.action, file: step.file, content: null });
+  }
+});
+
+// ── Agent: Auto-fix ──
+app.post("/api/agent/autofix", auth, async (req, res) => {
+  const { projectId, buildOutput, instruction, rules, context, provider, model } = req.body;
+  const proj = q("SELECT * FROM projects WHERE id=?", [projectId]);
+  const root = proj.length ? proj[0].root : PROJECT_ROOT;
+  try {
+    const prompt = `You are Brane Agent. A build failed in the project. Analyze the error and output a JSON object describing what to fix.
+
+Build output (stdout + stderr):
+\`\`\`
+${(buildOutput || "").slice(0, 4000)}
+\`\`\`
+
+Original task: ${instruction || "Fix the build error"}
+
+Respond with valid JSON:
+{
+  "analysis": "explanation of the error",
+  "fixes": [
+    { "file": "relative/path/to/file", "description": "what to change", "details": "how to change" }
+  ]
+}`;
+    const text = await callAI(
+      [{ role: "user", content: prompt }],
+      { system: "You are an expert debugger. Respond ONLY with valid JSON.", provider, model, json: true, maxTokens: 4096 }
+    );
+    const fix = JSON.parse(text);
+    res.json({ ...fix, model: getModelDef(model || AI_MODEL) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── File Operations ──
 app.get("/api/files", auth, (req, res) => {
   const base = req.query.project ? (q("SELECT root FROM projects WHERE id=?", [req.query.project])[0]?.root || PROJECT_ROOT) : PROJECT_ROOT;
   const dir = req.query.dir || "";
@@ -422,8 +637,8 @@ app.post("/api/commit", auth, (req, res) => {
 
 // ── Chat with context ──
 app.post("/api/chat", auth, async (req, res) => {
-  const { messages, rules, context } = req.body;
-  const provider = process.env.AI_PROVIDER || "openai";
+  const { messages, rules, context, provider, model } = req.body;
+  const modelDef = getModelDef(model || AI_MODEL);
   const stackStr = context?.stack ? `Stack: ${JSON.stringify(context.stack)}\n` : "";
   const structStr = context?.structure ? `Key structure: ${JSON.stringify(context.structure.slice(0, 15))}\n` : "";
   const rulesStr = rules || context?.rules || "";
@@ -437,28 +652,12 @@ ${context?.keyFiles ? `Key files:\n${Object.entries(context.keyFiles).map(([k, v
 You help write code, analyze projects, suggest improvements, and automate development tasks.
 Be concise, technical, and practical. Use Portuguese-BR. When suggesting code changes, be specific about file paths and line numbers.`;
   try {
-    if (provider === "openai") {
-      if (!process.env.OPENAI_API_KEY) return res.status(500).json({ error: "OPENAI_API_KEY not configured" });
-      const OpenAI = require("openai");
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [{ role: "system", content: systemPrompt }, ...messages],
-        max_tokens: 8192,
-      });
-      return res.json({ content: completion.choices[0].message.content });
-    } else {
-      const resp = await fetch(process.env.LOCAL_MODEL_URL, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: `${systemPrompt}\n\n${messages.map(m => m.content).join("\n")}`, stream: false }),
-      });
-      const data = await resp.json();
-      return res.json({ content: data.response || data.content || "(no response)" });
-    }
+    const content = await callAI(messages, { system: systemPrompt, provider, model, maxTokens: 8192 });
+    res.json({ content, model: modelDef });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// ── Health (public, no auth — for Railway) ──
+// ── Health ──
 app.get("/health", (req, res) => res.json({ ok: true, uptime: process.uptime() }));
 
 // ── Status ──
@@ -467,8 +666,11 @@ app.get("/api/status", auth, (req, res) => {
     const gitLog = execSync("git log --oneline -3", { cwd: PROJECT_ROOT, encoding: "utf-8", timeout: 5000 });
     const gitStatus = execSync("git status --short", { cwd: PROJECT_ROOT, encoding: "utf-8", timeout: 5000 });
     const projects = q("SELECT id, name, root FROM projects");
-    res.json({ gitLog: gitLog.trim(), gitStatus: gitStatus.trim(), projects, host: require("os").hostname() });
-  } catch (e) { res.json({ gitLog: "", gitStatus: "", projects: [], host: require("os").hostname() }); }
+    res.json({
+      gitLog: gitLog.trim(), gitStatus: gitStatus.trim(), projects, host: require("os").hostname(),
+      provider: AI_PROVIDER, model: AI_MODEL, modelDef: getModelDef(AI_MODEL),
+    });
+  } catch (e) { res.json({ gitLog: "", gitStatus: "", projects: [], host: require("os").hostname(), provider: AI_PROVIDER, model: AI_MODEL }); }
 });
 
 // ── Init ──
