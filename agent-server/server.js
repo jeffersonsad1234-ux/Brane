@@ -450,6 +450,9 @@ Be concise, technical, and practical. Use Portuguese-BR. When suggesting code ch
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Health (public, no auth — for Railway) ──
+app.get("/health", (req, res) => res.json({ ok: true, uptime: process.uptime() }));
+
 // ── Status ──
 app.get("/api/status", auth, (req, res) => {
   try {
