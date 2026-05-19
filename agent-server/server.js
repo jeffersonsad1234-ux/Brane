@@ -24,31 +24,37 @@ app.use(rateLimit({ windowMs: 60 * 1000, max: 300 }));
 // ── Database ──
 let db;
 async function initDb() {
-  const SQL = await initSqlJs();
-  const dbPath = path.join(__dirname, "agent.db");
-  let buf;
-  if (fs.existsSync(dbPath)) buf = fs.readFileSync(dbPath);
-  db = new SQL.Database(buf);
-  db.run("CREATE TABLE IF NOT EXISTS conversations (id TEXT PRIMARY KEY, project TEXT, messages TEXT, created_at TEXT, updated_at TEXT)");
-  db.run("CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, project TEXT, type TEXT, status TEXT, progress INTEGER, message TEXT, result TEXT, created_at TEXT, updated_at TEXT)");
-  db.run("CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, name TEXT, root TEXT, rules TEXT, created_at TEXT)");
-  db.run("CREATE TABLE IF NOT EXISTS memory (id TEXT PRIMARY KEY, project TEXT, key TEXT, value TEXT, created_at TEXT)");
-  db.run("CREATE TABLE IF NOT EXISTS backups (id TEXT PRIMARY KEY, file_path TEXT, backup_path TEXT, created_at TEXT)");
-  if (!buf) saveDb();
-  // Default projects
-  const existing = db.exec("SELECT id FROM projects");
-  if (existing.length === 0) {
-    const ts = new Date().toISOString();
-    db.run("INSERT INTO projects VALUES (?,?,?,?,?)", [uuid(), "Brane (main)", PROJECT_ROOT, "", ts]);
-    db.run("INSERT INTO projects VALUES (?,?,?,?,?)", [uuid(), "Jogo Survival", path.join(PROJECT_ROOT, "frontend", "src", "pages", "VirtualShoppingBrane"), "", ts]);
-    db.run("INSERT INTO projects VALUES (?,?,?,?,?)", [uuid(), "Brane Agent", __dirname, "", ts]);
-    saveDb();
+  try {
+    const SQL = await initSqlJs();
+    const dbPath = path.join(__dirname, "agent.db");
+    let buf;
+    if (fs.existsSync(dbPath)) buf = fs.readFileSync(dbPath);
+    db = new SQL.Database(buf);
+    db.run("CREATE TABLE IF NOT EXISTS conversations (id TEXT PRIMARY KEY, project TEXT, messages TEXT, created_at TEXT, updated_at TEXT)");
+    db.run("CREATE TABLE IF NOT EXISTS tasks (id TEXT PRIMARY KEY, project TEXT, type TEXT, status TEXT, progress INTEGER, message TEXT, result TEXT, created_at TEXT, updated_at TEXT)");
+    db.run("CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, name TEXT, root TEXT, rules TEXT, created_at TEXT)");
+    db.run("CREATE TABLE IF NOT EXISTS memory (id TEXT PRIMARY KEY, project TEXT, key TEXT, value TEXT, created_at TEXT)");
+    db.run("CREATE TABLE IF NOT EXISTS backups (id TEXT PRIMARY KEY, file_path TEXT, backup_path TEXT, created_at TEXT)");
+    if (!buf) saveDb();
+    const existing = db.exec("SELECT id FROM projects");
+    if (existing.length === 0) {
+      const ts = new Date().toISOString();
+      db.run("INSERT INTO projects VALUES (?,?,?,?,?)", [uuid(), "Brane (main)", PROJECT_ROOT, "", ts]);
+      db.run("INSERT INTO projects VALUES (?,?,?,?,?)", [uuid(), "Jogo Survival", path.join(PROJECT_ROOT, "frontend", "src", "pages", "VirtualShoppingBrane"), "", ts]);
+      db.run("INSERT INTO projects VALUES (?,?,?,?,?)", [uuid(), "Brane Agent", __dirname, "", ts]);
+      saveDb();
+    }
+    console.log("Database initialized");
+  } catch (e) {
+    console.error("DB init error:", e.message);
   }
 }
 function saveDb() {
-  const data = db.export();
-  const buf = Buffer.from(data);
-  fs.writeFileSync(path.join(__dirname, "agent.db"), buf);
+  try {
+    const data = db.export();
+    const buf = Buffer.from(data);
+    fs.writeFileSync(path.join(__dirname, "agent.db"), buf);
+  } catch (e) { console.error("saveDb error:", e.message); }
 }
 function q(sql, params) {
   const stmt = db.prepare(sql);
@@ -273,6 +279,7 @@ Example:
 
 Only respond with valid JSON, no other text.`;
   try {
+    if (!process.env.OPENAI_API_KEY) return res.status(500).json({ error: "OPENAI_API_KEY not configured" });
     const OpenAI = require("openai");
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const completion = await openai.chat.completions.create({
@@ -431,6 +438,7 @@ You help write code, analyze projects, suggest improvements, and automate develo
 Be concise, technical, and practical. Use Portuguese-BR. When suggesting code changes, be specific about file paths and line numbers.`;
   try {
     if (provider === "openai") {
+      if (!process.env.OPENAI_API_KEY) return res.status(500).json({ error: "OPENAI_API_KEY not configured" });
       const OpenAI = require("openai");
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
       const completion = await openai.chat.completions.create({
@@ -464,6 +472,10 @@ app.get("/api/status", auth, (req, res) => {
 });
 
 // ── Init ──
-initDb().then(() => {
-  app.listen(PORT, "0.0.0.0", () => console.log(`Brane Agent API running on port ${PORT}`));
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Agent server running on port ${PORT}`);
+  initDb().catch(e => console.error("DB init failed:", e.message));
 });
+
+process.on("uncaughtException", e => console.error("Uncaught:", e.message));
+process.on("unhandledRejection", e => console.error("Unhandled:", e.message));
