@@ -3,7 +3,6 @@ import "./BraneAgent.css";
 
 const API = process.env.REACT_APP_AGENT_API || "http://localhost:3200";
 let PASSWORD = sessionStorage.getItem("ba_pwd") || "";
-const ALLOWED_MODELS = ["deepseek/deepseek-chat", "openai/gpt-4o-mini", "google/gemini-flash-1.5"];
 
 function headers() { return { "Content-Type": "application/json", "x-agent-password": PASSWORD }; }
 async function api(method, path, body) {
@@ -139,13 +138,9 @@ export default function BraneAgent() {
     api("GET", "/api/status").then(d => { setStatus(d); setProjects(d.projects || []); if (d.projects?.length && !projectId) switchProject(d.projects[0].id); });
     api("GET", "/api/models").then(d => {
       setModelData(d);
-      const selected = d?.current?.model;
-      if (ALLOWED_MODELS.includes(selected)) {
-        setSelectedModel(selected);
+      if (d?.current?.model) {
+        setSelectedModel(d.current.model);
         setSelectedProvider(d.current.provider);
-      } else {
-        setSelectedModel("deepseek/deepseek-chat");
-        setSelectedProvider("openrouter");
       }
     });
   }, [loggedIn]);
@@ -315,6 +310,9 @@ export default function BraneAgent() {
       const steps = planR.steps || [];
       setAgentPlan(steps);
       setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> Plano: ${steps.length} passos (${planR.model?.label || selectedModel})`]);
+
+      // --- Execute steps (existing flow) ---
+      // ... (keeps the same execution logic)
       for (let idx = 0; idx < steps.length; idx++) {
         const step = steps[idx];
         setTermOut(p => [...p, `<span class="ba-prompt">[Agent ${idx + 1}/${steps.length}]</span> ${step.action}: ${step.description}`]);
@@ -340,47 +338,57 @@ export default function BraneAgent() {
           setTermOut(p => [...p, `  ✓ ${step.description}`]);
         }
         await new Promise(r => setTimeout(r, 500));
-        // Update plan step status
         setAgentPlan(prev => prev?.map((s, i) => i === idx ? { ...s, _done: true } : s));
       }
-      // Auto-build after plan
-      setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> ✅ Plano executado. Build...`]);
-      const buildR = await api("POST", "/api/build", { projectId });
-      setTermOut(p => [...p, buildR.code === 0 ? "  ✓ Build OK" : `  <span class="ba-err">✗ Build: ${(buildR.stderr || "").slice(0, 500)}</span>`]);
-      // Auto-fix if build fails (up to 3 attempts)
-      if (buildR.code !== 0) {
-        for (let attempt = 1; attempt <= 3; attempt++) {
-          setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> 🔧 Auto-fix tentativa ${attempt}/3...`]);
-          try {
-            const fixR = await api("POST", "/api/agent/autofix", { projectId, buildOutput: (buildR.stderr || "") + "\n" + (buildR.stdout || ""), instruction, rules, context, provider: selectedProvider, model: selectedModel });
-            if (fixR.fixes && fixR.fixes.length > 0) {
-              for (const fix of fixR.fixes) {
-                setTermOut(p => [...p, `  Fix: ${fix.file} — ${fix.description}`]);
-                try {
-                  const existing = await api("GET", `/api/files/read?project=${projectId}&path=${encodeURIComponent(fix.file)}`);
-                  const fixPrompt = `Apply this fix to "${fix.file}":\n${fix.description}\n${fix.details || ""}\n\nCurrent:\n\`\`\`\n${existing.content}\n\`\`\`\nOutput only the complete fixed file.`;
-                  const fixR2 = await api("POST", "/api/chat", { messages: [{ role: "user", content: fixPrompt }], rules, context, provider: selectedProvider, model: selectedModel });
-                  let code = fixR2.content || "";
-                  const m = code.match(/```[\w]*\n([\s\S]*?)```/);
-                  if (m) code = m[1];
-                  if (code) { await api("POST", `/api/files/write?project=${projectId}`, { path: fix.file, content: code }); setTermOut(p => [...p, `  ✓ ${fix.file} corrigido`]); }
-                } catch (e) { setTermOut(p => [...p, `  <span class="ba-err">✗ ${fix.file}: ${e.message}</span>`]); }
-              }
-              // Rebuild
-              setTermOut(p => [...p, `  Rebuild...`]);
-              const retryR = await api("POST", "/api/build", { projectId });
-              setTermOut(p => [...p, retryR.code === 0 ? "  ✓ Build OK após fix" : `  <span class="ba-err">✗ Ainda falhou</span>`]);
-              if (retryR.code === 0) break;
-            } else {
-              setTermOut(p => [...p, `  Sem sugestão de fix`]);
-              break;
-            }
-          } catch (e) { setTermOut(p => [...p, `  <span class="ba-err">✗ Auto-fix: ${e.message}</span>`]); break; }
-        }
-      }
+      setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> Build...`]);
+      await autoFixAndBuild();
       setTermOut(p => [...p, `<span class="ba-prompt">[Agent]</span> ✅ Missão completa.`]);
     } catch (e) { setTermOut(p => [...p, `<span class="ba-err">[Agent] Erro: ${e.message}</span>`]); }
     setAgentRunning(false);
+  }
+
+  // ── Modo Potente (via /api/agent/run-plan) ──
+  async function runPowerfulAgent() {
+    const instruction = agentInstruction.trim();
+    if (!instruction) return;
+    setAgentRunning(true); setAgentPlan(null); addTask("Potente: " + instruction.slice(0, 60));
+    setActiveTab("plan");
+    setTermOut(p => [...p, `<span class="ba-prompt">[⚡Potente]</span> Executando pipeline completa...`]);
+    try {
+      const r = await api("POST", "/api/agent/run-plan", { projectId, instruction, rules, provider: selectedProvider, model: selectedModel });
+      setAgentPlan(r.tasks?.map(t => ({ _done: t.status === "done", action: t.desc, file: t.file || "", description: t.desc, details: t.status })) || []);
+      setTermOut(p => [...p, ...(r.tasks || []).map(t => `  ${t.status === "done" ? "✓" : t.status === "failed" ? "✗" : "→"} ${t.desc}`)]);
+      setTermOut(p => [...p, `<span class="ba-prompt">[⚡Potente]</span> ${r.summary || "Concluído"}. Arquivos: ${(r.modifiedFiles || []).join(", ")}`]);
+    } catch (e) { setTermOut(p => [...p, `<span class="ba-err">[⚡Potente] Erro: ${e.message}</span>`]); }
+    setAgentRunning(false);
+  }
+
+  // ── Auto-fix + Build helper ──
+  async function autoFixAndBuild() {
+    const buildR = await api("POST", "/api/build", { projectId });
+    setTermOut(p => [...p, buildR.code === 0 ? "  ✓ Build OK" : `  <span class="ba-err">✗ Build: ${(buildR.stderr || "").slice(0, 500)}</span>`]);
+    if (buildR.code === 0) return true;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      setTermOut(p => [...p, `  🔧 Auto-fix tentativa ${attempt}/3...`]);
+      try {
+        const fixR = await api("POST", "/api/agent/autofix", { projectId, buildOutput: (buildR.stderr || "") + "\n" + (buildR.stdout || ""), instruction: agentInstruction, rules, context, provider: selectedProvider, model: selectedModel });
+        if (fixR.fixes?.length) {
+          for (const fix of fixR.fixes) {
+            setTermOut(p => [...p, `  Fix: ${fix.file}`]);
+            const existing = await api("GET", `/api/files/read?project=${projectId}&path=${encodeURIComponent(fix.file)}`);
+            const fixResp = await api("POST", "/api/chat", { messages: [{ role: "user", content: `Fix "${fix.file}": ${fix.description}\n${fix.details || ""}\n\n\`\`\`\n${existing.content}\n\`\`\`\nOutput ONLY the complete fixed file.` }], rules, context, provider: selectedProvider, model: selectedModel });
+            let code = fixResp.content || "";
+            const m = code.match(/```[\w]*\n([\s\S]*?)```/);
+            if (m) code = m[1];
+            if (code) await api("POST", `/api/files/write?project=${projectId}`, { path: fix.file, content: code });
+          }
+          const retryR = await api("POST", "/api/build", { projectId });
+          setTermOut(p => [...p, retryR.code === 0 ? "  ✓ Build OK após fix" : "  ✗ Ainda falhou"]);
+          if (retryR.code === 0) return true;
+        } else { break; }
+      } catch (e) { break; }
+    }
+    return false;
   }
 
   // ── Tasks ──
@@ -427,10 +435,8 @@ export default function BraneAgent() {
         <select className="ba-top-select ba-model-select" value={selectedModel || ""} onChange={e => switchModel(e.target.value)}>
           {modelData?.grouped && Object.entries(modelData.grouped).map(([mode, models]) => {
             const labels = { powerful: "⚡ Poderoso", fast: "🚀 Rápido", cheap: "💰 Barato", local: "💻 Local" };
-            const filtered = models.filter(m => ALLOWED_MODELS.includes(m.id));
-            if (!filtered.length) return null;
             return <optgroup key={mode} label={labels[mode] || mode}>
-              {filtered.map(m => <option key={m.id} value={m.id}>{m.label} {m.cost === "gratis" ? "(grátis)" : ""}</option>)}
+              {models.map(m => <option key={m.id} value={m.id}>{m.label} {m.cost === "gratis" ? "(grátis)" : ""}</option>)}
             </optgroup>;
           })}
         </select>
@@ -523,10 +529,11 @@ export default function BraneAgent() {
               <div className="ba-pc ba-plan">
                 {!agentPlan && !agentRunning && (
                   <div className="ba-empty">
-                    <div style={{ marginBottom: ".6rem" }}>Digite a tarefa e clique em "🤖 Modo Agente":</div>
+                    <div style={{ marginBottom: ".6rem" }}>Digite a tarefa e escolha o modo:</div>
                     <div className="ba-agent-inp-row">
-                      <input className="ba-agent-inp" value={agentInstruction} onChange={e => setAgentInstruction(e.target.value)} onKeyDown={e => e.key === "Enter" && runAgent()} placeholder="Ex: Adicione um botão de exportar CSV na página de produtos..." />
-                      <button className="ba-act agent" onClick={runAgent} disabled={agentRunning || !agentInstruction.trim()}>🤖 Executar</button>
+                      <input className="ba-agent-inp" value={agentInstruction} onChange={e => setAgentInstruction(e.target.value)} onKeyDown={e => e.key === "Enter" && runPowerfulAgent()} placeholder="Ex: Adicione um botão de exportar CSV..." />
+                      <button className="ba-act" onClick={runAgent} disabled={agentRunning || !agentInstruction.trim()} style={{ fontSize: ".6rem" }}>🤖 Agente</button>
+                      <button className="ba-act" style={{ background: "rgba(124,92,252,.2)", color: "var(--ac)", borderColor: "var(--ac)", fontSize: ".6rem" }} onClick={runPowerfulAgent} disabled={agentRunning || !agentInstruction.trim()}>⚡ Potente</button>
                     </div>
                     <div className="ba-ms" style={{ marginTop: ".4rem" }}>Modelo: {getModelBadge()}</div>
                   </div>
@@ -616,7 +623,8 @@ export default function BraneAgent() {
       <div className="ba-actions">
         <button className="ba-act primary" onClick={doBuild} disabled={loading.build}>{loading.build ? "⏳" : "🔨"} Build</button>
         <button className="ba-act green" onClick={doCommit} disabled={loading.commit}>{loading.commit ? "⏳" : "⬆"} Commit + Push</button>
-        <button className="ba-act agent" onClick={runAgent} disabled={agentRunning || !agentInstruction.trim()}>{agentRunning ? "⏳" : "🤖"} Modo Agente</button>
+        <button className="ba-act agent" onClick={runAgent} disabled={agentRunning || !agentInstruction.trim()}>{agentRunning ? "⏳" : "🤖"} Agente</button>
+        <button className="ba-act" style={{ background: "rgba(124,92,252,.2)", color: "var(--ac)", borderColor: "var(--ac)" }} onClick={runPowerfulAgent} disabled={agentRunning || !agentInstruction.trim()}>{agentRunning ? "⏳" : "⚡"} Modo Potente</button>
         <button className="ba-act" onClick={async () => {
           const rows = await api("GET", `/api/backups?path=${currentFile || ""}`);
           if (rows.length && confirm(`Restaurar backup mais recente de ${currentFile}?`)) {
@@ -625,7 +633,7 @@ export default function BraneAgent() {
           }
         }} disabled={!currentFile}>↩ Rollback</button>
         {/* Agent instruction inline */}
-        <input className="ba-agent-quick" value={agentInstruction} onChange={e => setAgentInstruction(e.target.value)} onKeyDown={e => e.key === "Enter" && runAgent()} placeholder="Tarefa do agente..." />
+        <input className="ba-agent-quick" value={agentInstruction} onChange={e => setAgentInstruction(e.target.value)} onKeyDown={e => e.key === "Enter" && runPowerfulAgent()} placeholder="Tarefa do agente..." />
         <div style={{ flex: 1 }} />
         <button className="ba-act" style={{ color: "var(--red)" }} onClick={() => { sessionStorage.removeItem("ba_pwd"); window.location.reload(); }}>Sair</button>
       </div>

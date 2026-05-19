@@ -22,10 +22,21 @@ const LOCAL_MODEL_URL = process.env.LOCAL_MODEL_URL || "http://localhost:11434/a
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 const MODEL_DEFS = {
-  "deepseek/deepseek-chat":      { provider: "openrouter", label: "DeepSeek Chat",      mode: "cheap",   cost: "barato" },
-  "openai/gpt-4o-mini":          { provider: "openrouter", label: "GPT-4o Mini",        mode: "cheap",   cost: "barato" },
-  "google/gemini-flash-1.5":     { provider: "openrouter", label: "Gemini Flash 1.5",   mode: "fast",    cost: "barato" },
+  "deepseek/deepseek-chat":              { provider: "openrouter", label: "DeepSeek Chat",        mode: "cheap",    cost: "barato" },
+  "deepseek/deepseek-coder":             { provider: "openrouter", label: "DeepSeek Coder",       mode: "cheap",    cost: "barato" },
+  "openai/gpt-4o-mini":                  { provider: "openrouter", label: "GPT-4o Mini",          mode: "cheap",    cost: "barato" },
+  "google/gemini-2.0-flash-001":         { provider: "openrouter", label: "Gemini 2.0 Flash",     mode: "fast",     cost: "barato" },
+  "meta-llama/llama-3.1-70b-instruct":   { provider: "openrouter", label: "Llama 3.1 70B",        mode: "powerful", cost: "medio" },
 };
+
+const AGENT_MEMORY_PATH = path.join(__dirname, "agent-memory.json");
+
+function loadAgentMemory() {
+  try { return JSON.parse(fs.readFileSync(AGENT_MEMORY_PATH, "utf-8")); } catch (e) { return { rules: "", tasks: [], modifiedFiles: [], errors: [], decisions: [] }; }
+}
+function saveAgentMemory(data) {
+  fs.writeFileSync(AGENT_MEMORY_PATH, JSON.stringify(data, null, 2), "utf-8");
+}
 
 function getModelDef(model) {
   return MODEL_DEFS[model] || { provider: AI_PROVIDER, label: model, mode: "custom", cost: "?" };
@@ -655,8 +666,223 @@ Be concise, technical, and practical. Use Portuguese-BR. When suggesting code ch
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
+// ── Agent Memory (JSON file) ──
+app.get("/api/agent/memory", auth, (req, res) => {
+  res.json(loadAgentMemory());
+});
+app.post("/api/agent/memory", auth, (req, res) => {
+  const data = loadAgentMemory();
+  if (req.body.rules !== undefined) data.rules = req.body.rules;
+  if (req.body.tasks) data.tasks = [...data.tasks, ...req.body.tasks].slice(-50);
+  if (req.body.modifiedFiles) data.modifiedFiles = [...new Set([...data.modifiedFiles, ...req.body.modifiedFiles])].slice(-100);
+  if (req.body.errors) data.errors = [...data.errors, ...req.body.errors].slice(-50);
+  if (req.body.decisions) data.decisions = [...data.decisions, ...req.body.decisions].slice(-50);
+  saveAgentMemory(data);
+  res.json({ ok: true });
+});
+app.delete("/api/agent/memory", auth, (req, res) => {
+  saveAgentMemory({ rules: "", tasks: [], modifiedFiles: [], errors: [], decisions: [] });
+  res.json({ ok: true });
+});
+
+// ── Project Index ──
+app.get("/api/project/index", auth, (req, res) => {
+  const projId = req.query.project;
+  const base = projId ? (q("SELECT root FROM projects WHERE id=?", [projId])[0]?.root || PROJECT_ROOT) : PROJECT_ROOT;
+  const result = { root: base, folders: [], files: [], packageJson: null, routes: [], pages: [], components: [] };
+  function scan(p, depth = 0) {
+    if (depth > 5) return;
+    let entries;
+    try { entries = fs.readdirSync(p); } catch (e) { return; }
+    for (const e of entries) {
+      if (e.startsWith(".") || e === "node_modules" || e === "build" || e === "dist" || e === "__pycache__" || e === ".git" || e === "backups") continue;
+      const full = path.join(p, e), rel = path.relative(base, full).replace(/\\/g, "/");
+      try {
+        const stat = fs.statSync(full);
+        if (stat.isDirectory()) {
+          result.folders.push({ path: rel, name: e });
+          scan(full, depth + 1);
+        } else if (stat.isFile()) {
+          result.files.push({ path: rel, name: e, size: stat.size, ext: path.extname(e) });
+          const ext = path.extname(e).toLowerCase();
+          if (e === "package.json") result.packageJson = rel;
+          if (rel.startsWith("frontend/src/pages/") || rel.startsWith("src/pages/") || rel.endsWith("Page.js") || rel.endsWith("Page.jsx") || rel.endsWith("Page.tsx")) {
+            result.pages.push(rel);
+          }
+          if (rel.startsWith("frontend/src/components/") || rel.startsWith("src/components/") || rel.startsWith("components/")) {
+            if ([".js", ".jsx", ".ts", ".tsx"].includes(ext)) result.components.push(rel);
+          }
+          if (rel.includes("routes") || rel.includes("router")) {
+            if ([".js", ".jsx", ".ts", ".tsx"].includes(ext)) result.routes.push(rel);
+          }
+        }
+      } catch (e) {}
+    }
+  }
+  scan(base);
+  res.json(result);
+});
+
+// ── Agent Run Plan (full pipeline) ──
+app.post("/api/agent/run-plan", auth, async (req, res) => {
+  const { projectId, instruction, rules, provider, model } = req.body;
+  const proj = q("SELECT * FROM projects WHERE id=?", [projectId]);
+  const root = proj.length ? proj[0].root : PROJECT_ROOT;
+  const stack = detectStack(root);
+  const structure = summarizeStructure(root, 2);
+  const modelDef = getModelDef(model || AI_MODEL);
+  const tasks = [];
+
+  try {
+    // 1. Plan
+    tasks.push({ step: 1, desc: "Criando plano de execução", status: "running" });
+    const planPrompt = `You are Brane Agent. Create a detailed execution plan for:
+
+PROJECT: ${root}
+STACK: ${JSON.stringify(stack)}
+STRUCTURE: ${JSON.stringify(structure.slice(0, 30))}
+RULES: ${rules || "None"}
+
+TASK: ${instruction}
+
+Respond with JSON array. Each step: { "action": "edit"|"create"|"delete"|"command"|"done", "file": "relative/path", "description": "what to do", "details": "extra info" }`;
+    const planText = await callAI([{ role: "user", content: planPrompt }], { system: "Output ONLY valid JSON.", provider, model, json: true, maxTokens: 4096 });
+    const plan = JSON.parse(planText);
+    const steps = plan.steps || plan.plan || (Array.isArray(plan) ? plan : [plan]);
+    if (!Array.isArray(steps)) throw new Error("Plan did not return a steps array");
+    tasks.push({ step: 1, desc: `Plano criado: ${steps.length} passos`, status: "done" });
+
+    // 2. Execute each step
+    const modified = [];
+    for (let i = 0; i < steps.length; i++) {
+      const s = steps[i];
+      tasks.push({ step: i + 2, desc: `${s.action}: ${s.description}`, file: s.file, status: "running" });
+
+      if (s.action === "edit" || s.action === "create") {
+        const fp = path.join(root, s.file);
+        let existing = "";
+        if (fs.existsSync(fp)) existing = fs.readFileSync(fp, "utf-8");
+        const editPrompt = `${s.action === "create" ? "Create" : "Edit"} "${s.file}".
+
+TASK: ${s.description}
+${s.details ? `DETAILS: ${s.details}` : ""}
+
+Current:
+\`\`\`
+${existing || "(new)"}
+\`\`\`
+
+RULES: ${rules || "None"}
+
+Output ONLY the complete file content inside a code block.`;
+        const result = await callAI([{ role: "user", content: editPrompt }], { system: "Senior engineer. Output only file content in code block.", provider, model, maxTokens: 8192 });
+        let code = result;
+        const m = code.match(/```[\w]*\n([\s\S]*?)```/);
+        if (m) code = m[1];
+        const dir = path.dirname(fp);
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+        if (fs.existsSync(fp)) {
+          const backupDir = path.join(__dirname, "backups");
+          if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true });
+          fs.copyFileSync(fp, path.join(backupDir, path.basename(fp).replace(/[<>:"/\\|?*]/g, "_") + "." + Date.now() + ".bak"));
+        }
+        fs.writeFileSync(fp, code, "utf-8");
+        modified.push(s.file);
+        tasks.push({ step: i + 2, desc: `${s.file} ${s.action === "create" ? "criado" : "editado"}`, file: s.file, status: "done" });
+      } else if (s.action === "command") {
+        try {
+          const cmd = s.details || s.file;
+          execSync(cmd, { cwd: root, timeout: 60000, encoding: "utf-8" });
+          tasks.push({ step: i + 2, desc: `Comando executado: ${cmd.slice(0, 60)}`, file: s.file, status: "done" });
+        } catch (e) {
+          tasks.push({ step: i + 2, desc: `Comando falhou: ${e.message.slice(0, 100)}`, file: s.file, status: "failed" });
+        }
+      } else if (s.action === "done") {
+        tasks.push({ step: i + 2, desc: s.description, status: "done" });
+      }
+    }
+
+    // 3. Build
+    tasks.push({ step: steps.length + 2, desc: "Build", status: "running" });
+    let buildOk = false;
+    let buildOutput = "";
+    try {
+      const buildCwd = fs.existsSync(path.join(root, "package.json")) ? root : (fs.existsSync(path.join(root, "frontend", "package.json")) ? path.join(root, "frontend") : null);
+      if (buildCwd) {
+        buildOutput = execSync("npm run build 2>&1", { cwd: buildCwd, timeout: 180000, encoding: "utf-8" });
+        buildOk = true;
+        tasks.push({ step: steps.length + 2, desc: "Build OK", status: "done" });
+      } else {
+        tasks.push({ step: steps.length + 2, desc: "Nenhum build encontrado", status: "done" });
+        buildOk = true;
+      }
+    } catch (e) {
+      buildOutput = e.stdout || e.message || "";
+      tasks.push({ step: steps.length + 2, desc: "Build falhou", status: "failed" });
+    }
+
+    // 4. Auto-fix (up to 3 attempts)
+    if (!buildOk) {
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        const fixPrompt = `Build failed. Analyze and output JSON with fixes.
+
+BUILD: ${buildOutput.slice(0, 4000)}
+TASK: ${instruction}
+
+Output JSON: { "analysis": "...", "fixes": [{ "file": "...", "description": "...", "details": "..." }] }`;
+        try {
+          const fixText = await callAI([{ role: "user", content: fixPrompt }], { system: "Debugger. Output ONLY valid JSON.", provider, model, json: true, maxTokens: 4096 });
+          const fix = JSON.parse(fixText);
+          if (!fix.fixes || fix.fixes.length === 0) { tasks.push({ step: steps.length + 3, desc: "Auto-fix sem sugestões", status: "done" }); break; }
+          for (const f of fix.fixes) {
+            const fp = path.join(root, f.file);
+            if (fs.existsSync(fp)) {
+              const existing = fs.readFileSync(fp, "utf-8");
+              const fixEdit = `Fix "${f.file}": ${f.description}\n${f.details || ""}\n\nCurrent:\n\`\`\`\n${existing}\n\`\`\`\nOutput ONLY the fixed file.`;
+              const fixedCode = await callAI([{ role: "user", content: fixEdit }], { system: "Output file content in code block.", provider, model, maxTokens: 8192 });
+              let code = fixedCode;
+              const cm = code.match(/```[\w]*\n([\s\S]*?)```/);
+              if (cm) code = cm[1];
+              fs.writeFileSync(fp, code, "utf-8");
+              modified.push(f.file);
+            }
+          }
+          try {
+            const buildCwd2 = fs.existsSync(path.join(root, "package.json")) ? root : (fs.existsSync(path.join(root, "frontend", "package.json")) ? path.join(root, "frontend") : null);
+            if (buildCwd2) {
+              execSync("npm run build 2>&1", { cwd: buildCwd2, timeout: 180000, encoding: "utf-8" });
+              tasks.push({ step: steps.length + 3, desc: `Auto-fix tentativa ${attempt}: Build OK`, status: "done" });
+              buildOk = true;
+              break;
+            }
+          } catch (e2) { buildOutput = e2.stdout || e2.message || ""; }
+        } catch (e) { break; }
+      }
+    }
+
+    // 5. Update agent memory
+    const mem = loadAgentMemory();
+    mem.tasks.push({ instruction, timestamp: new Date().toISOString(), steps: steps.length, buildOk });
+    mem.modifiedFiles = [...new Set([...mem.modifiedFiles, ...modified])].slice(-100);
+    saveAgentMemory(mem);
+
+    // 6. Summary
+    res.json({
+      ok: buildOk,
+      steps: steps.length,
+      modifiedFiles: modified,
+      buildOk,
+      tasks,
+      summary: `✅ ${buildOk ? "Missão completa com build OK" : "Build falhou após correções"}`,
+      model: modelDef,
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message, tasks });
+  }
+});
+
 // ── Health ──
-app.get("/health", (req, res) => res.json({ ok: true, uptime: process.uptime() }));
+app.get("/health", (req, res) => res.json({ status: "ok" }));
 
 // ── Status ──
 app.get("/api/status", auth, (req, res) => {
