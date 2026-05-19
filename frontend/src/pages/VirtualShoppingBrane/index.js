@@ -5,7 +5,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { SSAOPass } from "three/addons/postprocessing/SSAOPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
-import "../styles/virtualShopping.css";
+import "./VirtualShoppingBrane.css";
 
 const WORLD = { size: 140, treeCount: 80, rockCount: 40 };
 
