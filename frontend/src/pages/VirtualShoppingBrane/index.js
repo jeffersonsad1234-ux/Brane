@@ -239,26 +239,37 @@ function makeTreePine(x, z, s) {
   const trunkM = mat(barkS, 0.9, 0);
   const folColors = [0x1a4a0a, 0x1a5a0a, 0x1a3a0a, 0x2a4a0a, 0x1a5a08, 0x2a5a0a];
   const folMs = folColors.map(c => mat(leafS, 0.85, 0, c));
-  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.055 * s, 0.1 * s, s, 7), trunkM);
-  trunk.position.y = 0.5 * s; trunk.castShadow = true; g.add(trunk);
-  const nLayers = 6 + Math.floor(Math.random() * 2);
-  for (let i = 0; i < nLayers; i++) {
-    const t = i / nLayers;
-    const yr = 0.55 + t * 0.55;
-    const rad = (0.45 - t * 0.2) * s * (0.9 + Math.random() * 0.1);
-    const height = (0.25 + (1 - t) * 0.12) * s;
-    const fol = new THREE.Mesh(new THREE.ConeGeometry(rad, height, 7), folMs[i % folMs.length]);
-    fol.position.y = yr * s;
-    fol.rotation.z = (Math.random() - 0.5) * 0.04;
-    fol.rotation.x = (Math.random() - 0.5) * 0.04;
+  // Trunk via LatheGeometry for organic profile
+  const trunkPts = [];
+  for (let j = 0; j <= 8; j++) {
+    const t2 = j / 8;
+    const r = (0.04 + t2 * 0.06) * s * (0.9 + Math.sin(j * 1.7) * 0.08 + Math.sin(j * 3.1) * 0.04);
+    trunkPts.push(new THREE.Vector2(r, t2 * s));
+  }
+  const trunk = new THREE.Mesh(new THREE.LatheGeometry(trunkPts, 8), trunkM);
+  trunk.position.y = s * 0.02; trunk.castShadow = true; g.add(trunk);
+  // Foliage using clusters of displaced icosahedrons
+  const nClusters = 8 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < nClusters; i++) {
+    const t = i / nClusters;
+    const yr = 0.35 + t * 0.6;
+    const rad = (0.15 + (1 - t) * 0.15) * s;
+    const fol = new THREE.Mesh(new THREE.IcosahedronGeometry(rad * (0.8 + Math.random() * 0.4), 0), folMs[i % folMs.length]);
+    fol.position.set(
+      (Math.random() - 0.5) * 0.08 * s,
+      yr * s,
+      (Math.random() - 0.5) * 0.08 * s
+    );
+    fol.scale.set(1, 0.8 + Math.random() * 0.4, 1);
     fol.castShadow = true; g.add(fol);
   }
-  for (let i = 0; i < 2 + Math.floor(Math.random() * 2); i++) {
-    const br = new THREE.Mesh(new THREE.CylinderGeometry(0.008 * s, 0.015 * s, 0.08 * s * (0.8 + Math.random() * 0.4), 4), trunkM);
+  // Small branch stubs
+  for (let i = 0; i < 3 + Math.floor(Math.random() * 2); i++) {
+    const br = new THREE.Mesh(new THREE.CylinderGeometry(0.006 * s, 0.012 * s, 0.06 * s, 4), trunkM.clone());
     const a = Math.random() * 6.28;
-    br.position.set(Math.cos(a) * 0.06 * s, 0.3 * s + Math.random() * 0.4 * s, Math.sin(a) * 0.06 * s);
-    br.rotation.z = Math.cos(a) * (0.3 + Math.random() * 0.4);
-    br.rotation.x = Math.sin(a) * (0.3 + Math.random() * 0.4);
+    br.position.set(Math.cos(a) * 0.04 * s, 0.25 * s + Math.random() * 0.35 * s, Math.sin(a) * 0.04 * s);
+    br.rotation.z = Math.cos(a) * (0.3 + Math.random() * 0.5);
+    br.rotation.x = Math.sin(a) * (0.3 + Math.random() * 0.5);
     g.add(br);
   }
   g.position.set(x, 0, z); g.rotation.y = Math.random() * 6.28;
@@ -279,6 +290,62 @@ function makeTreeDead(x, z, s) {
   }
   g.position.set(x, 0, z);
   return g;
+}
+
+function makeBarrel(x, z) {
+  const g = new THREE.Group();
+  const barrelM = new THREE.MeshStandardMaterial({ color: 0x4a3a2a + Math.floor(Math.random() * 0x002200), roughness: 0.85 });
+  const barrelM2 = new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.9 });
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 0.14, 10, 1, true), barrelM);
+  body.position.y = 0.07; body.castShadow = true; g.add(body);
+  // Bands
+  for (let s of [-1, 1]) {
+    const band = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.006, 5, 10), barrelM2);
+    band.position.set(0, 0.07 + s * 0.045, 0); band.rotation.x = Math.PI / 2; g.add(band);
+  }
+  g.position.set(x, 0.02, z); g.rotation.y = Math.random() * 6.28;
+  return g;
+}
+
+function makeCrate(x, z) {
+  const crateM = new THREE.MeshStandardMaterial({ color: 0x5a4a2a + Math.floor(Math.random() * 0x001a00), roughness: 0.9 });
+  const crateM2 = new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.9 });
+  const g = new THREE.Group();
+  const box = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.1, 0.12), crateM);
+  box.position.y = 0.05; box.castShadow = true; box.receiveShadow = true; g.add(box);
+  // Planks
+  for (let d of [-1, 1]) {
+    const plank = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.008, 0.008), crateM2);
+    plank.position.set(0, 0.015 + Math.random() * 0.01, d * 0.06); g.add(plank);
+    const plank2 = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.008, 0.12), crateM2);
+    plank2.position.set(d * 0.06, 0.015 + Math.random() * 0.01, 0); g.add(plank2);
+  }
+  g.position.set(x, 0, z); g.rotation.y = Math.random() * 6.28;
+  return g;
+}
+
+function makeTrashPile(x, z) {
+  const g = new THREE.Group();
+  const trashM = new THREE.MeshStandardMaterial({ color: 0x4a4a3a + Math.floor(Math.random() * 0x002020), roughness: 0.95 });
+  for (let i = 0; i < 3 + Math.floor(Math.random() * 3); i++) {
+    const item = new THREE.Mesh(
+      Math.random() > 0.5 ? new THREE.SphereGeometry(0.02 + Math.random() * 0.03, 4, 4) : new THREE.BoxGeometry(0.03 + Math.random() * 0.04, 0.01 + Math.random() * 0.02, 0.03 + Math.random() * 0.04),
+      trashM
+    );
+    item.position.set((Math.random() - 0.5) * 0.15, 0.005 + Math.random() * 0.02, (Math.random() - 0.5) * 0.15);
+    item.rotation.set(Math.random() * 0.5, Math.random() * 6.28, Math.random() * 0.5);
+    g.add(item);
+  }
+  g.position.set(x, 0, z);
+  return g;
+}
+
+function makeTire(x, z) {
+  const tireM = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.95 });
+  const tire = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.025, 6, 8), tireM);
+  tire.position.set(x, 0.04, z);
+  tire.rotation.x = Math.PI / 2; tire.rotation.z = (Math.random() - 0.5) * 0.3;
+  return tire;
 }
 
 function makeBuildingAbandoned(p) {
@@ -306,6 +373,13 @@ function makeBuildingAbandoned(p) {
     const chim = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.25, 0.08), new THREE.MeshStandardMaterial({ color: 0x6a5a4a, roughness: 0.9 }));
     chim.position.set(0.3, h + 0.08, 0.3); g.add(chim);
   }
+  // Door
+  const doorM = new THREE.MeshStandardMaterial({ color: 0x4a3a2a, roughness: 0.85 });
+  const doorFrameM = new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.9 });
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.02), doorM);
+  door.position.set(0, 0.12, p.d / 2 + 0.01); g.add(door);
+  const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.22, 0.03), doorFrameM);
+  doorFrame.position.set(0, 0.12, p.d / 2 + 0.005); g.add(doorFrame);
   const winTex = windowDarkTex();
   const winMat = new THREE.MeshStandardMaterial({ map: winTex, transparent: true, opacity: 0.6, roughness: 0.1, metalness: 0.05, color: 0x111122 });
   const frameMat2 = new THREE.MeshStandardMaterial({ color: 0x2a2a32, roughness: 0.8, metalness: 0.1 });
@@ -504,57 +578,93 @@ function makeCharacter() {
   const bootM = new THREE.MeshStandardMaterial({ color: 0x2a2a1a, roughness: 0.9 });
   const bagS = getTex("bag", () => pbrTex(64, 64, 85, 70, 55, 12, 1, { scratchCount: 10, normalStrength: 1.8, contrast: 0.9, seed: 510 }));
   const bagM = mat(bagS, 0.85, 0.02, 0x5a4a3a);
+  const beltM = new THREE.MeshStandardMaterial({ color: 0x2a1a0a, roughness: 0.85 });
   const hairM = new THREE.MeshStandardMaterial({ color: 0x2a1a0a, roughness: 0.9 });
   const parts = {};
-  // Head with more detail
-  parts.head = new THREE.Mesh(new THREE.SphereGeometry(0.19, 14, 14), skinM);
-  parts.head.position.y = 1.64; parts.head.castShadow = true; g.add(parts.head);
-  const hair = new THREE.Mesh(new THREE.SphereGeometry(0.115, 10, 10, 0, 6.28, 0, 1.2), hairM);
-  hair.position.set(0, 1.75, 0.04); hair.scale.set(1.6, 0.5, 1.2); g.add(hair);
-  parts.neck = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.085, 0.07, 8), skinM);
-  parts.neck.position.y = 1.48; g.add(parts.neck);
-  parts.chest = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.32, 0.24), jacketM);
-  parts.chest.position.set(0, 1.18, 0); parts.chest.castShadow = true; g.add(parts.chest);
-  parts.hips = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.18, 0.2), pantsM);
-  parts.hips.position.set(0, 0.92, 0); g.add(parts.hips);
+  // ── Head (16 seg sphere) ──
+  parts.head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 14), skinM);
+  parts.head.position.y = 1.65; parts.head.castShadow = true; g.add(parts.head);
+  // Hair (hemisphere cap)
+  const hair = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 10, 0, 6.28, 0, 1.2), hairM);
+  hair.position.set(0, 1.77, 0.04); hair.scale.set(1.5, 0.5, 1.15); g.add(hair);
+  // Eyes
+  const eyeM = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.1 });
+  [-0.075, 0.075].forEach(s => {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 8), eyeM);
+    eye.position.set(s, 1.69, -0.185); g.add(eye);
+  });
+  // Nose bridge
+  const noseM = new THREE.MeshStandardMaterial({ color: 0xc49a6a, roughness: 0.6 });
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.045, 5), noseM);
+  nose.position.set(0, 1.63, -0.195); nose.rotation.x = 0.35; g.add(nose);
+  // Neck (8 seg)
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.09, 0.08, 10), skinM);
+  neck.position.y = 1.48; g.add(neck);
+  // ── Torso: organic scaled spheres ──
+  const chest = new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 12), jacketM);
+  chest.position.set(0, 1.18, 0); chest.scale.set(1.85, 1.25, 0.95); chest.castShadow = true; g.add(chest);
+  parts.chest = chest;
+  parts.hips = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 10), pantsM);
+  parts.hips.position.set(0, 0.9, 0); parts.hips.scale.set(1.75, 0.85, 0.9); g.add(parts.hips);
+  // Collar (sweater neck)
   const collarM = new THREE.MeshStandardMaterial({ color: 0x3a4a2a, roughness: 0.8 });
-  const collar = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.04, 0.06), collarM);
-  collar.position.set(0, 1.35, -0.13); g.add(collar);
-  // Backpack with more shape
-  parts.bag = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.3, 0.16), bagM);
-  parts.bag.position.set(0, 1.18, -0.19); g.add(parts.bag);
-  const bagStrap = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.28, 0.01), new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.9 }));
-  bagStrap.position.set(0.15, 1.16, -0.18); bagStrap.rotation.z = -0.1; g.add(bagStrap);
-  const bagStrap2 = bagStrap.clone(); bagStrap2.position.x = -0.15; bagStrap2.rotation.z = 0.1; g.add(bagStrap2);
-  parts.leftUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.22, 7), jacketM);
-  parts.leftUpperArm.position.set(-0.29, 1.2, 0); parts.leftUpperArm.castShadow = true; g.add(parts.leftUpperArm);
-  parts.rightUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.22, 7), jacketM);
-  parts.rightUpperArm.position.set(0.29, 1.2, 0); parts.rightUpperArm.castShadow = true; g.add(parts.rightUpperArm);
-  parts.leftForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.035, 0.2, 7), jacketM);
-  parts.leftForearm.position.set(-0.33, 0.99, 0); g.add(parts.leftForearm);
-  parts.rightForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.035, 0.2, 7), jacketM);
-  parts.rightForearm.position.set(0.33, 0.99, 0); g.add(parts.rightForearm);
-  parts.leftHand = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 6), skinM);
-  parts.leftHand.position.set(-0.35, 0.8, 0); g.add(parts.leftHand);
-  parts.rightHand = new THREE.Mesh(new THREE.SphereGeometry(0.035, 6, 6), skinM);
-  parts.rightHand.position.set(0.35, 0.8, 0); g.add(parts.rightHand);
-  parts.leftThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.055, 0.32, 7), pantsM);
-  parts.leftThigh.position.set(-0.13, 0.65, 0); parts.leftThigh.castShadow = true; g.add(parts.leftThigh);
-  parts.rightThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.055, 0.32, 7), pantsM);
-  parts.rightThigh.position.set(0.13, 0.65, 0); parts.rightThigh.castShadow = true; g.add(parts.rightThigh);
-  parts.leftCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.3, 7), pantsM);
-  parts.leftCalf.position.set(-0.13, 0.34, 0); g.add(parts.leftCalf);
-  parts.rightCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.3, 7), pantsM);
-  parts.rightCalf.position.set(0.13, 0.34, 0); g.add(parts.rightCalf);
-  parts.leftFoot = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.04, 0.14), bootM);
-  parts.leftFoot.position.set(-0.13, 0.015, 0.035); g.add(parts.leftFoot);
-  parts.rightFoot = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.04, 0.14), bootM);
-  parts.rightFoot.position.set(0.13, 0.015, 0.035); g.add(parts.rightFoot);
-  // Shoulder pads
-  const padM = new THREE.MeshStandardMaterial({ color: 0x3a4a2a, roughness: 0.85 });
-  [-1, 1].forEach(s => {
-    const pad = new THREE.Mesh(new THREE.SphereGeometry(0.05, 5, 4, 0, 6.28, 0, 0.6), padM);
-    pad.position.set(s * 0.28, 1.32, 0); pad.scale.set(1, 0.7, 1.3); g.add(pad);
+  const collar = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.025, 6, 10), collarM);
+  collar.position.set(0, 1.37, 0.01); collar.rotation.x = 0.2; collar.scale.set(1.3, 1, 0.8); g.add(collar);
+  // Belt
+  const belt = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.015, 5, 10), beltM);
+  belt.position.set(0, 0.95, 0.02); belt.rotation.x = 0.1; belt.scale.set(1.2, 0.7, 1); g.add(belt);
+  // ── Backpack with pouches ──
+  parts.bag = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 8), bagM);
+  parts.bag.position.set(0, 1.18, -0.19); parts.bag.scale.set(1.6, 1.6, 1); g.add(parts.bag);
+  // Top pouch
+  const pouch = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 5), bagM);
+  pouch.position.set(0, 1.34, -0.21); pouch.scale.set(1.8, 0.7, 1); g.add(pouch);
+  // Straps
+  const strapM = new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.9 });
+  for (let s of [-0.14, 0.14]) {
+    const strap = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.01, 0.3, 5), strapM);
+    strap.position.set(s, 1.16, -0.17); strap.rotation.z = s > 0 ? -0.12 : 0.12; strap.rotation.x = 0.1; g.add(strap);
+  }
+  // ── Arms (scaled cylinders, 8 seg) ──
+  parts.leftUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.22, 8), jacketM);
+  parts.leftUpperArm.position.set(-0.3, 1.2, 0); parts.leftUpperArm.castShadow = true; g.add(parts.leftUpperArm);
+  parts.rightUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.22, 8), jacketM);
+  parts.rightUpperArm.position.set(0.3, 1.2, 0); parts.rightUpperArm.castShadow = true; g.add(parts.rightUpperArm);
+  // Shoulder joint spheres
+  const shM = new THREE.MeshStandardMaterial({ color: 0x3a4a2a, roughness: 0.85 });
+  [-0.3, 0.3].forEach(s => {
+    const sh = new THREE.Mesh(new THREE.SphereGeometry(0.045, 6, 6), shM);
+    sh.position.set(s, 1.3, 0); g.add(sh);
+  });
+  parts.leftForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.035, 0.2, 8), jacketM);
+  parts.leftForearm.position.set(-0.34, 0.99, 0); g.add(parts.leftForearm);
+  parts.rightForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.035, 0.2, 8), jacketM);
+  parts.rightForearm.position.set(0.34, 0.99, 0); g.add(parts.rightForearm);
+  parts.leftHand = new THREE.Mesh(new THREE.SphereGeometry(0.035, 7, 7), skinM);
+  parts.leftHand.position.set(-0.36, 0.8, 0); g.add(parts.leftHand);
+  parts.rightHand = new THREE.Mesh(new THREE.SphereGeometry(0.035, 7, 7), skinM);
+  parts.rightHand.position.set(0.36, 0.8, 0); g.add(parts.rightHand);
+  // ── Legs (scaled cylinders, 8 seg) ──
+  parts.leftThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.058, 0.3, 8), pantsM);
+  parts.leftThigh.position.set(-0.14, 0.65, 0); parts.leftThigh.castShadow = true; g.add(parts.leftThigh);
+  parts.rightThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.058, 0.3, 8), pantsM);
+  parts.rightThigh.position.set(0.14, 0.65, 0); parts.rightThigh.castShadow = true; g.add(parts.rightThigh);
+  parts.leftCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.28, 8), pantsM);
+  parts.leftCalf.position.set(-0.14, 0.34, 0); g.add(parts.leftCalf);
+  parts.rightCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 0.28, 8), pantsM);
+  parts.rightCalf.position.set(0.14, 0.34, 0); g.add(parts.rightCalf);
+  // Knee joint spheres
+  const kneeM = new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.85 });
+  [-0.14, 0.14].forEach(s => {
+    const knee = new THREE.Mesh(new THREE.SphereGeometry(0.025, 5, 5), kneeM);
+    knee.position.set(s, 0.5, 0.02); g.add(knee);
+  });
+  // Boots with more shape
+  [-0.14, 0.14].forEach((s, i) => {
+    const boot = new THREE.Mesh(new THREE.SphereGeometry(0.03, 7, 6), bootM);
+    boot.position.set(s, 0.015, 0.04); boot.scale.set(1.5, 0.8, 2.2); g.add(boot);
+    const bootTop = new THREE.Mesh(new THREE.CylinderGeometry(0.032, 0.04, 0.05, 7), bootM);
+    bootTop.position.set(s, 0.05, 0.02); g.add(bootTop);
   });
   return { group: g, parts };
 }
@@ -581,9 +691,8 @@ function animateChar(parts, speed, delta, isMoving, isRunning) {
     parts.chest.position.z = Math.sin(t * freq) * 0.025;
     parts.head.position.z = Math.sin(t * freq) * 0.016;
     parts.chest.position.y = 1.18 + Math.abs(Math.sin(t * freq)) * 0.006;
-    parts.head.position.y = 1.64 + Math.abs(Math.sin(t * freq)) * 0.004;
+    parts.head.position.y = 1.65 + Math.abs(Math.sin(t * freq)) * 0.004;
     parts.chest.rotation.z = Math.sin(t * freq * 0.5) * 0.015;
-    parts.hips.rotation.z = -Math.sin(t * freq * 0.5) * 0.01;
     // Arm swing
     parts.leftUpperArm.rotation.z = isRunning ? 0.15 : 0.05;
     parts.rightUpperArm.rotation.z = isRunning ? -0.15 : -0.05;
@@ -594,9 +703,8 @@ function animateChar(parts, speed, delta, isMoving, isRunning) {
     parts.chest.position.z *= 0.95;
     parts.head.position.z *= 0.95;
     parts.chest.rotation.z *= 0.95;
-    parts.hips.rotation.z *= 0.95;
     parts.chest.position.y = 1.18 + Math.sin(t * 2) * 0.003;
-    parts.head.position.y = 1.64 + Math.sin(t * 2) * 0.002;
+    parts.head.position.y = 1.65 + Math.sin(t * 2) * 0.002;
     // Breathing
     parts.chest.scale.y = 1 + Math.sin(t * 1.8) * 0.004;
   }
@@ -612,34 +720,45 @@ function makeEnemy(pos) {
   const ragM = mat(ragS, 0.9, 0, 0x2a2a1a);
   const eyeM = new THREE.MeshBasicMaterial({ color: 0xff2200 });
   const parts = {};
-  parts.head = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), zSkinM);
+  // Organic head (10 seg)
+  parts.head = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 10), zSkinM);
   parts.head.position.y = 1.55; parts.head.castShadow = true; g.add(parts.head);
-  parts.neck = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.05, 5), zSkinM);
-  parts.neck.position.y = 1.42; g.add(parts.neck);
-  parts.chest = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.25, 0.2), ragM);
-  parts.chest.position.set(0, 1.12, 0); parts.chest.castShadow = true; g.add(parts.chest);
-  parts.hips = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.15, 0.18), ragM);
-  parts.hips.position.set(0, 0.88, 0); g.add(parts.hips);
-  parts.leftUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.18, 5), ragM);
-  parts.leftUpperArm.position.set(-0.24, 1.14, 0); g.add(parts.leftUpperArm);
-  parts.rightUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.18, 5), ragM);
-  parts.rightUpperArm.position.set(0.24, 1.14, 0); g.add(parts.rightUpperArm);
-  parts.leftForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.16, 5), ragM);
-  parts.leftForearm.position.set(-0.27, 0.96, 0); g.add(parts.leftForearm);
-  parts.rightForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.16, 5), ragM);
-  parts.rightForearm.position.set(0.27, 0.96, 0); g.add(parts.rightForearm);
-  parts.leftThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.045, 0.25, 5), ragM);
-  parts.leftThigh.position.set(-0.1, 0.62, 0); g.add(parts.leftThigh);
-  parts.rightThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.045, 0.25, 5), ragM);
-  parts.rightThigh.position.set(0.1, 0.62, 0); g.add(parts.rightThigh);
-  parts.leftCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.24, 5), ragM);
-  parts.leftCalf.position.set(-0.1, 0.35, 0); g.add(parts.leftCalf);
-  parts.rightCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.24, 5), ragM);
-  parts.rightCalf.position.set(0.1, 0.35, 0); g.add(parts.rightCalf);
-  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.025, 5, 5), eyeM);
-  eyeL.position.set(-0.08, 1.6, -0.14); g.add(eyeL);
-  const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.025, 5, 5), eyeM);
-  eyeR.position.set(0.08, 1.6, -0.14); g.add(eyeR);
+  // Red eyes
+  [-0.07, 0.07].forEach(s => {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.025, 6, 6), eyeM);
+    eye.position.set(s, 1.6, -0.15); g.add(eye);
+  });
+  // Neck
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, 0.06, 7), zSkinM);
+  neck.position.y = 1.42; g.add(neck);
+  // Torso: organic scaled spheres
+  parts.chest = new THREE.Mesh(new THREE.SphereGeometry(0.19, 10, 9), ragM);
+  parts.chest.position.set(0, 1.12, 0); parts.chest.scale.set(1.7, 1.15, 0.9); parts.chest.castShadow = true; g.add(parts.chest);
+  parts.hips = new THREE.Mesh(new THREE.SphereGeometry(0.15, 9, 8), ragM);
+  parts.hips.position.set(0, 0.86, 0); parts.hips.scale.set(1.6, 0.8, 0.85); g.add(parts.hips);
+  // Arms (8 seg)
+  parts.leftUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.18, 8), ragM);
+  parts.leftUpperArm.position.set(-0.25, 1.14, 0); g.add(parts.leftUpperArm);
+  parts.rightUpperArm = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.18, 8), ragM);
+  parts.rightUpperArm.position.set(0.25, 1.14, 0); g.add(parts.rightUpperArm);
+  parts.leftForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.16, 8), ragM);
+  parts.leftForearm.position.set(-0.28, 0.96, 0); g.add(parts.leftForearm);
+  parts.rightForearm = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.16, 8), ragM);
+  parts.rightForearm.position.set(0.28, 0.96, 0); g.add(parts.rightForearm);
+  // Hands
+  [-0.29, 0.29].forEach((s, i) => {
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.025, 5, 5), zSkinM);
+    hand.position.set(s, 0.79, 0); g.add(hand);
+  });
+  // Legs (8 seg)
+  parts.leftThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.045, 0.25, 8), ragM);
+  parts.leftThigh.position.set(-0.11, 0.62, 0); g.add(parts.leftThigh);
+  parts.rightThigh = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.045, 0.25, 8), ragM);
+  parts.rightThigh.position.set(0.11, 0.62, 0); g.add(parts.rightThigh);
+  parts.leftCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.24, 8), ragM);
+  parts.leftCalf.position.set(-0.11, 0.35, 0); g.add(parts.leftCalf);
+  parts.rightCalf = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.04, 0.24, 8), ragM);
+  parts.rightCalf.position.set(0.11, 0.35, 0); g.add(parts.rightCalf);
   g.position.set(pos.x, 0, pos.z);
   return { group: g, parts };
 }
@@ -744,6 +863,14 @@ function buildWorld(scene) {
     if (!BUILDINGS.some(b => Math.hypot(x - b.x, z - b.z) < 2.5)) scene.add(makeDebrisPile(x, z, 0.3 + Math.random() * 0.6));
   }
   addGroundDetails(scene, terrain.hf, terrain.mesh);
+  // Survival props
+  [[-16, -10], [14, -18], [-6, 16], [20, 8], [-22, -4], [10, 16], [-18, 20], [4, -18]].forEach(p => scene.add(makeBarrel(p[0], p[1])));
+  [[-14, -18], [18, 10], [-8, 20], [6, -14], [-20, 12], [12, -20], [-4, -6], [16, -10]].forEach(p => scene.add(makeCrate(p[0], p[1])));
+  [[-20, -16], [16, 16], [-12, 22], [22, -6], [-22, 8], [2, -14], [14, 14], [-10, -18]].forEach(p => scene.add(makeTrashPile(p[0], p[1])));
+  for (let i = 0; i < 8; i++) {
+    const x = (Math.random() - 0.5) * WORLD.size * 0.65, z = (Math.random() - 0.5) * WORLD.size * 0.65;
+    if (!BUILDINGS.some(b => Math.hypot(x - b.x, z - b.z) < 2.5)) scene.add(makeTire(x, z));
+  }
   [[-18, -14], [18, -14], [-18, 14], [18, 14], [-2, -20], [20, -2], [-20, 6], [6, 20]].forEach(p => scene.add(makePowerPole(p[0], p[1])));
   [[-4, -6], [8, -2], [-10, 4], [6, 10], [-6, -14], [14, -8]].forEach(p => scene.add(makeLampPost(p[0], p[1])));
   [[-6, -6, 0.3], [4, 6, -0.6], [-12, 14, 1.2], [12, -6, -0.3], [-20, -8, 0.8], [8, -14, -0.5]].forEach(c => scene.add(makeDestroyedCar(c[0], c[1], c[2])));
