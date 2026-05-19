@@ -22,16 +22,9 @@ const LOCAL_MODEL_URL = process.env.LOCAL_MODEL_URL || "http://localhost:11434/a
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 const MODEL_DEFS = {
-  "deepseek/deepseek-chat":       { provider: "openrouter", label: "DeepSeek Chat",      mode: "cheap",   cost: "barato" },
-  "anthropic/claude-3-haiku":     { provider: "openrouter", label: "Claude 3 Haiku",    mode: "fast",    cost: "barato" },
-  "openai/gpt-4o":                { provider: "openrouter", label: "GPT-4o",             mode: "powerful",cost: "medio" },
-  "openai/gpt-4o-mini":           { provider: "openrouter", label: "GPT-4o Mini",        mode: "cheap",   cost: "barato" },
-  "google/gemini-2.0-flash-001":  { provider: "openrouter", label: "Gemini Flash",       mode: "fast",    cost: "barato" },
-  "deepseek/deepseek-coder":     { provider: "openrouter", label: "DeepSeek Coder",     mode: "cheap",   cost: "barato" },
-  "gpt-4o":                       { provider: "openai",     label: "GPT-4o (OpenAI)",    mode: "powerful",cost: "medio" },
-  "gpt-4o-mini":                  { provider: "openai",     label: "GPT-4o Mini (OpenAI)",mode: "cheap",  cost: "barato" },
-  "llama3.1":                     { provider: "ollama",     label: "Llama 3.1 (Local)",  mode: "local",   cost: "gratis" },
-  "codellama":                    { provider: "ollama",     label: "CodeLlama (Local)",  mode: "local",   cost: "gratis" },
+  "deepseek/deepseek-chat":      { provider: "openrouter", label: "DeepSeek Chat",      mode: "cheap",   cost: "barato" },
+  "openai/gpt-4o-mini":          { provider: "openrouter", label: "GPT-4o Mini",        mode: "cheap",   cost: "barato" },
+  "google/gemini-flash-1.5":     { provider: "openrouter", label: "Gemini Flash 1.5",   mode: "fast",    cost: "barato" },
 };
 
 function getModelDef(model) {
@@ -113,6 +106,11 @@ app.use(cors({ origin: ["http://localhost:3000", "http://localhost:3001", "https
 app.use(express.json({ limit: "10mb" }));
 app.use(morgan("dev"));
 app.use(rateLimit({ windowMs: 60 * 1000, max: 300 }));
+
+// ── Health check ──
+app.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
 
 // ── Database ──
 let db;

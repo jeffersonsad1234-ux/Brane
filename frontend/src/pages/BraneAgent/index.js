@@ -3,12 +3,18 @@ import "./BraneAgent.css";
 
 const API = process.env.REACT_APP_AGENT_API || "http://localhost:3200";
 let PASSWORD = sessionStorage.getItem("ba_pwd") || "";
+const ALLOWED_MODELS = ["deepseek/deepseek-chat", "openai/gpt-4o-mini", "google/gemini-flash-1.5"];
 
 function headers() { return { "Content-Type": "application/json", "x-agent-password": PASSWORD }; }
 async function api(method, path, body) {
   const opts = { method, headers: headers() };
   if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(`${API}${path}`, opts);
+  let r;
+  try {
+    r = await fetch(`${API}${path}`, opts);
+  } catch (e) {
+    throw new Error(`Falha de conexão com o agente: ${e.message}`);
+  }
   if (r.status === 401) { sessionStorage.removeItem("ba_pwd"); window.location.reload(); }
   return r.json();
 }
@@ -98,6 +104,8 @@ export default function BraneAgent() {
   const [modelData, setModelData] = useState(null);
   const [selectedModel, setSelectedModel] = useState(null);
   const [selectedProvider, setSelectedProvider] = useState(null);
+  const [apiConnected, setApiConnected] = useState(null);
+  const [apiConnectError, setApiConnectError] = useState("");
   const [confirm, setConfirm] = useState(null);
 
   const chatRef = useRef(null);
@@ -106,11 +114,40 @@ export default function BraneAgent() {
   useEffect(() => { if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight; }, [msgs]);
   useEffect(() => { if (termRef.current) termRef.current.scrollTop = termRef.current.scrollHeight; }, [termOut]);
 
+  useEffect(() => {
+    async function checkHealth() {
+      try {
+        const res = await fetch(`${API}/health`);
+        const data = await res.json();
+        if (res.ok && data?.status === "ok") {
+          setApiConnected(true);
+          setApiConnectError("");
+        } else {
+          throw new Error(data?.error || "Health check failed");
+        }
+      } catch (err) {
+        setApiConnected(false);
+        setApiConnectError(err.message);
+      }
+    }
+    checkHealth();
+  }, []);
+
   // ── Init ──
   useEffect(() => {
     if (!loggedIn) return;
     api("GET", "/api/status").then(d => { setStatus(d); setProjects(d.projects || []); if (d.projects?.length && !projectId) switchProject(d.projects[0].id); });
-    api("GET", "/api/models").then(d => { setModelData(d); if (d.current) { setSelectedModel(d.current.model); setSelectedProvider(d.current.provider); } });
+    api("GET", "/api/models").then(d => {
+      setModelData(d);
+      const selected = d?.current?.model;
+      if (ALLOWED_MODELS.includes(selected)) {
+        setSelectedModel(selected);
+        setSelectedProvider(d.current.provider);
+      } else {
+        setSelectedModel("deepseek/deepseek-chat");
+        setSelectedProvider("openrouter");
+      }
+    });
   }, [loggedIn]);
 
   function switchProject(id) {
@@ -353,6 +390,15 @@ export default function BraneAgent() {
   }
 
   // ── Login Screen ──
+  if (apiConnected === null || apiConnected === false) return (
+    <div className="ba-root"><div className="ba-login">
+      <div className="ba-login-icon">⬡</div>
+      <div className="ba-login-title">Conectando ao agente...</div>
+      <div className="ba-login-sub">Aguarde enquanto a API do Brane Agent responde.</div>
+      {apiConnected === false && <div className="ba-login-err">Erro: {apiConnectError || "Não foi possível conectar"}<br />Verifique se o backend está rodando em {API}</div>}
+    </div></div>
+  );
+
   if (!loggedIn) return (
     <div className="ba-root"><div className="ba-login">
       <div className="ba-login-icon">⬡</div>
@@ -381,8 +427,10 @@ export default function BraneAgent() {
         <select className="ba-top-select ba-model-select" value={selectedModel || ""} onChange={e => switchModel(e.target.value)}>
           {modelData?.grouped && Object.entries(modelData.grouped).map(([mode, models]) => {
             const labels = { powerful: "⚡ Poderoso", fast: "🚀 Rápido", cheap: "💰 Barato", local: "💻 Local" };
+            const filtered = models.filter(m => ALLOWED_MODELS.includes(m.id));
+            if (!filtered.length) return null;
             return <optgroup key={mode} label={labels[mode] || mode}>
-              {models.map(m => <option key={m.id} value={m.id}>{m.label} {m.cost === "gratis" ? "(grátis)" : ""}</option>)}
+              {filtered.map(m => <option key={m.id} value={m.id}>{m.label} {m.cost === "gratis" ? "(grátis)" : ""}</option>)}
             </optgroup>;
           })}
         </select>

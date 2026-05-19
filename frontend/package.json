@@ -69,8 +69,8 @@
     "zod": "^3.24.4"
   },
   "scripts": {
-    "start": "craco start",
-    "start:agent": "craco start & echo 'ℹ️  Brane Agent disponível em: http://localhost:3000/agente'",
+    "start": "cross-env PORT=3001 REACT_APP_AGENT_API=http://localhost:3200 craco start",
+    "start:agent": "cross-env PORT=3001 REACT_APP_AGENT_API=http://localhost:3200 craco start",
     "build": "cross-env CI=false DISABLE_ESLINT_PLUGIN=true SKIP_PREFLIGHT_CHECK=true craco build",
     "test": "craco test",
     "cap:init": "npx cap init \"B Livre\" com.blivre.app --web-dir build",
