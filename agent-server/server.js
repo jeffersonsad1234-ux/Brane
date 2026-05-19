@@ -17,12 +17,12 @@ const AGENT_PASSWORD = process.env.AGENT_PASSWORD || "admin123";
 
 // ── Provider / Model config ──
 const AI_PROVIDER = process.env.AI_PROVIDER || "openrouter";
-const AI_MODEL = process.env.AI_MODEL || "anthropic/claude-3.5-sonnet";
+const AI_MODEL = process.env.AI_MODEL || "deepseek/deepseek-chat";
 const LOCAL_MODEL_URL = process.env.LOCAL_MODEL_URL || "http://localhost:11434/api/generate";
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 const MODEL_DEFS = {
-  "anthropic/claude-3.5-sonnet":  { provider: "openrouter", label: "Claude 3.5 Sonnet", mode: "powerful", cost: "medio" },
+  "deepseek/deepseek-chat":       { provider: "openrouter", label: "DeepSeek Chat",      mode: "cheap",   cost: "barato" },
   "anthropic/claude-3-haiku":     { provider: "openrouter", label: "Claude 3 Haiku",    mode: "fast",    cost: "barato" },
   "openai/gpt-4o":                { provider: "openrouter", label: "GPT-4o",             mode: "powerful",cost: "medio" },
   "openai/gpt-4o-mini":           { provider: "openrouter", label: "GPT-4o Mini",        mode: "cheap",   cost: "barato" },
