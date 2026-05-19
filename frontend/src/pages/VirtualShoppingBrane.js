@@ -565,33 +565,19 @@ export default function VirtualShoppingBrane() {
           }
         });
 
-        // Camera
-        const camDist = run ? 5.5 : 4.5;
-        const camH = run ? 2.5 : 2.2;
-        const camBase = new THREE.Vector3(
-          charPos.current.x + Math.sin(charRot.current) * 0,
-          camH,
-          charPos.current.z + camDist
+        // Camera — true 360° third-person orbit via pointer lock
+        const dist = run ? 5.5 : 4.5;
+        const angle = mouseX.current;
+        const vert = Math.max(-0.35, Math.min(0.7, mouseY.current * 0.45));
+        const targetPos = new THREE.Vector3(
+          charPos.current.x + Math.sin(angle) * dist * Math.cos(vert),
+          charPos.current.y + 1.5 + Math.sin(vert) * dist,
+          charPos.current.z + Math.cos(angle) * dist * Math.cos(vert)
         );
-        // Mouse orbit offset
-        const orbitAngle = mouseX.current;
-        const orbitVert = mouseY.current * 0.5;
-        const orbitOffset = new THREE.Vector3(
-          Math.sin(orbitAngle) * camDist * 0.3,
-          orbitVert * 1.5,
-          Math.cos(orbitAngle) * 0
-        );
-        const targetPos = camBase.clone().add(orbitOffset);
-        camPos.current.lerp(targetPos, delta * 5);
+        camPos.current.lerp(targetPos, delta * 8);
 
-        const lookTarget = new THREE.Vector3(charPos.current.x, 1.2 + orbitVert * 0.5, charPos.current.z);
-        camLook.current.lerp(lookTarget, delta * 5);
-
-        // Camera shake
-        if (shakeAmt.current > 0.001) {
-          camPos.current.x += (Math.random() - 0.5) * shakeAmt.current;
-          camPos.current.y += (Math.random() - 0.5) * shakeAmt.current;
-        }
+        const lookTarget = new THREE.Vector3(charPos.current.x, 1.0 + vert * 0.5, charPos.current.z);
+        camLook.current.lerp(lookTarget, delta * 8);
 
         camera.position.copy(camPos.current);
         camera.lookAt(camLook.current);
@@ -601,18 +587,16 @@ export default function VirtualShoppingBrane() {
         camera.fov += (targetFov.current - camera.fov) * delta * 3;
         camera.updateProjectionMatrix();
 
-        // Day/night
-        const hour = (t * 0.3) % 24;
-        const dayF = Math.max(0.05, Math.min(1, Math.sin((hour - 6) * Math.PI / 12)));
-        sun.intensity = dayF * 1.2 + 0.05;
-        ambient.intensity = dayF * 0.2 + 0.05;
-        hemi.intensity = dayF * 0.3 + 0.03;
-        const sky = new THREE.Color(0x88aacc).lerp(new THREE.Color(0x0a0a1a), 1 - dayF);
+        // Fixed midday lighting — no day/night cycle
+        sun.intensity = 1.25;
+        ambient.intensity = 0.25;
+        hemi.intensity = 0.35;
+        const sky = new THREE.Color(0x88aacc);
         scene.background.copy(sky);
         scene.fog.color.copy(sky);
-        scene.fog.density = 0.004 + (1 - dayF) * 0.008;
-        bloom.strength = 0.15 + (1 - dayF) * 0.35;
-        rain.visible = dayF < 0.6;
+        scene.fog.density = 0.004;
+        bloom.strength = 0.15;
+        rain.visible = false;
 
         // Rain update
         const rp = rain.geometry.attributes.position.array;
