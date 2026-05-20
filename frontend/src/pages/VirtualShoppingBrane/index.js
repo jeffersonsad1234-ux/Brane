@@ -75,17 +75,16 @@ function getHeight(x, z) {
 
 // ─── WORLD ──────────────────────────────────────────────
 function buildWorld(scene) {
-  const seg = W / BLOCK;
+  const seg = Math.floor(W / BLOCK);
+  const S1 = seg + 1;
   const geo = new THREE.BufferGeometry();
   const verts = [], colors = [], idxs = [];
   const trees = [], rocks = [], crystals = [], coals = [];
-  const hMap = [];
 
   for (let iz = 0; iz <= seg; iz++) {
     for (let ix = 0; ix <= seg; ix++) {
       const x = ix * BLOCK - W / 2, z = iz * BLOCK - W / 2;
       const vy = getHeight(x, z);
-      hMap.push(vy);
       verts.push(x - BLOCK / 2, vy, z - BLOCK / 2);
       verts.push(x + BLOCK / 2, vy, z - BLOCK / 2);
       verts.push(x + BLOCK / 2, vy, z + BLOCK / 2);
@@ -106,9 +105,9 @@ function buildWorld(scene) {
       else if (isShallow) { r = 0.15; g = 0.5; b = 0.7; }
       else { r = 0.08; g = 0.15; b = 0.35; }
       for (let i = 0; i < 4; i++) colors.push(r, g, b);
-      const base = ((iz * (seg + 1) + ix) * 4) | 0;
+      const base = (iz * S1 + ix) * 4;
       if (ix < seg && iz < seg) {
-        const a = base, b2 = base + 4, c = base + 4 * (seg + 1), d = base + 4 * (seg + 1) + 4;
+        const a = base, b2 = base + 4, c = base + 4 * S1, d = base + 4 * S1 + 4;
         idxs.push(a, b2, c, a, c, d);
       }
     }
@@ -272,7 +271,7 @@ function buildWorld(scene) {
     }
   }
 
-  return { hMap, ground: mesh, water: wMesh, trees, rocks, crystals, coals };
+  return { ground: mesh, water: wMesh, trees, rocks, crystals, coals };
 }
 
 // ─── ANIMALS ────────────────────────────────────────────
