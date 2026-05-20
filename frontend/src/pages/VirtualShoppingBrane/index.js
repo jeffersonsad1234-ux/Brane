@@ -519,7 +519,7 @@ export default function VirtualShoppingBrane() {
 
   // ─── THREE INIT ───
   useEffect(() => {
-    if (!mountRef.current || sceneRef.current) return;
+    if (screen !== "game" || !mountRef.current || sceneRef.current) return;
     const mount = mountRef.current;
     const w = mount.clientWidth, h = mount.clientHeight;
 
@@ -629,7 +629,8 @@ export default function VirtualShoppingBrane() {
       renderer.dispose();
       sceneRef.current = null;
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screen]);
 
   // ─── KEYBOARD + MOUSE ───
   const cameraRef = useRef({ yaw: 0 });
