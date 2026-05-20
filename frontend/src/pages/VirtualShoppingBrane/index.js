@@ -35,18 +35,74 @@ const BLOCK_TYPES = {
   brick: { color: 0xaa5533, name: "Tijolo", roughness: 0.7 },
 };
 
+// ─── RESOURCE HELPERS ────────────────────────────────────
+const RES_COLORS = {
+  tree: 0x44aa33, rock: 0x888888, crystal: 0xff4488, coal: 0x444444,
+};
+const RES_NAMES = {
+  tree: "Madeira", rock: "Pedra", crystal: "Cristal", coal: "Carvão",
+};
+const RES_DROPS = {
+  tree: [{ id: "wood", n: "Madeira", i: "🪵", c: 2 }],
+  rock: [{ id: "stone", n: "Pedra", i: "🪨", c: 1 }],
+  crystal: [{ id: "crystal", n: "Cristal", i: "💎", c: 1 }],
+  coal: [{ id: "coal", n: "Carvão", i: "⬛", c: 2 }],
+};
+const RES_HP = { tree: 5, rock: 4, crystal: 3, coal: 4 };
+
+// ─── AUDIO ──────────────────────────────────────────────
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+function playMine() {
+  if (!audioCtx) return;
+  try {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = "square"; o.frequency.setValueAtTime(180, audioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(60, audioCtx.currentTime + 0.08);
+    g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+    o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.08);
+  } catch {}
+}
+function playBreak() {
+  if (!audioCtx) return;
+  try {
+    const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * 0.25, audioCtx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+    const n = audioCtx.createBufferSource(); n.buffer = buf;
+    const g = audioCtx.createGain(); g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+    n.connect(g); g.connect(audioCtx.destination); n.start();
+  } catch {}
+}
+function playCollect() {
+  if (!audioCtx) return;
+  try {
+    const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(500, audioCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.12);
+    g.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+    o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.15);
+  } catch {}
+}
+
 // ─── WORLD ──────────────────────────────────────────────
 function buildWorld(scene) {
   const seg = W / BLOCK;
   const geo = new THREE.BufferGeometry();
   const verts = [], colors = [], idxs = [];
   const hMap = [];
+  const trees = [], rocks = [], crystals = [], coals = [];
 
   for (let iz = 0; iz <= seg; iz++) {
     for (let ix = 0; ix <= seg; ix++) {
       const x = ix * BLOCK - W / 2, z = iz * BLOCK - W / 2;
       const h = fbm(x * 0.018, z * 0.018) * WH - 3;
-      // Ridge for mountains
       const ridge = 1 - Math.abs(fbm(x * 0.01 + 5, z * 0.01 + 5) * 2 - 1);
       const finalH = h + ridge * fbm(x * 0.025 + 10, z * 0.025 + 10) * 6;
       const vy = Math.floor(finalH * 2) / 2;
@@ -55,7 +111,6 @@ function buildWorld(scene) {
       verts.push(x + BLOCK / 2, vy, z - BLOCK / 2);
       verts.push(x + BLOCK / 2, vy, z + BLOCK / 2);
       verts.push(x - BLOCK / 2, vy, z + BLOCK / 2);
-      // Color by height
       const isDeepWater = vy < -1.5;
       const isShallow = vy >= -1.5 && vy < -0.3;
       const isSand = vy >= -0.3 && vy < 0.5;
@@ -105,7 +160,6 @@ function buildWorld(scene) {
   scene.add(wMesh);
 
   // Trees
-  const treePos = [];
   for (let i = 0; i < 250; i++) {
     const tx = rng(-W / 2 + 4, W / 2 - 4), tz = rng(-W / 2 + 4, W / 2 - 4);
     const th = fbm(tx * 0.018, tz * 0.018) * WH - 3 +
@@ -113,15 +167,19 @@ function buildWorld(scene) {
     if (th > 0.8 && th < 5 && fbm(tx * 0.05 + 20, tz * 0.05 + 20) > 0.35) {
       const trunkH = rng(1.2, 2.8);
       const trunkR = rng(0.12, 0.22);
+      const treeRes = {
+        type: "tree", hp: RES_HP.tree, maxHp: RES_HP.tree,
+        parts: [], drops: RES_DROPS.tree.map(d => ({ ...d })),
+        center: new THREE.Vector3(tx, th + trunkH * 0.5, tz),
+      };
       const trunk = new THREE.Mesh(
         new THREE.CylinderGeometry(trunkR * 0.6, trunkR, trunkH, 6),
         new THREE.MeshStandardMaterial({ color: new THREE.Color(0.28 + rng(0, 0.1), 0.15 + rng(0, 0.05), 0.05 + rng(0, 0.03)), roughness: 0.9 })
       );
       trunk.position.set(tx, th + trunkH / 2, tz);
-      trunk.castShadow = true;
-      scene.add(trunk);
+      trunk.castShadow = true; trunk.userData.resource = treeRes;
+      scene.add(trunk); treeRes.parts.push(trunk);
 
-      // Canopy: 3-5 spheres
       const hue = rng(0.22, 0.35);
       const sat = rng(0.5, 0.7);
       const light = rng(0.25, 0.4);
@@ -134,25 +192,25 @@ function buildWorld(scene) {
           new THREE.SphereGeometry(cr, 5, 5),
           new THREE.MeshStandardMaterial({ color: j % 2 === 0 ? col : col2, roughness: 0.8, flatShading: true })
         );
-        leaf.position.set(
-          tx + rng(-0.5, 0.5),
-          th + trunkH + rng(0, 0.6) + rng(-0.3, 0.3),
-          tz + rng(-0.5, 0.5)
-        );
+        leaf.position.set(tx + rng(-0.5, 0.5), th + trunkH + rng(0, 0.6) + rng(-0.3, 0.3), tz + rng(-0.5, 0.5));
         leaf.scale.y = rng(0.8, 1.1);
-        leaf.castShadow = true;
-        scene.add(leaf);
+        leaf.castShadow = true; leaf.userData.resource = treeRes;
+        scene.add(leaf); treeRes.parts.push(leaf);
       }
-      treePos.push({ x: tx, z: tz, h: th + trunkH + 0.8 });
+      trees.push(treeRes);
     }
   }
 
-  // Rocks with moss
+  // Rocks
   for (let i = 0; i < 100; i++) {
     const rx = rng(-W / 2 + 3, W / 2 - 3), rz = rng(-W / 2 + 3, W / 2 - 3);
     const rh = fbm(rx * 0.018, rz * 0.018) * WH - 3 +
       (1 - Math.abs(fbm(rx * 0.01 + 5, rz * 0.01 + 5) * 2 - 1)) * fbm(rx * 0.025 + 10, rz * 0.025 + 10) * 6;
     if (rh > 0.3 && rh < 6) {
+      const rockRes = {
+        type: "rock", hp: RES_HP.rock, maxHp: RES_HP.rock,
+        drops: RES_DROPS.rock.map(d => ({ ...d })), mesh: null,
+      };
       const rock = new THREE.Mesh(
         new THREE.DodecahedronGeometry(rng(0.2, 0.7), 0),
         new THREE.MeshStandardMaterial({ color: new THREE.Color(0.35 + rng(0, 0.1), 0.32 + rng(0, 0.08), 0.28 + rng(0, 0.05)), roughness: 0.9, flatShading: true })
@@ -161,7 +219,30 @@ function buildWorld(scene) {
       rock.scale.set(1, rng(0.3, 0.5), 1);
       rock.rotation.set(rng(0, 6), rng(0, 6), rng(0, 6));
       rock.castShadow = true;
-      scene.add(rock);
+      rock.userData.resource = rockRes; rockRes.mesh = rock;
+      scene.add(rock); rocks.push(rockRes);
+    }
+  }
+
+  // Coal deposits
+  for (let i = 0; i < 30; i++) {
+    const cx = rng(-W / 2 + 5, W / 2 - 5), cz = rng(-W / 2 + 5, W / 2 - 5);
+    const ch = fbm(cx * 0.018, cz * 0.018) * WH - 3 +
+      (1 - Math.abs(fbm(cx * 0.01 + 5, cz * 0.01 + 5) * 2 - 1)) * fbm(cx * 0.025 + 10, cz * 0.025 + 10) * 6;
+    if (ch > -0.5 && ch < 4) {
+      const coalRes = {
+        type: "coal", hp: RES_HP.coal, maxHp: RES_HP.coal,
+        drops: RES_DROPS.coal.map(d => ({ ...d })), mesh: null,
+      };
+      const coal = new THREE.Mesh(
+        new THREE.OctahedronGeometry(rng(0.18, 0.4), 0),
+        new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.95, flatShading: true })
+      );
+      coal.position.set(cx, ch + rng(0.05, 0.2), cz);
+      coal.rotation.set(rng(0, 6), rng(0, 6), rng(0, 6));
+      coal.castShadow = true;
+      coal.userData.resource = coalRes; coalRes.mesh = coal;
+      scene.add(coal); coals.push(coalRes);
     }
   }
 
@@ -173,16 +254,13 @@ function buildWorld(scene) {
     if (fh > 0.5 && fh < 3.5) {
       const hue2 = rng(0.4, 1);
       const fcol = new THREE.Color().setHSL(hue2, 0.8, 0.5 + rng(0, 0.2));
-      const f = new THREE.Mesh(
-        new THREE.SphereGeometry(0.06, 4, 4),
-        new THREE.MeshStandardMaterial({ color: fcol })
-      );
+      const f = new THREE.Mesh(new THREE.SphereGeometry(0.06, 4, 4), new THREE.MeshStandardMaterial({ color: fcol }));
       f.position.set(fx, fh + 0.06, fz);
       scene.add(f);
     }
   }
 
-  // Villages — small huts
+  // Villages
   for (let v = 0; v < 3; v++) {
     const vx = rng(-W / 2 + 15, W / 2 - 15), vz = rng(-W / 2 + 15, W / 2 - 15);
     const vh = fbm(vx * 0.018, vz * 0.018) * WH - 3 +
@@ -191,60 +269,187 @@ function buildWorld(scene) {
       const hutMat = new THREE.MeshStandardMaterial({ color: 0x6a4a2a, roughness: 0.9 });
       const roofMat = new THREE.MeshStandardMaterial({ color: 0x8a3a1a, roughness: 0.8 });
       const wallMat = new THREE.MeshStandardMaterial({ color: 0xd4a46a, roughness: 0.85 });
-      // Walls
       const wall = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.7, 0.9), wallMat);
-      wall.position.set(vx, vh + 0.35, vz);
-      wall.castShadow = true; wall.receiveShadow = true;
-      scene.add(wall);
-      // Roof
+      wall.position.set(vx, vh + 0.35, vz); wall.castShadow = true; wall.receiveShadow = true; scene.add(wall);
       const roof = new THREE.Mesh(new THREE.ConeGeometry(0.85, 0.5, 4), roofMat);
-      roof.position.set(vx, vh + 0.9, vz);
-      roof.rotation.y = Math.PI / 4;
-      roof.castShadow = true;
-      scene.add(roof);
-      // Door
+      roof.position.set(vx, vh + 0.9, vz); roof.rotation.y = Math.PI / 4; roof.castShadow = true; scene.add(roof);
       const doorMat = new THREE.MeshStandardMaterial({ color: 0x4a2a1a });
       const door = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.4, 0.03), doorMat);
-      door.position.set(vx + 0.5, vh + 0.25, vz);
-      door.position.x = vx;
-      door.position.z = vz + 0.46;
-      scene.add(door);
-      // Lantern glow
-      const lantern = new THREE.Mesh(
-        new THREE.SphereGeometry(0.06, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 0xff8844 })
-      );
-      lantern.position.set(vx, vh + 1.1, vz);
-      scene.add(lantern);
+      door.position.set(vx, vh + 0.25, vz + 0.46); scene.add(door);
+      const lantern = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff8844 }));
+      lantern.position.set(vx, vh + 1.1, vz); scene.add(lantern);
       const lLight = new THREE.PointLight(0xff8844, 0.3, 2);
-      lLight.position.copy(lantern.position);
-      scene.add(lLight);
+      lLight.position.copy(lantern.position); scene.add(lLight);
     }
   }
 
-  // Glowing crystals in caves (on surface for visibility)
+  // Crystals
   const oreColors = [0xff4488, 0x44aaff, 0x44ff88, 0xffaa00, 0x8844ff];
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 50; i++) {
     const ox = rng(-W / 2 + 6, W / 2 - 6), oz = rng(-W / 2 + 6, W / 2 - 6);
     const oh = fbm(ox * 0.018, oz * 0.018) * WH - 3 +
       (1 - Math.abs(fbm(ox * 0.01 + 5, oz * 0.01 + 5) * 2 - 1)) * fbm(ox * 0.025 + 10, oz * 0.025 + 10) * 6;
     if (oh > 0.5 && oh < 5) {
       const col = oreColors[Math.floor(Math.random() * oreColors.length)];
+      const crystalRes = {
+        type: "crystal", hp: RES_HP.crystal, maxHp: RES_HP.crystal,
+        drops: RES_DROPS.crystal.map(d => ({ ...d })), mesh: null, color: col, value: 5 + Math.floor(Math.random() * 10),
+      };
       const crystal = new THREE.Mesh(
-        new THREE.OctahedronGeometry(rng(0.12, 0.3), 0),
-        new THREE.MeshStandardMaterial({
-          color: col, roughness: 0.2, metalness: 0.5,
-          emissive: col, emissiveIntensity: 0.2,
-        })
+        new THREE.OctahedronGeometry(rng(0.12, 0.35), 0),
+        new THREE.MeshStandardMaterial({ color: col, roughness: 0.2, metalness: 0.5, emissive: col, emissiveIntensity: 0.2 })
       );
       crystal.position.set(ox, oh + 0.1, oz);
       crystal.castShadow = true;
-      crystal.userData = { hp: 3, value: 5 + Math.floor(Math.random() * 10), isOre: true, color: col };
-      scene.add(crystal);
+      crystal.userData.resource = crystalRes; crystalRes.mesh = crystal;
+      scene.add(crystal); crystals.push(crystalRes);
     }
   }
 
-  return { hMap, ground: mesh, water: wMesh, treePos };
+  return { hMap, ground: mesh, water: wMesh, trees, rocks, crystals, coals };
+}
+
+// ─── PARTICLES ──────────────────────────────────────────
+const particleSystems = [];
+function spawnParticles(scene, pos, color, count = 12) {
+  const positions = new Float32Array(count * 3);
+  const velocities = [];
+  for (let i = 0; i < count; i++) {
+    positions[i * 3] = pos.x + (Math.random() - 0.5) * 0.1;
+    positions[i * 3 + 1] = pos.y + (Math.random() - 0.5) * 0.1;
+    positions[i * 3 + 2] = pos.z + (Math.random() - 0.5) * 0.1;
+    velocities.push({
+      x: (Math.random() - 0.5) * 2.5, y: Math.random() * 2 + 0.5, z: (Math.random() - 0.5) * 2.5,
+    });
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  const mat = new THREE.PointsMaterial({
+    color, size: 0.08, transparent: true, opacity: 1,
+    blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
+  });
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+  particleSystems.push({ points, velocities, life: 1, index: particleSystems.length });
+}
+
+function updateParticles(dt) {
+  for (let i = particleSystems.length - 1; i >= 0; i--) {
+    const sys = particleSystems[i];
+    const pos = sys.points.geometry.attributes.position.array;
+    for (let j = 0; j < pos.length / 3; j++) {
+      pos[j * 3] += sys.velocities[j].x * dt;
+      pos[j * 3 + 1] += sys.velocities[j].y * dt;
+      pos[j * 3 + 2] += sys.velocities[j].z * dt;
+      sys.velocities[j].y -= 3 * dt;
+    }
+    sys.points.geometry.attributes.position.needsUpdate = true;
+    sys.life -= dt * 1.5;
+    sys.points.material.opacity = Math.max(0, sys.life);
+    if (sys.life <= 0) {
+      sys.points.geometry.dispose();
+      sys.points.material.dispose();
+      sys.points.parent?.remove(sys.points);
+      particleSystems.splice(i, 1);
+    }
+  }
+}
+
+// ─── ITEM DROPS ─────────────────────────────────────────
+const DROP_ICONS = {
+  wood: { color: 0x6a4a2a, icon: "🪵" }, stone: { color: 0x808080, icon: "🪨" },
+  crystal: { color: 0xff4488, icon: "💎" }, coal: { color: 0x444444, icon: "⬛" },
+};
+const itemDrops = [];
+function spawnItemDrop(scene, pos, itemId, count) {
+  const info = DROP_ICONS[itemId] || { color: 0xffffff };
+  const drop = new THREE.Mesh(
+    new THREE.BoxGeometry(0.15, 0.15, 0.15),
+    new THREE.MeshStandardMaterial({ color: info.color, emissive: info.color, emissiveIntensity: 0.2, roughness: 0.6 })
+  );
+  drop.position.copy(pos);
+  drop.position.y += 0.3;
+  drop.castShadow = true;
+  scene.add(drop);
+  const glow = new THREE.PointLight(info.color, 0.3, 1.5);
+  glow.position.copy(drop.position);
+  scene.add(glow);
+  itemDrops.push({
+    mesh: drop, light: glow, itemId, count, yOff: 0.3,
+    phase: Math.random() * Math.PI * 2, life: 30, alive: true,
+  });
+}
+
+function updateDrops(playerPos, dt, setItems, showMsg, scene) {
+  for (let i = itemDrops.length - 1; i >= 0; i--) {
+    const d = itemDrops[i];
+    if (!d.alive) continue;
+    d.life -= dt;
+    d.yOff = 0.3 + Math.sin(performance.now() * 0.002 + d.phase) * 0.15;
+    d.mesh.position.y = d.mesh.position.y + (d.yOff - 0.3) * dt * 3;
+    d.light.position.copy(d.mesh.position);
+    const dist = Math.sqrt(
+      (d.mesh.position.x - playerPos.x) ** 2 +
+      (d.mesh.position.z - playerPos.z) ** 2 +
+      (d.mesh.position.y - playerPos.y) ** 2
+    );
+    if (dist < 1.8) {
+      playCollect();
+      d.alive = false;
+      scene.remove(d.mesh); scene.remove(d.light);
+      d.mesh.geometry.dispose(); d.mesh.material.dispose();
+      setItems(prev => {
+        const idx = prev.findIndex(it => it.id === d.itemId);
+        if (idx >= 0) {
+          const n = [...prev];
+          n[idx] = { ...n[idx], c: n[idx].c + d.count };
+          return n;
+        }
+        const info = DROP_ICONS[d.itemId] || { icon: "📦" };
+        return [...prev, { id: d.itemId, n: info.icon, i: info.icon, c: d.count }];
+      });
+      showMsg(`+${d.count} ${DROP_ICONS[d.itemId]?.icon || "📦"}`);
+      itemDrops.splice(i, 1);
+    }
+    if (d.life <= 0) {
+      d.alive = false;
+      scene.remove(d.mesh); scene.remove(d.light);
+      d.mesh.geometry.dispose(); d.mesh.material.dispose();
+      itemDrops.splice(i, 1);
+    }
+  }
+}
+
+// ─── DAMAGE BAR ─────────────────────────────────────────
+function makeDamageBar(scene) {
+  const c = document.createElement("canvas");
+  c.width = 64; c.height = 8;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(0, 0, 64, 8);
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(1, 1, 62, 6);
+  const tex = new THREE.CanvasTexture(c);
+  const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, opacity: 0.9 });
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(0.5, 0.06, 1);
+  sprite.visible = false;
+  scene.add(sprite);
+  return { sprite, canvas: c, ctx, tex };
+}
+
+function updateDamageBar(dmgBar, target, hp, maxHp) {
+  if (!dmgBar || !target) return;
+  const pct = Math.max(0, hp / maxHp);
+  const ctx = dmgBar.ctx;
+  ctx.clearRect(0, 0, 64, 8);
+  ctx.fillStyle = "rgba(0,0,0,0.6)"; ctx.fillRect(0, 0, 64, 8);
+  ctx.fillStyle = "#44aaff"; ctx.fillRect(1, 1, (62) * pct, 6);
+  dmgBar.tex.needsUpdate = true;
+  dmgBar.sprite.visible = true;
+  const center = target.center || target.mesh?.position || (target.parts?.[0]?.position);
+  if (center) {
+    dmgBar.sprite.position.copy(center);
+    dmgBar.sprite.position.y += 1.2;
+  }
 }
 
 // ─── PLAYER CHARACTER ───────────────────────────────────
@@ -320,6 +525,9 @@ export default function VirtualShoppingBrane() {
   const playerRef = useRef(null);
   const keysRef = useRef({});
   const msgTimer = useRef(null);
+  const miningRef = useRef({ active: false, target: null, progress: 0 });
+  const dmgBarRef = useRef(null);
+  const audioRef = useRef(null);
 
   const coinsR = useRef(coins); coinsR.current = coins;
   const xpR = useRef(xp); xpR.current = xp;
@@ -481,10 +689,13 @@ export default function VirtualShoppingBrane() {
     };
     window.addEventListener("resize", onResize);
 
+    const dmgBar = makeDamageBar(scene);
+    dmgBarRef.current = dmgBar;
+
     sceneRef.current = {
       scene, renderer, camera, sun, amb, hemi, sky, skyM, sunSprite, moonSprite,
       stars, starMat: starMat2, fireflies, ffMat, ffPos, ffVel, ffPhase,
-      composer, world, player, sunMat, raycaster: new THREE.Raycaster(),
+      composer, world, player, sunMat, raycaster: new THREE.Raycaster(), dmgBar,
       playerPos: { x: 0, z: 0 },
     };
 
@@ -630,6 +841,37 @@ export default function VirtualShoppingBrane() {
         }
       }
 
+      // ─── MINING PROGRESS ───
+      const m = miningRef.current;
+      if (m.active && m.target) {
+        m.progress += dt * 0.8;
+        updateDamageBar(dmgBar, m.target, m.target.hp, m.target.maxHp);
+        if (m.progress >= 1) {
+          const res = m.target;
+          playBreak();
+          spawnParticles(scene, res.center || res.mesh?.position || res.parts?.[0]?.position, RES_COLORS[res.type] || 0xffffff, 20);
+          for (const drop of res.drops || []) {
+            spawnItemDrop(scene, res.center || res.mesh?.position || res.parts?.[0]?.position, drop.id, drop.c);
+          }
+          for (const part of (res.parts || [res.mesh])) {
+            if (part) { scene.remove(part); part.geometry?.dispose(); part.material?.dispose(); }
+          }
+          const arr = res.type === "tree" ? world.trees : res.type === "rock" ? world.rocks : res.type === "crystal" ? world.crystals : world.coals;
+          const idx = arr.indexOf(res);
+          if (idx >= 0) arr.splice(idx, 1);
+          const dn = res.drops?.[0]?.n || RES_NAMES[res.type] || "Item";
+          showMsg(`+${res.drops?.[0]?.c || 1} ${dn}`);
+          m.active = false; m.target = null; m.progress = 0;
+          dmgBar.sprite.visible = false;
+        }
+      } else {
+        dmgBar.sprite.visible = false;
+      }
+
+      // ─── PARTICLES & DROPS ───
+      updateParticles(dt);
+      updateDrops(p.position, dt, setItems, showMsg, scene);
+
       // ─── RENDER ───
       composer.render();
       animRef.current = requestAnimationFrame(loop);
@@ -664,13 +906,38 @@ export default function VirtualShoppingBrane() {
     };
     document.addEventListener("mousemove", onMouseMove);
 
-    const onClick = (e) => {
+    const mineableMeshes = () => {
+      const w = sceneRef.current?.world;
+      if (!w) return [];
+      const m = [];
+      for (const t of w.trees || []) for (const p of t.parts || []) m.push(p);
+      for (const r of w.rocks || []) if (r.mesh) m.push(r.mesh);
+      for (const c of w.crystals || []) if (c.mesh) m.push(c.mesh);
+      for (const c of w.coals || []) if (c.mesh) m.push(c.mesh);
+      return m;
+    };
+
+    const startMine = (e) => {
       if (screen !== "game") return;
       if (!document.pointerLockElement) {
         mountRef.current?.requestPointerLock?.();
         return;
       }
-      // Place block
+      initAudio();
+      const ref = sceneRef.current;
+      if (!ref?.world) return;
+      const { raycaster, camera, scene, world } = ref;
+      raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+      const hits = raycaster.intersectObjects(mineableMeshes());
+      if (hits.length === 0) return;
+      const res = hits[0].object.userData?.resource;
+      if (!res || res.hp <= 0) return;
+      playMine();
+      spawnParticles(scene, hits[0].point, RES_COLORS[res.type] || 0xffffff, 8);
+      miningRef.current = { active: true, target: res, progress: 0 };
+    };
+
+    const placeBlock = () => {
       const ref = sceneRef.current;
       if (!ref?.world?.ground) return;
       const { raycaster, camera, scene, world } = ref;
@@ -699,13 +966,32 @@ export default function VirtualShoppingBrane() {
       setItems(newItems);
       showMsg(`${bt.name} colocada`);
     };
-    mountRef.current?.addEventListener("click", onClick);
+
+    const onMouseDown = (e) => {
+      if (screen !== "game") return;
+      if (!document.pointerLockElement) {
+        mountRef.current?.requestPointerLock?.();
+        return;
+      }
+      if (e.button === 0) startMine(e);
+      else if (e.button === 2) placeBlock();
+    };
+    const onMouseUp = () => {
+      miningRef.current = { active: false, target: null, progress: 0 };
+    };
+    const onContextMenu = (e) => e.preventDefault();
+
+    mountRef.current?.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mouseup", onMouseUp);
+    mountRef.current?.addEventListener("contextmenu", onContextMenu);
 
     return () => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
       document.removeEventListener("mousemove", onMouseMove);
-      mountRef.current?.removeEventListener("click", onClick);
+      mountRef.current?.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mouseup", onMouseUp);
+      mountRef.current?.removeEventListener("contextmenu", onContextMenu);
     };
   }, [screen, showMsg]);
 
