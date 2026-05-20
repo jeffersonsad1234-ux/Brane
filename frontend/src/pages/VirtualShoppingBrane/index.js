@@ -502,6 +502,7 @@ export default function VirtualShoppingBrane() {
   const msgTimer = useRef(null);
   const miningRef = useRef({ active: false, target: null, progress: 0 });
   const dmgBarRef = useRef(null);
+  const debugRef = useRef({ camX: 0, camY: 0, camZ: 0, meshes: 0, worldOk: false });
 
   const coinsR = useRef(coins); coinsR.current = coins;
   const xpR = useRef(xp); xpR.current = xp;
@@ -638,8 +639,20 @@ export default function VirtualShoppingBrane() {
     const fireflies = new THREE.Points(ffGeo, ffMat);
     scene.add(fireflies);
 
+    // ─── FALLBACK WORLD (always renders, procedural layers on top) ───
+    const fbMat = new THREE.MeshStandardMaterial({ color: 0x55cc55, roughness: 0.9, side: THREE.DoubleSide });
+    const fbGround = new THREE.Mesh(new THREE.PlaneGeometry(W * 1.2, W * 1.2), fbMat);
+    fbGround.rotation.x = -Math.PI / 2;
+    fbGround.position.y = -1;
+    fbGround.receiveShadow = true;
+    scene.add(fbGround);
+    const fbDebug = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), new THREE.MeshStandardMaterial({ color: 0xff4400, emissive: 0xff2200, emissiveIntensity: 0.4 }));
+    fbDebug.position.set(0, -0.7, 0);
+    scene.add(fbDebug);
+
     // ─── WORLD ───
     let world, animals, clouds, player, dmgBar;
+    let worldOk = false;
     try {
       world = buildWorld(scene);
       animals = spawnAnimals(scene, world);
@@ -647,10 +660,46 @@ export default function VirtualShoppingBrane() {
       player = makePlayer(scene);
       playerRef.current = player;
       const spawnH = getHeight(0, 0);
+      console.log("Procedural terrain @ (0,0): height", spawnH);
       player.group.position.set(0, spawnH, 0);
       dmgBar = makeDamageBar(scene);
       dmgBarRef.current = dmgBar;
-    } catch (e) { console.error("World gen error:", e); }
+      worldOk = true;
+    } catch (e) { console.error("World gen error, using fallback:", e); }
+
+    if (!worldOk) {
+      console.warn("FALLBACK WORLD ACTIVE — procedural terrain failed");
+      // Create 15 simple fallback trees
+      const trunkMatFB = new THREE.MeshStandardMaterial({ color: 0x6a4a2a, roughness: 0.9 });
+      const leafMatFB = new THREE.MeshStandardMaterial({ color: 0x44bb44, roughness: 0.8, flatShading: true });
+      for (let i = 0; i < 15; i++) {
+        const tx = rng(-30, 30), tz = rng(-30, 30);
+        if (Math.abs(tx) < 3 && Math.abs(tz) < 3) continue; // keep spawn clear
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.2, rng(1.5, 3), 5), trunkMatFB);
+        trunk.position.set(tx, rng(-0.3, 0.2), tz);
+        trunk.castShadow = true; scene.add(trunk);
+        const leaf = new THREE.Mesh(new THREE.SphereGeometry(rng(0.5, 1.2), 6, 6), leafMatFB);
+        leaf.position.set(tx + rng(-0.3, 0.3), trunk.position.y + rng(1.2, 2.5), tz + rng(-0.3, 0.3));
+        leaf.castShadow = true; scene.add(leaf);
+      }
+      // Fallback rocks
+      const rockMatFB = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.9, flatShading: true });
+      for (let i = 0; i < 10; i++) {
+        const rx = rng(-25, 25), rz = rng(-25, 25);
+        const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(rng(0.2, 0.6), 0), rockMatFB);
+        rock.position.set(rx, rng(-0.3, 0.1), rz);
+        rock.scale.y = rng(0.3, 0.6);
+        rock.rotation.set(rng(0, 6), rng(0, 6), rng(0, 6));
+        rock.castShadow = true; scene.add(rock);
+      }
+      // Create a player at safe height even in fallback
+      player = makePlayer(scene);
+      playerRef.current = player;
+      player.group.position.set(0, 0, 0);
+      dmgBar = makeDamageBar(scene);
+      dmgBarRef.current = dmgBar;
+      world = { ground: fbGround, water: null, trees: [], rocks: [], crystals: [], coals: [] };
+    }
 
     // ─── RESIZE ───
     const onResize = () => {
@@ -664,12 +713,13 @@ export default function VirtualShoppingBrane() {
       scene, renderer, camera, composer, sun, amb, hemi, sky, skyM, sunSprite, moonSprite,
       stars, starMat, fireflies, ffMat, ffPos, ffVel, ffPhase,
       world, player, sunMat, raycaster: new THREE.Raycaster(), dmgBar, animals, clouds,
-      playerPos: { x: 0, z: 0 },
+      playerPos: { x: 0, z: 0 }, worldOk,
     };
 
     // ─── GAME LOOP ───
     let lastTime = performance.now();
     let gameTime = 0.25;
+    let frameCount = 0;
     const keys = keysRef;
     const ffCountLocal = ffCount;
 
@@ -677,6 +727,18 @@ export default function VirtualShoppingBrane() {
       animRef.current = requestAnimationFrame(loop);
       const dt = Math.min((now - lastTime) / 1000, 0.05);
       lastTime = now;
+      frameCount++;
+
+      // ─── DEBUG OVERLAY UPDATE (every 10 frames) ───
+      if (frameCount % 10 === 0) {
+        debugRef.current = {
+          camX: camera.position.x.toFixed(1),
+          camY: camera.position.y.toFixed(1),
+          camZ: camera.position.z.toFixed(1),
+          meshes: scene.children.filter(c => c.isMesh).length,
+          worldOk,
+        };
+      }
       gameTime = (gameTime + dt * 0.012) % 1;
       setTime(gameTime);
 
@@ -1026,6 +1088,18 @@ export default function VirtualShoppingBrane() {
             </div>
 
             {message && <div className="sb-msg">{message}</div>}
+
+            {/* ─── DEBUG OVERLAY ─── */}
+            <div style={{
+              position:'fixed', bottom:0, left:0, zIndex:50,
+              background:'rgba(0,0,0,0.7)', color:'#0f0',
+              fontFamily:'monospace', fontSize:'11px', padding:'4px 8px',
+              lineHeight:1.3, pointerEvents:'none', whiteSpace:'pre',
+            }}>
+              cam {debugRef.camX} {debugRef.camY} {debugRef.camZ}
+              {'  '}meshes {debugRef.meshes}
+              {'  '}world {debugRef.worldOk?'OK':'FALLBACK'}
+            </div>
           </div>
         </div>
       )}
