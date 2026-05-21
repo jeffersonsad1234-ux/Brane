@@ -4,7 +4,7 @@ import CreateProjectModal from "./CreateProjectModal.js";
 import ProjectDetailModal from "./ProjectDetailModal.js";
 import FeaturePanel from "./FeaturePanel.js";
 import MiniDemo from "./MiniDemo.js";
-import SpaceDemoApp from "./demo3/SpaceDemoApp.js";
+import GalaxySurvivalApp from "./demo4/GalaxySurvivalApp.js";
 import "./VirtualShoppingBrane.css";
 
 // ─── DATA ──────────────────────────────────────────────
@@ -87,7 +87,7 @@ function GameDemoOverlay({ onClose }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <SpaceDemoApp onClose={onClose} />
+      <GalaxySurvivalApp onClose={onClose} />
     </motion.div>
   );
 }

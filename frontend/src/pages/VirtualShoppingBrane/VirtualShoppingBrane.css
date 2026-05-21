@@ -1761,3 +1761,102 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
   text-align: right;
   letter-spacing: 0.05em;
 }
+
+/* ─── GALAXY SURVIVAL HUD ──────────────────────────────── */
+.gs-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.gs-stats {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gs-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px 10px;
+  border-radius: 6px;
+  backdrop-filter: blur(3px);
+}
+
+.gs-stat-icon {
+  font-size: 0.75rem;
+  width: 18px;
+  text-align: center;
+}
+
+.gs-stat-bar {
+  width: 90px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.gs-stat-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.15s ease;
+}
+
+.gs-stat-fill.gs-health { background: linear-gradient(90deg, #cc3344, #ff5544); }
+.gs-stat-fill.gs-stamina { background: linear-gradient(90deg, #3388ff, #44ddff); }
+.gs-stat-fill.gs-oxygen { background: linear-gradient(90deg, #22aa88, #44ddbb); }
+
+.gs-stat-value {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #ccc;
+  min-width: 20px;
+  text-align: right;
+  font-family: monospace;
+}
+
+.gs-ship-notice {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 40, 80, 0.6);
+  padding: 5px 14px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  color: rgba(68, 200, 255, 0.9);
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(68, 200, 255, 0.15);
+}
+
+.gs-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 1.2rem;
+  font-weight: 100;
+  text-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+
+.gs-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 6px 10px;
+  border-radius: 6px;
+  backdrop-filter: blur(3px);
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.3);
+  line-height: 1.7;
+  text-align: right;
+}
