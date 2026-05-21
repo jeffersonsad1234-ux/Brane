@@ -62,83 +62,52 @@ function playCollect() {
 
 // ─── GET HEIGHT ─────────────────────────────────────────
 function getHeight(x, z) {
-  const base = fbm(x * 0.01, z * 0.01) * 7 - 1;
-  const ridge = 1 - Math.abs(fbm(x * 0.004 + 3, z * 0.004 + 3) * 2 - 1);
-  const mountains = Math.pow(ridge, 2.2) * 12;
-  const warp = fbm(x * 0.003 + 1, z * 0.003 + 1) * 20;
-  const detail = fbm((x + warp) * 0.02 + 10, (z + warp) * 0.02 + 10) * 2;
-  const riverVal = Math.abs(fbm(x * 0.004 + 50, z * 0.004 + 50) - 0.5) * 2;
-  const riverCut = Math.max(0, 1 - riverVal * 5) * -2;
-  const ldx = 18, ldz = -12;
-  const lakeCut = Math.max(0, 1 - Math.sqrt((x - ldx) ** 2 + (z - ldz) ** 2) / 12) * -2.5;
-  let h = base + mountains + detail + riverCut + lakeCut;
-  const terrace = Math.floor(h * 1.5) / 1.5;
-  const blend = Math.min(1, Math.max(0, (Math.abs(h - terrace) - 0.2) * 3));
-  h = terrace * (1 - blend) + h * blend;
-  return Math.floor(h * 2) / 2;
+  const h = fbm(x * 0.012, z * 0.012) * 6 - 2;
+  const ridge = 1 - Math.abs(fbm(x * 0.005 + 5, z * 0.005 + 5) * 2 - 1);
+  const hills = ridge * fbm(x * 0.015 + 10, z * 0.015 + 10) * 4;
+  const river = Math.abs(fbm(x * 0.004 + 50, z * 0.004 + 50) - 0.5) * 2;
+  const riverCut = Math.max(0, 1 - river * 4) * -1.8;
+  const lkx = 20, lkz = -15;
+  const lakeCut = Math.max(0, 1 - Math.sqrt((x - lkx) ** 2 + (z - lkz) ** 2) / 10) * -2;
+  return Math.floor((h + hills + riverCut + lakeCut) * 2) / 2;
 }
 
 // ─── WORLD ──────────────────────────────────────────────
 function buildWorld(scene) {
   const seg = Math.floor(W / BLOCK);
   const verts = [], colors = [];
-  const trees = [], rocks = [], crystals = [], coals = [];
-  const grassPositions = [];
+  const trees = [], rocks = [];
 
-  // Pre-compute height map
   const H = [];
-  for (let iz = 0; iz <= seg; iz++) {
-    H[iz] = [];
+  for (let iz = 0; iz <= seg; iz++) { H[iz] = [];
     for (let ix = 0; ix <= seg; ix++) {
-      const x = ix * BLOCK - W / 2, z = iz * BLOCK - W / 2;
-      H[iz][ix] = getHeight(x, z);
+      H[iz][ix] = getHeight(ix * BLOCK - W / 2, iz * BLOCK - W / 2);
     }
   }
 
-  // Non-indexed terrain: 6 verts per quad (2 triangles, no vertex sharing)
+  // Colors per height band (simplified)
+  function getCol(ay, x, z) {
+    const n = fbm(x * 0.05 + 100, z * 0.05 + 100);
+    if (ay < -1.5) return [0.08, 0.18, 0.35];
+    if (ay < -0.3) return [0.15, 0.45, 0.6];
+    if (ay < 0.6) { const t = fbm(x * 0.04 + 200, z * 0.04 + 200); return [0.7 + t * 0.15, 0.65 + t * 0.12, 0.4 + t * 0.1]; }
+    if (ay < 3) return [0.15 + n * 0.25, 0.45 + n * 0.3, 0.08 + n * 0.1];
+    if (ay < 5.5) return [0.06 + n * 0.12, 0.28 + n * 0.22, 0.04 + n * 0.06];
+    if (ay < 8) return [0.4 + n * 0.2, 0.36 + n * 0.18, 0.32 + n * 0.15];
+    return [0.95, 0.95, 1];
+  }
+
   for (let iz = 0; iz < seg; iz++) {
     for (let ix = 0; ix < seg; ix++) {
       const x = ix * BLOCK - W / 2, z = iz * BLOCK - W / 2;
       const x1 = x - BLOCK / 2, x2 = x + BLOCK / 2;
       const z1 = z - BLOCK / 2, z2 = z + BLOCK / 2;
-      const y00 = H[iz][ix], y10 = H[iz][ix + 1];
-      const y01 = H[iz + 1][ix], y11 = H[iz + 1][ix + 1];
-      const avgY = (y00 + y10 + y01 + y11) / 4;
-
-      // Biome color
-      const minY = Math.min(y00, y10, y01, y11);
-      const maxY = Math.max(y00, y10, y01, y11);
-      const slope = maxY - minY;
-      const isCliff = slope > 1.8;
-      const isDeep = avgY < -2;
-      const isShallow = avgY >= -2 && avgY < -0.5;
-      const isSand = avgY >= -0.5 && avgY < 0.8;
-      const isGrass = avgY >= 0.8 && avgY < 3.5;
-      const isForest = avgY >= 3.5 && avgY < 6;
-      const isRock = avgY >= 6 && avgY < 9;
-      const isSnow = avgY >= 9;
-      let r, g, b;
-      if (isCliff) { const t = fbm(x * 0.05 + 300, z * 0.05 + 300); r = 0.35 + t * 0.25; g = 0.3 + t * 0.2; b = 0.25 + t * 0.15; }
-      else if (isSnow) { r = 0.97; g = 0.97; b = 1; }
-      else if (isRock) { const t = fbm(x * 0.04, z * 0.04); r = 0.4 + t * 0.2; g = 0.38 + t * 0.18; b = 0.35 + t * 0.15; }
-      else if (isForest) { const t = fbm(x * 0.06, z * 0.06); r = 0.06 + t * 0.12; g = 0.25 + t * 0.2; b = 0.04 + t * 0.06; }
-      else if (isGrass) { const t = fbm(x * 0.07 + 100, z * 0.07 + 100); r = 0.12 + t * 0.22; g = 0.42 + t * 0.3; b = 0.06 + t * 0.1; }
-      else if (isSand) { const t = fbm(x * 0.05 + 200, z * 0.05 + 200); r = 0.78 + t * 0.12; g = 0.72 + t * 0.1; b = 0.5 + t * 0.08; }
-      else if (isShallow) { r = 0.12; g = 0.45; b = 0.65; }
-      else { r = 0.06; g = 0.12; b = 0.3; }
-
-      // Triangle 1: (x1,y00,z1) (x2,y10,z1) (x1,y01,z2)
-      verts.push(x1, y00, z1, x2, y10, z1, x1, y01, z2);
-      for (let c = 0; c < 3; c++) colors.push(r, g, b);
-      // Triangle 2: (x2,y10,z1) (x2,y11,z2) (x1,y01,z2)
-      verts.push(x2, y10, z1, x2, y11, z2, x1, y01, z2);
-      for (let c = 0; c < 3; c++) colors.push(r, g, b);
-
-      // Collect grass positions on grassy terrain
-      if (isGrass && fbm(x * 0.08 + 200, z * 0.08 + 200) > 0.25) {
-        const gx = rng(x1, x2), gz = rng(z1, z2);
-        grassPositions.push(gx, getHeight(gx, gz), gz);
-      }
+      const avg = (H[iz][ix] + H[iz][ix + 1] + H[iz + 1][ix] + H[iz + 1][ix + 1]) / 4;
+      const [r, g, b] = getCol(avg, x, z);
+      verts.push(x1, H[iz][ix], z1, x2, H[iz][ix + 1], z1, x1, H[iz + 1][ix], z2);
+      colors.push(r, g, b, r, g, b, r, g, b);
+      verts.push(x2, H[iz][ix + 1], z1, x2, H[iz + 1][ix + 1], z2, x1, H[iz + 1][ix], z2);
+      colors.push(r, g, b, r, g, b, r, g, b);
     }
   }
 
@@ -146,151 +115,52 @@ function buildWorld(scene) {
   geo.setAttribute("position", new THREE.Float32BufferAttribute(verts, 3));
   geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
   geo.computeVertexNormals();
-  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85, metalness: 0.03, flatShading: true, side: THREE.DoubleSide });
+  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85, metalness: 0.02, flatShading: true, side: THREE.DoubleSide });
   const mesh = new THREE.Mesh(geo, mat);
-  mesh.receiveShadow = true; mesh.castShadow = true;
   scene.add(mesh);
 
-  // Water
-  const wMat = new THREE.MeshPhysicalMaterial({
-    color: 0x1a8aba, roughness: 0.0, metalness: 0.2, transparent: true, opacity: 0.45, clearcoat: 0.4,
-    envMapIntensity: 0.6,
-  });
-  const wGeo = new THREE.PlaneGeometry(W + 20, W + 20, 40, 40);
+  // Water — simple plane
+  const wMat = new THREE.MeshStandardMaterial({ color: 0x1a8aba, transparent: true, opacity: 0.4, side: THREE.DoubleSide });
+  const wGeo = new THREE.PlaneGeometry(W + 20, W + 20, 20, 20);
   const wMesh = new THREE.Mesh(wGeo, wMat);
   wMesh.rotation.x = -Math.PI / 2;
   wMesh.position.y = -0.5;
-  wMesh.receiveShadow = true;
   scene.add(wMesh);
 
-  // Trees — 350 with tagged resource
-  for (let i = 0; i < 350; i++) {
+  // Trees — 80 simple
+  const trunkMat = new THREE.MeshStandardMaterial({ color: 0x6a4a2a, roughness: 0.9 });
+  const leafMat = new THREE.MeshStandardMaterial({ color: 0x44aa44, roughness: 0.8, flatShading: true });
+  const leafMat2 = new THREE.MeshStandardMaterial({ color: 0x55bb55, roughness: 0.8, flatShading: true });
+  for (let i = 0; i < 80; i++) {
     const tx = rng(-W / 2 + 5, W / 2 - 5), tz = rng(-W / 2 + 5, W / 2 - 5);
     const th = getHeight(tx, tz);
-    if (th > 0.8 && th < 5.5 && fbm(tx * 0.04 + 20, tz * 0.04 + 20) > 0.32) {
-      const trunkH = rng(1.8, 4);
-      const trunkR = rng(0.15, 0.3);
-      const treeRes = {
-        type: "tree", hp: RES_HP.tree, maxHp: RES_HP.tree,
-        parts: [], drops: [{ id: "wood", n: "Madeira", i: "🪵", c: 2 }],
-        center: new THREE.Vector3(tx, th + trunkH * 0.6, tz),
-      };
-      const trunkMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(0.25 + rng(0, 0.12), 0.12 + rng(0, 0.06), 0.04 + rng(0, 0.04)), roughness: 0.9 });
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(trunkR * 0.5, trunkR, trunkH, 6), trunkMat);
-      trunk.position.set(tx, th + trunkH / 2, tz);
-      trunk.castShadow = true; trunk.userData.resource = treeRes;
-      scene.add(trunk); treeRes.parts.push(trunk);
-
-      const hue = rng(0.22, 0.4), sat = rng(0.5, 0.8), light = rng(0.25, 0.5);
-      const col = new THREE.Color().setHSL(hue, sat, light);
-      const col2 = new THREE.Color().setHSL(hue + rng(-0.05, 0.05), sat, light + rng(0.05, 0.15));
-      const canopyCount = 3 + Math.floor(Math.random() * 5);
-      for (let j = 0; j < canopyCount; j++) {
-        const cr = rng(0.3, 1.1);
-        const leaf = new THREE.Mesh(
-          new THREE.SphereGeometry(cr, 7, 7),
-          new THREE.MeshStandardMaterial({ color: j % 2 === 0 ? col : col2, roughness: 0.7, flatShading: true })
-        );
-        leaf.position.set(tx + rng(-0.8, 0.8), th + trunkH + rng(-0.2, 1), tz + rng(-0.8, 0.8));
-        leaf.scale.y = rng(0.6, 1.3);
-        leaf.castShadow = true; leaf.userData.resource = treeRes;
-        scene.add(leaf); treeRes.parts.push(leaf);
-      }
-      trees.push(treeRes);
+    if (th > 0.6 && th < 4.5 && fbm(tx * 0.05 + 20, tz * 0.05 + 20) > 0.35) {
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.18, rng(1.5, 3), 5), trunkMat);
+      trunk.position.set(tx, th + 1, tz);
+      scene.add(trunk);
+      const leaf = new THREE.Mesh(new THREE.SphereGeometry(rng(0.5, 1), 6, 6), Math.random() > 0.5 ? leafMat : leafMat2);
+      leaf.position.set(tx, th + rng(1.8, 3.2), tz);
+      leaf.scale.y = rng(0.7, 1.2);
+      scene.add(leaf);
+      trees.push(trunk);
     }
   }
 
-  // Rocks — 150
-  for (let i = 0; i < 150; i++) {
-    const rx = rng(-W / 2 + 3, W / 2 - 3), rz = rng(-W / 2 + 3, W / 2 - 3);
-    const rh = getHeight(rx, rz);
-    if (rh > 0.3 && rh < 7) {
-      const rockRes = { type: "rock", hp: RES_HP.rock, maxHp: RES_HP.rock, drops: [{ id: "stone", n: "Pedra", i: "🪨", c: 1 }], mesh: null };
-      const rockMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(0.35 + rng(0, 0.15), 0.32 + rng(0, 0.1), 0.28 + rng(0, 0.08)), roughness: 0.9, flatShading: true });
-      const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(rng(0.25, 0.9), 0), rockMat);
-      rock.position.set(rx, rh + rng(0, 0.3), rz);
-      rock.scale.set(1, rng(0.25, 0.6), 1);
-      rock.rotation.set(rng(0, 6), rng(0, 6), rng(0, 6));
-      rock.castShadow = true; rock.userData.resource = rockRes; rockRes.mesh = rock;
-      scene.add(rock); rocks.push(rockRes);
-    }
-  }
-
-  // Coal — 40
+  // Rocks — 40
+  const rockMat = new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.9, flatShading: true });
   for (let i = 0; i < 40; i++) {
-    const cx = rng(-W / 2 + 5, W / 2 - 5), cz = rng(-W / 2 + 5, W / 2 - 5);
-    const ch = getHeight(cx, cz);
-    if (ch > -0.5 && ch < 4.5) {
-      const coalRes = { type: "coal", hp: RES_HP.coal, maxHp: RES_HP.coal, drops: [{ id: "coal", n: "Carvão", i: "⬛", c: 2 }], mesh: null };
-      const coal = new THREE.Mesh(new THREE.OctahedronGeometry(rng(0.2, 0.45), 0), new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.95, flatShading: true }));
-      coal.position.set(cx, ch + rng(0.05, 0.2), cz);
-      coal.rotation.set(rng(0, 6), rng(0, 6), rng(0, 6));
-      coal.castShadow = true; coal.userData.resource = coalRes; coalRes.mesh = coal;
-      scene.add(coal); coals.push(coalRes);
+    const rx = rng(-W / 2 + 5, W / 2 - 5), rz = rng(-W / 2 + 5, W / 2 - 5);
+    const rh = getHeight(rx, rz);
+    if (rh > 0.2 && rh < 5) {
+      const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(rng(0.2, 0.6), 0), rockMat);
+      rock.position.set(rx, rh + rng(0, 0.2), rz);
+      rock.scale.y = rng(0.3, 0.5);
+      rock.rotation.set(rng(0, 6), rng(0, 6), rng(0, 6));
+      scene.add(rock); rocks.push(rock);
     }
   }
 
-  // Magic Crystals — 80 with glow lights
-  const oreColors = [0xff44aa, 0x44aaff, 0x44ffaa, 0xffaa00, 0xcc66ff, 0xff6644];
-  for (let i = 0; i < 80; i++) {
-    const ox = rng(-W / 2 + 5, W / 2 - 5), oz = rng(-W / 2 + 5, W / 2 - 5);
-    const oh = getHeight(ox, oz);
-    if (oh > 0.5 && oh < 5.5) {
-      const col = oreColors[Math.floor(Math.random() * oreColors.length)];
-      const crystalRes = {
-        type: "crystal", hp: RES_HP.crystal, maxHp: RES_HP.crystal,
-        drops: [{ id: "crystal", n: "Cristal", i: "💎", c: 1 }], mesh: null, color: col, value: 5 + Math.floor(Math.random() * 15),
-      };
-      const crystal = new THREE.Mesh(new THREE.OctahedronGeometry(rng(0.12, 0.4), 0), new THREE.MeshStandardMaterial({ color: col, roughness: 0.15, metalness: 0.6, emissive: col, emissiveIntensity: 0.3 }));
-      crystal.position.set(ox, oh + 0.1, oz);
-      crystal.castShadow = true;
-      crystal.userData.resource = crystalRes; crystalRes.mesh = crystal;
-      scene.add(crystal); crystals.push(crystalRes);
-      if (i % 3 === 0) {
-        const pLight = new THREE.PointLight(col, 0.15, 2.5);
-        pLight.position.copy(crystal.position); pLight.position.y += 0.2;
-        scene.add(pLight);
-      }
-    }
-  }
-
-  // Flowers — 300
-  for (let i = 0; i < 300; i++) {
-    const fx = rng(-W / 2 + 3, W / 2 - 3), fz = rng(-W / 2 + 3, W / 2 - 3);
-    const fh = getHeight(fx, fz);
-    if (fh > 0.5 && fh < 4) {
-      const fcol = new THREE.Color().setHSL(rng(0.4, 1), 0.8, 0.5 + rng(0, 0.2));
-      const f = new THREE.Mesh(new THREE.SphereGeometry(rng(0.04, 0.08), 4, 4), new THREE.MeshStandardMaterial({ color: fcol }));
-      f.position.set(fx, fh + rng(0.04, 0.1), fz);
-      scene.add(f);
-    }
-  }
-
-  // Villages — 4
-  for (let v = 0; v < 4; v++) {
-    const vx = rng(-W / 2 + 20, W / 2 - 20), vz = rng(-W / 2 + 20, W / 2 - 20);
-    const vh = getHeight(vx, vz);
-    if (vh > 0.5 && vh < 4) {
-      const wallMat = new THREE.MeshStandardMaterial({ color: 0xd4a46a, roughness: 0.85 });
-      const roofMat = new THREE.MeshStandardMaterial({ color: 0x8a3a1a, roughness: 0.8 });
-      const wall = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.7, 1.0), wallMat);
-      wall.position.set(vx, vh + 0.35, vz); wall.castShadow = true; wall.receiveShadow = true; scene.add(wall);
-      const roof = new THREE.Mesh(new THREE.ConeGeometry(1.0, 0.6, 4), roofMat);
-      roof.position.set(vx, vh + 1.0, vz); roof.rotation.y = Math.PI / 4; roof.castShadow = true; scene.add(roof);
-      const lantern = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff8844 }));
-      lantern.position.set(vx, vh + 1.2, vz); scene.add(lantern);
-      const lLight = new THREE.PointLight(0xff8844, 0.4, 2.5);
-      lLight.position.copy(lantern.position); scene.add(lLight);
-      if (Math.random() > 0.4) {
-        const w2 = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.5, 0.8), wallMat);
-        w2.position.set(vx + 1.8, vh + 0.25, vz + 0.5); w2.castShadow = true; w2.receiveShadow = true; scene.add(w2);
-        const r2 = new THREE.Mesh(new THREE.ConeGeometry(0.7, 0.4, 4), roofMat);
-        r2.position.set(vx + 1.8, vh + 0.7, vz + 0.5); r2.rotation.y = Math.PI / 4; r2.castShadow = true; scene.add(r2);
-      }
-    }
-  }
-
-  return { ground: mesh, water: wMesh, trees, rocks, crystals, coals, grassPositions };
+  return { ground: mesh, water: wMesh, trees, rocks };
 }
 
 // ─── ANIMALS ────────────────────────────────────────────
@@ -541,65 +411,143 @@ export default function VirtualShoppingBrane() {
 
   useEffect(() => { save(); }, [save]);
 
-  // ─── STEP 1: FALLBACK + TERRAIN + LIGHTING ───
+  // ─── INIT: RENDERER + SCENE + WORLD ───
   useEffect(() => {
-    console.log("[STEP1] Init start, screen:", screen);
+    console.log("[BASE] Init start");
     if (screen !== "game" || !mountRef.current || sceneRef.current) return;
     const mount = mountRef.current;
-    const w = mount.clientWidth, h = mount.clientHeight;
-    console.log("[STEP1] Mount size:", w, h);
+    const W2 = mount.clientWidth, H2 = mount.clientHeight;
+    document.body.style.cursor = "default";
+    let worldOk = false;
 
-    // ─── RENDERER ───
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setSize(w, h);
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    // Renderer — minimal, no shadows, no tone mapping
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(W2, H2);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     mount.appendChild(renderer.domElement);
-    console.log("[STEP3] Renderer + canvas appended (shadows+toneMapping)");
 
-    // ─── SCENE ───
+    // Scene — simple blue sky, NO fog
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87CEEB);
-    scene.fog = new THREE.FogExp2(0x87CEEB, 0.0006);
 
-    // ─── CAMERA ───
-    const spawnH = getHeight(0, 0);
-    const camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 300);
-    camera.position.set(0, spawnH + 5, 10);
-    camera.lookAt(0, spawnH + 1, 0);
-    console.log("[STEP3] Camera:", camera.position.toArray(), "spawnH:", spawnH);
+    // Camera — third person, safe height
+    const camDist = 8, camHeight = 5;
+    const camera = new THREE.PerspectiveCamera(55, W2 / H2, 0.1, 200);
+    camera.position.set(0, camHeight, camDist);
+    camera.lookAt(0, 0, 0);
 
-    // ─── LIGHTING ───
-    const amb = new THREE.AmbientLight(0xffffff, 0.35);
+    // Lighting — simple, no shadows
+    const amb = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(amb);
-    const hemi = new THREE.HemisphereLight(0x87CEEB, 0x8B7355, 0.5);
+    const hemi = new THREE.HemisphereLight(0x87CEEB, 0x8B7355, 0.3);
     scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xFFEECC, 1.4);
-    sun.position.set(40, 50, 30);
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048);
-    sun.shadow.camera.near = 0.5; sun.shadow.camera.far = 80;
-    sun.shadow.camera.left = -40; sun.shadow.camera.right = 40;
-    sun.shadow.camera.top = 40; sun.shadow.camera.bottom = -40;
+    const sun = new THREE.DirectionalLight(0xFFDDAA, 1.0);
+    sun.position.set(30, 40, 20);
     scene.add(sun);
+    const fill = new THREE.DirectionalLight(0x88BBFF, 0.3);
+    fill.position.set(-20, 20, -30);
+    scene.add(fill);
 
-    // ─── SKY DOME ───
-    const skyGeo = new THREE.SphereGeometry(150, 32, 32);
-    const skyMat = new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide });
-    const skyDome = new THREE.Mesh(skyGeo, skyMat);
-    scene.add(skyDome);
+    // ─── SAFETY FALLBACK ───
+    const fbMat = new THREE.MeshBasicMaterial({ color: 0x44cc44, side: THREE.DoubleSide });
+    const fbGround = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), fbMat);
+    fbGround.rotation.x = -Math.PI / 2;
+    fbGround.position.y = -1;
+    fbGround.name = "fallback";
+    scene.add(fbGround);
+    const fbCube = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), new THREE.MeshBasicMaterial({ color: 0xff4444 }));
+    fbCube.position.set(0, -0.7, 0);
+    fbCube.name = "fallback";
+    scene.add(fbCube);
 
-    sceneRef.current = { scene, renderer, camera, sun, amb, hemi, world };
+    // ─── BUILD WORLD ───
+    let world = null;
+    try {
+      world = buildWorld(scene);
+      worldOk = true;
+      fbGround.visible = false;
+      fbCube.visible = false;
+      console.log("[BASE] World built OK");
+    } catch (e) {
+      console.error("[BASE] World failed:", e);
+      world = null;
+      worldOk = false;
+    }
 
-    // ─── ANIMATION LOOP ───
+    // ─── PLAYER ───
+    const spawnH = worldOk ? getHeight(0, 0) : 0;
+    const player = makePlayer(scene);
+    player.group.position.set(0, spawnH, 0);
+    playerRef.current = player;
+
+    // ─── CLOUDS ───
+    const clouds = makeClouds(scene);
+
+    // ─── ANIMALS ───
+    let animals = [];
+    if (worldOk) {
+      try { animals = spawnAnimals(scene, world); } catch (e) { animals = []; }
+    }
+
+    // ─── STORE REFS ───
+    const raycaster = new THREE.Raycaster();
+    sceneRef.current = { scene, renderer, camera, sun, amb, hemi, world, raycaster, player, spawnH };
+
+    // ─── GAME LOOP ───
     let frameCount = 0;
+    let prevTime = performance.now();
     const loop = (now) => {
       animRef.current = requestAnimationFrame(loop);
       frameCount++;
 
+      const dt = Math.min(0.05, (now - prevTime) / 1000);
+      prevTime = now;
+
+      // Player movement
+      const keys = keysRef.current;
+      const speed = keys["ShiftLeft"] || keys["ShiftRight"] ? 6 : 3;
+      const yaw = cameraRef.current.yaw;
+      const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+      const right = new THREE.Vector3(fwd.z, 0, -fwd.x);
+      const move = new THREE.Vector3();
+      if (keys["KeyW"] || keys["ArrowUp"]) move.add(fwd);
+      if (keys["KeyS"] || keys["ArrowDown"]) move.sub(fwd);
+      if (keys["KeyA"] || keys["ArrowLeft"]) move.sub(right);
+      if (keys["KeyD"] || keys["ArrowRight"]) move.add(right);
+      if (move.length() > 0) {
+        move.normalize().multiplyScalar(speed * dt);
+        const nx = player.group.position.x + move.x;
+        const nz = player.group.position.z + move.z;
+        const nh = worldOk ? getHeight(nx, nz) : 0;
+        player.group.position.set(nx, nh, nz);
+        // Face movement direction
+        player.group.rotation.y = Math.atan2(move.x, move.z);
+      }
+
+      // Third-person camera
+      const tgt = player.group.position;
+      const cx = tgt.x + Math.sin(yaw) * camDist;
+      const cz = tgt.z + Math.cos(yaw) * camDist;
+      const cy = tgt.y + camHeight;
+      camera.position.set(cx, cy, cz);
+      camera.lookAt(tgt.x, tgt.y + 1, tgt.z);
+
+      // Clouds drift
+      for (const c of clouds) {
+        c.sprite.position.x += c.dx * dt * c.speed;
+        if (c.sprite.position.x > W + 20) c.sprite.position.x = -(W + 20);
+        if (c.sprite.position.x < -(W + 20)) c.sprite.position.x = W + 20;
+      }
+
+      // Animals
+      for (const a of animals) {
+        a.phase += dt * a.speed * 0.2;
+        a.group.position.x = a.ax + Math.sin(a.phase) * 2;
+        a.group.position.z = a.az + Math.cos(a.phase * 0.7) * 2;
+        a.group.position.y = worldOk ? getHeight(a.group.position.x, a.group.position.z) : 0;
+      }
+
+      // Debug (every 30 frames)
       if (frameCount % 30 === 0) {
         debugRef.current = {
           camX: camera.position.x.toFixed(1),
@@ -614,12 +562,13 @@ export default function VirtualShoppingBrane() {
     };
 
     animRef.current = requestAnimationFrame(loop);
-    console.log("[STEP1] Loop started");
+    console.log("[BASE] Loop started");
 
     return () => {
       cancelAnimationFrame(animRef.current);
       renderer.dispose();
       sceneRef.current = null;
+      playerRef.current = null;
     };
   }, [screen]);
 
