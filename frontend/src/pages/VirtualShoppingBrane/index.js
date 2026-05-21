@@ -4,7 +4,7 @@ import CreateProjectModal from "./CreateProjectModal.js";
 import ProjectDetailModal from "./ProjectDetailModal.js";
 import FeaturePanel from "./FeaturePanel.js";
 import MiniDemo from "./MiniDemo.js";
-import SurvivalDemo from "./SurvivalDemo.js";
+import DemoApp from "./demo/DemoApp.js";
 import "./VirtualShoppingBrane.css";
 
 // ─── DATA ──────────────────────────────────────────────
@@ -87,7 +87,7 @@ function GameDemoOverlay({ onClose }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <SurvivalDemo onClose={onClose} />
+      <DemoApp onClose={onClose} />
     </motion.div>
   );
 }

@@ -973,26 +973,26 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
   color: #ccc;
 }
 
-/* ─── SURVIVAL DEMO ──────────────────────────────────── */
-.sd-root {
+/* ─── DEMO APP ─────────────────────────────────────────── */
+.demo-app-root {
   position: absolute;
   inset: 0;
   background: #000;
   overflow: hidden;
 }
 
-.sd-canvas {
+.demo-app-canvas {
   position: absolute;
   inset: 0;
 }
 
-.sd-canvas canvas {
+.demo-app-canvas canvas {
   display: block;
   width: 100% !important;
   height: 100% !important;
 }
 
-.sd-close-btn {
+.demo-app-close {
   position: absolute;
   top: 16px;
   right: 16px;
@@ -1008,10 +1008,9 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
   transition: all 0.2s;
 }
 
-.sd-close-btn:hover { background: rgba(255, 68, 68, 0.3); border-color: rgba(255, 68, 68, 0.4); }
+.demo-app-close:hover { background: rgba(255, 68, 68, 0.3); border-color: rgba(255, 68, 68, 0.4); }
 
-/* Loading */
-.sd-loading {
+.demo-app-loading {
   position: absolute;
   inset: 0;
   display: flex;
@@ -1025,7 +1024,7 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
   z-index: 50;
 }
 
-.sd-loading-spinner {
+.demo-app-spinner {
   width: 40px;
   height: 40px;
   border: 3px solid rgba(124, 92, 252, 0.2);
@@ -1034,100 +1033,7 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
   animation: bs-spin 0.8s linear infinite;
 }
 
-/* HUD */
-.sd-hud {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 10;
-}
-
-.sd-hud-top {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.sd-hud-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 6px 12px;
-  border-radius: 8px;
-  backdrop-filter: blur(4px);
-}
-
-.sd-hud-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: #aaa;
-  letter-spacing: 0.05em;
-  min-width: 60px;
-}
-
-.sd-hud-bar {
-  width: 120px;
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.1);
-  overflow: hidden;
-}
-
-.sd-hud-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.2s ease;
-}
-
-.sd-hud-fill.health { background: linear-gradient(90deg, #ee3344, #ff6644); }
-.sd-hud-fill.stamina { background: linear-gradient(90deg, #4488ff, #44ccff); }
-
-.sd-hud-value {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #fff;
-  min-width: 24px;
-  text-align: right;
-}
-
-.sd-crosshair {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 1.5rem;
-  font-weight: 100;
-  text-shadow: 0 0 8px rgba(0,0,0,0.5);
-}
-
-.sd-hud-bottom {
-  position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.sd-hud-objective {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 8px 18px;
-  border-radius: 12px;
-  backdrop-filter: blur(4px);
-  font-size: 0.78rem;
-  color: #ccc;
-}
-
-.sd-hud-sep { color: #555; }
-
-/* Overlay (Game Over / Victory) */
-.sd-overlay {
+.demo-app-overlay {
   position: absolute;
   inset: 0;
   display: flex;
@@ -1138,7 +1044,7 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
   z-index: 50;
 }
 
-.sd-overlay-content {
+.demo-app-modal {
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -1151,23 +1057,22 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
   max-width: 400px;
 }
 
-.sd-overlay-icon { font-size: 4rem; }
+.demo-app-modal-icon { font-size: 3rem; }
 
-.sd-overlay-icon.victory { font-size: 4rem; }
-
-.sd-overlay-content h2 {
-  font-size: 2rem;
+.demo-app-modal h2 {
+  font-size: 1.5rem;
   font-weight: 900;
-  color: #ee3344;
-  letter-spacing: 0.05em;
+  color: #ee4455;
 }
 
-.sd-overlay-content p {
-  color: var(--bs-muted);
-  font-size: 0.95rem;
+.demo-app-modal p {
+  color: #888;
+  font-size: 0.9rem;
+  max-width: 320px;
+  line-height: 1.5;
 }
 
-.sd-overlay-buttons {
+.demo-app-buttons {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1175,7 +1080,7 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
   margin-top: 8px;
 }
 
-.sd-overlay-buttons .bs-btn { width: 100%; justify-content: center; }
+.demo-app-buttons .bs-btn { width: 100%; justify-content: center; }
 
 /* ─── MODALS ─────────────────────────────────────────── */
 .bs-modal-overlay {
