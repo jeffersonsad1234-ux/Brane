@@ -132,6 +132,7 @@ export default function GalaxySurvivalApp({ onClose }) {
                 <div>Ctrl — Descer</div>
                 <div>Shift — Turbo</div>
                 <div>E — Sair</div>
+                <div>C — Trocar câmera ({hud.camMode === "cockpit" ? "cabine" : "3ª pessoa"})</div>
               </>
             )}
           </div>
