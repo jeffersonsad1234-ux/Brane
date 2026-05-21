@@ -1,21 +1,35 @@
+import * as THREE from "three";
 import InputManager from "./InputManager.js";
 import SceneSetup from "./SceneSetup.js";
 import World from "./World.js";
 import Player from "./Player.js";
 import CameraController from "./CameraController.js";
+import EnemyManager from "./EnemyManager.js";
 import DebugOverlay from "./DebugOverlay.js";
 
-const PHASES = ["input", "renderer", "scene", "camera", "lights", "world", "player", "debug"];
+const PHASES = ["input", "renderer", "world", "player", "camera", "enemies", "debug"];
+const MAX_HEALTH = 100;
+const STAMINA_DRAIN = 16;
+const STAMINA_REGEN = 8;
+const STAMINA_MAX = 100;
 
 export default class GameManager {
-  constructor(container) {
+  constructor(container, callbacks) {
     this.container = container;
+    this.callbacks = callbacks || {};
     this.input = null;
     this.sceneSetup = null;
     this.world = null;
     this.player = null;
     this.cameraController = null;
+    this.enemies = null;
     this.debug = null;
+
+    this.health = MAX_HEALTH;
+    this.stamina = STAMINA_MAX;
+    this.zombiesAlive = 0;
+    this.gameTime = 0;
+    this.gameOver = false;
 
     this.phaseStatus = {};
     for (const p of PHASES) this.phaseStatus[p] = "pending";
@@ -31,88 +45,102 @@ export default class GameManager {
   }
 
   init() {
-    try {
-      window.addEventListener("resize", this._onResize);
-    } catch {}
+    try { window.addEventListener("resize", this._onResize); } catch {}
     return this._initPhases();
   }
 
   _initPhases() {
-    // Phase 1: Input
+    // Input
     try {
       this.input = new InputManager();
       this.phaseStatus["input"] = "ok";
-    } catch (e) {
-      this.phaseStatus["input"] = "fail";
-    }
+    } catch { this.phaseStatus["input"] = "fail"; }
 
-    // Phase 2: Renderer
+    // Renderer + Scene + Camera + Lights
     try {
       this.sceneSetup = new SceneSetup(this.container);
       const ok = this.sceneSetup.init();
       this.phaseStatus["renderer"] = ok ? "ok" : "fail";
-      if (!ok) throw new Error(this.sceneSetup.errorMsg || "Renderer init failed");
+      if (!ok) throw new Error(this.sceneSetup.errorMsg || "Renderer failed");
     } catch (e) {
       this.phaseStatus["renderer"] = "fail";
       this._showFatalError("Renderer: " + e.message);
       return false;
     }
 
-    // Phase 3: World (can fail gracefully)
+    // World
+    const getHeight = (x, z) => 0;
     try {
       this.world = new World(this.sceneSetup.scene);
       const ok = this.world.init();
       this.phaseStatus["world"] = ok ? "ok" : "fail";
-    } catch (e) {
-      this.phaseStatus["world"] = "fail";
-    }
+    } catch { this.phaseStatus["world"] = "fail"; }
 
-    // Phase 4: Player (can fail gracefully)
-    const getHeight = this.world && this.world.ok
+    const worldGetHeight = this.world && this.world.ok
       ? (x, z) => this.world.getHeightAt(x, z)
       : () => 0;
+
+    // Player
     try {
-      this.player = new Player(this.sceneSetup.scene, getHeight);
+      this.player = new Player(this.sceneSetup.scene, worldGetHeight);
       const ok = this.player.init();
       this.phaseStatus["player"] = ok ? "ok" : "fail";
-    } catch (e) {
-      this.phaseStatus["player"] = "fail";
-    }
+    } catch { this.phaseStatus["player"] = "fail"; }
 
-    // Phase 5: Camera
+    // Camera
     try {
       this.cameraController = new CameraController(this.sceneSetup.camera);
       this.phaseStatus["camera"] = "ok";
-    } catch (e) {
-      this.phaseStatus["camera"] = "fail";
-    }
+    } catch { this.phaseStatus["camera"] = "fail"; }
 
-    // Phase 6: Debug
+    // Enemies
+    try {
+      this.enemies = new EnemyManager(
+        this.sceneSetup.scene,
+        () => this.player && this.player.ok ? this.player.position : new THREE.Vector3(),
+        worldGetHeight
+      );
+      const ok = this.enemies.init(5);
+      this.phaseStatus["enemies"] = ok ? "ok" : "fail";
+    } catch { this.phaseStatus["enemies"] = "fail"; }
+
+    this.zombiesAlive = this.enemies && this.enemies.ok ? this.enemies.getAliveCount() : 0;
+
+    // Debug
     try {
       this.debug = new DebugOverlay();
       this.phaseStatus["debug"] = "ok";
-    } catch (e) {
-      this.phaseStatus["debug"] = "fail";
-    }
+    } catch { this.phaseStatus["debug"] = "fail"; }
 
-    // Update debug with phase status
     this._updateDebugStatus();
 
-    // Start loop
     this.running = true;
     this.lastTime = performance.now();
     this._loop(this.lastTime);
 
+    if (this.callbacks.onStateChange) this.callbacks.onStateChange(this.getState());
     return true;
+  }
+
+  getState() {
+    return {
+      health: Math.max(0, Math.round(this.health)),
+      stamina: Math.max(0, Math.round(this.stamina)),
+      zombiesAlive: this.zombiesAlive,
+      gameTime: this.gameTime,
+      gameOver: this.gameOver,
+      phase: this.gameOver ? "gameover" : "playing",
+    };
+  }
+
+  _emitState() {
+    if (this.callbacks.onStateChange) this.callbacks.onStateChange(this.getState());
   }
 
   _updateDebugStatus() {
     if (!this.debug) return;
     for (const p of PHASES) {
       this.debug.set(p, this.phaseStatus[p] === "ok" ? "✓" : "✗");
-    }
-    if (this.player && this.player.ok) {
-      this.debug.set("pos", "0, 0, 0");
     }
   }
 
@@ -123,12 +151,41 @@ export default class GameManager {
     const dt = Math.min((now - this.lastTime) / 1000, 0.05);
     this.lastTime = now;
 
-    // Update input
     if (this.input) this.input.clearFrame();
 
-    // Update player
     if (this.player && this.player.ok && this.input) {
+      const wasSprinting = this.player.sprinting;
+
       this.player.update(dt, this.input);
+
+      // Stamina drain/regen
+      if (this.player.sprinting && this.player.grounded) {
+        this.stamina = Math.max(0, this.stamina - STAMINA_DRAIN * dt);
+        if (this.stamina <= 0) { this.stamina = 0; }
+      } else if (this.stamina < STAMINA_MAX) {
+        this.stamina = Math.min(STAMINA_MAX, this.stamina + STAMINA_REGEN * dt);
+      }
+    }
+
+    // Enemies
+    let damage = 0;
+    if (this.enemies && this.enemies.ok) {
+      damage = this.enemies.update(dt);
+      this.zombiesAlive = this.enemies.getAliveCount();
+    }
+
+    // Apply damage
+    if (damage > 0 && !this.gameOver) {
+      this.health = Math.max(0, this.health - damage);
+      if (this.health <= 0) {
+        this.health = 0;
+        this.gameOver = true;
+      }
+    }
+
+    // Game timer
+    if (!this.gameOver) {
+      this.gameTime += dt;
     }
 
     // Update camera
@@ -137,26 +194,34 @@ export default class GameManager {
       this.cameraController.update(dt);
     }
 
-    // Update debug
+    // Update player follow light
+    if (this.sceneSetup && this.player && this.player.ok) {
+      this.sceneSetup.updatePlayerLight(this.player.position);
+    }
+
+    // Debug
     if (this.debug) {
       this.debug.update(now);
       if (this.player && this.player.ok) {
         const p = this.player.position;
         this.debug.set("pos", `${p.x.toFixed(1)}, ${p.y.toFixed(1)}, ${p.z.toFixed(1)}`);
       }
-      if (this.sceneSetup) {
-        if (this.sceneSetup.renderer) {
-          const info = this.sceneSetup.renderer.info;
-          this.debug.set("tris", info.render.triangles);
-          this.debug.set("calls", info.render.calls);
-        }
+      if (this.sceneSetup && this.sceneSetup.renderer) {
+        const info = this.sceneSetup.renderer.info;
+        this.debug.set("tris", info.render.triangles);
+        this.debug.set("calls", info.render.calls);
       }
+      this.debug.set("hp", this.health.toFixed(0));
+      this.debug.set("zombies", this.zombiesAlive);
     }
 
     // Render
-    if (this.sceneSetup) {
-      this.sceneSetup.render();
-    }
+    if (this.sceneSetup) this.sceneSetup.render();
+
+    // Emit state periodically (every 5 frames ≈ 12 times/sec)
+    if (this._frameCount === undefined) this._frameCount = 0;
+    this._frameCount++;
+    if (this._frameCount % 5 === 0) this._emitState();
   }
 
   _showFatalError(msg) {
@@ -185,10 +250,9 @@ export default class GameManager {
     if (this.animId) cancelAnimationFrame(this.animId);
     if (this.input) this.input.destroy();
     if (this.player) this.player.dispose();
+    if (this.enemies) this.enemies.dispose();
     if (this.world) this.world.dispose();
-    if (this.sceneSetup) {
-      this.sceneSetup.dispose();
-    }
+    if (this.sceneSetup) this.sceneSetup.dispose();
     if (this.debug) this.debug.dispose();
     window.removeEventListener("resize", this._onResize);
     this.phaseStatus = {};

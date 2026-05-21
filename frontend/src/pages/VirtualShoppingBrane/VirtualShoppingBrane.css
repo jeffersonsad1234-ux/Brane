@@ -973,6 +973,109 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
   color: #ccc;
 }
 
+/* ─── DEMO HUD ────────────────────────────────────────── */
+.dh-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.dh-stats {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dh-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
+  border-radius: 8px;
+  backdrop-filter: blur(3px);
+}
+
+.dh-stat-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #aaa;
+  letter-spacing: 0.05em;
+  min-width: 54px;
+}
+
+.dh-stat-bar {
+  width: 100px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.dh-stat-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.15s ease;
+}
+
+.dh-stat-fill.health { background: linear-gradient(90deg, #dd3344, #ff6644); }
+.dh-stat-fill.stamina { background: linear-gradient(90deg, #3388ff, #44ccff); }
+
+.dh-stat-value {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  min-width: 22px;
+  text-align: right;
+}
+
+.dh-crosshair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 1.3rem;
+  font-weight: 100;
+  text-shadow: 0 0 4px rgba(0,0,0,0.5);
+}
+
+.dh-objective {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 14px;
+  border-radius: 10px;
+  backdrop-filter: blur(3px);
+  font-size: 0.75rem;
+  color: #ccc;
+}
+
+.dh-sep { color: #555; }
+
+.dh-controls {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 8px 12px;
+  border-radius: 8px;
+  backdrop-filter: blur(3px);
+  font-size: 0.65rem;
+  color: #888;
+  line-height: 1.6;
+  text-align: right;
+}
+
 /* ─── DEMO APP ─────────────────────────────────────────── */
 .demo-app-root {
   position: absolute;
