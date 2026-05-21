@@ -122,7 +122,7 @@ function AppRouter() {
   }
 
   const isAdmin = path.startsWith("/admin");
-  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane") || path.startsWith("/brane-studio") || path.startsWith("/brane-agent") || path.startsWith("/agente") || path.startsWith("/shopping");
+  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane") || path.startsWith("/brane-studio") || path.startsWith("/brane-agent") || path.startsWith("/agente") || path.startsWith("/shopping") || path.startsWith("/notanews");
 
   return (
     <>
@@ -206,7 +206,7 @@ function AppRouter() {
             <Route path="/brane-studio/shopping" element={<Navigate to="/shopping" replace />} />
             <Route path="/brane-agent" element={<BraneAgent />} />
             <Route path="/agente" element={<BraneAgent />} />
-            <Route path="/Notanews/*" element={<Notanews />} />
+            <Route path="/notanews/*" element={<Notanews />} />
 
             <Route
               path="/add-product"
