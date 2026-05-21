@@ -16,11 +16,13 @@ export default class GalaxySurvivalDemo {
     this.state = {
       mode: "player", health: 100, stamina: 100, oxygen: 100,
       nearShip: false, distToShip: 0, shipSpeed: 0, canExit: false,
+      camMode: "third",
     };
 
     // Keyboard
     this.keys = {};
     this._eWasDown = false;
+    this._cWasDown = false;
 
     // Three.js
     this.scene = null;
@@ -48,6 +50,12 @@ export default class GalaxySurvivalDemo {
     this.shipSpeed = 0;
     this.shipTargetAlt = 3;
     this.shipAltitude = 0;
+
+    // Camera modes
+    this.camMode = "third";
+    this.camDistance = 14;
+    this.camHeight = 8;
+    this.thirdCamPos = new THREE.Vector3(0, 8, 14);
 
     // Physics
     this.gravity = -22;
@@ -81,6 +89,7 @@ export default class GalaxySurvivalDemo {
       this._buildTrees();
       this._buildRocks();
       this._buildShip();
+      this._buildCockpitInterior();
       this._setupPlayer();
       this._setupInput();
       this._startLoop();
@@ -92,364 +101,127 @@ export default class GalaxySurvivalDemo {
   }
 
   // ═══════════════════════════════════════════════════════
-  // RENDERER
+  // COCKPIT INTERIOR
   // ═══════════════════════════════════════════════════════
-  _setupRenderer() {
-    const w = this.container.clientWidth;
-    const h = this.container.clientHeight;
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    this.renderer.setSize(w, h);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.0;
-    this.container.appendChild(this.renderer.domElement);
+  _buildCockpitInterior() {
+    const g = this.shipGroup;
 
-    this._onResize = () => {
-      const cw = this.container.clientWidth;
-      const ch = this.container.clientHeight;
-      this.camera.aspect = cw / ch;
-      this.camera.updateProjectionMatrix();
-      this.renderer.setSize(cw, ch);
-    };
-    window.addEventListener("resize", this._onResize);
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // SCENE
-  // ═══════════════════════════════════════════════════════
-  _setupScene() {
-    this.scene = new THREE.Scene();
-    const c = document.createElement("canvas");
-    c.width = 1; c.height = 128;
-    const ctx = c.getContext("2d");
-    const g = ctx.createLinearGradient(0, 0, 0, 128);
-    g.addColorStop(0, SKY_TOP);
-    g.addColorStop(0.5, SKY_MID);
-    g.addColorStop(1, SKY_BOT);
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 1, 128);
-    this.scene.background = new THREE.CanvasTexture(c);
-    this.scene.fog = new THREE.FogExp2(new THREE.Color(SKY_MID), 0.008);
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // LIGHTS
-  // ═══════════════════════════════════════════════════════
-  _setupLights() {
-    this.scene.add(new THREE.AmbientLight(0x446688, 0.4));
-    this.scene.add(new THREE.HemisphereLight(0x4488ff, 0x442222, 0.5));
-    this.sun = new THREE.DirectionalLight(0xffddaa, 1.5);
-    this.sun.position.set(15, 25, 5);
-    this.sun.castShadow = true;
-    this.sun.shadow.mapSize.set(2048, 2048);
-    const sc = this.sun.shadow.camera;
-    sc.near = 1; sc.far = 50;
-    sc.left = -25; sc.right = 25;
-    sc.top = 25; sc.bottom = -25;
-    this.scene.add(this.sun);
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // TERRAIN
-  // ═══════════════════════════════════════════════════════
-  _terrainHeight(x, z) {
-    return (Math.sin(x * 0.04 + 1.3) * Math.cos(z * 0.05 + 0.7) * 0.3
-      + Math.sin(x * 0.09 + z * 0.07) * 0.12
-      + Math.sin(x * 0.15 + z * 0.12 + 2.0) * 0.05);
-  }
-
-  _buildTerrain() {
-    const segs = 50, size = 50;
-    const geo = new THREE.PlaneGeometry(size, size, segs, segs);
-    geo.rotateX(-Math.PI / 2);
-    const pos = geo.attributes.position;
-    const colors = new Float32Array(pos.count * 3);
-
-    for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i), z = pos.getZ(i);
-      const h = this._terrainHeight(x, z);
-      pos.setY(i, h);
-      const nearPad = Math.abs(x + 3) < 3 && Math.abs(z + 2) < 3;
-      const nearRd = Math.abs(x) < 2 && z < 2 && z > -12;
-      if (nearPad) {
-        colors[i * 3] = 0.3 + Math.random() * 0.04;
-        colors[i * 3 + 1] = 0.28 + Math.random() * 0.04;
-        colors[i * 3 + 2] = 0.22 + Math.random() * 0.04;
-      } else if (nearRd) {
-        colors[i * 3] = 0.28 + Math.random() * 0.04;
-        colors[i * 3 + 1] = 0.26 + Math.random() * 0.04;
-        colors[i * 3 + 2] = 0.20 + Math.random() * 0.04;
-      } else {
-        const gr = 0.2 + Math.random() * 0.08 + (h + 0.5) * 0.15;
-        colors[i * 3] = 0.08 + Math.random() * 0.06;
-        colors[i * 3 + 1] = clamp(gr, 0.1, 0.5);
-        colors[i * 3 + 2] = 0.04 + Math.random() * 0.04;
-      }
-    }
-    pos.needsUpdate = true;
-    geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-    geo.computeVertexNormals();
-
-    this.terrain = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({
-      vertexColors: true, roughness: 0.9, metalness: 0,
-    }));
-    this.terrain.receiveShadow = true;
-    this.scene.add(this.terrain);
-    this.objects.push(this.terrain);
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // ROAD
-  // ═══════════════════════════════════════════════════════
-  _buildRoad() {
-    const mat = new THREE.MeshStandardMaterial({ color: 0x3a3a4a, roughness: 1 });
-    for (let z = 2; z >= -11; z -= 2) {
-      const h = this._terrainHeight(0, z);
-      const s = new THREE.Mesh(new THREE.PlaneGeometry(3, 2), mat);
-      s.rotation.x = -Math.PI / 2;
-      s.position.set(0, h + 0.02, z);
-      this.scene.add(s);
-      this.objects.push(s);
-    }
-    for (let z = 2; z <= 6; z += 2) {
-      const h = this._terrainHeight(0, z);
-      const s = new THREE.Mesh(new THREE.PlaneGeometry(3, 2), mat);
-      s.rotation.x = -Math.PI / 2;
-      s.position.set(0, h + 0.02, z);
-      this.scene.add(s);
-      this.objects.push(s);
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // BUILDINGS
-  // ═══════════════════════════════════════════════════════
-  _buildBuildings() {
-    const defs = [
-      { x: -9, z: 4, w: 2, h: 1.6, d: 2, rot: 0.2 },
-      { x: 5, z: -6, w: 1.8, h: 2, d: 1.8, rot: -0.3 },
-      { x: -11, z: -5, w: 2.2, h: 1.4, d: 2.2, rot: 0.5 },
-    ];
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0x4a5a6a, roughness: 0.7, metalness: 0.3 });
-    const roofMat = new THREE.MeshStandardMaterial({ color: 0x3a3a4a, roughness: 0.6, metalness: 0.5 });
-    const winMat = new THREE.MeshBasicMaterial({ color: 0xffdd88, transparent: true, opacity: 0.3 });
-    const doorMat = new THREE.MeshBasicMaterial({ color: 0x2a1a0a });
-
-    for (const d of defs) {
-      const g = new THREE.Group();
-      const gh = this._terrainHeight(d.x, d.z);
-      const wall = new THREE.Mesh(new THREE.BoxGeometry(d.w, d.h, d.d), wallMat);
-      wall.position.y = d.h / 2;
-      wall.castShadow = true;
-      g.add(wall);
-      const roof = new THREE.Mesh(new THREE.BoxGeometry(d.w + 0.2, 0.15, d.d + 0.2), roofMat);
-      roof.position.y = d.h + 0.08;
-      g.add(roof);
-      for (const wx of [-0.3, 0.3]) {
-        const win = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.18), winMat);
-        win.position.set(wx, d.h * 0.6, d.d / 2 + 0.01);
-        g.add(win);
-      }
-      const door = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.5), doorMat);
-      door.position.set(0, 0.25, d.d / 2 + 0.01);
-      g.add(door);
-      g.position.set(d.x, gh, d.z);
-      g.rotation.y = d.rot;
-      this.scene.add(g);
-      this.objects.push(g);
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // LAMP POSTS
-  // ═══════════════════════════════════════════════════════
-  _buildLampPosts() {
-    const poleMat = new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.5, metalness: 0.8 });
-    const lampMat = new THREE.MeshBasicMaterial({ color: 0xaaccff });
-    for (const z of [0, -2, -4, -6, -8]) {
-      for (const side of [-1.8, 1.8]) {
-        const g = new THREE.Group();
-        const h = this._terrainHeight(side, z);
-        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.03, 0.8, 6), poleMat);
-        pole.position.y = 0.4;
-        g.add(pole);
-        const arm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.015, 0.015), poleMat);
-        arm.position.set(side > 0 ? 0.12 : -0.12, 0.78, 0);
-        g.add(arm);
-        const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), lampMat);
-        bulb.position.set(side > 0 ? 0.22 : -0.22, 0.78, 0);
-        g.add(bulb);
-        g.position.set(side, h, z);
-        this.scene.add(g);
-        this.objects.push(g);
-      }
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // TREES
-  // ═══════════════════════════════════════════════════════
-  _buildTrees() {
-    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x4a3a2a, roughness: 0.9 });
-    const leafMat = new THREE.MeshStandardMaterial({ color: 0x1a4a2a, roughness: 0.85 });
-    for (let i = 0; i < 20; i++) {
-      let x, z;
-      for (let t = 0; t < 50; t++) {
-        x = rng(-22, 22);
-        z = rng(-22, 22);
-        if (Math.abs(x + 3) < 4 && Math.abs(z + 2) < 4) continue;
-        if (Math.abs(x) < 2.5 && z < 8 && z > -12) continue;
-        break;
-      }
-      const h = this._terrainHeight(x, z);
-      const s = rng(0.7, 1.3);
-      const g = new THREE.Group();
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.03 * s, 0.06 * s, 0.6 * s, 5), trunkMat);
-      trunk.position.y = 0.3 * s;
-      g.add(trunk);
-      const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.25 * s, 6, 6), leafMat);
-      leaf.position.y = 0.7 * s + 0.2 * s;
-      leaf.castShadow = true;
-      g.add(leaf);
-      g.position.set(x, h, z);
-      this.scene.add(g);
-      this.objects.push(g);
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // ROCKS
-  // ═══════════════════════════════════════════════════════
-  _buildRocks() {
-    const mat = new THREE.MeshStandardMaterial({ color: 0x4a4a5a, roughness: 0.9 });
-    for (let i = 0; i < 15; i++) {
-      let x = rng(-20, 20), z = rng(-20, 20);
-      if (Math.abs(x + 3) < 4 && Math.abs(z + 2) < 4) continue;
-      if (Math.abs(x) < 2.5 && z < 6 && z > -10) continue;
-      const h = this._terrainHeight(x, z);
-      const r = new THREE.Mesh(new THREE.DodecahedronGeometry(rng(0.08, 0.2), 0), mat);
-      r.position.set(x, h + rng(0.02, 0.06), z);
-      r.rotation.set(rng(0, 6), rng(0, 6), rng(0, 6));
-      r.scale.y = rng(0.4, 0.7);
-      this.scene.add(r);
-      this.objects.push(r);
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // SHIP
-  // ═══════════════════════════════════════════════════════
-  _buildShip() {
-    const g = new THREE.Group();
-    const shipH = this._terrainHeight(-3, 2);
-
-    const dk = { color: 0x1a1a2e, roughness: 0.3, metalness: 0.9 };
-    const lt = { color: 0x2a2a4a, roughness: 0.4, metalness: 0.85 };
-    const cp = new THREE.MeshStandardMaterial({ color: 0x0a0a1a, roughness: 0.1, metalness: 0.95, transparent: true, opacity: 0.4 });
-    const gl = new THREE.MeshStandardMaterial({ color: 0x0044aa, emissive: 0x0088ff, emissiveIntensity: 0.5 });
-    const en = new THREE.MeshStandardMaterial({ color: 0x222244, emissive: 0x4488ff, emissiveIntensity: 0.4 });
+    const dk = { color: 0x0e0e1a, roughness: 0.4, metalness: 0.85 };
+    const neon = { color: 0x00ddff, emissive: 0x00ddff, emissiveIntensity: 0.5 };
+    const holo = new THREE.MeshStandardMaterial({
+      color: 0x0066ff, emissive: 0x0088ff, emissiveIntensity: 0.3,
+      transparent: true, opacity: 0.25, side: THREE.DoubleSide,
+    });
+    const scr = new THREE.MeshStandardMaterial({
+      color: 0x002244, emissive: 0x0044aa, emissiveIntensity: 0.4,
+    });
 
     const m = (o) => new THREE.MeshStandardMaterial(o);
 
-    // Fuselage
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 2.2, 8), m(dk));
-    body.rotation.x = Math.PI / 2; body.position.y = 0.6; body.castShadow = true;
-    g.add(body);
+    // Main dashboard panel
+    const dash = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.06, 0.08), m(dk));
+    dash.position.set(0, -0.1, -0.82);
+    g.add(dash);
 
-    // Nose
-    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.5, 8), m(dk));
-    nose.rotation.x = -Math.PI / 2; nose.position.set(0, 0.6, -1.3);
-    g.add(nose);
+    // Dashboard slope
+    const slope = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.02, 0.12), m(dk));
+    slope.position.set(0, -0.06, -0.88);
+    slope.rotation.x = 0.25;
+    g.add(slope);
 
-    // Cockpit
-    const cw = new THREE.Mesh(new THREE.SphereGeometry(0.3, 8, 6), cp);
-    cw.position.set(0, 0.8, -0.9); cw.scale.set(1, 0.6, 0.5);
-    g.add(cw);
-    const cg = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.02, 8, 12), gl);
-    cg.position.set(0, 0.8, -0.9); cg.rotation.x = 0.3;
-    g.add(cg);
+    // Holographic display (center)
+    const holoScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.14), holo);
+    holoScreen.position.set(0, -0.02, -0.87);
+    this._holoScreen = holoScreen;
+    g.add(holoScreen);
 
-    // Wings
-    for (const side of [-1, 1]) {
-      const w = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.35, 0.9), m(lt));
-      w.position.set(side * 0.8, 0.45, 0.4); w.rotation.z = side * 0.15; w.castShadow = true;
-      g.add(w);
-      const t = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6),
-        new THREE.MeshBasicMaterial({ color: side === -1 ? 0xff4422 : 0x22ff44 }));
-      t.position.set(side * 0.82, 0.45, 0.4);
-      g.add(t);
+    // Holo border
+    const hb = new THREE.Line(
+      new THREE.EdgesGeometry(new THREE.PlaneGeometry(0.24, 0.16)),
+      new THREE.LineBasicMaterial({ color: 0x00ddff, transparent: true, opacity: 0.3 })
+    );
+    hb.position.copy(holoScreen.position);
+    hb.position.z += 0.001;
+    g.add(hb);
+
+    // Radar circular display (left)
+    const radarRing = new THREE.Mesh(new THREE.RingGeometry(0.04, 0.06, 16),
+      new THREE.MeshBasicMaterial({ color: 0x00ccff, transparent: true, opacity: 0.4, side: THREE.DoubleSide }));
+    radarRing.position.set(-0.14, -0.02, -0.85);
+    this._radarRing = radarRing;
+    g.add(radarRing);
+
+    const radarDot = new THREE.Mesh(new THREE.SphereGeometry(0.008, 6, 6),
+      new THREE.MeshBasicMaterial({ color: 0x00ff88 }));
+    radarDot.position.set(-0.14, -0.02, -0.85);
+    this._radarDot = radarDot;
+    g.add(radarDot);
+
+    // Small screen (right side)
+    const rScreen = new THREE.Mesh(new THREE.PlaneGeometry(0.08, 0.06), scr);
+    rScreen.position.set(0.16, -0.02, -0.85);
+    g.add(rScreen);
+
+    // Left side panel
+    const lp = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.2, 0.08), m(dk));
+    lp.position.set(-0.32, 0.02, -0.72);
+    g.add(lp);
+
+    // Right side panel
+    const rp = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.2, 0.08), m(dk));
+    rp.position.set(0.32, 0.02, -0.72);
+    g.add(rp);
+
+    // Neon strips on side panels
+    for (const sx of [-0.35, 0.35]) {
+      const ns = new THREE.Mesh(new THREE.BoxGeometry(0.01, 0.15, 0.01), m(neon));
+      ns.position.set(sx, 0.02, -0.72);
+      g.add(ns);
     }
 
-    // Engines
-    for (const side of [-1, 1]) {
-      const n = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.15, 0.4, 6), m(dk));
-      n.position.set(side * 0.45, 0.35, 1.2); n.rotation.x = 0.2;
-      g.add(n);
-      const e = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.01, 0.15, 6), en);
-      e.position.set(side * 0.45, 0.3, 1.4);
-      g.add(e);
-    }
-    const ce = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.2, 0.35, 6), m(dk));
-    ce.position.set(0, 0.4, 1.3); ce.rotation.x = 0.2;
-    g.add(ce);
-    const cg2 = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.02, 0.15, 6), {
-      color: 0x4488ff, emissive: 0x4488ff, emissiveIntensity: 0.6,
-    });
-    cg2.position.set(0, 0.35, 1.5);
-    g.add(cg2);
+    // Control stick
+    const stickMat = m({ color: 0x1a1a2e, roughness: 0.5, metalness: 0.7 });
+    const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.015, 0.15, 6), stickMat);
+    stick.position.set(0, -0.2, -0.65);
+    g.add(stick);
 
-    // Struts
-    for (const [sx, sz] of [[-0.5, -0.6], [0.5, -0.6], [-0.5, 0.8], [0.5, 0.8]]) {
-      const st = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.2, 4), m(dk));
-      st.position.set(sx, 0.12, sz);
-      g.add(st);
-      const ft = new THREE.Mesh(new THREE.SphereGeometry(0.03, 4, 4), m(dk));
-      ft.position.set(sx, 0.02, sz);
-      g.add(ft);
+    const grip = new THREE.Mesh(new THREE.SphereGeometry(0.018, 6, 6), stickMat);
+    grip.position.set(0, -0.12, -0.65);
+    g.add(grip);
+
+    // Buttons on left panel
+    const btnColors = [0x00ff44, 0xffaa00, 0xff3344];
+    for (let i = 0; i < 3; i++) {
+      const btn = new THREE.Mesh(new THREE.SphereGeometry(0.008, 6, 6),
+        new THREE.MeshBasicMaterial({ color: btnColors[i] }));
+      btn.position.set(-0.32, 0.06 + i * 0.04, -0.68);
+      g.add(btn);
     }
 
-    // Hull detail
-    for (let i = 0; i < 6; i++) {
-      const p = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.04),
-        m({ color: 0x222240, roughness: 0.5, metalness: 0.8 }));
-      const a = (i / 6) * Math.PI * 2;
-      p.position.set(Math.cos(a) * 0.65, 0.5 + Math.sin(i) * 0.1, Math.sin(a) * 0.65);
-      p.lookAt(new THREE.Vector3(0, 0.5, 0));
-      g.add(p);
+    // Buttons on right panel
+    for (let i = 0; i < 2; i++) {
+      const btn = new THREE.Mesh(new THREE.SphereGeometry(0.008, 6, 6),
+        new THREE.MeshBasicMaterial({ color: 0x4488ff }));
+      btn.position.set(0.32, 0.06 + i * 0.04, -0.68);
+      g.add(btn);
     }
 
-    // Hover glow
-    this.hoverGlow = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 0.05, 12),
-      new THREE.MeshStandardMaterial({ color: 0x0044ff, emissive: 0x0088ff, emissiveIntensity: 0.3, transparent: true, opacity: 0.4 }));
-    this.hoverGlow.position.y = 0.02;
-    g.add(this.hoverGlow);
+    // Dashboard neon accent
+    const dna = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.005, 0.01), m(neon));
+    dna.position.set(0, -0.07, -0.86);
+    g.add(dna);
 
-    this.hoverLight = new THREE.PointLight(0x4488ff, 0.3, 6);
-    this.hoverLight.position.y = 0.1;
-    g.add(this.hoverLight);
+    // Windshield frame top
+    const frameMat = m(dk);
+    const topFrame = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.025, 0.025), frameMat);
+    topFrame.position.set(0, 0.25, -0.72);
+    g.add(topFrame);
 
-    const sl = new THREE.PointLight(0x4488ff, 0.4, 5);
-    sl.position.set(0, 1.2, -0.5);
-    g.add(sl);
-
-    this.shipPos.set(-3, shipH, 2);
-    g.position.copy(this.shipPos);
-    g.rotation.y = this.shipYaw;
-    this.scene.add(g);
-    this.objects.push(g);
-    this.shipGroup = g;
-
-    // Landing pad
-    const mm = new THREE.MeshBasicMaterial({ color: 0x4488ff, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
-    for (let i = 0; i < 4; i++) {
-      const a = (i / 4) * Math.PI * 2 + 0.5;
-      const m2 = new THREE.Mesh(new THREE.RingGeometry(0.15, 0.2, 12), mm);
-      m2.rotation.x = -Math.PI / 2;
-      m2.position.set(-3 + Math.cos(a) * 1.1, shipH + 0.01, 2 + Math.sin(a) * 1.1);
-      this.scene.add(m2);
-      this.objects.push(m2);
+    // Canopy side pillars
+    for (const sx of [-0.32, 0.32]) {
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.12, 0.02), frameMat);
+      pillar.position.set(sx, 0.15, -0.72);
+      g.add(pillar);
     }
   }
 
@@ -468,7 +240,7 @@ export default class GalaxySurvivalDemo {
   _setupInput() {
     this._onKeyDown = (e) => {
       this.keys[e.key.toLowerCase()] = true;
-      if ([' ', 'control', 'e'].includes(e.key.toLowerCase())) e.preventDefault();
+      if ([' ', 'control', 'e', 'c'].includes(e.key.toLowerCase())) e.preventDefault();
     };
     this._onKeyUp = (e) => {
       this.keys[e.key.toLowerCase()] = false;
@@ -556,6 +328,14 @@ export default class GalaxySurvivalDemo {
       }
     }
     if (!this.keys['e']) this._eWasDown = false;
+
+    // C key to toggle camera mode (only in ship)
+    if (this.mode === "ship" && this.keys['c'] && !this._cWasDown) {
+      this._cWasDown = true;
+      this.camMode = this.camMode === "third" ? "cockpit" : "third";
+      this.state.camMode = this.camMode;
+    }
+    if (!this.keys['c']) this._cWasDown = false;
   }
 
   // ═══════════════════════════════════════════════════════
@@ -659,6 +439,14 @@ export default class GalaxySurvivalDemo {
     this.shipSpeed = 0;
     this.shipTargetAlt = 3;
     this.oxygen = Math.min(100, this.oxygen + 30);
+    this.camMode = "third";
+    // Initialize third person camera position
+    const behind = new THREE.Vector3(-Math.sin(this.shipYaw), 0, -Math.cos(this.shipYaw));
+    this.thirdCamPos.set(
+      this.shipPos.x - behind.x * this.camDistance,
+      this.shipPos.y + this.camHeight,
+      this.shipPos.z - behind.z * this.camDistance
+    );
     this.debugInfo = [`Mode: SHIP`, `Entered ship`];
   }
 
@@ -708,18 +496,38 @@ export default class GalaxySurvivalDemo {
     this.shipAltitude += (this.shipTargetAlt - this.shipAltitude) * 2.5 * dt;
     this.shipPos.y = gh + this.shipAltitude;
 
-    // Camera yaw follows ship yaw with mouse look offset
-    const lookOff = this.yaw - this.shipYaw;
-    const normOff = ((lookOff + Math.PI) % (Math.PI * 2)) - Math.PI;
-    this.yaw = this.shipYaw + normOff * 0.9;
-
-    // Camera
-    this.camera.position.set(this.shipPos.x, this.shipPos.y + 0.4, this.shipPos.z);
-    this.camera.quaternion.setFromEuler(new THREE.Euler(this.pitch, this.yaw, 0, 'YXZ'));
+    // Ship yaw from mouse look
+    const yawDelta = this.yaw - this.shipYaw;
+    const normYaw = ((yawDelta + Math.PI) % (Math.PI * 2)) - Math.PI;
+    this.shipYaw += normYaw * 4 * dt;
+    this.yaw = this.shipYaw;
 
     // Ship mesh
     this.shipGroup.position.copy(this.shipPos);
     this.shipGroup.rotation.y = this.shipYaw;
+
+    // Camera based on mode
+    if (this.camMode === "third") {
+      // Third person: behind and above ship
+      const behind = new THREE.Vector3(-Math.sin(this.shipYaw), 0, -Math.cos(this.shipYaw));
+      const targetPos = new THREE.Vector3(
+        this.shipPos.x - behind.x * this.camDistance,
+        this.shipPos.y + this.camHeight,
+        this.shipPos.z - behind.z * this.camDistance
+      );
+      this.thirdCamPos.lerp(targetPos, Math.min(1, 4 * dt));
+      this.camera.position.copy(this.thirdCamPos);
+      this.camera.lookAt(this.shipPos.x, this.shipPos.y + 1, this.shipPos.z);
+    } else {
+      // Cockpit: inside ship
+      const ck = new THREE.Vector3(0, 0.7, -0.5);
+      ck.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.shipYaw);
+      this.camera.position.copy(this.shipPos).add(ck);
+      const cp = this.pitch + Math.sin(Date.now() * 0.003) * 0.01;
+      this.camera.quaternion.setFromEuler(new THREE.Euler(cp, this.shipYaw, 0, 'YXZ'));
+    }
+
+    // Glow effects
 
     // Glow effects
     const hi = 0.3 + Math.min(this.shipSpeed / 15, 0.7);
@@ -744,11 +552,12 @@ export default class GalaxySurvivalDemo {
 
     // Debug
     this.debugInfo = [
-      `Mode: SHIP`,
+      `Mode: SHIP [${this.camMode}]`,
       `Speed: ${this.shipSpeed.toFixed(1)}`,
       `Alt: ${this.shipAltitude.toFixed(1)}m`,
       `Keys: ${Object.entries(this.keys).filter(([,v]) => v).map(([k]) => k).join(' ') || 'none'}`,
       `Can exit: ${this.state.canExit}`,
+      `C: swap camera | E: exit`,
     ];
   }
 
