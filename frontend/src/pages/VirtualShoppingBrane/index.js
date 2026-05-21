@@ -828,6 +828,7 @@ export default function VirtualShoppingBrane() {
   const animRef = useRef(null);
   const playerRef = useRef(null);
   const keysRef = useRef({});
+  const joyRef = useRef({ x: 0, y: 0 });
   const msgTimer = useRef(null);
   const miningRef = useRef({ active: false, target: null, progress: 0 });
   const dmgBarRef = useRef(null);
@@ -962,13 +963,17 @@ export default function VirtualShoppingBrane() {
     const raycaster = new THREE.Raycaster();
     sceneRef.current = { scene, renderer, camera, sun, amb, hemi, world, raycaster, player, spawnH };
 
+    // Player physics state
+    const playerVel = new THREE.Vector3();
+    let isGrounded = true, isCrouching = false, isSliding = false;
+    let slideTimer = 0, jumpTimer = 0, landTimer = 0;
+    let walkPhase = 0, wasGrounded = true;
+    let moveDir = new THREE.Vector3();
+    let targetFov = 55, camHOffset = 0;
+
     // Smooth camera variables
     const camPos = new THREE.Vector3(0, camHeight, camDist);
     const camTarget = new THREE.Vector3();
-
-    // Walking animation state
-    let walkPhase = 0;
-    let wasMoving = false;
 
     // Day/night cycle
     let gameTime = 6;
@@ -1017,70 +1022,185 @@ export default function VirtualShoppingBrane() {
       amb.intensity = ambInt;
       hemi.intensity = hemiInt;
 
-      // Player movement
+      // ─── PHYSICS-BASED MOVEMENT ───
       const keys = keysRef.current;
-      const speed = keys["ShiftLeft"] || keys["ShiftRight"] ? 6 : 3;
       const yaw = cameraRef.current.yaw;
+      const sprinting = keys["ShiftLeft"] || keys["ShiftRight"];
+      const crouching = keys["ControlLeft"] || keys["ControlRight"] || keys["KeyC"];
+      const jumping = keys["Space"];
+      const gravity = 16, jumpSpeed = 5, accel = 14, friction = 10;
+      const maxWalk = 3, maxRun = 5.5, maxSprint = 8.5;
+
+      // Input direction
       const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
       const right = new THREE.Vector3(fwd.z, 0, -fwd.x);
-      const move = new THREE.Vector3();
-      let moving = false;
-      if (keys["KeyW"] || keys["ArrowUp"]) { move.add(fwd); moving = true; }
-      if (keys["KeyS"] || keys["ArrowDown"]) { move.sub(fwd); moving = true; }
-      if (keys["KeyA"] || keys["ArrowLeft"]) { move.sub(right); moving = true; }
-      if (keys["KeyD"] || keys["ArrowRight"]) { move.add(right); moving = true; }
-      const isMoving = move.lengthSq() > 0.0001;
-      if (isMoving) {
-        move.normalize().multiplyScalar(speed * dt);
-        const nx = player.group.position.x + move.x;
-        const nz = player.group.position.z + move.z;
-        const nh = worldOk ? getHeight(nx, nz) : 0;
-        player.group.position.set(nx, nh, nz);
-        player.group.rotation.y = Math.atan2(move.x, move.z);
-        walkPhase += dt * speed * 2;
-        wasMoving = true;
-      } else {
-        walkPhase += dt * 0.3;
-        wasMoving = false;
+      const inputDir = new THREE.Vector2();
+      if (keys["KeyW"] || keys["ArrowUp"]) inputDir.y += 1;
+      if (keys["KeyS"] || keys["ArrowDown"]) inputDir.y -= 1;
+      if (keys["KeyA"] || keys["ArrowLeft"]) inputDir.x -= 1;
+      if (keys["KeyD"] || keys["ArrowRight"]) inputDir.x += 1;
+
+      // Mobile input
+      const joy = joyRef.current;
+      if (Math.abs(joy.x) > 0.1 || Math.abs(joy.y) > 0.1) {
+        inputDir.x += joy.x; inputDir.y += joy.y;
       }
 
-      // Player animation
+      if (inputDir.lengthSq() > 1) inputDir.normalize();
+
+      const wishDir = new THREE.Vector3().addScaledVector(fwd, inputDir.y).addScaledVector(right, inputDir.x);
+      const hasInput = wishDir.lengthSq() > 0.001;
+      if (hasInput) {
+        wishDir.normalize();
+        moveDir.copy(wishDir);
+      }
+
+      // Slide trigger
+      if (sprinting && crouching && !isSliding && isGrounded && hasInput) {
+        isSliding = true; slideTimer = 0;
+        isCrouching = false;
+      }
+      if (isSliding) {
+        slideTimer += dt;
+        if (slideTimer > 0.4 || !hasInput) { isSliding = false; isCrouching = crouching; }
+        else { wishDir.copy(moveDir); }
+      }
+
+      // Crouch toggle
+      isCrouching = isSliding ? false : crouching;
+
+      // Ground check with jump
+      const gh = worldOk ? getHeight(player.group.position.x, player.group.position.z) : 0;
+      wasGrounded = isGrounded;
+      if (player.group.position.y <= gh + 0.05) {
+        if (!wasGrounded && playerVel.y < -2) { landTimer = 0.3; }
+        if (!isGrounded) { player.group.position.y = gh; playerVel.y = 0; }
+        isGrounded = true;
+      }
+      if (isGrounded && jumping && !isSliding) {
+        playerVel.y = jumpSpeed; isGrounded = false; jumpTimer = 0;
+      }
+
+      // Horizontal speed
+      let maxSpeed = isSliding ? maxSprint * 0.9 : sprinting ? (crouching ? maxRun * 0.5 : maxSprint) : (crouching ? maxWalk * 0.5 : maxWalk);
+      if (!isGrounded) maxSpeed *= 1.2;
+      const curSpeed = new THREE.Vector2(playerVel.x, playerVel.z).length();
+
+      if (hasInput && !isSliding) {
+        const acc = accel * dt;
+        const newVx = playerVel.x + wishDir.x * acc;
+        const newVz = playerVel.z + wishDir.z * acc;
+        if (new THREE.Vector2(newVx, newVz).length() <= maxSpeed || curSpeed > maxSpeed) {
+          playerVel.x = newVx; playerVel.z = newVz;
+        } else {
+          const scale = maxSpeed / curSpeed;
+          playerVel.x = playerVel.x * scale; playerVel.z = playerVel.z * scale;
+        }
+      }
+
+      // Friction
+      if (!hasInput || isSliding) {
+        const fric = (isSliding ? 1.5 : friction) * dt;
+        const cs = curSpeed;
+        if (cs > fric) { const s = 1 - fric / cs; playerVel.x *= s; playerVel.z *= s; }
+        else { playerVel.x = 0; playerVel.z = 0; }
+      }
+
+      // Gravity
+      playerVel.y -= gravity * dt;
+      player.group.position.x += playerVel.x * dt;
+      player.group.position.z += playerVel.z * dt;
+
+      // Clamp to terrain
+      const newH = worldOk ? getHeight(player.group.position.x, player.group.position.z) : 0;
+      player.group.position.y += playerVel.y * dt;
+      if (player.group.position.y < newH) {
+        player.group.position.y = newH;
+        playerVel.y = 0;
+        isGrounded = true;
+      }
+      if (isGrounded) {
+        player.group.position.y = newH;
+      }
+
+      // Face movement direction
+      const hSpeed = Math.sqrt(playerVel.x * playerVel.x + playerVel.z * playerVel.z);
+      const isMoving = hSpeed > 0.1;
+      if (isMoving) {
+        player.group.rotation.y = Math.atan2(playerVel.x, playerVel.z);
+        walkPhase += dt * hSpeed * 2.5;
+      } else {
+        walkPhase += dt * 0.3;
+      }
+
+      // Landing recovery
+      if (landTimer > 0) landTimer -= dt;
+
+      // ─── PLAYER ANIMATION ───
       const breathe = Math.sin(performance.now() * 0.002) * 0.015;
       const headTilt = Math.sin(performance.now() * 0.0015) * 0.02;
-      if (isMoving) {
-        const swing = Math.sin(walkPhase) * 0.2;
+      const swingAmp = isSliding ? 0.05 : sprinting ? 0.35 : 0.2;
+      if (isMoving && isGrounded) {
+        const swing = Math.sin(walkPhase) * swingAmp;
         player.lArm.rotation.x = swing;
         player.rArm.rotation.x = -swing;
         player.lLeg.rotation.x = -swing * 0.5;
         player.rLeg.rotation.x = swing * 0.5;
-        player.body.position.y = 0.85 + Math.abs(Math.sin(walkPhase)) * 0.04;
-        player.head.position.y = 1.35 + breathe;
+        player.body.position.y = 0.8 + Math.abs(Math.sin(walkPhase)) * (sprinting ? 0.06 : 0.03);
+        player.head.position.y = 1.3 + breathe;
+      } else if (isSliding) {
+        player.lArm.rotation.x = -0.5; player.rArm.rotation.x = -0.5;
+        player.lLeg.rotation.x = 0.3; player.rLeg.rotation.x = 0.3;
+        player.body.position.y = 0.5;
+        player.head.position.y = 1.0;
+      } else if (!isGrounded) {
+        player.lArm.rotation.x = -0.3; player.rArm.rotation.x = -0.3;
+        player.lLeg.rotation.x = 0.1; player.rLeg.rotation.x = 0.1;
+        player.body.position.y = 0.8;
+        player.head.position.y = 1.3 + breathe;
       } else {
         const idleSwing = Math.sin(performance.now() * 0.0008) * 0.03;
         player.lArm.rotation.x = idleSwing + breathe;
         player.rArm.rotation.x = -idleSwing + breathe;
         player.lLeg.rotation.x = -idleSwing * 0.3;
         player.rLeg.rotation.x = idleSwing * 0.3;
-        player.body.position.y = 0.85 + breathe * 0.5;
-        player.head.position.y = 1.35 + breathe;
+        player.body.position.y = 0.8 + breathe * 0.5 + (landTimer > 0 ? Math.sin(landTimer * 20) * 0.04 : 0);
+        player.head.position.y = 1.3 + breathe;
         player.head.rotation.x = headTilt;
       }
 
-      // Dynamic camera zoom (run = zoom out)
-      const targetDist = keys["ShiftLeft"] || keys["ShiftRight"] ? 10 : 8;
-      camDist += (targetDist - camDist) * dt * 2;
+      // ─── CAMERA ───
+      // Dynamic FOV (sprint = zoom)
+      targetFov = sprinting ? 63 : 55;
+      camera.fov += (targetFov - camera.fov) * dt * 3;
+      camera.updateProjectionMatrix();
 
-      // Smooth third-person camera
+      // Camera height offset (crouch/slide)
+      const targetHOffset = isSliding ? -0.6 : isCrouching ? -0.35 : 0;
+      camHOffset += (targetHOffset - camHOffset) * dt * 6;
+
+      // Dynamic distance
+      const tgtDist = sprinting ? 10 : 8;
+      camDist += (tgtDist - camDist) * dt * 2;
+
+      // Camera position
       const tgt = player.group.position;
+      const headY = tgt.y + 1 + camHOffset;
       const targetPos = new THREE.Vector3(
         tgt.x + Math.sin(yaw) * camDist,
-        tgt.y + camHeight,
+        headY + camHeight - 1,
         tgt.z + Math.cos(yaw) * camDist
       );
       camPos.lerp(targetPos, 1 - Math.pow(0.01, dt));
       camera.position.copy(camPos);
-      camTarget.set(tgt.x, tgt.y + 1, tgt.z);
+      camTarget.set(tgt.x, tgt.y + 1 + camHOffset * 0.5, tgt.z);
       camera.lookAt(camTarget);
+
+      // Sprint bob
+      if (sprinting && isMoving && isGrounded) {
+        const bob = Math.sin(walkPhase * 2) * 0.003;
+        camera.position.y += bob;
+      }
 
       // Clouds drift
       for (const c of clouds) {
@@ -1308,6 +1428,31 @@ export default function VirtualShoppingBrane() {
             </div>
 
             {message && <div className="sb-msg">{message}</div>}
+
+            {/* ─── MOBILE CONTROLS ─── */}
+            <div className="sb-mobile-controls" style={{position:'fixed',inset:0,pointerEvents:'none',zIndex:40,display:'flex'}}>
+              {/* Virtual Joystick */}
+              <div className="sb-joystick-area" style={{
+                position:'absolute', bottom:30, left:20, width:120, height:120,
+                borderRadius:'50%', background:'rgba(255,255,255,0.08)', pointerEvents:'auto',
+                border:'2px solid rgba(255,255,255,0.15)', touchAction:'none',
+              }}
+                onTouchStart={(e) => { const t=e.touches[0]; const el=e.currentTarget; const r=el.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2; const dx=t.clientX-cx, dy=t.clientY-cy; const d=Math.sqrt(dx*dx+dy*dy); const max=50; const s=Math.min(1,d/max); joyRef.current={x:(dx/d||0)*s,y:(-dy/d||0)*s}; el.style.background='rgba(255,255,255,0.15)'; const dot=el.querySelector('.jb'); if(dot){dot.style.transform=`translate(${Math.min(dx/d*max||0,50)}px,${Math.min(-dy/d*max||0,50)}px)`} }}
+                onTouchMove={(e) => { const t=e.touches[0]; const el=e.currentTarget; const r=el.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2; const dx=t.clientX-cx, dy=t.clientY-cy; const d=Math.sqrt(dx*dx+dy*dy); const max=50; const s=Math.min(1,d/max); joyRef.current={x:(dx/d||0)*s,y:(-dy/d||0)*s}; const dot=el.querySelector('.jb'); if(dot){dot.style.transform=`translate(${(dx/d||0)*Math.min(d,50)}px,${(-dy/d||0)*Math.min(d,50)}px)`} }}
+                onTouchEnd={(e) => { joyRef.current={x:0,y:0}; const el=e.currentTarget; el.style.background='rgba(255,255,255,0.08)'; const dot=el.querySelector('.jb'); if(dot)dot.style.transform='translate(0,0)'; }}
+              >
+                <div className="jb" style={{position:'absolute',top:'50%',left:'50%',width:20,height:20,margin:-10,borderRadius:'50%',background:'rgba(255,255,255,0.3)',border:'2px solid rgba(255,255,255,0.5)',transition:'transform 0.05s'}} />
+              </div>
+              {/* Action buttons */}
+              <div className="sb-mobile-buttons" style={{position:'absolute',bottom:40,right:20,display:'flex',gap:10,pointerEvents:'auto'}}>
+                <button style={{width:54,height:54,borderRadius:'50%',background:'rgba(255,255,255,0.12)',border:'2px solid rgba(255,255,255,0.2)',color:'#fff',fontSize:'10px',touchAction:'none'}}
+                  onTouchStart={()=>{keysRef.current['ShiftLeft']=true}} onTouchEnd={()=>{keysRef.current['ShiftLeft']=false}}>🏃<br/>Correr</button>
+                <button style={{width:54,height:54,borderRadius:'50%',background:'rgba(255,255,255,0.12)',border:'2px solid rgba(255,255,255,0.2)',color:'#fff',fontSize:'10px',touchAction:'none'}}
+                  onTouchStart={()=>{keysRef.current['Space']=true}} onTouchEnd={()=>{keysRef.current['Space']=false}}>⬆️<br/>Pular</button>
+                <button style={{width:54,height:54,borderRadius:'50%',background:'rgba(255,255,255,0.12)',border:'2px solid rgba(255,255,255,0.2)',color:'#fff',fontSize:'10px',touchAction:'none'}}
+                  onTouchStart={()=>{keysRef.current['ControlLeft']=true}} onTouchEnd={()=>{keysRef.current['ControlLeft']=false}}>⬇️<br/>Agachar</button>
+              </div>
+            </div>
 
             {/* ─── DEBUG OVERLAY ─── */}
             <div style={{
