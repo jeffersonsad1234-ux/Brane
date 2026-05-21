@@ -199,7 +199,7 @@ function AppRouter() {
             </Route>
 
             <Route path="/virtualshoppingbrane" element={<VirtualShoppingBrane />} />
-            <Route path="/brany-studio" element={<BranyStudio />} />
+            <Route path="/brany-studio" element={<Navigate to="/virtualshoppingbrane" replace />} />
             <Route path="/brane-agent" element={<BraneAgent />} />
             <Route path="/agente" element={<BraneAgent />} />
 

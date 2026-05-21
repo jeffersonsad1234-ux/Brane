@@ -1,217 +1,448 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import GameEngine from "./engine/GameEngine.js";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import "./VirtualShoppingBrane.css";
 
-const SKIN = "wildcraft_data";
-const ITEMS_INIT = [
-  { id: "dirt", n: "Terra", i: "🟫", c: 15 },
-  { id: "wood", n: "Madeira", i: "🪵", c: 8 },
-  { id: "stone", n: "Pedra", i: "🪨", c: 5 },
+// ─── DATA ──────────────────────────────────────────────
+const FEATURES = [
+  { icon: "🎮", title: "Gerar Gameplay FPS", desc: "Crie jogos FPS completos com física, armas, IA de inimigos e multiplayer." },
+  { icon: "🗺️", title: "Mapas Open World", desc: "Gere terrenos, biomas, vilas, rios e masmorras proceduralmente." },
+  { icon: "🖥️", title: "Gerar HUD", desc: "Crie HUD profissional com vida, inventário, minimapa e crosshair." },
+  { icon: "🧟", title: "Sistemas Survival", desc: "Fome, sede, energia, crafting, construção e ciclo dia/noite." },
+  { icon: "🏃", title: "Movimento COD", desc: "Sprint, slide, crouch, jump, wall-run, parkour suave." },
+  { icon: "🎬", title: "Gráficos Cinematográficos", desc: "Iluminação dinâmica, sombras PCF, névoa volumétrica, tom de cor." },
+  { icon: "🧠", title: "IA de Inimigos", desc: "Patrulha, perseguição, combate, cobertura e comportamento de grupo." },
+  { icon: "📦", title: "Sistema de Inventário", desc: "Slots, drag & drop, crafting, loot, raridade e gerenciamento." },
+  { icon: "📜", title: "Gerar Quests", desc: "Missões dinâmicas com diálogo, recompensas e progressão." },
+  { icon: "🌐", title: "Multiplayer", desc: "Servidor dedicado, matchmaking, lobby, chat e sincronização." },
 ];
 
-export default function VirtualShoppingBrane() {
+const PROMPT_EXAMPLES = [
+  "Quero um jogo survival FPS com zumbis.",
+  "Crie um RPG de mundo aberto com multiplayer.",
+  "Gerar jogo de corrida estilo arcade.",
+  "Quero um jogo de terror com puzzles.",
+  "Crie um battle royale para celular.",
+];
+
+// ─── PARTICLE CANVAS ────────────────────────────────────
+function ParticleField() {
+  const canvasRef = useRef(null);
+  useEffect(() => {
+    const c = canvasRef.current;
+    if (!c) return;
+    const ctx = c.getContext("2d");
+    let w = c.width = c.offsetWidth * devicePixelRatio;
+    let h = c.height = c.offsetHeight * devicePixelRatio;
+    const particles = Array.from({ length: 80 }, () => ({
+      x: Math.random() * w, y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5,
+      r: Math.random() * 2 + 0.5,
+    }));
+    const onResize = () => { w = c.width = c.offsetWidth * devicePixelRatio; h = c.height = c.offsetHeight * devicePixelRatio; };
+    window.addEventListener("resize", onResize);
+    let id;
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (const p of particles) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(124, 92, 252, 0.3)";
+        ctx.fill();
+      }
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(124, 92, 252, ${0.08 * (1 - dist / 120)})`;
+            ctx.stroke();
+          }
+        }
+      }
+      id = requestAnimationFrame(draw);
+    };
+    draw();
+    return () => { cancelAnimationFrame(id); window.removeEventListener("resize", onResize); };
+  }, []);
+  return <canvas ref={canvasRef} className="bs-particle-canvas" />;
+}
+
+// ─── GAME DEMO OVERLAY ─────────────────────────────────
+function GameDemoOverlay({ onClose }) {
   const mountRef = useRef(null);
   const engineRef = useRef(null);
-  const gameRef = useRef(null);
-  const joyRef = useRef({ x: 0, y: 0 });
-  const keysRef = useRef({});
-  const [screen, setScreen] = useState("menu");
-  const [gameState, setGameState] = useState({
-    health: 100, hunger: 100, energy: 100, coins: 100, level: 1, xp: 0,
-    hour: 6, min: 0, items: [], selectedSlot: 0, debug: { camX:0, camY:0, camZ:0, meshes:0, worldOk:false, phase:"" },
-  });
-  const [message, setMessage] = useState("");
-  const msgTimer = useRef(null);
+  const [status, setStatus] = useState("loading");
 
-  const showMsg = useCallback((m) => {
-    setMessage(m);
-    if (msgTimer.current) clearTimeout(msgTimer.current);
-    msgTimer.current = setTimeout(() => setMessage(""), 2000);
-  }, []);
-
-  // ─── POLL ENGINE STATE ────────────────────────────────
-  const pollRef = useRef(null);
-  const pollState = useCallback(() => {
-    const eng = gameRef.current;
-    if (eng) {
-      setGameState(eng.getState());
-    }
-    pollRef.current = requestAnimationFrame(pollState);
-  }, []);
-
-  // ─── INIT ENGINE ──────────────────────────────────────
   useEffect(() => {
-    if (screen !== "game" || !mountRef.current || engineRef.current) return;
-    const mount = mountRef.current;
-    console.log("[REACT] Creating engine...");
-    const eng = new GameEngine(mount, {
-      onTime: () => {},
-      onHealth: (v) => setGameState(s => ({...s, health: v})),
-      onHunger: (v) => setGameState(s => ({...s, hunger: v})),
-      onEnergy: (v) => setGameState(s => ({...s, energy: v})),
-      onItems: (items) => setGameState(s => ({...s, items})),
-      onMessage: showMsg,
-    });
-    eng.items = (() => {
-      try { return JSON.parse(localStorage.getItem(SKIN))?.items || [...ITEMS_INIT]; } catch { return [...ITEMS_INIT]; }
-    })();
-    gameRef.current = eng;
-    const ok = eng.init();
-    if (ok) {
-      engineRef.current = eng;
-      pollRef.current = requestAnimationFrame(pollState);
-      console.log("[REACT] Engine initialized OK");
-    } else {
-      console.error("[REACT] Engine init failed");
-    }
+    if (!mountRef.current) return;
+    let eng = null;
+    let pollId = null;
+    const start = async () => {
+      try {
+        const GameEngine = (await import("./engine/GameEngine.js")).default;
+        eng = new GameEngine(mountRef.current, {
+          onTime: () => {},
+          onHealth: () => {}, onHunger: () => {}, onEnergy: () => {},
+          onItems: () => {}, onMessage: () => {},
+        });
+        eng.items = [];
+        const ok = eng.init();
+        if (ok) {
+          engineRef.current = eng;
+          setStatus("ready");
+          pollId = setInterval(() => {
+            try { eng.save(); } catch {}
+          }, 5000);
+        } else {
+          setStatus("error");
+        }
+      } catch (e) {
+        console.error("[DEMO] Engine init failed:", e);
+        setStatus("error");
+      }
+    };
+    start();
     return () => {
-      if (pollRef.current) cancelAnimationFrame(pollRef.current);
-      if (engineRef.current) {
-        engineRef.current.dispose();
-        engineRef.current = null;
-        gameRef.current = null;
-      }
+      if (pollId) clearInterval(pollId);
+      if (eng) { try { eng.dispose(); } catch {} }
+      engineRef.current = null;
     };
-  }, [screen, showMsg, pollState]);
-
-  // ─── KEYBOARD ─────────────────────────────────────────
-  useEffect(() => {
-    const eng = gameRef.current;
-    const onKeyDown = (e) => {
-      if (eng) eng.keys[e.code] = true;
-      keysRef.current[e.code] = true;
-      if (e.code >= "Digit1" && e.code <= "Digit5") {
-        const slot = parseInt(e.code[5]) - 1;
-        setGameState(s => ({...s, selectedSlot: slot}));
-        if (eng) eng.selectedSlot = slot;
-      }
-    };
-    const onKeyUp = (e) => {
-      if (eng) eng.keys[e.code] = false;
-      keysRef.current[e.code] = false;
-    };
-    window.addEventListener("keydown", onKeyDown);
-    window.addEventListener("keyup", onKeyUp);
-    // Keyboard-initiated pointer lock
-    const onClick = () => {
-      if (screen === "game" && !document.pointerLockElement) {
-        mountRef.current?.requestPointerLock?.();
-      }
-    };
-    document.addEventListener("click", onClick);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("keyup", onKeyUp);
-      document.removeEventListener("click", onClick);
-    };
-  }, [screen]);
-
-  const startGame = useCallback(() => {
-    setScreen("game");
   }, []);
-
-  const h = gameState.health, hu = gameState.hunger, e = gameState.energy;
-  const items = gameState.items;
-  const selectedSlot = gameState.selectedSlot;
-  const dbg = gameState.debug;
 
   return (
-    <div className="sb-root">
-      {screen === "menu" && (
-        <div className="sb-menu">
-          <div className="sb-menu-content">
-            <div className="sb-logo">
-              <span className="sb-l-t" style={{background:'linear-gradient(135deg,#ff66aa,#aa66ff,#66aaff)',WebkitBackgroundClip:'text',backgroundClip:'text',color:'transparent',backgroundSize:'200% 200%',animation:'logoShift 4s ease infinite'}}>WILD</span>
-              <span className="sb-l-s" style={{color:'#ffd700'}}>CRAFT</span>
-            </div>
-            <p className="sb-m-sub" style={{color:'#999',fontSize:'.7rem',marginBottom:'.5rem'}}>✨ Sandbox Mágico • Sobrevivência • Construção</p>
-            <div className="sb-m-stats" style={{marginBottom:'.6rem'}}>
-              <span>⭐ Nv.{gameState.level}</span><span>🪙 {gameState.coins}</span><span>🏆 {gameState.xp}XP</span>
-            </div>
-            <button className="sb-btn sb-btn-play" onClick={startGame}>🌍 ENTRAR NO MUNDO</button>
-            <div className="sb-m-hint" style={{fontSize:'.55rem',color:'#666',marginTop:'.4rem'}}>WASD andar • Shift correr • Mouse olhar • Esquerda minerar • Direita construir</div>
-            <div className="sb-m-info" style={{marginTop:'.5rem'}}>
-              <span>🌲 350 árvores</span><span>💎 80 cristais mágicos</span><span>🪨 150 pedras</span>
-              <span>🌙 Dia/Noite</span><span>✨ Bloom</span><span>🦌 Animais</span>
-            </div>
-          </div>
+    <motion.div
+      className="bs-demo-overlay"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <button className="bs-demo-close" onClick={onClose}>✕ Fechar Demo</button>
+      {status === "loading" && (
+        <div className="bs-demo-loading">
+          <div className="bs-demo-spinner" />
+          <p>Iniciando motor 3D...</p>
         </div>
       )}
+      {status === "error" && (
+        <div className="bs-demo-loading">
+          <p style={{ color: "#ee4455" }}>❌ Não foi possível iniciar a demo.</p>
+          <p style={{ color: "#888", fontSize: ".85rem", marginTop: 8 }}>WebGL pode não estar disponível.</p>
+          <button className="bs-btn bs-btn-primary" onClick={onClose} style={{ marginTop: 16 }}>
+            Voltar
+          </button>
+        </div>
+      )}
+      <div ref={mountRef} className="bs-demo-mount" style={{ display: status === "ready" ? "block" : "none" }} />
+    </motion.div>
+  );
+}
 
-      {screen === "game" && (
-        <div className="sb-game">
-          <div className="sb-canvas" ref={mountRef} />
-          <div className="sb-hud">
-            <div className="sb-hud-top">
-              <div className="sb-hud-stats">
-                <div className="sb-stat"><span className="sb-si">❤️</span><div className="sb-st"><div className="sb-sf" style={{width:`${h}%`,background:'linear-gradient(90deg,#ff3344,#ff6688)'}} /></div></div>
-                <div className="sb-stat"><span className="sb-si">🍖</span><div className="sb-st"><div className="sb-sf" style={{width:`${hu}%`,background:'linear-gradient(90deg,#cc8833,#eeaa44)'}} /></div></div>
-                <div className="sb-stat"><span className="sb-si">⚡</span><div className="sb-st"><div className="sb-sf" style={{width:`${e}%`,background:'linear-gradient(90deg,#44aaff,#66ddff)'}} /></div></div>
-                <div className="sb-hud-coin">🪙 {gameState.coins}</div>
-                <div className="sb-hud-lvl">⭐ {gameState.level}</div>
+// ─── FEATURE CARD ──────────────────────────────────────
+function FeatureCard({ icon, title, desc, i }) {
+  return (
+    <motion.div
+      className="bs-feature-card"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ delay: i * 0.05, duration: 0.5 }}
+      whileHover={{ scale: 1.03, borderColor: "#7c5cfc" }}
+    >
+      <div className="bs-feature-icon">{icon}</div>
+      <h3>{title}</h3>
+      <p>{desc}</p>
+    </motion.div>
+  );
+}
+
+function SectionTitle({ children, sub }) {
+  return (
+    <div className="bs-section-header">
+      <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+        {children}
+      </motion.h2>
+      {sub && <p>{sub}</p>}
+    </div>
+  );
+}
+
+// ─── MAIN PLATFORM ─────────────────────────────────────
+export default function VirtualShoppingBrane() {
+  const [showDemo, setShowDemo] = useState(false);
+  const [prompt, setPrompt] = useState("");
+  const [promptResult, setPromptResult] = useState(null);
+  const [promptLoading, setPromptLoading] = useState(false);
+  const heroRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
+
+  const handlePrompt = () => {
+    if (!prompt.trim()) return;
+    setPromptLoading(true);
+    setTimeout(() => {
+      setPromptResult({
+        roadmap: ["Análise de requisitos", "Arquitetura do projeto", "Implementação do motor", "Sistemas de gameplay", "Testes e deploy"],
+        arquitetura: "ECS-based engine com sistemas separados para render, física, áudio, inputs e networking.",
+        prompts: [
+          "Crie um sistema de combate FPS com armas, recarga e dano.",
+          "Gere IA de zumbis com patrulha e perseguição.",
+          "Crie HUD de survival com vida, fome e inventário.",
+          "Gere terreno procedural com biomas e clima.",
+        ],
+        gamepLay: "Jogabilidade FPS survival com sistema de crafting, construção, dia/noite e ondas de inimigos.",
+        sistemas: ["Movimento", "Combate", "Inventário", "Crafting", "IA", "Multiplayer", "Save/Load"],
+      });
+      setPromptLoading(false);
+    }, 1500);
+  };
+
+  return (
+    <div className="bs-root">
+      <ParticleField />
+
+      {/* ─── HERO ─── */}
+      <motion.section ref={heroRef} className="bs-hero" style={{ opacity: heroOpacity, scale: heroScale }}>
+        <div className="bs-hero-bg" />
+        <div className="bs-hero-content">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="bs-hero-text"
+          >
+            <div className="bs-badge">⚡ Brany Game Studio AI</div>
+            <h1>
+              Crie jogos <span className="bs-gradient-text">AAA</span> com IA.
+            </h1>
+            <p className="bs-hero-sub">
+              Survival, FPS, mundo aberto, multiplayer, gráficos cinematográficos
+              e gameplay profissional.<br />Tudo gerado por inteligência artificial.
+            </p>
+            <div className="bs-hero-actions">
+              <a href="#features" className="bs-btn bs-btn-primary">✨ Criar meu jogo</a>
+              <button className="bs-btn bs-btn-secondary" onClick={() => setShowDemo(true)}>▶ Ver demo</button>
+              <a href="#features" className="bs-btn bs-btn-ghost">Explorar recursos</a>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="bs-hero-preview"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+          >
+            <button className="bs-preview-frame" onClick={() => setShowDemo(true)}>
+              <div className="bs-preview-glow" />
+              <div className="bs-preview-content">
+                <div className="bs-preview-scene">
+                  <div className="bs-preview-terrain" />
+                  <div className="bs-preview-tree" /><div className="bs-preview-tree t2" />
+                  <div className="bs-preview-player" />
+                  <div className="bs-preview-sun" />
+                </div>
               </div>
-              <div className="sb-hud-time">🕐 {gameState.hour.toString().padStart(2,"0")}:{gameState.min.toString().padStart(2,"0")}</div>
+              <div className="bs-preview-overlay"><span>▶ Jogar Demo</span></div>
+            </button>
+          </motion.div>
+        </div>
+
+        <motion.div
+          className="bs-scroll-indicator"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+        >
+          <span>↓</span>
+        </motion.div>
+      </motion.section>
+
+      {/* ─── DEMO SHOWCASE ─── */}
+      <section id="demo" className="bs-section bs-demo-section">
+        <SectionTitle sub="Este jogo foi criado usando Brany Game Studio AI.">🎮 Demo Jogável</SectionTitle>
+        <motion.div
+          className="bs-demo-card"
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+        >
+          <div className="bs-demo-banner">
+            <div className="bs-demo-bg-preview">
+              <div className="bs-demo-scene-elements">
+                <div className="d-tree" /><div className="d-tree d2" /><div className="d-tree d3" />
+                <div className="d-mtn" /><div className="d-mtn dm2" />
+                <div className="d-player" />
+              </div>
             </div>
-
-            <div className="sb-crosshair">+</div>
-
-            <div className="sb-hotbar">
-              {[...Array(5)].map((_, i) => {
-                const item = items[i];
-                const isActive = i === selectedSlot;
-                return (
-                  <div key={i} className={`sb-hotbar-slot${isActive?' active':''}`} onClick={() => {
-                    setGameState(s => ({...s, selectedSlot: i}));
-                    if (gameRef.current) gameRef.current.selectedSlot = i;
-                  }}>
-                    {item ? <><span className="sb-hotbar-icon">{item.i}</span><span className="sb-hotbar-count">{item.c}</span></> : null}
-                  </div>
-                );
-              })}
+            <div className="bs-demo-info">
+              <h3>WildCraft — Survival Open World</h3>
+              <div className="bs-demo-tags">
+                <span>🌲 Mundo Aberto</span><span>🏃 Movimento COD</span>
+                <span>🌙 Dia/Noite</span><span>⚔️ Combate</span><span>🛠️ Construção</span>
+              </div>
+              <p>Mundo procedural de 200m com biomas, vilas, recursos, animais, clima dinâmico e física realista.</p>
+              <button className="bs-btn bs-btn-primary" onClick={() => setShowDemo(true)}>▶ Jogar Agora</button>
             </div>
-
-            {message && <div className="sb-msg">{message}</div>}
-
-            {/* ─── MOBILE CONTROLS ─── */}
-            <div className="sb-mobile-controls" style={{position:'fixed',inset:0,pointerEvents:'none',zIndex:40,display:'flex'}}>
-              <div className="sb-joystick-area" style={{
-                position:'absolute', bottom:30, left:20, width:120, height:120,
-                borderRadius:'50%', background:'rgba(255,255,255,0.08)', pointerEvents:'auto',
-                border:'2px solid rgba(255,255,255,0.15)', touchAction:'none',
-              }}
-                onTouchStart={(e) => { const t=e.touches[0]; const el=e.currentTarget; const r=el.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2; const dx=t.clientX-cx, dy=t.clientY-cy; const d=Math.sqrt(dx*dx+dy*dy); const max=50; const s=Math.min(1,d/max); joyRef.current={x:(dx/d||0)*s,y:(-dy/d||0)*s}; if(gameRef.current)gameRef.current.joy=joyRef.current; el.style.background='rgba(255,255,255,0.15)'; const dot=el.querySelector('.jb'); if(dot)dot.style.transform=`translate(${Math.min(dx/d*max||0,50)}px,${Math.min(-dy/d*max||0,50)}px)`; }}
-                onTouchMove={(e) => { const t=e.touches[0]; const el=e.currentTarget; const r=el.getBoundingClientRect(); const cx=r.left+r.width/2, cy=r.top+r.height/2; const dx=t.clientX-cx, dy=t.clientY-cy; const d=Math.sqrt(dx*dx+dy*dy); const max=50; const s=Math.min(1,d/max); joyRef.current={x:(dx/d||0)*s,y:(-dy/d||0)*s}; if(gameRef.current)gameRef.current.joy=joyRef.current; const dot=el.querySelector('.jb'); if(dot)dot.style.transform=`translate(${(dx/d||0)*Math.min(d,50)}px,${(-dy/d||0)*Math.min(d,50)}px)`; }}
-                onTouchEnd={(e) => { joyRef.current={x:0,y:0}; if(gameRef.current)gameRef.current.joy=joyRef.current; const el=e.currentTarget; el.style.background='rgba(255,255,255,0.08)'; const dot=el.querySelector('.jb'); if(dot)dot.style.transform='translate(0,0)'; }}
+          </div>
+          <div className="bs-demo-stats">
+            {[
+              { label: "Árvores", value: "350+" }, { label: "Recursos", value: "80+" },
+              { label: "Biomas", value: "6" }, { label: "FPS", value: "60" },
+              { label: "Área", value: "200m" }, { label: "IA Agentes", value: "32+" },
+            ].map((s, i) => (
+              <motion.div key={i} className="bs-demo-stat"
+                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.05 }}
               >
-                <div className="jb" style={{position:'absolute',top:'50%',left:'50%',width:20,height:20,margin:-10,borderRadius:'50%',background:'rgba(255,255,255,0.3)',border:'2px solid rgba(255,255,255,0.5)',transition:'transform 0.05s'}} />
-              </div>
-              <div className="sb-mobile-buttons" style={{position:'absolute',bottom:40,right:20,display:'flex',gap:10,pointerEvents:'auto'}}>
-                <button style={{width:54,height:54,borderRadius:'50%',background:'rgba(255,255,255,0.12)',border:'2px solid rgba(255,255,255,0.2)',color:'#fff',fontSize:'10px',touchAction:'none'}}
-                  onTouchStart={()=>{if(gameRef.current)gameRef.current.keys['ShiftLeft']=true}} onTouchEnd={()=>{if(gameRef.current)gameRef.current.keys['ShiftLeft']=false}}>🏃<br/>Correr</button>
-                <button style={{width:54,height:54,borderRadius:'50%',background:'rgba(255,255,255,0.12)',border:'2px solid rgba(255,255,255,0.2)',color:'#fff',fontSize:'10px',touchAction:'none'}}
-                  onTouchStart={()=>{if(gameRef.current)gameRef.current.keys['Space']=true}} onTouchEnd={()=>{if(gameRef.current)gameRef.current.keys['Space']=false}}>⬆️<br/>Pular</button>
-                <button style={{width:54,height:54,borderRadius:'50%',background:'rgba(255,255,255,0.12)',border:'2px solid rgba(255,255,255,0.2)',color:'#fff',fontSize:'10px',touchAction:'none'}}
-                  onTouchStart={()=>{if(gameRef.current)gameRef.current.keys['ControlLeft']=true}} onTouchEnd={()=>{if(gameRef.current)gameRef.current.keys['ControlLeft']=false}}>⬇️<br/>Agachar</button>
-              </div>
-            </div>
+                <span className="bs-stat-value">{s.value}</span>
+                <span className="bs-stat-label">{s.label}</span>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
 
-            {/* ─── DEBUG OVERLAY ─── */}
-            <div style={{
-              position:'fixed', bottom:0, left:0, zIndex:50,
-              background:'rgba(0,0,0,0.7)', color:'#0f0',
-              fontFamily:'monospace', fontSize:'11px', padding:'4px 8px',
-              lineHeight:1.3, pointerEvents:'none', whiteSpace:'pre',
-            }}>
-cam {dbg.camX} {dbg.camY} {dbg.camZ}
-              {'  '}player {dbg.pX} {dbg.pY} {dbg.pZ}
-              {'  '}terrainH {dbg.terrainH}
-              {'  '}meshes {dbg.meshes}
-              {'  '}world {dbg.worldOk?'OK':'FALLBACK'} [{dbg.phase}]
-              {'  '}[F1 debug]
+      {/* ─── FEATURES ─── */}
+      <section id="features" className="bs-section bs-features-section">
+        <SectionTitle sub="Tudo que você precisa para criar jogos profissionais com IA.">🚀 Funcionalidades da IA</SectionTitle>
+        <div className="bs-features-grid">
+          {FEATURES.map((f, i) => <FeatureCard key={i} {...f} i={i} />)}
+        </div>
+      </section>
+
+      {/* ─── PROMPT GENERATOR ─── */}
+      <section id="prompt" className="bs-section bs-prompt-section">
+        <SectionTitle sub="Descreva seu jogo e a IA gera o projeto completo.">🤖 Gerador de Prompts</SectionTitle>
+        <motion.div
+          className="bs-prompt-container"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <div className="bs-prompt-input-area">
+            <textarea
+              className="bs-prompt-input"
+              placeholder="Ex: Quero um jogo survival FPS com zumbis..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={3}
+            />
+            <div className="bs-prompt-examples">
+              {PROMPT_EXAMPLES.map((ex, i) => (
+                <button key={i} className="bs-prompt-chip" onClick={() => setPrompt(ex)}>{ex}</button>
+              ))}
             </div>
+            <button className="bs-btn bs-btn-primary" onClick={handlePrompt} disabled={promptLoading}>
+              {promptLoading ? "⏳ Gerando..." : "⚡ Gerar Projeto"}
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {promptResult && (
+              <motion.div
+                className="bs-prompt-result"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+              >
+                <div className="bs-result-grid">
+                  <div className="bs-result-card"><h4>📋 Roadmap</h4><ul>{promptResult.roadmap.map((r, i) => <li key={i}>{r}</li>)}</ul></div>
+                  <div className="bs-result-card"><h4>🏗️ Arquitetura</h4><p>{promptResult.arquitetura}</p></div>
+                  <div className="bs-result-card"><h4>📝 Prompts</h4><ul>{promptResult.prompts.map((r, i) => <li key={i}>{r}</li>)}</ul></div>
+                  <div className="bs-result-card"><h4>🎮 Gameplay</h4><p>{promptResult.gamepLay}</p></div>
+                  <div className="bs-result-card bs-result-full"><h4>⚙️ Sistemas</h4>
+                    <div className="bs-chip-group">{promptResult.sistemas.map((s, i) => <span key={i} className="bs-chip">{s}</span>)}</div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </section>
+
+      {/* ─── DASHBOARD ─── */}
+      <section id="dashboard" className="bs-section bs-dash-section">
+        <SectionTitle sub="Painel completo de desenvolvimento com IA.">📊 Dashboard IA</SectionTitle>
+        <motion.div
+          className="bs-dash-grid"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          {[
+            { label: "Projetos", value: "12", color: "#7c5cfc" },
+            { label: "Prompts", value: "47", color: "#44cc88" },
+            { label: "Builds", value: "23", color: "#44aaff" },
+            { label: "Assets", value: "1.2k", color: "#ff6644" },
+            { label: "Progresso", value: "84%", color: "#ffcc44" },
+            { label: "Debug", value: "3", color: "#ee4455" },
+          ].map((d, i) => (
+            <motion.div key={i} className="bs-dash-card"
+              initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }} transition={{ delay: i * 0.05 }}
+            >
+              <div className="bs-dash-value" style={{ color: d.color }}>{d.value}</div>
+              <div className="bs-dash-label">{d.label}</div>
+              <div className="bs-dash-bar"><div className="bs-dash-fill" style={{ width: d.value, background: d.color }} /></div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        <motion.div className="bs-tech-stack" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+          <h4>Tecnologias</h4>
+          <div className="bs-tech-logos">
+            {["Three.js", "React", "OpenAI", "WebGL", "Node.js", "Framer Motion", "Tailwind", "WebSocket"].map((t, i) => (
+              <motion.span key={i} className="bs-tech-badge"
+                initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ delay: i * 0.03 }}
+              >{t}</motion.span>
+            ))}
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ─── CTA ─── */}
+      <section className="bs-section bs-cta-section">
+        <motion.div
+          className="bs-cta-content"
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+        >
+          <h2>Pronto para criar seu jogo?</h2>
+          <p>Comece agora com Brany Game Studio AI e transforme suas ideias em realidade.</p>
+          <div className="bs-hero-actions" style={{ justifyContent: "center" }}>
+            <button className="bs-btn bs-btn-primary" onClick={() => setShowDemo(true)}>🎮 Ver Demo</button>
+            <a href="#features" className="bs-btn bs-btn-secondary">✨ Começar</a>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ─── FOOTER ─── */}
+      <footer className="bs-footer">
+        <div className="bs-footer-inner">
+          <div className="bs-footer-brand">
+            <strong>Brany Game Studio AI</strong>
+            <span>Crie jogos incríveis com inteligência artificial.</span>
+          </div>
+          <div className="bs-footer-links">
+            <span>© 2026 Brany Studio</span>
+            <a href="#features">Recursos</a>
+            <a href="#demo">Demo</a>
+            <button className="bs-footer-btn" onClick={() => setShowDemo(true)}>Jogar</button>
           </div>
         </div>
-      )}
+      </footer>
+
+      {/* ─── DEMO OVERLAY ─── */}
+      <AnimatePresence>
+        {showDemo && <GameDemoOverlay onClose={() => setShowDemo(false)} />}
+      </AnimatePresence>
     </div>
   );
 }
