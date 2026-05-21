@@ -34,23 +34,29 @@ function useAmbient(started) {
 
 function createFallbackScene(sceneId) {
   const c = document.createElement('canvas');
-  c.width = 2048; c.height = 1024;
+  c.width = 4096; c.height = 2048;
   const ctx = c.getContext('2d');
   if (ctx) {
-    const g = ctx.createLinearGradient(0, 0, 0, 1024);
-    g.addColorStop(0, '#1a1a2e');
-    g.addColorStop(0.3, '#16213e');
-    g.addColorStop(0.7, '#0f3460');
-    g.addColorStop(1, '#1a1a2e');
+    const g = ctx.createLinearGradient(0, 0, 0, 2048);
+    g.addColorStop(0, '#0a0a14');
+    g.addColorStop(0.3, '#141428');
+    g.addColorStop(0.7, '#1a1a30');
+    g.addColorStop(1, '#0f0f20');
     ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 2048, 1024);
-    ctx.fillStyle = '#e94560';
-    ctx.font = 'bold 32px sans-serif';
+    ctx.fillRect(0, 0, 4096, 2048);
+    for (let i = 0; i < 80; i++) {
+      ctx.fillStyle = `hsla(220, 30%, 60%, ${Math.random() * 0.06})`;
+      ctx.beginPath();
+      ctx.arc(Math.random() * 4096, Math.random() * 2048, Math.random() * 3 + 1, 0, 6.28);
+      ctx.fill();
+    }
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = 'bold 38px system-ui, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText((sceneId || 'brane').replace(/-/g, ' ').toUpperCase(), 1024, 500);
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.font = '16px sans-serif';
-    ctx.fillText('Clique nos pontos ⊙ para navegar', 1024, 540);
+    ctx.fillText((sceneId || 'brane').replace(/-/g, ' ').toUpperCase(), 2048, 1020);
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.font = '18px system-ui, sans-serif';
+    ctx.fillText('Clique nos pontos ⊙ para navegar', 2048, 1070);
   }
   return c;
 }
@@ -74,7 +80,6 @@ export default function ShoppingApp({ onClose }) {
   const imgRef = useRef(null);
   const engineRef = useRef(null);
   const animRef = useRef(null);
-  const resizeRef = useRef(null);
   const readyRef = useRef(false);
 
   const [engine] = useState(() => { const e = new ShoppingEngine({}); engineRef.current = e; return e; });
@@ -139,7 +144,6 @@ export default function ShoppingApp({ onClose }) {
     ctx.fillRect(0, 0, cw, ch);
   }, []);
 
-  const loopRef = useRef(null);
   useEffect(() => {
     const loop = () => {
       animRef.current = requestAnimationFrame(loop);
