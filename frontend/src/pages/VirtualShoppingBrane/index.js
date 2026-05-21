@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import CreateProjectModal from "./CreateProjectModal.js";
+import ProjectDetailModal from "./ProjectDetailModal.js";
 import "./VirtualShoppingBrane.css";
 
 // ─── DATA ──────────────────────────────────────────────
@@ -173,12 +175,32 @@ function SectionTitle({ children, sub }) {
 }
 
 // ─── MAIN PLATFORM ─────────────────────────────────────
+const BS_STORAGE = "brany_studio_projects";
+
 export default function VirtualShoppingBrane() {
   const [showDemo, setShowDemo] = useState(false);
+  const [showCreate, setShowCreate] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [projects, setProjects] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(BS_STORAGE)) || []; } catch { return []; }
+  });
   const [prompt, setPrompt] = useState("");
   const [promptResult, setPromptResult] = useState(null);
   const [promptLoading, setPromptLoading] = useState(false);
   const heroRef = useRef(null);
+
+  // Persist projects
+  useEffect(() => {
+    try { localStorage.setItem(BS_STORAGE, JSON.stringify(projects)); } catch {}
+  }, [projects]);
+
+  const handleSaveProject = useCallback((p) => {
+    setProjects(prev => [p, ...prev]);
+  }, []);
+
+  const handleUpdateProject = useCallback((updated) => {
+    setProjects(prev => prev.map(p => p.id === updated.id ? updated : p));
+  }, []);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroOpacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.95]);
@@ -226,7 +248,7 @@ export default function VirtualShoppingBrane() {
               e gameplay profissional.<br />Tudo gerado por inteligência artificial.
             </p>
             <div className="bs-hero-actions">
-              <a href="#features" className="bs-btn bs-btn-primary">✨ Criar meu jogo</a>
+              <button className="bs-btn bs-btn-primary" onClick={() => setShowCreate(true)}>✨ Criar meu jogo</button>
               <button className="bs-btn bs-btn-secondary" onClick={() => setShowDemo(true)}>▶ Ver demo</button>
               <a href="#features" className="bs-btn bs-btn-ghost">Explorar recursos</a>
             </div>
@@ -368,6 +390,7 @@ export default function VirtualShoppingBrane() {
       {/* ─── DASHBOARD ─── */}
       <section id="dashboard" className="bs-section bs-dash-section">
         <SectionTitle sub="Painel completo de desenvolvimento com IA.">📊 Dashboard IA</SectionTitle>
+
         <motion.div
           className="bs-dash-grid"
           initial={{ opacity: 0, y: 30 }}
@@ -375,12 +398,12 @@ export default function VirtualShoppingBrane() {
           viewport={{ once: true }}
         >
           {[
-            { label: "Projetos", value: "12", color: "#7c5cfc" },
-            { label: "Prompts", value: "47", color: "#44cc88" },
-            { label: "Builds", value: "23", color: "#44aaff" },
-            { label: "Assets", value: "1.2k", color: "#ff6644" },
-            { label: "Progresso", value: "84%", color: "#ffcc44" },
-            { label: "Debug", value: "3", color: "#ee4455" },
+            { label: "Projetos", value: projects.length.toString(), color: "#7c5cfc" },
+            { label: "Prompts", value: projects.reduce((a, p) => a + (p.prompts?.length || 0), 0).toString(), color: "#44cc88" },
+            { label: "Checklists", value: projects.reduce((a, p) => a + (p.checklist?.length || 0), 0).toString(), color: "#44aaff" },
+            { label: "Assets", value: projects.reduce((a, p) => a + (p.assets?.length || 0), 0) + "×", color: "#ff6644" },
+            { label: "Média Progresso", value: projects.length ? Math.round(projects.reduce((a, p) => a + (p.progress || 0), 0) / projects.length) + "%" : "0%", color: "#ffcc44" },
+            { label: "Status", value: projects.filter(p => p.progress >= 100).length + " concluídos", color: "#ee4455" },
           ].map((d, i) => (
             <motion.div key={i} className="bs-dash-card"
               initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }}
@@ -388,10 +411,55 @@ export default function VirtualShoppingBrane() {
             >
               <div className="bs-dash-value" style={{ color: d.color }}>{d.value}</div>
               <div className="bs-dash-label">{d.label}</div>
-              <div className="bs-dash-bar"><div className="bs-dash-fill" style={{ width: d.value, background: d.color }} /></div>
+              <div className="bs-dash-bar"><div className="bs-dash-fill" style={{ width: typeof d.value === 'string' && d.value.includes('%') ? d.value : '60%', background: d.color }} /></div>
             </motion.div>
           ))}
         </motion.div>
+
+        {/* ─── PROJECT LIST ─── */}
+        <div className="bs-project-list">
+          <div className="bs-project-list-header">
+            <h3>Seus Projetos</h3>
+            <button className="bs-btn bs-btn-primary" onClick={() => setShowCreate(true)}>+ Novo</button>
+          </div>
+          {projects.length === 0 ? (
+            <div className="bs-project-empty">
+              <p>Nenhum projeto ainda. Crie seu primeiro jogo!</p>
+            </div>
+          ) : (
+            <div className="bs-project-cards">
+              {projects.map((p, i) => (
+                <motion.div
+                  key={p.id}
+                  className="bs-project-card"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.03 }}
+                  onClick={() => setSelectedProject(p)}
+                >
+                  <div className="bs-project-card-top">
+                    <h4>{p.name}</h4>
+                    <div className="bs-project-card-meta">
+                      <span className="bs-chip">{p.genre}</span>
+                      <span className="bs-chip">{p.platform}</span>
+                    </div>
+                  </div>
+                  <p className="bs-project-card-desc">{p.description}</p>
+                  <div className="bs-project-card-footer">
+                    <div className="bs-project-card-progress">
+                      <div className="bs-progress-bar-sm">
+                        <div className="bs-progress-fill-sm" style={{ width: `${p.progress}%`, background: p.progress >= 100 ? '#44cc88' : '#7c5cfc' }} />
+                      </div>
+                      <span>{p.progress}%</span>
+                    </div>
+                    <span className="bs-project-card-date">{new Date(p.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <motion.div className="bs-tech-stack" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
           <h4>Tecnologias</h4>
@@ -418,7 +486,7 @@ export default function VirtualShoppingBrane() {
           <p>Comece agora com Brany Game Studio AI e transforme suas ideias em realidade.</p>
           <div className="bs-hero-actions" style={{ justifyContent: "center" }}>
             <button className="bs-btn bs-btn-primary" onClick={() => setShowDemo(true)}>🎮 Ver Demo</button>
-            <a href="#features" className="bs-btn bs-btn-secondary">✨ Começar</a>
+            <button className="bs-btn bs-btn-secondary" onClick={() => setShowCreate(true)}>✨ Criar Projeto</button>
           </div>
         </motion.div>
       </section>
@@ -439,9 +507,17 @@ export default function VirtualShoppingBrane() {
         </div>
       </footer>
 
-      {/* ─── DEMO OVERLAY ─── */}
+      {/* ─── MODALS ─── */}
       <AnimatePresence>
         {showDemo && <GameDemoOverlay onClose={() => setShowDemo(false)} />}
+        {showCreate && <CreateProjectModal onClose={() => setShowCreate(false)} onSave={handleSaveProject} />}
+        {selectedProject && (
+          <ProjectDetailModal
+            project={selectedProject}
+            onClose={() => setSelectedProject(null)}
+            onUpdate={handleUpdateProject}
+          />
+        )}
       </AnimatePresence>
     </div>
   );
