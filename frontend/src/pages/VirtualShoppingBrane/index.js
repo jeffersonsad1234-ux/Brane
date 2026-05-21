@@ -17,6 +17,41 @@ const W = 200, BLOCK = 1.4, WH = 12;
 function rng(m, M) { return m + Math.random() * (M - m); }
 function clamp(v, mn, mx) { return Math.max(mn, Math.min(mx, v)); }
 
+// ─── PROCEDURAL TEXTURES ────────────────────────────────
+function makeTex(w, h, fn) {
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const ctx = c.getContext("2d"); const d = ctx.createImageData(w, h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const [r, g, b] = fn(x / w, y / h);
+    const i = (y * w + x) * 4;
+    d.data[i] = Math.floor(r * 255); d.data[i+1] = Math.floor(g * 255);
+    d.data[i+2] = Math.floor(b * 255); d.data[i+3] = 255;
+  }
+  ctx.putImageData(d, 0, 0);
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+function makeGrassTex() { return makeTex(64,64,(x,y)=>{const n=fbm(x*8+100,y*8+100,3);return[0.1+n*0.15,0.32+n*0.25,0.04+n*0.08]}); }
+function makeStoneTex() { return makeTex(64,64,(x,y)=>{const n=fbm(x*6+200,y*6+200,4);return[0.35+n*0.15,0.3+n*0.12,0.25+n*0.1]}); }
+function makeWoodTex() { return makeTex(64,64,(x,y)=>{const g=fbm(x*20,y*2+300,3)*0.12;return[0.35+g,0.2+g,0.08+g]}); }
+function makeSandTex() { return makeTex(64,64,(x,y)=>{const n=fbm(x*10+400,y*10+400,3);return[0.7+n*0.1,0.6+n*0.08,0.35+n*0.06]}); }
+function makeRoofTex() { return makeTex(64,64,(x,y)=>{const n=fbm(x*12+500,y*12+500,3);return[0.45+n*0.12,0.22+n*0.08,0.1+n*0.05]}); }
+
+// ─── SIMPLE ENV MAP ─────────────────────────────────────
+function makeEnvMap() {
+  const size = 16; const data = [];
+  for (let i = 0; i < 6; i++) {
+    const c = document.createElement("canvas"); c.width = size; c.height = size;
+    const ctx = c.getContext("2d");
+    const g = ctx.createLinearGradient(0,0,0,size);
+    g.addColorStop(0,"#87CEEB"); g.addColorStop(0.4,"#87CEEB"); g.addColorStop(1,"#8B7355");
+    ctx.fillStyle = g; ctx.fillRect(0,0,size,size);
+    data.push(c);
+  }
+  const ct = new THREE.CubeTexture(data); ct.needsUpdate = true;
+  return ct;
+}
+
 const SKIN = "wildcraft_data";
 const BLOCK_TYPES = {
   dirt: { color: 0x8B6914, name: "Terra", roughness: 0.9 },
@@ -141,14 +176,16 @@ function buildWorld(scene) {
   geo.computeVertexNormals();
   const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0.02, flatShading: true, side: THREE.DoubleSide });
   const mesh = new THREE.Mesh(geo, mat);
+  mesh.receiveShadow = true;
   scene.add(mesh);
 
-  // Water — river + lake plane
-  const wMat = new THREE.MeshStandardMaterial({ color: 0x2a9aca, transparent: true, opacity: 0.4, side: THREE.DoubleSide, roughness: 0.2, metalness: 0.1 });
+  // Water — river + lake plane with reflection
+  const wMat = new THREE.MeshPhysicalMaterial({ color: 0x1a8aba, transparent: true, opacity: 0.35, side: THREE.DoubleSide, roughness: 0.15, metalness: 0.05, clearcoat: 0.3, envMapIntensity: 0.6 });
   const wGeo = new THREE.PlaneGeometry(W + 20, W + 20, 60, 60);
   const wMesh = new THREE.Mesh(wGeo, wMat);
   wMesh.rotation.x = -Math.PI / 2;
   wMesh.position.y = -0.5;
+  wMesh.receiveShadow = true;
   scene.add(wMesh);
 
   // ─── MATERIALS ───
@@ -164,20 +201,31 @@ function buildWorld(scene) {
   const flowerMat = (hue) => new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(hue, 0.7, 0.55 + rng(0, 0.15)), roughness: 0.5 });
   const bushMat = new THREE.MeshStandardMaterial({ color: 0x336633, roughness: 0.8, flatShading: true });
 
-  // ─── TREES (160) ───
-  for (let i = 0; i < 160; i++) {
+  // ─── TREES (140) ───
+  for (let i = 0; i < 140; i++) {
     const tx = rng(-W/2+5, W/2-5), tz = rng(-W/2+5, W/2-5);
     const th = getHeight(tx, tz);
     if (th > 0.6 && th < 4 && fbm(tx*0.04+20, tz*0.04+20) > 0.3) {
-      const trunkH = rng(1.2, 3.5);
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.16, trunkH, 5), i%3===0?trunkMat2:trunkMat);
+      const trunkH = rng(1.5, 3.5);
+      const trunkR = rng(0.07, 0.15);
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(trunkR*0.5, trunkR, trunkH, 6), i%3===0?trunkMat2:trunkMat);
       trunk.position.set(tx, th + trunkH/2, tz);
-      scene.add(trunk);
-      const leaf = new THREE.Mesh(new THREE.SphereGeometry(rng(0.4, 1), 6, 6), leafMats[i%4]);
-      leaf.position.set(tx, th + trunkH * 0.7 + rng(0.2, 0.6), tz);
-      leaf.scale.y = rng(0.7, 1.2);
-      scene.add(leaf);
-      trees.push(trunk);
+      scene.add(trunk); trees.push(trunk);
+      // Branches
+      for (let b = 0; b < 2; b++) {
+        const ba = rng(0, Math.PI*2), bl = rng(0.2, 0.5);
+        const br = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.05, bl, 4), trunkMat);
+        br.position.set(tx + Math.cos(ba) * trunkR * 0.8, th + trunkH * (0.4 + b * 0.3), tz + Math.sin(ba) * trunkR * 0.8);
+        br.rotation.z = rng(0.3, 0.8); br.rotation.y = ba; br.rotation.x = rng(-0.2, 0.2);
+        scene.add(br);
+      }
+      // Leaves (2 clusters)
+      for (let l = 0; l < 2; l++) {
+        const leaf = new THREE.Mesh(new THREE.SphereGeometry(rng(0.3, 0.7), 6, 6), leafMats[(i+l)%4]);
+        leaf.position.set(tx + rng(-0.5, 0.5), th + trunkH * 0.7 + rng(0.2, 0.8), tz + rng(-0.5, 0.5));
+        leaf.scale.y = rng(0.7, 1.2);
+        scene.add(leaf);
+      }
     }
   }
 
@@ -491,29 +539,31 @@ function makeShadow() {
 function makePlayer(scene) {
   const g = new THREE.Group();
   const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4488ff, roughness: 0.5, flatShading: true });
-  const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.7, 0.35), bodyMat);
-  body.position.y = 0.85; body.castShadow = true; g.add(body);
-  const headMat = new THREE.MeshStandardMaterial({ color: 0xffcc88, roughness: 0.4, flatShading: true });
-  const head = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 0.35), headMat);
-  head.position.y = 1.35; head.castShadow = true; g.add(head);
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 0.6, 8), bodyMat);
+  body.position.y = 0.8; g.add(body);
+  const headMat = new THREE.MeshStandardMaterial({ color: 0xffcc88, roughness: 0.3, flatShading: true });
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), headMat);
+  head.position.y = 1.3; head.scale.set(1, 0.9, 0.85); g.add(head);
   const eMat = new THREE.MeshBasicMaterial({ color: 0x222222 });
-  const e1 = new THREE.Mesh(new THREE.SphereGeometry(0.04, 4, 4), eMat);
-  e1.position.set(-0.1, 1.38, -0.18); g.add(e1);
-  const e2 = new THREE.Mesh(new THREE.SphereGeometry(0.04, 4, 4), eMat);
-  e2.position.set(0.1, 1.38, -0.18); g.add(e2);
-  const hatMat = new THREE.MeshStandardMaterial({ color: 0xaa66ff, roughness: 0.3 });
-  const hat = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.15, 6), hatMat);
-  hat.position.y = 1.55; g.add(hat);
-  const armMat = new THREE.MeshStandardMaterial({ color: 0xffcc88, roughness: 0.5 });
-  const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.5, 0.1), armMat);
-  lArm.position.set(-0.3, 0.85, 0); g.add(lArm);
-  const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.5, 0.1), armMat);
-  rArm.position.set(0.3, 0.85, 0); g.add(rArm);
-  const legMat = new THREE.MeshStandardMaterial({ color: 0x3355aa, roughness: 0.6 });
-  const lLeg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.4, 0.14), legMat);
-  lLeg.position.set(-0.13, 0.25, 0); g.add(lLeg);
-  const rLeg = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.4, 0.14), legMat);
-  rLeg.position.set(0.13, 0.25, 0); g.add(rLeg);
+  const e1 = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), eMat);
+  e1.position.set(-0.08, 1.33, -0.18); g.add(e1);
+  const e2 = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), eMat);
+  e2.position.set(0.08, 1.33, -0.18); g.add(e2);
+  const hatMat = new THREE.MeshStandardMaterial({ color: 0xaa66ff, roughness: 0.3, flatShading: true });
+  const hat = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.18, 8), hatMat);
+  hat.position.y = 1.52; g.add(hat);
+  const hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.32, 0.03, 8), hatMat);
+  hatBrim.position.y = 1.44; g.add(hatBrim);
+  const armMat = new THREE.MeshStandardMaterial({ color: 0xffcc88, roughness: 0.4, flatShading: true });
+  const lArm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.45, 6), armMat);
+  lArm.position.set(-0.3, 0.8, 0); lArm.rotation.z = 0.15; g.add(lArm);
+  const rArm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.45, 6), armMat);
+  rArm.position.set(0.3, 0.8, 0); rArm.rotation.z = -0.15; g.add(rArm);
+  const legMat = new THREE.MeshStandardMaterial({ color: 0x3355aa, roughness: 0.5, flatShading: true });
+  const lLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.08, 0.4, 6), legMat);
+  lLeg.position.set(-0.1, 0.25, 0); g.add(lLeg);
+  const rLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.08, 0.4, 6), legMat);
+  rLeg.position.set(0.1, 0.25, 0); g.add(rLeg);
   g.position.set(0, 0, 0);
   scene.add(g);
   return { group: g, body, head, lArm, rArm, lLeg, rLeg };
@@ -569,14 +619,17 @@ function makeBirds(scene) {
 
 // ─── STRUCTURES ─────────────────────────────────────────
 function buildStructures(scene) {
-  const wallMat = new THREE.MeshStandardMaterial({ color: 0xc4a46a, roughness: 0.85 });
-  const roofMat = new THREE.MeshStandardMaterial({ color: 0x8a3a1a, roughness: 0.8 });
-  const roofMat2 = new THREE.MeshStandardMaterial({ color: 0x6a2a1a, roughness: 0.8 });
-  const logMat = new THREE.MeshStandardMaterial({ color: 0x6a4a2a, roughness: 0.9 });
-  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x707070, roughness: 0.9 });
-  const plankMat = new THREE.MeshStandardMaterial({ color: 0xbb9955, roughness: 0.7 });
+  const woodTex = makeWoodTex(); woodTex.repeat.set(2,2);
+  const stoneTex = makeStoneTex(); stoneTex.repeat.set(2,2);
+  const roofTex = makeRoofTex(); roofTex.repeat.set(2,2);
+  const wallMat = new THREE.MeshStandardMaterial({ map: stoneTex, roughness: 0.85 });
+  const roofMat = new THREE.MeshStandardMaterial({ map: roofTex, roughness: 0.8 });
+  const roofMat2 = new THREE.MeshStandardMaterial({ map: roofTex, roughness: 0.8, color: 0x6a2a1a });
+  const logMat = new THREE.MeshStandardMaterial({ map: woodTex, roughness: 0.9 });
+  const stoneMat = new THREE.MeshStandardMaterial({ map: stoneTex, roughness: 0.9, color: 0x606060 });
+  const plankMat = new THREE.MeshStandardMaterial({ map: woodTex, roughness: 0.7, color: 0xbb9955 });
   const roadMat = new THREE.MeshStandardMaterial({ color: 0x8a7a5a, roughness: 0.95 });
-  const fenceMat = new THREE.MeshStandardMaterial({ color: 0x6a4a2a, roughness: 0.9 });
+  const fenceMat = new THREE.MeshStandardMaterial({ map: woodTex, roughness: 0.9 });
   const lanternMat = new THREE.MeshBasicMaterial({ color: 0xff8844 });
 
   function hut(vx, vz, rotY) {
@@ -584,10 +637,24 @@ function buildStructures(scene) {
     if (vh < 0.3 || vh > 3) return;
     const wall = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.8, 1.2), wallMat);
     wall.position.set(vx, vh+0.4, vz); scene.add(wall);
+    // Wooden beams
+    const beamMat = new THREE.MeshStandardMaterial({ map: woodTex, roughness: 0.9 });
+    for (let b = 0; b < 3; b++) {
+      const beam = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 1.22), beamMat);
+      beam.position.set(vx - 0.5 + b * 0.5, vh + 0.08 + b * 0.3, vz);
+      scene.add(beam);
+    }
     const roof = new THREE.Mesh(new THREE.ConeGeometry(1.2, 0.5, 4), rotY > 0 ? roofMat2 : roofMat);
     roof.position.set(vx, vh+1.05, vz);
     roof.rotation.y = rotY + Math.PI/4; scene.add(roof);
-    const door = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.4, 0.05), new THREE.MeshStandardMaterial({ color: 0x5a3a1a }));
+    // Chimney
+    const chim = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.35, 0.15), stoneMat);
+    chim.position.set(vx + 0.4, vh + 0.95, vz - 0.3);
+    chim.scale.x = 0.8; scene.add(chim);
+    const chimTop = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.04, 0.18), stoneMat);
+    chimTop.position.set(vx + 0.4, vh + 1.15, vz - 0.3);
+    scene.add(chimTop);
+    const door = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.4, 0.05), new THREE.MeshStandardMaterial({ color: 0x5a3a1a, map: woodTex }));
     door.position.set(vx, vh+0.3, vz+0.6); scene.add(door);
     const win = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.02), new THREE.MeshBasicMaterial({ color: 0x88ccff }));
     win.position.set(vx+0.5, vh+0.5, vz); scene.add(win);
@@ -793,16 +860,21 @@ export default function VirtualShoppingBrane() {
     document.body.style.cursor = "default";
     let worldOk = false;
 
-    // Renderer — minimal, no shadows, no tone mapping
+    // Renderer with soft shadows + tone mapping
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(W2, H2);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.9;
     mount.appendChild(renderer.domElement);
 
     // Scene — cinematic sky + subtle fog
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87CEEB);
-    scene.fog = new THREE.FogExp2(0x87CEEB, 0.0012);
+    scene.fog = new THREE.FogExp2(0x87CEEB, 0.001);
+    scene.environment = makeEnvMap();
 
     // Camera — third person, safe height
     let camDist = 8; const camHeight = 5;
@@ -810,15 +882,21 @@ export default function VirtualShoppingBrane() {
     camera.position.set(0, camHeight, camDist);
     camera.lookAt(0, 0, 0);
 
-    // Lighting — warm golden hour
-    const amb = new THREE.AmbientLight(0xffffff, 0.4);
+    // Lighting — warm golden hour with shadows
+    const amb = new THREE.AmbientLight(0xffffff, 0.35);
     scene.add(amb);
-    const hemi = new THREE.HemisphereLight(0x88CCFF, 0xCC9966, 0.3);
+    const hemi = new THREE.HemisphereLight(0x88CCFF, 0xCC9966, 0.25);
     scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xFFCC88, 1.2);
+    const sun = new THREE.DirectionalLight(0xFFCC88, 1.0);
     sun.position.set(20, 35, 15);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024);
+    sun.shadow.camera.near = 0.5; sun.shadow.camera.far = 60;
+    sun.shadow.camera.left = -25; sun.shadow.camera.right = 25;
+    sun.shadow.camera.top = 25; sun.shadow.camera.bottom = -25;
+    sun.shadow.bias = -0.001;
     scene.add(sun);
-    const fill = new THREE.DirectionalLight(0x88AAEE, 0.2);
+    const fill = new THREE.DirectionalLight(0x88AAEE, 0.15);
     fill.position.set(-10, 15, -15);
     scene.add(fill);
 
