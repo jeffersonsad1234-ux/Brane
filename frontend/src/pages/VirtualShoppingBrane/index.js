@@ -62,23 +62,28 @@ function playCollect() {
 
 // ─── GET HEIGHT ─────────────────────────────────────────
 function getHeight(x, z) {
-  const base = fbm(x * 0.009, z * 0.009, 6) * 3.5 - 0.5;
-  const ridge = 1 - Math.abs(fbm(x * 0.003 + 5, z * 0.003 + 5) * 2 - 1);
-  const rm = Math.pow(ridge, 2.5) * fbm(x * 0.006 + 30, z * 0.006 + 30) * 10;
-  const hills = Math.pow(ridge, 1.3) * fbm(x * 0.02 + 10, z * 0.02 + 10) * 5;
-  const detail = fbm(x * 0.04 + 60, z * 0.04 + 60) * 0.8;
+  // Domain warping for organic shapes
+  const dw = fbm(x * 0.004 + 1.5, z * 0.004 + 1.5, 4) * 20;
+  const dw2 = fbm(x * 0.005 + 3.7, z * 0.005 + 3.7, 4) * 15;
+  const wx = x + dw, wz = z + dw2;
 
-  // River
+  const base = fbm(wx * 0.008, wz * 0.008, 6) * 3.2 - 0.3;
+  const ridge = 1 - Math.abs(fbm(wx * 0.0025 + 5, wz * 0.0025 + 5) * 2 - 1);
+  const rm = Math.pow(ridge, 2.2) * fbm(wx * 0.005 + 30, wz * 0.005 + 30) * 11;
+  const hills = Math.pow(ridge, 1.2) * fbm(wx * 0.018 + 10, wz * 0.018 + 10) * 5;
+  const detail = fbm(wx * 0.035 + 60, wz * 0.035 + 60) * 0.7;
+
+  // River through valley
   const rAngle = 0.35;
   const rx = x * Math.cos(rAngle) - z * Math.sin(rAngle);
   const ry = x * Math.sin(rAngle) + z * Math.cos(rAngle);
-  const rv = Math.abs(fbm(rx * 0.003 + 100, ry * 0.003 + 100) - 0.5) * 2;
-  const riverCut = Math.max(0, 1 - rv * 5) * -2.5;
+  const rv = Math.abs(fbm(rx * 0.0025 + 100, ry * 0.0025 + 100) - 0.5) * 2;
+  const riverCut = Math.max(0, 1 - rv * 5) * -2.8;
 
   // Lake
   const lkx = 30, lkz = -22;
   const ld = Math.sqrt((x - lkx) ** 2 + (z - lkz) ** 2);
-  const lakeCut = Math.max(0, 1 - ld / 16) * (ld < 6 ? -3.5 : -3.5 + (ld - 6) * 0.1);
+  const lakeCut = Math.max(0, 1 - ld / 18) * (ld < 6 ? -3.8 : -3.8 + (ld - 6) * 0.08);
 
   let h = base + hills + rm + detail + riverCut + lakeCut;
   h = Math.floor(h * 2) / 2;
@@ -139,8 +144,8 @@ function buildWorld(scene) {
   scene.add(mesh);
 
   // Water — river + lake plane
-  const wMat = new THREE.MeshStandardMaterial({ color: 0x2a9aca, transparent: true, opacity: 0.45, side: THREE.DoubleSide });
-  const wGeo = new THREE.PlaneGeometry(W + 20, W + 20, 30, 30);
+  const wMat = new THREE.MeshStandardMaterial({ color: 0x2a9aca, transparent: true, opacity: 0.4, side: THREE.DoubleSide, roughness: 0.2, metalness: 0.1 });
+  const wGeo = new THREE.PlaneGeometry(W + 20, W + 20, 60, 60);
   const wMesh = new THREE.Mesh(wGeo, wMat);
   wMesh.rotation.x = -Math.PI / 2;
   wMesh.position.y = -0.5;
@@ -173,6 +178,45 @@ function buildWorld(scene) {
       leaf.scale.y = rng(0.7, 1.2);
       scene.add(leaf);
       trees.push(trunk);
+    }
+  }
+
+  // ─── FALLEN LOGS (20) ───
+  const logMat = new THREE.MeshStandardMaterial({ color: 0x5a3a1a, roughness: 0.9 });
+  for (let i = 0; i < 20; i++) {
+    const lx = rng(-W/2+5, W/2-5), lz = rng(-W/2+5, W/2-5);
+    const lh = getHeight(lx, lz);
+    if (lh > 0.3 && lh < 4 && fbm(lx*0.04+140, lz*0.04+140) > 0.35) {
+      const log = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.07, rng(0.5, 1.2), 5), logMat);
+      log.position.set(lx, lh + 0.04, lz);
+      log.rotation.x = Math.PI / 2 + rng(-0.3, 0.3);
+      log.rotation.z = rng(0, Math.PI * 2);
+      scene.add(log);
+    }
+  }
+
+  // ─── RESOURCE NODES (crystals 20, gold 15) ───
+  const crystalMat = new THREE.MeshStandardMaterial({ color: 0xff66ff, roughness: 0.15, metalness: 0.5, emissive: 0xff44ff, emissiveIntensity: 0.2 });
+  for (let i = 0; i < 20; i++) {
+    const cx = rng(-W/2+8, W/2-8), cz = rng(-W/2+8, W/2-8);
+    const ch = getHeight(cx, cz);
+    if (ch > 0.5 && ch < 5 && fbm(cx*0.05+300, cz*0.05+300) > 0.4) {
+      const c = new THREE.Mesh(new THREE.OctahedronGeometry(rng(0.08, 0.25), 0), crystalMat);
+      c.position.set(cx, ch + rng(0, 0.1), cz);
+      c.rotation.set(rng(0,6), rng(0,6), rng(0,6));
+      scene.add(c);
+      if (i % 3 === 0) { const gl = new THREE.PointLight(0xff44ff, 0.12, 1.5); gl.position.set(cx, ch+0.2, cz); scene.add(gl); }
+    }
+  }
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.3, metalness: 0.8, emissive: 0xff8800, emissiveIntensity: 0.15 });
+  for (let i = 0; i < 15; i++) {
+    const gx = rng(-W/2+8, W/2-8), gz = rng(-W/2+8, W/2-8);
+    const gh = getHeight(gx, gz);
+    if (gh > 0.3 && gh < 4.5 && fbm(gx*0.04+400, gz*0.04+400) > 0.35) {
+      const g = new THREE.Mesh(new THREE.DodecahedronGeometry(rng(0.06, 0.18), 0), goldMat);
+      g.position.set(gx, gh, gz);
+      g.rotation.set(rng(0,6), rng(0,6), rng(0,6));
+      scene.add(g);
     }
   }
 
@@ -402,7 +446,7 @@ function makeClouds(scene) {
     })(),
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.5,
   });
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 60; i++) {
     const cloud = new THREE.Sprite(cloudMat);
     const s = rng(4, 12);
     cloud.scale.set(s, s * 0.4, 1);
@@ -551,10 +595,41 @@ function buildStructures(scene) {
     win2.position.set(vx-0.5, vh+0.5, vz); scene.add(win2);
   }
 
-  // Village near spawn (3 huts)
+  // Village near spawn (5 huts)
   hut(8, 0, 0);
   hut(10.5, 2, 0.5);
   hut(6, 3, -0.3);
+  hut(4, -2, 0.8);
+  hut(12, -1, -0.2);
+
+  // Well at village center
+  const wwx = 8.5, wwz = 1, wwh = getHeight(wwx, wwz);
+  if (wwh > 0) {
+    const wellMat = new THREE.MeshStandardMaterial({ color: 0x808080, roughness: 0.8 });
+    const wellBase = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.25, 0.15, 8), wellMat);
+    wellBase.position.set(wwx, wwh + 0.07, wwz); scene.add(wellBase);
+    for (let i = 0; i < 4; i++) {
+      const a = (i/4)*Math.PI*2 + Math.PI/4;
+      const p = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.3, 0.05), wellMat);
+      p.position.set(wwx + Math.cos(a)*0.2, wwh+0.25, wwz + Math.sin(a)*0.2);
+      scene.add(p);
+    }
+    const wellRoof = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.08, 4), new THREE.MeshStandardMaterial({ color: 0x8a3a1a, roughness: 0.8 }));
+    wellRoof.position.set(wwx, wwh+0.45, wwz); wellRoof.rotation.y = Math.PI/4; scene.add(wellRoof);
+  }
+
+  // Stone path between huts
+  const stoneMat2 = new THREE.MeshStandardMaterial({ color: 0x7a7a7a, roughness: 0.9 });
+  for (let i = 0; i < 20; i++) {
+    const spx = 7 + rng(-2, 4), spz = -1 + rng(-1.5, 3.5);
+    const sph = getHeight(spx, spz);
+    if (sph > 0) {
+      const st = new THREE.Mesh(new THREE.CircleGeometry(rng(0.04, 0.1), 5), stoneMat2);
+      st.position.set(spx, sph, spz);
+      st.rotation.x = -Math.PI / 2;
+      scene.add(st);
+    }
+  }
 
   // Fence around village
   const fencePositions = [[7, -1.5], [11, -1.5], [12.5, 1], [12.5, 3], [11, 4.5], [7, 4.5], [5.5, 3], [5.5, 1]];
@@ -801,6 +876,9 @@ export default function VirtualShoppingBrane() {
     let walkPhase = 0;
     let wasMoving = false;
 
+    // Day/night cycle
+    let gameTime = 6;
+
     // ─── GAME LOOP ───
     let frameCount = 0;
     let prevTime = performance.now();
@@ -810,6 +888,40 @@ export default function VirtualShoppingBrane() {
 
       const dt = Math.min(0.05, (now - prevTime) / 1000);
       prevTime = now;
+
+      // Day/night cycle
+      gameTime += dt * 0.008;
+      const hours = gameTime % 24;
+      const angle = (hours / 24) * Math.PI * 2 - Math.PI / 2;
+      const sunY = Math.sin(angle) * 35 + 15;
+      const sunX = Math.cos(angle) * 35;
+      sun.position.set(sunX, Math.max(1, sunY), 0);
+
+      let sunInt, sunCol, ambInt, hemiInt;
+      if (hours < 5.5) {
+        sunInt = 0.08; sunCol = new THREE.Color(0x446688); ambInt = 0.06; hemiInt = 0.08;
+        scene.background.setHex(0x0a0a1a);
+      } else if (hours < 7.5) {
+        const t = (hours - 5.5) / 2;
+        sunInt = 0.08 + t * 1.0; sunCol = new THREE.Color().lerpColors(new THREE.Color(0xFF6633), new THREE.Color(0xFFCC88), t);
+        ambInt = 0.06 + t * 0.3; hemiInt = 0.08 + t * 0.22;
+        scene.background.setHSL(0.6 - t * 0.08, 0.5 - t * 0.2, 0.1 + t * 0.25);
+      } else if (hours < 17) {
+        sunInt = 1.2; sunCol = new THREE.Color(0xFFCC88); ambInt = 0.4; hemiInt = 0.32;
+        scene.background.setHex(0x87CEEB);
+      } else if (hours < 19.5) {
+        const t = (hours - 17) / 2.5;
+        sunInt = 1.2 - t * 1.12; sunCol = new THREE.Color().lerpColors(new THREE.Color(0xFFCC88), new THREE.Color(0xFF5522), t);
+        ambInt = 0.4 - t * 0.34; hemiInt = 0.32 - t * 0.24;
+        scene.background.setHSL(0.58 + t * 0.08, 0.4 + t * 0.2, 0.55 - t * 0.3);
+      } else {
+        sunInt = 0.08; sunCol = new THREE.Color(0x446688); ambInt = 0.06; hemiInt = 0.08;
+        scene.background.setHex(0x0a0a1a);
+      }
+      sun.color.copy(sunCol);
+      sun.intensity = sunInt;
+      amb.intensity = ambInt;
+      hemi.intensity = hemiInt;
 
       // Player movement
       const keys = keysRef.current;
@@ -839,13 +951,26 @@ export default function VirtualShoppingBrane() {
       }
 
       // Player animation
-      const swing = isMoving ? Math.sin(walkPhase) * 0.2 : Math.sin(walkPhase) * 0.02;
-      const idleBob = Math.sin(performance.now() * 0.001 + player.group.position.x) * 0.01;
-      player.lArm.rotation.x = swing + idleBob;
-      player.rArm.rotation.x = -swing + idleBob;
-      player.lLeg.rotation.x = -swing * 0.5;
-      player.rLeg.rotation.x = swing * 0.5;
-      player.body.position.y = 0.85 + (isMoving ? Math.abs(Math.sin(walkPhase)) * 0.03 : 0);
+      const breathe = Math.sin(performance.now() * 0.002) * 0.015;
+      const headTilt = Math.sin(performance.now() * 0.0015) * 0.02;
+      if (isMoving) {
+        const swing = Math.sin(walkPhase) * 0.2;
+        player.lArm.rotation.x = swing;
+        player.rArm.rotation.x = -swing;
+        player.lLeg.rotation.x = -swing * 0.5;
+        player.rLeg.rotation.x = swing * 0.5;
+        player.body.position.y = 0.85 + Math.abs(Math.sin(walkPhase)) * 0.04;
+        player.head.position.y = 1.35 + breathe;
+      } else {
+        const idleSwing = Math.sin(performance.now() * 0.0008) * 0.03;
+        player.lArm.rotation.x = idleSwing + breathe;
+        player.rArm.rotation.x = -idleSwing + breathe;
+        player.lLeg.rotation.x = -idleSwing * 0.3;
+        player.rLeg.rotation.x = idleSwing * 0.3;
+        player.body.position.y = 0.85 + breathe * 0.5;
+        player.head.position.y = 1.35 + breathe;
+        player.head.rotation.x = headTilt;
+      }
 
       // Smooth third-person camera
       const tgt = player.group.position;
