@@ -223,45 +223,10 @@ export default class GalaxySurvivalDemo {
   }
 
   _buildTerrain() {
-    const segs = 120, size = 80;
-    const geo = new THREE.PlaneGeometry(size, size, segs, segs);
-    geo.rotateX(-Math.PI / 2);
-    const pos = geo.attributes.position;
-    const colors = new Float32Array(pos.count * 3);
-
-    for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i), z = pos.getZ(i);
-      const h = this._terrainHeight(x, z);
-      pos.setY(i, h);
-      const n = h * 0.3 + 0.5;
-      if (h > 0.5) {
-        colors[i * 3] = 0.08 + n * 0.08;
-        colors[i * 3 + 1] = clamp(0.20 + n * 0.20, 0.15, 0.40);
-        colors[i * 3 + 2] = 0.04 + n * 0.03;
-      } else if (h > 0.1) {
-        colors[i * 3] = 0.06 + n * 0.06;
-        colors[i * 3 + 1] = clamp(0.28 + n * 0.25, 0.20, 0.55);
-        colors[i * 3 + 2] = 0.04 + n * 0.03;
-      } else if (h < -0.3) {
-        colors[i * 3] = 0.04 + n * 0.04;
-        colors[i * 3 + 1] = clamp(0.12 + n * 0.18, 0.08, 0.28);
-        colors[i * 3 + 2] = 0.02 + n * 0.02;
-      } else {
-        colors[i * 3] = 0.06 + n * 0.06;
-        colors[i * 3 + 1] = clamp(0.22 + n * 0.22, 0.15, 0.45);
-        colors[i * 3 + 2] = 0.03 + n * 0.03;
-      }
-    }
-    pos.needsUpdate = true;
-    geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-    geo.computeVertexNormals();
-
-    this.terrain = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({
-      vertexColors: true, roughness: 0.9, metalness: 0, clearcoat: 0.03, clearcoatRoughness: 0.8,
-    }));
-    this.terrain.receiveShadow = true;
-    this.scene.add(this.terrain);
-    this.objects.push(this.terrain);
+    this._chunkTerrainMat = new THREE.MeshPhysicalMaterial({
+      vertexColors: true, roughness: 0.9, metalness: 0,
+      clearcoat: 0.03, clearcoatRoughness: 0.8,
+    });
   }
 
   // ═══════════════════════════════════════════════════════
@@ -315,11 +280,31 @@ export default class GalaxySurvivalDemo {
 
   _initChunkManager() {
     this.chunks = new Map();
+    this.chunkSize = 20;
+    this.chunkLoadRange = 30;
+    this.chunkUnloadRange = 45;
+    this.chunkFrameCounter = 0;
+    // Shared materials
     this._chunkRoadMat = new THREE.MeshPhysicalMaterial({ color: 0x1e1e2a, roughness: 0.95, metalness: 0.02 });
     this._chunkSidewalkMat = new THREE.MeshPhysicalMaterial({ color: 0x3a3a44, roughness: 0.9, metalness: 0.05 });
-    this._chunkLaneMat = new THREE.MeshBasicMaterial({ color: 0xccddff, transparent: true, opacity: 0.25 });
+    this._chunkHighwayMat = new THREE.MeshPhysicalMaterial({ color: 0x22222e, roughness: 0.95, metalness: 0.02 });
+    this._chunkLaneMat = new THREE.MeshBasicMaterial({ color: 0xccddff, transparent: true, opacity: 0.15 });
+    this._chunkTreeTrunkMat = new THREE.MeshPhysicalMaterial({ color: 0x4a3a2a, roughness: 0.9, metalness: 0 });
+    this._chunkTreeLeafMat = new THREE.MeshPhysicalMaterial({ color: 0x1a5a2a, roughness: 0.85, metalness: 0, clearcoat: 0.1 });
+    this._chunkWallMat = new THREE.MeshPhysicalMaterial({ color: 0x4a5a6a, roughness: 0.35, metalness: 0.6, clearcoat: 0.2 });
+    this._chunkRoofMat = new THREE.MeshPhysicalMaterial({ color: 0x3a3a4a, roughness: 0.6, metalness: 0.3 });
+    this._chunkWinMat = new THREE.MeshPhysicalMaterial({ color: 0xffdd55, emissive: 0xffaa22, emissiveIntensity: 0.5, transparent: true, opacity: 0.4, roughness: 0.05, metalness: 0.95 });
+    this._chunkDoorMat = new THREE.MeshPhysicalMaterial({ color: 0x2a1a0a, roughness: 0.9, metalness: 0.3 });
+    this._chunkDetailMat = new THREE.MeshPhysicalMaterial({ color: 0x3a4a5a, roughness: 0.3, metalness: 0.7 });
+    this._chunkHouseWallMat = new THREE.MeshPhysicalMaterial({ color: 0x7a8a6a, roughness: 0.7, metalness: 0.1, clearcoat: 0.05 });
+    this._chunkHouseRoofMat = new THREE.MeshPhysicalMaterial({ color: 0x6a3a1a, roughness: 0.8, metalness: 0.1 });
+    this._chunkPoleMat = new THREE.MeshPhysicalMaterial({ color: 0x2a2a3a, roughness: 0.3, metalness: 0.8, clearcoat: 0.2 });
+    this._chunkLampMat = new THREE.MeshPhysicalMaterial({ color: 0xaaccff, emissive: 0xaaccff, emissiveIntensity: 0.5, roughness: 0.1, metalness: 0.1 });
+    this._chunkIndWallMat = new THREE.MeshPhysicalMaterial({ color: 0x5a5a5a, roughness: 0.7, metalness: 0.5, clearcoat: 0.1 });
+    this._chunkIndRoofMat = new THREE.MeshPhysicalMaterial({ color: 0x3a3a3a, roughness: 0.6, metalness: 0.4 });
+    this._chunkGlassMat = new THREE.MeshPhysicalMaterial({ color: 0x88ddff, roughness: 0.02, metalness: 0.2, transparent: true, opacity: 0.15, clearcoat: 0.8, clearcoatRoughness: 0.1, ior: 1.6 });
 
-    // Build initial chunks around player/ship
+    // Build initial chunks
     const ref = this.mode === "player" ? this.playerPos : this.shipPos;
     const range = Math.ceil(this.chunkLoadRange / this.chunkSize);
     const refCx = Math.floor(ref.x / this.chunkSize);
@@ -328,9 +313,7 @@ export default class GalaxySurvivalDemo {
       for (let dz = -range; dz <= range; dz++) {
         const cx = refCx + dx, cz = refCz + dz;
         const dist = Math.sqrt(dx * dx + dz * dz) * this.chunkSize;
-        if (dist <= this.chunkLoadRange) {
-          this._buildChunk(cx, cz);
-        }
+        if (dist <= this.chunkLoadRange) this._buildChunk(cx, cz);
       }
     }
   }
@@ -341,84 +324,141 @@ export default class GalaxySurvivalDemo {
     return Math.abs(Math.sin(cx * 12.9898 + cz * 78.233 + (seed || 0)) * 43758.5453) % 1;
   }
 
-  _chunkType(cx, cz) {
+  _chunkZone(cx, cz) {
     const dist = Math.sqrt(cx * cx + cz * cz);
-    if (cx === -1 && cz === 0) return "plaza";
-    if (cx >= -1 && cx <= 1 && cz >= -1 && cz <= 1) return "center";
-    if (dist <= 4) return "residential";
+    const r = this._chunkRand(cx, cz, 999);
+    // Center urban core (0,0 area)
+    if (dist < 2.5) {
+      if (cx === -1 && cz === 0) return "plaza";
+      return "urban";
+    }
+    // Residential ring
+    if (dist < 5) return "residential";
+    // Industrial (east, mid distance)
+    if (cx > 3 && cz > -3 && cz < 3 && dist < 8) return "industrial";
+    // Space base (north-west)
+    if (cz < -5 && cx > -3 && cx < 1 && dist < 10) return "spacebase";
+    // Villages scattered in mid-distance
+    if (dist > 5 && dist < 15 && r > 0.78) return "village";
+    // Fields in mid-distance
+    if (dist > 6 && dist < 20 && r > 0.45 && r < 0.55) return "fields";
+    // Mountains in far distance
+    if (dist > 15) return "mountains";
+    // Default forest
     return "forest";
   }
 
   _buildChunk(cx, cz) {
     const key = this._chunkKey(cx, cz);
     if (this.chunks.has(key)) return;
-    const type = this._chunkType(cx, cz);
+    const zone = this._chunkZone(cx, cz);
     const elements = [];
     const bx = cx * this.chunkSize;
     const bz = cz * this.chunkSize;
 
-    // Build content based on zone type
-    switch (type) {
-      case "center": this._buildCenterChunk(cx, cz, bx, bz, elements); break;
+    // 1. Terrain patch for this chunk
+    this._buildChunkTerrain(cx, cz, bx, bz, elements);
+
+    // 2. Roads
+    this._buildChunkRoads(cx, cz, bx, bz, zone, elements);
+
+    // 3. Zone content
+    switch (zone) {
+      case "urban": this._buildUrbanChunk(cx, cz, bx, bz, elements); break;
       case "plaza": this._buildPlazaChunk(cx, cz, bx, bz, elements); break;
       case "residential": this._buildResidentialChunk(cx, cz, bx, bz, elements); break;
-      case "forest": this._buildForestChunk(cx, cz, bx, bz, elements); break;
+      case "industrial": this._buildIndustrialChunk(cx, cz, bx, bz, elements); break;
+      case "spacebase": this._buildSpaceBaseChunk(cx, cz, bx, bz, elements); break;
+      case "village": this._buildVillageChunk(cx, cz, bx, bz, elements); break;
+      case "fields": this._buildFieldsChunk(cx, cz, bx, bz, elements); break;
+      case "mountains": this._buildMountainsChunk(cx, cz, bx, bz, elements); break;
+      default: this._buildForestChunk(cx, cz, bx, bz, elements); break;
     }
 
-    // Add roads
-    this._buildChunkRoads(cx, cz, bx, bz, type, elements);
-
-    this.chunks.set(key, { type, elements });
+    this.chunks.set(key, { zone, elements });
   }
 
-  _buildChunkRoads(cx, cz, bx, bz, type, elements) {
-    // Adjacent to main avenue (x=0) — special handling
-    const onAvenue = (cx === -1 || cx === 0);
+  _buildChunkTerrain(cx, cz, bx, bz, elements) {
+    const segs = 12;
+    const size = this.chunkSize;
+    const geo = new THREE.PlaneGeometry(size, size, segs, segs);
+    geo.rotateX(-Math.PI / 2);
+    const pos = geo.attributes.position;
+    const colors = new Float32Array(pos.count * 3);
+    const centerX = bx + size / 2;
+    const centerZ = bz + size / 2;
 
-    // Main avenue runs along x=0
-    if (onAvenue) {
+    for (let i = 0; i < pos.count; i++) {
+      const wx = centerX + pos.getX(i);
+      const wz = centerZ + pos.getZ(i);
+      const h = this._terrainHeight(wx, wz);
+      pos.setY(i, h);
+      const n = h * 0.3 + 0.5;
+      if (h > 0.5) {
+        colors[i*3] = 0.08 + n * 0.08;
+        colors[i*3+1] = 0.15 + n * 0.15;
+        colors[i*3+2] = 0.04 + n * 0.03;
+      } else if (h > 0.1) {
+        colors[i*3] = 0.06 + n * 0.06;
+        colors[i*3+1] = 0.25 + n * 0.25;
+        colors[i*3+2] = 0.04 + n * 0.03;
+      } else if (h < -0.2) {
+        colors[i*3] = 0.04 + n * 0.04;
+        colors[i*3+1] = 0.12 + n * 0.12;
+        colors[i*3+2] = 0.02 + n * 0.02;
+      } else {
+        colors[i*3] = 0.05 + n * 0.05;
+        colors[i*3+1] = 0.18 + n * 0.18;
+        colors[i*3+2] = 0.03 + n * 0.03;
+      }
+    }
+    pos.needsUpdate = true;
+    geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    geo.computeVertexNormals();
+    const mesh = new THREE.Mesh(geo, this._chunkTerrainMat);
+    mesh.position.set(centerX, 0, centerZ);
+    mesh.receiveShadow = true;
+    this.scene.add(mesh);
+    elements.push(mesh);
+  }
+
+  _buildChunkRoads(cx, cz, bx, bz, zone, elements) {
+    const isHighway = (cz >= -1 && cz <= 1);
+    const hasAvenue = (cx >= -1 && cx <= 1);
+
+    // Main east-west highway (along z=0)
+    if (isHighway) {
+      for (let x = bx; x < bx + this.chunkSize; x += 1) {
+        if (Math.abs(x) > 50) continue;
+        const s = new THREE.Mesh(new THREE.PlaneGeometry(1, 6), this._chunkHighwayMat);
+        s.rotation.x = -Math.PI / 2;
+        s.position.set(x, this._terrainHeight(x, 0) + 0.02, 0);
+        this.scene.add(s);
+        elements.push(s);
+      }
+    }
+
+    // North-south avenue (along x=0)
+    if (hasAvenue) {
       for (let z = bz; z < bz + this.chunkSize; z += 1) {
-        if (z < -18 || z > 18) continue; // bound avenue length
+        if (Math.abs(z) > 50) continue;
         const s = new THREE.Mesh(new THREE.PlaneGeometry(4, 1), this._chunkRoadMat);
         s.rotation.x = -Math.PI / 2;
         s.position.set(0, this._terrainHeight(0, z) + 0.02, z);
         this.scene.add(s);
         elements.push(s);
-        // Lane markings
-        const lm = new THREE.Mesh(new THREE.PlaneGeometry(0.02, 0.08), this._chunkLaneMat);
-        lm.rotation.x = -Math.PI / 2;
-        lm.position.set(0, this._terrainHeight(0, z) + 0.025, z);
-        this.scene.add(lm);
-        elements.push(lm);
       }
     }
 
-    // Horizontal streets every 20 units (chunk boundaries)
-    if (cz >= -4 && cz <= 4) {
-      const zw = (cx === -1 || cx === 0) ? -8 : 20;
-      const xStart = Math.max(bx, -30);
-      const xEnd = Math.min(bx + this.chunkSize, 30);
-      for (let x = xStart; x < xEnd; x += 1) {
-        const s = new THREE.Mesh(new THREE.PlaneGeometry(1, zw < 0 ? 4 : 2), this._chunkRoadMat);
-        s.rotation.x = -Math.PI / 2;
-        const zPos = bz + this.chunkSize / 2;
-        s.position.set(x, this._terrainHeight(x, zPos) + 0.02, zPos);
-        this.scene.add(s);
-        elements.push(s);
-      }
-    }
-
-    // Internal streets for center and residential
-    if (type === "center" || type === "residential") {
-      // Local street grid within chunk
-      const spacing = type === "center" ? 8 : 12;
-      for (let ox = spacing; ox < this.chunkSize; ox += spacing) {
-        for (let oz = spacing; oz < this.chunkSize; oz += spacing) {
+    // Local streets for urban/residential
+    if (zone === "urban" || zone === "residential") {
+      const blockSize = zone === "urban" ? 8 : 10;
+      for (let ox = blockSize; ox < this.chunkSize; ox += blockSize) {
+        for (let oz = blockSize; oz < this.chunkSize; oz += blockSize) {
           const rx = bx + ox;
           const rz = bz + oz;
-          if (rx < -28 || rx > 28 || rz < -28 || rz > 28) continue;
-          // Short road segment
-          const s = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), this._chunkRoadMat);
+          if (Math.abs(rx) > 48 || Math.abs(rz) > 48) continue;
+          const s = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this._chunkRoadMat);
           s.rotation.x = -Math.PI / 2;
           s.position.set(rx, this._terrainHeight(rx, rz) + 0.02, rz);
           this.scene.add(s);
@@ -426,286 +466,340 @@ export default class GalaxySurvivalDemo {
         }
       }
     }
+
+    // Industrial access roads
+    if (zone === "industrial") {
+      for (let x = bx + 5; x < bx + this.chunkSize; x += 10) {
+        const z = bz + this.chunkSize / 2;
+        if (Math.abs(x) > 48 || Math.abs(z) > 48) continue;
+        const s = new THREE.Mesh(new THREE.PlaneGeometry(1, 4), this._chunkRoadMat);
+        s.rotation.x = -Math.PI / 2;
+        s.position.set(x, this._terrainHeight(x, z) + 0.02, z);
+        this.scene.add(s);
+        elements.push(s);
+      }
+    }
   }
 
-  _buildCenterChunk(cx, cz, bx, bz, elements) {
-    const wallMat = new THREE.MeshPhysicalMaterial({ color: 0x4a5a6a, roughness: 0.35, metalness: 0.6, clearcoat: 0.2 });
-    const roofMat = new THREE.MeshPhysicalMaterial({ color: 0x3a3a4a, roughness: 0.6, metalness: 0.3 });
-    const winMat = new THREE.MeshPhysicalMaterial({ color: 0xffdd55, emissive: 0xffaa22, emissiveIntensity: 0.5, transparent: true, opacity: 0.4, roughness: 0.05, metalness: 0.95 });
-    const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x88ddff, roughness: 0.02, metalness: 0.2, transparent: true, opacity: 0.15, clearcoat: 0.8, clearcoatRoughness: 0.1, ior: 1.6 });
-    const detailMat = new THREE.MeshPhysicalMaterial({ color: 0x3a4a5a, roughness: 0.3, metalness: 0.7 });
-    const doorMat = new THREE.MeshPhysicalMaterial({ color: 0x2a1a0a, roughness: 0.9, metalness: 0.3 });
+  _buildUrbanChunk(cx, cz, bx, bz, elements) {
+    // City blocks with buildings along edges
+    const blockSize = 8;
+    const bm = this._chunkWallMat;
+    const rm = this._chunkRoofMat;
+    const wm = this._chunkWinMat;
+    const dm = this._chunkDoorMat;
+    const dt = this._chunkDetailMat;
+    const gm = this._chunkGlassMat;
 
-    const count = 2 + Math.floor(this._chunkRand(cx, cz, 0) * 2);
-    for (let i = 0; i < count; i++) {
-      const rx = bx + this._chunkRand(cx, cz, i * 3 + 1) * (this.chunkSize - 4) + 2;
-      const rz = bz + this._chunkRand(cx, cz, i * 3 + 2) * (this.chunkSize - 4) + 2;
-      if (rx < -28 || rx > 28 || rz < -28 || rz > 28) continue;
-      const w = 1.5 + this._chunkRand(cx, cz, i * 3 + 3) * 1.5;
-      const d = 1.5 + this._chunkRand(cx, cz, i * 3 + 4) * 1.5;
-      const ht = 4 + this._chunkRand(cx, cz, i * 3 + 5) * 4;
-      const gh = this._terrainHeight(rx, rz);
+    for (let by = 0; by < this.chunkSize; by += blockSize) {
+      for (let bz2 = 0; bz2 < this.chunkSize; bz2 += blockSize) {
+        const cx2 = bx + by;
+        const cz2 = bz + bz2;
+        if (Math.abs(cx2) > 45 || Math.abs(cz2) > 45) continue;
 
-      const g = new THREE.Group();
-      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ht, d), wallMat);
-      wall.position.y = ht / 2;
-      wall.castShadow = true;
-      g.add(wall);
-      const roof = new THREE.Mesh(new THREE.BoxGeometry(w + 0.2, 0.08, d + 0.2), roofMat);
-      roof.position.y = ht + 0.04;
-      g.add(roof);
-      // Windows
-      for (let wy = 0.4; wy < ht - 0.2; wy += 0.55) {
-        for (const wx of [-w * 0.3, -w * 0.1, w * 0.1, w * 0.3]) {
-          const win = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.18), winMat);
-          win.position.set(wx, wy, d / 2 + 0.01);
-          g.add(win);
+        // Buildings along the SOUTH edge of this block
+        const count = 1 + Math.floor(this._chunkRand(cx, cz, by + bz2 * 7 + 1) * 2);
+        for (let i = 0; i < count; i++) {
+          const bw = 1.5 + this._chunkRand(cx, cz, by + bz2 * 7 + i * 5 + 2) * 2;
+          const bd = 1.5 + this._chunkRand(cx, cz, by + bz2 * 7 + i * 5 + 3) * 1.5;
+          const ht = 4 + this._chunkRand(cx, cz, by + bz2 * 7 + i * 5 + 4) * 4;
+          const offset = (i / count) * (blockSize - bw - 0.5) + bw / 2 + 0.25;
+          const rx = cx2 + offset;
+          const rz = cz2;
+          const gh = this._terrainHeight(rx, rz);
+
+          const g = new THREE.Group();
+          const wall = new THREE.Mesh(new THREE.BoxGeometry(bw, ht, bd), bm);
+          wall.position.y = ht / 2; wall.castShadow = true; g.add(wall);
+          const roof = new THREE.Mesh(new THREE.BoxGeometry(bw + 0.2, 0.08, bd + 0.2), rm);
+          roof.position.y = ht + 0.04; g.add(roof);
+          for (let wy = 0.4; wy < ht - 0.2; wy += 0.55) {
+            const win = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.18), wm);
+            win.position.set(0, wy, bd / 2 + 0.01); g.add(win);
+          }
+          const door = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.35), dm);
+          door.position.set(0, 0.17, bd / 2 + 0.01); g.add(door);
+          const ac = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.08, 0.15), dt);
+          ac.position.set(bw * 0.2, ht + 0.08, 0); g.add(ac);
+          g.position.set(rx, gh, rz);
+          this.scene.add(g); elements.push(g);
+
+          // Sidewalk
+          const sw = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.4), this._chunkSidewalkMat);
+          sw.rotation.x = -Math.PI / 2;
+          sw.position.set(rx, gh + 0.02, rz + bd / 2 + 0.2);
+          this.scene.add(sw); elements.push(sw);
         }
       }
-      // Glass panels on sides
-      for (const wx of [-1, 1]) {
-        const gp = new THREE.Mesh(new THREE.PlaneGeometry(0.01, ht * 0.7), glassMat);
-        gp.position.set(wx * (w / 2 + 0.01), ht * 0.5, 0);
-        g.add(gp);
-      }
-      // Door
-      const door = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.35), doorMat);
-      door.position.set(0, 0.17, d / 2 + 0.01);
-      g.add(door);
-      // Rooftop AC
-      const ac = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.08, 0.15), detailMat);
-      ac.position.set(w * 0.2, ht + 0.08, 0);
-      g.add(ac);
-      // Antenna
-      const ant = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.01, 0.3, 4), detailMat);
-      ant.position.set(-w * 0.25, ht + 0.15, d * 0.2);
-      g.add(ant);
-      g.position.set(rx, gh, rz);
-      this.scene.add(g);
-      elements.push(g);
-
-      // Small sidewalk tile in front
-      const sw = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.5), this._chunkSidewalkMat);
-      sw.rotation.x = -Math.PI / 2;
-      sw.position.set(rx, gh + 0.02, rz + d / 2 + 0.25);
-      this.scene.add(sw);
-      elements.push(sw);
     }
 
-    // Lamp posts on main avenue within this chunk
-    if (cx === -1 || cx === 0) {
-      for (let z = bz; z < bz + this.chunkSize; z += 4) {
-        if (z < -18 || z > 18) continue;
-        this._addLampPost(0, -1.8, z, elements);
-        this._addLampPost(0, 1.8, z, elements);
+    // Lamp posts along avenue in this chunk
+    if (cx >= -1 && cx <= 1) {
+      for (let z = bz + 2; z < bz + this.chunkSize; z += 4) {
+        if (Math.abs(z) > 45) continue;
+        this._addChunkLamp(0, -2.0, z, elements);
+        this._addChunkLamp(0, 2.0, z, elements);
       }
+    }
+    // Trees on side streets
+    const treeCount = 2 + Math.floor(this._chunkRand(cx, cz, 50) * 2);
+    for (let i = 0; i < treeCount; i++) {
+      const tx = bx + this._chunkRand(cx, cz, i * 7 + 51) * this.chunkSize;
+      const tz = bz + this._chunkRand(cx, cz, i * 7 + 52) * this.chunkSize;
+      if (Math.abs(tx) > 45 || Math.abs(tz) > 45) continue;
+      this._addChunkTree(tx, tz, 0.8 + this._chunkRand(cx, cz, i * 7 + 53) * 0.6, elements);
     }
   }
 
   _buildPlazaChunk(cx, cz, bx, bz, elements) {
     // Landing port plaza
     const portMat = new THREE.MeshPhysicalMaterial({ color: 0x3a3a4a, roughness: 0.7, metalness: 0.2, clearcoat: 0.1 });
-    const portGlow = new THREE.MeshPhysicalMaterial({ color: 0x4488ff, emissive: 0x4488ff, emissiveIntensity: 0.3, transparent: true, opacity: 0.2, side: THREE.DoubleSide });
     for (let x = -5; x <= -1; x += 1) {
       for (let z = 0; z <= 4; z += 1) {
         const p = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), portMat);
         p.rotation.x = -Math.PI / 2;
         p.position.set(x, this._terrainHeight(x, z) + 0.015, z);
-        this.scene.add(p);
-        elements.push(p);
+        this.scene.add(p); elements.push(p);
       }
     }
-    // Glow rings around plaza
-    for (let i = 0; i < 4; i++) {
-      const a = (i / 4) * Math.PI * 2;
-      const m2 = new THREE.Mesh(new THREE.RingGeometry(0.15, 0.25, 12), portGlow);
-      m2.rotation.x = -Math.PI / 2;
-      m2.position.set(-3 + Math.cos(a) * 2.0, this._terrainHeight(-3 + Math.cos(a) * 2.0, 2 + Math.sin(a) * 2.0) + 0.015, 2 + Math.sin(a) * 2.0);
-      this.scene.add(m2);
-      elements.push(m2);
+    // Path from plaza to avenue
+    for (let x = 0; x <= 1; x += 1) {
+      for (let z = 1; z <= 3; z += 1) {
+        const p = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), portMat);
+        p.rotation.x = -Math.PI / 2;
+        p.position.set(x, this._terrainHeight(x, z) + 0.015, z);
+        this.scene.add(p); elements.push(p);
+      }
     }
     // Trees around plaza
-    for (let i = 0; i < 6; i++) {
-      const a = (i / 6) * Math.PI * 2;
-      const tx = -3 + Math.cos(a) * 4;
-      const tz = 2 + Math.sin(a) * 4;
-      this._addTree(tx, tz, 1.2, elements);
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2 + 0.5;
+      const tx = -3 + Math.cos(a) * 4.5;
+      const tz = 2 + Math.sin(a) * 4.5;
+      this._addChunkTree(tx, tz, 1.2, elements);
     }
-    // Lamp posts at plaza corners
-    this._addLampPost(-5, -0.5, 1, elements);
-    this._addLampPost(-5, -0.5, 3, elements);
-    this._addLampPost(-1, -0.5, 1, elements);
-    this._addLampPost(-1, -0.5, 3, elements);
+    // Lamp posts at plaza
+    this._addChunkLamp(-4.5, -0.5, 1, elements);
+    this._addChunkLamp(-4.5, -0.5, 3, elements);
+    this._addChunkLamp(-1.5, -0.5, 1, elements);
+    this._addChunkLamp(-1.5, -0.5, 3, elements);
   }
 
   _buildResidentialChunk(cx, cz, bx, bz, elements) {
-    const houseWallMat = new THREE.MeshPhysicalMaterial({ color: 0x7a8a6a, roughness: 0.7, metalness: 0.1, clearcoat: 0.05 });
-    const houseRoofMat = new THREE.MeshPhysicalMaterial({ color: 0x6a3a1a, roughness: 0.8, metalness: 0.1 });
-    const roofMat = new THREE.MeshPhysicalMaterial({ color: 0x3a3a4a, roughness: 0.6, metalness: 0.3 });
-    const winMat = new THREE.MeshPhysicalMaterial({ color: 0xffdd55, emissive: 0xffaa22, emissiveIntensity: 0.4, transparent: true, opacity: 0.3, roughness: 0.05, metalness: 0.95 });
-    const doorMat = new THREE.MeshPhysicalMaterial({ color: 0x2a1a0a, roughness: 0.9, metalness: 0.3 });
+    const blockSize = 10;
+    const hwm = this._chunkHouseWallMat;
+    const hrm = this._chunkHouseRoofMat;
+    const rm = this._chunkRoofMat;
+    const wm = this._chunkWinMat;
+    const dm = this._chunkDoorMat;
 
-    const count = 3 + Math.floor(this._chunkRand(cx, cz, 10) * 3);
-    for (let i = 0; i < count; i++) {
-      const rx = bx + this._chunkRand(cx, cz, i * 5 + 11) * (this.chunkSize - 3) + 1.5;
-      const rz = bz + this._chunkRand(cx, cz, i * 5 + 12) * (this.chunkSize - 3) + 1.5;
-      if (rx < -28 || rx > 28 || rz < -28 || rz > 28) continue;
-      const w = 0.5 + this._chunkRand(cx, cz, i * 5 + 13) * 0.3;
-      const d = 0.5 + this._chunkRand(cx, cz, i * 5 + 14) * 0.3;
-      const rot = this._chunkRand(cx, cz, i * 5 + 15) * 0.3 - 0.15;
-      const gh = this._terrainHeight(rx, rz);
-      const ht = 0.7;
+    for (let by = 0; by < this.chunkSize; by += blockSize) {
+      for (let bz2 = 0; bz2 < this.chunkSize; bz2 += blockSize) {
+        const rx = bx + by + 2;
+        const rz = bz + bz2 + 2;
+        if (Math.abs(rx) > 45 || Math.abs(rz) > 45) continue;
+        const gh = this._terrainHeight(rx, rz);
+        const ht = 0.7;
+        const w = 0.6 + this._chunkRand(cx, cz, by + bz2 * 3 + 1) * 0.3;
+        const d = 0.6 + this._chunkRand(cx, cz, by + bz2 * 3 + 2) * 0.3;
+        const rot = this._chunkRand(cx, cz, by + bz2 * 3 + 3) * 0.2 - 0.1;
 
-      const g = new THREE.Group();
-      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ht, d), houseWallMat);
-      wall.position.y = ht / 2;
-      wall.castShadow = true;
-      g.add(wall);
-      // Peaked roof
-      const roofShape = new THREE.Shape();
-      roofShape.moveTo(-w * 0.7, 0);
-      roofShape.lineTo(0, 0.4);
-      roofShape.lineTo(w * 0.7, 0);
-      roofShape.lineTo(-w * 0.7, 0);
-      const roofGeo = new THREE.ExtrudeGeometry(roofShape, { depth: d + 0.15, bevelEnabled: false });
-      const roof = new THREE.Mesh(roofGeo, houseRoofMat);
-      roof.position.set(0, ht, -d * 0.57);
-      roof.castShadow = true;
-      g.add(roof);
-      const trim = new THREE.Mesh(new THREE.BoxGeometry(w + 0.1, 0.02, d + 0.1), roofMat);
-      trim.position.y = ht + 0.01;
-      g.add(trim);
-      // Door
-      const door = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.3), doorMat);
-      door.position.set(0, 0.15, d / 2 + 0.01);
-      g.add(door);
-      // Windows
-      for (const wx of [-w * 0.2, w * 0.2]) {
-        const win = new THREE.Mesh(new THREE.PlaneGeometry(0.1, 0.1), winMat);
-        win.position.set(wx, 0.38, d / 2 + 0.01);
-        g.add(win);
+        const g = new THREE.Group();
+        const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ht, d), hwm);
+        wall.position.y = ht / 2; wall.castShadow = true; g.add(wall);
+        const roofShape = new THREE.Shape();
+        roofShape.moveTo(-w * 0.7, 0); roofShape.lineTo(0, 0.4);
+        roofShape.lineTo(w * 0.7, 0); roofShape.lineTo(-w * 0.7, 0);
+        const roofGeo = new THREE.ExtrudeGeometry(roofShape, { depth: d + 0.15, bevelEnabled: false });
+        const roof = new THREE.Mesh(roofGeo, hrm);
+        roof.position.set(0, ht, -d * 0.57); roof.castShadow = true; g.add(roof);
+        const trim = new THREE.Mesh(new THREE.BoxGeometry(w + 0.1, 0.02, d + 0.1), rm);
+        trim.position.y = ht + 0.01; g.add(trim);
+        const door = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.3), dm);
+        door.position.set(0, 0.15, d / 2 + 0.01); g.add(door);
+        for (const wx of [-w * 0.2, w * 0.2]) {
+          const win = new THREE.Mesh(new THREE.PlaneGeometry(0.1, 0.1), wm);
+          win.position.set(wx, 0.38, d / 2 + 0.01); g.add(win);
+        }
+        const chim = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.08), hrm);
+        chim.position.set(-w * 0.15, ht + 0.08, -d * 0.15); g.add(chim);
+        g.position.set(rx, gh, rz);
+        g.rotation.y = rot;
+        this.scene.add(g); elements.push(g);
       }
-      // Chimney
-      const chim = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.08), houseRoofMat);
-      chim.position.set(-w * 0.15, ht + 0.08, -d * 0.15);
-      g.add(chim);
-      g.position.set(rx, gh, rz);
-      g.rotation.y = rot;
-      this.scene.add(g);
-      elements.push(g);
     }
-
-    // Trees in residential
+    // Trees
     for (let i = 0; i < 2; i++) {
-      const tx = bx + this._chunkRand(cx, cz, i * 7 + 50) * this.chunkSize;
-      const tz = bz + this._chunkRand(cx, cz, i * 7 + 51) * this.chunkSize;
-      if (tx < -28 || tx > 28 || tz < -28 || tz > 28) continue;
-      this._addTree(tx, tz, 1.0, elements);
+      const tx = bx + this._chunkRand(cx, cz, i * 7 + 100) * this.chunkSize;
+      const tz = bz + this._chunkRand(cx, cz, i * 7 + 101) * this.chunkSize;
+      if (Math.abs(tx) > 45 || Math.abs(tz) > 45) continue;
+      this._addChunkTree(tx, tz, 1.0, elements);
     }
   }
 
   _buildIndustrialChunk(cx, cz, bx, bz, elements) {
-    const indWallMat = new THREE.MeshPhysicalMaterial({ color: 0x5a5a5a, roughness: 0.7, metalness: 0.5, clearcoat: 0.1 });
-    const indRoofMat = new THREE.MeshPhysicalMaterial({ color: 0x3a3a3a, roughness: 0.6, metalness: 0.4 });
-    const doorMat = new THREE.MeshPhysicalMaterial({ color: 0x1a1a1a, roughness: 0.9 });
+    const count = 1 + Math.floor(this._chunkRand(cx, cz, 200) * 2);
+    const iwm = this._chunkIndWallMat;
+    const irm = this._chunkIndRoofMat;
+    const dm = this._chunkDoorMat;
 
-    const count = 1 + Math.floor(this._chunkRand(cx, cz, 100) * 2);
     for (let i = 0; i < count; i++) {
-      const rx = bx + this._chunkRand(cx, cz, i * 7 + 101) * (this.chunkSize - 6) + 3;
-      const rz = bz + this._chunkRand(cx, cz, i * 7 + 102) * (this.chunkSize - 6) + 3;
-      if (rx < -28 || rx > 28 || rz < -28 || rz > 28) continue;
-      const w = 3 + this._chunkRand(cx, cz, i * 7 + 103) * 2;
-      const d = 2 + this._chunkRand(cx, cz, i * 7 + 104) * 2;
-      const ht = 1.5 + this._chunkRand(cx, cz, i * 7 + 105) * 1;
+      const rx = bx + this._chunkRand(cx, cz, i * 7 + 201) * (this.chunkSize - 6) + 3;
+      const rz = bz + this._chunkRand(cx, cz, i * 7 + 202) * (this.chunkSize - 6) + 3;
+      if (Math.abs(rx) > 45 || Math.abs(rz) > 45) continue;
+      const w = 3 + this._chunkRand(cx, cz, i * 7 + 203) * 2;
+      const d = 2 + this._chunkRand(cx, cz, i * 7 + 204) * 2;
+      const ht = 1.5 + this._chunkRand(cx, cz, i * 7 + 205) * 1;
       const gh = this._terrainHeight(rx, rz);
 
       const g = new THREE.Group();
-      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ht, d), indWallMat);
-      wall.position.y = ht / 2;
-      wall.castShadow = true;
-      g.add(wall);
-      const roof = new THREE.Mesh(new THREE.BoxGeometry(w + 0.2, 0.06, d + 0.2), indRoofMat);
-      roof.position.y = ht + 0.03;
-      g.add(roof);
-      // Large roll-up door
-      const bigDoor = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.6), doorMat);
-      bigDoor.position.set(0, 0.3, d / 2 + 0.01);
-      g.add(bigDoor);
-      // Vent on roof
-      const vent = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.15, 0.2), indRoofMat);
-      vent.position.set(w * 0.2, ht + 0.06, 0);
-      g.add(vent);
+      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ht, d), iwm);
+      wall.position.y = ht / 2; wall.castShadow = true; g.add(wall);
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(w + 0.2, 0.06, d + 0.2), irm);
+      roof.position.y = ht + 0.03; g.add(roof);
+      const bigDoor = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.6), dm);
+      bigDoor.position.set(0, 0.3, d / 2 + 0.01); g.add(bigDoor);
+      const vent = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.15, 0.2), irm);
+      vent.position.set(w * 0.2, ht + 0.06, 0); g.add(vent);
       g.position.set(rx, gh, rz);
-      this.scene.add(g);
-      elements.push(g);
+      this.scene.add(g); elements.push(g);
+    }
+  }
+
+  _buildSpaceBaseChunk(cx, cz, bx, bz, elements) {
+    const iwm = this._chunkIndWallMat;
+    const irm = this._chunkIndRoofMat;
+    // Runway
+    const runMat = new THREE.MeshPhysicalMaterial({ color: 0x2a2a3a, roughness: 0.8, metalness: 0.1 });
+    const runway = new THREE.Mesh(new THREE.PlaneGeometry(4, 14), runMat);
+    runway.rotation.x = -Math.PI / 2;
+    const cx2 = bx + this.chunkSize / 2;
+    const cz2 = bz + this.chunkSize / 2;
+    runway.position.set(cx2, this._terrainHeight(cx2, cz2) + 0.02, cz2);
+    this.scene.add(runway); elements.push(runway);
+    // Hangar
+    const hangar = new THREE.Mesh(new THREE.BoxGeometry(3, 1.5, 2.5), iwm);
+    hangar.position.set(cx2 - 3, 0.75, cz2 + 3);
+    hangar.castShadow = true;
+    this.scene.add(hangar); elements.push(hangar);
+    const hroof = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.06, 2.7), irm);
+    hroof.position.set(cx2 - 3, 1.53, cz2 + 3);
+    this.scene.add(hroof); elements.push(hroof);
+    // Lamp posts on runway
+    this._addChunkLamp(cx2 - 2.5, -0.5, cz2 + 6, elements);
+    this._addChunkLamp(cx2 + 2.5, -0.5, cz2 + 6, elements);
+    this._addChunkLamp(cx2 - 2.5, -0.5, cz2 - 6, elements);
+    this._addChunkLamp(cx2 + 2.5, -0.5, cz2 - 6, elements);
+  }
+
+  _buildVillageChunk(cx, cz, bx, bz, elements) {
+    const count = 2 + Math.floor(this._chunkRand(cx, cz, 300) * 2);
+    const hwm = this._chunkHouseWallMat;
+    const hrm = this._chunkHouseRoofMat;
+    const wm = this._chunkWinMat;
+
+    for (let i = 0; i < count; i++) {
+      const rx = bx + this._chunkRand(cx, cz, i * 7 + 301) * (this.chunkSize - 4) + 2;
+      const rz = bz + this._chunkRand(cx, cz, i * 7 + 302) * (this.chunkSize - 4) + 2;
+      if (Math.abs(rx) > 48 || Math.abs(rz) > 48) continue;
+      const gh = this._terrainHeight(rx, rz);
+      const w = 0.5 + this._chunkRand(cx, cz, i * 7 + 303) * 0.3;
+      const d = 0.5 + this._chunkRand(cx, cz, i * 7 + 304) * 0.3;
+      const ht = 0.7;
+      const g = new THREE.Group();
+      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ht, d), hwm);
+      wall.position.y = ht / 2; wall.castShadow = true; g.add(wall);
+      const roofShape = new THREE.Shape();
+      roofShape.moveTo(-w * 0.7, 0); roofShape.lineTo(0, 0.4);
+      roofShape.lineTo(w * 0.7, 0); roofShape.lineTo(-w * 0.7, 0);
+      const roofGeo = new THREE.ExtrudeGeometry(roofShape, { depth: d + 0.15, bevelEnabled: false });
+      const roof = new THREE.Mesh(roofGeo, hrm);
+      roof.position.set(0, ht, -d * 0.57); roof.castShadow = true; g.add(roof);
+      for (const wx of [-w * 0.2, w * 0.2]) {
+        const win = new THREE.Mesh(new THREE.PlaneGeometry(0.1, 0.1), wm);
+        win.position.set(wx, 0.38, d / 2 + 0.01); g.add(win);
+      }
+      g.position.set(rx, gh, rz);
+      g.rotation.y = this._chunkRand(cx, cz, i * 7 + 305) * 0.3 - 0.15;
+      this.scene.add(g); elements.push(g);
+    }
+    // Trees
+    for (let i = 0; i < 3; i++) {
+      const tx = bx + this._chunkRand(cx, cz, i * 5 + 310) * this.chunkSize;
+      const tz = bz + this._chunkRand(cx, cz, i * 5 + 311) * this.chunkSize;
+      if (Math.abs(tx) > 48 || Math.abs(tz) > 48) continue;
+      this._addChunkTree(tx, tz, 0.8 + this._chunkRand(cx, cz, i * 5 + 312) * 0.6, elements);
+    }
+  }
+
+  _buildFieldsChunk(cx, cz, bx, bz, elements) {
+    // Just a few trees — terrain handles the visual
+    const count = 1 + Math.floor(this._chunkRand(cx, cz, 400) * 3);
+    for (let i = 0; i < count; i++) {
+      const tx = bx + this._chunkRand(cx, cz, i * 3 + 401) * this.chunkSize;
+      const tz = bz + this._chunkRand(cx, cz, i * 3 + 402) * this.chunkSize;
+      if (Math.abs(tx) > 48 || Math.abs(tz) > 48) continue;
+      this._addChunkTree(tx, tz, 0.6 + this._chunkRand(cx, cz, i * 3 + 403) * 0.6, elements);
+    }
+  }
+
+  _buildMountainsChunk(cx, cz, bx, bz, elements) {
+    // Sparse trees — terrain height creates mountain shapes naturally
+    const count = Math.floor(this._chunkRand(cx, cz, 500) * 3);
+    for (let i = 0; i < count; i++) {
+      const tx = bx + this._chunkRand(cx, cz, i * 3 + 501) * this.chunkSize;
+      const tz = bz + this._chunkRand(cx, cz, i * 3 + 502) * this.chunkSize;
+      if (Math.abs(tx) > 48 || Math.abs(tz) > 48) continue;
+      this._addChunkTree(tx, tz, 0.5 + this._chunkRand(cx, cz, i * 3 + 503) * 0.5, elements);
     }
   }
 
   _buildForestChunk(cx, cz, bx, bz, elements) {
-    const count = 4 + Math.floor(this._chunkRand(cx, cz, 200) * 6);
+    const count = 4 + Math.floor(this._chunkRand(cx, cz, 600) * 6);
     for (let i = 0; i < count; i++) {
-      const tx = bx + this._chunkRand(cx, cz, i * 3 + 201) * this.chunkSize;
-      const tz = bz + this._chunkRand(cx, cz, i * 3 + 202) * this.chunkSize;
-      if (Math.abs(tx) < 30 && Math.abs(tz) < 30) continue; // avoid city center
-      const s = 0.8 + this._chunkRand(cx, cz, i * 3 + 203) * 1.2;
-      this._addTree(tx, tz, s, elements);
+      const tx = bx + this._chunkRand(cx, cz, i * 3 + 601) * this.chunkSize;
+      const tz = bz + this._chunkRand(cx, cz, i * 3 + 602) * this.chunkSize;
+      if (Math.abs(tx) > 48 || Math.abs(tz) > 48) continue;
+      this._addChunkTree(tx, tz, 0.7 + this._chunkRand(cx, cz, i * 3 + 603) * 0.8, elements);
     }
   }
 
-  _addLampPost(cx, xOff, zPos, elements) {
-    // Only used for plaza chunk near center
-    const g = new THREE.Group();
-    const ht = this._terrainHeight(xOff, zPos);
-    const poleH = 1.2;
-    const poleMat = new THREE.MeshPhysicalMaterial({ color: 0x2a2a3a, roughness: 0.3, metalness: 0.8, clearcoat: 0.2 });
-    const lampMat = new THREE.MeshPhysicalMaterial({ color: 0xaaccff, emissive: 0xaaccff, emissiveIntensity: 0.5, roughness: 0.1, metalness: 0.1 });
-    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.03, poleH, 8), poleMat);
-    pole.position.y = poleH * 0.5;
-    g.add(pole);
-    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.015, 0.015), poleMat);
-    arm.position.set(0.18, poleH - 0.05, 0);
-    g.add(arm);
-    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), lampMat);
-    bulb.position.set(0.32, poleH - 0.05, 0);
-    g.add(bulb);
-    const pl = new THREE.PointLight(0xaaccff, 0.25, 3);
-    pl.position.set(0.32, poleH - 0.05, 0);
-    g.add(pl);
-    g.position.set(xOff, ht, zPos);
-    this.scene.add(g);
-    elements.push(g);
-  }
-
-  _addTree(tx, tz, s, elements) {
-    // Note: this._buildTree is used in forest chunks and plaza
-    // We use a local implementation to avoid needing _buildTree method
-    const trunkMat = new THREE.MeshPhysicalMaterial({ color: 0x4a3a2a, roughness: 0.9, metalness: 0 });
-    const leafMat = new THREE.MeshPhysicalMaterial({ color: 0x1a5a2a, roughness: 0.85, metalness: 0, clearcoat: 0.1 });
+  _addChunkTree(tx, tz, s, elements) {
     const h = this._terrainHeight(tx, tz);
     const g = new THREE.Group();
     const trunkH = 0.8 * s;
-    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.02 * s, 0.06 * s, trunkH, 6), trunkMat);
-    trunk.position.y = trunkH * 0.5;
-    g.add(trunk);
-    const canopyY = trunkH;
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.02 * s, 0.06 * s, trunkH, 6), this._chunkTreeTrunkMat);
+    trunk.position.y = trunkH * 0.5; g.add(trunk);
     for (let i = 0; i < 5; i++) {
-      const r = this._chunkRand(Math.floor(tx), Math.floor(tz), i) * 0.1 * s + 0.12 * s;
-      const lx = (this._chunkRand(Math.floor(tx), Math.floor(tz), i + 10) * 0.3 - 0.15) * s;
-      const lz = (this._chunkRand(Math.floor(tx), Math.floor(tz), i + 20) * 0.3 - 0.15) * s;
-      const ly = canopyY + this._chunkRand(Math.floor(tx), Math.floor(tz), i + 30) * 0.2 * s;
-      const leaf = new THREE.Mesh(new THREE.SphereGeometry(r, 7, 7), leafMat);
-      leaf.position.set(lx, ly, lz);
-      leaf.castShadow = true;
-      leaf.scale.y = 0.8;
-      g.add(leaf);
+      const r = (0.1 + this._chunkRand(Math.floor(tx * 10), Math.floor(tz * 10), i) * 0.1) * s;
+      const lx = (this._chunkRand(Math.floor(tx * 10), Math.floor(tz * 10), i + 10) * 0.3 - 0.15) * s;
+      const lz = (this._chunkRand(Math.floor(tx * 10), Math.floor(tz * 10), i + 20) * 0.3 - 0.15) * s;
+      const ly = trunkH + this._chunkRand(Math.floor(tx * 10), Math.floor(tz * 10), i + 30) * 0.2 * s;
+      const leaf = new THREE.Mesh(new THREE.SphereGeometry(r, 7, 7), this._chunkTreeLeafMat);
+      leaf.position.set(lx, ly, lz); leaf.castShadow = true; leaf.scale.y = 0.8; g.add(leaf);
     }
     g.position.set(tx, h, tz);
-    g.rotation.y = this._chunkRand(Math.floor(tx), Math.floor(tz), 99) * Math.PI * 2;
-    this.scene.add(g);
-    elements.push(g);
+    g.rotation.y = this._chunkRand(Math.floor(tx * 10), Math.floor(tz * 10), 99) * Math.PI * 2;
+    this.scene.add(g); elements.push(g);
   }
 
-  _updateChunks(dt) {
+  _addChunkLamp(xOff, xOff2, zPos, elements) {
+    const g = new THREE.Group();
+    const ht = this._terrainHeight(xOff2, zPos);
+    const poleH = 1.2;
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.03, poleH, 8), this._chunkPoleMat);
+    pole.position.y = poleH * 0.5; g.add(pole);
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.015, 0.015), this._chunkPoleMat);
+    arm.position.set(0.18, poleH - 0.05, 0); g.add(arm);
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), this._chunkLampMat);
+    bulb.position.set(0.32, poleH - 0.05, 0); g.add(bulb);
+    const pl = new THREE.PointLight(0xaaccff, 0.25, 3);
+    pl.position.set(0.32, poleH - 0.05, 0); g.add(pl);
+    g.position.set(xOff2, ht, zPos);
+    this.scene.add(g); elements.push(g);
+  }
+
+  _updateChunks() {
     this.chunkFrameCounter++;
     if (this.chunkFrameCounter % 15 !== 0) return;
 
@@ -714,27 +808,18 @@ export default class GalaxySurvivalDemo {
     const refCz = Math.floor(refPos.z / this.chunkSize);
     const range = Math.ceil(this.chunkLoadRange / this.chunkSize);
 
-    // Determine which chunks should exist
     const needed = new Set();
     for (let dx = -range; dx <= range; dx++) {
       for (let dz = -range; dz <= range; dz++) {
-        const cx = refCx + dx;
-        const cz = refCz + dz;
+        const cx = refCx + dx, cz = refCz + dz;
         const dist = Math.sqrt(dx * dx + dz * dz) * this.chunkSize;
-        if (dist <= this.chunkLoadRange) {
-          needed.add(this._chunkKey(cx, cz));
-        }
+        if (dist <= this.chunkLoadRange) needed.add(this._chunkKey(cx, cz));
       }
     }
 
-    // Unload chunks too far
     for (const [key] of this.chunks) {
-      if (!needed.has(key)) {
-        this._disposeChunk(key);
-      }
+      if (!needed.has(key)) this._disposeChunk(key);
     }
-
-    // Load missing chunks
     for (const key of needed) {
       if (!this.chunks.has(key)) {
         const [cx, cz] = key.split(",").map(Number);
@@ -1164,7 +1249,7 @@ export default class GalaxySurvivalDemo {
     }
 
     this._animateParticles(dt);
-    this._updateChunks(dt);
+    this._updateChunks();
     this._updateState();
   }
 
@@ -1238,8 +1323,7 @@ export default class GalaxySurvivalDemo {
     this.playerPos.x += this.playerVel.x * dt;
     this.playerPos.y += this.playerVel.y * dt;
     this.playerPos.z += this.playerVel.z * dt;
-    this.playerPos.x = clamp(this.playerPos.x, -40, 40);
-    this.playerPos.z = clamp(this.playerPos.z, -40, 40);
+    // No bounds — infinite world
 
     // Ground
     const gy = this._terrainHeight(this.playerPos.x, this.playerPos.z);
@@ -1358,8 +1442,7 @@ export default class GalaxySurvivalDemo {
     // Move
     this.shipPos.x += forward.x * this.shipSpeed * dt;
     this.shipPos.z += forward.z * this.shipSpeed * dt;
-    this.shipPos.x = clamp(this.shipPos.x, -40, 40);
-    this.shipPos.z = clamp(this.shipPos.z, -40, 40);
+    // No bounds — infinite world
 
     // Altitude
     const gh = this._terrainHeight(this.shipPos.x, this.shipPos.z);
