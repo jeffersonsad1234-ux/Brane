@@ -1878,3 +1878,18 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
 }
 
 .gs-stat-fill.gs-speed { background: linear-gradient(90deg, #4444ff, #44ddff); }
+
+/* ─── GALAXY SURVIVAL DEBUG ──────────────────────────── */
+.gs-debug {
+  position: absolute;
+  bottom: 20px;
+  left: 16px;
+  font-family: monospace;
+  font-size: 0.6rem;
+  color: rgba(0, 255, 200, 0.6);
+  line-height: 1.5;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  z-index: 20;
+  max-width: 300px;
+}
