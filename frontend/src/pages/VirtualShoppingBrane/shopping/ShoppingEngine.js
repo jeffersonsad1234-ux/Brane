@@ -1,4 +1,4 @@
-import { generateScene } from "./SceneGenerator.js";
+import { generateScene, generateFallback } from "./SceneGenerator.js";
 
 const SCENE_DEFS = {
   "city-street-1": {
@@ -141,9 +141,17 @@ const sceneCache = {};
 
 export function getSceneCanvas(id) {
   if (!sceneCache[id]) {
-    sceneCache[id] = generateScene(id);
+    try {
+      sceneCache[id] = generateScene(id);
+    } catch (e) {
+      sceneCache[id] = generateFallback(id);
+    }
   }
   return sceneCache[id];
+}
+
+export function preloadScene(id) {
+  getSceneCanvas(id);
 }
 
 export { SCENE_DEFS };
