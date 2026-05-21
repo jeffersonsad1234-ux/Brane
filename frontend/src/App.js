@@ -36,6 +36,7 @@ import VirtualShoppingBrane from "./pages/VirtualShoppingBrane";
 import ShoppingApp from "./pages/VirtualShoppingBrane/shopping/ShoppingApp";
 import BraneStudio from "./pages/BraneStudio";
 import BraneAgent from "./pages/BraneAgent";
+import Notanews from "./pages/Notanews/Notanews";
 import BLivreAdminPage from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -205,6 +206,7 @@ function AppRouter() {
             <Route path="/brane-studio/shopping" element={<Navigate to="/shopping" replace />} />
             <Route path="/brane-agent" element={<BraneAgent />} />
             <Route path="/agente" element={<BraneAgent />} />
+            <Route path="/Notanews/*" element={<Notanews />} />
 
             <Route
               path="/add-product"
