@@ -107,16 +107,16 @@ function buildWorld(scene) {
     const slope = maxY - minY;
     const n = fbm(x * 0.06 + 100, z * 0.06 + 100);
     const m = fbm(x * 0.03 + 400, z * 0.03 + 400);
-    if (slope > 1.8) { const t = fbm(x * 0.05 + 300, z * 0.05 + 300); return [0.28 + t * 0.18, 0.22 + t * 0.15, 0.18 + t * 0.12]; }
-    if (slope > 1.2) { const t = fbm(x * 0.04 + 310, z * 0.04 + 310); return [0.45 + t * 0.15, 0.38 + t * 0.12, 0.28 + t * 0.1]; }
-    if (ay < -1.5) return [0.03, 0.1, 0.28];
-    if (ay < -0.3) return [0.08 + n * 0.08, 0.32 + n * 0.12, 0.55 + n * 0.08];
-    if (ay < 0.5) { const t = fbm(x * 0.05 + 200, z * 0.05 + 200); return [0.72 + t * 0.15, 0.6 + t * 0.12, 0.3 + t * 0.1]; }
-    if (ay < 2.5) return [0.08 + n * 0.2 + m * 0.08, 0.35 + n * 0.28 + m * 0.12, 0.04 + n * 0.1];
-    if (ay < 5) return [0.03 + n * 0.12 + m * 0.05, 0.2 + n * 0.2 + m * 0.08, 0.02 + n * 0.05];
-    if (ay < 8) return [0.3 + n * 0.18, 0.26 + n * 0.15, 0.22 + n * 0.12];
+    if (slope > 1.8) { const t = fbm(x * 0.05 + 300, z * 0.05 + 300); return [0.25 + t * 0.15, 0.2 + t * 0.12, 0.15 + t * 0.1]; }
+    if (slope > 1.2) { const t = fbm(x * 0.04 + 310, z * 0.04 + 310); return [0.42 + t * 0.12, 0.35 + t * 0.1, 0.25 + t * 0.08]; }
+    if (ay < -1.5) return [0.02, 0.08, 0.25];
+    if (ay < -0.3) return [0.06 + n * 0.06, 0.28 + n * 0.1, 0.52 + n * 0.06];
+    if (ay < 0.5) { const t = fbm(x * 0.05 + 200, z * 0.05 + 200); return [0.7 + t * 0.12, 0.58 + t * 0.1, 0.25 + t * 0.08]; }
+    if (ay < 2.5) return [0.05 + n * 0.15 + m * 0.05, 0.32 + n * 0.25 + m * 0.1, 0.02 + n * 0.06];
+    if (ay < 5) return [0.02 + n * 0.1 + m * 0.04, 0.18 + n * 0.18 + m * 0.06, 0.01 + n * 0.04];
+    if (ay < 8) return [0.28 + n * 0.15, 0.24 + n * 0.12, 0.2 + n * 0.1];
     const s = fbm(x * 0.04 + 500, z * 0.04 + 500);
-    return [0.85 + s * 0.1, 0.85 + s * 0.1, 0.9 + s * 0.08];
+    return [0.82 + s * 0.1, 0.82 + s * 0.1, 0.88 + s * 0.08];
   }
 
   for (let iz = 0; iz < seg; iz++) {
@@ -164,8 +164,8 @@ function buildWorld(scene) {
   const flowerMat = (hue) => new THREE.MeshStandardMaterial({ color: new THREE.Color().setHSL(hue, 0.7, 0.55 + rng(0, 0.15)), roughness: 0.5 });
   const bushMat = new THREE.MeshStandardMaterial({ color: 0x336633, roughness: 0.8, flatShading: true });
 
-  // ─── TREES (120) ───
-  for (let i = 0; i < 120; i++) {
+  // ─── TREES (160) ───
+  for (let i = 0; i < 160; i++) {
     const tx = rng(-W/2+5, W/2-5), tz = rng(-W/2+5, W/2-5);
     const th = getHeight(tx, tz);
     if (th > 0.6 && th < 4 && fbm(tx*0.04+20, tz*0.04+20) > 0.3) {
@@ -181,9 +181,9 @@ function buildWorld(scene) {
     }
   }
 
-  // ─── FALLEN LOGS (20) ───
+  // ─── FALLEN LOGS (30) ───
   const logMat = new THREE.MeshStandardMaterial({ color: 0x5a3a1a, roughness: 0.9 });
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 30; i++) {
     const lx = rng(-W/2+5, W/2-5), lz = rng(-W/2+5, W/2-5);
     const lh = getHeight(lx, lz);
     if (lh > 0.3 && lh < 4 && fbm(lx*0.04+140, lz*0.04+140) > 0.35) {
@@ -195,9 +195,9 @@ function buildWorld(scene) {
     }
   }
 
-  // ─── RESOURCE NODES (crystals 20, gold 15) ───
+  // ─── RESOURCE NODES (crystals 25, gold 20) ───
   const crystalMat = new THREE.MeshStandardMaterial({ color: 0xff66ff, roughness: 0.15, metalness: 0.5, emissive: 0xff44ff, emissiveIntensity: 0.2 });
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 25; i++) {
     const cx = rng(-W/2+8, W/2-8), cz = rng(-W/2+8, W/2-8);
     const ch = getHeight(cx, cz);
     if (ch > 0.5 && ch < 5 && fbm(cx*0.05+300, cz*0.05+300) > 0.4) {
@@ -209,7 +209,7 @@ function buildWorld(scene) {
     }
   }
   const goldMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, roughness: 0.3, metalness: 0.8, emissive: 0xff8800, emissiveIntensity: 0.15 });
-  for (let i = 0; i < 15; i++) {
+  for (let i = 0; i < 20; i++) {
     const gx = rng(-W/2+8, W/2-8), gz = rng(-W/2+8, W/2-8);
     const gh = getHeight(gx, gz);
     if (gh > 0.3 && gh < 4.5 && fbm(gx*0.04+400, gz*0.04+400) > 0.35) {
@@ -220,13 +220,13 @@ function buildWorld(scene) {
     }
   }
 
-  // ─── PINE TREES (40) ───
+  // ─── PINE TREES (50) ───
   const pineTrunkMat = new THREE.MeshStandardMaterial({ color: 0x5a3a1a, roughness: 0.9 });
   const pineLeafMat = new THREE.MeshStandardMaterial({ color: 0x225522, roughness: 0.8, flatShading: true });
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 50; i++) {
     const px = rng(-W/2+5, W/2-5), pz = rng(-W/2+5, W/2-5);
     const ph = getHeight(px, pz);
-    if (ph > 1.5 && ph < 6 && fbm(px*0.03+80, pz*0.03+80) > 0.35) {
+    if (ph > 1.5 && ph < 6 && fbm(px*0.03+80, pz*0.03+80) > 0.32) {
       const h = rng(1.5, 3.5);
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.12, h, 5), pineTrunkMat);
       trunk.position.set(px, ph + h/2, pz);
@@ -240,8 +240,8 @@ function buildWorld(scene) {
     }
   }
 
-  // ─── BUSHES (60) ───
-  for (let i = 0; i < 60; i++) {
+  // ─── BUSHES (80) ───
+  for (let i = 0; i < 80; i++) {
     const bx = rng(-W/2+5, W/2-5), bz = rng(-W/2+5, W/2-5);
     const bh = getHeight(bx, bz);
     if (bh > 0.8 && bh < 3 && fbm(bx*0.06+50, bz*0.06+50) > 0.4) {
@@ -252,8 +252,8 @@ function buildWorld(scene) {
     }
   }
 
-  // ─── ROCKS (60) ───
-  for (let i = 0; i < 60; i++) {
+  // ─── ROCKS (80) ───
+  for (let i = 0; i < 80; i++) {
     const rx = rng(-W/2+5, W/2-5), rz = rng(-W/2+5, W/2-5);
     const rh = getHeight(rx, rz);
     if (rh > 0.2 && rh < 6) {
@@ -265,8 +265,8 @@ function buildWorld(scene) {
     }
   }
 
-  // ─── FLOWERS (150) ───
-  for (let i = 0; i < 150; i++) {
+  // ─── FLOWERS (200) ───
+  for (let i = 0; i < 200; i++) {
     const fx = rng(-W/2+5, W/2-5), fz = rng(-W/2+5, W/2-5);
     const fh = getHeight(fx, fz);
     if (fh > 0.5 && fh < 3.5 && fbm(fx*0.07+80, fz*0.07+80) > 0.35) {
@@ -279,7 +279,7 @@ function buildWorld(scene) {
 
   // ─── GRASS POINTS ───
   let gp = [];
-  for (let i = 0; i < 500; i++) {
+  for (let i = 0; i < 800; i++) {
     const gx = rng(-W/2+5, W/2-5), gz = rng(-W/2+5, W/2-5);
     const gh = getHeight(gx, gz);
     if (gh > 0.5 && gh < 3.5 && fbm(gx*0.05+120, gz*0.05+120) > 0.3) {
@@ -618,6 +618,22 @@ function buildStructures(scene) {
     wellRoof.position.set(wwx, wwh+0.45, wwz); wellRoof.rotation.y = Math.PI/4; scene.add(wellRoof);
   }
 
+  // Barrels and crates near huts
+  const barrelMat = new THREE.MeshStandardMaterial({ color: 0x8a7a5a, roughness: 0.9 });
+  const crateMat = new THREE.MeshStandardMaterial({ color: 0x6a4a2a, roughness: 0.9 });
+  for (let i = 0; i < 6; i++) {
+    const bv = [[7,0],[10,2.5],[5.5,3.5],[11.5,-0.5],[4.5,-1.5],[12.5,1.5]];
+    const [bx, bz] = bv[i];
+    const bh = getHeight(bx, bz);
+    if (bh > 0) {
+      const isB = i % 2 === 0;
+      const m = isB ? new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 0.14, 7), barrelMat) : new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.12, 0.12), crateMat);
+      m.position.set(bx, bh + (isB ? 0.07 : 0.06), bz);
+      if (!isB) m.rotation.y = rng(0, Math.PI);
+      scene.add(m);
+    }
+  }
+
   // Stone path between huts
   const stoneMat2 = new THREE.MeshStandardMaterial({ color: 0x7a7a7a, roughness: 0.9 });
   for (let i = 0; i < 20; i++) {
@@ -789,7 +805,7 @@ export default function VirtualShoppingBrane() {
     scene.fog = new THREE.FogExp2(0x87CEEB, 0.0012);
 
     // Camera — third person, safe height
-    const camDist = 8, camHeight = 5;
+    let camDist = 8; const camHeight = 5;
     const camera = new THREE.PerspectiveCamera(55, W2 / H2, 0.1, 250);
     camera.position.set(0, camHeight, camDist);
     camera.lookAt(0, 0, 0);
@@ -971,6 +987,10 @@ export default function VirtualShoppingBrane() {
         player.head.position.y = 1.35 + breathe;
         player.head.rotation.x = headTilt;
       }
+
+      // Dynamic camera zoom (run = zoom out)
+      const targetDist = keys["ShiftLeft"] || keys["ShiftRight"] ? 10 : 8;
+      camDist += (targetDist - camDist) * dt * 2;
 
       // Smooth third-person camera
       const tgt = player.group.position;
