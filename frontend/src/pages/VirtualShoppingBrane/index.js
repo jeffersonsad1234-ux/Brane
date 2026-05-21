@@ -4,6 +4,7 @@ import CreateProjectModal from "./CreateProjectModal.js";
 import ProjectDetailModal from "./ProjectDetailModal.js";
 import FeaturePanel from "./FeaturePanel.js";
 import MiniDemo from "./MiniDemo.js";
+import SurvivalDemo from "./SurvivalDemo.js";
 import "./VirtualShoppingBrane.css";
 
 // ─── DATA ──────────────────────────────────────────────
@@ -78,46 +79,6 @@ function ParticleField() {
 
 // ─── GAME DEMO OVERLAY ─────────────────────────────────
 function GameDemoOverlay({ onClose }) {
-  const mountRef = useRef(null);
-  const engineRef = useRef(null);
-  const [status, setStatus] = useState("loading");
-
-  useEffect(() => {
-    if (!mountRef.current) return;
-    let eng = null;
-    let pollId = null;
-    const start = async () => {
-      try {
-        const GameEngine = (await import("./engine/GameEngine.js")).default;
-        eng = new GameEngine(mountRef.current, {
-          onTime: () => {},
-          onHealth: () => {}, onHunger: () => {}, onEnergy: () => {},
-          onItems: () => {}, onMessage: () => {},
-        });
-        eng.items = [];
-        const ok = eng.init();
-        if (ok) {
-          engineRef.current = eng;
-          setStatus("ready");
-          pollId = setInterval(() => {
-            try { eng.save(); } catch {}
-          }, 5000);
-        } else {
-          setStatus("error");
-        }
-      } catch (e) {
-        console.error("[DEMO] Engine init failed:", e);
-        setStatus("error");
-      }
-    };
-    start();
-    return () => {
-      if (pollId) clearInterval(pollId);
-      if (eng) { try { eng.dispose(); } catch {} }
-      engineRef.current = null;
-    };
-  }, []);
-
   return (
     <motion.div
       className="bs-demo-overlay"
@@ -126,23 +87,7 @@ function GameDemoOverlay({ onClose }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <button className="bs-demo-close" onClick={onClose}>✕ Fechar Demo</button>
-      {status === "loading" && (
-        <div className="bs-demo-loading">
-          <div className="bs-demo-spinner" />
-          <p>Iniciando motor 3D...</p>
-        </div>
-      )}
-      {status === "error" && (
-        <div className="bs-demo-loading">
-          <p style={{ color: "#ee4455" }}>❌ Não foi possível iniciar a demo.</p>
-          <p style={{ color: "#888", fontSize: ".85rem", marginTop: 8 }}>WebGL pode não estar disponível.</p>
-          <button className="bs-btn bs-btn-primary" onClick={onClose} style={{ marginTop: 16 }}>
-            Voltar
-          </button>
-        </div>
-      )}
-      <div ref={mountRef} className="bs-demo-mount" style={{ display: status === "ready" ? "block" : "none" }} />
+      <SurvivalDemo onClose={onClose} />
     </motion.div>
   );
 }
