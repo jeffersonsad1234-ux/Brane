@@ -100,6 +100,7 @@ export default class GalaxySurvivalDemo {
       this._setupLights();
       this._buildTerrain();
       this._buildSkylineBackdrop();
+      this._buildPersistentRoads();
       this._initChunkManager();
       this._buildShip();
       this._buildCockpitInterior();
@@ -233,8 +234,7 @@ export default class GalaxySurvivalDemo {
   // CITY — CHUNK-BASED OPEN WORLD
   // ═══════════════════════════════════════════════════════
   _buildSkylineBackdrop() {
-    // Fake distant skyline — low-poly ring of buildings at horizon
-    // Creates illusion of large city without geometry cost
+    // ── LAYER 3: Horizon skyline (outer ring, fake, no shadows) ──
     const skyMat = new THREE.MeshPhysicalMaterial({
       color: 0x2a2a3a, roughness: 0.7, metalness: 0.2, side: THREE.DoubleSide, clearcoat: 0.05,
     });
@@ -245,44 +245,100 @@ export default class GalaxySurvivalDemo {
       color: 0xffcc44, emissive: 0xffaa22, emissiveIntensity: 0.15,
       transparent: true, opacity: 0.08, side: THREE.DoubleSide,
     });
-    const radius = 42;
-    const count = 24;
-    for (let i = 0; i < count; i++) {
-      const a = (i / count) * Math.PI * 2;
-      const h = 5 + Math.sin(i * 1.7 + 0.5) * 4 + Math.cos(i * 3.1) * 2;
-      const w = 4 + Math.sin(i * 2.3) * 2;
-      const d = 3;
-      const x = Math.cos(a) * radius;
-      const z = Math.sin(a) * radius;
+    // Inner ring (radius 42) — mid-distance skyline
+    const innerCount = 32;
+    for (let i = 0; i < innerCount; i++) {
+      const a = (i / innerCount) * Math.PI * 2;
+      const h = 4 + Math.sin(i * 1.7 + 0.5) * 4 + Math.cos(i * 3.1) * 2;
+      const w = 3 + Math.sin(i * 2.3) * 2;
+      const d = 2;
+      const rOff = Math.sin(i * 0.7) * 6;
+      const x = Math.cos(a) * (42 + rOff);
+      const z = Math.sin(a) * (42 + rOff);
       const y = this._terrainHeight(x, z);
-      const g = new THREE.Group();
-      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), skyMat);
-      wall.position.y = h / 2;
-      wall.castShadow = false;
-      wall.receiveShadow = false;
-      g.add(wall);
-      const roof = new THREE.Mesh(new THREE.BoxGeometry(w + 0.2, 0.08, d + 0.2), roofMat);
-      roof.position.y = h;
-      g.add(roof);
-      // A few lit windows
-      for (let wy = 1; wy < h - 0.5; wy += 2) {
-        const win = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.5), winMat);
-        win.position.set(0, wy, d / 2 + 0.01);
-        g.add(win);
+      const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), skyMat);
+      b.position.set(x, y + h / 2, z);
+      b.castShadow = false;
+      b.receiveShadow = false;
+      this.scene.add(b); this.objects.push(b);
+      // Lite windows
+      for (let wy = 1; wy < h - 0.5; wy += 3) {
+        const win = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.3), winMat);
+        win.position.set(x, y + wy, z + d / 2 + 0.1);
+        this.scene.add(win); this.objects.push(win);
       }
-      g.position.set(x, y, z);
-      // Face inward
-      g.lookAt(0, y + h / 2, 0);
-      this.scene.add(g);
-      this.objects.push(g);
+    }
+    // Outer ring (radius 65) — far horizon skyscrapers
+    const outerCount = 40;
+    const outerMat = new THREE.MeshPhysicalMaterial({
+      color: 0x22223a, roughness: 0.7, metalness: 0.2, side: THREE.DoubleSide,
+    });
+    for (let i = 0; i < outerCount; i++) {
+      const a = (i / outerCount) * Math.PI * 2;
+      const h = 8 + Math.sin(i * 1.3 + 2.0) * 6 + Math.cos(i * 2.7) * 4;
+      const w = 4 + Math.sin(i * 1.9) * 2;
+      const d = 3;
+      const rOff = Math.cos(i * 0.5) * 8;
+      const x = Math.cos(a) * (65 + rOff);
+      const z = Math.sin(a) * (65 + rOff);
+      const y = this._terrainHeight(x, z);
+      const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), outerMat);
+      b.position.set(x, y + h / 2, z);
+      b.castShadow = false;
+      b.receiveShadow = false;
+      this.scene.add(b); this.objects.push(b);
+      // Roof
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(w + 0.3, 0.1, d + 0.3), roofMat);
+      roof.position.set(x, y + h, z);
+      this.scene.add(roof); this.objects.push(roof);
+    }
+    // ── LAYER 2: Mid-distance city ring (simplified blocks, always visible) ──
+    const midMat = new THREE.MeshPhysicalMaterial({
+      color: 0x3a3a4a, roughness: 0.7, metalness: 0.2, side: THREE.DoubleSide,
+    });
+    const midCount = 50;
+    for (let i = 0; i < midCount; i++) {
+      const a = (i / midCount) * Math.PI * 2;
+      const h = 3 + Math.sin(i * 3.1) * 3 + Math.cos(i * 1.7) * 2;
+      const w = 2 + Math.sin(i * 2.1) * 1.5;
+      const d = 2 + Math.cos(i * 1.3) * 1;
+      const rOff = Math.sin(i * 0.6) * 5;
+      const x = Math.cos(a) * (32 + rOff);
+      const z = Math.sin(a) * (32 + rOff);
+      const y = this._terrainHeight(x, z);
+      const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), midMat);
+      b.position.set(x, y + h / 2, z);
+      b.castShadow = false;
+      b.receiveShadow = false;
+      this.scene.add(b); this.objects.push(b);
+    }
+  }
+
+  _buildPersistentRoads() {
+    // Main avenue (x=0) extending far for visibility
+    const roadMat = new THREE.MeshPhysicalMaterial({ color: 0x1e1e2a, roughness: 0.95, metalness: 0.02 });
+    const highMat = new THREE.MeshPhysicalMaterial({ color: 0x22222e, roughness: 0.95, metalness: 0.02 });
+    // North-south avenue (from -55 to 55)
+    for (let z = -55; z <= 55; z += 1) {
+      const s = new THREE.Mesh(new THREE.PlaneGeometry(4, 1), roadMat);
+      s.rotation.x = -Math.PI / 2;
+      s.position.set(0, this._terrainHeight(0, z) + 0.02, z);
+      this.scene.add(s); this.objects.push(s);
+    }
+    // East-west highway (from -55 to 55)
+    for (let x = -55; x <= 55; x += 1) {
+      const s = new THREE.Mesh(new THREE.PlaneGeometry(1, 6), highMat);
+      s.rotation.x = -Math.PI / 2;
+      s.position.set(x, this._terrainHeight(x, 0) + 0.02, 0);
+      this.scene.add(s); this.objects.push(s);
     }
   }
 
   _initChunkManager() {
     this.chunks = new Map();
     this.chunkSize = 20;
-    this.chunkLoadRange = 30;
-    this.chunkUnloadRange = 45;
+    this.chunkLoadRange = 35;
+    this.chunkUnloadRange = 50;
     this.chunkFrameCounter = 0;
     // Shared materials
     this._chunkRoadMat = new THREE.MeshPhysicalMaterial({ color: 0x1e1e2a, roughness: 0.95, metalness: 0.02 });
