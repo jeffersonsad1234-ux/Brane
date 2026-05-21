@@ -188,13 +188,14 @@ export default function VirtualShoppingBrane() {
             transition={{ duration: 0.8 }}
             className="bs-hero-text"
           >
-            <div className="bs-badge">⚡ Brany Game Studio AI</div>
+            <div className="bs-badge">⚡ Brany Game Studio AI → Unreal Engine 5</div>
             <h1>
-              Crie jogos <span className="bs-gradient-text">AAA</span> com IA.
+              Planeje jogos <span className="bs-gradient-text">AAA</span> com IA.
             </h1>
             <p className="bs-hero-sub">
-              Survival, FPS, mundo aberto, multiplayer, gráficos cinematográficos
-              e gameplay profissional.<br />Tudo gerado por inteligência artificial.
+              Gere documentação profissional e pipelines completos para Unreal Engine 5.
+              Game design, assets, Blueprint steps e muito mais.<br />
+              A prévia web é apenas conceitual — o jogo real roda na UE5.
             </p>
             <div className="bs-hero-actions">
               <button className="bs-btn bs-btn-primary" onClick={() => setShowCreate(true)}>✨ Criar meu jogo</button>
@@ -232,7 +233,7 @@ export default function VirtualShoppingBrane() {
 
       {/* ─── DEMO SHOWCASE ─── */}
       <section id="demo" className="bs-section bs-demo-section">
-        <SectionTitle sub="Este jogo foi criado usando Brany Game Studio AI.">🎮 Demo Jogável</SectionTitle>
+        <SectionTitle sub="Prévia conceitual web — o jogo completo é gerado para Unreal Engine 5.">🎮 Prévia Web</SectionTitle>
         <motion.div
           className="bs-demo-card"
           initial={{ opacity: 0, scale: 0.95 }}
@@ -277,7 +278,7 @@ export default function VirtualShoppingBrane() {
 
       {/* ─── FEATURES ─── */}
       <section id="features" className="bs-section bs-features-section">
-        <SectionTitle sub="Tudo que você precisa para criar jogos profissionais com IA.">🚀 Funcionalidades da IA</SectionTitle>
+        <SectionTitle sub="Documentação e planejamento profissional para Unreal Engine 5 — gere o projeto agora e desenvolva no motor da Epic.">🚀 Sistemas para UE5</SectionTitle>
         <div className="bs-features-grid">
           {FEATURES.map((f, i) => <FeatureCard key={i} {...f} i={i} onClick={() => setSelectedFeature(f.key)} />)}
         </div>

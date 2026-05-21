@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import UnrealExportModal from "./UnrealExportModal.js";
 
 export default function ProjectDetailModal({ project, onClose, onUpdate }) {
   const [tab, setTab] = useState("overview");
   const [copied, setCopied] = useState(false);
+  const [showUE5, setShowUE5] = useState(false);
 
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -54,6 +56,7 @@ export default function ProjectDetailModal({ project, onClose, onUpdate }) {
             { id: "checklist", label: "✅ Checklist" },
             { id: "prompts", label: "📝 Prompts" },
             { id: "export", label: "📤 Exportar" },
+            { id: "ue5", label: "🔷 UE5" },
           ].map(t => (
             <button key={t.id} className={`bs-detail-tab ${tab === t.id ? "active" : ""}`} onClick={() => setTab(t.id)}>
               {t.label}
@@ -124,8 +127,66 @@ export default function ProjectDetailModal({ project, onClose, onUpdate }) {
               </button>
             </div>
           )}
+
+          {tab === "ue5" && (
+            <div className="bs-detail-ue5">
+              <div className="ue-tab-intro">
+                <div className="ue-tab-icon">🔷</div>
+                <h3>Exportar para Unreal Engine 5</h3>
+                <p>
+                  Gere documentos profissionais para implementar <strong>{project.name}</strong> na Unreal Engine 5.
+                  Inclui README, Game Design Document, lista de assets (Quixel/Fab) e Blueprint steps.
+                </p>
+              </div>
+
+              <div className="ue-notice">
+                <strong>⚠️ A versão web é apenas uma prévia conceitual.</strong>
+                O jogo real deve ser desenvolvido na Unreal Engine 5. A Brany Game Studio AI gera o planejamento
+                e a documentação — a implementação é feita no motor profissional da Epic Games.
+              </div>
+
+              <button className="bs-btn bs-btn-primary ue-export-btn" onClick={() => setShowUE5(true)}>
+                🔷 Gerar Documentação UE5
+              </button>
+
+              <div className="ue-tab-features">
+                <div className="ue-tab-feature">
+                  <span>📖</span>
+                  <div>
+                    <strong>README_UE5.md</strong>
+                    <p>Setup, requisitos, plugins, estrutura de pastas, build</p>
+                  </div>
+                </div>
+                <div className="ue-tab-feature">
+                  <span>🎮</span>
+                  <div>
+                    <strong>GAME_DESIGN.md</strong>
+                    <p>Conceito, mecânicas, ambientação, progressão, stack</p>
+                  </div>
+                </div>
+                <div className="ue-tab-feature">
+                  <span>📦</span>
+                  <div>
+                    <strong>ASSETS_LIST.md</strong>
+                    <p>Lista completa de assets Quixel Megascans e Fab</p>
+                  </div>
+                </div>
+                <div className="ue-tab-feature">
+                  <span>🔧</span>
+                  <div>
+                    <strong>BLUEPRINT_STEPS.md</strong>
+                    <p>10 fases de implementação com Blueprint passo a passo</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {showUE5 && <UnrealExportModal project={project} onClose={() => setShowUE5(false)} />}
+      </AnimatePresence>
     </motion.div>
   );
 }
