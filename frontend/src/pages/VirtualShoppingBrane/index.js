@@ -76,55 +76,75 @@ function getHeight(x, z) {
 // ─── WORLD ──────────────────────────────────────────────
 function buildWorld(scene) {
   const seg = Math.floor(W / BLOCK);
-  const S1 = seg + 1;
-  const geo = new THREE.BufferGeometry();
-  const verts = [], colors = [], idxs = [];
+  const verts = [], colors = [];
   const trees = [], rocks = [], crystals = [], coals = [];
+  const grassPositions = [];
 
+  // Pre-compute height map
+  const H = [];
   for (let iz = 0; iz <= seg; iz++) {
+    H[iz] = [];
     for (let ix = 0; ix <= seg; ix++) {
       const x = ix * BLOCK - W / 2, z = iz * BLOCK - W / 2;
-      const vy = getHeight(x, z);
-      verts.push(x - BLOCK / 2, vy, z - BLOCK / 2);
-      verts.push(x + BLOCK / 2, vy, z - BLOCK / 2);
-      verts.push(x + BLOCK / 2, vy, z + BLOCK / 2);
-      verts.push(x - BLOCK / 2, vy, z + BLOCK / 2);
-      const isDeep = vy < -2;
-      const isShallow = vy >= -2 && vy < -0.5;
-      const isSand = vy >= -0.5 && vy < 0.8;
-      const isGrass = vy >= 0.8 && vy < 3.5;
-      const isForest = vy >= 3.5 && vy < 6;
-      const isRock = vy >= 6 && vy < 9;
-      const isSnow = vy >= 9;
+      H[iz][ix] = getHeight(x, z);
+    }
+  }
+
+  // Non-indexed terrain: 6 verts per quad (2 triangles, no vertex sharing)
+  for (let iz = 0; iz < seg; iz++) {
+    for (let ix = 0; ix < seg; ix++) {
+      const x = ix * BLOCK - W / 2, z = iz * BLOCK - W / 2;
+      const x1 = x - BLOCK / 2, x2 = x + BLOCK / 2;
+      const z1 = z - BLOCK / 2, z2 = z + BLOCK / 2;
+      const y00 = H[iz][ix], y10 = H[iz][ix + 1];
+      const y01 = H[iz + 1][ix], y11 = H[iz + 1][ix + 1];
+      const avgY = (y00 + y10 + y01 + y11) / 4;
+
+      // Biome color
+      const isDeep = avgY < -2;
+      const isShallow = avgY >= -2 && avgY < -0.5;
+      const isSand = avgY >= -0.5 && avgY < 0.8;
+      const isGrass = avgY >= 0.8 && avgY < 3.5;
+      const isForest = avgY >= 3.5 && avgY < 6;
+      const isRock = avgY >= 6 && avgY < 9;
+      const isSnow = avgY >= 9;
       let r, g, b;
       if (isSnow) { r = 0.97; g = 0.97; b = 1; }
       else if (isRock) { const t = fbm(x * 0.04, z * 0.04); r = 0.4 + t * 0.2; g = 0.38 + t * 0.18; b = 0.35 + t * 0.15; }
       else if (isForest) { const t = fbm(x * 0.06, z * 0.06); r = 0.08 + t * 0.15; g = 0.3 + t * 0.25; b = 0.05 + t * 0.08; }
-      else if (isGrass) { const t = fbm(x * 0.06, z * 0.06); r = 0.15 + t * 0.2; g = 0.45 + t * 0.3; b = 0.08 + t * 0.1; }
+      else if (isGrass) { const t = fbm(x * 0.06 + 100, z * 0.06 + 100); r = 0.18 + t * 0.25; g = 0.5 + t * 0.3; b = 0.08 + t * 0.12; }
       else if (isSand) { r = 0.85; g = 0.78; b = 0.55; }
       else if (isShallow) { r = 0.15; g = 0.5; b = 0.7; }
       else { r = 0.08; g = 0.15; b = 0.35; }
-      for (let i = 0; i < 4; i++) colors.push(r, g, b);
-      const base = (iz * S1 + ix) * 4;
-      if (ix < seg && iz < seg) {
-        const a = base, b2 = base + 4, c = base + 4 * S1, d = base + 4 * S1 + 4;
-        idxs.push(a, b2, c, a, c, d);
+
+      // Triangle 1: (x1,y00,z1) (x2,y10,z1) (x1,y01,z2)
+      verts.push(x1, y00, z1, x2, y10, z1, x1, y01, z2);
+      for (let c = 0; c < 3; c++) colors.push(r, g, b);
+      // Triangle 2: (x2,y10,z1) (x2,y11,z2) (x1,y01,z2)
+      verts.push(x2, y10, z1, x2, y11, z2, x1, y01, z2);
+      for (let c = 0; c < 3; c++) colors.push(r, g, b);
+
+      // Collect grass positions on grassy terrain
+      if (isGrass && fbm(x * 0.08 + 200, z * 0.08 + 200) > 0.25) {
+        const gx = rng(x1, x2), gz = rng(z1, z2);
+        grassPositions.push(gx, getHeight(gx, gz), gz);
       }
     }
   }
+
+  const geo = new THREE.BufferGeometry();
   geo.setAttribute("position", new THREE.Float32BufferAttribute(verts, 3));
   geo.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
-  geo.setIndex(idxs);
   geo.computeVertexNormals();
-  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0.02, flatShading: true });
+  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.85, metalness: 0.03, flatShading: true, side: THREE.DoubleSide });
   const mesh = new THREE.Mesh(geo, mat);
   mesh.receiveShadow = true; mesh.castShadow = true;
   scene.add(mesh);
 
   // Water
   const wMat = new THREE.MeshPhysicalMaterial({
-    color: 0x1a8aba, roughness: 0.0, metalness: 0.2, transparent: true, opacity: 0.5, clearcoat: 0.3,
-    envMapIntensity: 0.5,
+    color: 0x1a8aba, roughness: 0.0, metalness: 0.2, transparent: true, opacity: 0.45, clearcoat: 0.4,
+    envMapIntensity: 0.6,
   });
   const wGeo = new THREE.PlaneGeometry(W + 20, W + 20, 40, 40);
   const wMesh = new THREE.Mesh(wGeo, wMat);
@@ -138,31 +158,31 @@ function buildWorld(scene) {
     const tx = rng(-W / 2 + 5, W / 2 - 5), tz = rng(-W / 2 + 5, W / 2 - 5);
     const th = getHeight(tx, tz);
     if (th > 0.8 && th < 5.5 && fbm(tx * 0.04 + 20, tz * 0.04 + 20) > 0.32) {
-      const trunkH = rng(1.5, 3.5);
-      const trunkR = rng(0.12, 0.25);
+      const trunkH = rng(1.8, 4);
+      const trunkR = rng(0.15, 0.3);
       const treeRes = {
         type: "tree", hp: RES_HP.tree, maxHp: RES_HP.tree,
         parts: [], drops: [{ id: "wood", n: "Madeira", i: "🪵", c: 2 }],
         center: new THREE.Vector3(tx, th + trunkH * 0.6, tz),
       };
-      const trunkMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(0.28 + rng(0, 0.1), 0.15 + rng(0, 0.05), 0.05 + rng(0, 0.03)), roughness: 0.9 });
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(trunkR * 0.6, trunkR, trunkH, 6), trunkMat);
+      const trunkMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(0.25 + rng(0, 0.12), 0.12 + rng(0, 0.06), 0.04 + rng(0, 0.04)), roughness: 0.9 });
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(trunkR * 0.5, trunkR, trunkH, 6), trunkMat);
       trunk.position.set(tx, th + trunkH / 2, tz);
       trunk.castShadow = true; trunk.userData.resource = treeRes;
       scene.add(trunk); treeRes.parts.push(trunk);
 
-      const hue = rng(0.2, 0.38), sat = rng(0.5, 0.8), light = rng(0.25, 0.45);
+      const hue = rng(0.22, 0.4), sat = rng(0.5, 0.8), light = rng(0.25, 0.5);
       const col = new THREE.Color().setHSL(hue, sat, light);
-      const col2 = new THREE.Color().setHSL(hue + rng(-0.04, 0.04), sat, light + rng(0.05, 0.15));
-      const canopyCount = 3 + Math.floor(Math.random() * 4);
+      const col2 = new THREE.Color().setHSL(hue + rng(-0.05, 0.05), sat, light + rng(0.05, 0.15));
+      const canopyCount = 3 + Math.floor(Math.random() * 5);
       for (let j = 0; j < canopyCount; j++) {
-        const cr = rng(0.4, 1.0);
+        const cr = rng(0.3, 1.1);
         const leaf = new THREE.Mesh(
-          new THREE.SphereGeometry(cr, 6, 6),
+          new THREE.SphereGeometry(cr, 7, 7),
           new THREE.MeshStandardMaterial({ color: j % 2 === 0 ? col : col2, roughness: 0.7, flatShading: true })
         );
-        leaf.position.set(tx + rng(-0.6, 0.6), th + trunkH + rng(0, 0.8), tz + rng(-0.6, 0.6));
-        leaf.scale.y = rng(0.7, 1.2);
+        leaf.position.set(tx + rng(-0.8, 0.8), th + trunkH + rng(-0.2, 1), tz + rng(-0.8, 0.8));
+        leaf.scale.y = rng(0.6, 1.3);
         leaf.castShadow = true; leaf.userData.resource = treeRes;
         scene.add(leaf); treeRes.parts.push(leaf);
       }
@@ -176,12 +196,10 @@ function buildWorld(scene) {
     const rh = getHeight(rx, rz);
     if (rh > 0.3 && rh < 7) {
       const rockRes = { type: "rock", hp: RES_HP.rock, maxHp: RES_HP.rock, drops: [{ id: "stone", n: "Pedra", i: "🪨", c: 1 }], mesh: null };
-      const rock = new THREE.Mesh(
-        new THREE.DodecahedronGeometry(rng(0.25, 0.8), 0),
-        new THREE.MeshStandardMaterial({ color: new THREE.Color(0.35 + rng(0, 0.1), 0.32 + rng(0, 0.08), 0.28 + rng(0, 0.05)), roughness: 0.9, flatShading: true })
-      );
-      rock.position.set(rx, rh + rng(0, 0.25), rz);
-      rock.scale.set(1, rng(0.3, 0.6), 1);
+      const rockMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(0.35 + rng(0, 0.15), 0.32 + rng(0, 0.1), 0.28 + rng(0, 0.08)), roughness: 0.9, flatShading: true });
+      const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(rng(0.25, 0.9), 0), rockMat);
+      rock.position.set(rx, rh + rng(0, 0.3), rz);
+      rock.scale.set(1, rng(0.25, 0.6), 1);
       rock.rotation.set(rng(0, 6), rng(0, 6), rng(0, 6));
       rock.castShadow = true; rock.userData.resource = rockRes; rockRes.mesh = rock;
       scene.add(rock); rocks.push(rockRes);
@@ -194,10 +212,7 @@ function buildWorld(scene) {
     const ch = getHeight(cx, cz);
     if (ch > -0.5 && ch < 4.5) {
       const coalRes = { type: "coal", hp: RES_HP.coal, maxHp: RES_HP.coal, drops: [{ id: "coal", n: "Carvão", i: "⬛", c: 2 }], mesh: null };
-      const coal = new THREE.Mesh(
-        new THREE.OctahedronGeometry(rng(0.2, 0.45), 0),
-        new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.95, flatShading: true })
-      );
+      const coal = new THREE.Mesh(new THREE.OctahedronGeometry(rng(0.2, 0.45), 0), new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.95, flatShading: true }));
       coal.position.set(cx, ch + rng(0.05, 0.2), cz);
       coal.rotation.set(rng(0, 6), rng(0, 6), rng(0, 6));
       coal.castShadow = true; coal.userData.resource = coalRes; coalRes.mesh = coal;
@@ -216,19 +231,14 @@ function buildWorld(scene) {
         type: "crystal", hp: RES_HP.crystal, maxHp: RES_HP.crystal,
         drops: [{ id: "crystal", n: "Cristal", i: "💎", c: 1 }], mesh: null, color: col, value: 5 + Math.floor(Math.random() * 15),
       };
-      const crystal = new THREE.Mesh(
-        new THREE.OctahedronGeometry(rng(0.12, 0.4), 0),
-        new THREE.MeshStandardMaterial({ color: col, roughness: 0.15, metalness: 0.6, emissive: col, emissiveIntensity: 0.3 })
-      );
+      const crystal = new THREE.Mesh(new THREE.OctahedronGeometry(rng(0.12, 0.4), 0), new THREE.MeshStandardMaterial({ color: col, roughness: 0.15, metalness: 0.6, emissive: col, emissiveIntensity: 0.3 }));
       crystal.position.set(ox, oh + 0.1, oz);
       crystal.castShadow = true;
       crystal.userData.resource = crystalRes; crystalRes.mesh = crystal;
       scene.add(crystal); crystals.push(crystalRes);
-      // Point light for each crystal cluster
       if (i % 3 === 0) {
         const pLight = new THREE.PointLight(col, 0.15, 2.5);
-        pLight.position.copy(crystal.position);
-        pLight.position.y += 0.2;
+        pLight.position.copy(crystal.position); pLight.position.y += 0.2;
         scene.add(pLight);
       }
     }
@@ -261,7 +271,6 @@ function buildWorld(scene) {
       lantern.position.set(vx, vh + 1.2, vz); scene.add(lantern);
       const lLight = new THREE.PointLight(0xff8844, 0.4, 2.5);
       lLight.position.copy(lantern.position); scene.add(lLight);
-      // Second hut
       if (Math.random() > 0.4) {
         const w2 = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.5, 0.8), wallMat);
         w2.position.set(vx + 1.8, vh + 0.25, vz + 0.5); w2.castShadow = true; w2.receiveShadow = true; scene.add(w2);
@@ -271,7 +280,7 @@ function buildWorld(scene) {
     }
   }
 
-  return { ground: mesh, water: wMesh, trees, rocks, crystals, coals };
+  return { ground: mesh, water: wMesh, trees, rocks, crystals, coals, grassPositions };
 }
 
 // ─── ANIMALS ────────────────────────────────────────────
@@ -701,6 +710,52 @@ export default function VirtualShoppingBrane() {
       world = { ground: fbGround, water: null, trees: [], rocks: [], crystals: [], coals: [] };
     }
 
+    // ─── GRASS (InstancedMesh on procedural terrain) ───
+    let grassMesh = null;
+    let grassDummy = new THREE.Object3D();
+    if (worldOk && world.grassPositions && world.grassPositions.length > 0) {
+      const bladeGeo = new THREE.CylinderGeometry(0.01, 0.03, 0.12, 3);
+      const bladeMat = new THREE.MeshStandardMaterial({
+        color: 0x55bb44, roughness: 0.8, flatShading: true,
+      });
+      const instCount = Math.min(world.grassPositions.length / 3, 8000);
+      grassMesh = new THREE.InstancedMesh(bladeGeo, bladeMat, instCount);
+      grassMesh.castShadow = true;
+      for (let i = 0; i < instCount; i++) {
+        const gi = i * 3;
+        grassDummy.position.set(world.grassPositions[gi], world.grassPositions[gi + 1], world.grassPositions[gi + 2]);
+        grassDummy.scale.set(1, rng(0.5, 1.5), 1);
+        grassDummy.rotation.set(rng(-0.2, 0.2), rng(0, 6), rng(-0.2, 0.2));
+        grassDummy.updateMatrix();
+        grassMesh.setMatrixAt(i, grassDummy.matrix);
+      }
+      grassMesh.instanceMatrix.needsUpdate = true;
+      scene.add(grassMesh);
+    }
+
+    // ─── AMBIENT PARTICLES (floating pollen/dust) ───
+    const apCount = 200;
+    const apGeo = new THREE.BufferGeometry();
+    const apPos = new Float32Array(apCount * 3);
+    const apVel = new Float32Array(apCount * 3);
+    const apPhase = new Float32Array(apCount);
+    for (let i = 0; i < apCount; i++) {
+      apPos[i * 3] = rng(-W / 2, W / 2);
+      apPos[i * 3 + 1] = rng(0, 6);
+      apPos[i * 3 + 2] = rng(-W / 2, W / 2);
+      apVel[i * 3] = rng(-0.15, 0.15);
+      apVel[i * 3 + 1] = rng(-0.02, 0.02);
+      apVel[i * 3 + 2] = rng(-0.15, 0.15);
+      apPhase[i] = rng(0, Math.PI * 2);
+    }
+    apGeo.setAttribute("position", new THREE.Float32BufferAttribute(apPos, 3));
+    const apMat = new THREE.PointsMaterial({
+      color: 0xffffff, size: 0.04, transparent: true, opacity: 0.2,
+      blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
+    });
+    const ambParticles = new THREE.Points(apGeo, apMat);
+    scene.add(ambParticles);
+
     // ─── RESIZE ───
     const onResize = () => {
       const mw = mount.clientWidth, mh = mount.clientHeight;
@@ -713,7 +768,7 @@ export default function VirtualShoppingBrane() {
       scene, renderer, camera, composer, sun, amb, hemi, sky, skyM, sunSprite, moonSprite,
       stars, starMat, fireflies, ffMat, ffPos, ffVel, ffPhase,
       world, player, sunMat, raycaster: new THREE.Raycaster(), dmgBar, animals, clouds,
-      playerPos: { x: 0, z: 0 }, worldOk,
+      playerPos: { x: 0, z: 0 }, worldOk, grassMesh, grassDummy, ambParticles, apPos, apVel, apPhase, apCount,
     };
 
     // ─── GAME LOOP ───
@@ -787,6 +842,34 @@ export default function VirtualShoppingBrane() {
         if (Math.abs(ffPosArr[i * 3 + 2]) > W / 2) ffVel[i * 3 + 2] *= -1;
       }
       fireflies.geometry.attributes.position.needsUpdate = true; }
+
+      // ─── GRASS WIND (every 3 frames) ───
+      if (grassMesh && frameCount % 3 === 0) {
+        const windA = Math.sin(now * 0.0008) * 0.2;
+        const matrix = new THREE.Matrix4();
+        const pos = new THREE.Vector3();
+        const euler = new THREE.Euler();
+        for (let i = 0; i < grassMesh.count; i += 3) {
+          grassMesh.getMatrixAt(i, matrix);
+          pos.setFromMatrixPosition(matrix);
+          euler.set(windA + Math.sin(pos.x * 0.4 + now * 0.0006) * 0.12, 0, 0);
+          matrix.makeRotationFromEuler(euler);
+          matrix.setPosition(pos);
+          grassMesh.setMatrixAt(i, matrix);
+        }
+        grassMesh.instanceMatrix.needsUpdate = true;
+      }
+
+      // ─── AMBIENT PARTICLES ───
+      { const apArr = ambParticles.geometry.attributes.position.array;
+      for (let i = 0; i < apCount; i++) {
+        apArr[i * 3] += apVel[i * 3] * dt + Math.sin(now * 0.0003 + apPhase[i]) * 0.002;
+        apArr[i * 3 + 1] += Math.sin(now * 0.0005 + apPhase[i]) * 0.001;
+        apArr[i * 3 + 2] += apVel[i * 3 + 2] * dt + Math.cos(now * 0.0003 + apPhase[i]) * 0.002;
+        if (Math.abs(apArr[i * 3]) > W / 2) apVel[i * 3] *= -1;
+        if (Math.abs(apArr[i * 3 + 2]) > W / 2) apVel[i * 3 + 2] *= -1;
+      }
+      ambParticles.geometry.attributes.position.needsUpdate = true; }
 
       sun.intensity = 0.3 + dayVal * 1.4;
       const sunCol = new THREE.Color().lerpColors(new THREE.Color(0xff8844), new THREE.Color(0xffeecc), dayVal);
