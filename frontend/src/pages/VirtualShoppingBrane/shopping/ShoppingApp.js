@@ -1,166 +1,200 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import ShoppingEngine, { SCENES } from "./ShoppingEngine";
 import "./Shopping.css";
 
-/* ── Ambient sound engine ── */
-function useAmbient(engineRef) {
-  const ctxRef = useRef(null);
-  const gainRef = useRef(null);
-
+/* ── Ambient sound ── */
+function useAmbient(started) {
   useEffect(() => {
-    let mounted = true;
-    const start = () => {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const gain = ctx.createGain();
-        gain.gain.value = 0;
-        gain.connect(ctx.destination);
+    if (!started) return;
+    let ctx, gain, noise, hum, mounted = true;
+    try {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      gain = ctx.createGain();
+      gain.gain.value = 0.06;
+      gain.connect(ctx.destination);
 
-        const noise = ctx.createOscillator();
-        noise.type = "sawtooth";
-        noise.frequency.value = 120;
-        const noiseGain = ctx.createGain();
-        noiseGain.gain.value = 0.008;
-        const filter = ctx.createBiquadFilter();
-        filter.type = "lowpass";
-        filter.frequency.value = 800;
-        filter.Q.value = 0.5;
-        noise.connect(noiseGain);
-        noiseGain.connect(filter);
-        filter.connect(gain);
-        noise.start();
+      noise = ctx.createOscillator();
+      noise.type = "sawtooth";
+      noise.frequency.value = 95;
+      const ng = ctx.createGain();
+      ng.gain.value = 0.006;
+      const filt = ctx.createBiquadFilter();
+      filt.type = "lowpass"; filt.frequency.value = 700; filt.Q.value = 0.3;
+      noise.connect(ng); ng.connect(filt); filt.connect(gain);
+      noise.start();
 
-        const hum = ctx.createOscillator();
-        hum.type = "sine";
-        hum.frequency.value = 55;
-        const humGain = ctx.createGain();
-        humGain.gain.value = 0.01;
-        hum.connect(humGain);
-        humGain.connect(gain);
-        hum.start();
-
-        ctxRef.current = ctx;
-        gainRef.current = gain;
-
-        const fadeIn = () => {
-          if (!mounted) return;
-          gain.gain.value = Math.min(0.15, gain.gain.value + 0.005);
-          if (gain.gain.value < 0.15) requestAnimationFrame(fadeIn);
-        };
-        fadeIn();
-      } catch {}
-    };
-
-    const onFirstTouch = () => { if (!ctxRef.current) start(); document.removeEventListener("click", onFirstTouch); document.removeEventListener("touchstart", onFirstTouch); };
-    document.addEventListener("click", onFirstTouch);
-    document.addEventListener("touchstart", onFirstTouch);
-
+      hum = ctx.createOscillator();
+      hum.type = "sine";
+      hum.frequency.value = 50;
+      const hg = ctx.createGain();
+      hg.gain.value = 0.008;
+      hum.connect(hg); hg.connect(gain);
+      hum.start();
+    } catch {}
     return () => {
       mounted = false;
-      if (gainRef.current) {
-        try { gainRef.current.gain.linearRampToValueAtTime(0, ctxRef.current.currentTime + 0.5); } catch {}
-      }
-      setTimeout(() => {
-        try { ctxRef.current?.close(); } catch {}
-      }, 600);
-      document.removeEventListener("click", onFirstTouch);
-      document.removeEventListener("touchstart", onFirstTouch);
+      setTimeout(() => { try { noise?.stop(); hum?.stop(); ctx?.close(); } catch {} }, 300);
     };
-  }, []);
+  }, [started]);
 }
 
-/* ── NPC Sprite ── */
-function NpcSprite({ type, index }) {
-  const style = useMemo(() => {
-    const baseDelay = index * 2.5;
-    if (type === "walk") {
-      return {
-        animation: `sv-npc-walk ${8 + Math.random() * 4}s ${baseDelay}s infinite linear`,
-      };
-    }
-    if (type === "stand") {
-      return {
-        animation: `sv-npc-stand ${3 + Math.random() * 2}s ${baseDelay}s infinite ease-in-out`,
-      };
-    }
-    if (type === "sit") {
-      return { animation: `sv-npc-sit ${4 + Math.random() * 2}s ${baseDelay}s infinite ease-in-out` };
-    }
-    if (type === "browse") {
-      return { animation: `sv-npc-browse ${5 + Math.random() * 2}s ${baseDelay}s infinite ease-in-out` };
-    }
-    return {};
-  }, [type, index]);
-
-  return <div className={`sv-npc sv-npc-${type}`} style={style} />;
-}
-
-/* ── Product on shelf ── */
-function ProductShelf({ product, onAdd }) {
-  const [imgOk, setImgOk] = useState(true);
-  return (
-    <div
-      className="sv-product"
-      style={{ left: `${product.x}%`, top: `${product.y}%` }}
-      onClick={() => onAdd(product)}
-      title={product.name}
-    >
-      <div className="sv-product-shelf">
-        {imgOk ? (
-          <img
-            src={product.image}
-            alt={product.name}
-            className="sv-product-img"
-            onError={() => setImgOk(false)}
-          />
-        ) : (
-          <span className="sv-product-emoji">{product.emoji}</span>
-        )}
-        <div className="sv-product-tag">
-          <span className="sv-product-name">{product.name}</span>
-          <span className="sv-product-price">R$ {product.price.toFixed(2)}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ── Main App ── */
 export default function ShoppingApp({ onClose }) {
+  const canvasRef = useRef(null);
+  const imgRef = useRef(null);
   const engineRef = useRef(null);
-  const containerRef = useRef(null);
-  const [engine] = useState(() => {
-    const e = new ShoppingEngine({});
-    engineRef.current = e;
-    return e;
-  });
+  const animRef = useRef(null);
+
+  const [engine] = useState(() => { const e = new ShoppingEngine({}); engineRef.current = e; return e; });
 
   const [scene, setScene] = useState(engine.scene);
   const [sceneId, setSceneId] = useState(engine.sceneId);
-  const [bgLoaded, setBgLoaded] = useState(false);
-  const [bgFail, setBgFail] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const [transition, setTransition] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [cartTotal, setCartTotal] = useState(0);
   const [cartCount, setCartCount] = useState(0);
   const [cartOpen, setCartOpen] = useState(false);
   const [toast, setToast] = useState(null);
-  const [parallax, setParallax] = useState({ x: 0, y: 0 });
-  const [touchStart, setTouchStart] = useState(null);
+  const [started, setStarted] = useState(false);
+  const [hint, setHint] = useState(true);
 
-  useAmbient(engineRef);
+  useAmbient(started);
 
-  /* ── Engine callbacks ── */
+  /* ── Panorama state ── */
+  const stateRef = useRef({ yaw: 0, pitch: 0, vy: 0, vp: 0, dragging: false, lx: 0, ly: 0, fov: 85 });
+  const imgLoadRef = useRef(null);
+
+  /* ── Load image helper ── */
+  const loadImage = useCallback((url) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => resolve(img);
+      img.onerror = () => reject();
+      img.src = url;
+    });
+  }, []);
+
+  /* ── Render panorama frame ── */
+  const renderFrame = useCallback((img, yaw, pitch, fov) => {
+    const canvas = canvasRef.current;
+    if (!canvas || !img) return;
+    const ctx = canvas.getContext("2d");
+    const cw = canvas.width;
+    const ch = canvas.height;
+
+    ctx.clearRect(0, 0, cw, ch);
+
+    const iw = img.width;
+    const ih = img.height;
+    const viewFrac = fov / 360;
+    const vw = iw * viewFrac;
+    const vh = vw * (ch / cw);
+
+    const cx = ((yaw / 360) * iw + iw) % iw;
+    const cy = Math.max(0, Math.min(ih - vh, ((pitch + 90) / 180) * ih - vh / 2));
+
+    // Draw with horizontal wrapping
+    if (cx + vw <= iw) {
+      ctx.drawImage(img, cx, cy, vw, vh, 0, 0, cw, ch);
+    } else {
+      const rw = iw - cx;
+      const lw = vw - rw;
+      const rcw = cw * (rw / vw);
+      ctx.drawImage(img, cx, cy, rw, vh, 0, 0, rcw, ch);
+      ctx.drawImage(img, 0, cy, lw, vh, rcw, 0, cw - rcw, ch);
+    }
+
+    // Vignette overlay
+    const grad = ctx.createRadialGradient(cw / 2, ch / 2, cw * 0.25, cw / 2, ch / 2, cw * 0.7);
+    grad.addColorStop(0, "rgba(0,0,0,0)");
+    grad.addColorStop(1, "rgba(0,0,0,0.25)");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, cw, ch);
+
+    // Subtle edge gradient for wrap seam
+    if (cx + vw > iw) {
+      const seamX = rcw;
+      const sg = ctx.createLinearGradient(seamX - 4, 0, seamX + 4, 0);
+      sg.addColorStop(0, "rgba(0,0,0,0)");
+      sg.addColorStop(0.5, "rgba(0,0,0,0.08)");
+      sg.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = sg;
+      ctx.fillRect(seamX - 4, 0, 8, ch);
+    }
+  }, []);
+
+  /* ── Animation loop ── */
+  const loopRef = useRef(null);
+  useEffect(() => {
+    const loop = () => {
+      animRef.current = requestAnimationFrame(loop);
+      const s = stateRef.current;
+      const img = imgRef.current;
+      if (!img) return;
+
+      // Apply inertia
+      if (!s.dragging) {
+        s.yaw += s.vy;
+        s.pitch += s.vp;
+        s.vy *= 0.92;
+        s.vp *= 0.92;
+        if (Math.abs(s.vy) < 0.01) s.vy = 0;
+        if (Math.abs(s.vp) < 0.01) s.vp = 0;
+      }
+
+      // Wrap yaw 0-360, clamp pitch
+      s.yaw = ((s.yaw % 360) + 360) % 360;
+      s.pitch = Math.max(-60, Math.min(60, s.pitch));
+
+      renderFrame(img, s.yaw, s.pitch, s.fov);
+    };
+    loop();
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, [renderFrame]);
+
+  /* ── Set up canvas + image ── */
+  const setupScene = useCallback(async (sc, scId) => {
+    setImgLoaded(false);
+    setImgError(false);
+    const s = stateRef.current;
+    s.yaw = 0;
+    s.pitch = 0;
+    s.vy = 0;
+    s.vp = 0;
+
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.width = canvas.clientWidth * 1.5;
+      canvas.height = canvas.clientHeight * 1.5;
+    }
+
+    try {
+      const img = await loadImage(sc.image);
+      imgRef.current = img;
+      imgLoadRef.current = img;
+      setImgLoaded(true);
+      setImgError(false);
+      setReady(true);
+      renderFrame(img, 0, 0, 85);
+    } catch {
+      setImgError(true);
+      setReady(true);
+    }
+  }, [loadImage, renderFrame]);
+
+  /* ── Scene change ── */
   useEffect(() => {
     engine.callbacks.onChange = ({ sceneId: id, scene: sc }) => {
       setTransition(true);
-      setBgLoaded(false);
-      setBgFail(false);
       setTimeout(() => {
         setSceneId(id);
         setScene(sc);
-        setTimeout(() => setTransition(false), 50);
-      }, 250);
+        setupScene(sc, id);
+        setTimeout(() => setTransition(false), 100);
+      }, 300);
     };
     engine.callbacks.onCart = ({ items, total, count }) => {
       setCartItems(items);
@@ -168,48 +202,114 @@ export default function ShoppingApp({ onClose }) {
       setCartCount(count);
     };
     engine._emitCart();
-  }, [engine]);
+    setupScene(engine.scene, engine.sceneId);
+  }, [engine, setupScene]);
 
-  /* ── Navigation ── */
-  const go = useCallback((target) => engine.navigate(target), [engine]);
+  /* ── Resize ── */
+  useEffect(() => {
+    const onResize = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      canvas.width = canvas.clientWidth * 1.5;
+      canvas.height = canvas.clientHeight * 1.5;
+      const img = imgRef.current;
+      if (img) renderFrame(img, stateRef.current.yaw, stateRef.current.pitch, stateRef.current.fov);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [renderFrame]);
 
-  /* ── Add to cart ── */
-  const add = useCallback((product) => {
+  /* ── Mouse drag ── */
+  const onPointerDown = useCallback((e) => {
+    if (!started) setStarted(true);
+    const s = stateRef.current;
+    s.dragging = true;
+    s.lx = e.clientX || e.touches?.[0]?.clientX || 0;
+    s.ly = e.clientY || e.touches?.[0]?.clientY || 0;
+    s.vy = 0;
+    s.vp = 0;
+  }, [started]);
+
+  const onPointerMove = useCallback((e) => {
+    const s = stateRef.current;
+    if (!s.dragging) return;
+    const cx = e.clientX || e.touches?.[0]?.clientX || 0;
+    const cy = e.clientY || e.touches?.[0]?.clientY || 0;
+    const dx = cx - s.lx;
+    const dy = cy - s.ly;
+    s.yaw -= dx * 0.25;
+    s.pitch += dy * 0.2;
+    s.vy = -dx * 0.25 * 0.08;
+    s.vp = dy * 0.2 * 0.08;
+    s.lx = cx;
+    s.ly = cy;
+  }, []);
+
+  const onPointerUp = useCallback(() => {
+    stateRef.current.dragging = false;
+  }, []);
+
+  /* ── Click on hotspot ── */
+  const onClickCanvas = useCallback((e) => {
+    if (!imgRef.current) return;
+    const s = stateRef.current;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+
+    // Convert screen position to yaw/pitch
+    const clickYaw = s.yaw + (x - 0.5) * s.fov;
+    const clickPitch = s.pitch + (0.5 - y) * (s.fov * rect.height / rect.width);
+
+    for (const conn of scene.connections) {
+      const dyaw = ((conn.yaw - clickYaw + 180) % 360 + 360) % 360 - 180;
+      const dpitch = conn.pitch - clickPitch;
+      if (Math.abs(dyaw) < conn.range && Math.abs(dpitch) < conn.range) {
+        engine.navigate(conn.target);
+        return;
+      }
+    }
+
+    // Check products
+    for (const prod of scene.products) {
+      const dyaw = ((prod.yaw - clickYaw + 180) % 360 + 360) % 360 - 180;
+      const dpitch = prod.pitch - clickPitch;
+      if (Math.abs(dyaw) < 6 && Math.abs(dpitch) < 6) {
+        addToCart(prod);
+        return;
+      }
+    }
+  }, [scene, engine]);
+
+  /* ── Hotspot-to-screen positions ── */
+  const getScreenPos = useCallback((yaw, pitch) => {
+    const s = stateRef.current;
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+    const dyaw = ((yaw - s.yaw + 180) % 360 + 360) % 360 - 180;
+    const dpitch = pitch - s.pitch;
+    const x = (dyaw / s.fov + 0.5) * canvas.clientWidth;
+    const y = (0.5 - dpitch / (s.fov * canvas.clientHeight / canvas.clientWidth)) * canvas.clientHeight;
+    // Check if in front (not behind)
+    if (Math.abs(dyaw) > s.fov * 0.55 || Math.abs(dpitch) > s.fov * 0.55 * canvas.clientWidth / canvas.clientHeight) return null;
+    return { x, y };
+  }, []);
+
+  const addToCart = useCallback((product) => {
     engine.addToCart(product);
     setToast({ name: product.name, emoji: product.emoji });
     setTimeout(() => setToast(null), 2200);
   }, [engine]);
 
-  /* ── Remove from cart ── */
-  const remove = useCallback((id) => engine.removeFromCart(id), [engine]);
-
-  /* ── Finalizar ── */
+  const removeFromCart = useCallback((id) => engine.removeFromCart(id), [engine]);
   const finalizar = useCallback(() => {
     alert("Compra finalizada com sucesso!");
     engine.clearCart();
     setCartOpen(false);
   }, [engine]);
+  const go = useCallback((target) => engine.navigate(target), [engine]);
 
-  /* ── Parallax mouse move ── */
-  const onMouseMove = useCallback((e) => {
-    const r = containerRef.current?.getBoundingClientRect();
-    if (!r) return;
-    const x = ((e.clientX - r.left) / r.width - 0.5) * 2;
-    const y = ((e.clientY - r.top) / r.height - 0.5) * 2;
-    setParallax({ x: x * 4, y: y * 2 });
-  }, []);
-
-  /* ── Touch drag look ── */
-  const onTouchStart = useCallback((e) => {
-    if (e.touches.length === 1) setTouchStart({ x: e.touches[0].clientX, y: e.touches[0].clientY });
-  }, []);
-  const onTouchMove = useCallback((e) => {
-    if (!touchStart || e.touches.length !== 1) return;
-    const dx = e.touches[0].clientX - touchStart.x;
-    const dy = e.touches[0].clientY - touchStart.y;
-    setParallax({ x: Math.max(-15, Math.min(15, dx * 0.15)), y: Math.max(-8, Math.min(8, dy * 0.1)) });
-  }, [touchStart]);
-  const onTouchEnd = useCallback(() => setTouchStart(null), []);
+  const nav = useCallback((target) => go(target), [go]);
 
   /* ── Keyboard ── */
   useEffect(() => {
@@ -223,137 +323,132 @@ export default function ShoppingApp({ onClose }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [cartOpen, sceneId, go]);
 
+  /* ── Hint fade ── */
+  useEffect(() => {
+    if (ready) { const t = setTimeout(() => setHint(false), 5000); return () => clearTimeout(t); }
+  }, [ready, sceneId]);
+
   /* ── Preload adjacent ── */
   useEffect(() => {
     if (!scene) return;
-    const urls = scene.connections.map((c) => SCENES[c.target]?.image).filter(Boolean);
-    urls.forEach((url) => {
-      const img = new Image();
-      img.src = url;
+    scene.connections.forEach((c) => {
+      const s = SCENES[c.target];
+      if (s) { const img = new Image(); img.src = s.image; }
     });
   }, [scene]);
 
-  /* ── Floor click check ── */
-  const onBgClick = useCallback((e) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - r.left) / r.width) * 100;
-    const y = ((e.clientY - r.top) / r.height) * 100;
-    for (const c of scene.connections) {
-      if (x >= c.x && x <= c.x + c.w && y >= c.y && y <= c.y + c.h) {
-        go(c.target);
-        return;
-      }
-    }
-  }, [scene, go]);
-
-  const isStore = sceneId !== "entrance" && sceneId !== "hall-entrance" && sceneId !== "hall-center" && sceneId !== "hall-west" && sceneId !== "hall-east" && sceneId !== "food-court";
+  const isStore = scene.products?.length > 0;
 
   return (
-    <div
-      ref={containerRef}
-      className="sv-root"
-      onMouseMove={onMouseMove}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
-      {/* ── Scene image ── */}
-      <div className={`sv-stage ${transition ? "sv-fade" : ""}`}>
-        {!bgFail ? (
-          <img
-            key={sceneId}
-            src={scene.image}
-            alt={scene.name}
-            className={`sv-bg ${bgLoaded ? "loaded" : ""}`}
-            style={{
-              transform: `translate(${parallax.x}px, ${parallax.y}px) scale(${1 + Math.abs(parallax.x) * 0.003})`,
-            }}
-            onLoad={() => setBgLoaded(true)}
-            onError={() => setBgFail(true)}
-            draggable={false}
-          />
-        ) : (
-          <div className="sv-fallback">
-            <div className="sv-fallback-inner">
-              <span className="sv-fallback-icon">🛍️</span>
+    <div className="pv-root" onPointerDown={started ? undefined : () => setStarted(true)}>
+      {/* ── Canvas ── */}
+      <div className={`pv-stage ${transition ? "pv-fade" : ""}`}>
+        <canvas
+          ref={canvasRef}
+          className={`pv-canvas ${imgLoaded ? "active" : ""}`}
+          onMouseDown={onPointerDown}
+          onMouseMove={onPointerMove}
+          onMouseUp={onPointerUp}
+          onMouseLeave={onPointerUp}
+          onTouchStart={onPointerDown}
+          onTouchMove={onPointerMove}
+          onTouchEnd={onPointerUp}
+          onClick={onClickCanvas}
+        />
+
+        {!imgLoaded && !imgError && (
+          <div className="pv-loader"><div className="pv-spinner" /></div>
+        )}
+
+        {imgError && (
+          <div className="pv-fallback">
+            <div className="pv-fallback-inner">
+              <span className="pv-fallback-icon">🛍️</span>
               <h2>{scene.name}</h2>
-              <div className="sv-fallback-nav">
+              <div className="pv-fallback-nav">
                 {scene.connections.map((c, i) => (
-                  <button key={i} className="sv-fallback-btn" onClick={() => go(c.target)}>{c.label}</button>
+                  <button key={i} className="pv-fallback-btn" onClick={() => nav(c.target)}>{c.label}</button>
                 ))}
               </div>
             </div>
           </div>
         )}
-
-        {!bgLoaded && !bgFail && <div className="sv-loader"><div className="sv-loader-spinner" /></div>}
-
-        {/* ── NPCs ── */}
-        {bgLoaded && scene.npcs?.map((n, i) => <NpcSprite key={i} type={n.type} index={i} />)}
-
-        {/* ── Products on shelves ── */}
-        {bgLoaded && scene.products?.map((p, i) => <ProductShelf key={i} product={p} onAdd={add} />)}
-
-        {/* ── Navigation click area ── */}
-        {bgLoaded && (
-          <div className="sv-click-area" onClick={onBgClick}>
-            {scene.connections.map((c, i) => (
-              <div
-                key={i}
-                className="sv-hotspot"
-                style={{ left: `${c.x}%`, top: `${c.y}%`, width: `${c.w}%`, height: `${c.h}%` }}
-              >
-                <span className="sv-hotspot-label">{c.label}</span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ── Floor move indicator ── */}
-        {bgLoaded && scene.connections.some((c) => c.y > 60) && (
-          <div className="sv-floor-arrow">
-            <span>👣 Clique no chão para andar</span>
-          </div>
-        )}
       </div>
 
-      {/* ── Top bar ── */}
-      <div className="sv-topbar">
-        {sceneId !== "entrance" && (
-          <button className="sv-back-btn" onClick={() => go("back")}>← Voltar</button>
-        )}
-        <div className="sv-location">{scene.name}</div>
-        <div className="sv-top-right">
-          <button className="sv-cart-icon" onClick={() => setCartOpen(true)}>
-            🛒{cartCount > 0 && <span className="sv-cart-badge">{cartCount}</span>}
+      {/* ── Hotspot labels ── */}
+      {imgLoaded && scene.connections.map((c, i) => {
+        const pos = getScreenPos(c.yaw, c.pitch);
+        if (!pos) return null;
+        return (
+          <button
+            key={i}
+            className="pv-hotspot"
+            style={{ left: pos.x, top: pos.y, transform: "translate(-50%, -50%)" }}
+            onClick={() => nav(c.target)}
+          >
+            <span className="pv-hotspot-arrow">⊙</span>
+            <span className="pv-hotspot-label">{c.label}</span>
           </button>
-          <button className="sv-close-top" onClick={onClose}>✕</button>
-        </div>
-      </div>
+        );
+      })}
 
-      {/* ── Floor tap hint (mobile) ── */}
-      {bgLoaded && !transition && (
-        <div className="sv-tap-hint">
-          <span>Toque na tela para navegar</span>
+      {/* ── Product labels ── */}
+      {imgLoaded && isStore && scene.products.map((p, i) => {
+        const pos = getScreenPos(p.yaw, p.pitch);
+        if (!pos) return null;
+        return (
+          <div
+            key={i}
+            className="pv-product-label"
+            style={{ left: pos.x, top: pos.y, transform: "translate(-50%, -100%)" }}
+            onClick={() => addToCart(p)}
+          >
+            <img src={p.image} alt={p.name} className="pv-product-thumb" />
+            <div className="pv-product-info">
+              <span className="pv-product-name">{p.name}</span>
+              <span className="pv-product-price">R$ {p.price.toFixed(2)}</span>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* ── Drag hint ── */}
+      {hint && imgLoaded && (
+        <div className="pv-hint">
+          <span>Arraste para olhar ao redor • Clique nos pontos para navegar</span>
         </div>
       )}
 
+      {/* ── Top bar ── */}
+      <div className="pv-topbar">
+        {sceneId !== "entrance" && (
+          <button className="pv-btn pv-btn-back" onClick={() => go("back")}>← Voltar</button>
+        )}
+        <div className="pv-location">{scene.name}</div>
+        <div className="pv-top-right">
+          <button className="pv-btn pv-cart-icon" onClick={() => setCartOpen(true)}>
+            🛒{cartCount > 0 && <span className="pv-cart-badge">{cartCount}</span>}
+          </button>
+          <button className="pv-btn pv-close-top" onClick={onClose}>✕</button>
+        </div>
+      </div>
+
       {/* ── Cart bar ── */}
-      <div className="sv-cart-bar">
-        <div className="sv-cart-bar-inner">
-          <span className="sv-cart-bar-icon">🛒</span>
-          <div className="sv-cart-bar-info">
-            <span className="sv-cart-bar-label">Meu Carrinho</span>
-            {cartCount > 0 && <span className="sv-cart-bar-detail">{cartCount} item(ns)</span>}
+      <div className="pv-cart-bar">
+        <div className="pv-cart-bar-inner">
+          <span className="pv-cart-bar-icon">🛒</span>
+          <div className="pv-cart-bar-info">
+            <span className="pv-cart-bar-label">Meu Carrinho</span>
+            {cartCount > 0 && <span className="pv-cart-bar-detail">{cartCount} item(ns)</span>}
           </div>
-          <div className="sv-cart-bar-right">
+          <div className="pv-cart-bar-right">
             {cartCount > 0 ? (
               <>
-                <span className="sv-cart-bar-total">R$ {cartTotal.toFixed(2)}</span>
-                <button className="sv-cart-bar-btn" onClick={() => setCartOpen(true)}>Abrir</button>
+                <span className="pv-cart-bar-total">R$ {cartTotal.toFixed(2)}</span>
+                <button className="pv-cart-bar-btn" onClick={() => setCartOpen(true)}>Abrir</button>
               </>
             ) : (
-              <span className="sv-cart-bar-empty">Vazio</span>
+              <span className="pv-cart-bar-empty">Vazio</span>
             )}
           </div>
         </div>
@@ -361,44 +456,40 @@ export default function ShoppingApp({ onClose }) {
 
       {/* ── Cart panel ── */}
       {cartOpen && (
-        <div className="sv-cart-overlay" onClick={() => setCartOpen(false)}>
-          <div className="sv-cart-panel" onClick={(e) => e.stopPropagation()}>
-            <div className="sv-cart-head">
+        <div className="pv-cart-overlay" onClick={() => setCartOpen(false)}>
+          <div className="pv-cart-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="pv-cart-head">
               <h3>🛒 Carrinho</h3>
-              <button className="sv-cart-head-close" onClick={() => setCartOpen(false)}>✕</button>
+              <button className="pv-cart-head-close" onClick={() => setCartOpen(false)}>✕</button>
             </div>
-            <div className="sv-cart-body">
+            <div className="pv-cart-body">
               {cartItems.length === 0 ? (
-                <p className="sv-cart-empty">Seu carrinho está vazio</p>
+                <p className="pv-cart-empty">Seu carrinho está vazio</p>
               ) : (
                 cartItems.map((item) => (
-                  <div key={item._id} className="sv-cart-row">
-                    <div className="sv-cart-row-img">
-                      {item.image ? (
-                        <img src={item.image} alt={item.name} className="sv-cart-thumb" />
-                      ) : (
-                        <span className="sv-cart-emoji">{item.emoji}</span>
-                      )}
+                  <div key={item._id} className="pv-cart-row">
+                    <div className="pv-cart-row-img">
+                      <img src={item.image} alt={item.name} className="pv-cart-thumb" />
                     </div>
-                    <div className="sv-cart-row-info">
-                      <span className="sv-cart-row-name">{item.name}</span>
-                      <div className="sv-cart-row-meta">
-                        <span className="sv-cart-row-qty">Qtd: {item.qty}</span>
-                        <span className="sv-cart-row-price">R$ {(item.price * item.qty).toFixed(2)}</span>
+                    <div className="pv-cart-row-info">
+                      <span className="pv-cart-row-name">{item.name}</span>
+                      <div className="pv-cart-row-meta">
+                        <span>Qtd: {item.qty}</span>
+                        <span className="pv-cart-row-price">R$ {(item.price * item.qty).toFixed(2)}</span>
                       </div>
                     </div>
-                    <button className="sv-cart-row-rm" onClick={() => remove(item._id)}>−</button>
+                    <button className="pv-cart-row-rm" onClick={() => removeFromCart(item._id)}>−</button>
                   </div>
                 ))
               )}
             </div>
             {cartItems.length > 0 && (
-              <div className="sv-cart-foot">
-                <div className="sv-cart-total">
+              <div className="pv-cart-foot">
+                <div className="pv-cart-total">
                   <span>Total</span>
                   <strong>R$ {cartTotal.toFixed(2)}</strong>
                 </div>
-                <button className="sv-cart-finish" onClick={finalizar}>Finalizar Compra</button>
+                <button className="pv-cart-finish" onClick={finalizar}>Finalizar Compra</button>
               </div>
             )}
           </div>
@@ -407,9 +498,8 @@ export default function ShoppingApp({ onClose }) {
 
       {/* ── Toast ── */}
       {toast && (
-        <div className="sv-toast" key={toast.name}>
-          <span className="sv-toast-emoji">{toast.emoji}</span>
-          <span>{toast.name} adicionado!</span>
+        <div className="pv-toast" key={toast.name}>
+          <span>{toast.emoji} {toast.name} adicionado!</span>
         </div>
       )}
     </div>
