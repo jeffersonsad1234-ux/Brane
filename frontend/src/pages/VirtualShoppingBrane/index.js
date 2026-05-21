@@ -123,7 +123,7 @@ function SectionTitle({ children, sub }) {
 }
 
 // ─── MAIN PLATFORM ─────────────────────────────────────
-const BS_STORAGE = "brany_studio_projects";
+const BS_STORAGE = "brane_studio_projects";
 
 export default function VirtualShoppingBrane() {
   const [showDemo, setShowDemo] = useState(false);
@@ -188,7 +188,7 @@ export default function VirtualShoppingBrane() {
             transition={{ duration: 0.8 }}
             className="bs-hero-text"
           >
-            <div className="bs-badge">⚡ Brany Game Studio AI → Unreal Engine 5</div>
+            <div className="bs-badge">⚡ Brane Studio → Unreal Engine 5</div>
             <h1>
               Planeje jogos <span className="bs-gradient-text">AAA</span> com IA.
             </h1>
@@ -430,7 +430,7 @@ export default function VirtualShoppingBrane() {
           viewport={{ once: true }}
         >
           <h2>Pronto para criar seu jogo?</h2>
-          <p>Comece agora com Brany Game Studio AI e transforme suas ideias em realidade.</p>
+          <p>Comece agora com Brane Studio e transforme suas ideias em realidade.</p>
           <div className="bs-hero-actions" style={{ justifyContent: "center" }}>
             <button className="bs-btn bs-btn-primary" onClick={() => setShowDemo(true)}>🎮 Ver Demo</button>
             <button className="bs-btn bs-btn-secondary" onClick={() => setShowCreate(true)}>✨ Criar Projeto</button>
@@ -442,11 +442,11 @@ export default function VirtualShoppingBrane() {
       <footer className="bs-footer">
         <div className="bs-footer-inner">
           <div className="bs-footer-brand">
-            <strong>Brany Game Studio AI</strong>
+            <strong>Brane Studio</strong>
             <span>Crie jogos incríveis com inteligência artificial.</span>
           </div>
           <div className="bs-footer-links">
-            <span>© 2026 Brany Studio</span>
+            <span>© 2026 Brane Studio</span>
             <a href="#features">Recursos</a>
             <a href="#demo">Demo</a>
             <button className="bs-footer-btn" onClick={() => setShowDemo(true)}>Jogar</button>

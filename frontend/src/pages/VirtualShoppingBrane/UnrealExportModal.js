@@ -108,7 +108,7 @@ export default function UnrealExportModal({ project, onClose }) {
         <div className="ue-notice">
           <strong>⚠️ A versão web é apenas uma prévia conceitual.</strong>
           O jogo real deve ser desenvolvido na Unreal Engine 5 utilizando os documentos abaixo.
-          O Brany Game Studio AI gera a documentação e o planejamento — o desenvolvimento é feito no motor profissional da Epic Games.
+          O Brane Studio gera a documentação e o planejamento — o desenvolvimento é feito no motor profissional da Epic Games.
         </div>
 
         <div className="ue-tabs">
@@ -141,7 +141,7 @@ export default function UnrealExportModal({ project, onClose }) {
         </div>
 
         <div className="ue-footer">
-          <p>Gerado por Brany Game Studio AI • {new Date().toLocaleDateString()}</p>
+          <p>Gerado por Brane Studio • {new Date().toLocaleDateString()}</p>
         </div>
       </motion.div>
     </motion.div>

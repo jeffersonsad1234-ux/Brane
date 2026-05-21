@@ -37,7 +37,7 @@ export function generateUE5Export(project) {
 function generateReadme(name, genre, style, platform, desc, hasZombies) {
   return md(`${h1(`${name} — Projeto Unreal Engine 5`)}
 
-${bold("Gerado por Brany Game Studio AI")}
+${bold("Gerado por Brane Studio")}
 
 ${h2("Visão Geral")}
 ${desc || `Jogo ${genre} em ${style} para ${platform}.`}
@@ -82,7 +82,7 @@ ${li("Teste: Play From Here no editor")}
 ${li("Deploy: Steam / Itch.io / Epic Games Store")}
 
 ---
-${bold("Nota:")} Este projeto foi gerado automaticamente pelo Brany Game Studio AI.
+${bold("Nota:")} Este projeto foi gerado automaticamente pelo Brane Studio.
 O resultado web é apenas uma prévia conceitual. O jogo completo deve ser desenvolvido na Unreal Engine 5.`);
 }
 
@@ -148,7 +148,7 @@ ${li("Enhanced Input (controles modernos)")}`);
 
 function generateAssetsList(name, style, isFPS, isSurvival, isOpenWorld, hasZombies) {
   return md(`${h1(`${name} — Lista de Assets`)}
-Gerado por Brany Game Studio AI | Fonte: Quixel Megascans / Fab
+Gerado por Brane Studio | Fonte: Quixel Megascans / Fab
 
 ${h2("🌲 Vegetação")}
 ${li("[Megascans] TreePack: Coniferas, Deciduous, Dead Trees (Fab)")}

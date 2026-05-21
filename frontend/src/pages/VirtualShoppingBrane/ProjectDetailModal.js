@@ -104,7 +104,7 @@ export default function ProjectDetailModal({ project, onClose, onUpdate }) {
 
           {tab === "prompts" && (
             <div className="bs-detail-prompts">
-              <p className="bs-detail-hint">Use estes prompts com o Brany Agent ou OpenCode para gerar cada sistema.</p>
+              <p className="bs-detail-hint">Use estes prompts com o Brane Agent ou OpenCode para gerar cada sistema.</p>
               {project.prompts.map((p, i) => (
                 <div key={i} className="bs-prompt-item">
                   <span className="bs-prompt-num">{i + 1}</span>
@@ -141,7 +141,7 @@ export default function ProjectDetailModal({ project, onClose, onUpdate }) {
 
               <div className="ue-notice">
                 <strong>⚠️ A versão web é apenas uma prévia conceitual.</strong>
-                O jogo real deve ser desenvolvido na Unreal Engine 5. A Brany Game Studio AI gera o planejamento
+                O jogo real deve ser desenvolvido na Unreal Engine 5. A Brane Studio gera o planejamento
                 e a documentação — a implementação é feita no motor profissional da Epic Games.
               </div>
 

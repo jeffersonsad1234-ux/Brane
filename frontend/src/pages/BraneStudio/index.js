@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import "./BranyStudio.css";
+import "./BraneStudio.css";
 
 // ─── DATA ──────────────────────────────────────────────
 const FEATURES = [
@@ -107,7 +107,7 @@ function SectionTitle({ children, sub }) {
 }
 
 // ─── MAIN COMPONENT ─────────────────────────────────────
-export default function BranyStudio() {
+export default function BraneStudio() {
   const [prompt, setPrompt] = useState("");
   const [promptResult, setPromptResult] = useState(null);
   const [promptLoading, setPromptLoading] = useState(false);
@@ -150,7 +150,7 @@ export default function BranyStudio() {
             transition={{ duration: 0.8 }}
             className="bs-hero-text"
           >
-            <div className="bs-badge">⚡ Brany Game Studio AI</div>
+            <div className="bs-badge">⚡ Brane Studio</div>
             <h1>
               Crie jogos <span className="bs-gradient-text">AAA</span> com IA.
             </h1>
@@ -159,13 +159,13 @@ export default function BranyStudio() {
               e gameplay profissional.<br />Tudo gerado por inteligência artificial.
             </p>
             <div className="bs-hero-actions">
-              <Link to="/brany-studio#features" className="bs-btn bs-btn-primary">
+              <Link to="/brane-studio#features" className="bs-btn bs-btn-primary">
                 ✨ Criar meu jogo
               </Link>
               <Link to="/virtualshoppingbrane" className="bs-btn bs-btn-secondary">
                 ▶ Ver demo
               </Link>
-              <Link to="/brany-studio#features" className="bs-btn bs-btn-ghost">
+              <Link to="/brane-studio#features" className="bs-btn bs-btn-ghost">
                 Explorar recursos
               </Link>
             </div>
@@ -205,7 +205,7 @@ export default function BranyStudio() {
 
       {/* ─── DEMO ─── */}
       <section id="demo" className="bs-section bs-demo-section">
-        <SectionTitle sub="Este jogo foi criado usando Brany Game Studio AI.">
+        <SectionTitle sub="Este jogo foi criado usando Brane Studio.">
           🎮 Demo Jogável
         </SectionTitle>
         <motion.div
@@ -397,7 +397,7 @@ export default function BranyStudio() {
           viewport={{ once: true }}
         >
           <h2>Pronto para criar seu jogo?</h2>
-          <p>Comece agora com Brany Game Studio AI e transforme suas ideias em realidade.</p>
+          <p>Comece agora com Brane Studio e transforme suas ideias em realidade.</p>
           <div className="bs-hero-actions" style={{ justifyContent: "center" }}>
             <Link to="/virtualshoppingbrane" className="bs-btn bs-btn-primary">
               🎮 Ver Demo
@@ -413,11 +413,11 @@ export default function BranyStudio() {
       <footer className="bs-footer">
         <div className="bs-footer-inner">
           <div className="bs-footer-brand">
-            <strong>Brany Game Studio AI</strong>
+            <strong>Brane Studio</strong>
             <span>Crie jogos incríveis com inteligência artificial.</span>
           </div>
           <div className="bs-footer-links">
-            <span>© 2026 Brany Studio</span>
+            <span>© 2026 Brane Studio</span>
             <a href="#features">Recursos</a>
             <a href="#demo">Demo</a>
             <Link to="/virtualshoppingbrane">Jogar</Link>
