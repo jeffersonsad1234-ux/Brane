@@ -1,185 +1,264 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import ShoppingEngine from "./ShoppingEngine";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import ShoppingEngine, { SCENES } from "./ShoppingEngine";
 import "./Shopping.css";
 
+function ProductCard({ product, onAdd }) {
+  const [imgOk, setImgOk] = useState(true);
+  return (
+    <div className="sp-product-card">
+      <div className="sp-product-image-wrap">
+        {imgOk ? (
+          <img
+            src={product.image}
+            alt={product.name}
+            className="sp-product-image"
+            onError={() => setImgOk(false)}
+          />
+        ) : (
+          <div className="sp-product-fallback">{product.emoji}</div>
+        )}
+      </div>
+      <div className="sp-product-info">
+        <span className="sp-product-name">{product.name}</span>
+        <span className="sp-product-price">R$ {product.price.toFixed(2)}</span>
+      </div>
+      <button className="sp-product-add" onClick={() => onAdd(product)}>
+        + Carrinho
+      </button>
+    </div>
+  );
+}
+
 export default function ShoppingApp({ onClose }) {
-  const containerRef = useRef(null);
   const engineRef = useRef(null);
-  const minimapRef = useRef(null);
-  const [engineReady, setEngineReady] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
+  const [engine] = useState(() => new ShoppingEngine({}));
+  const [scene, setScene] = useState(engine.scene);
+  const [sceneId, setSceneId] = useState(engine.sceneId);
   const [cartItems, setCartItems] = useState([]);
   const [cartTotal, setCartTotal] = useState(0);
   const [cartCount, setCartCount] = useState(0);
+  const [cartOpen, setCartOpen] = useState(false);
   const [productModal, setProductModal] = useState(null);
-  const [state, setState] = useState({ stamina: 100 });
+  const [bgLoaded, setBgLoaded] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const [transitioning, setTransitioning] = useState(false);
+  const [showHint, setShowHint] = useState(true);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const engine = new ShoppingEngine(container, {
-      onProductClick: (product) => {
-        setProductModal(product);
-        engine.addToCart(product.id.split("_")[0], parseInt(product.id.split("_")[1]));
-      },
-      onCartUpdate: ({ items, total, count }) => {
-        setCartItems(items);
-        setCartTotal(total);
-        setCartCount(count);
-      },
-      onStateChange: (s) => setState(s),
-    });
-
-    const ok = engine.init();
-    if (ok) {
-      engineRef.current = engine;
-      setEngineReady(true);
-    }
-
-    return () => {
-      engine.dispose();
-      engineRef.current = null;
+    engine.callbacks.onSceneChange = (id, sc) => {
+      setTransitioning(true);
+      setBgLoaded(false);
+      setImgError(false);
+      setTimeout(() => {
+        setSceneId(id);
+        setScene(sc);
+        setTransitioning(false);
+      }, 200);
     };
-  }, []);
+    engine.callbacks.onCartUpdate = ({ items, total, count }) => {
+      setCartItems(items);
+      setCartTotal(total);
+      setCartCount(count);
+    };
+    engine._update();
+  }, [engine]);
 
-  // Minimap render loop
-  useEffect(() => {
-    if (!engineReady || !engineRef.current) return;
-    const interval = setInterval(() => {
-      const engine = engineRef.current;
-      if (!engine || !minimapRef.current) return;
-      const canvas = minimapRef.current;
-      const ctx = canvas.getContext("2d");
-      const w = canvas.width = 180;
-      const h = canvas.height = 130;
+  const handleNavigate = useCallback((target) => {
+    engine.navigateTo(target);
+  }, [engine]);
 
-      ctx.fillStyle = "#0a0a1a";
-      ctx.fillRect(0, 0, w, h);
+  const handleAddToCart = useCallback((product) => {
+    engine.addToCart(product);
+    setProductModal(product);
+    setTimeout(() => setProductModal(null), 2000);
+  }, [engine]);
 
-      // Mall bounds
-      const scale = 1.8;
-      const ox = w / 2;
-      const oy = h / 2;
-
-      // Draw stores
-      ctx.strokeStyle = "rgba(100, 200, 255, 0.3)";
-      ctx.lineWidth = 1;
-      for (const sm of engine.storeMeshes || []) {
-        const [sx, sz] = sm.position;
-        const px = ox + sx * scale;
-        const py = oy + sz * scale;
-        ctx.fillStyle = "#" + sm.store.color.toString(16).padStart(6, "0");
-        ctx.globalAlpha = 0.5;
-        ctx.fillRect(px - 6, py - 4, 12, 8);
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = "#88ccff";
-        ctx.font = "6px monospace";
-        ctx.fillText(sm.store.name.slice(0, 0), px - 4, py + 2);
-      }
-
-      // Player dot
-      const pos = engine.playerPos;
-      const px = ox + pos.x * scale;
-      const py = oy + pos.z * scale;
-      ctx.beginPath();
-      ctx.arc(px, py, 3, 0, Math.PI * 2);
-      ctx.fillStyle = "#00ff88";
-      ctx.fill();
-      ctx.strokeStyle = "#ffffff";
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      // Direction indicator
-      const dx = Math.sin(engine.yaw) * 8;
-      const dy = Math.cos(engine.yaw) * 8;
-      ctx.beginPath();
-      ctx.moveTo(px, py);
-      ctx.lineTo(px + dx, py + dy);
-      ctx.strokeStyle = "#00ff88";
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-    }, 200);
-    return () => clearInterval(interval);
-  }, [engineReady]);
-
-  const handlePointerLock = useCallback(() => {
-    engineRef.current?.enablePointerLock();
-  }, []);
-
-  const handleRemoveItem = useCallback((storeId, productIndex) => {
-    engineRef.current?.removeFromCart(storeId, productIndex);
-  }, []);
+  const handleRemoveFromCart = useCallback((id) => {
+    engine.removeFromCart(id);
+  }, [engine]);
 
   const handleFinalizar = useCallback(() => {
-    alert("Compra finalizada! (simulação)");
-    engineRef.current.cartItems = [];
-    engineRef.current._updateCartState();
+    alert("Compra finalizada com sucesso!");
+    engine.clearCart();
     setCartOpen(false);
-  }, []);
+  }, [engine]);
+
+  const isStore = useMemo(() => {
+    return ["shoes", "clothes", "electronics", "supermarket", "cosmetics", "foodcourt"].includes(sceneId);
+  }, [sceneId]);
+
+  const prevTargetRef = useRef(null);
+
+  const handleImageClick = useCallback((e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    for (const h of scene.hotspots) {
+      if (x >= h.x && x <= h.x + h.w && y >= h.y && y <= h.y + h.h) {
+        handleNavigate(h.target);
+        return;
+      }
+    }
+  }, [scene, handleNavigate]);
+
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === "Escape") {
+      if (cartOpen) setCartOpen(false);
+      else if (sceneId !== "entrance") handleNavigate("back");
+    }
+  }, [cartOpen, sceneId, handleNavigate]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    const timer = setTimeout(() => setShowHint(false), 6000);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      clearTimeout(timer);
+    };
+  }, [handleKeyDown]);
 
   return (
-    <div className="shopping-wrapper">
-      <div ref={containerRef} className="shopping-canvas" />
-
-      {!engineReady && (
-        <div className="shopping-loading">
-          <div className="shopping-loading-spinner" />
-          <p>Carregando shopping...</p>
-        </div>
-      )}
-
-      {/* HUD */}
-      <div className="shopping-hud">
-        {/* Top bar */}
-        <div className="shopping-top-bar">
-          <button className="shopping-close-btn" onClick={onClose}>✕</button>
-          <span className="shopping-title">🛍️ Shopping Brane</span>
-          <div className="shopping-top-right">
-            <div className="shopping-stamina">
-              <div className="shopping-stamina-bar">
-                <div className="shopping-stamina-fill" style={{ width: state.stamina + "%" }} />
+    <div className="sp-root">
+      {/* Background image */}
+      <div className="sp-bg-container">
+        {!imgError ? (
+          <img
+            key={sceneId}
+            src={scene.image}
+            alt={scene.name}
+            className={`sp-bg-image ${bgLoaded ? "loaded" : ""} ${transitioning ? "exit" : ""}`}
+            onLoad={() => setBgLoaded(true)}
+            onError={() => setImgError(true)}
+            draggable={false}
+          />
+        ) : (
+          <div className="sp-bg-fallback">
+            <div className="sp-bg-fallback-inner">
+              <span className="sp-bg-fallback-icon">🛍️</span>
+              <h2>{scene.name}</h2>
+              <p>Clique nos links para navegar</p>
+              <div className="sp-fallback-nav">
+                {scene.hotspots.map((h, i) => (
+                  <button key={i} className="sp-fallback-btn" onClick={() => handleNavigate(h.target)}>
+                    {h.label}
+                  </button>
+                ))}
               </div>
-              <span className="shopping-stamina-label">⚡</span>
             </div>
-            <button className="shopping-cart-btn" onClick={() => setCartOpen(!cartOpen)}>
-              🛒 {cartCount > 0 && <span className="shopping-cart-badge">{cartCount}</span>}
-            </button>
+          </div>
+        )}
+
+        {/* Loading state */}
+        {!bgLoaded && !imgError && (
+          <div className="sp-loading-overlay">
+            <div className="sp-loading-spinner" />
+          </div>
+        )}
+
+        {/* Hotspots overlay */}
+        {bgLoaded && scene.hotspots.length > 0 && (
+          <div className="sp-hotspots" onClick={handleImageClick}>
+            {scene.hotspots.map((h, i) => (
+              <div
+                key={i}
+                className="sp-hotspot"
+                style={{ left: `${h.x}%`, top: `${h.y}%`, width: `${h.w}%`, height: `${h.h}%` }}
+                title={h.label}
+              >
+                <span className="sp-hotspot-label">{h.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Scene name */}
+        <div className="sp-scene-name">
+          <span>{scene.name}</span>
+        </div>
+
+        {/* Back button */}
+        {sceneId !== "entrance" && (
+          <button className="sp-back-btn" onClick={() => handleNavigate("back")}>
+            ← Voltar
+          </button>
+        )}
+
+        {/* Products grid for store scenes */}
+        {bgLoaded && isStore && scene.products.length > 0 && (
+          <div className="sp-products-overlay">
+            <div className="sp-products-row">
+              {scene.products.map((p, i) => (
+                <ProductCard key={i} product={p} onAdd={handleAddToCart} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Hint */}
+        {showHint && (
+          <div className="sp-hint">
+            Clique nas áreas destacadas para navegar
+          </div>
+        )}
+      </div>
+
+      {/* Cart overlay (fixed at bottom) */}
+      <div className="sp-cart-bar">
+        <div className="sp-cart-bar-inner">
+          <div className="sp-cart-bar-left">
+            <span className="sp-cart-bar-emoji">🛒</span>
+            <div className="sp-cart-bar-info">
+              <span className="sp-cart-bar-label">Meu Carrinho</span>
+              {cartCount > 0 && (
+                <span className="sp-cart-bar-count">{cartCount} {cartCount === 1 ? "item" : "itens"}</span>
+              )}
+            </div>
+          </div>
+          <div className="sp-cart-bar-right">
+            {cartCount > 0 && (
+              <>
+                <span className="sp-cart-bar-total">R$ {cartTotal.toFixed(2)}</span>
+                <button className="sp-cart-bar-btn" onClick={() => setCartOpen(true)}>
+                  Ver Carrinho
+                </button>
+              </>
+            )}
+            {cartCount === 0 && (
+              <span className="sp-cart-bar-empty">Carrinho vazio</span>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Controls hint */}
-        <div className="shopping-controls-hint">
-          <span>🖱️ Clique no chão para andar</span>
-          <span>⌨️ WASD para se mover</span>
-          <span>🎯 Clique nos produtos</span>
-        </div>
-
-        {/* Cart panel */}
-        {cartOpen && (
-          <div className="shopping-cart-panel">
-            <div className="shopping-cart-header">
+      {/* Cart panel */}
+      {cartOpen && (
+        <div className="sp-cart-overlay" onClick={() => setCartOpen(false)}>
+          <div className="sp-cart-panel" onClick={(e) => e.stopPropagation()}>
+            <div className="sp-cart-panel-header">
               <h3>🛒 Carrinho</h3>
-              <button onClick={() => setCartOpen(false)}>✕</button>
+              <button className="sp-cart-panel-close" onClick={() => setCartOpen(false)}>✕</button>
             </div>
-            <div className="shopping-cart-items">
+            <div className="sp-cart-panel-items">
               {cartItems.length === 0 ? (
-                <p className="shopping-cart-empty">Carrinho vazio</p>
+                <p className="sp-cart-empty-text">Seu carrinho está vazio</p>
               ) : (
-                cartItems.map((item, i) => (
-                  <div key={i} className="shopping-cart-item">
-                    <span className="shopping-cart-emoji">{item.emoji}</span>
-                    <div className="shopping-cart-info">
-                      <span className="shopping-cart-name">{item.name}</span>
-                      <span className="shopping-cart-store">{item.storeName}</span>
-                      <span className="shopping-cart-price">
-                        {item.qty} × R$ {item.price.toFixed(2)} = R$ {(item.price * item.qty).toFixed(2)}
-                      </span>
+                cartItems.map((item) => (
+                  <div key={item.id} className="sp-cart-panel-item">
+                    <div className="sp-cart-item-image-wrap">
+                      {item.image ? (
+                        <img src={item.image} alt={item.name} className="sp-cart-item-image" />
+                      ) : (
+                        <span className="sp-cart-item-emoji">{item.emoji}</span>
+                      )}
                     </div>
-                    <button
-                      className="shopping-cart-remove"
-                      onClick={() => handleRemoveItem(item.storeId, item.productIndex)}
-                    >
+                    <div className="sp-cart-item-info">
+                      <span className="sp-cart-item-name">{item.name}</span>
+                      <div className="sp-cart-item-meta">
+                        <span className="sp-cart-item-qty">Qtd: {item.qty}</span>
+                        <span className="sp-cart-item-price">R$ {(item.price * item.qty).toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <button className="sp-cart-item-remove" onClick={() => handleRemoveFromCart(item.id)}>
                       −
                     </button>
                   </div>
@@ -187,43 +266,30 @@ export default function ShoppingApp({ onClose }) {
               )}
             </div>
             {cartItems.length > 0 && (
-              <div className="shopping-cart-footer">
-                <div className="shopping-cart-total">
-                  <span>Total:</span>
+              <div className="sp-cart-panel-footer">
+                <div className="sp-cart-panel-total">
+                  <span>Total</span>
                   <strong>R$ {cartTotal.toFixed(2)}</strong>
                 </div>
-                <button className="shopping-finalizar-btn" onClick={handleFinalizar}>
+                <button className="sp-finalizar-btn" onClick={handleFinalizar}>
                   Finalizar Compra
                 </button>
               </div>
             )}
           </div>
-        )}
-
-        {/* Minimap */}
-        <div className="shopping-minimap-container">
-          <canvas ref={minimapRef} className="shopping-minimap" width="180" height="130" />
-        </div>
-
-        {/* Pointer lock button */}
-        <button className="shopping-pointer-btn" onClick={handlePointerLock}>
-          🔒 Travar Mouse
-        </button>
-      </div>
-
-      {/* Product modal */}
-      {productModal && (
-        <div className="shopping-modal-overlay" onClick={() => setProductModal(null)}>
-          <div className="shopping-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="shopping-modal-close" onClick={() => setProductModal(null)}>✕</button>
-            <div className="shopping-modal-emoji">{productModal.emoji}</div>
-            <h2>{productModal.name}</h2>
-            <p className="shopping-modal-store">{productModal.storeName}</p>
-            <p className="shopping-modal-price">R$ {productModal.price.toFixed(2)}</p>
-            <p className="shopping-modal-added">✓ Adicionado ao carrinho!</p>
-          </div>
         </div>
       )}
+
+      {/* Product added toast */}
+      {productModal && (
+        <div className="sp-toast">
+          <span className="sp-toast-emoji">{productModal.emoji}</span>
+          <span className="sp-toast-text">{productModal.name} adicionado!</span>
+        </div>
+      )}
+
+      {/* Close button */}
+      <button className="sp-close-btn" onClick={onClose}>✕</button>
     </div>
   );
 }
