@@ -33,6 +33,7 @@ import BraneCoinsPage from "./pages/BraneCoinsPage";
 import AddProductPage from "./pages/AddProductPage";
 import SocialPage from "./pages/SocialPage";
 import VirtualShoppingBrane from "./pages/VirtualShoppingBrane";
+import ShoppingApp from "./pages/VirtualShoppingBrane/shopping/ShoppingApp";
 import BranyStudio from "./pages/BranyStudio";
 import BraneAgent from "./pages/BraneAgent";
 import BLivreAdminPage from "./pages/admin/AdminLayout";
@@ -120,7 +121,7 @@ function AppRouter() {
   }
 
   const isAdmin = path.startsWith("/admin");
-  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane") || path.startsWith("/brany-studio") || path.startsWith("/brane-agent") || path.startsWith("/agente");
+  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane") || path.startsWith("/brany-studio") || path.startsWith("/brane-agent") || path.startsWith("/agente") || path.startsWith("/shopping");
 
   return (
     <>
@@ -200,6 +201,8 @@ function AppRouter() {
 
             <Route path="/virtualshoppingbrane" element={<VirtualShoppingBrane />} />
             <Route path="/brany-studio" element={<Navigate to="/virtualshoppingbrane" replace />} />
+            <Route path="/shopping" element={<ShoppingApp onClose={() => window.history.back()} />} />
+            <Route path="/brany-studio/shopping" element={<Navigate to="/shopping" replace />} />
             <Route path="/brane-agent" element={<BraneAgent />} />
             <Route path="/agente" element={<BraneAgent />} />
 
