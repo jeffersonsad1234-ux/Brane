@@ -5,7 +5,7 @@ import Player from "./Player.js";
 import CameraController from "./CameraController.js";
 import DebugOverlay from "./DebugOverlay.js";
 
-const PHASES = ["renderer", "scene", "camera", "lights", "world", "player"];
+const PHASES = ["input", "renderer", "scene", "camera", "lights", "world", "player", "debug"];
 
 export default class GameManager {
   constructor(container) {
@@ -68,8 +68,11 @@ export default class GameManager {
     }
 
     // Phase 4: Player (can fail gracefully)
+    const getHeight = this.world && this.world.ok
+      ? (x, z) => this.world.getHeightAt(x, z)
+      : () => 0;
     try {
-      this.player = new Player(this.sceneSetup.scene);
+      this.player = new Player(this.sceneSetup.scene, getHeight);
       const ok = this.player.init();
       this.phaseStatus["player"] = ok ? "ok" : "fail";
     } catch (e) {
@@ -130,7 +133,7 @@ export default class GameManager {
 
     // Update camera
     if (this.cameraController && this.player && this.player.ok) {
-      this.cameraController.follow(this.player.position);
+      this.cameraController.follow(this.player.position, this.player.velocity);
       this.cameraController.update(dt);
     }
 
