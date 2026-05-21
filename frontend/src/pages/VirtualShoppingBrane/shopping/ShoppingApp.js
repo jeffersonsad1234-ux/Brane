@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import ShoppingEngine, { SCENE_DEFS, getSceneCanvas, preloadScene } from "./ShoppingEngine";
+import ShoppingEngine, { SCENE_DEFS, loadSceneImage, getScenePlaceholder, preloadScene } from "./ShoppingEngine";
 import "./Shopping.css";
 
 function useAmbient(started) {
   useEffect(() => {
     if (!started) return;
-    let ctx, gain, noise, hum, mounted = true;
+    let ctx, gain, noise, hum;
     try {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
       gain = ctx.createGain();
@@ -26,39 +26,9 @@ function useAmbient(started) {
       hum.start();
     } catch {}
     return () => {
-      mounted = false;
       setTimeout(() => { try { noise?.stop(); hum?.stop(); ctx?.close(); } catch {} }, 300);
     };
   }, [started]);
-}
-
-function createFallbackScene(sceneId) {
-  const c = document.createElement('canvas');
-  c.width = 4096; c.height = 2048;
-  const ctx = c.getContext('2d');
-  if (ctx) {
-    const g = ctx.createLinearGradient(0, 0, 0, 2048);
-    g.addColorStop(0, '#0a0a14');
-    g.addColorStop(0.3, '#141428');
-    g.addColorStop(0.7, '#1a1a30');
-    g.addColorStop(1, '#0f0f20');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, 4096, 2048);
-    for (let i = 0; i < 80; i++) {
-      ctx.fillStyle = `hsla(220, 30%, 60%, ${Math.random() * 0.06})`;
-      ctx.beginPath();
-      ctx.arc(Math.random() * 4096, Math.random() * 2048, Math.random() * 3 + 1, 0, 6.28);
-      ctx.fill();
-    }
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.font = 'bold 38px system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText((sceneId || 'brane').replace(/-/g, ' ').toUpperCase(), 2048, 1020);
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
-    ctx.font = '18px system-ui, sans-serif';
-    ctx.fillText('Clique nos pontos ⊙ para navegar', 2048, 1070);
-  }
-  return c;
 }
 
 function resizeCanvas(canvas) {
@@ -87,7 +57,7 @@ export default function ShoppingApp({ onClose }) {
   const [scene, setScene] = useState(engine.scene);
   const [sceneId, setSceneId] = useState(engine.sceneId);
   const [ready, setReady] = useState(false);
-  const [loadFailed, setLoadFailed] = useState(false);
+  const [photoreal, setPhotoreal] = useState(false);
   const [transition, setTransition] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [cartTotal, setCartTotal] = useState(0);
@@ -113,7 +83,7 @@ export default function ShoppingApp({ onClose }) {
 
     ctx.clearRect(0, 0, cw, ch);
 
-    let img = (source instanceof HTMLCanvasElement || source instanceof HTMLImageElement) ? source : null;
+    const img = (source instanceof HTMLCanvasElement || source instanceof HTMLImageElement) ? source : null;
     if (!img) return;
 
     const iw = img.width;
@@ -123,7 +93,6 @@ export default function ShoppingApp({ onClose }) {
     const viewFrac = fov / 360;
     const vw = Math.min(iw, iw * viewFrac);
     const vh = Math.max(1, vw * (ch / cw));
-
     const cx = ((yaw / 360) * iw + iw) % iw;
     const cy = Math.max(0, Math.min(ih - vh, ((pitch + 90) / 180) * ih - vh / 2));
 
@@ -139,7 +108,7 @@ export default function ShoppingApp({ onClose }) {
 
     const grad = ctx.createRadialGradient(cw / 2, ch / 2, cw * 0.25, cw / 2, ch / 2, cw * 0.7);
     grad.addColorStop(0, "rgba(0,0,0,0)");
-    grad.addColorStop(1, "rgba(0,0,0,0.2)");
+    grad.addColorStop(1, "rgba(0,0,0,0.15)");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, cw, ch);
   }, []);
@@ -167,35 +136,41 @@ export default function ShoppingApp({ onClose }) {
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   }, [renderFrame]);
 
-  const setupScene = useCallback((sc, scId) => {
-    try {
-      const s = stateRef.current;
-      s.yaw = 0;
-      s.pitch = 0;
-      s.vy = 0;
-      s.vp = 0;
-
-      resizeCanvas(canvasRef.current);
-
-      const sceneCanvas = getSceneCanvas(scId);
-      if (!sceneCanvas || sceneCanvas.width < 2) {
-        throw new Error("Invalid scene canvas");
-      }
-      imgRef.current = sceneCanvas;
-      readyRef.current = true;
-      setReady(true);
-      setLoadFailed(false);
-      renderFrame(sceneCanvas, 0, 0, 85);
-    } catch (e) {
-      const fallback = createFallbackScene(scId);
-      imgRef.current = fallback;
-      readyRef.current = true;
-      setReady(true);
-      setLoadFailed(true);
-      resizeCanvas(canvasRef.current);
-      renderFrame(fallback, 0, 0, 85);
+  const loadAndRender = useCallback((scId) => {
+    const img = loadSceneImage(scId);
+    if (img && img.complete && img.naturalWidth > 0) {
+      imgRef.current = img;
+      setPhotoreal(true);
+      requestAnimationFrame(() => renderFrame(img, stateRef.current.yaw, stateRef.current.pitch, stateRef.current.fov));
+      return true;
     }
+    if (img) {
+      img.onload = () => {
+        if (scId === engineRef.current.sceneId) {
+          imgRef.current = img;
+          setPhotoreal(true);
+          renderFrame(img, stateRef.current.yaw, stateRef.current.pitch, stateRef.current.fov);
+        }
+      };
+      img.onerror = () => {};
+    }
+    return false;
   }, [renderFrame]);
+
+  const setupScene = useCallback((sc, scId) => {
+    const s = stateRef.current;
+    s.yaw = 0; s.pitch = 0; s.vy = 0; s.vp = 0;
+
+    resizeCanvas(canvasRef.current);
+
+    const placeholder = getScenePlaceholder(scId);
+    imgRef.current = placeholder;
+    setPhotoreal(false);
+    readyRef.current = true;
+    setReady(true);
+    renderFrame(placeholder, 0, 0, 85);
+    loadAndRender(scId);
+  }, [renderFrame, loadAndRender]);
 
   useEffect(() => {
     engine.callbacks.onChange = ({ sceneId: id, scene: sc }) => {
@@ -215,30 +190,22 @@ export default function ShoppingApp({ onClose }) {
     engine._emitCart();
 
     const canvas = canvasRef.current;
-    if (canvas) {
-      canvas.width = 300;
-      canvas.height = 150;
-    }
+    if (canvas) { canvas.width = 300; canvas.height = 150; }
 
-    setTimeout(() => {
-      setupScene(engine.scene, engine.sceneId);
-    }, 50);
+    setTimeout(() => setupScene(engine.scene, engine.sceneId), 50);
 
     const safetyTimer = setTimeout(() => {
       if (!readyRef.current) {
-        const fallback = createFallbackScene(engine.sceneId);
-        imgRef.current = fallback;
+        const placeholder = getScenePlaceholder(engine.sceneId);
+        imgRef.current = placeholder;
         readyRef.current = true;
         setReady(true);
-        setLoadFailed(true);
         resizeCanvas(canvasRef.current);
-        renderFrame(fallback, 0, 0, 85);
+        renderFrame(placeholder, 0, 0, 85);
       }
     }, 5000);
 
-    return () => {
-      clearTimeout(safetyTimer);
-    };
+    return () => clearTimeout(safetyTimer);
   }, [engine, setupScene, renderFrame]);
 
   useEffect(() => {
@@ -247,9 +214,7 @@ export default function ShoppingApp({ onClose }) {
       if (!canvas) return;
       if (resizeCanvas(canvas)) {
         const source = imgRef.current;
-        if (source) {
-          renderFrame(source, stateRef.current.yaw, stateRef.current.pitch, stateRef.current.fov);
-        }
+        if (source) renderFrame(source, stateRef.current.yaw, stateRef.current.pitch, stateRef.current.fov);
       }
     });
     if (canvasRef.current) ro.observe(canvasRef.current);
@@ -289,7 +254,6 @@ export default function ShoppingApp({ onClose }) {
     if (rect.width < 1 || rect.height < 1) return;
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
-
     const clickYaw = s.yaw + (x - 0.5) * s.fov;
     const clickPitch = s.pitch + (0.5 - y) * (s.fov * rect.height / rect.width);
 
@@ -413,15 +377,15 @@ export default function ShoppingApp({ onClose }) {
         );
       })}
 
-      {hint && ready && !loadFailed && (
+      {hint && ready && (
         <div className="pv-hint">
           <span>Arraste para olhar • Clique nos pontos ⊙ para navegar</span>
         </div>
       )}
 
-      {loadFailed && ready && (
+      {!photoreal && ready && (
         <div className="pv-hint" style={{ bottom: '120px' }}>
-          <span>Modo de segurança ativo • Cena padrão</span>
+          <span>Adicione imagens IA em cada cena no arquivo ShoppingEngine.js</span>
         </div>
       )}
 

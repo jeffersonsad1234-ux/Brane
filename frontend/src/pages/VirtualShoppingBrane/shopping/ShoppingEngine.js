@@ -1,9 +1,38 @@
-import { generateScene, generateFallback } from "./SceneGenerator.js";
+const PLACEHOLDER_CACHE = {};
+
+function createPlaceholder(id) {
+  if (PLACEHOLDER_CACHE[id]) return PLACEHOLDER_CACHE[id];
+  const c = document.createElement('canvas');
+  c.width = 4096; c.height = 2048;
+  const ctx = c.getContext('2d');
+  if (ctx) {
+    const g = ctx.createLinearGradient(0, 0, 0, 2048);
+    g.addColorStop(0, '#0a0a14');
+    g.addColorStop(0.3, '#141428');
+    g.addColorStop(0.7, '#1a1a30');
+    g.addColorStop(1, '#0f0f20');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, 4096, 2048);
+    for (let i = 0; i < 50; i++) {
+      ctx.fillStyle = `rgba(200,220,255,${Math.random() * 0.04})`;
+      ctx.beginPath();
+      ctx.arc(Math.random() * 4096, Math.random() * 2048, Math.random() * 2 + 0.5, 0, 6.28);
+      ctx.fill();
+    }
+    ctx.fillStyle = 'rgba(255,255,255,0.12)';
+    ctx.font = '16px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('adicione sua imagem IA aqui', 2048, 1040);
+  }
+  PLACEHOLDER_CACHE[id] = c;
+  return c;
+}
 
 const SCENE_DEFS = {
   "city-street-1": {
     id: "city-street-1",
     name: "Rua da Cidade",
+    image: null,
     connections: [
       { yaw: 0, pitch: 0, range: 14, target: "city-street-2", label: "Seguir em frente" },
       { yaw: -70, pitch: -5, range: 12, target: "mall-entrance", label: "← Shopping Brane" },
@@ -13,6 +42,7 @@ const SCENE_DEFS = {
   "city-street-2": {
     id: "city-street-2",
     name: "Avenida Principal",
+    image: null,
     connections: [
       { yaw: 0, pitch: 0, range: 14, target: "city-street-1", label: "Seguir em frente" },
       { yaw: 100, pitch: -5, range: 12, target: "mall-entrance", label: "Shopping Brane →" },
@@ -23,6 +53,7 @@ const SCENE_DEFS = {
   "mall-entrance": {
     id: "mall-entrance",
     name: "Entrada do Shopping",
+    image: null,
     connections: [
       { yaw: 180, pitch: 0, range: 16, target: "city-street-1", label: "← Rua" },
       { yaw: 0, pitch: -2, range: 14, target: "mall-hall", label: "Entrar no Shopping" },
@@ -32,6 +63,7 @@ const SCENE_DEFS = {
   "mall-hall": {
     id: "mall-hall",
     name: "Hall do Shopping",
+    image: null,
     connections: [
       { yaw: -55, pitch: -5, range: 8, target: "shoe-store", label: "👟 Sneaker King" },
       { yaw: -30, pitch: -5, range: 8, target: "clothes-store", label: "👔 Fashion Store" },
@@ -47,6 +79,7 @@ const SCENE_DEFS = {
   "shoe-store": {
     id: "shoe-store",
     name: "Sneaker King",
+    image: null,
     connections: [
       { yaw: 180, pitch: 0, range: 14, target: "mall-hall", label: "← Corredor" },
     ],
@@ -60,6 +93,7 @@ const SCENE_DEFS = {
   "clothes-store": {
     id: "clothes-store",
     name: "Fashion Store",
+    image: null,
     connections: [
       { yaw: 180, pitch: 0, range: 14, target: "mall-hall", label: "← Corredor" },
     ],
@@ -73,6 +107,7 @@ const SCENE_DEFS = {
   electronics: {
     id: "electronics",
     name: "TechWorld",
+    image: null,
     connections: [
       { yaw: 180, pitch: 0, range: 14, target: "mall-hall", label: "← Corredor" },
     ],
@@ -86,6 +121,7 @@ const SCENE_DEFS = {
   supermarket: {
     id: "supermarket",
     name: "Super Market",
+    image: null,
     connections: [
       { yaw: 180, pitch: 0, range: 14, target: "mall-hall", label: "← Corredor" },
     ],
@@ -99,6 +135,7 @@ const SCENE_DEFS = {
   "perfume-store": {
     id: "perfume-store",
     name: "Glow Beauty",
+    image: null,
     connections: [
       { yaw: 180, pitch: 0, range: 14, target: "mall-hall", label: "← Corredor" },
     ],
@@ -112,6 +149,7 @@ const SCENE_DEFS = {
   "jewelry-store": {
     id: "jewelry-store",
     name: "Lux Gold",
+    image: null,
     connections: [
       { yaw: 180, pitch: 0, range: 14, target: "mall-hall", label: "← Corredor" },
     ],
@@ -125,6 +163,7 @@ const SCENE_DEFS = {
   "food-court": {
     id: "food-court",
     name: "Praça de Alimentação",
+    image: null,
     connections: [
       { yaw: 180, pitch: 0, range: 14, target: "mall-hall", label: "← Corredor" },
     ],
@@ -137,21 +176,26 @@ const SCENE_DEFS = {
   },
 };
 
-const sceneCache = {};
+const imageCache = {};
 
-export function getSceneCanvas(id) {
-  if (!sceneCache[id]) {
-    try {
-      sceneCache[id] = generateScene(id);
-    } catch (e) {
-      sceneCache[id] = generateFallback(id);
-    }
-  }
-  return sceneCache[id];
+export function loadSceneImage(id) {
+  const scene = SCENE_DEFS[id];
+  if (!scene || !scene.image) return null;
+  if (imageCache[id]) return imageCache[id];
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.src = scene.image;
+  imageCache[id] = img;
+  return img;
+}
+
+export function getScenePlaceholder(id) {
+  return createPlaceholder(id);
 }
 
 export function preloadScene(id) {
-  getSceneCanvas(id);
+  loadSceneImage(id);
+  createPlaceholder(id);
 }
 
 export { SCENE_DEFS };
