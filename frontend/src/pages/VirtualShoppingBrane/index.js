@@ -2,20 +2,22 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import CreateProjectModal from "./CreateProjectModal.js";
 import ProjectDetailModal from "./ProjectDetailModal.js";
+import FeaturePanel from "./FeaturePanel.js";
+import MiniDemo from "./MiniDemo.js";
 import "./VirtualShoppingBrane.css";
 
 // ─── DATA ──────────────────────────────────────────────
 const FEATURES = [
-  { icon: "🎮", title: "Gerar Gameplay FPS", desc: "Crie jogos FPS completos com física, armas, IA de inimigos e multiplayer." },
-  { icon: "🗺️", title: "Mapas Open World", desc: "Gere terrenos, biomas, vilas, rios e masmorras proceduralmente." },
-  { icon: "🖥️", title: "Gerar HUD", desc: "Crie HUD profissional com vida, inventário, minimapa e crosshair." },
-  { icon: "🧟", title: "Sistemas Survival", desc: "Fome, sede, energia, crafting, construção e ciclo dia/noite." },
-  { icon: "🏃", title: "Movimento COD", desc: "Sprint, slide, crouch, jump, wall-run, parkour suave." },
-  { icon: "🎬", title: "Gráficos Cinematográficos", desc: "Iluminação dinâmica, sombras PCF, névoa volumétrica, tom de cor." },
-  { icon: "🧠", title: "IA de Inimigos", desc: "Patrulha, perseguição, combate, cobertura e comportamento de grupo." },
-  { icon: "📦", title: "Sistema de Inventário", desc: "Slots, drag & drop, crafting, loot, raridade e gerenciamento." },
-  { icon: "📜", title: "Gerar Quests", desc: "Missões dinâmicas com diálogo, recompensas e progressão." },
-  { icon: "🌐", title: "Multiplayer", desc: "Servidor dedicado, matchmaking, lobby, chat e sincronização." },
+  { key: "fps", icon: "🎮", title: "Gerar Gameplay FPS", desc: "Crie jogos FPS completos com física, armas, IA de inimigos e multiplayer." },
+  { key: "openworld", icon: "🗺️", title: "Mapas Open World", desc: "Gere terrenos, biomas, vilas, rios e masmorras proceduralmente." },
+  { key: "hud", icon: "🖥️", title: "Gerar HUD", desc: "Crie HUD profissional com vida, inventário, minimapa e crosshair." },
+  { key: "survival", icon: "🧟", title: "Sistemas Survival", desc: "Fome, sede, energia, crafting, construção e ciclo dia/noite." },
+  { key: "movement", icon: "🏃", title: "Movimento COD", desc: "Sprint, slide, crouch, jump, wall-run, parkour suave." },
+  { key: "graphics", icon: "🎬", title: "Gráficos Cinematográficos", desc: "Iluminação dinâmica, sombras PCF, névoa volumétrica, tom de cor." },
+  { key: "enemyAI", icon: "🧠", title: "IA de Inimigos", desc: "Patrulha, perseguição, combate, cobertura e comportamento de grupo." },
+  { key: "inventory", icon: "📦", title: "Sistema de Inventário", desc: "Slots, drag & drop, crafting, loot, raridade e gerenciamento." },
+  { key: "quests", icon: "📜", title: "Gerar Quests", desc: "Missões dinâmicas com diálogo, recompensas e progressão." },
+  { key: "multiplayer", icon: "🌐", title: "Multiplayer", desc: "Servidor dedicado, matchmaking, lobby, chat e sincronização." },
 ];
 
 const PROMPT_EXAMPLES = [
@@ -146,7 +148,7 @@ function GameDemoOverlay({ onClose }) {
 }
 
 // ─── FEATURE CARD ──────────────────────────────────────
-function FeatureCard({ icon, title, desc, i }) {
+function FeatureCard({ icon, title, desc, i, onClick }) {
   return (
     <motion.div
       className="bs-feature-card"
@@ -155,6 +157,7 @@ function FeatureCard({ icon, title, desc, i }) {
       viewport={{ once: true, margin: "-50px" }}
       transition={{ delay: i * 0.05, duration: 0.5 }}
       whileHover={{ scale: 1.03, borderColor: "#7c5cfc" }}
+      onClick={onClick}
     >
       <div className="bs-feature-icon">{icon}</div>
       <h3>{title}</h3>
@@ -181,6 +184,7 @@ export default function VirtualShoppingBrane() {
   const [showDemo, setShowDemo] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedFeature, setSelectedFeature] = useState(null);
   const [projects, setProjects] = useState(() => {
     try { return JSON.parse(localStorage.getItem(BS_STORAGE)) || []; } catch { return []; }
   });
@@ -260,18 +264,15 @@ export default function VirtualShoppingBrane() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
           >
-            <button className="bs-preview-frame" onClick={() => setShowDemo(true)}>
+            <div className="bs-preview-frame">
               <div className="bs-preview-glow" />
-              <div className="bs-preview-content">
-                <div className="bs-preview-scene">
-                  <div className="bs-preview-terrain" />
-                  <div className="bs-preview-tree" /><div className="bs-preview-tree t2" />
-                  <div className="bs-preview-player" />
-                  <div className="bs-preview-sun" />
-                </div>
+              <MiniDemo />
+              <div className="bs-preview-overlay">
+                <button className="bs-btn bs-btn-primary" onClick={() => setShowDemo(true)}>
+                  ▶ Jogar Demo
+                </button>
               </div>
-              <div className="bs-preview-overlay"><span>▶ Jogar Demo</span></div>
-            </button>
+            </div>
           </motion.div>
         </div>
 
@@ -333,7 +334,7 @@ export default function VirtualShoppingBrane() {
       <section id="features" className="bs-section bs-features-section">
         <SectionTitle sub="Tudo que você precisa para criar jogos profissionais com IA.">🚀 Funcionalidades da IA</SectionTitle>
         <div className="bs-features-grid">
-          {FEATURES.map((f, i) => <FeatureCard key={i} {...f} i={i} />)}
+          {FEATURES.map((f, i) => <FeatureCard key={i} {...f} i={i} onClick={() => setSelectedFeature(f.key)} />)}
         </div>
       </section>
 
@@ -517,6 +518,9 @@ export default function VirtualShoppingBrane() {
             onClose={() => setSelectedProject(null)}
             onUpdate={handleUpdateProject}
           />
+        )}
+        {selectedFeature && (
+          <FeaturePanel featureKey={selectedFeature} onClose={() => setSelectedFeature(null)} />
         )}
       </AnimatePresence>
     </div>

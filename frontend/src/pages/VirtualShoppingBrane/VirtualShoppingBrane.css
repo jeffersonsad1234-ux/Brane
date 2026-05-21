@@ -312,11 +312,9 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
 
 .bs-preview-frame:hover .bs-preview-overlay { opacity: 1; }
 
-.bs-preview-overlay span {
+.bs-preview-overlay .bs-btn {
   padding: 12px 28px;
   border-radius: 12px;
-  background: rgba(124, 92, 252, 0.9);
-  color: #fff;
   font-weight: 700;
   font-size: 1rem;
 }
@@ -801,6 +799,179 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
 }
 
 @keyframes bs-spin { to { transform: rotate(360deg); } }
+
+/* ─── MINI DEMO ──────────────────────────────────────── */
+.bs-mini-demo {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.bs-mini-demo canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ─── FEATURE PANEL ──────────────────────────────────── */
+.bs-fp-modal { max-width: 780px; }
+
+.bs-fp-gen-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 20px;
+  gap: 16px;
+  min-height: 300px;
+}
+
+.bs-fp-gen-icon { font-size: 3rem; }
+
+.bs-fp-gen-placeholder h3 {
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.bs-fp-gen-placeholder p {
+  font-size: 0.9rem;
+  color: var(--bs-muted);
+  max-width: 400px;
+  line-height: 1.6;
+}
+
+.bs-fp-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: bs-spin 0.8s linear infinite;
+}
+
+.bs-fp-overview { display: flex; flex-direction: column; gap: 16px; }
+
+.bs-fp-desc {
+  font-size: 0.9rem;
+  color: var(--bs-muted);
+  line-height: 1.7;
+}
+
+.bs-fp-systems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bs-fp-section { margin-bottom: 20px; }
+
+.bs-fp-section-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--bs-purple);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bs-fp-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bs-fp-list li {
+  padding: 5px 0;
+  font-size: 0.84rem;
+  color: var(--bs-muted);
+  line-height: 1.5;
+}
+
+.bs-fp-list li::before { content: '→ '; color: var(--bs-purple); }
+
+.bs-fp-code {
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--bs-border);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: #bbb;
+  white-space: pre-wrap;
+  max-height: 400px;
+  overflow-y: auto;
+  margin: 0;
+}
+
+.bs-fp-text {
+  font-size: 0.85rem;
+  color: var(--bs-muted);
+  line-height: 1.7;
+}
+
+.bs-fp-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bs-fp-check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.02);
+  font-size: 0.83rem;
+  color: var(--bs-muted);
+  line-height: 1.4;
+}
+
+.bs-fp-check-box { flex-shrink: 0; font-size: 0.9rem; }
+
+.bs-fp-prompts {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bs-fp-prompt-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--bs-border);
+}
+
+.bs-fp-prompt-num {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bs-purple);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.bs-fp-prompt-item p {
+  flex: 1;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #ccc;
+}
 
 /* ─── MODALS ─────────────────────────────────────────── */
 .bs-modal-overlay {
