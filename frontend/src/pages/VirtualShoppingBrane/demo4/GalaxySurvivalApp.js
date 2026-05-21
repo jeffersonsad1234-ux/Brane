@@ -5,7 +5,10 @@ export default function GalaxySurvivalApp({ onClose }) {
   const mountRef = useRef(null);
   const demoRef = useRef(null);
   const [status, setStatus] = useState("starting");
-  const [hud, setHud] = useState({ health: 100, stamina: 100, oxygen: 100, nearShip: false });
+  const [hud, setHud] = useState({
+    health: 100, stamina: 100, oxygen: 100,
+    nearShip: false, shipMode: false, canExit: false, shipSpeed: 0,
+  });
 
   const onStateChange = useCallback((s) => {
     setHud(s);
@@ -60,7 +63,7 @@ export default function GalaxySurvivalApp({ onClose }) {
         </div>
       )}
 
-      {status === "playing" && (
+      {status === "playing" && !hud.shipMode && (
         <div className="gs-hud">
           <div className="gs-stats">
             <div className="gs-stat">
@@ -87,7 +90,7 @@ export default function GalaxySurvivalApp({ onClose }) {
           </div>
 
           {hud.nearShip && (
-            <div className="gs-ship-notice">🚀 Na nave — oxigênio recarregando</div>
+            <div className="gs-notice">🚀 Pressione <strong>E</strong> para entrar na nave</div>
           )}
 
           <div className="gs-crosshair">+</div>
@@ -96,6 +99,43 @@ export default function GalaxySurvivalApp({ onClose }) {
             <div>WASD — Andar</div>
             <div>Shift — Correr</div>
             <div>Espaço — Pular</div>
+            <div>E — Entrar na nave</div>
+          </div>
+        </div>
+      )}
+
+      {status === "playing" && hud.shipMode && (
+        <div className="gs-hud">
+          <div className="gs-stats gs-ship-stats">
+            <div className="gs-stat">
+              <div className="gs-stat-icon">🚀</div>
+              <div className="gs-stat-bar">
+                <div className="gs-stat-fill gs-speed" style={{ width: `${Math.min(hud.shipSpeed / 25 * 100, 100)}%` }} />
+              </div>
+              <div className="gs-stat-value">{hud.shipSpeed}</div>
+            </div>
+            <div className="gs-stat">
+              <div className="gs-stat-icon">💨</div>
+              <div className="gs-stat-bar">
+                <div className="gs-stat-fill gs-oxygen" style={{ width: `${hud.oxygen}%` }} />
+              </div>
+              <div className="gs-stat-value">{hud.oxygen}</div>
+            </div>
+          </div>
+
+          {hud.canExit && (
+            <div className="gs-notice">🛸 Pressione <strong>E</strong> para sair da nave</div>
+          )}
+
+          <div className="gs-crosshair">+</div>
+
+          <div className="gs-controls">
+            <div>W/S — Acelerar/Reduzir</div>
+            <div>A/D — Virar</div>
+            <div>Espaço — Subir</div>
+            <div>Ctrl — Descer</div>
+            <div>Shift — Turbo</div>
+            <div>E — Sair (próximo ao chão)</div>
           </div>
         </div>
       )}

@@ -1822,18 +1822,25 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
   font-family: monospace;
 }
 
-.gs-ship-notice {
+.gs-notice {
   position: absolute;
   top: 80px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 40, 80, 0.6);
-  padding: 5px 14px;
+  padding: 6px 16px;
   border-radius: 8px;
   font-size: 0.7rem;
   color: rgba(68, 200, 255, 0.9);
   backdrop-filter: blur(3px);
   border: 1px solid rgba(68, 200, 255, 0.15);
+  pointer-events: auto;
+  white-space: nowrap;
+}
+
+.gs-notice strong {
+  color: #66ddff;
+  font-weight: 700;
 }
 
 .gs-crosshair {
@@ -1860,3 +1867,14 @@ html,body{overflow-x:hidden;background:var(--bs-bg);font-family:'Segoe UI',syste
   line-height: 1.7;
   text-align: right;
 }
+
+.gs-ship-stats {
+  top: 16px;
+  left: 16px;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gs-stat-fill.gs-speed { background: linear-gradient(90deg, #4444ff, #44ddff); }
