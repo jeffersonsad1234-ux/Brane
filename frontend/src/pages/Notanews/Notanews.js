@@ -97,7 +97,7 @@ function NoticiaCard({ noticia, featured }) {
   return (
     <article className={`nn-card ${featured ? 'nn-card-featured' : ''}`} onClick={() => navigate(`/notanews/noticia/${noticia.slug}`)}>
       <div className="nn-card-img">
-        <div className="nn-card-img-placeholder" style={{ background: `linear-gradient(135deg, hsla(${noticia.categoria === 'tecnologia' ? 200 : noticia.categoria === 'mundo' ? 170 : noticia.categoria === 'brasil' ? 140 : noticia.categoria === 'economia' ? 110 : noticia.categoria === 'esportes' ? 30 : noticia.categoria === 'entretenimento' ? 300 : 260}, 40%, 35%, 1), hsla(${noticia.categoria === 'tecnologia' ? 240 : noticia.categoria === 'mundo' ? 200 : noticia.categoria === 'brasil' ? 170 : noticia.categoria === 'economia' ? 140 : noticia.categoria === 'esportes' ? 50 : noticia.categoria === 'entretenimento' ? 330 : 280}, 50%, 20%, 1)` }}>
+        <div className="nn-card-img-placeholder" style={{ background: `linear-gradient(135deg, hsl(${noticia.categoria === 'tecnologia' ? 210 : noticia.categoria === 'mundo' ? 190 : noticia.categoria === 'brasil' ? 160 : noticia.categoria === 'economia' ? 140 : noticia.categoria === 'esportes' ? 30 : noticia.categoria === 'entretenimento' ? 320 : 220}, 25%, 45%), hsl(${noticia.categoria === 'tecnologia' ? 220 : noticia.categoria === 'mundo' ? 200 : noticia.categoria === 'brasil' ? 170 : noticia.categoria === 'economia' ? 150 : noticia.categoria === 'esportes' ? 20 : noticia.categoria === 'entretenimento' ? 330 : 230}, 20%, 30%)` }}>
           <span className="nn-card-img-text">{noticia.categoriaIcon} {noticia.categoriaNome}</span>
         </div>
         <span className="nn-card-cat">{noticia.categoriaNome}</span>
@@ -207,7 +207,7 @@ function ArticlePage() {
           </div>
 
           <div className="nn-article-img">
-            <div className="nn-article-img-placeholder" style={{ background: `linear-gradient(135deg, hsla(${noticia.categoria === 'tecnologia' ? 200 : noticia.categoria === 'mundo' ? 170 : noticia.categoria === 'brasil' ? 140 : noticia.categoria === 'economia' ? 110 : noticia.categoria === 'esportes' ? 30 : noticia.categoria === 'entretenimento' ? 300 : 260}, 50%, 40%, 1), hsla(${noticia.categoria === 'tecnologia' ? 240 : noticia.categoria === 'mundo' ? 200 : noticia.categoria === 'brasil' ? 170 : noticia.categoria === 'economia' ? 140 : noticia.categoria === 'esportes' ? 50 : noticia.categoria === 'entretenimento' ? 330 : 280}, 60%, 25%, 1)` }}>
+            <div className="nn-article-img-placeholder" style={{ background: `linear-gradient(135deg, hsl(${noticia.categoria === 'tecnologia' ? 210 : noticia.categoria === 'mundo' ? 190 : noticia.categoria === 'brasil' ? 160 : noticia.categoria === 'economia' ? 140 : noticia.categoria === 'esportes' ? 30 : noticia.categoria === 'entretenimento' ? 320 : 220}, 25%, 45%), hsl(${noticia.categoria === 'tecnologia' ? 220 : noticia.categoria === 'mundo' ? 200 : noticia.categoria === 'brasil' ? 170 : noticia.categoria === 'economia' ? 150 : noticia.categoria === 'esportes' ? 20 : noticia.categoria === 'entretenimento' ? 330 : 230}, 20%, 30%)` }}>
               <div className="nn-article-img-content">
                 <span className="nn-article-img-icon">{noticia.categoriaIcon}</span>
                 <p className="nn-article-img-desc">{noticia.imgDesc}</p>
