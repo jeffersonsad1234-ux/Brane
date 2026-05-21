@@ -46,8 +46,8 @@ export default class GalaxySurvivalDemo {
     // Chunk system
     this.chunks = new Map();
     this.chunkSize = 20;
-    this.chunkLoadRange = 80;
-    this.chunkUnloadRange = 100;
+    this.chunkLoadRange = 25;
+    this.chunkUnloadRange = 35;
     this.chunkFrameCounter = 0;
     this._chunkRoadMat = null;
     this._chunkSidewalkMat = null;
@@ -99,6 +99,7 @@ export default class GalaxySurvivalDemo {
       this._setupScene();
       this._setupLights();
       this._buildTerrain();
+      this._buildSkylineBackdrop();
       this._initChunkManager();
       this._buildShip();
       this._buildCockpitInterior();
@@ -140,13 +141,13 @@ export default class GalaxySurvivalDemo {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.shadowMap.bias = 0.0005;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.0;
+    this.renderer.toneMappingExposure = 0.9;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.setClearColor(0x05051a, 1);
     this.container.appendChild(this.renderer.domElement);
 
     this.composer = new EffectComposer(this.renderer);
-    this.bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.2, 0.4, 0.03);
+    this.bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.15, 0.5, 0.02);
 
     this._onResize = () => {
       const cw = this.container.clientWidth;
@@ -179,7 +180,7 @@ export default class GalaxySurvivalDemo {
     ctx.fillRect(0, 0, 1, 256);
     this.scene.background = new THREE.CanvasTexture(c);
     this.scene.backgroundIntensity = 0.8;
-    this.scene.fog = new THREE.FogExp2(new THREE.Color(0x1a2020), 0.003);
+    this.scene.fog = new THREE.FogExp2(new THREE.Color(0x1a2020), 0.005);
   }
 
   // ═══════════════════════════════════════════════════════
@@ -188,16 +189,16 @@ export default class GalaxySurvivalDemo {
   _setupLights() {
     this.scene.add(new THREE.AmbientLight(0x334466, 0.4));
     this.scene.add(new THREE.HemisphereLight(0x4488ff, 0x553322, 0.5));
-    this.sun = new THREE.DirectionalLight(0xffcc77, 2.5);
-    this.sun.position.set(25, 35, 15);
+    this.sun = new THREE.DirectionalLight(0xffcc77, 3.0);
+    this.sun.position.set(30, 40, 20);
     this.sun.castShadow = true;
-    this.sun.shadow.mapSize.set(2048, 2048);
+    this.sun.shadow.mapSize.set(1024, 1024);
     this.sun.shadow.bias = -0.001;
     this.sun.shadow.normalBias = 0.02;
     const sc = this.sun.shadow.camera;
-    sc.near = 1; sc.far = 100;
-    sc.left = -50; sc.right = 50;
-    sc.top = 50; sc.bottom = -50;
+    sc.near = 1; sc.far = 60;
+    sc.left = -30; sc.right = 30;
+    sc.top = 30; sc.bottom = -30;
     this.scene.add(this.sun);
     // Warm rim light
     const rim = new THREE.DirectionalLight(0xff8844, 0.5);
@@ -222,7 +223,7 @@ export default class GalaxySurvivalDemo {
   }
 
   _buildTerrain() {
-    const segs = 180, size = 160;
+    const segs = 120, size = 80;
     const geo = new THREE.PlaneGeometry(size, size, segs, segs);
     geo.rotateX(-Math.PI / 2);
     const pos = geo.attributes.position;
@@ -232,23 +233,23 @@ export default class GalaxySurvivalDemo {
       const x = pos.getX(i), z = pos.getZ(i);
       const h = this._terrainHeight(x, z);
       pos.setY(i, h);
-      const n = h * 0.25 + 0.5;
-      if (h > 0.8) {
-        colors[i * 3] = 0.10 + Math.random() * 0.04;
-        colors[i * 3 + 1] = clamp(0.15 + n * 0.2, 0.12, 0.35);
-        colors[i * 3 + 2] = 0.04 + Math.random() * 0.03;
-      } else if (h > 0.15) {
-        colors[i * 3] = 0.08 + Math.random() * 0.05;
-        colors[i * 3 + 1] = clamp(0.25 + n * 0.25, 0.18, 0.50);
-        colors[i * 3 + 2] = 0.04 + Math.random() * 0.04;
-      } else if (h < -0.4) {
-        colors[i * 3] = 0.05 + Math.random() * 0.04;
-        colors[i * 3 + 1] = clamp(0.12 + n * 0.25, 0.08, 0.30);
-        colors[i * 3 + 2] = 0.02 + Math.random() * 0.03;
+      const n = h * 0.3 + 0.5;
+      if (h > 0.5) {
+        colors[i * 3] = 0.08 + n * 0.08;
+        colors[i * 3 + 1] = clamp(0.20 + n * 0.20, 0.15, 0.40);
+        colors[i * 3 + 2] = 0.04 + n * 0.03;
+      } else if (h > 0.1) {
+        colors[i * 3] = 0.06 + n * 0.06;
+        colors[i * 3 + 1] = clamp(0.28 + n * 0.25, 0.20, 0.55);
+        colors[i * 3 + 2] = 0.04 + n * 0.03;
+      } else if (h < -0.3) {
+        colors[i * 3] = 0.04 + n * 0.04;
+        colors[i * 3 + 1] = clamp(0.12 + n * 0.18, 0.08, 0.28);
+        colors[i * 3 + 2] = 0.02 + n * 0.02;
       } else {
-        colors[i * 3] = 0.07 + Math.random() * 0.05;
-        colors[i * 3 + 1] = clamp(0.20 + n * 0.20, 0.12, 0.40);
-        colors[i * 3 + 2] = 0.03 + Math.random() * 0.04;
+        colors[i * 3] = 0.06 + n * 0.06;
+        colors[i * 3 + 1] = clamp(0.22 + n * 0.22, 0.15, 0.45);
+        colors[i * 3 + 2] = 0.03 + n * 0.03;
       }
     }
     pos.needsUpdate = true;
@@ -266,6 +267,52 @@ export default class GalaxySurvivalDemo {
   // ═══════════════════════════════════════════════════════
   // CITY — CHUNK-BASED OPEN WORLD
   // ═══════════════════════════════════════════════════════
+  _buildSkylineBackdrop() {
+    // Fake distant skyline — low-poly ring of buildings at horizon
+    // Creates illusion of large city without geometry cost
+    const skyMat = new THREE.MeshPhysicalMaterial({
+      color: 0x2a2a3a, roughness: 0.7, metalness: 0.2, side: THREE.DoubleSide, clearcoat: 0.05,
+    });
+    const roofMat = new THREE.MeshPhysicalMaterial({
+      color: 0x1a1a2a, roughness: 0.6, metalness: 0.3, side: THREE.DoubleSide,
+    });
+    const winMat = new THREE.MeshPhysicalMaterial({
+      color: 0xffcc44, emissive: 0xffaa22, emissiveIntensity: 0.15,
+      transparent: true, opacity: 0.08, side: THREE.DoubleSide,
+    });
+    const radius = 42;
+    const count = 24;
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * Math.PI * 2;
+      const h = 5 + Math.sin(i * 1.7 + 0.5) * 4 + Math.cos(i * 3.1) * 2;
+      const w = 4 + Math.sin(i * 2.3) * 2;
+      const d = 3;
+      const x = Math.cos(a) * radius;
+      const z = Math.sin(a) * radius;
+      const y = this._terrainHeight(x, z);
+      const g = new THREE.Group();
+      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), skyMat);
+      wall.position.y = h / 2;
+      wall.castShadow = false;
+      wall.receiveShadow = false;
+      g.add(wall);
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(w + 0.2, 0.08, d + 0.2), roofMat);
+      roof.position.y = h;
+      g.add(roof);
+      // A few lit windows
+      for (let wy = 1; wy < h - 0.5; wy += 2) {
+        const win = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.5), winMat);
+        win.position.set(0, wy, d / 2 + 0.01);
+        g.add(win);
+      }
+      g.position.set(x, y, z);
+      // Face inward
+      g.lookAt(0, y + h / 2, 0);
+      this.scene.add(g);
+      this.objects.push(g);
+    }
+  }
+
   _initChunkManager() {
     this.chunks = new Map();
     this._chunkRoadMat = new THREE.MeshPhysicalMaterial({ color: 0x1e1e2a, roughness: 0.95, metalness: 0.02 });
@@ -299,7 +346,6 @@ export default class GalaxySurvivalDemo {
     if (cx === -1 && cz === 0) return "plaza";
     if (cx >= -1 && cx <= 1 && cz >= -1 && cz <= 1) return "center";
     if (dist <= 4) return "residential";
-    if (cx >= 2 && Math.abs(cz) <= 3) return "industrial";
     return "forest";
   }
 
@@ -316,7 +362,6 @@ export default class GalaxySurvivalDemo {
       case "center": this._buildCenterChunk(cx, cz, bx, bz, elements); break;
       case "plaza": this._buildPlazaChunk(cx, cz, bx, bz, elements); break;
       case "residential": this._buildResidentialChunk(cx, cz, bx, bz, elements); break;
-      case "industrial": this._buildIndustrialChunk(cx, cz, bx, bz, elements); break;
       case "forest": this._buildForestChunk(cx, cz, bx, bz, elements); break;
     }
 
@@ -366,7 +411,7 @@ export default class GalaxySurvivalDemo {
     // Internal streets for center and residential
     if (type === "center" || type === "residential") {
       // Local street grid within chunk
-      const spacing = type === "center" ? 5 : 8;
+      const spacing = type === "center" ? 8 : 12;
       for (let ox = spacing; ox < this.chunkSize; ox += spacing) {
         for (let oz = spacing; oz < this.chunkSize; oz += spacing) {
           const rx = bx + ox;
@@ -391,7 +436,7 @@ export default class GalaxySurvivalDemo {
     const detailMat = new THREE.MeshPhysicalMaterial({ color: 0x3a4a5a, roughness: 0.3, metalness: 0.7 });
     const doorMat = new THREE.MeshPhysicalMaterial({ color: 0x2a1a0a, roughness: 0.9, metalness: 0.3 });
 
-    const count = 3 + Math.floor(this._chunkRand(cx, cz, 0) * 3);
+    const count = 2 + Math.floor(this._chunkRand(cx, cz, 0) * 2);
     for (let i = 0; i < count; i++) {
       const rx = bx + this._chunkRand(cx, cz, i * 3 + 1) * (this.chunkSize - 4) + 2;
       const rz = bz + this._chunkRand(cx, cz, i * 3 + 2) * (this.chunkSize - 4) + 2;
@@ -449,7 +494,7 @@ export default class GalaxySurvivalDemo {
 
     // Lamp posts on main avenue within this chunk
     if (cx === -1 || cx === 0) {
-      for (let z = bz; z < bz + this.chunkSize; z += 2) {
+      for (let z = bz; z < bz + this.chunkSize; z += 4) {
         if (z < -18 || z > 18) continue;
         this._addLampPost(0, -1.8, z, elements);
         this._addLampPost(0, 1.8, z, elements);
@@ -471,9 +516,9 @@ export default class GalaxySurvivalDemo {
       }
     }
     // Glow rings around plaza
-    for (let i = 0; i < 8; i++) {
-      const a = (i / 8) * Math.PI * 2;
-      const m2 = new THREE.Mesh(new THREE.RingGeometry(0.1, 0.18, 16), portGlow);
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2;
+      const m2 = new THREE.Mesh(new THREE.RingGeometry(0.15, 0.25, 12), portGlow);
       m2.rotation.x = -Math.PI / 2;
       m2.position.set(-3 + Math.cos(a) * 2.0, this._terrainHeight(-3 + Math.cos(a) * 2.0, 2 + Math.sin(a) * 2.0) + 0.015, 2 + Math.sin(a) * 2.0);
       this.scene.add(m2);
@@ -500,7 +545,7 @@ export default class GalaxySurvivalDemo {
     const winMat = new THREE.MeshPhysicalMaterial({ color: 0xffdd55, emissive: 0xffaa22, emissiveIntensity: 0.4, transparent: true, opacity: 0.3, roughness: 0.05, metalness: 0.95 });
     const doorMat = new THREE.MeshPhysicalMaterial({ color: 0x2a1a0a, roughness: 0.9, metalness: 0.3 });
 
-    const count = 4 + Math.floor(this._chunkRand(cx, cz, 10) * 4);
+    const count = 3 + Math.floor(this._chunkRand(cx, cz, 10) * 3);
     for (let i = 0; i < count; i++) {
       const rx = bx + this._chunkRand(cx, cz, i * 5 + 11) * (this.chunkSize - 3) + 1.5;
       const rz = bz + this._chunkRand(cx, cz, i * 5 + 12) * (this.chunkSize - 3) + 1.5;
@@ -551,7 +596,7 @@ export default class GalaxySurvivalDemo {
     }
 
     // Trees in residential
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 2; i++) {
       const tx = bx + this._chunkRand(cx, cz, i * 7 + 50) * this.chunkSize;
       const tz = bz + this._chunkRand(cx, cz, i * 7 + 51) * this.chunkSize;
       if (tx < -28 || tx > 28 || tz < -28 || tz > 28) continue;
@@ -597,7 +642,7 @@ export default class GalaxySurvivalDemo {
   }
 
   _buildForestChunk(cx, cz, bx, bz, elements) {
-    const count = 8 + Math.floor(this._chunkRand(cx, cz, 200) * 12);
+    const count = 4 + Math.floor(this._chunkRand(cx, cz, 200) * 6);
     for (let i = 0; i < count; i++) {
       const tx = bx + this._chunkRand(cx, cz, i * 3 + 201) * this.chunkSize;
       const tz = bz + this._chunkRand(cx, cz, i * 3 + 202) * this.chunkSize;
@@ -729,17 +774,17 @@ export default class GalaxySurvivalDemo {
     const g = new THREE.Group();
     const shipH = this._terrainHeight(-3, 2);
 
-    const dk = { color: 0x1a1a2e, roughness: 0.2, metalness: 0.9, clearcoat: 0.3, clearcoatRoughness: 0.2 };
-    const lt = { color: 0x2a2a4a, roughness: 0.3, metalness: 0.85, clearcoat: 0.1 };
-    const cp = new THREE.MeshPhysicalMaterial({ color: 0x0a0a2a, roughness: 0.05, metalness: 0.95, transparent: true, opacity: 0.3, clearcoat: 0.5, ior: 1.5 });
+    const dk = { color: 0x12122a, roughness: 0.15, metalness: 0.95, clearcoat: 0.4, clearcoatRoughness: 0.15 };
+    const lt = { color: 0x1e1e3e, roughness: 0.2, metalness: 0.9, clearcoat: 0.15 };
+    const cp = new THREE.MeshPhysicalMaterial({ color: 0x0a0a2a, roughness: 0.02, metalness: 0.95, transparent: true, opacity: 0.2, clearcoat: 0.8, clearcoatRoughness: 0.05, ior: 1.6, envMapIntensity: 2.0 });
     const gl = new THREE.MeshPhysicalMaterial({ color: 0x0044aa, emissive: 0x00aaff, emissiveIntensity: 0.6, roughness: 0.1, metalness: 0.5, clearcoat: 0.2 });
-    const en = new THREE.MeshPhysicalMaterial({ color: 0x222244, emissive: 0x4488ff, emissiveIntensity: 1.0, roughness: 0.2, metalness: 0.8 });
-    const neonMat = new THREE.MeshPhysicalMaterial({ color: 0x00ddff, emissive: 0x00ddff, emissiveIntensity: 1.0, roughness: 0.1, metalness: 0.1 });
+    const en = new THREE.MeshPhysicalMaterial({ color: 0x222244, emissive: 0x44aaff, emissiveIntensity: 1.5, roughness: 0.2, metalness: 0.8 });
+    const neonMat = new THREE.MeshPhysicalMaterial({ color: 0x00eeff, emissive: 0x00eeff, emissiveIntensity: 1.5, roughness: 0.05, metalness: 0.0 });
 
     const m = (o) => new THREE.MeshPhysicalMaterial(o);
 
     // Fuselage
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 2.2, 16), m(dk));
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 2.2, 20), m(dk));
     body.rotation.x = Math.PI / 2; body.position.y = 0.6; body.castShadow = true;
     g.add(body);
 
@@ -753,7 +798,7 @@ export default class GalaxySurvivalDemo {
     }
 
     // Nose
-    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.5, 16), m(dk));
+    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.5, 20), m(dk));
     nose.rotation.x = -Math.PI / 2; nose.position.set(0, 0.6, -1.3);
     g.add(nose);
 
@@ -776,8 +821,8 @@ export default class GalaxySurvivalDemo {
       const w = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.35, 0.9), m(lt));
       w.position.set(side * 0.8, 0.45, 0.4); w.rotation.z = side * 0.15; w.castShadow = true;
       g.add(w);
-      const t = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 8),
-        new THREE.MeshPhysicalMaterial({ color: side === -1 ? 0xff4422 : 0x22ff44, emissive: side === -1 ? 0xff2200 : 0x00ff44, emissiveIntensity: 0.4 }));
+      const t = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 10),
+        new THREE.MeshPhysicalMaterial({ color: side === -1 ? 0xff4422 : 0x22ff44, emissive: side === -1 ? 0xff2200 : 0x00ff44, emissiveIntensity: 0.8, roughness: 0.1, metalness: 0.3 }));
       t.position.set(side * 0.82, 0.45, 0.4);
       g.add(t);
       // Wing neon strip
@@ -814,11 +859,11 @@ export default class GalaxySurvivalDemo {
     }
 
     // Hull detail panels
-    for (let i = 0; i < 8; i++) {
-      const p = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.03),
+    for (let i = 0; i < 4; i++) {
+      const p = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.04),
         new THREE.MeshPhysicalMaterial({ color: 0x222240, roughness: 0.5, metalness: 0.8 }));
-      const a = (i / 8) * Math.PI * 2;
-      p.position.set(Math.cos(a) * 0.65, 0.5 + Math.sin(i) * 0.08, Math.sin(a) * 0.65);
+      const a = (i / 4) * Math.PI * 2;
+      p.position.set(Math.cos(a) * 0.65, 0.5 + Math.sin(i) * 0.1, Math.sin(a) * 0.65);
       p.lookAt(new THREE.Vector3(0, 0.5, 0));
       g.add(p);
     }
@@ -995,7 +1040,7 @@ export default class GalaxySurvivalDemo {
   // PARTICLES
   // ═══════════════════════════════════════════════════════
   _setupParticles() {
-    const count = 600;
+    const count = 300;
     const positions = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
     for (let i = 0; i < count; i++) {
@@ -1193,8 +1238,8 @@ export default class GalaxySurvivalDemo {
     this.playerPos.x += this.playerVel.x * dt;
     this.playerPos.y += this.playerVel.y * dt;
     this.playerPos.z += this.playerVel.z * dt;
-    this.playerPos.x = clamp(this.playerPos.x, -90, 90);
-    this.playerPos.z = clamp(this.playerPos.z, -90, 90);
+    this.playerPos.x = clamp(this.playerPos.x, -40, 40);
+    this.playerPos.z = clamp(this.playerPos.z, -40, 40);
 
     // Ground
     const gy = this._terrainHeight(this.playerPos.x, this.playerPos.z);
@@ -1313,8 +1358,8 @@ export default class GalaxySurvivalDemo {
     // Move
     this.shipPos.x += forward.x * this.shipSpeed * dt;
     this.shipPos.z += forward.z * this.shipSpeed * dt;
-    this.shipPos.x = clamp(this.shipPos.x, -90, 90);
-    this.shipPos.z = clamp(this.shipPos.z, -90, 90);
+    this.shipPos.x = clamp(this.shipPos.x, -40, 40);
+    this.shipPos.z = clamp(this.shipPos.z, -40, 40);
 
     // Altitude
     const gh = this._terrainHeight(this.shipPos.x, this.shipPos.z);
