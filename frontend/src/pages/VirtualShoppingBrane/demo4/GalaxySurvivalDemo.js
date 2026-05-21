@@ -54,9 +54,9 @@ export default class GalaxySurvivalDemo {
 
     // Camera modes
     this.camMode = "third";
-    this.camDistance = 14;
-    this.camHeight = 8;
-    this.thirdCamPos = new THREE.Vector3(0, 8, 14);
+    this.camDistance = 10;
+    this.camHeight = 5;
+    this.thirdCamPos = new THREE.Vector3(0, 5, 10);
 
     // Physics
     this.gravity = -22;
@@ -84,11 +84,7 @@ export default class GalaxySurvivalDemo {
       this._setupScene();
       this._setupLights();
       this._buildTerrain();
-      this._buildRoad();
-      this._buildBuildings();
-      this._buildLampPosts();
-      this._buildTrees();
-      this._buildRocks();
+      this._buildCity();
       this._buildShip();
       this._buildCockpitInterior();
       this._setupPlayer();
@@ -228,110 +224,121 @@ export default class GalaxySurvivalDemo {
   }
 
   // ═══════════════════════════════════════════════════════
-  // ROAD
+  // CITY
   // ═══════════════════════════════════════════════════════
-  _buildRoad() {
-    const mat = new THREE.MeshStandardMaterial({ color: 0x3a3a4a, roughness: 1 });
-    for (let z = 2; z >= -11; z -= 2) {
-      const h = this._terrainHeight(0, z);
-      const s = new THREE.Mesh(new THREE.PlaneGeometry(3, 2), mat);
-      s.rotation.x = -Math.PI / 2;
-      s.position.set(0, h + 0.02, z);
-      this.scene.add(s);
-      this.objects.push(s);
-    }
-    for (let z = 2; z <= 6; z += 2) {
-      const h = this._terrainHeight(0, z);
-      const s = new THREE.Mesh(new THREE.PlaneGeometry(3, 2), mat);
-      s.rotation.x = -Math.PI / 2;
-      s.position.set(0, h + 0.02, z);
-      this.scene.add(s);
-      this.objects.push(s);
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // BUILDINGS
-  // ═══════════════════════════════════════════════════════
-  _buildBuildings() {
-    const defs = [
-      { x: -9, z: 4, w: 2, h: 1.6, d: 2, rot: 0.2 },
-      { x: 5, z: -6, w: 1.8, h: 2, d: 1.8, rot: -0.3 },
-      { x: -11, z: -5, w: 2.2, h: 1.4, d: 2.2, rot: 0.5 },
-    ];
+  _buildCity() {
+    // Shared materials
+    const roadMat = new THREE.MeshStandardMaterial({ color: 0x3a3a4a, roughness: 1 });
+    const sidewalkMat = new THREE.MeshStandardMaterial({ color: 0x5a5a6a, roughness: 0.9 });
     const wallMat = new THREE.MeshStandardMaterial({ color: 0x4a5a6a, roughness: 0.7, metalness: 0.3 });
     const roofMat = new THREE.MeshStandardMaterial({ color: 0x3a3a4a, roughness: 0.6, metalness: 0.5 });
-    const winMat = new THREE.MeshBasicMaterial({ color: 0xffdd88, transparent: true, opacity: 0.3 });
+    const winMat = new THREE.MeshBasicMaterial({ color: 0xffdd88, transparent: true, opacity: 0.25 });
     const doorMat = new THREE.MeshBasicMaterial({ color: 0x2a1a0a });
-
-    for (const d of defs) {
-      const g = new THREE.Group();
-      const gh = this._terrainHeight(d.x, d.z);
-      const wall = new THREE.Mesh(new THREE.BoxGeometry(d.w, d.h, d.d), wallMat);
-      wall.position.y = d.h / 2;
-      wall.castShadow = true;
-      g.add(wall);
-      const roof = new THREE.Mesh(new THREE.BoxGeometry(d.w + 0.2, 0.15, d.d + 0.2), roofMat);
-      roof.position.y = d.h + 0.08;
-      g.add(roof);
-      for (const wx of [-0.3, 0.3]) {
-        const win = new THREE.Mesh(new THREE.PlaneGeometry(0.25, 0.18), winMat);
-        win.position.set(wx, d.h * 0.6, d.d / 2 + 0.01);
-        g.add(win);
-      }
-      const door = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.5), doorMat);
-      door.position.set(0, 0.25, d.d / 2 + 0.01);
-      g.add(door);
-      g.position.set(d.x, gh, d.z);
-      g.rotation.y = d.rot;
-      this.scene.add(g);
-      this.objects.push(g);
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // LAMP POSTS
-  // ═══════════════════════════════════════════════════════
-  _buildLampPosts() {
-    const poleMat = new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.5, metalness: 0.8 });
-    const lampMat = new THREE.MeshBasicMaterial({ color: 0xaaccff });
-    for (const z of [0, -2, -4, -6, -8]) {
-      for (const side of [-1.8, 1.8]) {
-        const g = new THREE.Group();
-        const h = this._terrainHeight(side, z);
-        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.03, 0.8, 6), poleMat);
-        pole.position.y = 0.4;
-        g.add(pole);
-        const arm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.015, 0.015), poleMat);
-        arm.position.set(side > 0 ? 0.12 : -0.12, 0.78, 0);
-        g.add(arm);
-        const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), lampMat);
-        bulb.position.set(side > 0 ? 0.22 : -0.22, 0.78, 0);
-        g.add(bulb);
-        g.position.set(side, h, z);
-        this.scene.add(g);
-        this.objects.push(g);
-      }
-    }
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // TREES
-  // ═══════════════════════════════════════════════════════
-  _buildTrees() {
+    const houseWallMat = new THREE.MeshStandardMaterial({ color: 0x6a7a5a, roughness: 0.8 });
+    const houseRoofMat = new THREE.MeshStandardMaterial({ color: 0x5a3a2a, roughness: 0.7 });
     const trunkMat = new THREE.MeshStandardMaterial({ color: 0x4a3a2a, roughness: 0.9 });
     const leafMat = new THREE.MeshStandardMaterial({ color: 0x1a4a2a, roughness: 0.85 });
-    for (let i = 0; i < 20; i++) {
-      let x, z;
-      for (let t = 0; t < 50; t++) {
-        x = rng(-22, 22);
-        z = rng(-22, 22);
-        if (Math.abs(x + 3) < 4 && Math.abs(z + 2) < 4) continue;
-        if (Math.abs(x) < 2.5 && z < 8 && z > -12) continue;
-        break;
+    const poleMat = new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.5, metalness: 0.8 });
+    const lampMat = new THREE.MeshBasicMaterial({ color: 0xaaccff });
+    const parkMat = new THREE.MeshStandardMaterial({ color: 0x2a5a2a, roughness: 0.9 });
+
+    // Helper: road segment
+    const addRoad = (x, z, w, h) => {
+      const s = new THREE.Mesh(new THREE.PlaneGeometry(w, h), roadMat);
+      s.rotation.x = -Math.PI / 2;
+      s.position.set(x, this._terrainHeight(x, z) + 0.02, z);
+      this.scene.add(s);
+      this.objects.push(s);
+    };
+
+    // Helper: building
+    const addBuilding = (x, z, w, ht, d, colorShift) => {
+      const g = new THREE.Group();
+      const gh = this._terrainHeight(x, z);
+      const wallM = colorShift
+        ? new THREE.MeshStandardMaterial({ color: 0x4a5a6a + colorShift, roughness: 0.7, metalness: 0.3 })
+        : wallMat;
+      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ht, d), wallM);
+      wall.position.y = ht / 2;
+      wall.castShadow = true;
+      g.add(wall);
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(w + 0.1, 0.12, d + 0.1), roofMat);
+      roof.position.y = ht + 0.06;
+      g.add(roof);
+      // Windows
+      for (let wy = 0.3; wy < ht - 0.2; wy += 0.5) {
+        for (const wx of [-w * 0.25, w * 0.25]) {
+          const win = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.12), winMat);
+          win.position.set(wx, wy, d / 2 + 0.01);
+          g.add(win);
+        }
       }
+      const door = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.35), doorMat);
+      door.position.set(0, 0.17, d / 2 + 0.01);
+      g.add(door);
+      g.position.set(x, gh, z);
+      this.scene.add(g);
+      this.objects.push(g);
+    };
+
+    // Helper: house with peaked roof
+    const addHouse = (x, z, w, d, rot) => {
+      const g = new THREE.Group();
+      const gh = this._terrainHeight(x, z);
+      const ht = 0.7;
+      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ht, d), houseWallMat);
+      wall.position.y = ht / 2;
+      wall.castShadow = true;
+      g.add(wall);
+      // Peaked roof
+      const roofShape = new THREE.Shape();
+      roofShape.moveTo(-w * 0.6, 0);
+      roofShape.lineTo(0, 0.35);
+      roofShape.lineTo(w * 0.6, 0);
+      roofShape.lineTo(-w * 0.6, 0);
+      const roofGeo = new THREE.ExtrudeGeometry(roofShape, { depth: d + 0.1, bevelEnabled: false });
+      const roof = new THREE.Mesh(roofGeo, houseRoofMat);
+      roof.position.set(0, ht, -d * 0.55);
+      roof.castShadow = true;
+      g.add(roof);
+      // Door
+      const door = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.3), doorMat);
+      door.position.set(0, 0.15, d / 2 + 0.01);
+      g.add(door);
+      // Windows
+      for (const wx of [-w * 0.2, w * 0.2]) {
+        const win = new THREE.Mesh(new THREE.PlaneGeometry(0.1, 0.1), winMat);
+        win.position.set(wx, 0.35, d / 2 + 0.01);
+        g.add(win);
+      }
+      g.position.set(x, gh, z);
+      g.rotation.y = rot || 0;
+      this.scene.add(g);
+      this.objects.push(g);
+    };
+
+    // Helper: lamp post
+    const addLamp = (x, z) => {
+      const g = new THREE.Group();
       const h = this._terrainHeight(x, z);
-      const s = rng(0.7, 1.3);
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.03, 0.8, 6), poleMat);
+      pole.position.y = 0.4;
+      g.add(pole);
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.015, 0.015), poleMat);
+      arm.position.set(0.12, 0.78, 0);
+      g.add(arm);
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), lampMat);
+      bulb.position.set(0.22, 0.78, 0);
+      g.add(bulb);
+      g.position.set(x, h, z);
+      this.scene.add(g);
+      this.objects.push(g);
+    };
+
+    // Helper: tree
+    const addTree = (x, z, s) => {
+      s = s || rng(0.7, 1.3);
+      const h = this._terrainHeight(x, z);
       const g = new THREE.Group();
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.03 * s, 0.06 * s, 0.6 * s, 5), trunkMat);
       trunk.position.y = 0.3 * s;
@@ -343,25 +350,88 @@ export default class GalaxySurvivalDemo {
       g.position.set(x, h, z);
       this.scene.add(g);
       this.objects.push(g);
-    }
-  }
+    };
 
-  // ═══════════════════════════════════════════════════════
-  // ROCKS
-  // ═══════════════════════════════════════════════════════
-  _buildRocks() {
-    const mat = new THREE.MeshStandardMaterial({ color: 0x4a4a5a, roughness: 0.9 });
-    for (let i = 0; i < 15; i++) {
-      let x = rng(-20, 20), z = rng(-20, 20);
-      if (Math.abs(x + 3) < 4 && Math.abs(z + 2) < 4) continue;
-      if (Math.abs(x) < 2.5 && z < 6 && z > -10) continue;
-      const h = this._terrainHeight(x, z);
-      const r = new THREE.Mesh(new THREE.DodecahedronGeometry(rng(0.08, 0.2), 0), mat);
-      r.position.set(x, h + rng(0.02, 0.06), z);
-      r.rotation.set(rng(0, 6), rng(0, 6), rng(0, 6));
-      r.scale.y = rng(0.4, 0.7);
-      this.scene.add(r);
-      this.objects.push(r);
+    // ── ROAD NETWORK ──
+    // Main avenue (along Z)
+    for (let z = 8; z >= -14; z -= 1) {
+      addRoad(0, z, 4, 1);
+    }
+    // Cross streets
+    for (let z = 3; z >= -7; z -= 5) {
+      for (let x = -12; x <= 14; x += 1) {
+        addRoad(x, z, 1, 1);
+      }
+    }
+    // Residential streets
+    for (let z = 5; z >= -5; z -= 2) {
+      for (let x = -15; x <= -5; x += 1) {
+        addRoad(x, z, 1, 1.8);
+      }
+    }
+
+    // ── CITY CENTER (east of avenue) ──
+    const centerDefs = [
+      { x: 5, z: 1, w: 2.5, ht: 3.0, d: 2.5 },
+      { x: 7.5, z: -3, w: 2.0, ht: 3.5, d: 2.0 },
+      { x: 10, z: 0, w: 2.2, ht: 2.5, d: 2.2 },
+      { x: 12, z: -4, w: 2.5, ht: 3.2, d: 2.5 },
+      { x: 8, z: -6, w: 1.8, ht: 2.0, d: 1.8 },
+      { x: 13, z: 2, w: 2.0, ht: 2.8, d: 2.0 },
+      { x: 10.5, z: -2, w: 1.6, ht: 2.2, d: 1.6 },
+    ];
+    for (const d of centerDefs) {
+      addBuilding(d.x, d.z, d.w, d.ht, d.d, Math.floor(rng(-0x111111, 0x222222)));
+    }
+
+    // ── RESIDENTIAL (west, away from port) ──
+    const housePositions = [
+      [-12, 4], [-10, 3.5], [-8, 4.5], [-13, 1],
+      [-11, 0], [-9, 0.5], [-7, 1], [-12, -3],
+      [-10, -2.5], [-8, -3.5], [-14, -2], [-9, -5],
+      [-6, -4], [-11, -5.5], [-7, -6], [-13, -5],
+    ];
+    for (const [hx, hz] of housePositions) {
+      if (Math.abs(hx + 3) > 3 || Math.abs(hz - 2) > 3) {
+        addHouse(hx, hz, 0.6, 0.6, rng(-0.2, 0.2));
+      }
+    }
+
+    // ── LAMP POSTS along main avenue ──
+    for (const z of [6, 4, 2, 0, -2, -4, -6, -8, -10, -12]) {
+      addLamp(-1.6, z);
+      addLamp(1.6, z);
+    }
+
+    // ── FOREST (edges) ──
+    for (let i = 0; i < 35; i++) {
+      let x, z, ok = false;
+      for (let t = 0; t < 30; t++) {
+        x = rng(-23, 23);
+        z = rng(-23, 23);
+        // Keep away from city center
+        if (x > 3 && z > -8 && z < 4) continue;
+        if (x < -3 && z > -8 && z < 6) continue;
+        if (Math.abs(x) < 3 && z < 10 && z > -14) continue;
+        // Keep away from landing port
+        if (Math.abs(x + 3) < 4 && Math.abs(z - 2) < 4) continue;
+        ok = true;
+        break;
+      }
+      if (ok) addTree(x, z);
+    }
+
+    // ── LANDING PORT plaza ──
+    // Flat area around ship
+    const portMat = new THREE.MeshStandardMaterial({ color: 0x3a3a4a, roughness: 0.8 });
+    for (let x = -5; x <= -1; x += 1) {
+      for (let z = 0; z <= 4; z += 1) {
+        const p = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), portMat);
+        p.rotation.x = -Math.PI / 2;
+        p.position.set(x, this._terrainHeight(x, z) + 0.015, z);
+        this.scene.add(p);
+        this.objects.push(p);
+      }
     }
   }
 
