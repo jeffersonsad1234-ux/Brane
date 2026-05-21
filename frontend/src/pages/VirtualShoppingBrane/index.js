@@ -1,9 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import * as THREE from "three";
-import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
-import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import "./VirtualShoppingBrane.css";
 
 // ─── NOISE ──────────────────────────────────────────────
@@ -531,484 +527,111 @@ export default function VirtualShoppingBrane() {
 
   useEffect(() => { save(); }, [save]);
 
-  // ─── THREE INIT ───
+  // ─── THREE SAFE TEST ───
   useEffect(() => {
-    if (screen !== "game" || !mountRef.current || sceneRef.current) return;
+    console.log("[SAFE TEST] useEffect running, screen=", screen);
+    if (screen !== "game") { console.log("[SAFE TEST] screen not game, returning"); return; }
+    if (!mountRef.current) { console.log("[SAFE TEST] mountRef null, returning"); return; }
+    if (sceneRef.current) { console.log("[SAFE TEST] already initialized, returning"); return; }
     const mount = mountRef.current;
     const w = mount.clientWidth, h = mount.clientHeight;
+    console.log("[SAFE TEST] mount size:", w, h);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
+    // 1. RENDERER
+    console.log("[SAFE TEST] Creating renderer...");
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    console.log("[SAFE TEST] Renderer created, canvas:", renderer.domElement);
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
     mount.appendChild(renderer.domElement);
+    console.log("[SAFE TEST] Canvas appended to mount, mount children:", mount.children.length);
 
+    // 2. SCENE
+    console.log("[SAFE TEST] Creating scene...");
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x4a8ad4);
-    scene.fog = new THREE.FogExp2(0x4a8ad4, 0.0025);
+    scene.background = new THREE.Color(0x3388dd);
+    console.log("[SAFE TEST] Scene bg:", scene.background.getHex());
 
-    // ─── POST PROCESSING ───
-    const composer = new EffectComposer(renderer);
-    composer.addPass(new RenderPass(scene, null));
-    const bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.25, 0.15, 0.05);
-    composer.addPass(bloomPass);
-    composer.addPass(new OutputPass());
+    // 3. CAMERA
+    console.log("[SAFE TEST] Creating camera...");
+    const camera = new THREE.PerspectiveCamera(60, w / h, 0.01, 1000);
+    camera.position.set(0, 5, 10);
+    camera.lookAt(0, 0, 0);
+    camera.updateProjectionMatrix();
+    console.log("[SAFE TEST] Camera pos:", camera.position.toArray(), "fov:", camera.fov, "near/far:", camera.near, camera.far);
 
-    // ─── CAMERA ───
-    const camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 200);
-    camera.position.set(0, 10, 14);
-    camera.lookAt(0, 2, 0);
+    // 4. LIGHT
+    console.log("[SAFE TEST] Adding ambient light...");
+    const ambLight = new THREE.AmbientLight(0xffffff, 1.0);
+    scene.add(ambLight);
+    console.log("[SAFE TEST] Ambient light added:", ambLight.intensity);
 
-    // ─── LIGHTING ───
-    const sun = new THREE.DirectionalLight(0xffdd99, 1.6);
-    sun.position.set(40, 50, 30);
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(4096, 4096);
-    sun.shadow.camera.near = 0.5; sun.shadow.camera.far = 100;
-    sun.shadow.camera.left = -60; sun.shadow.camera.right = 60;
-    sun.shadow.camera.top = 60; sun.shadow.camera.bottom = -60;
-    scene.add(sun);
+    console.log("[SAFE TEST] Adding directional light...");
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    dirLight.position.set(5, 10, 5);
+    scene.add(dirLight);
 
-    const amb = new THREE.AmbientLight(0x8899ff, 0.4);
-    scene.add(amb);
-    const hemi = new THREE.HemisphereLight(0x88ccff, 0x885533, 0.5);
-    scene.add(hemi);
+    // 5. GREEN GROUND
+    console.log("[SAFE TEST] Creating green ground...");
+    const gGeo = new THREE.PlaneGeometry(40, 40);
+    const gMat = new THREE.MeshBasicMaterial({ color: 0x44cc44, side: THREE.DoubleSide });
+    const ground = new THREE.Mesh(gGeo, gMat);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -0.5;
+    scene.add(ground);
+    console.log("[SAFE TEST] Ground added, total scene children:", scene.children.length);
 
-    // ─── SKY DOME ───
-    const skyG = new THREE.SphereGeometry(120, 32, 32);
-    const skyM = new THREE.MeshBasicMaterial({ side: THREE.BackSide });
-    const sky = new THREE.Mesh(skyG, skyM);
-    scene.add(sky);
+    // 6. RED CUBE
+    console.log("[SAFE TEST] Creating red cube...");
+    const cGeo = new THREE.BoxGeometry(1, 1, 1);
+    const cMat = new THREE.MeshBasicMaterial({ color: 0xff2200 });
+    const cube = new THREE.Mesh(cGeo, cMat);
+    cube.position.set(0, 0.5, 0);
+    scene.add(cube);
+    console.log("[SAFE TEST] Cube added at:", cube.position.toArray());
 
-    // ─── SUN SPRITE ───
-    const sunCanvas = document.createElement("canvas");
-    sunCanvas.width = 128; sunCanvas.height = 128;
-    const sctx = sunCanvas.getContext("2d");
-    const sgrd = sctx.createRadialGradient(64, 64, 0, 64, 64, 64);
-    sgrd.addColorStop(0, "rgba(255,240,220,1)"); sgrd.addColorStop(0.1, "rgba(255,220,180,0.8)");
-    sgrd.addColorStop(0.3, "rgba(255,200,150,0.3)"); sgrd.addColorStop(1, "rgba(255,200,150,0)");
-    sctx.fillStyle = sgrd; sctx.fillRect(0, 0, 128, 128);
-    const sunTex = new THREE.CanvasTexture(sunCanvas);
-    const sunMat = new THREE.SpriteMaterial({ map: sunTex, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, opacity: 1 });
-    const sunSprite = new THREE.Sprite(sunMat);
-    sunSprite.scale.set(16, 16, 1); scene.add(sunSprite);
+    // 7. BLUE CUBE (far away to test depth)
+    const cGeo2 = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+    const cMat2 = new THREE.MeshBasicMaterial({ color: 0x2244ff });
+    const cube2 = new THREE.Mesh(cGeo2, cMat2);
+    cube2.position.set(3, 0.25, 3);
+    scene.add(cube2);
 
-    // ─── MOON SPRITE ───
-    const moonCanvas = document.createElement("canvas");
-    moonCanvas.width = 64; moonCanvas.height = 64;
-    const mctx = moonCanvas.getContext("2d");
-    const mgrd = mctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-    mgrd.addColorStop(0, "rgba(200,220,255,0.9)"); mgrd.addColorStop(0.3, "rgba(180,200,255,0.3)");
-    mgrd.addColorStop(0.6, "rgba(180,200,255,0.08)"); mgrd.addColorStop(1, "rgba(180,200,255,0)");
-    mctx.fillStyle = mgrd; mctx.fillRect(0, 0, 64, 64);
-    const moonTex = new THREE.CanvasTexture(moonCanvas);
-    const moonMat = new THREE.SpriteMaterial({ map: moonTex, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false });
-    const moonSprite = new THREE.Sprite(moonMat);
-    moonSprite.scale.set(10, 10, 1); scene.add(moonSprite);
+    sceneRef.current = { scene, renderer, camera, dirLight };
 
-    // ─── STARS ───
-    const starCount = 1000;
-    const starGeo = new THREE.BufferGeometry();
-    const starPos = new Float32Array(starCount * 3);
-    for (let i = 0; i < starCount; i++) {
-      const theta = Math.random() * Math.PI * 2, phi = Math.acos(2 * Math.random() - 1);
-      const r2 = 90 + Math.random() * 15;
-      starPos[i * 3] = r2 * Math.sin(phi) * Math.cos(theta);
-      starPos[i * 3 + 1] = Math.abs(r2 * Math.cos(phi));
-      starPos[i * 3 + 2] = r2 * Math.sin(phi) * Math.sin(theta);
-    }
-    starGeo.setAttribute("position", new THREE.Float32BufferAttribute(starPos, 3));
-    const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.25, transparent: true, opacity: 0, sizeAttenuation: true });
-    const stars = new THREE.Points(starGeo, starMat);
-    scene.add(stars);
-
-    // ─── FIREFLIES ───
-    const ffCount = 80;
-    const ffGeo = new THREE.BufferGeometry();
-    const ffPos = new Float32Array(ffCount * 3);
-    const ffVel = new Float32Array(ffCount * 3);
-    const ffPhase = new Float32Array(ffCount);
-    for (let i = 0; i < ffCount; i++) {
-      ffPos[i * 3] = rng(-W / 2 + 5, W / 2 - 5);
-      ffPos[i * 3 + 1] = rng(0.5, 3);
-      ffPos[i * 3 + 2] = rng(-W / 2 + 5, W / 2 - 5);
-      ffVel[i * 3] = rng(-0.4, 0.4);
-      ffVel[i * 3 + 1] = rng(-0.1, 0.1);
-      ffVel[i * 3 + 2] = rng(-0.4, 0.4);
-      ffPhase[i] = rng(0, Math.PI * 2);
-    }
-    ffGeo.setAttribute("position", new THREE.Float32BufferAttribute(ffPos, 3));
-    const ffMat = new THREE.PointsMaterial({
-      color: 0xffee88, size: 0.1, transparent: true, opacity: 0,
-      blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
-    });
-    const fireflies = new THREE.Points(ffGeo, ffMat);
-    scene.add(fireflies);
-
-    // ─── FALLBACK WORLD (always renders, procedural layers on top) ───
-    const fbMat = new THREE.MeshStandardMaterial({ color: 0x55cc55, roughness: 0.9, side: THREE.DoubleSide });
-    const fbGround = new THREE.Mesh(new THREE.PlaneGeometry(W * 1.2, W * 1.2), fbMat);
-    fbGround.rotation.x = -Math.PI / 2;
-    fbGround.position.y = -1;
-    fbGround.receiveShadow = true;
-    scene.add(fbGround);
-    const fbDebug = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), new THREE.MeshStandardMaterial({ color: 0xff4400, emissive: 0xff2200, emissiveIntensity: 0.4 }));
-    fbDebug.position.set(0, -0.7, 0);
-    scene.add(fbDebug);
-
-    // ─── WORLD ───
-    let world, animals, clouds, player, dmgBar;
-    let worldOk = false;
-    try {
-      world = buildWorld(scene);
-      animals = spawnAnimals(scene, world);
-      clouds = makeClouds(scene);
-      player = makePlayer(scene);
-      playerRef.current = player;
-      const spawnH = getHeight(0, 0);
-      console.log("Procedural terrain @ (0,0): height", spawnH);
-      player.group.position.set(0, spawnH, 0);
-      dmgBar = makeDamageBar(scene);
-      dmgBarRef.current = dmgBar;
-      worldOk = true;
-    } catch (e) { console.error("World gen error, using fallback:", e); }
-
-    if (!worldOk) {
-      console.warn("FALLBACK WORLD ACTIVE — procedural terrain failed");
-      // Create 15 simple fallback trees
-      const trunkMatFB = new THREE.MeshStandardMaterial({ color: 0x6a4a2a, roughness: 0.9 });
-      const leafMatFB = new THREE.MeshStandardMaterial({ color: 0x44bb44, roughness: 0.8, flatShading: true });
-      for (let i = 0; i < 15; i++) {
-        const tx = rng(-30, 30), tz = rng(-30, 30);
-        if (Math.abs(tx) < 3 && Math.abs(tz) < 3) continue; // keep spawn clear
-        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.2, rng(1.5, 3), 5), trunkMatFB);
-        trunk.position.set(tx, rng(-0.3, 0.2), tz);
-        trunk.castShadow = true; scene.add(trunk);
-        const leaf = new THREE.Mesh(new THREE.SphereGeometry(rng(0.5, 1.2), 6, 6), leafMatFB);
-        leaf.position.set(tx + rng(-0.3, 0.3), trunk.position.y + rng(1.2, 2.5), tz + rng(-0.3, 0.3));
-        leaf.castShadow = true; scene.add(leaf);
-      }
-      // Fallback rocks
-      const rockMatFB = new THREE.MeshStandardMaterial({ color: 0x888888, roughness: 0.9, flatShading: true });
-      for (let i = 0; i < 10; i++) {
-        const rx = rng(-25, 25), rz = rng(-25, 25);
-        const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(rng(0.2, 0.6), 0), rockMatFB);
-        rock.position.set(rx, rng(-0.3, 0.1), rz);
-        rock.scale.y = rng(0.3, 0.6);
-        rock.rotation.set(rng(0, 6), rng(0, 6), rng(0, 6));
-        rock.castShadow = true; scene.add(rock);
-      }
-      // Create a player at safe height even in fallback
-      player = makePlayer(scene);
-      playerRef.current = player;
-      player.group.position.set(0, 0, 0);
-      dmgBar = makeDamageBar(scene);
-      dmgBarRef.current = dmgBar;
-      world = { ground: fbGround, water: null, trees: [], rocks: [], crystals: [], coals: [] };
-    }
-
-    // ─── GRASS (InstancedMesh on procedural terrain) ───
-    let grassMesh = null;
-    let grassDummy = new THREE.Object3D();
-    if (worldOk && world.grassPositions && world.grassPositions.length > 0) {
-      const bladeGeo = new THREE.CylinderGeometry(0.01, 0.03, 0.12, 3);
-      const bladeMat = new THREE.MeshStandardMaterial({
-        color: 0x55bb44, roughness: 0.8, flatShading: true,
-      });
-      const instCount = Math.min(world.grassPositions.length / 3, 8000);
-      grassMesh = new THREE.InstancedMesh(bladeGeo, bladeMat, instCount);
-      grassMesh.castShadow = true;
-      for (let i = 0; i < instCount; i++) {
-        const gi = i * 3;
-        grassDummy.position.set(world.grassPositions[gi], world.grassPositions[gi + 1], world.grassPositions[gi + 2]);
-        grassDummy.scale.set(1, rng(0.5, 1.5), 1);
-        grassDummy.rotation.set(rng(-0.2, 0.2), rng(0, 6), rng(-0.2, 0.2));
-        grassDummy.updateMatrix();
-        grassMesh.setMatrixAt(i, grassDummy.matrix);
-      }
-      grassMesh.instanceMatrix.needsUpdate = true;
-      scene.add(grassMesh);
-    }
-
-    // ─── AMBIENT PARTICLES (floating pollen/dust) ───
-    const apCount = 200;
-    const apGeo = new THREE.BufferGeometry();
-    const apPos = new Float32Array(apCount * 3);
-    const apVel = new Float32Array(apCount * 3);
-    const apPhase = new Float32Array(apCount);
-    for (let i = 0; i < apCount; i++) {
-      apPos[i * 3] = rng(-W / 2, W / 2);
-      apPos[i * 3 + 1] = rng(0, 6);
-      apPos[i * 3 + 2] = rng(-W / 2, W / 2);
-      apVel[i * 3] = rng(-0.15, 0.15);
-      apVel[i * 3 + 1] = rng(-0.02, 0.02);
-      apVel[i * 3 + 2] = rng(-0.15, 0.15);
-      apPhase[i] = rng(0, Math.PI * 2);
-    }
-    apGeo.setAttribute("position", new THREE.Float32BufferAttribute(apPos, 3));
-    const apMat = new THREE.PointsMaterial({
-      color: 0xffffff, size: 0.04, transparent: true, opacity: 0.2,
-      blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
-    });
-    const ambParticles = new THREE.Points(apGeo, apMat);
-    scene.add(ambParticles);
-
-    // ─── RESIZE ───
-    const onResize = () => {
-      const mw = mount.clientWidth, mh = mount.clientHeight;
-      camera.aspect = mw / mh; camera.updateProjectionMatrix();
-      renderer.setSize(mw, mh); composer.setSize(mw, mh);
-    };
-    window.addEventListener("resize", onResize);
-
-    sceneRef.current = {
-      scene, renderer, camera, composer, sun, amb, hemi, sky, skyM, sunSprite, moonSprite,
-      stars, starMat, fireflies, ffMat, ffPos, ffVel, ffPhase,
-      world, player, sunMat, raycaster: new THREE.Raycaster(), dmgBar, animals, clouds,
-      playerPos: { x: 0, z: 0 }, worldOk, grassMesh, grassDummy, ambParticles, apPos, apVel, apPhase, apCount,
-    };
-
-    // ─── GAME LOOP ───
-    let lastTime = performance.now();
-    let gameTime = 0.25;
+    // 8. ANIMATION LOOP
+    console.log("[SAFE TEST] Starting animation loop...");
     let frameCount = 0;
-    const keys = keysRef;
-    const ffCountLocal = ffCount;
-
     const loop = (now) => {
       animRef.current = requestAnimationFrame(loop);
-      const dt = Math.min((now - lastTime) / 1000, 0.05);
-      lastTime = now;
       frameCount++;
 
-      // ─── DEBUG OVERLAY UPDATE (every 10 frames) ───
-      if (frameCount % 10 === 0) {
+      if (frameCount % 30 === 0) {
+        console.log("[SAFE TEST] Frame", frameCount, "- rendering");
         debugRef.current = {
           camX: camera.position.x.toFixed(1),
           camY: camera.position.y.toFixed(1),
           camZ: camera.position.z.toFixed(1),
           meshes: scene.children.filter(c => c.isMesh).length,
-          worldOk,
+          worldOk: true,
         };
       }
-      gameTime = (gameTime + dt * 0.012) % 1;
-      setTime(gameTime);
 
-      // ─── DAY/NIGHT ───
-      const dayVal = (Math.sin(gameTime * Math.PI * 2) + 1) / 2;
-      const nightVal = 1 - dayVal;
-      const isNight = gameTime > 0.55 && gameTime < 0.95;
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.02;
 
-      const skyColor = new THREE.Color();
-      if (gameTime > 0.2 && gameTime < 0.35) {
-        skyColor.lerpColors(new THREE.Color(0x2a1a4a), new THREE.Color(0xff8844), (gameTime - 0.2) / 0.15);
-      } else if (gameTime > 0.35 && gameTime < 0.5) {
-        skyColor.lerpColors(new THREE.Color(0xff8844), new THREE.Color(0x6ab0e8), (gameTime - 0.35) / 0.15);
-      } else if (gameTime > 0.7 && gameTime < 0.82) {
-        skyColor.lerpColors(new THREE.Color(0x6ab0e8), new THREE.Color(0xff6633), (gameTime - 0.7) / 0.12);
-      } else if (gameTime > 0.82 && gameTime < 0.95) {
-        skyColor.lerpColors(new THREE.Color(0xff6633), new THREE.Color(0x0a0a2e), (gameTime - 0.82) / 0.13);
-      } else if (isNight) {
-        skyColor.setHSL(0.7, 0.3, 0.05 + nightVal * 0.06);
-      } else {
-        skyColor.setHSL(0.58, 0.35, 0.45 + dayVal * 0.35);
-      }
-      scene.background = skyColor;
-      skyM.color = skyColor;
-      scene.fog.color = skyColor;
-
-      const sunAngle = gameTime * Math.PI * 2;
-      sun.position.set(Math.sin(sunAngle) * 50, Math.cos(sunAngle) * 40 + 8, Math.cos(sunAngle) * 35);
-      sunSprite.position.copy(sun.position);
-      sunSprite.position.y += 3;
-      sunMat.opacity = dayVal > 0.2 ? 1 : dayVal * 5;
-
-      const moonAngle = (gameTime + 0.5) * Math.PI * 2;
-      moonSprite.position.set(Math.sin(moonAngle) * 50, Math.cos(moonAngle) * 40 + 8, Math.cos(moonAngle) * 35);
-      moonMat.opacity = isNight ? 0.9 : nightVal * 3;
-
-      starMat.opacity = isNight ? 0.5 + Math.random() * 0.1 : nightVal * 0.5;
-
-      ffMat.opacity = isNight ? 0.5 : 0;
-      { const ffPosArr = fireflies.geometry.attributes.position.array;
-      for (let i = 0; i < ffCountLocal; i++) {
-        ffPosArr[i * 3] += ffVel[i * 3] * dt;
-        ffPosArr[i * 3 + 1] += Math.sin(now * 0.001 + ffPhase[i]) * 0.003;
-        ffPosArr[i * 3 + 2] += ffVel[i * 3 + 2] * dt;
-        if (Math.abs(ffPosArr[i * 3]) > W / 2) ffVel[i * 3] *= -1;
-        if (Math.abs(ffPosArr[i * 3 + 2]) > W / 2) ffVel[i * 3 + 2] *= -1;
-      }
-      fireflies.geometry.attributes.position.needsUpdate = true; }
-
-      // ─── GRASS WIND (every 3 frames) ───
-      if (grassMesh && frameCount % 3 === 0) {
-        const windA = Math.sin(now * 0.0008) * 0.2;
-        const matrix = new THREE.Matrix4();
-        const pos = new THREE.Vector3();
-        const euler = new THREE.Euler();
-        for (let i = 0; i < grassMesh.count; i += 3) {
-          grassMesh.getMatrixAt(i, matrix);
-          pos.setFromMatrixPosition(matrix);
-          euler.set(windA + Math.sin(pos.x * 0.4 + now * 0.0006) * 0.12, 0, 0);
-          matrix.makeRotationFromEuler(euler);
-          matrix.setPosition(pos);
-          grassMesh.setMatrixAt(i, matrix);
-        }
-        grassMesh.instanceMatrix.needsUpdate = true;
-      }
-
-      // ─── AMBIENT PARTICLES ───
-      { const apArr = ambParticles.geometry.attributes.position.array;
-      for (let i = 0; i < apCount; i++) {
-        apArr[i * 3] += apVel[i * 3] * dt + Math.sin(now * 0.0003 + apPhase[i]) * 0.002;
-        apArr[i * 3 + 1] += Math.sin(now * 0.0005 + apPhase[i]) * 0.001;
-        apArr[i * 3 + 2] += apVel[i * 3 + 2] * dt + Math.cos(now * 0.0003 + apPhase[i]) * 0.002;
-        if (Math.abs(apArr[i * 3]) > W / 2) apVel[i * 3] *= -1;
-        if (Math.abs(apArr[i * 3 + 2]) > W / 2) apVel[i * 3 + 2] *= -1;
-      }
-      ambParticles.geometry.attributes.position.needsUpdate = true; }
-
-      sun.intensity = 0.3 + dayVal * 1.4;
-      const sunCol = new THREE.Color().lerpColors(new THREE.Color(0xff8844), new THREE.Color(0xffeecc), dayVal);
-      sun.color = sunCol;
-      amb.intensity = 0.1 + dayVal * 0.35;
-      hemi.intensity = 0.15 + dayVal * 0.35;
-
-      // ─── CLOUDS ───
-      for (const c of clouds) {
-        c.sprite.position.x += c.dx * c.speed * dt;
-        if (Math.abs(c.sprite.position.x) > W + 20) c.dx *= -1;
-      }
-
-      // ─── ANIMALS ───
-      for (const a of animals) {
-        a.ax += Math.sin(now * 0.001 + a.phase) * a.speed * dt * 0.5;
-        a.az += Math.cos(now * 0.0013 + a.phase) * a.speed * dt * 0.5;
-        const ah = getHeight(a.ax, a.az);
-        a.group.position.set(a.ax, ah, a.az);
-        a.group.rotation.y += Math.sin(now * 0.001 + a.phase) * dt * 0.3;
-      }
-
-      // ─── PLAYER MOVEMENT ───
-      let ppos = new THREE.Vector3(0, 0, 0);
-      if (player) {
-      const p = player.group;
-      ppos = p.position;
-      const speed = (keys.current["ShiftLeft"] || keys.current["Shift"]) ? 4 : 2.2;
-      const fwd = new THREE.Vector3(-Math.sin(cameraRef?.yaw || 0), 0, -Math.cos(cameraRef?.yaw || 0));
-      const right2 = new THREE.Vector3(fwd.z, 0, -fwd.x);
-      const move = new THREE.Vector3();
-      if (keys.current["KeyW"] || keys.current["ArrowUp"]) move.add(fwd);
-      if (keys.current["KeyS"] || keys.current["ArrowDown"]) move.sub(fwd);
-      if (keys.current["KeyA"] || keys.current["ArrowLeft"]) move.sub(right2);
-      if (keys.current["KeyD"] || keys.current["ArrowRight"]) move.add(right2);
-
-      if (move.length() > 0) {
-        move.normalize();
-        p.position.x += move.x * speed * dt;
-        p.position.z += move.z * speed * dt;
-        const targetAngle = Math.atan2(move.x, move.z);
-        p.rotation.y += (targetAngle - p.rotation.y) * 0.1;
-        const walkCycle = Math.sin(now * 0.008);
-        player.lArm.rotation.x = walkCycle * 0.5;
-        player.rArm.rotation.x = -walkCycle * 0.5;
-        player.lLeg.rotation.x = -walkCycle * 0.3;
-        player.rLeg.rotation.x = walkCycle * 0.3;
-        player.body.position.y = 0.85 + Math.abs(walkCycle) * 0.03;
-      } else {
-        player.lArm.rotation.x *= 0.9;
-        player.rArm.rotation.x *= 0.9;
-        player.lLeg.rotation.x *= 0.9;
-        player.rLeg.rotation.x *= 0.9;
-        player.body.position.y = 0.85 + Math.sin(now * 0.002) * 0.01;
-      }
-
-      const px = p.position.x, pz = p.position.z;
-      if (Math.abs(px) < W / 2 - 1 && Math.abs(pz) < W / 2 - 1) {
-        p.position.y = getHeight(px, pz);
-      }
-
-      // ─── CAMERA ───
-      const camTarget = new THREE.Vector3(p.position.x, p.position.y + 2.5, p.position.z + 5);
-      camera.position.lerp(camTarget, dt * 3);
-      camera.lookAt(p.position.x, p.position.y + 1.2, p.position.z);
-      }
-
-      // ─── SURVIVAL ───
-      if (Math.random() < dt * 0.008) {
-        setHunger(h => Math.max(0, h - 0.5));
-        setEnergy(e => Math.max(0, e - 0.3));
-      }
-      if (hungerR.current <= 0 && Math.random() < dt * 0.02) {
-        setHealth(h => Math.max(0, h - 1));
-      }
-      if (hungerR.current > 70 && energyR.current > 50 && healthR.current < 100 && Math.random() < dt * 0.03) {
-        setHealth(h => Math.min(100, h + 0.5));
-      }
-
-      // ─── WATER ANIMATION ───
-      if (world?.water) {
-        const wPos = world.water.geometry.attributes.position;
-        if (wPos) {
-          for (let i = 0; i < wPos.count; i++) {
-            const wx = wPos.getX(i), wz = wPos.getZ(i);
-            wPos.setY(i, Math.sin(wx * 0.15 + now * 0.0006) * 0.05 + Math.sin(wz * 0.12 + now * 0.0005) * 0.04);
-          }
-          wPos.needsUpdate = true;
-          world.water.geometry.computeVertexNormals();
-        }
-      }
-
-      // ─── MINING ───
-      const m = miningRef.current;
-      if (m.active && m.target) {
-        m.progress += dt * 0.7;
-        updateDamageBar(dmgBar, m.target, m.target.hp, m.target.maxHp);
-        if (m.progress >= 1) {
-          const res = m.target;
-          playBreak();
-          const pos = res.center || res.mesh?.position || res.parts?.[0]?.position;
-          spawnParticles(scene, pos, RES_COLORS[res.type] || 0xffffff, 25);
-          for (const drop of res.drops || []) {
-            spawnItemDrop(scene, pos, drop.id, drop.c);
-          }
-          for (const part of (res.parts || [res.mesh])) {
-            if (part) { scene.remove(part); part.geometry?.dispose(); part.material?.dispose(); }
-          }
-          let arr; if (res.type === "tree") arr = world.trees; else if (res.type === "rock") arr = world.rocks; else if (res.type === "crystal") arr = world.crystals; else arr = world.coals;
-          const idx = arr.indexOf(res);
-          if (idx >= 0) arr.splice(idx, 1);
-          const dn = res.drops?.[0]?.n || RES_NAMES[res.type] || "Item";
-          showMsg(`+${res.drops?.[0]?.c || 1} ${dn}`);
-          setXp(prev => prev + 2);
-          setCoins(prev => prev + (res.value || 1));
-          m.active = false; m.target = null; m.progress = 0;
-          dmgBar.sprite.visible = false;
-        }
-      } else if (dmgBar) {
-        dmgBar.sprite.visible = false;
-      }
-
-      // ─── PARTICLES & DROPS ───
-      updateParticles(dt);
-      updateDrops(ppos, dt, setItems, showMsg, scene);
-
-      // ─── RENDER ───
-      if (composer) composer.render();
+      renderer.render(scene, camera);
     };
 
     animRef.current = requestAnimationFrame(loop);
+    console.log("[SAFE TEST] Animation loop started, animRef:", !!animRef.current);
 
     return () => {
+      console.log("[SAFE TEST] Cleanup");
       cancelAnimationFrame(animRef.current);
-      window.removeEventListener("resize", onResize);
       renderer.dispose();
       sceneRef.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen]);
 
   // ─── KEYBOARD + MOUSE ───
