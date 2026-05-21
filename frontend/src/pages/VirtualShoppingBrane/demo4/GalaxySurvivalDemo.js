@@ -6,9 +6,9 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 function rng(min, max) { return min + Math.random() * (max - min); }
 function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
 
-const SKY_TOP = "#05051a";
-const SKY_MID = "#0d2b5e";
-const SKY_BOT = "#4a3a2a";
+const SKY_TOP = "#020210";
+const SKY_MID = "#081838";
+const SKY_BOT = "#2a2a1a";
 
 export default class GalaxySurvivalDemo {
   constructor(container, callbacks) {
@@ -131,13 +131,13 @@ export default class GalaxySurvivalDemo {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.shadowMap.bias = 0.0005;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.2;
+    this.renderer.toneMappingExposure = 1.0;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.setClearColor(0x05051a, 1);
     this.container.appendChild(this.renderer.domElement);
 
     this.composer = new EffectComposer(this.renderer);
-    this.bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.15, 0.3, 0.05);
+    this.bloomPass = new UnrealBloomPass(new THREE.Vector2(w, h), 0.2, 0.4, 0.03);
 
     this._onResize = () => {
       const cw = this.container.clientWidth;
@@ -162,15 +162,15 @@ export default class GalaxySurvivalDemo {
     const ctx = c.getContext("2d");
     const g = ctx.createLinearGradient(0, 0, 0, 256);
     g.addColorStop(0, SKY_TOP);
-    g.addColorStop(0.3, SKY_MID);
-    g.addColorStop(0.6, "#1a3a4a");
-    g.addColorStop(0.85, "#3a4a3a");
+    g.addColorStop(0.35, SKY_MID);
+    g.addColorStop(0.6, "#0a2a3a");
+    g.addColorStop(0.8, "#1a2a2a");
     g.addColorStop(1, SKY_BOT);
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 1, 256);
     this.scene.background = new THREE.CanvasTexture(c);
     this.scene.backgroundIntensity = 0.8;
-    this.scene.fog = new THREE.FogExp2(new THREE.Color(0x3a4a3a), 0.006);
+    this.scene.fog = new THREE.FogExp2(new THREE.Color(0x1a2020), 0.005);
   }
 
   // ═══════════════════════════════════════════════════════
@@ -179,24 +179,24 @@ export default class GalaxySurvivalDemo {
   _setupLights() {
     this.scene.add(new THREE.AmbientLight(0x334466, 0.4));
     this.scene.add(new THREE.HemisphereLight(0x4488ff, 0x553322, 0.5));
-    this.sun = new THREE.DirectionalLight(0xffcc88, 2.2);
-    this.sun.position.set(20, 30, 10);
+    this.sun = new THREE.DirectionalLight(0xffcc77, 2.5);
+    this.sun.position.set(25, 35, 15);
     this.sun.castShadow = true;
     this.sun.shadow.mapSize.set(2048, 2048);
     this.sun.shadow.bias = -0.001;
     this.sun.shadow.normalBias = 0.02;
     const sc = this.sun.shadow.camera;
     sc.near = 1; sc.far = 60;
-    sc.left = -30; sc.right = 30;
-    sc.top = 30; sc.bottom = -30;
+    sc.left = -35; sc.right = 35;
+    sc.top = 35; sc.bottom = -35;
     this.scene.add(this.sun);
     // Warm rim light
     const rim = new THREE.DirectionalLight(0xff8844, 0.5);
     rim.position.set(-15, 5, -20);
     this.scene.add(rim);
     // Cool fill
-    const fill = new THREE.DirectionalLight(0x6688ff, 0.3);
-    fill.position.set(-10, 15, -10);
+    const fill = new THREE.DirectionalLight(0x6688ff, 0.4);
+    fill.position.set(-15, 20, -15);
     this.scene.add(fill);
   }
 
@@ -205,15 +205,15 @@ export default class GalaxySurvivalDemo {
   // ═══════════════════════════════════════════════════════
   _terrainHeight(x, z) {
     return (
-      Math.sin(x * 0.03 + 1.3) * Math.cos(z * 0.035 + 0.7) * 0.8
-      + Math.sin(x * 0.07 + z * 0.06 + 3.0) * 0.35
-      + Math.sin(x * 0.12 + z * 0.15 + 2.0) * 0.15
-      + Math.cos(x * 0.02 + z * 0.025) * 0.2
+      Math.sin(x * 0.018 + z * 0.022 + 0.5) * 1.4
+      + Math.sin(x * 0.045 + 1.7) * Math.cos(z * 0.05 + 2.3) * 0.7
+      + Math.sin(x * 0.09 + z * 0.08 + 1.0) * 0.35
+      + Math.cos(x * 0.025 + z * 0.03) * 0.25
     );
   }
 
   _buildTerrain() {
-    const segs = 80, size = 60;
+    const segs = 100, size = 60;
     const geo = new THREE.PlaneGeometry(size, size, segs, segs);
     geo.rotateX(-Math.PI / 2);
     const pos = geo.attributes.position;
@@ -223,29 +223,23 @@ export default class GalaxySurvivalDemo {
       const x = pos.getX(i), z = pos.getZ(i);
       const h = this._terrainHeight(x, z);
       pos.setY(i, h);
-      const nearPad = Math.abs(x + 3) < 3 && Math.abs(z + 2) < 3;
-      const nearRd = Math.abs(x) < 3 && z < 4 && z > -14;
-      const n = h * 0.3 + 0.5;
-      if (nearPad) {
-        colors[i * 3] = 0.25 + Math.random() * 0.04;
-        colors[i * 3 + 1] = 0.24 + Math.random() * 0.04;
-        colors[i * 3 + 2] = 0.20 + Math.random() * 0.04;
-      } else if (nearRd) {
-        colors[i * 3] = 0.22 + Math.random() * 0.04;
-        colors[i * 3 + 1] = 0.20 + Math.random() * 0.04;
-        colors[i * 3 + 2] = 0.18 + Math.random() * 0.04;
-      } else if (h > 0.3) {
-        colors[i * 3] = 0.10 + Math.random() * 0.06;
-        colors[i * 3 + 1] = clamp(0.35 + n * 0.3, 0.15, 0.55);
-        colors[i * 3 + 2] = 0.05 + Math.random() * 0.04;
-      } else if (h < -0.3) {
-        colors[i * 3] = 0.06 + Math.random() * 0.04;
-        colors[i * 3 + 1] = clamp(0.15 + n * 0.3, 0.1, 0.35);
-        colors[i * 3 + 2] = 0.03 + Math.random() * 0.03;
-      } else {
+      const n = h * 0.4 + 0.5;
+      if (h > 0.6) {
+        colors[i * 3] = 0.10 + Math.random() * 0.04;
+        colors[i * 3 + 1] = clamp(0.15 + n * 0.2, 0.12, 0.35);
+        colors[i * 3 + 2] = 0.04 + Math.random() * 0.03;
+      } else if (h > 0.15) {
         colors[i * 3] = 0.08 + Math.random() * 0.05;
-        colors[i * 3 + 1] = clamp(0.2 + n * 0.25, 0.12, 0.45);
+        colors[i * 3 + 1] = clamp(0.25 + n * 0.25, 0.18, 0.50);
         colors[i * 3 + 2] = 0.04 + Math.random() * 0.04;
+      } else if (h < -0.4) {
+        colors[i * 3] = 0.05 + Math.random() * 0.04;
+        colors[i * 3 + 1] = clamp(0.12 + n * 0.25, 0.08, 0.30);
+        colors[i * 3 + 2] = 0.02 + Math.random() * 0.03;
+      } else {
+        colors[i * 3] = 0.07 + Math.random() * 0.05;
+        colors[i * 3 + 1] = clamp(0.20 + n * 0.20, 0.12, 0.40);
+        colors[i * 3 + 2] = 0.03 + Math.random() * 0.04;
       }
     }
     pos.needsUpdate = true;
@@ -253,7 +247,7 @@ export default class GalaxySurvivalDemo {
     geo.computeVertexNormals();
 
     this.terrain = new THREE.Mesh(geo, new THREE.MeshPhysicalMaterial({
-      vertexColors: true, roughness: 0.85, metalness: 0, clearcoat: 0.02,
+      vertexColors: true, roughness: 0.9, metalness: 0, clearcoat: 0.03, clearcoatRoughness: 0.8,
     }));
     this.terrain.receiveShadow = true;
     this.scene.add(this.terrain);
@@ -265,10 +259,10 @@ export default class GalaxySurvivalDemo {
   // ═══════════════════════════════════════════════════════
   _buildCity() {
     // Shared materials (PBR)
-    const roadMat = new THREE.MeshPhysicalMaterial({ color: 0x2a2a3a, roughness: 0.95, metalness: 0.05, clearcoat: 0.05 });
-    const wallMat = new THREE.MeshPhysicalMaterial({ color: 0x5a6a7a, roughness: 0.5, metalness: 0.4, clearcoat: 0.1 });
+    const roadMat = new THREE.MeshPhysicalMaterial({ color: 0x1e1e2a, roughness: 0.95, metalness: 0.02, clearcoat: 0.05 });
+    const wallMat = new THREE.MeshPhysicalMaterial({ color: 0x4a5a6a, roughness: 0.4, metalness: 0.5, clearcoat: 0.15, clearcoatRoughness: 0.2 });
     const roofMat = new THREE.MeshPhysicalMaterial({ color: 0x3a3a4a, roughness: 0.6, metalness: 0.3, clearcoat: 0.1 });
-    const winMat = new THREE.MeshPhysicalMaterial({ color: 0xffcc44, emissive: 0xffaa22, emissiveIntensity: 0.3, transparent: true, opacity: 0.3, roughness: 0.1, metalness: 0.9 });
+    const winMat = new THREE.MeshPhysicalMaterial({ color: 0xffdd55, emissive: 0xffaa22, emissiveIntensity: 0.5, transparent: true, opacity: 0.4, roughness: 0.05, metalness: 0.95, clearcoat: 0.2 });
     const doorMat = new THREE.MeshPhysicalMaterial({ color: 0x2a1a0a, roughness: 0.9, metalness: 0.3 });
     const houseWallMat = new THREE.MeshPhysicalMaterial({ color: 0x7a8a6a, roughness: 0.7, metalness: 0.1, clearcoat: 0.05 });
     const houseRoofMat = new THREE.MeshPhysicalMaterial({ color: 0x6a3a1a, roughness: 0.8, metalness: 0.1 });
@@ -276,7 +270,7 @@ export default class GalaxySurvivalDemo {
     const leafMat = new THREE.MeshPhysicalMaterial({ color: 0x1a5a2a, roughness: 0.85, metalness: 0, clearcoat: 0.1 });
     const poleMat = new THREE.MeshPhysicalMaterial({ color: 0x2a2a3a, roughness: 0.3, metalness: 0.8, clearcoat: 0.2 });
     const lampMat = new THREE.MeshPhysicalMaterial({ color: 0xaaccff, emissive: 0xaaccff, emissiveIntensity: 0.5, roughness: 0.1, metalness: 0.1 });
-    const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x88ccff, roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.2, clearcoat: 0.5, ior: 1.5 });
+    const glassMat = new THREE.MeshPhysicalMaterial({ color: 0x88ddff, roughness: 0.02, metalness: 0.2, transparent: true, opacity: 0.15, clearcoat: 0.8, clearcoatRoughness: 0.1, ior: 1.6, envMapIntensity: 1.5 });
     const detailMat = new THREE.MeshPhysicalMaterial({ color: 0x4a5a6a, roughness: 0.4, metalness: 0.6 });
 
     // Helper: road segment
@@ -286,37 +280,63 @@ export default class GalaxySurvivalDemo {
       s.position.set(x, this._terrainHeight(x, z) + 0.02, z);
       this.scene.add(s);
       this.objects.push(s);
+      // Lane markings on main avenue
+      if (w > 3) {
+        for (let lz = 0; lz > -h; lz -= 0.3) {
+          const lm = new THREE.Mesh(new THREE.PlaneGeometry(0.02, 0.08),
+            new THREE.MeshBasicMaterial({ color: 0xccddff, transparent: true, opacity: 0.3 }));
+          lm.rotation.x = -Math.PI / 2;
+          lm.position.set(x, this._terrainHeight(x, z + lz) + 0.025, z + lz);
+          this.scene.add(lm);
+          this.objects.push(lm);
+        }
+      }
     };
 
     // Helper: modern building
     const addBuilding = (x, z, w, ht, d, clr) => {
       const g = new THREE.Group();
       const gh = this._terrainHeight(x, z);
-      const wallM = new THREE.MeshPhysicalMaterial({ color: clr || 0x5a6a7a, roughness: 0.4, metalness: 0.5, clearcoat: 0.15 });
-      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, ht, d), wallM);
-      wall.position.y = ht / 2;
+      const actH = Math.max(1.5, ht);
+      const wallM = new THREE.MeshPhysicalMaterial({ color: clr || 0x4a5a6a, roughness: 0.35, metalness: 0.6, clearcoat: 0.2, clearcoatRoughness: 0.15 });
+      const accentMat = new THREE.MeshPhysicalMaterial({ color: 0x3a4a5a, roughness: 0.3, metalness: 0.7, clearcoat: 0.1 });
+      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, actH, d), wallM);
+      wall.position.y = actH / 2;
       wall.castShadow = true;
       g.add(wall);
-      const roof = new THREE.Mesh(new THREE.BoxGeometry(w + 0.15, 0.08, d + 0.15), roofMat);
-      roof.position.y = ht + 0.04;
+      const roof = new THREE.Mesh(new THREE.BoxGeometry(w + 0.2, 0.08, d + 0.2), roofMat);
+      roof.position.y = actH + 0.04;
       g.add(roof);
       // Rooftop AC unit
       const ac = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.08, 0.15), detailMat);
-      ac.position.set(w * 0.2, ht + 0.08, 0);
+      ac.position.set(w * 0.2, actH + 0.08, 0);
       g.add(ac);
+      // Rooftop antenna
+      const ant = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.01, 0.3, 4), accentMat);
+      ant.position.set(-w * 0.25, actH + 0.15, d * 0.2);
+      g.add(ant);
+      const antTip = new THREE.Mesh(new THREE.SphereGeometry(0.008, 4, 4),
+        new THREE.MeshPhysicalMaterial({ color: 0xff3344, emissive: 0xff2200, emissiveIntensity: 0.3 }));
+      antTip.position.set(-w * 0.25, actH + 0.3, d * 0.2);
+      g.add(antTip);
       // Window grid
-      for (let wy = 0.3; wy < ht - 0.2; wy += 0.5) {
-        for (const wx of [-w * 0.28, -w * 0.08, w * 0.08, w * 0.28]) {
-          const win = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.15), winMat);
+      for (let wy = 0.4; wy < actH - 0.2; wy += 0.55) {
+        for (const wx of [-w * 0.3, -w * 0.1, w * 0.1, w * 0.3]) {
+          const win = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.18), winMat);
           win.position.set(wx, wy, d / 2 + 0.01);
           g.add(win);
         }
       }
       // Glass panels on sides
       for (const wx of [-1, 1]) {
-        const gp = new THREE.Mesh(new THREE.PlaneGeometry(0.01, ht * 0.6), glassMat);
-        gp.position.set(wx * (w / 2 + 0.01), ht * 0.5, 0);
+        const gp = new THREE.Mesh(new THREE.PlaneGeometry(0.01, actH * 0.7), glassMat);
+        gp.position.set(wx * (w / 2 + 0.01), actH * 0.5, 0);
         g.add(gp);
+        // Vertical glass strip
+        const vs = new THREE.Mesh(new THREE.PlaneGeometry(0.01, actH * 0.7), glassMat);
+        vs.position.set(wx * (w / 2 + 0.01), actH * 0.5, -d * 0.3);
+        vs.rotation.y = Math.PI / 2;
+        g.add(vs);
       }
       const door = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 0.35), doorMat);
       door.position.set(0, 0.17, d / 2 + 0.01);
@@ -354,6 +374,13 @@ export default class GalaxySurvivalDemo {
       const door = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.3), doorMat);
       door.position.set(0, 0.15, d / 2 + 0.01);
       g.add(door);
+      // Chimney
+      const chim = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.08), roofMat);
+      chim.position.set(-w * 0.15, ht + 0.08, -d * 0.15);
+      g.add(chim);
+      const chimTop = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.02, 0.1), new THREE.MeshPhysicalMaterial({ color: 0x2a1a0a, roughness: 0.9 }));
+      chimTop.position.set(-w * 0.15, ht + 0.15, -d * 0.15);
+      g.add(chimTop);
       // Warm windows
       for (const wx of [-w * 0.2, w * 0.2]) {
         const win = new THREE.Mesh(new THREE.PlaneGeometry(0.1, 0.1), winMat);
@@ -369,40 +396,48 @@ export default class GalaxySurvivalDemo {
     // Helper: lamp post
     const addLamp = (x, z) => {
       const g = new THREE.Group();
-      const h = this._terrainHeight(x, z);
-      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.025, 0.9, 6), poleMat);
-      pole.position.y = 0.45;
+      const ht = this._terrainHeight(x, z);
+      const poleH = 1.2;
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.03, poleH, 8), poleMat);
+      pole.position.y = poleH * 0.5;
       g.add(pole);
-      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.01, 0.01), poleMat);
-      arm.position.set(0.14, 0.85, 0);
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.015, 0.015), poleMat);
+      arm.position.set(0.18, poleH - 0.05, 0);
       g.add(arm);
-      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 8), lampMat);
-      bulb.position.set(0.26, 0.85, 0);
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.035, 8, 8), lampMat);
+      bulb.position.set(0.32, poleH - 0.05, 0);
       g.add(bulb);
-      const pl = new THREE.PointLight(0xaaccff, 0.15, 2);
-      pl.position.set(0.26, 0.85, 0);
+      const pl = new THREE.PointLight(0xaaccff, 0.25, 3);
+      pl.position.set(0.32, poleH - 0.05, 0);
       g.add(pl);
-      g.position.set(x, h, z);
+      g.position.set(x, ht, z);
       this.scene.add(g);
       this.objects.push(g);
     };
 
     // Helper: tree (multi-layer canopy)
     const addTree = (x, z, s) => {
-      s = s || rng(0.8, 1.5);
+      s = s || rng(0.9, 1.8);
       const h = this._terrainHeight(x, z);
       const g = new THREE.Group();
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.025 * s, 0.05 * s, 0.7 * s, 5), trunkMat);
-      trunk.position.y = 0.35 * s;
+      const trunkH = 0.8 * s;
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.02 * s, 0.06 * s, trunkH, 6), trunkMat);
+      trunk.position.y = trunkH * 0.5;
       g.add(trunk);
-      for (let i = 0; i < 3; i++) {
-        const ls = 0.2 * s - i * 0.04 * s;
-        const leaf = new THREE.Mesh(new THREE.SphereGeometry(ls, 7, 7), leafMat);
-        leaf.position.set((i - 1) * 0.1 * s, 0.7 * s + i * 0.1 * s, 0);
+      const canopyY = trunkH;
+      for (let i = 0; i < 5; i++) {
+        const r = rng(0.12, 0.22) * s;
+        const lx = rng(-0.15, 0.15) * s;
+        const lz = rng(-0.15, 0.15) * s;
+        const ly = canopyY + rng(0, 0.2) * s;
+        const leaf = new THREE.Mesh(new THREE.SphereGeometry(r, 7, 7), leafMat);
+        leaf.position.set(lx, ly, lz);
         leaf.castShadow = true;
+        leaf.scale.y = 0.8;
         g.add(leaf);
       }
       g.position.set(x, h, z);
+      g.rotation.y = rng(0, Math.PI * 2);
       this.scene.add(g);
       this.objects.push(g);
     };
@@ -427,13 +462,13 @@ export default class GalaxySurvivalDemo {
 
     // ── CITY CENTER (east of avenue) ──
     const centerDefs = [
-      { x: 5, z: 1, w: 2.5, ht: 3.0, d: 2.5 },
-      { x: 7.5, z: -3, w: 2.0, ht: 3.5, d: 2.0 },
-      { x: 10, z: 0, w: 2.2, ht: 2.5, d: 2.2 },
-      { x: 12, z: -4, w: 2.5, ht: 3.2, d: 2.5 },
-      { x: 8, z: -6, w: 1.8, ht: 2.0, d: 1.8 },
-      { x: 13, z: 2, w: 2.0, ht: 2.8, d: 2.0 },
-      { x: 10.5, z: -2, w: 1.6, ht: 2.2, d: 1.6 },
+      { x: 5, z: 1, w: 2.5, ht: 5.0, d: 2.5 },
+      { x: 7.5, z: -3, w: 2.0, ht: 6.0, d: 2.0 },
+      { x: 10, z: 0, w: 2.2, ht: 4.5, d: 2.2 },
+      { x: 12, z: -4, w: 2.5, ht: 5.5, d: 2.5 },
+      { x: 8, z: -6, w: 1.8, ht: 3.5, d: 1.8 },
+      { x: 13, z: 2, w: 2.0, ht: 4.8, d: 2.0 },
+      { x: 10.5, z: -2, w: 1.6, ht: 4.0, d: 1.6 },
     ];
     for (const d of centerDefs) {
       addBuilding(d.x, d.z, d.w, d.ht, d.d, Math.floor(rng(-0x111111, 0x222222)));
@@ -501,13 +536,13 @@ export default class GalaxySurvivalDemo {
     const lt = { color: 0x2a2a4a, roughness: 0.3, metalness: 0.85, clearcoat: 0.1 };
     const cp = new THREE.MeshPhysicalMaterial({ color: 0x0a0a2a, roughness: 0.05, metalness: 0.95, transparent: true, opacity: 0.3, clearcoat: 0.5, ior: 1.5 });
     const gl = new THREE.MeshPhysicalMaterial({ color: 0x0044aa, emissive: 0x00aaff, emissiveIntensity: 0.6, roughness: 0.1, metalness: 0.5, clearcoat: 0.2 });
-    const en = new THREE.MeshPhysicalMaterial({ color: 0x222244, emissive: 0x4488ff, emissiveIntensity: 0.6, roughness: 0.2, metalness: 0.8 });
-    const neonMat = new THREE.MeshPhysicalMaterial({ color: 0x00ddff, emissive: 0x00ddff, emissiveIntensity: 0.8, roughness: 0.1, metalness: 0.1 });
+    const en = new THREE.MeshPhysicalMaterial({ color: 0x222244, emissive: 0x4488ff, emissiveIntensity: 1.0, roughness: 0.2, metalness: 0.8 });
+    const neonMat = new THREE.MeshPhysicalMaterial({ color: 0x00ddff, emissive: 0x00ddff, emissiveIntensity: 1.0, roughness: 0.1, metalness: 0.1 });
 
     const m = (o) => new THREE.MeshPhysicalMaterial(o);
 
     // Fuselage
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 2.2, 12), m(dk));
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.6, 0.8, 2.2, 16), m(dk));
     body.rotation.x = Math.PI / 2; body.position.y = 0.6; body.castShadow = true;
     g.add(body);
 
@@ -521,7 +556,7 @@ export default class GalaxySurvivalDemo {
     }
 
     // Nose
-    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.5, 12), m(dk));
+    const nose = new THREE.Mesh(new THREE.ConeGeometry(0.55, 0.5, 16), m(dk));
     nose.rotation.x = -Math.PI / 2; nose.position.set(0, 0.6, -1.3);
     g.add(nose);
 
@@ -581,29 +616,39 @@ export default class GalaxySurvivalDemo {
       g.add(ft);
     }
 
-    // Hull detail
-    for (let i = 0; i < 6; i++) {
-      const p = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.04),
+    // Hull detail panels
+    for (let i = 0; i < 8; i++) {
+      const p = new THREE.Mesh(new THREE.PlaneGeometry(0.12, 0.03),
         new THREE.MeshPhysicalMaterial({ color: 0x222240, roughness: 0.5, metalness: 0.8 }));
-      const a = (i / 6) * Math.PI * 2;
-      p.position.set(Math.cos(a) * 0.65, 0.5 + Math.sin(i) * 0.1, Math.sin(a) * 0.65);
+      const a = (i / 8) * Math.PI * 2;
+      p.position.set(Math.cos(a) * 0.65, 0.5 + Math.sin(i) * 0.08, Math.sin(a) * 0.65);
       p.lookAt(new THREE.Vector3(0, 0.5, 0));
       g.add(p);
     }
+    // Fuselage stripe
+    const stripe = new THREE.Mesh(new THREE.TorusGeometry(0.65, 0.008, 6, 20),
+      new THREE.MeshPhysicalMaterial({ color: 0x00aaff, emissive: 0x004488, emissiveIntensity: 0.2, roughness: 0.3, metalness: 0.8 }));
+    stripe.position.set(0, 0.6, 0.2);
+    stripe.rotation.x = Math.PI / 2;
+    g.add(stripe);
 
     // Hover glow
-    this.hoverGlow = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 0.05, 16),
-      new THREE.MeshPhysicalMaterial({ color: 0x0044ff, emissive: 0x0088ff, emissiveIntensity: 0.4, transparent: true, opacity: 0.4, roughness: 0.1 }));
+    this.hoverGlow = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.6, 0.05, 20),
+      new THREE.MeshPhysicalMaterial({ color: 0x0044ff, emissive: 0x0088ff, emissiveIntensity: 0.6, transparent: true, opacity: 0.5, roughness: 0.1 }));
     this.hoverGlow.position.y = 0.02;
     g.add(this.hoverGlow);
 
-    this.hoverLight = new THREE.PointLight(0x4488ff, 0.5, 8);
+    this.hoverLight = new THREE.PointLight(0x4488ff, 0.8, 10);
     this.hoverLight.position.y = 0.1;
     g.add(this.hoverLight);
 
     const sl = new THREE.PointLight(0x4488ff, 0.6, 6);
     sl.position.set(0, 1.2, -0.5);
     g.add(sl);
+    // Tail warning light
+    const tl = new THREE.PointLight(0xff2200, 0.3, 4);
+    tl.position.set(0, 0.4, 1.5);
+    g.add(tl);
 
     this.shipPos.set(-3, shipH, 2);
     g.position.copy(this.shipPos);
@@ -613,8 +658,8 @@ export default class GalaxySurvivalDemo {
     this.shipGroup = g;
 
     // Landing pad
-    const mm = new THREE.MeshPhysicalMaterial({ color: 0x4488ff, emissive: 0x4488ff, emissiveIntensity: 0.15, transparent: true, opacity: 0.15, side: THREE.DoubleSide });
-    for (let i = 0; i < 8; i++) {
+    const mm = new THREE.MeshPhysicalMaterial({ color: 0x4488ff, emissive: 0x4488ff, emissiveIntensity: 0.3, transparent: true, opacity: 0.2, side: THREE.DoubleSide });
+    for (let i = 0; i < 12; i++) {
       const a = (i / 8) * Math.PI * 2;
       const m2 = new THREE.Mesh(new THREE.RingGeometry(0.1, 0.18, 16), mm);
       m2.rotation.x = -Math.PI / 2;
@@ -631,10 +676,10 @@ export default class GalaxySurvivalDemo {
     const g = this.shipGroup;
 
     const dk = { color: 0x0e0e1a, roughness: 0.3, metalness: 0.9, clearcoat: 0.2 };
-    const neonMat = { color: 0x00ddff, emissive: 0x00ddff, emissiveIntensity: 0.6, roughness: 0.1, metalness: 0.2 };
+    const neonMat = { color: 0x00eeff, emissive: 0x00eeff, emissiveIntensity: 0.8, roughness: 0.1, metalness: 0.2 };
     const holo = new THREE.MeshPhysicalMaterial({
-      color: 0x0066ff, emissive: 0x0088ff, emissiveIntensity: 0.4,
-      transparent: true, opacity: 0.2, side: THREE.DoubleSide, roughness: 0.1, metalness: 0.1,
+      color: 0x0066ff, emissive: 0x00aaff, emissiveIntensity: 0.6,
+      transparent: true, opacity: 0.25, side: THREE.DoubleSide, roughness: 0.1, metalness: 0.1,
     });
     const scr = new THREE.MeshPhysicalMaterial({
       color: 0x002244, emissive: 0x0044aa, emissiveIntensity: 0.5, roughness: 0.1, metalness: 0.5,
@@ -753,17 +798,20 @@ export default class GalaxySurvivalDemo {
   // PARTICLES
   // ═══════════════════════════════════════════════════════
   _setupParticles() {
-    const count = 400;
+    const count = 600;
     const positions = new Float32Array(count * 3);
+    const sizes = new Float32Array(count);
     for (let i = 0; i < count; i++) {
-      positions[i * 3] = rng(-28, 28);
-      positions[i * 3 + 1] = rng(0.2, 6);
-      positions[i * 3 + 2] = rng(-28, 28);
+      positions[i * 3] = rng(-30, 30);
+      positions[i * 3 + 1] = rng(0.1, 8);
+      positions[i * 3 + 2] = rng(-30, 30);
+      sizes[i] = rng(0.02, 0.08);
     }
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
     const mat = new THREE.PointsMaterial({
-      color: 0x88aadd, transparent: true, opacity: 0.08, size: 0.04,
+      color: 0xaaccee, transparent: true, opacity: 0.06, size: 0.05,
       blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true,
     });
     this.particles = new THREE.Points(geo, mat);
@@ -786,7 +834,7 @@ export default class GalaxySurvivalDemo {
   // ═══════════════════════════════════════════════════════
   _setupPlayer() {
     const w = this.container.clientWidth, h = this.container.clientHeight;
-    this.camera = new THREE.PerspectiveCamera(75, w / h, 0.1, 100);
+    this.camera = new THREE.PerspectiveCamera(70, w / h, 0.1, 100);
     this.camera.position.copy(this.playerPos);
     this.camera.lookAt(0, 0, -1);
   }
@@ -965,9 +1013,11 @@ export default class GalaxySurvivalDemo {
       this.playerPos.set(0, this.playerHeight, 5);
     }
 
-    // Camera
+    // Camera with subtle walk bob
+    const bob = this.onGround && len > 0.1 ? Math.sin(Date.now() * 0.015) * 0.015 : 0;
     this.camera.position.copy(this.playerPos);
-    this.camera.quaternion.setFromEuler(new THREE.Euler(this.pitch, this.yaw, 0, 'YXZ'));
+    this.camera.position.y += bob;
+    this.camera.quaternion.setFromEuler(new THREE.Euler(this.pitch + bob * 0.3, this.yaw, 0, 'YXZ'));
 
     // Stamina
     if (spr) {
@@ -1124,7 +1174,7 @@ export default class GalaxySurvivalDemo {
     this.hoverGlow.material.opacity = 0.2 + hi * 0.4;
     this.hoverLight.intensity = 0.2 + hi * 0.6;
 
-    const pulse = 0.5 + Math.sin(Date.now() * 0.005) * 0.3;
+    const pulse = 0.5 + Math.sin(Date.now() * 0.008) * 0.4;
     this.shipGroup.children.forEach(child => {
       try {
         if (child.isMesh && child.material && child.material.emissive && child.geometry) {
@@ -1134,6 +1184,19 @@ export default class GalaxySurvivalDemo {
         }
       } catch {}
     });
+    // Neon strip pulse
+    this.shipGroup.children.forEach(child => {
+      try {
+        if (child.isMesh && child.material && child.material.emissive && child.geometry && child.position.y < 0.3 && child.position.z > 0.3 && child.position.z < 0.6) {
+          child.material.emissiveIntensity = 0.6 + Math.sin(Date.now() * 0.003) * 0.4;
+        }
+      } catch {}
+    });
+    // Tail light blink
+    try {
+      const tailL = this.shipGroup.children.find(c => c.isPointLight && c.color.getHex() === 0xff2200);
+      if (tailL) tailL.intensity = 0.2 + Math.sin(Date.now() * 0.01) * 0.15;
+    } catch {}
 
     // State
     this.state.canExit = this.shipAltitude < 2;
