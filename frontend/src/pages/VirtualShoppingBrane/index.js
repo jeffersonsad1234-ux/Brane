@@ -527,107 +527,92 @@ export default function VirtualShoppingBrane() {
 
   useEffect(() => { save(); }, [save]);
 
-  // ─── THREE SAFE TEST ───
+  // ─── STEP 1: FALLBACK + TERRAIN + LIGHTING ───
   useEffect(() => {
-    console.log("[SAFE TEST] useEffect running, screen=", screen);
-    if (screen !== "game") { console.log("[SAFE TEST] screen not game, returning"); return; }
-    if (!mountRef.current) { console.log("[SAFE TEST] mountRef null, returning"); return; }
-    if (sceneRef.current) { console.log("[SAFE TEST] already initialized, returning"); return; }
+    console.log("[STEP1] Init start, screen:", screen);
+    if (screen !== "game" || !mountRef.current || sceneRef.current) return;
     const mount = mountRef.current;
     const w = mount.clientWidth, h = mount.clientHeight;
-    console.log("[SAFE TEST] mount size:", w, h);
+    console.log("[STEP1] Mount size:", w, h);
 
-    // 1. RENDERER
-    console.log("[SAFE TEST] Creating renderer...");
+    // ─── RENDERER ───
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    console.log("[SAFE TEST] Renderer created, canvas:", renderer.domElement);
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     mount.appendChild(renderer.domElement);
-    console.log("[SAFE TEST] Canvas appended to mount, mount children:", mount.children.length);
+    console.log("[STEP1] Renderer + canvas appended");
 
-    // 2. SCENE
-    console.log("[SAFE TEST] Creating scene...");
+    // ─── SCENE ───
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x3388dd);
-    console.log("[SAFE TEST] Scene bg:", scene.background.getHex());
+    scene.background = new THREE.Color(0x4a8ad4);
+    console.log("[STEP1] Scene bg:", scene.background.getHex());
 
-    // 3. CAMERA
-    console.log("[SAFE TEST] Creating camera...");
-    const camera = new THREE.PerspectiveCamera(60, w / h, 0.01, 1000);
-    camera.position.set(0, 5, 10);
+    // ─── CAMERA ───
+    const camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 200);
+    camera.position.set(0, 8, 12);
     camera.lookAt(0, 0, 0);
-    camera.updateProjectionMatrix();
-    console.log("[SAFE TEST] Camera pos:", camera.position.toArray(), "fov:", camera.fov, "near/far:", camera.near, camera.far);
+    console.log("[STEP1] Camera:", camera.position.toArray());
 
-    // 4. LIGHT
-    console.log("[SAFE TEST] Adding ambient light...");
-    const ambLight = new THREE.AmbientLight(0xffffff, 1.0);
-    scene.add(ambLight);
-    console.log("[SAFE TEST] Ambient light added:", ambLight.intensity);
+    // ─── LIGHTING ───
+    console.log("[STEP1] Adding lights...");
+    const amb = new THREE.AmbientLight(0x8899ff, 0.4);
+    scene.add(amb);
+    const hemi = new THREE.HemisphereLight(0x88ccff, 0x885533, 0.5);
+    scene.add(hemi);
+    const sun = new THREE.DirectionalLight(0xffdd99, 1.2);
+    sun.position.set(30, 40, 20);
+    scene.add(sun);
+    console.log("[STEP1] Lights added");
 
-    console.log("[SAFE TEST] Adding directional light...");
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
-    dirLight.position.set(5, 10, 5);
-    scene.add(dirLight);
+    // ─── FALLBACK GROUND (always present) ───
+    const fbMat = new THREE.MeshBasicMaterial({ color: 0x55cc55, side: THREE.DoubleSide });
+    const fbGround = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), fbMat);
+    fbGround.rotation.x = -Math.PI / 2;
+    fbGround.position.y = -1;
+    scene.add(fbGround);
+    const fbCube = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), new THREE.MeshBasicMaterial({ color: 0xff4400 }));
+    fbCube.position.set(0, -0.7, 0);
+    scene.add(fbCube);
+    console.log("[STEP1] Fallback ground+cube added");
 
-    // 5. GREEN GROUND
-    console.log("[SAFE TEST] Creating green ground...");
-    const gGeo = new THREE.PlaneGeometry(40, 40);
-    const gMat = new THREE.MeshBasicMaterial({ color: 0x44cc44, side: THREE.DoubleSide });
-    const ground = new THREE.Mesh(gGeo, gMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -0.5;
-    scene.add(ground);
-    console.log("[SAFE TEST] Ground added, total scene children:", scene.children.length);
+    // ─── PROCEDURAL TERRAIN ───
+    let world = null;
+    let worldOk = false;
+    try {
+      console.log("[STEP1] Building procedural terrain...");
+      world = buildWorld(scene);
+      console.log("[STEP1] Terrain built, trees:", world.trees.length, "rocks:", world.rocks.length);
+      worldOk = true;
+    } catch (e) {
+      console.error("[STEP1] Terrain failed:", e);
+    }
+    console.log("[STEP1] World OK:", worldOk);
 
-    // 6. RED CUBE
-    console.log("[SAFE TEST] Creating red cube...");
-    const cGeo = new THREE.BoxGeometry(1, 1, 1);
-    const cMat = new THREE.MeshBasicMaterial({ color: 0xff2200 });
-    const cube = new THREE.Mesh(cGeo, cMat);
-    cube.position.set(0, 0.5, 0);
-    scene.add(cube);
-    console.log("[SAFE TEST] Cube added at:", cube.position.toArray());
+    sceneRef.current = { scene, renderer, camera, sun, amb, hemi, world };
 
-    // 7. BLUE CUBE (far away to test depth)
-    const cGeo2 = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-    const cMat2 = new THREE.MeshBasicMaterial({ color: 0x2244ff });
-    const cube2 = new THREE.Mesh(cGeo2, cMat2);
-    cube2.position.set(3, 0.25, 3);
-    scene.add(cube2);
-
-    sceneRef.current = { scene, renderer, camera, dirLight };
-
-    // 8. ANIMATION LOOP
-    console.log("[SAFE TEST] Starting animation loop...");
+    // ─── ANIMATION LOOP ───
     let frameCount = 0;
     const loop = (now) => {
       animRef.current = requestAnimationFrame(loop);
       frameCount++;
 
       if (frameCount % 30 === 0) {
-        console.log("[SAFE TEST] Frame", frameCount, "- rendering");
         debugRef.current = {
           camX: camera.position.x.toFixed(1),
           camY: camera.position.y.toFixed(1),
           camZ: camera.position.z.toFixed(1),
           meshes: scene.children.filter(c => c.isMesh).length,
-          worldOk: true,
+          worldOk,
         };
       }
-
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.02;
 
       renderer.render(scene, camera);
     };
 
     animRef.current = requestAnimationFrame(loop);
-    console.log("[SAFE TEST] Animation loop started, animRef:", !!animRef.current);
+    console.log("[STEP1] Loop started");
 
     return () => {
-      console.log("[SAFE TEST] Cleanup");
       cancelAnimationFrame(animRef.current);
       renderer.dispose();
       sceneRef.current = null;
