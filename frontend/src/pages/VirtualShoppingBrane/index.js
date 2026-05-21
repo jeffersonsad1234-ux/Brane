@@ -62,11 +62,21 @@ function playCollect() {
 
 // ─── GET HEIGHT ─────────────────────────────────────────
 function getHeight(x, z) {
-  const h = fbm(x * 0.015, z * 0.015) * WH - 4;
-  const ridge = 1 - Math.abs(fbm(x * 0.008 + 5, z * 0.008 + 5) * 2 - 1);
-  const river = Math.abs(fbm(x * 0.004 + 50, z * 0.004 + 50) - 0.5) * 2;
-  const riverCut = Math.max(0, 1 - river * 3) * -1.5;
-  return Math.floor((h + ridge * fbm(x * 0.02 + 10, z * 0.02 + 10) * 5 + riverCut) * 2) / 2;
+  const base = fbm(x * 0.009, z * 0.009) * 6 - 2;
+  const ridge = 1 - Math.abs(fbm(x * 0.004 + 5, z * 0.004 + 5) * 2 - 1);
+  const mountains = Math.pow(ridge, 2) * 9;
+  const warp = fbm(x * 0.003, z * 0.003) * 15;
+  const detail = fbm((x + warp) * 0.018 + 10, (z + warp) * 0.018 + 10) * 1.5;
+  const riverVal = Math.abs(fbm(x * 0.0035 + 50, z * 0.0035 + 50) - 0.5) * 2;
+  const riverCut = Math.max(0, 1 - riverVal * 4) * -2.2;
+  const ldx = 18, ldz = -12;
+  const lakeDist = Math.sqrt((x - ldx) ** 2 + (z - ldz) ** 2);
+  const lakeCut = Math.max(0, 1 - lakeDist / 14) * -3;
+  let h = base + mountains + detail + riverCut + lakeCut;
+  const terrace = Math.floor(h * 1.5) / 1.5;
+  const blend = Math.min(1, Math.max(0, (Math.abs(h - terrace) - 0.15) * 4));
+  h = terrace * (1 - blend) + h * blend;
+  return Math.floor(h * 2) / 2;
 }
 
 // ─── WORLD ──────────────────────────────────────────────
@@ -97,6 +107,10 @@ function buildWorld(scene) {
       const avgY = (y00 + y10 + y01 + y11) / 4;
 
       // Biome color
+      const minY = Math.min(y00, y10, y01, y11);
+      const maxY = Math.max(y00, y10, y01, y11);
+      const slope = maxY - minY;
+      const isCliff = slope > 1.8;
       const isDeep = avgY < -2;
       const isShallow = avgY >= -2 && avgY < -0.5;
       const isSand = avgY >= -0.5 && avgY < 0.8;
@@ -105,13 +119,14 @@ function buildWorld(scene) {
       const isRock = avgY >= 6 && avgY < 9;
       const isSnow = avgY >= 9;
       let r, g, b;
-      if (isSnow) { r = 0.97; g = 0.97; b = 1; }
+      if (isCliff) { const t = fbm(x * 0.05 + 300, z * 0.05 + 300); r = 0.35 + t * 0.25; g = 0.3 + t * 0.2; b = 0.25 + t * 0.15; }
+      else if (isSnow) { r = 0.97; g = 0.97; b = 1; }
       else if (isRock) { const t = fbm(x * 0.04, z * 0.04); r = 0.4 + t * 0.2; g = 0.38 + t * 0.18; b = 0.35 + t * 0.15; }
-      else if (isForest) { const t = fbm(x * 0.06, z * 0.06); r = 0.08 + t * 0.15; g = 0.3 + t * 0.25; b = 0.05 + t * 0.08; }
-      else if (isGrass) { const t = fbm(x * 0.06 + 100, z * 0.06 + 100); r = 0.18 + t * 0.25; g = 0.5 + t * 0.3; b = 0.08 + t * 0.12; }
-      else if (isSand) { r = 0.85; g = 0.78; b = 0.55; }
-      else if (isShallow) { r = 0.15; g = 0.5; b = 0.7; }
-      else { r = 0.08; g = 0.15; b = 0.35; }
+      else if (isForest) { const t = fbm(x * 0.06, z * 0.06); r = 0.06 + t * 0.12; g = 0.25 + t * 0.2; b = 0.04 + t * 0.06; }
+      else if (isGrass) { const t = fbm(x * 0.07 + 100, z * 0.07 + 100); r = 0.12 + t * 0.22; g = 0.42 + t * 0.3; b = 0.06 + t * 0.1; }
+      else if (isSand) { const t = fbm(x * 0.05 + 200, z * 0.05 + 200); r = 0.78 + t * 0.12; g = 0.72 + t * 0.1; b = 0.5 + t * 0.08; }
+      else if (isShallow) { r = 0.12; g = 0.45; b = 0.65; }
+      else { r = 0.06; g = 0.12; b = 0.3; }
 
       // Triangle 1: (x1,y00,z1) (x2,y10,z1) (x1,y01,z2)
       verts.push(x1, y00, z1, x2, y10, z1, x1, y01, z2);
@@ -564,7 +579,7 @@ export default function VirtualShoppingBrane() {
     scene.add(sun);
     console.log("[STEP1] Lights added");
 
-    // ─── FALLBACK GROUND (always present) ───
+    // ─── FALLBACK GROUND (hidden if terrain works) ───
     const fbMat = new THREE.MeshBasicMaterial({ color: 0x55cc55, side: THREE.DoubleSide });
     const fbGround = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), fbMat);
     fbGround.rotation.x = -Math.PI / 2;
@@ -573,20 +588,20 @@ export default function VirtualShoppingBrane() {
     const fbCube = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), new THREE.MeshBasicMaterial({ color: 0xff4400 }));
     fbCube.position.set(0, -0.7, 0);
     scene.add(fbCube);
-    console.log("[STEP1] Fallback ground+cube added");
 
     // ─── PROCEDURAL TERRAIN ───
     let world = null;
     let worldOk = false;
     try {
-      console.log("[STEP1] Building procedural terrain...");
       world = buildWorld(scene);
-      console.log("[STEP1] Terrain built, trees:", world.trees.length, "rocks:", world.rocks.length);
       worldOk = true;
     } catch (e) {
-      console.error("[STEP1] Terrain failed:", e);
+      console.error("[TERRAIN] Failed:", e);
     }
-    console.log("[STEP1] World OK:", worldOk);
+    // Hide fallback when terrain works
+    fbGround.visible = !worldOk;
+    fbCube.visible = !worldOk;
+    console.log("[STEP2] World OK:", worldOk, "meshes:", worldOk ? scene.children.filter(c => c.isMesh).length : "fallback");
 
     sceneRef.current = { scene, renderer, camera, sun, amb, hemi, world };
 
