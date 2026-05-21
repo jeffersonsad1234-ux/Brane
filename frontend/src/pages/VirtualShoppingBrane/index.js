@@ -202,10 +202,12 @@ export default function VirtualShoppingBrane() {
               fontFamily:'monospace', fontSize:'11px', padding:'4px 8px',
               lineHeight:1.3, pointerEvents:'none', whiteSpace:'pre',
             }}>
-              cam {dbg.camX} {dbg.camY} {dbg.camZ}
+cam {dbg.camX} {dbg.camY} {dbg.camZ}
+              {'  '}player {dbg.pX} {dbg.pY} {dbg.pZ}
+              {'  '}terrainH {dbg.terrainH}
               {'  '}meshes {dbg.meshes}
-              {'  '}world {dbg.worldOk?'OK':'FALLBACK'}
-              {'  '}[{dbg.phase}]
+              {'  '}world {dbg.worldOk?'OK':'FALLBACK'} [{dbg.phase}]
+              {'  '}[F1 debug]
             </div>
           </div>
         </div>

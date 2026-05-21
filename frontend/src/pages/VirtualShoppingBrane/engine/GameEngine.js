@@ -31,6 +31,9 @@ export default class GameEngine {
     this.birds = [];
     this.skyDome = null;
     this.sunMesh = null;
+    this.debugMode = false;
+    this.gridHelper = null;
+    this.axesHelper = null;
 
     // Player state
     this.playerVel = new THREE.Vector3();
@@ -115,12 +118,13 @@ export default class GameEngine {
       console.log("[ENGINE] Phase 2: Creating scene and camera...");
       const scene = new THREE.Scene();
       scene.background = new THREE.Color(0x87CEEB);
-      scene.fog = new THREE.FogExp2(0x87CEEB, 0.001);
+      // Fog disabled for debug visibility — re-enable later
+      // scene.fog = new THREE.FogExp2(0x87CEEB, 0.001);
       scene.environment = makeEnvMap();
       this.scene = scene;
 
       const camera = new THREE.PerspectiveCamera(55, W2 / H2, 0.1, 250);
-      camera.position.set(0, this.camHeight, this.camDist);
+      camera.position.set(0, 15, 20);
       camera.lookAt(0, 0, 0);
       this.camera = camera;
 
@@ -186,16 +190,54 @@ export default class GameEngine {
       const terrain = buildTerrain(this.scene);
       this.world = terrain;
       this.worldOk = true;
-      if (this.fbGround) this.fbGround.visible = false;
-      if (this.fbCube) this.fbCube.visible = false;
-      console.log("[ENGINE] Terrain OK");
+      if (this.fbGround) { this.fbGround.visible = false; this.fbGround.position.y = -999; }
+      if (this.fbCube) { this.fbCube.visible = false; this.fbCube.position.y = -999; }
+      console.log("[ENGINE] Terrain OK — ground mesh children:", this.scene.children.filter(c => c.isMesh).length);
     } catch (e) {
       console.error("[ENGINE] Terrain failed (using fallback):", e);
       this.worldOk = false;
       this.world = null;
+      // Ensure fallback is big and visible
+      if (this.fbGround) {
+        this.fbGround.position.y = -1;
+        this.fbGround.visible = true;
+        this.fbGround.scale.set(3, 1, 3);
+      }
+      if (this.fbCube) {
+        this.fbCube.position.set(0, 0, 0);
+        this.fbCube.visible = true;
+        this.fbCube.scale.set(3, 3, 3);
+      }
+      // Extra bright orange plane right under camera
+      try {
+        const emg = new THREE.Mesh(
+          new THREE.PlaneGeometry(40, 40),
+          new THREE.MeshBasicMaterial({ color: 0xff8800, side: THREE.DoubleSide })
+        );
+        emg.rotation.x = -Math.PI / 2;
+        emg.position.set(0, -2, 0);
+        emg.name = "emergency_floor";
+        this.scene.add(emg);
+        console.log("[ENGINE] Emergency floor added");
+      } catch {}
     }
 
-    // Phase 6: Vegetation
+    // Phase 6: Debug helpers (hide water for visibility)
+    try {
+      if (this.world?.water) {
+        this.world.water.visible = false;
+        console.log("[ENGINE] Water hidden for debug");
+      }
+      this.gridHelper = new THREE.GridHelper(200, 40, 0xff4444, 0x444444);
+      this.gridHelper.position.y = -2;
+      this.gridHelper.visible = this.debugMode;
+      this.scene.add(this.gridHelper);
+      this.axesHelper = new THREE.AxesHelper(10);
+      this.axesHelper.visible = this.debugMode;
+      this.scene.add(this.axesHelper);
+    } catch (e) { console.warn("[ENGINE] Debug helpers failed:", e); }
+
+    // Phase 7: Vegetation
     this.debugData.phase = "veg";
     try {
       if (this.worldOk) {
@@ -220,13 +262,13 @@ export default class GameEngine {
       console.error("[ENGINE] Structures failed (non-fatal):", e);
     }
 
-    // Phase 8: Player
+    // Phase 8: Player (spawn 3m above terrain for visibility)
     this.debugData.phase = "player";
     try {
-      console.log("[ENGINE] Phase 8: Creating player...");
-      const player = makePlayer(this.scene);
       const spawnH = this.worldOk ? getHeight(0, 0) : 0;
-      player.group.position.set(0, Math.max(0, spawnH), 0);
+      console.log("[ENGINE] Phase 8: Creating player at Y=" + (spawnH + 3) + " (terrain=" + spawnH + ")");
+      const player = makePlayer(this.scene);
+      player.group.position.set(0, spawnH + 3, 0);
       this.player = player;
       this.pShadow = makeShadow();
       this.scene.add(this.pShadow);
@@ -294,6 +336,15 @@ export default class GameEngine {
   _setupInput() {
     this._onKeyDown = (e) => {
       this.keys[e.code] = true;
+      if (e.code === "F1") {
+        this.debugMode = !this.debugMode;
+        console.log("[ENGINE] Debug mode:", this.debugMode);
+        if (this.gridHelper) this.gridHelper.visible = this.debugMode;
+        if (this.axesHelper) this.axesHelper.visible = this.debugMode;
+        if (this.world?.water) {
+          this.world.water.visible = !this.debugMode; // hide water in debug
+        }
+      }
       if (e.code >= "Digit1" && e.code <= "Digit5") {
         this.selectedSlot = parseInt(e.code[5]) - 1;
       }
@@ -680,14 +731,19 @@ export default class GameEngine {
     }
 
     // ─── DEBUG (every 30 frames) ───
-    if (this.frameCount % 30 === 0) {
+    if (this.frameCount % 10 === 0) {
+      const pp = this.player?.group?.position;
       this.debugData = {
         camX: this.camera.position.x.toFixed(1),
         camY: this.camera.position.y.toFixed(1),
         camZ: this.camera.position.z.toFixed(1),
+        pX: pp ? pp.x.toFixed(1) : "?",
+        pY: pp ? pp.y.toFixed(1) : "?",
+        pZ: pp ? pp.z.toFixed(1) : "?",
         meshes: this.scene.children.filter(c => c.isMesh).length,
         worldOk: this.worldOk,
         phase: this.debugData.phase,
+        terrainH: this.worldOk ? getHeight(pp?.x || 0, pp?.z || 0).toFixed(1) : "?",
       };
     }
 
