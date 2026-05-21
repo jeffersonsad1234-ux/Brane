@@ -62,19 +62,18 @@ function playCollect() {
 
 // ─── GET HEIGHT ─────────────────────────────────────────
 function getHeight(x, z) {
-  const base = fbm(x * 0.009, z * 0.009) * 6 - 2;
-  const ridge = 1 - Math.abs(fbm(x * 0.004 + 5, z * 0.004 + 5) * 2 - 1);
-  const mountains = Math.pow(ridge, 2) * 9;
-  const warp = fbm(x * 0.003, z * 0.003) * 15;
-  const detail = fbm((x + warp) * 0.018 + 10, (z + warp) * 0.018 + 10) * 1.5;
-  const riverVal = Math.abs(fbm(x * 0.0035 + 50, z * 0.0035 + 50) - 0.5) * 2;
-  const riverCut = Math.max(0, 1 - riverVal * 4) * -2.2;
+  const base = fbm(x * 0.01, z * 0.01) * 7 - 1;
+  const ridge = 1 - Math.abs(fbm(x * 0.004 + 3, z * 0.004 + 3) * 2 - 1);
+  const mountains = Math.pow(ridge, 2.2) * 12;
+  const warp = fbm(x * 0.003 + 1, z * 0.003 + 1) * 20;
+  const detail = fbm((x + warp) * 0.02 + 10, (z + warp) * 0.02 + 10) * 2;
+  const riverVal = Math.abs(fbm(x * 0.004 + 50, z * 0.004 + 50) - 0.5) * 2;
+  const riverCut = Math.max(0, 1 - riverVal * 5) * -2;
   const ldx = 18, ldz = -12;
-  const lakeDist = Math.sqrt((x - ldx) ** 2 + (z - ldz) ** 2);
-  const lakeCut = Math.max(0, 1 - lakeDist / 14) * -3;
+  const lakeCut = Math.max(0, 1 - Math.sqrt((x - ldx) ** 2 + (z - ldz) ** 2) / 12) * -2.5;
   let h = base + mountains + detail + riverCut + lakeCut;
   const terrace = Math.floor(h * 1.5) / 1.5;
-  const blend = Math.min(1, Math.max(0, (Math.abs(h - terrace) - 0.15) * 4));
+  const blend = Math.min(1, Math.max(0, (Math.abs(h - terrace) - 0.2) * 3));
   h = terrace * (1 - blend) + h * blend;
   return Math.floor(h * 2) / 2;
 }
@@ -554,54 +553,44 @@ export default function VirtualShoppingBrane() {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
     mount.appendChild(renderer.domElement);
-    console.log("[STEP1] Renderer + canvas appended");
+    console.log("[STEP3] Renderer + canvas appended (shadows+toneMapping)");
 
     // ─── SCENE ───
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x4a8ad4);
-    console.log("[STEP1] Scene bg:", scene.background.getHex());
+    scene.background = new THREE.Color(0x87CEEB);
+    scene.fog = new THREE.FogExp2(0x87CEEB, 0.0006);
 
     // ─── CAMERA ───
-    const camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 200);
-    camera.position.set(0, 8, 12);
-    camera.lookAt(0, 0, 0);
-    console.log("[STEP1] Camera:", camera.position.toArray());
+    const spawnH = getHeight(0, 0);
+    const camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 300);
+    camera.position.set(0, spawnH + 5, 10);
+    camera.lookAt(0, spawnH + 1, 0);
+    console.log("[STEP3] Camera:", camera.position.toArray(), "spawnH:", spawnH);
 
     // ─── LIGHTING ───
-    console.log("[STEP1] Adding lights...");
-    const amb = new THREE.AmbientLight(0x8899ff, 0.4);
+    const amb = new THREE.AmbientLight(0xffffff, 0.35);
     scene.add(amb);
-    const hemi = new THREE.HemisphereLight(0x88ccff, 0x885533, 0.5);
+    const hemi = new THREE.HemisphereLight(0x87CEEB, 0x8B7355, 0.5);
     scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xffdd99, 1.2);
-    sun.position.set(30, 40, 20);
+    const sun = new THREE.DirectionalLight(0xFFEECC, 1.4);
+    sun.position.set(40, 50, 30);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048, 2048);
+    sun.shadow.camera.near = 0.5; sun.shadow.camera.far = 80;
+    sun.shadow.camera.left = -40; sun.shadow.camera.right = 40;
+    sun.shadow.camera.top = 40; sun.shadow.camera.bottom = -40;
     scene.add(sun);
-    console.log("[STEP1] Lights added");
 
-    // ─── FALLBACK GROUND (hidden if terrain works) ───
-    const fbMat = new THREE.MeshBasicMaterial({ color: 0x55cc55, side: THREE.DoubleSide });
-    const fbGround = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), fbMat);
-    fbGround.rotation.x = -Math.PI / 2;
-    fbGround.position.y = -1;
-    scene.add(fbGround);
-    const fbCube = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), new THREE.MeshBasicMaterial({ color: 0xff4400 }));
-    fbCube.position.set(0, -0.7, 0);
-    scene.add(fbCube);
-
-    // ─── PROCEDURAL TERRAIN ───
-    let world = null;
-    let worldOk = false;
-    try {
-      world = buildWorld(scene);
-      worldOk = true;
-    } catch (e) {
-      console.error("[TERRAIN] Failed:", e);
-    }
-    // Hide fallback when terrain works
-    fbGround.visible = !worldOk;
-    fbCube.visible = !worldOk;
-    console.log("[STEP2] World OK:", worldOk, "meshes:", worldOk ? scene.children.filter(c => c.isMesh).length : "fallback");
+    // ─── SKY DOME ───
+    const skyGeo = new THREE.SphereGeometry(150, 32, 32);
+    const skyMat = new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide });
+    const skyDome = new THREE.Mesh(skyGeo, skyMat);
+    scene.add(skyDome);
 
     sceneRef.current = { scene, renderer, camera, sun, amb, hemi, world };
 
