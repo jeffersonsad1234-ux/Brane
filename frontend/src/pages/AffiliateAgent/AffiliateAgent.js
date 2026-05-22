@@ -1493,6 +1493,12 @@ function ImportarProdutoPage() {
                 <label>URL Original</label>
                 <a href={imported.url_original} target="_blank" rel="noopener noreferrer">{imported.url_original}</a>
               </div>
+              {imported.url_final && imported.url_final !== imported.url_original && (
+                <div className="aa-import-field">
+                  <label>URL Final (após redirecionamento)</label>
+                  <a href={imported.url_final} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.72rem', color: 'var(--aa-text-muted)' }}>{imported.url_final}</a>
+                </div>
+              )}
             </div>
           </div>
 

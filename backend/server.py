@@ -4631,89 +4631,25 @@ async def scrape_product_page(url: str) -> dict:
     )
     page = await context.new_page()
     try:
-        await page.goto(url, timeout=30000, wait_until="domcontentloaded")
-        await page.wait_for_timeout(3000)
+        # Follow redirects — short/affiliate links -> real product page
+        await page.goto(url, timeout=45000, wait_until="networkidle")
+        await page.wait_for_timeout(2000)
+        final_url = page.url()
 
-        # Try to scroll to trigger lazy images
+        # Scroll to trigger lazy content
         await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-        await page.wait_for_timeout(1000)
+        await page.wait_for_timeout(1500)
         await page.evaluate("window.scrollTo(0, 0)")
         await page.wait_for_timeout(500)
 
-        title = await page.title()
+        # Wait a bit more for JS-rendered content (Shopee, etc.)
+        try:
+            await page.wait_for_load_state("domcontentloaded", timeout=5000)
+        except:
+            pass
 
-        # Extract meta description
-        meta_desc = await page.evaluate("""() => {
-            const m = document.querySelector('meta[name="description"]');
-            return m ? m.content : '';
-        }""")
-
-        # Extract all images
-        images = await page.evaluate("""() => {
-            const imgs = document.querySelectorAll('img[src]');
-            const urls = [];
-            const seen = new Set();
-            for (const img of imgs) {
-                let src = img.src || img.getAttribute('data-src') || '';
-                if (src && !seen.has(src) && src.startsWith('http')) {
-                    if (src.includes('product') || src.includes('produto') ||
-                        src.includes('image') || src.includes('foto') ||
-                        src.includes('img') || img.width > 100) {
-                        seen.add(src);
-                        urls.push(src);
-                    }
-                }
-            }
-            return urls.slice(0, 8);
-        }""")
-
-        # Try to extract price via common patterns
-        price_text = await page.evaluate("""() => {
-            const selectors = [
-                '.product-price', '.price', '[class*=price]', '[class*=preco]',
-                '[class*=Price]', '.a-price', '.a-offscreen',
-                '.andes-money-amount', '.andes_money_amount',
-                '.sh-price', '.product__price',
-                '.skuBestPrice', '.best-price',
-                '[data-testid="price"]', '#priceblock_ourprice',
-                '#price_inside_buybox', '.offer-price',
-            ];
-            for (const sel of selectors) {
-                const el = document.querySelector(sel);
-                if (el) {
-                    const text = el.textContent.trim();
-                    if (text) return text;
-                }
-            }
-            return '';
-        }""")
-
-        # Extract description text
-        description = await page.evaluate("""() => {
-            const selectors = [
-                '#productDescription', '.product-description', '[class*=description]',
-                '[class*=descricao]', '[class*=Description]',
-                '#feature-bullets', '.a-unordered-list',
-                '.product-details', '[data-testid="description"]',
-                '.sh-description', '.andes-description',
-            ];
-            for (const sel of selectors) {
-                const el = document.querySelector(sel);
-                if (el) {
-                    const text = el.textContent.trim();
-                    if (text && text.length > 20) return text.slice(0, 3000);
-                }
-            }
-            return '';
-        }""")
-
-        og_image = await page.evaluate("""() => {
-            const og = document.querySelector('meta[property="og:image"]');
-            return og ? og.content : '';
-        }""")
-
-        # Detect marketplace from URL
-        domain = url.lower()
+        # Detect marketplace from final URL (not the short link)
+        domain = final_url.lower()
         marketplace = "desconhecido"
         if "amazon" in domain: marketplace = "Amazon"
         elif "shopee" in domain: marketplace = "Shopee"
@@ -4726,15 +4662,105 @@ async def scrape_product_page(url: str) -> dict:
         elif "americanas" in domain: marketplace = "Americanas"
         elif "shein" in domain: marketplace = "Shein"
 
-        if og_image and og_image not in images:
-            images.insert(0, og_image)
+        # Extract Open Graph meta tags (always in HTML, no JS needed)
+        og_data = await page.evaluate("""() => {
+            function getMeta(prop) {
+                const el = document.querySelector('meta[property="' + prop + '"], meta[name="' + prop + '"]');
+                return el ? el.content : '';
+            }
+            return {
+                title: getMeta('og:title'),
+                image: getMeta('og:image'),
+                description: getMeta('og:description'),
+            };
+        }""")
+
+        title = await page.title()
+        # Prefer og:title over document title (more accurate for product pages)
+        if og_data["title"] and len(og_data["title"]) >= len(title):
+            title = og_data["title"]
+
+        meta_desc = await page.evaluate("""() => {
+            const m = document.querySelector('meta[name="description"]');
+            return m ? m.content : '';
+        }""")
+
+        # Extract images
+        images = await page.evaluate("""() => {
+            const imgs = document.querySelectorAll('img[src]');
+            const urls = [];
+            const seen = new Set();
+            for (const img of imgs) {
+                let src = img.src || img.getAttribute('data-src') || img.getAttribute('data-original') || '';
+                if (src && !seen.has(src) && src.startsWith('http')) {
+                    if (src.includes('product') || src.includes('produto') ||
+                        src.includes('image') || src.includes('foto') ||
+                        src.includes('img') || src.includes('shopeecdn') ||
+                        src.includes('ssl-image') || img.width > 80) {
+                        seen.add(src);
+                        urls.push(src);
+                    }
+                }
+            }
+            return urls.slice(0, 8);
+        }""")
+
+        if og_data["image"] and og_data["image"] not in images:
+            images.insert(0, og_data["image"])
+
+        # Try to extract price
+        price_text = await page.evaluate("""() => {
+            const selectors = [
+                '.product-price', '.price', '[class*=price]', '[class*=preco]',
+                '[class*=Price]', '.a-price', '.a-offscreen',
+                '.andes-money-amount', '.andes_money_amount',
+                '.sh-price', '.product__price',
+                '.skuBestPrice', '.best-price',
+                '[data-testid="price"]', '#priceblock_ourprice',
+                '#price_inside_buybox', '.offer-price',
+                '[class*=productPrice]', '[class*=ProductPrice]',
+            ];
+            for (const sel of selectors) {
+                const el = document.querySelector(sel);
+                if (el) {
+                    const text = el.textContent.trim();
+                    if (text) return text;
+                }
+            }
+            return '';
+        }""")
+
+        # Extract description
+        description = await page.evaluate("""() => {
+            const selectors = [
+                '#productDescription', '.product-description', '[class*=description]',
+                '[class*=descricao]', '[class*=Description]',
+                '#feature-bullets', '.a-unordered-list',
+                '.product-details', '[data-testid="description"]',
+                '.sh-description', '.andes-description',
+                '[class*=productDetail]', '[class*=ProductDetail]',
+            ];
+            for (const sel of selectors) {
+                const el = document.querySelector(sel);
+                if (el) {
+                    const text = el.textContent.trim();
+                    if (text && text.length > 20) return text.slice(0, 3000);
+                }
+            }
+            return '';
+        }""")
+
+        # Fallback to og:description if DOM extraction fails
+        if (not description or len(description) < 20) and og_data["description"]:
+            description = og_data["description"]
 
         result = {
             "titulo_original": title.strip(),
-            "descricao_original": (description or meta_desc).strip(),
+            "descricao_original": (description or meta_desc or og_data.get("description", "")).strip(),
             "preco_texto": price_text.strip(),
             "imagens": images[:6],
             "url_original": url,
+            "url_final": final_url,
             "marketplace": marketplace,
         }
         return result
@@ -4811,6 +4837,7 @@ class ImportResponse(BaseModel):
     roteiro_video: str
     imagens: List[str]
     url_original: str
+    url_final: str
 
 @api_router.post("/affiliate/import-product", response_model=ImportResponse)
 async def import_product(req: ImportRequest):
@@ -4827,6 +4854,7 @@ async def import_product(req: ImportRequest):
     generated = await generate_product_content(data)
     doc = {
         "url_original": url,
+        "url_final": data.get("url_final", url),
         "marketplace": data["marketplace"],
         "titulo_original": data["titulo_original"],
         "descricao_original": data.get("descricao_original", ""),
@@ -4853,6 +4881,7 @@ async def import_product(req: ImportRequest):
         roteiro_video=doc["roteiro_video"],
         imagens=doc["imagens"],
         url_original=doc["url_original"],
+        url_final=doc["url_final"],
     )
 
 @api_router.get("/affiliate/imported-products")
