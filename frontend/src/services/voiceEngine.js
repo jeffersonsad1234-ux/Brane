@@ -1,13 +1,14 @@
 /**
- * Voice Engine — TTS generation, background music, and audio mixing.
- * Volume: voz 100%, música 15%.
+ * Voice Engine — simplified. Voice generation moved to brane-media-worker/.
+ * Only background music creation kept for video rendering.
  */
-import { generateTTSAudio, decodeTTSBlob, getVozesDisponiveis, speakWithWebSpeech } from "./ttsEngine";
+import { getVozesDisponiveis } from "./ttsEngine";
 
-export { getVozesDisponiveis, speakWithWebSpeech };
+export { getVozesDisponiveis };
 
-export async function generateVoiceAudio(text, voiceId = 'pt-BR-FranciscaNeural', onLog) {
-  return generateTTSAudio(text, voiceId, onLog);
+export async function generateVoiceAudio(text, voiceId, onLog) {
+  if (onLog) onLog('ℹ️ Voz/personagem IA: módulo futuro separado (brane-media-worker)');
+  return { success: false, blob: null, voiceId, duration: 0, method: 'none', error: 'Módulo separado — não implementado no React', logs: [] };
 }
 
 export function createBackgroundMusic(audioCtx, durationSec, bpm = 100) {
@@ -74,7 +75,8 @@ export async function createAudioStreamWithVoice(audioCtx, durationSec, voiceBlo
 
   if (voiceBlob) {
     try {
-      const { audioBuffer } = await decodeTTSBlob(voiceBlob);
+      const arrayBuffer = await voiceBlob.arrayBuffer();
+      const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
       voiceBuffer = audioBuffer;
     } catch (e) {
       decodeError = e.message;

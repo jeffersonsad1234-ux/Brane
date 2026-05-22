@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { formatDuracao } from "../services/realVideoGenerator";
-import { getVozesDisponiveis } from "../services/ttsEngine";
 
 export default function VideoPreviewApproval({
   video,
@@ -12,17 +11,11 @@ export default function VideoPreviewApproval({
   generating,
   genProgress,
   genStatus,
-  voiceStatus,
-  voiceId,
-  voiceBlob,
   onApprove,
   onReject,
   onRegenerate,
   onEditLegenda,
   onEditRoteiro,
-  onChangeVoice,
-  onRegenerateVoice,
-  onGenerateVoice,
 }) {
   const [playing, setPlaying] = useState(false);
   const [currentScene, setCurrentScene] = useState(0);
@@ -30,26 +23,14 @@ export default function VideoPreviewApproval({
   const [elapsed, setElapsed] = useState(0);
   const [editMode, setEditMode] = useState(null);
   const [editText, setEditText] = useState('');
-  const [voicePreviewUrl, setVoicePreviewUrl] = useState(null);
-  const [listeningVoice, setListeningVoice] = useState(false);
   const timerRef = useRef(null);
   const videoRef = useRef(null);
-  const audioRef = useRef(null);
 
   const duration = video?.duracao || 30;
   const scenes = video?.cenas || [];
   const hasRealVideo = !!realVideoUrl;
-  const vozes = getVozesDisponiveis();
-  const voiceName = vozes.find(v => v.id === voiceId)?.nome || voiceId;
-  const voiceReady = voiceStatus === 'generated';
-
-  useEffect(() => {
-    if (voiceBlob) {
-      const url = URL.createObjectURL(voiceBlob);
-      setVoicePreviewUrl(url);
-      return () => URL.revokeObjectURL(url);
-    }
-  }, [voiceBlob]);
+  const voiceName = 'Voz IA (módulo separado)';
+  const voiceReady = false;
 
   const startPlayback = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -122,15 +103,6 @@ export default function VideoPreviewApproval({
     }
   };
 
-  const handleListenVoice = () => {
-    if (audioRef.current && voicePreviewUrl) {
-      audioRef.current.src = voicePreviewUrl;
-      audioRef.current.play();
-      setListeningVoice(true);
-      audioRef.current.onended = () => setListeningVoice(false);
-    }
-  };
-
   return (
     <div className="aa-camp-card">
       <h4 style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
@@ -149,39 +121,9 @@ export default function VideoPreviewApproval({
         </div>
       )}
 
-      <div className="vp-voice-section">
-        <div className="vp-voice-status">
-          <span className="vp-voice-label">🎤 Voz:</span>
-          <span className={`vp-voice-badge ${voiceReady ? 'ready' : voiceStatus === 'failed' ? 'failed' : ''}`}>
-            {voiceReady ? `✅ ${voiceName}` : voiceStatus === 'failed' ? '❌ Falha' : '⏳ Pendente'}
-          </span>
-          {voiceReady && voicePreviewUrl && (
-            <button className="aa-btn aa-btn-sm aa-btn-outline" onClick={handleListenVoice} disabled={listeningVoice}>
-              {listeningVoice ? '🔊 Tocando...' : '🔊 Ouvir voz'}
-            </button>
-          )}
-          {!voiceReady && onGenerateVoice && (
-            <button className="aa-btn aa-btn-sm aa-btn-primary" onClick={onGenerateVoice} disabled={generating}>
-              🎤 Gerar voz
-            </button>
-          )}
-          <select
-            className="aa-input vp-voice-select"
-            value={voiceId || 'pt-BR-FranciscaNeural'}
-            onChange={(e) => onChangeVoice && onChangeVoice(e.target.value)}
-            disabled={generating}
-          >
-            {vozes.map(v => <option key={v.id} value={v.id}>{v.nome} · {v.estilo}</option>)}
-          </select>
-          {voiceReady && (
-            <button className="aa-btn aa-btn-sm aa-btn-ghost" onClick={onRegenerateVoice} disabled={generating} title="Regenerar narração">
-              🔄 Nova voz
-            </button>
-          )}
-        </div>
+      <div className="vp-voice-section" style={{ padding: '8px 12px', marginBottom: 12, fontSize: '0.78rem', color: 'var(--aa-text-muted)', background: 'rgba(37,99,235,0.03)', borderRadius: 'var(--aa-radius-sm)' }}>
+        🎤 Voz/personagem IA: <strong>módulo futuro separado</strong> (brane-media-worker)
       </div>
-
-      <audio ref={audioRef} style={{ display: 'none' }} />
 
       <div className="vp-container">
         <div className="vp-player">
@@ -246,7 +188,7 @@ export default function VideoPreviewApproval({
           <div className="vp-details">
             <div className="vp-detail-row"><span className="vp-detail-label">🎵 Música</span><span className="vp-detail-value">{video?.musica?.nome || 'Background'} ({video?.musica?.bpm || 120}BPM)</span></div>
             <div className="vp-detail-row"><span className="vp-detail-label">👤 Apresentador</span><span className="vp-detail-value">{video?.pessoa?.nome || 'Apresentador'}</span></div>
-            <div className="vp-detail-row"><span className="vp-detail-label">🎤 Voz</span><span className="vp-detail-value">{voiceName}{voiceReady ? ' ✅' : ' ❌'}</span></div>
+            <div className="vp-detail-row"><span className="vp-detail-label">🎤 Voz</span><span className="vp-detail-value">Módulo futuro</span></div>
             <div className="vp-detail-row"><span className="vp-detail-label">📐 Resolução</span><span className="vp-detail-value">{video?.resolucao || '540x960'}</span></div>
           </div>
         </div>
@@ -280,8 +222,8 @@ export default function VideoPreviewApproval({
       </div>
 
       <div className="aa-camp-approval-btns">
-        <button className="aa-btn aa-btn-primary" onClick={onApprove} disabled={publishing || generating || !realVideoUrl || !voiceReady}>
-          {publishing ? '⏳ Publicando...' : generating ? '⏳ Gerando...' : !voiceReady ? '❌ Voz pendente' : '✅ Aprovar e Publicar no TikTok'}
+        <button className="aa-btn aa-btn-primary" onClick={onApprove} disabled={publishing || generating || !realVideoUrl}>
+          {publishing ? '⏳ Publicando...' : generating ? '⏳ Gerando...' : '✅ Aprovar e Publicar no TikTok'}
         </button>
         <button className="aa-btn aa-btn-outline" onClick={onReject} disabled={publishing || generating}>❌ Rejeitar</button>
         <button className="aa-btn aa-btn-ghost" onClick={onRegenerate} disabled={publishing || generating}>🔄 Gerar Outro Vídeo</button>

@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { getVozesDisponiveis, getVoiceName, speakWithWebSpeech, getApiBase } from "../../services/ttsEngine";
 
 const STORAGE_KEY = 'brane_anuncios';
-const vozes = getVozesDisponiveis();
 
 function loadAnuncios() {
   try {
@@ -42,11 +40,6 @@ export function adicionarAnuncio(dados) {
     scheduledAt: null,
     publishedAt: null,
     publicado: false,
-    voiceId: dados.voiceId || 'pt-BR-FranciscaNeural',
-    voiceStatus: dados.voiceStatus || 'pending',
-    voiceError: dados.voiceError || null,
-    voiceMethod: dados.voiceMethod || null,
-    narracaoCompleta: dados.narracaoCompleta || dados.nome || '',
     metrics: {
       cliques: Math.floor(Math.random() * 80) + 5,
       alcance: Math.floor(Math.random() * 3000) + 200,
@@ -75,7 +68,7 @@ function duplicarAnuncio(id) {
   const list = loadAnuncios();
   const orig = list.find(a => a.id === id);
   if (!orig) return list;
-  const ad = { ...orig, id: generateId(), nome: orig.nome + ' (cópia)', createdAt: new Date().toISOString(), publishedAt: null, publicado: false, scheduledAt: null, voiceStatus: 'pending', voiceError: null, voiceMethod: null };
+  const ad = { ...orig, id: generateId(), nome: orig.nome + ' (cópia)', createdAt: new Date().toISOString(), publishedAt: null, publicado: false, scheduledAt: null };
   list.unshift(ad);
   saveAnuncios(list);
   return list;
@@ -94,19 +87,15 @@ function getStatus(ad) {
 }
 
 function AnuncioCard({ ad, onRefresh }) {
+  const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [editNome, setEditNome] = useState(ad.nome);
   const [scheduleDate, setScheduleDate] = useState(ad.scheduledAt ? ad.scheduledAt.slice(0, 16) : '');
   const [publishLoading, setPublishLoading] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [voiceLoading, setVoiceLoading] = useState(false);
-  const [voiceGenLogs, setVoiceGenLogs] = useState([]);
-  const [playingVoice, setPlayingVoice] = useState(false);
-  const audioRef = useRef(null);
 
   const status = getStatus(ad);
   const cfg = statusConfig[status];
-  const voiceReady = ad.voiceStatus === 'generated';
 
   const handleSalvarNome = () => {
     if (editNome.trim()) {
@@ -136,90 +125,6 @@ function AnuncioCard({ ad, onRefresh }) {
     atualizarAnuncio(ad.id, { scheduledAt: null });
     setScheduleDate('');
     onRefresh();
-  };
-
-  const handleGerarVoz = async () => {
-    setVoiceLoading(true);
-    setVoiceGenLogs([]);
-    const text = ad.narracaoCompleta || ad.nome || ad.legenda;
-    const logs = [];
-
-    try {
-      const { generateVoiceAudio } = await import("../../services/voiceEngine");
-      const log = (msg) => { logs.push(msg); setVoiceGenLogs(prev => [...prev, msg]); };
-      log(`🎤 Gerando voz para: "${text.slice(0, 60)}..."`);
-      log(`🎤 Voz: ${getVoiceName(ad.voiceId)}`);
-
-      const result = await generateVoiceAudio(text, ad.voiceId, log);
-      log(`⏱️ Tempo total de geração: ${result.duration}s`);
-
-      if (result.success && result.blob && result.blob.size > 100) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          atualizarAnuncio(ad.id, {
-            voiceStatus: 'generated',
-            voiceBlobDataUrl: reader.result,
-            voiceMethod: result.method,
-            voiceError: null,
-          });
-          logs.push(`✅ Voz gerada com sucesso via Edge TTS`);
-          setVoiceGenLogs([...logs]);
-          onRefresh();
-          setVoiceLoading(false);
-        };
-        reader.onerror = () => {
-          logs.push('❌ Erro ao converter áudio');
-          setVoiceGenLogs([...logs]);
-          setVoiceLoading(false);
-        };
-        reader.readAsDataURL(result.blob);
-      } else {
-        logs.push(`❌ ${result.error || 'Falha na geração'}`);
-        atualizarAnuncio(ad.id, { voiceStatus: 'failed', voiceError: result.error });
-        setVoiceGenLogs([...logs]);
-        onRefresh();
-        setVoiceLoading(false);
-      }
-    } catch (err) {
-      logs.push(`❌ Erro: ${err.message}`);
-      atualizarAnuncio(ad.id, { voiceStatus: 'failed', voiceError: err.message });
-      setVoiceGenLogs([...logs]);
-      onRefresh();
-      setVoiceLoading(false);
-    }
-  };
-
-  const handleTestarVoz = async () => {
-    if (playingVoice) {
-      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
-      setPlayingVoice(false);
-      return;
-    }
-
-    const text = ad.narracaoCompleta || ad.nome || ad.legenda;
-
-    if (ad.voiceBlobDataUrl) {
-      try {
-        const audio = new Audio(ad.voiceBlobDataUrl);
-        audio.onended = () => setPlayingVoice(false);
-        audio.onerror = () => {
-          setPlayingVoice(false);
-          speakWithWebSpeech(text, ad.voiceId).catch(() => {});
-        };
-        audioRef.current = audio;
-        audio.play();
-        setPlayingVoice(true);
-      } catch {
-        speakWithWebSpeech(text, ad.voiceId).then(() => setPlayingVoice(false)).catch(() => setPlayingVoice(false));
-        setPlayingVoice(true);
-      }
-    } else {
-      speakWithWebSpeech(text, ad.voiceId).then(() => setPlayingVoice(false)).catch(() => setPlayingVoice(false));
-      setPlayingVoice(true);
-      const wpm = 150;
-      const estMs = Math.max((text.split(/\s+/).length / wpm) * 60 * 1000, 3000);
-      setTimeout(() => setPlayingVoice(false), estMs + 1000);
-    }
   };
 
   const handlePublicarAgora = async () => {
@@ -291,48 +196,11 @@ function AnuncioCard({ ad, onRefresh }) {
           <span>📊 {ad.metrics.ctr}% CTR</span>
         </div>
 
-        {/* Voice section */}
-        <div className="an-card-voice">
-          <div className="an-card-voice-info">
-            <span className="an-voice-label">🎤 Voz:</span>
-            <span className={`an-voice-badge ${voiceReady ? 'ready' : ''}`}>
-              {voiceReady ? `✅ ${getVoiceName(ad.voiceId)}` : 'ℹ️ Voz: opcional/desativada'}
-            </span>
-            {ad.voiceMethod && voiceReady && (
-              <span className="an-voice-method">Edge TTS</span>
-            )}
-          </div>
-
-          <div className="an-card-voice-actions">
-            <button onClick={handleGerarVoz} disabled={voiceLoading || status === 'publicado'} className="an-voice-btn an-voice-btn-generate">
-              {voiceLoading ? '⏳ Gerando...' : voiceReady ? '🔄 Gerar novamente' : '🎤 Gerar voz'}
-            </button>
-            <button onClick={handleTestarVoz} disabled={voiceLoading || status === 'publicado'} className="an-voice-btn an-voice-btn-listen">
-              {playingVoice ? '🔊 Tocando...' : (voiceReady || ad.voiceStatus === 'failed' ? '🔊 Testar voz' : '🔊 Testar')}
-            </button>
-            <select value={ad.voiceId}
-              onChange={e => { atualizarAnuncio(ad.id, { voiceId: e.target.value, voiceStatus: 'pending' }); onRefresh(); }}
-              className="an-voice-select" disabled={voiceLoading}>
-              {vozes.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
-            </select>
-          </div>
-
-          {voiceGenLogs.length > 0 && (
-            <div className="an-voice-logs">
-              {voiceGenLogs.map((l, i) => (
-                <div key={i} className={`an-voice-log ${l.includes('✅') ? 'ok' : l.includes('❌') ? 'err' : ''}`}>{l}</div>
-              ))}
-            </div>
-          )}
-        </div>
-
         {detailOpen && (
           <div className="an-card-detail">
             <div className="an-card-detail-row"><strong>Legenda:</strong><p>{ad.legenda || '—'}</p></div>
             <div className="an-card-detail-row"><strong>Hashtags:</strong><p>{ad.hashtags?.join(' ') || '—'}</p></div>
             <div className="an-card-detail-row"><strong>Link loja:</strong><a href={ad.lojaUrl} target="_blank" rel="noopener noreferrer">{ad.lojaUrl || '—'}</a></div>
-            <div className="an-card-detail-row"><strong>Voz:</strong><p>{getVoiceName(ad.voiceId)} {voiceReady ? '✅' : '❌'}</p></div>
-            <div className="an-card-detail-row"><strong>Método voz:</strong><p>{ad.voiceMethod || '—'}</p></div>
             <div className="an-card-detail-row"><strong>Criado em:</strong><p>{formatDate(ad.createdAt)}</p></div>
             {ad.publishedAt && <div className="an-card-detail-row"><strong>Publicado em:</strong><p>{formatDate(ad.publishedAt)}</p></div>}
           </div>
@@ -358,11 +226,6 @@ function AnuncioCard({ ad, onRefresh }) {
             className="an-btn an-btn-primary an-btn-sm">
             {publishLoading ? '⏳ Publicando...' : status === 'publicado' ? '✅ Publicado' : '🚀 Publicar Agora'}
           </button>
-          <button onClick={handleTestarVoz}
-            disabled={voiceLoading || playingVoice || status === 'publicado'}
-            className="an-btn an-btn-ghost an-btn-sm">
-            🔊 Testar voz
-          </button>
           <button onClick={() => setDetailOpen(!detailOpen)} className="an-btn an-btn-ghost an-btn-sm">
             {detailOpen ? '▲ Menos' : '▼ Detalhes'}
           </button>
@@ -384,20 +247,6 @@ function ChartBar({ label, value, maxValue, color }) {
           <span className="an-chart-bar-value">{value}</span>
         </div>
       </div>
-    </div>
-  );
-}
-
-function VoiceHint() {
-  const backendUrl = getApiBase();
-  return (
-    <div className="an-voice-hint">
-      <span>🔇 Voz IA desativada — vídeos continuam sem narração</span>
-      {!backendUrl && (
-        <span className="an-voice-hint-detail">
-          Para ativar, configure REACT_APP_TTS_API_URL no deploy
-        </span>
-      )}
     </div>
   );
 }
@@ -426,13 +275,13 @@ export default function AnunciosPage() {
     publicados: anuncios.filter(a => a.publicado).length,
     agendados: anuncios.filter(a => a.scheduledAt && !a.publicado).length,
     pendentes: anuncios.filter(a => !a.publicado && !a.scheduledAt).length,
-    comVoz: anuncios.filter(a => a.voiceStatus === 'generated').length,
-    semVoz: anuncios.filter(a => a.voiceStatus !== 'generated').length,
   };
 
   return (
     <div className="an-root">
-      <VoiceHint />
+      <div className="an-voice-hint">
+        🎤 Voz/personagem IA: <strong>módulo futuro separado</strong> (brane-media-worker)
+      </div>
 
       <div className="an-header">
         <div>
@@ -503,9 +352,6 @@ export default function AnunciosPage() {
                       {statusConfig[getStatus(ad)]?.label}
                     </span>
                     {ad.scheduledAt && <span>📅 {formatDate(ad.scheduledAt)}</span>}
-                    <span style={{ fontSize: '0.7rem', color: 'var(--aa-text-muted)' }}>
-                      {ad.voiceStatus === 'generated' ? '🎤 Com voz' : ''}
-                    </span>
                   </div>
                 </div>
               ))}

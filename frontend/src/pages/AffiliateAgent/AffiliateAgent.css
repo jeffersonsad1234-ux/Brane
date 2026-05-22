@@ -678,6 +678,5 @@
 .an-btn-outline:hover { background: var(--aa-bg); border-color: var(--aa-text-muted); }
 .an-btn-outline:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* === Voice Hint (passive, no red) === */
+/* === Voice future module hint === */
 .an-voice-hint { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: var(--aa-radius-sm); margin-bottom: 12px; font-size: 0.75rem; background: rgba(37,99,235,0.04); border: 1px solid rgba(37,99,235,0.08); color: var(--aa-text-muted); flex-wrap: wrap; }
-.an-voice-hint-detail { color: var(--aa-text-muted); font-size: 0.7rem; }

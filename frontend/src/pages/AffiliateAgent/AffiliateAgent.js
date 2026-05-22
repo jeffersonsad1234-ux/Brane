@@ -5,7 +5,6 @@ import { loadConnections, saveConnections } from "../../services/affiliateProvid
 import { AutoPostEngine, SOCIAL_PLATFORMS, loadSocialConnections, saveSocialConnections } from "../../services/autoPostEngine";
 import BrowserConnectionPanel from "../../components/BrowserConnectionPanel";
 import VideoPreviewApproval from "../../components/VideoPreviewApproval";
-import { getVozesDisponiveis } from "../../services/ttsEngine";
 import AnunciosPage, { adicionarAnuncio } from "./AnunciosPage";
 import "./AffiliateAgent.css";
 
@@ -981,16 +980,11 @@ function CampanhaPage() {
   const [generating, setGenerating] = useState(false);
   const [genProgress, setGenProgress] = useState(0);
   const [genStatus, setGenStatus] = useState('');
-  const [voiceId, setVoiceId] = useState('pt-BR-FranciscaNeural');
-  const [voiceStatus, setVoiceStatus] = useState('pending');
-  const [voiceBlob, setVoiceBlob] = useState(null);
   const [videoLegenda, setVideoLegenda] = useState('');
   const [videoRoteiro, setVideoRoteiro] = useState('');
   const [campLogs, setCampLogs] = useState([]);
   const [publishing, setPublishing] = useState(false);
   const [publicado, setPublicado] = useState(null);
-
-  const vozes = getVozesDisponiveis();
 
   const categorias = [
     { id: 'tecnologia', nome: 'Tecnologia', icone: '💻' },
@@ -1074,34 +1068,16 @@ function CampanhaPage() {
     // Generate real video
     setGenerating(true);
     setGenProgress(0);
-    setGenStatus('Gerando narração...');
-    setVoiceStatus('generating');
+    setGenStatus('Gerando vídeo...');
 
     try {
       const { generateRealVideo } = await import("../../services/realVideoGenerator");
       const result = await generateRealVideo(camp, (pct, status) => {
         setGenProgress(pct);
         if (status) setGenStatus(status);
-      }, voiceId);
+      });
 
       setVideo(result.videoMeta);
-      setVideoRoteiro(result.videoMeta.narracaoCompleta);
-
-      if (result.voiceStatus === 'generated') {
-        setVoiceStatus('generated');
-        setVoiceBlob(result.voiceBlob || null);
-        addLog('success', `🎤 Voz gerada: ${vozes.find(v => v.id === voiceId)?.nome || voiceId}`);
-        if (result.logs) {
-          result.logs.forEach(l => { if (l.includes('✅') || l.includes('❌') || l.includes('⏱️')) addLog('info', `   ${l}`); });
-        }
-      } else if (result.voiceStatus === 'failed') {
-        setVoiceStatus('failed');
-        setVoiceBlob(null);
-        addLog('error', `❌ Geração de voz falhou: ${result.error || 'motivo desconhecido'}`);
-        if (result.logs) {
-          result.logs.forEach(l => { if (l.includes('❌') || l.includes('⏱️')) addLog('error', `   ${l}`); });
-        }
-      }
 
       if (result.url) {
         setRealVideoUrl(result.url);
@@ -1113,7 +1089,6 @@ function CampanhaPage() {
       }
     } catch (err) {
       addLog('error', `❌ Erro ao gerar vídeo: ${err.message}`);
-      setVoiceStatus('failed');
     }
 
     setGenerating(false);
@@ -1127,28 +1102,16 @@ function CampanhaPage() {
     setRealVideoBlob(null);
     setGenerating(true);
     setGenProgress(0);
-    setGenStatus('Gerando narração...');
-    setVoiceStatus('generating');
+    setGenStatus('Gerando nova versão...');
 
     try {
       const { regenerateRealVideo } = await import("../../services/realVideoGenerator");
       const result = await regenerateRealVideo(campaign, video, (pct, status) => {
         setGenProgress(pct);
         if (status) setGenStatus(status);
-      }, voiceId);
+      });
 
       setVideo(result.videoMeta);
-      setVideoRoteiro(result.videoMeta.narracaoCompleta);
-
-      if (result.voiceStatus === 'generated') {
-        setVoiceStatus('generated');
-        setVoiceBlob(result.voiceBlob || null);
-        if (result.logs) result.logs.forEach(l => { if (l.includes('✅')) addLog('info', `   ${l}`); });
-      } else if (result.voiceStatus === 'failed') {
-        setVoiceStatus('failed');
-        setVoiceBlob(null);
-        if (result.logs) result.logs.forEach(l => { if (l.includes('❌')) addLog('error', `   ${l}`); });
-      }
 
       if (result.url) {
         setRealVideoUrl(result.url);
@@ -1159,7 +1122,6 @@ function CampanhaPage() {
       }
     } catch (err) {
       addLog('error', `❌ Erro: ${err.message}`);
-      setVoiceStatus('failed');
     }
 
     setGenerating(false);
@@ -1167,118 +1129,11 @@ function CampanhaPage() {
     addLog('info', '⏳ Vídeo ainda não publicado. Aprove para publicar.');
   };
 
-  const handleChangeVoice = (newVoiceId) => {
-    setVoiceId(newVoiceId);
-    addLog('info', `🎤 Voz alterada para: ${newVoiceId}`);
-  };
-
-  const handleGenerateVoice = async () => {
-    if (!campaign) return;
-    addLog('info', '🎤 Gerando voz...');
-    setVoiceStatus('generating');
-    setGenerating(true);
-    setGenProgress(0);
-    setGenStatus('Gerando voz...');
-
-    try {
-      const { generateVoiceAudio } = await import("../../services/voiceEngine");
-      const result = await generateVoiceAudio(
-        video?.narracaoCompleta || campaign.nome,
-        voiceId,
-        (msg) => addLog('info', `   ${msg}`)
-      );
-
-      if (result.success && result.blob && result.blob.size > 100) {
-        setVoiceStatus('generated');
-        setVoiceBlob(result.blob);
-        addLog('success', `✅ Voz gerada: ${result.method} (${result.duration}s, ${result.blob.size} bytes)`);
-        addLog('info', '⏳ Recrie o vídeo para aplicar a nova voz');
-      } else {
-        setVoiceStatus('failed');
-        setVoiceBlob(null);
-        addLog('error', `❌ Falha: ${result.error || 'erro desconhecido'}`);
-      }
-    } catch (err) {
-      setVoiceStatus('failed');
-      addLog('error', `❌ Erro: ${err.message}`);
-    }
-
-    setGenerating(false);
-    setGenStatus('');
-  };
-
-  const handleRegenerateVoice = async () => {
-    if (!campaign || !video) return;
-    if (!realVideoUrl && !generating) {
-      // No video yet, just regenerate the whole thing
-      addLog('info', '🔄 Gerando vídeo com nova voz...');
-      setVoiceStatus('generating');
-      setGenerating(true);
-      setGenProgress(0);
-      setGenStatus('Gerando narração...');
-
-      try {
-        const { generateRealVideo } = await import("../../services/realVideoGenerator");
-        const result = await generateRealVideo(campaign, (pct, status) => {
-          setGenProgress(pct);
-          if (status) setGenStatus(status);
-        }, voiceId);
-
-        setVideo(result.videoMeta);
-        setVideoRoteiro(result.videoMeta.narracaoCompleta);
-
-        if (result.voiceStatus === 'generated') {
-          setVoiceStatus('generated');
-          addLog('success', '🎤 Nova narração gerada com sucesso');
-        } else {
-          setVoiceStatus('failed');
-          addLog('warn', '⚠️ Falha ao gerar nova voz');
-        }
-
-        if (result.url) {
-          setRealVideoUrl(result.url);
-          setRealVideoBlob(result.blob);
-          addLog('success', '✅ Vídeo atualizado com nova voz');
-        }
-      } catch (err) {
-        addLog('error', `❌ Erro: ${err.message}`);
-        setVoiceStatus('failed');
-      }
-
-      setGenerating(false);
-      setGenStatus('');
-    }
-  };
-
-  const handleReject = () => {
-    addLog('warn', '⏹️ Campanha rejeitada');
-    setCampaign(null);
-    setVideo(null);
-    setStep('form');
-  };
-
-  const handleEditLegenda = (novaLegenda) => {
-    setVideoLegenda(novaLegenda);
-    if (campaign) setCampaign(prev => ({ ...prev, legenda: novaLegenda }));
-    addLog('info', '✏️ Legenda editada');
-  };
-
-  const handleEditRoteiro = (novoRoteiro) => {
-    setVideoRoteiro(novoRoteiro);
-    if (video) setVideo(prev => ({ ...prev, narracaoCompleta: novoRoteiro }));
-    addLog('info', '✏️ Roteiro editado');
-  };
-
   const handleApprove = async () => {
     if (!campaign) return;
 
     if (!realVideoUrl) {
       addLog('error', '❌ Gere um vídeo antes de publicar.');
-      return;
-    }
-
-    if (voiceStatus !== 'generated') {
-      addLog('error', '❌ Voz não gerada. Gere a narração antes de publicar.');
       return;
     }
 
@@ -1293,9 +1148,6 @@ function CampanhaPage() {
       lojaUrl: campaign.lojaUrl || campaign.link || '',
       loja: campaign.lojaDestino || 'Amazon',
       produto: campaign.nome,
-      voiceId: voiceId,
-      narracaoCompleta: video?.narracaoCompleta || campaign.descricao || campaign.nome,
-      voiceStatus: voiceStatus,
     });
 
     addLog('success', `✅ "${campaign.nome}" adicionado à central de anúncios`);
@@ -1398,17 +1250,11 @@ function CampanhaPage() {
               generating={generating}
               genProgress={genProgress}
               genStatus={genStatus}
-              voiceStatus={voiceStatus}
-              voiceId={voiceId}
-              voiceBlob={voiceBlob}
               onApprove={handleApprove}
               onReject={handleReject}
               onRegenerate={handleRegenerate}
               onEditLegenda={handleEditLegenda}
               onEditRoteiro={handleEditRoteiro}
-              onChangeVoice={handleChangeVoice}
-              onRegenerateVoice={handleRegenerateVoice}
-              onGenerateVoice={handleGenerateVoice}
             />
           </div>
 
