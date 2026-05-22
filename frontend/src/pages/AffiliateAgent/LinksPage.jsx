@@ -63,7 +63,7 @@ export function LinksPage() {
       const camp = {
         id: entry.id, nome: entry.titulo, link: entry.link, preco: entry.preco,
         categoria: entry.categoria, descricao: entry.descricao, imagem: entry.imagem,
-        lojaUrl: "", titulo: entry.titulo, legenda: `🔗 Link na bio\n💰 R$ ${entry.preco.toFixed(2)}`,
+        lojaUrl: '', titulo: entry.titulo, legenda: `🔗 Link na bio\n💰 R$ ${entry.preco.toFixed(2)}`,
         hashtags: [`#${entry.categoria}`, "#oferta", "#promoção"],
         hook: "🔥 OFERTA IMPERDÍVEL", cenario: `${ICONES[entry.categoria] || "📦"} ${entry.categoria}`,
         criadoEm: entry.criadoEm,

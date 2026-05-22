@@ -320,18 +320,22 @@ export function renderSceneFrame(ctx, w, h, scene, frame, sceneTotal, produtoNom
       break;
     }
     case 'cta': {
-      renderText(ctx, scene.texto, 'cta-giant', frame, sceneTotal, w / 2, h * 0.28);
-      renderText(ctx, lojaUrl || 'disponivel.com', 'subtext', frame, sceneTotal, w / 2, h * 0.42);
-      if (scene.subtexto) {
-        renderText(ctx, scene.subtexto, 'subtext', frame, sceneTotal, w / 2, h * 0.52);
+      renderText(ctx, scene.texto, 'cta-giant', frame, sceneTotal, w / 2, h * 0.22);
+      if (lojaUrl && lojaUrl.startsWith('http')) {
+        renderText(ctx, lojaUrl, 'subtext', frame, sceneTotal, w / 2, h * 0.37);
       }
-      const arrowY = h * 0.8 + Math.sin(frame * 0.08) * 8;
+      if (scene.subtexto) {
+        renderText(ctx, scene.subtexto, 'subtext', frame, sceneTotal, w / 2, h * 0.50);
+      }
+      // Mãozinha pointing at the link area with bounce
+      const handY = lojaUrl && lojaUrl.startsWith('http') ? h * 0.32 : h * 0.18;
+      const handBob = Math.sin(frame * 0.07) * 6;
       ctx.save();
-      ctx.font = '40px serif';
+      ctx.font = '44px serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'rgba(255,255,255,0.35)';
-      ctx.fillText('👇', w / 2, arrowY);
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fillText('👇', w / 2, handY + handBob);
       ctx.restore();
       break;
     }

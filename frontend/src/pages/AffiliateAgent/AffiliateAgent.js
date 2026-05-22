@@ -100,7 +100,36 @@ function Dashboard() {
     return () => clearInterval(iv);
   }, [refresh]);
 
-  const handleStart = () => { agent.start(); refresh(); };
+  const handleStart = async () => {
+    // Process approved affiliate links first
+    try {
+      const raw = localStorage.getItem("brane_affiliate_links_queue");
+      if (raw) {
+        const cards = JSON.parse(raw);
+        const approved = cards.filter(c => c.status === "aprovado");
+        if (approved.length > 0) {
+          const stores = {};
+          const updated = cards.map(c => {
+            if (c.status === "aprovado") {
+              const storeUrl = getStoreLink(c.categoria);
+              stores[c.categoria] = storeUrl;
+              return { ...c, status: "publicado", storeUrl, publicadoEm: new Date().toISOString() };
+            }
+            return c;
+          });
+          localStorage.setItem("brane_affiliate_links_queue", JSON.stringify(updated));
+          const storeKeys = Object.keys(stores);
+          agent._log('success', `🏪 ${storeKeys.length} loja(s) criada(s): ${storeKeys.join(', ')}`);
+          storeKeys.forEach(k => agent._log('info', `  🔗 ${stores[k]}`));
+          agent._log('success', `✅ ${approved.length} anúncio(s) aprovados publicados`);
+        }
+      }
+    } catch (e) {
+      agent._log('error', `❌ Erro ao processar fila: ${e.message}`);
+    }
+    agent.start();
+    refresh();
+  };
   const handleStop = () => { agent.stop(); refresh(); };
   const handleExecutar = () => { agent.executarAgora(); setTimeout(refresh, 400); };
 
