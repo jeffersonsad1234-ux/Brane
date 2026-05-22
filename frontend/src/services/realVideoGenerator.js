@@ -164,6 +164,10 @@ export async function generateRealVideo(campaign, onProgress, voiceId) {
   log(`✅ ${images.length} imagem(ns) carregada(s)`);
   if (urls.length > 0) urls.forEach(u => log(`  📸 ${u}`));
 
+  const bgCat = { gamer: 'gamer', tecnologia: 'tecnologia', celular: 'tecnologia', 'eletrônicos': 'tecnologia', cozinha: 'cozinha', beleza: 'beleza', fitness: 'fitness', moda: 'moda', roupa: 'moda', pet: 'pet', casa: 'casa' }[categoria] || 'default';
+  log(`🏷️ Categoria detectada: ${categoria}`);
+  log(`🎨 Background: ${bgCat === 'default' ? 'padrão (gradiente)' : bgCat}`);
+
   const imageCount = images.length;
   const cenas = gerarCenas(nome, preco, descricao, categoria, imageCount);
   const duracao = cenas.reduce((s, c) => s + c.duracao, 0);

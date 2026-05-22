@@ -1,5 +1,7 @@
 export const FPS = 30;
 
+let _bgCache = {};
+
 export function getVideoMimeType() {
   if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) return 'video/webm;codecs=vp9';
   if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) return 'video/webm;codecs=vp8';
@@ -38,16 +40,32 @@ function drawImageCover(ctx, img, w, h) {
   ctx.drawImage(img, dx, dy, dw, dh);
 }
 
-function renderBlurredBackground(ctx, w, h, images) {
-  const img = images && images[0];
-  if (!img) return false;
+function renderBlurredProductBg(ctx, w, h, images) {
+  if (!images || !images[0]) return false;
   ctx.save();
   ctx.filter = 'blur(28px)';
-  drawImageCover(ctx, img, w, h);
+  drawImageCover(ctx, images[0], w, h);
   ctx.restore();
-  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
   ctx.fillRect(0, 0, w, h);
   return true;
+}
+
+function renderCategoryBackground(ctx, w, h, category) {
+  const key = `bg_${category}`;
+  if (!_bgCache[key]) {
+    const { generateBackground, getBackgroundCategory } = require('./backgroundGenerator');
+    const bgCat = getBackgroundCategory(category);
+    _bgCache[key] = generateBackground(bgCat, w, h);
+  }
+  const img = _bgCache[key];
+  if (img && img.complete && img.naturalWidth > 0) {
+    ctx.drawImage(img, 0, 0, w, h);
+    ctx.fillStyle = 'rgba(0,0,0,0.20)';
+    ctx.fillRect(0, 0, w, h);
+    return true;
+  }
+  return false;
 }
 
 function renderGradient(ctx, w, h, colors) {
@@ -59,84 +77,23 @@ function renderGradient(ctx, w, h, colors) {
   ctx.fillRect(0, 0, w, h);
 }
 
-function renderNeonBackground(ctx, w, h, frame) {
-  const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, '#0a0a2e');
-  grad.addColorStop(0.5, '#0d002b');
-  grad.addColorStop(1, '#0a0a2e');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, w, h);
-
-  ctx.strokeStyle = `rgba(0, 255, 255, ${0.04 + Math.sin(frame * 0.02) * 0.02})`;
-  ctx.lineWidth = 0.5;
-  for (let x = 0; x < w; x += 35) {
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x + Math.sin(frame * 0.008 + x * 0.01) * 15, h);
-    ctx.stroke();
-  }
-
-  renderParticlesRGB(ctx, w, h, frame);
-}
-
-function renderParticlesRGB(ctx, w, h, frame) {
-  for (let i = 0; i < 12; i++) {
-    const px = (w * 0.05 + i * w * 0.08 + Math.sin(frame * 0.03 + i * 1.7) * 25) % w;
-    const py = (h * 0.05 + i * h * 0.08 + Math.cos(frame * 0.025 + i * 2.3) * 20 + frame * 0.4) % h;
-    const ps = 2 + Math.sin(frame * 0.04 + i) * 1.5;
-    const hue = (frame * 0.5 + i * 45) % 360;
-    ctx.fillStyle = `hsla(${hue}, 100%, 60%, ${0.2 + Math.sin(frame * 0.03 + i) * 0.1})`;
+function renderGradientParticles(ctx, w, h, frame) {
+  for (let i = 0; i < 10; i++) {
+    const px = (w * 0.05 + i * w * 0.1 + Math.sin(frame * 0.03 + i * 1.7) * 25) % w;
+    const py = (h * 0.05 + i * h * 0.1 + Math.cos(frame * 0.025 + i * 2.3) * 20 + frame * 0.4) % h;
+    const ps = 1 + Math.sin(frame * 0.04 + i) * 1.5;
+    ctx.fillStyle = `rgba(255,255,255,${0.03 + Math.sin(frame * 0.03 + i) * 0.02})`;
     ctx.beginPath();
     ctx.arc(px, py, Math.max(ps, 1), 0, Math.PI * 2);
     ctx.fill();
   }
 }
 
-function renderParticlesFire(ctx, w, h, frame) {
-  for (let i = 0; i < 8; i++) {
-    const px = w * 0.1 + Math.sin(frame * 0.05 + i * 1.3) * w * 0.35;
-    const py = h - 20 - Math.random() * h * 0.3;
-    const ps = 3 + Math.sin(frame * 0.06 + i) * 2;
-    ctx.fillStyle = `rgba(255, ${100 + Math.random() * 80}, 0, ${0.15 + Math.random() * 0.1})`;
-    ctx.beginPath();
-    ctx.arc(px, py, ps, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
-
-function renderParticlesSparkle(ctx, w, h, frame) {
-  for (let i = 0; i < 10; i++) {
-    const px = Math.random() * w;
-    const py = Math.random() * h;
-    const ps = 1 + Math.sin(frame * 0.05 + i) * 0.5;
-    ctx.fillStyle = `rgba(255, 200, 255, ${0.1 + Math.sin(frame * 0.04 + i * 0.7) * 0.05})`;
-    ctx.beginPath();
-    ctx.arc(px, py, ps, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
-
-function renderParticlesBubble(ctx, w, h, frame) {
-  for (let i = 0; i < 6; i++) {
-    const px = w * 0.1 + (i * w * 0.15 + Math.sin(frame * 0.02 + i) * 20) % w;
-    const py = (frame * 1.5 + i * h * 0.15) % h;
-    const ps = 4 + Math.sin(frame * 0.03 + i * 0.5) * 2;
-    ctx.strokeStyle = `rgba(255, 255, 200, ${0.1 + Math.sin(frame * 0.02 + i) * 0.05})`;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(px, py, ps, 0, Math.PI * 2);
-    ctx.stroke();
-  }
-}
-
 function renderBackground(ctx, w, h, scene, frame, images) {
-  if (renderBlurredBackground(ctx, w, h, images)) return;
-  const bg = BACKGROUNDS[scene.background] || { type: 'gradient', colors: ['#1a1a2e', '#16213e', '#0f3460'] };
-  if (bg.type === 'neon') {
-    renderNeonBackground(ctx, w, h, frame);
-  } else {
-    renderGradient(ctx, w, h, bg.colors);
-  }
+  if (renderBlurredProductBg(ctx, w, h, images)) return;
+  if (renderCategoryBackground(ctx, w, h, scene.background)) return;
+  renderGradient(ctx, w, h, ['#1a1a2e', '#16213e', '#0f3460']);
+  renderGradientParticles(ctx, w, h, frame);
 }
 
 // ── Image entry animations based on index ──
