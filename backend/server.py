@@ -4515,6 +4515,94 @@ async def shutdown_db_client():
 def teste():
     return {"ok": True}
 
+# ==================== TTS ENDPOINT ====================
+# Standalone TTS via edge-tts (no MongoDB dependency)
+import tempfile, shutil, subprocess, json, time as tts_time
+from fastapi.responses import FileResponse
+
+TTS_VOICES = [
+    "pt-BR-FranciscaNeural", "pt-BR-ThalitaNeural", "pt-BR-AntonioNeural",
+    "pt-BR-YaraNeural", "pt-BR-FabioNeural", "pt-BR-BrendaNeural",
+    "pt-BR-JulioNeural", "pt-BR-LeilaNeural", "pt-BR-DonatoNeural",
+    "pt-BR-ElzaNeural", "pt-BR-GiovannaNeural", "pt-BR-HumbertoNeural",
+    "pt-BR-ManuelaNeural", "pt-BR-NicolasNeural", "pt-BR-ValeriaNeural",
+    "pt-BR-LeticiaNeural",
+]
+TTS_TEMP = Path(tempfile.gettempdir()) / "brane-tts"
+TTS_TEMP.mkdir(exist_ok=True)
+TTS_START = tts_time.time()
+
+class TTSBody(BaseModel):
+    text: str
+    voice: str = "pt-BR-FranciscaNeural"
+    rate: str = "+0%"
+    pitch: str = "+0Hz"
+
+@app.post("/api/tts", response_class=FileResponse)
+async def tts_generate(body: TTSBody):
+    if not body.text or len(body.text.strip()) < 2:
+        raise HTTPException(400, "Texto muito curto")
+    text = body.text.strip()[:5000]
+    voice = body.voice if body.voice in TTS_VOICES else "pt-BR-FranciscaNeural"
+    voices_to_try = [voice] + [v for v in TTS_VOICES if v != voice]
+    import edge_tts
+    for attempt, v in enumerate(voices_to_try[:5]):
+        uid = f"tts_{uuid.uuid4().hex[:10]}"
+        mp3 = TTS_TEMP / f"{uid}.mp3"
+        wav = TTS_TEMP / f"{uid}.wav"
+        try:
+            tts = edge_tts.Communicate(text=text, voice=v, rate=body.rate, pitch=body.pitch)
+            await tts.save(str(mp3))
+            if not mp3.exists() or mp3.stat().st_size < 200:
+                raise ValueError("Audio muito pequeno")
+            dur = 0
+            try:
+                p = subprocess.run(["ffprobe","-v","quiet","-print_format","json","-show_streams",str(mp3)], capture_output=True, text=True, timeout=10)
+                info = json.loads(p.stdout)
+                if info.get("streams"): dur = round(float(info["streams"][0].get("duration",0)))
+            except: pass
+            final, mtype, codec = mp3, "audio/mpeg", "mp3"
+            try:
+                subprocess.run(["ffmpeg","-y","-i",str(mp3),"-acodec","pcm_s16le","-ar","24000","-ac","1","-af","loudnorm=I=-16:LRA=11:TP=-1.5",str(wav)], check=True, capture_output=True, timeout=30)
+                final, mtype, codec = wav, "audio/wav", "pcm_s16le"
+                try:
+                    p2 = subprocess.run(["ffprobe","-v","quiet","-print_format","json","-show_streams",str(wav)], capture_output=True, text=True, timeout=10)
+                    i2 = json.loads(p2.stdout)
+                    if i2.get("streams"): dur = round(float(i2["streams"][0].get("duration",0)))
+                except: pass
+            except: pass
+            kb = round(final.stat().st_size / 1024, 1)
+            logger.info(f"[TTS] OK: {v} | {kb}KB | {dur}s | {codec}")
+            resp = FileResponse(str(final), media_type=mtype, filename=f"tts_{uid}.{final.suffix[1:]}",
+                headers={"X-TTS-Voice":v,"X-TTS-Duration":str(dur),"X-TTS-Size":str(kb),"X-TTS-Codec":codec,"X-TTS-SampleRate":"24000"})
+            async def clean(paths=[mp3,wav]):
+                await asyncio.sleep(5)
+                for p in paths:
+                    try: p.unlink()
+                    except: pass
+            asyncio.create_task(clean())
+            return resp
+        except Exception as e:
+            logger.error(f"[TTS] {v}: {e}")
+            for p in [mp3,wav]:
+                try: p.unlink()
+                except: pass
+            continue
+    return JSONResponse(502, {"error": f"TTS falhou apos varias tentativas"})
+
+@app.get("/api/health")
+async def tts_health():
+    return {
+        "status": "ok", "service": "tts", "uptime": round(tts_time.time() - TTS_START),
+        "port": int(os.environ.get("PORT", 8080)), "voices": len(TTS_VOICES),
+        "ffmpeg": shutil.which("ffmpeg") is not None, "edge_tts": True,
+    }
+
+# Railway health check (used by Railway's healthcheckPath)
+@app.get("/health")
+async def railway_health():
+    return {"status": "ok"}
+
 port = int(os.environ.get("PORT", 8080))
 
 if __name__ == "__main__":

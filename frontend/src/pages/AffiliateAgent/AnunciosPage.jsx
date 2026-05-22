@@ -415,6 +415,7 @@ function ChartBar({ label, value, maxValue, color }) {
 function BackendStatusBar() {
   const [status, setStatus] = useState(getBackendStatus());
   const [health, setHealth] = useState(null);
+  const backendUrl = getApiBase();
 
   useEffect(() => {
     const unsub = onStatusChange((s) => setStatus(s));
@@ -435,10 +436,11 @@ function BackendStatusBar() {
   return (
     <div className={`an-backend-bar ${cfg.className}`}>
       <span className="an-backend-status">{cfg.label}</span>
+      <span className="an-backend-details">URL: {backendUrl}</span>
       {health && (
         <span className="an-backend-details">
-          porta {health.port} · ativo há {Math.floor(health.uptime / 60)}min
-          {health.ffmpeg ? ' · FFmpeg OK' : ' · FFmpeg não encontrado'}
+          · porta {health.port} · ativo há {Math.floor(health.uptime / 60)}min
+          {health.ffmpeg ? ' · FFmpeg OK' : ' · sem FFmpeg'}
         </span>
       )}
       {status === 'offline' && (

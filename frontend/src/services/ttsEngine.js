@@ -26,7 +26,25 @@ const VOZES = [
 export function getVozesDisponiveis() { return VOZES; }
 export function getVoiceName(id) { return VOZES.find(v => v.id === id)?.nome || id; }
 
-const API_BASE = (window._env_?.REACT_APP_AGENT_API || process.env.REACT_APP_AGENT_API || 'http://localhost:3200').replace(/\/+$/, '');
+/**
+ * API_BASE resolution chain:
+ *   1. REACT_APP_TTS_API  (new dedicated Railway URL)
+ *   2. REACT_APP_AGENT_API (legacy env var)
+ *   3. http://127.0.0.1:3200 (local dev fallback)
+ */
+function resolveApiBase() {
+  const candidates = [
+    window._env_?.REACT_APP_TTS_API,
+    process.env.REACT_APP_TTS_API,
+    window._env_?.REACT_APP_AGENT_API,
+    process.env.REACT_APP_AGENT_API,
+  ];
+  for (const c of candidates) {
+    if (c && typeof c === 'string' && c.startsWith('http')) return c.replace(/\/+$/, '');
+  }
+  return 'http://127.0.0.1:3200';
+}
+const API_BASE = resolveApiBase();
 
 // Connection status tracking
 let _backendStatus = 'unknown'; // 'unknown' | 'online' | 'offline' | 'checking'
