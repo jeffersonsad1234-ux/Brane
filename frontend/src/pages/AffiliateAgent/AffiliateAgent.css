@@ -506,6 +506,15 @@
 }
 .vp-generating-fill { height: 100%; background: var(--aa-primary); border-radius: 3px; transition: width 0.2s; }
 
+/* === Voice Section === */
+.vp-voice-section { margin-bottom: 12px; padding: 10px 14px; background: var(--aa-bg); border-radius: var(--aa-radius-sm); border: 1px solid var(--aa-border); }
+.vp-voice-status { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.vp-voice-label { font-size: 0.8rem; font-weight: 600; color: var(--aa-text-secondary); }
+.vp-voice-badge { font-size: 0.72rem; padding: 3px 12px; border-radius: 10px; background: var(--aa-bg); color: var(--aa-text-muted); border: 1px solid var(--aa-border); }
+.vp-voice-badge.ready { background: rgba(5,150,105,0.06); color: var(--aa-success); border-color: var(--aa-success); }
+.vp-voice-badge.failed { background: rgba(220,38,38,0.04); color: var(--aa-danger); border-color: rgba(220,38,38,0.2); }
+.vp-voice-select { width: auto; min-width: 180px; padding: 4px 10px; font-size: 0.75rem; }
+
 @media (max-width: 900px) {
   .vp-container { flex-direction: column; }
   .vp-sidebar { width: 100%; max-height: none; }

@@ -1,97 +1,123 @@
 /**
- * Voice Engine — SpeechSynthesis for natural PT-BR narration + AudioContext background music.
+ * Voice Engine — TTS voice generation + AudioContext background music.
+ * Uses Edge TTS API for natural PT-BR narration.
  */
-export function speakNarration(text, onStart, onEnd) {
-  return new Promise((resolve) => {
-    if (!window.speechSynthesis) {
-      if (onEnd) onEnd();
-      resolve(null);
-      return;
-    }
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'pt-BR';
-    utterance.rate = 1.05;
-    utterance.pitch = 1.0;
-    utterance.volume = 1;
+import { generateTTSAudio, decodeTTSBlob, getVozesDisponiveis } from "./ttsEngine";
 
-    const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('pt'));
-    if (voices.length > 0) {
-      utterance.voice = voices.find(v => v.name.includes('Female') || v.name.includes('Maria')) || voices[0];
-    }
+export { getVozesDisponiveis };
 
-    if (onStart) utterance.onstart = onStart;
-    if (onEnd) utterance.onend = onEnd;
-    utterance.onend = () => {
-      if (onEnd) onEnd();
-      resolve(true);
+export async function generateVoiceAudio(text, voiceId = 'pt-BR-FranciscaNeural') {
+  try {
+    const result = await generateTTSAudio(text, voiceId);
+    return result;
+  } catch (err) {
+    console.warn('Edge TTS failed, using fallback:', err.message);
+    return {
+      success: false,
+      error: err.message,
+      blob: null,
+      voiceId,
+      duration: 0,
     };
-    utterance.onerror = () => resolve(null);
-
-    window.speechSynthesis.speak(utterance);
-  });
-}
-
-export function stopSpeech() {
-  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  }
 }
 
 export function createBackgroundMusic(audioCtx, durationSec, bpm = 120) {
   const sampleRate = audioCtx.sampleRate;
   const totalSamples = durationSec * sampleRate;
   const beatDuration = 60 / bpm;
-  const beatSamples = beatDuration * sampleRate;
 
-  const buffer = audioCtx.createBuffer(1, totalSamples, sampleRate);
-  const data = buffer.getChannelData(0);
+  const buffer = audioCtx.createBuffer(2, totalSamples, sampleRate);
+  const left = buffer.getChannelData(0);
+  const right = buffer.getChannelData(1);
 
-  // Simple lo-fi beat pattern
   for (let i = 0; i < totalSamples; i++) {
     const t = i / sampleRate;
     const beat = Math.floor(t / beatDuration);
     const beatPhase = (t % beatDuration) / beatDuration;
 
-    // Kick on beats 0, 2
     let sample = 0;
     if (beat % 4 === 0 || beat % 4 === 2) {
       const kickEnv = Math.exp(-beatPhase * 20);
       sample += Math.sin(2 * Math.PI * 60 * t) * kickEnv * 0.15;
     }
 
-    // Hi-hat on 8th notes
     if (beatPhase < 0.5) {
       const hiHatEnv = Math.exp(-beatPhase * 40);
       sample += (Math.random() * 2 - 1) * hiHatEnv * 0.04;
     }
 
-    // Bass line
     const bassNotes = [130.81, 146.83, 164.81, 174.61];
     const bassNote = bassNotes[beat % bassNotes.length];
     const bassEnv = Math.max(0, 1 - beatPhase * 4);
     sample += Math.sin(2 * Math.PI * bassNote * t) * bassEnv * 0.08;
 
-    // Pad chord
     const chordFreqs = [261.63, 329.63, 392.00];
     for (const f of chordFreqs) {
       sample += Math.sin(2 * Math.PI * f * t) * 0.015;
     }
 
-    data[i] = Math.max(-1, Math.min(1, sample));
+    left[i] = Math.max(-1, Math.min(1, sample * 0.7));
+    right[i] = Math.max(-1, Math.min(1, sample * 0.7));
   }
 
   return buffer;
 }
 
-export function createAudioStream(audioCtx, durationSec, bpm) {
-  const musicBuffer = createBackgroundMusic(audioCtx, durationSec, bpm);
+export async function createMixedAudio(audioCtx, durationSec, voiceBuffer, voiceDuration) {
+  const sampleRate = audioCtx.sampleRate;
+  const totalSamples = durationSec * sampleRate;
+  const musicBuffer = createBackgroundMusic(audioCtx, durationSec, 100);
+
+  const mixedBuffer = audioCtx.createBuffer(2, totalSamples, sampleRate);
+
+  // Copy music into mixed buffer
+  for (let ch = 0; ch < 2; ch++) {
+    const musicData = musicBuffer.getChannelData(ch);
+    const mixedData = mixedBuffer.getChannelData(ch);
+    for (let i = 0; i < totalSamples; i++) {
+      mixedData[i] = musicData[i] * 0.2;
+    }
+  }
+
+  // Mix voice on top (louder than music)
+  if (voiceBuffer) {
+    const voiceDurationSamples = Math.min(
+      voiceBuffer.length,
+      voiceDuration * sampleRate,
+      totalSamples
+    );
+    for (let ch = 0; ch < Math.min(voiceBuffer.numberOfChannels, 2); ch++) {
+      const voiceData = voiceBuffer.getChannelData(ch);
+      const mixedData = mixedBuffer.getChannelData(ch);
+      for (let i = 0; i < voiceDurationSamples; i++) {
+        mixedData[i] += voiceData[i] * 0.9;
+      }
+    }
+  }
+
+  return mixedBuffer;
+}
+
+export async function createAudioStreamWithVoice(audioCtx, durationSec, voiceBlob, voiceDuration) {
+  let voiceBuffer = null;
+
+  if (voiceBlob) {
+    try {
+      const decoded = await decodeTTSBlob(voiceBlob);
+      voiceBuffer = decoded.audioBuffer;
+    } catch (e) {
+      console.warn('Could not decode voice audio:', e);
+    }
+  }
+
+  const mixedBuffer = await createMixedAudio(audioCtx, durationSec, voiceBuffer, voiceDuration);
   const source = audioCtx.createBufferSource();
-  source.buffer = musicBuffer;
+  source.buffer = mixedBuffer;
   source.loop = false;
 
   const gainNode = audioCtx.createGain();
-  gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-  gainNode.gain.linearRampToValueAtTime(0.25, audioCtx.currentTime + 2);
-  gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + durationSec - 2);
-  gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + durationSec);
+  gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
 
   source.connect(gainNode);
   const dest = audioCtx.createMediaStreamDestination();

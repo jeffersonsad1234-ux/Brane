@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { formatDuracao } from "../services/realVideoGenerator";
+import { getVozesDisponiveis } from "../services/ttsEngine";
 
 export default function VideoPreviewApproval({
   video,
@@ -10,11 +11,16 @@ export default function VideoPreviewApproval({
   publishing,
   generating,
   genProgress,
+  genStatus,
+  voiceStatus,
+  voiceId,
   onApprove,
   onReject,
   onRegenerate,
   onEditLegenda,
   onEditRoteiro,
+  onChangeVoice,
+  onRegenerateVoice,
 }) {
   const [playing, setPlaying] = useState(false);
   const [currentScene, setCurrentScene] = useState(0);
@@ -22,17 +28,13 @@ export default function VideoPreviewApproval({
   const [elapsed, setElapsed] = useState(0);
   const [editMode, setEditMode] = useState(null);
   const [editText, setEditText] = useState('');
-  const [videoReady, setVideoReady] = useState(false);
   const timerRef = useRef(null);
   const videoRef = useRef(null);
 
   const duration = video?.duracao || 30;
   const scenes = video?.cenas || [];
   const hasRealVideo = !!realVideoUrl;
-
-  useEffect(() => {
-    setVideoReady(hasRealVideo);
-  }, [realVideoUrl, hasRealVideo]);
+  const vozes = getVozesDisponiveis();
 
   const startPlayback = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -148,29 +150,59 @@ export default function VideoPreviewApproval({
     }
   };
 
+  const voiceName = vozes.find(v => v.id === voiceId)?.nome || voiceId;
+  const voiceGenerating = genStatus === 'Gerando narração...';
+
   return (
     <div className="aa-camp-card">
       <h4 style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
         <span>📹</span> Prévia do Vídeo
         <span style={{ fontSize: '0.7rem', color: 'var(--aa-text-muted)', fontWeight: 400 }}>
           {formatDuracao(duration)} · {video?.formato || '9:16'} · {video?.cortesRapidos || scenes.length} cortes
-          {hasRealVideo && ' · MP4 real'}
+          {hasRealVideo && ' · MP4'}
         </span>
       </h4>
 
       {generating && (
         <div className="vp-generating">
           <div className="vp-generating-spinner" />
-          <div className="vp-generating-text">Gerando vídeo real... {genProgress ? `${Math.round(genProgress * 100)}%` : ''}</div>
+          <div className="vp-generating-text">{genStatus || 'Gerando vídeo...'} {genProgress ? `${Math.round(genProgress * 100)}%` : ''}</div>
           <div className="vp-generating-bar">
             <div className="vp-generating-fill" style={{ width: `${(genProgress || 0) * 100}%` }} />
           </div>
         </div>
       )}
 
+      <div className="vp-voice-section">
+        <div className="vp-voice-status">
+          <span className="vp-voice-label">🎤 Voz:</span>
+          <span className={`vp-voice-badge ${voiceStatus === 'generated' ? 'ready' : voiceStatus === 'failed' ? 'failed' : ''}`}>
+            {voiceStatus === 'generated' ? `✅ ${voiceName}` : voiceStatus === 'generating' ? '⏳ Gerando...' : voiceStatus === 'failed' ? '❌ Falha' : '⏳ Pendente'}
+          </span>
+          <select
+            className="aa-input vp-voice-select"
+            value={voiceId || 'pt-BR-FranciscaNeural'}
+            onChange={(e) => onChangeVoice && onChangeVoice(e.target.value)}
+            disabled={generating}
+          >
+            {vozes.map(v => (
+              <option key={v.id} value={v.id}>{v.nome} · {v.estilo}</option>
+            ))}
+          </select>
+          <button
+            className="aa-btn aa-btn-sm aa-btn-outline"
+            onClick={onRegenerateVoice}
+            disabled={generating || voiceGenerating}
+            title="Regenerar narração"
+          >
+            🔄 Nova Voz
+          </button>
+        </div>
+      </div>
+
       <div className="vp-container">
         <div className="vp-player">
-          {hasRealVideo && videoReady ? (
+          {hasRealVideo ? (
             <div className="vp-screen vp-screen-real">
               <video
                 ref={videoRef}
@@ -193,33 +225,21 @@ export default function VideoPreviewApproval({
           ) : (
             <div className="vp-screen" onClick={handlePlayPause} style={{ background: scenes[currentScene]?.cor || '#1a1a2e' }}>
               <div className="vp-scene-indicator">Cena {currentScene + 1}/{scenes.length}</div>
-
               <div className="vp-persona-badge">
                 <span>{video?.personaNome || video?.pessoa?.nome || 'Apresentador'}</span>
                 <span className="vp-persona-style">{video?.pessoa?.estilo || video?.estiloVisual || ''}</span>
               </div>
-
               <div className="vp-emoji-display">{scenes[currentScene]?.emoji || '🎬'}</div>
-
-              <div className="vp-legenda-overlay">
-                {scenes[currentScene]?.legenda || ''}
-              </div>
-
+              <div className="vp-legenda-overlay">{scenes[currentScene]?.legenda || ''}</div>
               {!playing && progress === 0 && (
                 <div className="vp-play-overlay" onClick={handlePlayPause}>
-                  <span className="vp-play-icon">▶</span>
-                  <span className="vp-play-text">Assistir prévia</span>
+                  <span className="vp-play-icon">▶</span><span className="vp-play-text">Assistir prévia</span>
                 </div>
               )}
-
-              {!playing && progress > 0 && progress < 1 && (
-                <div className="vp-paused-badge">⏸ Pausado</div>
-              )}
-
+              {!playing && progress > 0 && progress < 1 && <div className="vp-paused-badge">⏸ Pausado</div>}
               {!playing && progress >= 1 && (
                 <div className="vp-play-overlay" onClick={handlePlayPause}>
-                  <span className="vp-play-icon">↻</span>
-                  <span className="vp-play-text">Repetir</span>
+                  <span className="vp-play-icon">↻</span><span className="vp-play-text">Repetir</span>
                 </div>
               )}
             </div>
@@ -231,23 +251,13 @@ export default function VideoPreviewApproval({
               {!hasRealVideo && scenes.map((s, i) => {
                 const startPct = scenes.slice(0, i).reduce((a, c) => a + c.duracao, 0) / duration * 100;
                 const wPct = s.duracao / duration * 100;
-                return (
-                  <div
-                    key={s.id}
-                    className={`vp-scene-marker ${i === currentScene ? 'active' : ''}`}
-                    style={{ left: `${startPct}%`, width: `${wPct}%` }}
-                    title={s.tipo}
-                  />
-                );
+                return <div key={s.id} className={`vp-scene-marker ${i === currentScene ? 'active' : ''}`} style={{ left: `${startPct}%`, width: `${wPct}%` }} title={s.tipo} />;
               })}
             </div>
-
             <div className="vp-control-row">
               <div className="vp-buttons">
-                <button className="vp-btn" onClick={handlePlayPause} title={playing ? 'Pausar' : 'Play'} disabled={generating}>
-                  {playing ? '⏸' : progress >= 1 ? '↻' : '▶'}
-                </button>
-                <button className="vp-btn" onClick={handleRestart} title="Reiniciar" disabled={generating}>⏮</button>
+                <button className="vp-btn" onClick={handlePlayPause} disabled={generating}>{playing ? '⏸' : progress >= 1 ? '↻' : '▶'}</button>
+                <button className="vp-btn" onClick={handleRestart} disabled={generating}>⏮</button>
               </div>
               <span className="vp-time">
                 {hasRealVideo && videoRef.current
@@ -256,10 +266,8 @@ export default function VideoPreviewApproval({
                 }
               </span>
               <div className="vp-info-tags">
-                <span className="vp-tag">{video?.estiloVisual || 'viral'}</span>
-                <span className="vp-tag">{video?.musica?.nome || 'Music'}</span>
-                <span className="vp-tag">{video?.pessoa?.tom || 'natural'}</span>
                 {hasRealVideo && <span className="vp-tag vp-tag-real">🎬 MP4</span>}
+                {video?.musica?.nome && <span className="vp-tag">{video.musica.nome}</span>}
               </div>
             </div>
           </div>
@@ -287,11 +295,11 @@ export default function VideoPreviewApproval({
             </div>
             <div className="vp-detail-row">
               <span className="vp-detail-label">👤 Apresentador</span>
-              <span className="vp-detail-value">{video?.pessoa?.nome || 'Apresentador'}, {video?.pessoa?.idade || ''} — {video?.pessoa?.estilo || 'natural'}</span>
+              <span className="vp-detail-value">{video?.pessoa?.nome || 'Apresentador'}</span>
             </div>
             <div className="vp-detail-row">
-              <span className="vp-detail-label">🎨 Estilo</span>
-              <span className="vp-detail-value">{video?.estiloVisual || 'moderno'}{video?.zoom !== false ? ' · zoom' : ''}{video?.legendasAtivadas !== false ? ' · legendas' : ''}</span>
+              <span className="vp-detail-label">🎤 Voz</span>
+              <span className="vp-detail-value">{voiceName}</span>
             </div>
             <div className="vp-detail-row">
               <span className="vp-detail-label">📐 Resolução</span>
@@ -350,14 +358,11 @@ export default function VideoPreviewApproval({
       <div className="vp-links">
         <span>🔗 <strong>Loja:</strong> <a href={campaign?.lojaUrl} target="_blank" rel="noopener noreferrer">{campaign?.lojaUrl}</a></span>
         <span style={{ marginLeft: 20 }}>🛒 <strong>Produto:</strong> {campaign?.nome} — R$ {campaign?.preco?.toFixed(2)}</span>
-        <span style={{ marginLeft: 20 }}>🔗 <strong>Link:</strong> <a href={campaign?.link} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--aa-primary)' }}>
-          {campaign?.link?.length > 35 ? campaign.link.slice(0, 35) + '...' : campaign?.link}
-        </a></span>
       </div>
 
       <div className="aa-camp-approval-btns">
         <button className="aa-btn aa-btn-primary" onClick={onApprove} disabled={publishing || generating || !realVideoUrl}>
-          {publishing ? '⏳ Publicando...' : generating ? '⏳ Gerando vídeo...' : '✅ Aprovar e Publicar no TikTok'}
+          {publishing ? '⏳ Publicando...' : generating ? '⏳ Gerando...' : '✅ Aprovar e Publicar no TikTok'}
         </button>
         <button className="aa-btn aa-btn-outline" onClick={onReject} disabled={publishing || generating}>
           ❌ Rejeitar

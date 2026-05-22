@@ -1,8 +1,9 @@
 /**
  * Real Video Generator — orchestrates the full video generation pipeline.
- * Takes campaign data → generates scenes → renders frames → encodes REAL MP4.
+ * Takes campaign data → generates scenes → generates voice → renders → produces REAL MP4.
  */
 import { renderVideo, FPS } from "./videoRender";
+import { generateVoiceAudio } from "./voiceEngine";
 
 function genId() { return Math.random().toString(36).slice(2, 10); }
 
@@ -59,13 +60,20 @@ export function gerarCenas(produtoNome, preco, descricao) {
   ];
 }
 
-export async function generateRealVideo(campaign, onProgress) {
+const VOZES_PADRAO = [
+  { id: 'pt-BR-FranciscaNeural', nome: 'Francisca' },
+  { id: 'pt-BR-ThalitaNeural', nome: 'Thalita' },
+  { id: 'pt-BR-YaraNeural', nome: 'Yara' },
+];
+
+export function getVozes() { return VOZES_PADRAO; }
+
+export async function generateRealVideo(campaign, onProgress, voiceId) {
   const { nome, preco, categoria, descricao, lojaUrl } = campaign;
 
   const cenas = gerarCenas(nome, preco, descricao);
   const duracao = cenas.reduce((s, c) => s + c.duracao, 0);
   const musica = MUSICAS[Math.floor(Math.random() * MUSICAS.length)];
-
   const narracaoCompleta = cenas.map(c => c.narracao).join(' ');
 
   const videoMeta = {
@@ -87,29 +95,58 @@ export async function generateRealVideo(campaign, onProgress) {
     lojaUrl,
     link: campaign.link,
     criadoEm: new Date().toISOString(),
+    voiceId: voiceId || 'pt-BR-FranciscaNeural',
   };
 
+  // Generate voice audio
+  let voiceBlob = null;
+  let voiceDuration = 0;
+  let voiceStatus = 'failed';
+
   try {
-    const result = await renderVideo(nome, preco, lojaUrl, categoria, cenas, duracao, onProgress);
+    if (onProgress) onProgress(0, 'Gerando narração...');
+    const ttsResult = await generateVoiceAudio(narracaoCompleta, videoMeta.voiceId);
+    if (ttsResult.success && ttsResult.blob) {
+      voiceBlob = ttsResult.blob;
+      voiceDuration = ttsResult.duration || duracao;
+      voiceStatus = 'generated';
+    }
+  } catch (err) {
+    console.warn('Voice generation failed:', err);
+    voiceStatus = 'failed';
+  }
+
+  // Render video
+  try {
+    if (onProgress) onProgress(0, 'Renderizando vídeo...');
+    const result = await renderVideo(
+      nome, preco, lojaUrl, categoria, cenas, duracao,
+      (pct) => { if (onProgress) onProgress(pct, 'Renderizando...'); },
+      voiceBlob, voiceDuration
+    );
+
     return {
-      videoMeta,
+      videoMeta: { ...videoMeta, voiceStatus },
       blob: result.blob,
       url: result.url,
       duration: result.duration,
+      voiceBlob,
+      voiceStatus,
     };
   } catch (err) {
-    console.error('Video render failed:', err);
     return {
       videoMeta,
       blob: null,
       url: null,
       error: err.message,
+      voiceBlob,
+      voiceStatus,
     };
   }
 }
 
-export async function regenerateRealVideo(campaign, oldVideo, onProgress) {
-  return generateRealVideo(campaign, onProgress);
+export async function regenerateRealVideo(campaign, oldVideo, onProgress, voiceId) {
+  return generateRealVideo(campaign, onProgress, voiceId);
 }
 
 export function formatDuracao(segundos) {

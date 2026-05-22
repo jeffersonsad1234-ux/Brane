@@ -1,6 +1,6 @@
 /**
  * Video Render — renders scenes to real MP4 using canvas.captureStream + MediaRecorder.
- * No external dependencies needed. Produces real WebM video files.
+ * Supports voice audio (TTS) mixed with background music.
  */
 import { drawAvatarFrame, getPersona } from "./avatarEngine";
 
@@ -22,7 +22,6 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
 
-  // Background particles/mesh
   for (let i = 0; i < 6; i++) {
     const px = (w * 0.1 + (i * w * 0.15) + Math.sin(frame * 0.02 + i) * 20) % w;
     const py = (h * 0.1 + (i * h * 0.14) + Math.cos(frame * 0.015 + i * 2) * 15) % h;
@@ -33,7 +32,6 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
     ctx.fill();
   }
 
-  // Product image (large emoji or image)
   const prodSize = Math.min(w, h) * 0.18;
   ctx.font = `${prodSize}px serif`;
   ctx.textAlign = 'center';
@@ -41,12 +39,10 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
   ctx.fillStyle = 'rgba(255,255,255,0.15)';
   ctx.fillText('📦', w * 0.5, h * 0.3);
 
-  // Scene-specific content
   const scenePhase = frame / totalFrames;
 
   switch (scene.tipo) {
     case 'abertura': {
-      // Avatar presenting
       const avatarSize = Math.min(w, h) * 0.5;
       const mouthAmt = (Math.sin(frame * 0.15) * 0.5 + 0.5) * 0.8 + 0.1;
       const blinkCycle = Math.sin(frame * 0.03);
@@ -54,7 +50,6 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
       const headTilt = Math.sin(frame * 0.02) * 0.02;
       drawAvatarFrame(ctx, w * 0.5 - avatarSize / 2, h * 0.12, avatarSize, persona, mouthAmt, blink, headTilt);
 
-      // Hook text
       ctx.fillStyle = '#fff';
       ctx.font = `bold ${Math.min(w, h) * 0.045}px Inter, sans-serif`;
       ctx.textAlign = 'center';
@@ -68,7 +63,6 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
     }
 
     case 'produto': {
-      // Product showcase with zoom
       const zoom = 1 + Math.sin(frame * 0.04) * 0.08;
       ctx.save();
       ctx.translate(w * 0.5, h * 0.35);
@@ -79,7 +73,6 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
       ctx.fillText('📦', 0, 0);
       ctx.restore();
 
-      // Product name
       ctx.fillStyle = '#fff';
       ctx.font = `bold ${Math.min(w, h) * 0.035}px Inter, sans-serif`;
       ctx.textAlign = 'center';
@@ -91,7 +84,6 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
     }
 
     case 'beneficio': {
-      // Avatar using/showing product
       const avSize = Math.min(w, h) * 0.35;
       const mAmt = (Math.sin(frame * 0.12) * 0.5 + 0.5) * 0.7 + 0.1;
       const blk = Math.sin(frame * 0.04) > 0.96 ? 0 : 1;
@@ -111,7 +103,6 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
     }
 
     case 'preco': {
-      // Price highlight
       const pulse = 1 + Math.sin(frame * 0.06) * 0.03;
       ctx.save();
       ctx.translate(w * 0.5, h * 0.35);
@@ -140,7 +131,6 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
     }
 
     case 'cta': {
-      // CTA with loja URL
       const fadeIn = Math.min(frame / (totalFrames * 0.3), 1);
       ctx.globalAlpha = fadeIn;
 
@@ -159,7 +149,6 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
 
       ctx.globalAlpha = 1;
 
-      // Animated arrow
       const arrowY = h * 0.7 + Math.sin(frame * 0.08) * 8;
       ctx.fillStyle = 'rgba(255,255,255,0.3)';
       ctx.font = `${Math.min(w, h) * 0.05}px serif`;
@@ -170,7 +159,7 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
   }
 }
 
-export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes, duracao, onProgress) {
+export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes, duracao, onProgress, voiceBlob, voiceDuration) {
   return new Promise(async (resolve, reject) => {
     const W = 540;
     const H = 960;
@@ -181,34 +170,17 @@ export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes
 
     const totalFrames = Math.round(duracao * FPS);
 
-    // Calculate frames per scene
-    let sceneStartFrame = 0;
-    const sceneFrameCounts = scenes.map(s => {
-      const count = Math.round(s.duracao * FPS);
-      return count;
-    });
+    const sceneFrameCounts = scenes.map(s => Math.round(s.duracao * FPS));
 
     const persona = getPersona(categoria);
 
-    // Canvas stream
     const videoStream = canvas.captureStream(FPS);
 
-    // Audio setup
+    // Audio setup with voice + music
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const { createBackgroundMusic } = await import('./voiceEngine');
-    const musicBuffer = createBackgroundMusic(audioCtx, duracao, 100);
-    const musicSource = audioCtx.createBufferSource();
-    musicSource.buffer = musicBuffer;
-    musicSource.loop = false;
+    const { createAudioStreamWithVoice } = await import('./voiceEngine');
+    const { source, dest, gainNode } = await createAudioStreamWithVoice(audioCtx, duracao, voiceBlob, voiceDuration || duracao);
 
-    const musicGain = audioCtx.createGain();
-    musicGain.gain.setValueAtTime(0.25, 0);
-    musicSource.connect(musicGain);
-
-    const dest = audioCtx.createMediaStreamDestination();
-    musicGain.connect(dest);
-
-    // Combine video + audio streams
     const tracks = [
       ...videoStream.getVideoTracks(),
       ...dest.stream.getAudioTracks(),
@@ -226,20 +198,16 @@ export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes
     recorder.onstop = () => {
       const blob = new Blob(chunks, { type: mimeType });
       const url = URL.createObjectURL(blob);
-      musicSource.disconnect();
+      source.disconnect();
       audioCtx.close();
       resolve({ blob, url, duration: duracao });
     };
 
     recorder.onerror = (e) => reject(e);
 
-    // Start recording
     recorder.start(1000 / FPS);
+    source.start(0);
 
-    // Start music
-    musicSource.start(0);
-
-    // Render loop
     let frame = 0;
     let currentSceneIdx = 0;
     let frameInScene = 0;
@@ -250,7 +218,6 @@ export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes
         return;
       }
 
-      // Find current scene
       let accum = 0;
       for (let i = 0; i < sceneFrameCounts.length; i++) {
         if (frame < accum + sceneFrameCounts[i]) {
@@ -267,7 +234,6 @@ export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes
       ctx.clearRect(0, 0, W, H);
       renderSceneFrame(ctx, W, H, scene, frameInScene, sceneTotal, produtoNome, preco, lojaUrl, persona, frame / totalFrames);
 
-      // Animated caption overlay
       ctx.fillStyle = 'rgba(0,0,0,0.3)';
       ctx.fillRect(0, H - 60, W, 60);
       ctx.fillStyle = '#fff';
@@ -279,7 +245,6 @@ export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes
       ctx.fillText(scene.legenda || '', W / 2, H - 30);
       ctx.globalAlpha = 1;
 
-      // Brand watermark
       ctx.fillStyle = 'rgba(255,255,255,0.05)';
       ctx.font = '12px Inter, sans-serif';
       ctx.textAlign = 'right';
@@ -293,7 +258,6 @@ export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes
       }
 
       if (frame % 3 === 0) {
-        // Yield every 3 frames to avoid blocking
         await new Promise(r => requestAnimationFrame(r));
       }
 

@@ -5,6 +5,7 @@ import { loadConnections, saveConnections } from "../../services/affiliateProvid
 import { AutoPostEngine, SOCIAL_PLATFORMS, loadSocialConnections, saveSocialConnections } from "../../services/autoPostEngine";
 import BrowserConnectionPanel from "../../components/BrowserConnectionPanel";
 import VideoPreviewApproval from "../../components/VideoPreviewApproval";
+import { getVozesDisponiveis } from "../../services/ttsEngine";
 import "./AffiliateAgent.css";
 
 function useAgent() {
@@ -977,11 +978,16 @@ function CampanhaPage() {
   const [realVideoBlob, setRealVideoBlob] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [genProgress, setGenProgress] = useState(0);
+  const [genStatus, setGenStatus] = useState('');
+  const [voiceId, setVoiceId] = useState('pt-BR-FranciscaNeural');
+  const [voiceStatus, setVoiceStatus] = useState('pending');
   const [videoLegenda, setVideoLegenda] = useState('');
   const [videoRoteiro, setVideoRoteiro] = useState('');
   const [campLogs, setCampLogs] = useState([]);
   const [publishing, setPublishing] = useState(false);
   const [publicado, setPublicado] = useState(null);
+
+  const vozes = getVozesDisponiveis();
 
   const categorias = [
     { id: 'tecnologia', nome: 'Tecnologia', icone: '💻' },
@@ -1065,29 +1071,42 @@ function CampanhaPage() {
     // Generate real video
     setGenerating(true);
     setGenProgress(0);
+    setGenStatus('Gerando narração...');
+    setVoiceStatus('generating');
 
     try {
       const { generateRealVideo } = await import("../../services/realVideoGenerator");
-      const result = await generateRealVideo(camp, (pct) => {
+      const result = await generateRealVideo(camp, (pct, status) => {
         setGenProgress(pct);
-      });
+        if (status) setGenStatus(status);
+      }, voiceId);
 
       setVideo(result.videoMeta);
       setVideoRoteiro(result.videoMeta.narracaoCompleta);
 
+      if (result.voiceStatus === 'generated') {
+        setVoiceStatus('generated');
+        addLog('success', `🎤 Voz gerada: ${vozes.find(v => v.id === voiceId)?.nome || voiceId}`);
+      } else if (result.voiceStatus === 'failed') {
+        setVoiceStatus('failed');
+        addLog('warn', '⚠️ Voz não gerada — vídeo será apenas com música');
+      }
+
       if (result.url) {
         setRealVideoUrl(result.url);
         setRealVideoBlob(result.blob);
-        addLog('success', `✅ Vídeo MP4 real gerado: ${result.videoMeta.duracao}s · ${result.videoMeta.resolucao} · ${result.videoMeta.cortesRapidos} cortes · ${result.videoMeta.pessoa?.nome || 'apresentador'} apresentando`);
+        addLog('success', `✅ Vídeo MP4 real gerado: ${result.videoMeta.duracao}s · ${result.videoMeta.resolucao} · ${result.videoMeta.cortesRapidos} cortes`);
         addLog('info', '⏳ Assista, edite se necessário e aprove para publicar');
       } else {
         addLog('error', `❌ Falha na renderização do vídeo: ${result.error || 'erro desconhecido'}`);
       }
     } catch (err) {
       addLog('error', `❌ Erro ao gerar vídeo: ${err.message}`);
+      setVoiceStatus('failed');
     }
 
     setGenerating(false);
+    setGenStatus('');
   };
 
   const handleRegenerate = async () => {
@@ -1097,13 +1116,24 @@ function CampanhaPage() {
     setRealVideoBlob(null);
     setGenerating(true);
     setGenProgress(0);
+    setGenStatus('Gerando narração...');
+    setVoiceStatus('generating');
 
     try {
       const { regenerateRealVideo } = await import("../../services/realVideoGenerator");
-      const result = await regenerateRealVideo(campaign, video, (pct) => setGenProgress(pct));
+      const result = await regenerateRealVideo(campaign, video, (pct, status) => {
+        setGenProgress(pct);
+        if (status) setGenStatus(status);
+      }, voiceId);
 
       setVideo(result.videoMeta);
       setVideoRoteiro(result.videoMeta.narracaoCompleta);
+
+      if (result.voiceStatus === 'generated') {
+        setVoiceStatus('generated');
+      } else if (result.voiceStatus === 'failed') {
+        setVoiceStatus('failed');
+      }
 
       if (result.url) {
         setRealVideoUrl(result.url);
@@ -1114,10 +1144,60 @@ function CampanhaPage() {
       }
     } catch (err) {
       addLog('error', `❌ Erro: ${err.message}`);
+      setVoiceStatus('failed');
     }
 
     setGenerating(false);
+    setGenStatus('');
     addLog('info', '⏳ Vídeo ainda não publicado. Aprove para publicar.');
+  };
+
+  const handleChangeVoice = (newVoiceId) => {
+    setVoiceId(newVoiceId);
+    addLog('info', `🎤 Voz alterada para: ${newVoiceId}`);
+  };
+
+  const handleRegenerateVoice = async () => {
+    if (!campaign || !video) return;
+    if (!realVideoUrl && !generating) {
+      // No video yet, just regenerate the whole thing
+      addLog('info', '🔄 Gerando vídeo com nova voz...');
+      setVoiceStatus('generating');
+      setGenerating(true);
+      setGenProgress(0);
+      setGenStatus('Gerando narração...');
+
+      try {
+        const { generateRealVideo } = await import("../../services/realVideoGenerator");
+        const result = await generateRealVideo(campaign, (pct, status) => {
+          setGenProgress(pct);
+          if (status) setGenStatus(status);
+        }, voiceId);
+
+        setVideo(result.videoMeta);
+        setVideoRoteiro(result.videoMeta.narracaoCompleta);
+
+        if (result.voiceStatus === 'generated') {
+          setVoiceStatus('generated');
+          addLog('success', '🎤 Nova narração gerada com sucesso');
+        } else {
+          setVoiceStatus('failed');
+          addLog('warn', '⚠️ Falha ao gerar nova voz');
+        }
+
+        if (result.url) {
+          setRealVideoUrl(result.url);
+          setRealVideoBlob(result.blob);
+          addLog('success', '✅ Vídeo atualizado com nova voz');
+        }
+      } catch (err) {
+        addLog('error', `❌ Erro: ${err.message}`);
+        setVoiceStatus('failed');
+      }
+
+      setGenerating(false);
+      setGenStatus('');
+    }
   };
 
   const handleReject = () => {
@@ -1267,11 +1347,16 @@ function CampanhaPage() {
               publishing={publishing}
               generating={generating}
               genProgress={genProgress}
+              genStatus={genStatus}
+              voiceStatus={voiceStatus}
+              voiceId={voiceId}
               onApprove={handleApprove}
               onReject={handleReject}
               onRegenerate={handleRegenerate}
               onEditLegenda={handleEditLegenda}
               onEditRoteiro={handleEditRoteiro}
+              onChangeVoice={handleChangeVoice}
+              onRegenerateVoice={handleRegenerateVoice}
             />
           </div>
 
