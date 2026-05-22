@@ -52,7 +52,7 @@ export async function generateTTSAudio(text, voiceId = 'pt-BR-FranciscaNeural', 
     const response = await fetch(`${API_BASE}/api/tts`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'audio/wav,audio/mpeg,*/*' },
-      body: JSON.stringify({ text, voice: voiceId, rate: '0%', pitch: '0%' }),
+      body: JSON.stringify({ text, voice: voiceId, rate: '+0%', pitch: '+0Hz' }),
       signal: controller.signal,
     });
 
