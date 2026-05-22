@@ -37,6 +37,7 @@ import ShoppingApp from "./pages/VirtualShoppingBrane/shopping/ShoppingApp";
 import BraneStudio from "./pages/BraneStudio";
 import BraneAgent from "./pages/BraneAgent";
 import Notanews from "./pages/Notanews/Notanews";
+import AffiliateAgentApp from "./pages/AffiliateAgent/AffiliateAgent";
 import BLivreAdminPage from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -122,7 +123,7 @@ function AppRouter() {
   }
 
   const isAdmin = path.startsWith("/admin");
-  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane") || path.startsWith("/brane-studio") || path.startsWith("/brane-agent") || path.startsWith("/agente") || path.startsWith("/shopping") || path.startsWith("/notanews");
+  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane") || path.startsWith("/brane-studio") || path.startsWith("/brane-agent") || path.startsWith("/agente") || path.startsWith("/shopping") || path.startsWith("/notanews") || path.startsWith("/affiliate-agent");
 
   return (
     <>
@@ -207,6 +208,7 @@ function AppRouter() {
             <Route path="/brane-agent" element={<BraneAgent />} />
             <Route path="/agente" element={<BraneAgent />} />
             <Route path="/notanews/*" element={<Notanews />} />
+            <Route path="/affiliate-agent/*" element={<AffiliateAgentApp />} />
 
             <Route
               path="/add-product"
