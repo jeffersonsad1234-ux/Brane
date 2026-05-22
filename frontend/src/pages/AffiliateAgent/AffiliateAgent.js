@@ -6,6 +6,7 @@ import { AutoPostEngine, SOCIAL_PLATFORMS, loadSocialConnections, saveSocialConn
 import BrowserConnectionPanel from "../../components/BrowserConnectionPanel";
 import VideoPreviewApproval from "../../components/VideoPreviewApproval";
 import { getVozesDisponiveis } from "../../services/ttsEngine";
+import AnunciosPage, { adicionarAnuncio } from "./AnunciosPage";
 import "./AffiliateAgent.css";
 
 function useAgent() {
@@ -27,6 +28,7 @@ function Sidebar({ active }) {
       <nav className="aa-sidebar-nav">
         <div className="aa-sidebar-label">Dashboard</div>
         <Link to="/affiliate-agent" className={`aa-sidebar-link ${active === 'dashboard' ? 'active' : ''}`}>📊 Visão Geral</Link>
+        <Link to="/affiliate-agent/anuncios" className={`aa-sidebar-link ${active === 'anuncios' ? 'active' : ''}`}>📺 Anúncios</Link>
         <Link to="/affiliate-agent/conexoes" className={`aa-sidebar-link ${active === 'conexoes' ? 'active' : ''}`}>🔗 Conexões</Link>
         <Link to="/affiliate-agent/aprendizado" className={`aa-sidebar-link ${active === 'aprendizado' ? 'active' : ''}`}>🧠 Aprendizado</Link>
         <Link to="/affiliate-agent/social-publish" className={`aa-sidebar-link ${active === 'social' ? 'active' : ''}`}>📱 Publicação Social</Link>
@@ -981,6 +983,7 @@ function CampanhaPage() {
   const [genStatus, setGenStatus] = useState('');
   const [voiceId, setVoiceId] = useState('pt-BR-FranciscaNeural');
   const [voiceStatus, setVoiceStatus] = useState('pending');
+  const [voiceBlob, setVoiceBlob] = useState(null);
   const [videoLegenda, setVideoLegenda] = useState('');
   const [videoRoteiro, setVideoRoteiro] = useState('');
   const [campLogs, setCampLogs] = useState([]);
@@ -1086,19 +1089,27 @@ function CampanhaPage() {
 
       if (result.voiceStatus === 'generated') {
         setVoiceStatus('generated');
+        setVoiceBlob(result.voiceBlob || null);
         addLog('success', `🎤 Voz gerada: ${vozes.find(v => v.id === voiceId)?.nome || voiceId}`);
+        if (result.logs) {
+          result.logs.forEach(l => { if (l.includes('✅') || l.includes('❌') || l.includes('⏱️')) addLog('info', `   ${l}`); });
+        }
       } else if (result.voiceStatus === 'failed') {
         setVoiceStatus('failed');
-        addLog('warn', '⚠️ Voz não gerada — vídeo será apenas com música');
+        setVoiceBlob(null);
+        addLog('error', `❌ Geração de voz falhou: ${result.error || 'motivo desconhecido'}`);
+        if (result.logs) {
+          result.logs.forEach(l => { if (l.includes('❌') || l.includes('⏱️')) addLog('error', `   ${l}`); });
+        }
       }
 
       if (result.url) {
         setRealVideoUrl(result.url);
         setRealVideoBlob(result.blob);
-        addLog('success', `✅ Vídeo MP4 real gerado: ${result.videoMeta.duracao}s · ${result.videoMeta.resolucao} · ${result.videoMeta.cortesRapidos} cortes`);
-        addLog('info', '⏳ Assista, edite se necessário e aprove para publicar');
+        addLog('success', `✅ Vídeo MP4 gerado: ${result.videoMeta.duracao}s · ${result.videoMeta.resolucao} · ${result.videoMeta.cortesRapidos} cortes`);
+        addLog('info', '⏳ Assista, edite e publique após aprovação');
       } else {
-        addLog('error', `❌ Falha na renderização do vídeo: ${result.error || 'erro desconhecido'}`);
+        addLog('error', `❌ Renderização: ${result.error || 'erro desconhecido'}`);
       }
     } catch (err) {
       addLog('error', `❌ Erro ao gerar vídeo: ${err.message}`);
@@ -1131,8 +1142,12 @@ function CampanhaPage() {
 
       if (result.voiceStatus === 'generated') {
         setVoiceStatus('generated');
+        setVoiceBlob(result.voiceBlob || null);
+        if (result.logs) result.logs.forEach(l => { if (l.includes('✅')) addLog('info', `   ${l}`); });
       } else if (result.voiceStatus === 'failed') {
         setVoiceStatus('failed');
+        setVoiceBlob(null);
+        if (result.logs) result.logs.forEach(l => { if (l.includes('❌')) addLog('error', `   ${l}`); });
       }
 
       if (result.url) {
@@ -1155,6 +1170,41 @@ function CampanhaPage() {
   const handleChangeVoice = (newVoiceId) => {
     setVoiceId(newVoiceId);
     addLog('info', `🎤 Voz alterada para: ${newVoiceId}`);
+  };
+
+  const handleGenerateVoice = async () => {
+    if (!campaign) return;
+    addLog('info', '🎤 Gerando voz...');
+    setVoiceStatus('generating');
+    setGenerating(true);
+    setGenProgress(0);
+    setGenStatus('Gerando voz...');
+
+    try {
+      const { generateVoiceAudio } = await import("../../services/voiceEngine");
+      const result = await generateVoiceAudio(
+        video?.narracaoCompleta || campaign.nome,
+        voiceId,
+        (msg) => addLog('info', `   ${msg}`)
+      );
+
+      if (result.success && result.blob && result.blob.size > 100) {
+        setVoiceStatus('generated');
+        setVoiceBlob(result.blob);
+        addLog('success', `✅ Voz gerada: ${result.method} (${result.duration}s, ${result.blob.size} bytes)`);
+        addLog('info', '⏳ Recrie o vídeo para aplicar a nova voz');
+      } else {
+        setVoiceStatus('failed');
+        setVoiceBlob(null);
+        addLog('error', `❌ Falha: ${result.error || 'erro desconhecido'}`);
+      }
+    } catch (err) {
+      setVoiceStatus('failed');
+      addLog('error', `❌ Erro: ${err.message}`);
+    }
+
+    setGenerating(false);
+    setGenStatus('');
   };
 
   const handleRegenerateVoice = async () => {
@@ -1223,36 +1273,34 @@ function CampanhaPage() {
     if (!campaign) return;
 
     if (!realVideoUrl) {
-      addLog('error', '❌ Gere e aprove um vídeo antes de publicar.');
+      addLog('error', '❌ Gere um vídeo antes de publicar.');
       return;
     }
 
-    setPublishing(true);
-    addLog('info', '✅ Campanha aprovada');
-
-    const { BrowserAutomator } = await import("../../services/browserAutomation");
-    const bot = new BrowserAutomator('tiktok');
-
-    if (!bot.logado) {
-      addLog('error', '❌ TikTok não conectado — vá em Publicação Social e conecte primeiro');
-      setPublishing(false);
+    if (voiceStatus !== 'generated') {
+      addLog('error', '❌ Voz não gerada. Gere a narração antes de publicar.');
       return;
     }
 
-    const campanhaFinal = { ...campaign, legenda: videoLegenda };
-    addLog('info', '🚀 Publicando no TikTok...');
-    const result = await bot.publicarCampanha(campanhaFinal);
+    addLog('info', '✅ Campanha aprovada — adicionando à central de anúncios');
 
-    if (result.success) {
-      addLog('success', `✅ Publicado no TikTok: ${result.postUrl}`);
-      addLog('success', `🔗 Link da loja: ${campaign.lojaUrl}`);
-      setPublicado({ postUrl: result.postUrl, lojaUrl: campaign.lojaUrl, nome: campaign.nome });
-      setStep('publicado');
-    } else {
-      addLog('error', `❌ Falha na publicação: ${result.motivo || result.error}`);
-    }
+    adicionarAnuncio({
+      nome: campaign.nome,
+      videoUrl: realVideoUrl,
+      videoBlob: realVideoBlob,
+      legenda: videoLegenda,
+      hashtags: campaign.hashtags || [],
+      lojaUrl: campaign.lojaUrl || campaign.link || '',
+      loja: campaign.lojaDestino || 'Amazon',
+      produto: campaign.nome,
+      voiceId: voiceId,
+    });
 
-    setPublishing(false);
+    addLog('success', `✅ "${campaign.nome}" adicionado à central de anúncios`);
+    addLog('info', '📺 Vá em "Anúncios" para gerenciar, agendar ou publicar');
+
+    setPublicado({ nome: campaign.nome });
+    setStep('publicado');
   };
 
   return (
@@ -1350,6 +1398,7 @@ function CampanhaPage() {
               genStatus={genStatus}
               voiceStatus={voiceStatus}
               voiceId={voiceId}
+              voiceBlob={voiceBlob}
               onApprove={handleApprove}
               onReject={handleReject}
               onRegenerate={handleRegenerate}
@@ -1357,6 +1406,7 @@ function CampanhaPage() {
               onEditRoteiro={handleEditRoteiro}
               onChangeVoice={handleChangeVoice}
               onRegenerateVoice={handleRegenerateVoice}
+              onGenerateVoice={handleGenerateVoice}
             />
           </div>
 
@@ -1417,6 +1467,7 @@ export default function AffiliateAgentApp() {
         <Route path="/loja/:nicho" element={<><Sidebar active={null} /><StorePage /></>} />
         <Route path="/conexoes" element={<><Sidebar active="conexoes" /><ConexoesPage /></>} />
         <Route path="/aprendizado" element={<><Sidebar active="aprendizado" /><AprendizadoPage /></>} />
+        <Route path="/anuncios" element={<><Sidebar active="anuncios" /><AnunciosPage /></>} />
         <Route path="/criativos" element={<><Sidebar active="criativos" /><CreativesPage /></>} />
         <Route path="/campanha" element={<><Sidebar active="campanha" /><CampanhaPage /></>} />
         <Route path="/social-publish" element={<><Sidebar active="social" /><SocialPublishPage /></>} />
