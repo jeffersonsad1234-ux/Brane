@@ -105,7 +105,7 @@ export async function generateRealVideo(campaign, onProgress, voiceId) {
     );
     log(`✅ Vídeo MP4 gerado: ${result.duration}s`);
     return {
-      videoMeta: { ...videoMeta, voiceStatus },
+      videoMeta: { ...videoMeta, voiceStatus, voiceError: null },
       blob: result.blob, url: result.url,
       duration: result.duration,
       voiceBlob, voiceStatus, logs,

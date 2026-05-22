@@ -1,10 +1,10 @@
 /**
- * Voice Engine — TTS voice generation + AudioContext background music.
+ * Voice Engine — TTS generation, background music, and audio mixing.
  * Volume: voz 100%, música 15%.
  */
-import { generateTTSAudio, decodeTTSBlob, getVozesDisponiveis } from "./ttsEngine";
+import { generateTTSAudio, decodeTTSBlob, getVozesDisponiveis, speakWithWebSpeech } from "./ttsEngine";
 
-export { getVozesDisponiveis };
+export { getVozesDisponiveis, speakWithWebSpeech };
 
 export async function generateVoiceAudio(text, voiceId = 'pt-BR-FranciscaNeural', onLog) {
   return generateTTSAudio(text, voiceId, onLog);
@@ -50,16 +50,14 @@ export async function createMixedAudio(audioCtx, durationSec, voiceBuffer, voice
   const music = createBackgroundMusic(audioCtx, durationSec, 100);
   const mixed = audioCtx.createBuffer(2, total, sr);
 
-  // Music at 15% volume
   for (let ch = 0; ch < 2; ch++) {
     const m = music.getChannelData(ch);
     const d = mixed.getChannelData(ch);
     for (let i = 0; i < total; i++) d[i] = m[i] * 0.15;
   }
 
-  // Voice at 100% volume
   if (voiceBuffer) {
-    const len = Math.min(voiceBuffer.length, voiceDuration * sr, total);
+    const len = Math.min(voiceBuffer.length, total);
     for (let ch = 0; ch < Math.min(voiceBuffer.numberOfChannels, 2); ch++) {
       const v = voiceBuffer.getChannelData(ch);
       const d = mixed.getChannelData(ch);

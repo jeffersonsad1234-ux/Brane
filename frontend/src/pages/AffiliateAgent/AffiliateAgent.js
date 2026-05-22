@@ -1294,6 +1294,8 @@ function CampanhaPage() {
       loja: campaign.lojaDestino || 'Amazon',
       produto: campaign.nome,
       voiceId: voiceId,
+      narracaoCompleta: video?.narracaoCompleta || campaign.descricao || campaign.nome,
+      voiceStatus: voiceStatus,
     });
 
     addLog('success', `✅ "${campaign.nome}" adicionado à central de anúncios`);

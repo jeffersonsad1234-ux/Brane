@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getVozesDisponiveis } from "../../services/ttsEngine";
+import { getVozesDisponiveis, getVoiceName, speakWithWebSpeech } from "../../services/ttsEngine";
 
 const STORAGE_KEY = 'brane_anuncios';
 const vozes = getVozesDisponiveis();
@@ -43,6 +43,10 @@ export function adicionarAnuncio(dados) {
     publishedAt: null,
     publicado: false,
     voiceId: dados.voiceId || 'pt-BR-FranciscaNeural',
+    voiceStatus: dados.voiceStatus || 'pending',
+    voiceError: dados.voiceError || null,
+    voiceMethod: dados.voiceMethod || null,
+    narracaoCompleta: dados.narracaoCompleta || dados.nome || '',
     metrics: {
       cliques: Math.floor(Math.random() * 80) + 5,
       alcance: Math.floor(Math.random() * 3000) + 200,
@@ -71,7 +75,7 @@ function duplicarAnuncio(id) {
   const list = loadAnuncios();
   const orig = list.find(a => a.id === id);
   if (!orig) return list;
-  const ad = { ...orig, id: generateId(), nome: orig.nome + ' (cópia)', createdAt: new Date().toISOString(), publishedAt: null, publicado: false, scheduledAt: null };
+  const ad = { ...orig, id: generateId(), nome: orig.nome + ' (cópia)', createdAt: new Date().toISOString(), publishedAt: null, publicado: false, scheduledAt: null, voiceStatus: 'pending', voiceError: null, voiceMethod: null };
   list.unshift(ad);
   saveAnuncios(list);
   return list;
@@ -95,9 +99,14 @@ function AnuncioCard({ ad, onRefresh }) {
   const [scheduleDate, setScheduleDate] = useState(ad.scheduledAt ? ad.scheduledAt.slice(0, 16) : '');
   const [publishLoading, setPublishLoading] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [voiceLoading, setVoiceLoading] = useState(false);
+  const [voiceGenLogs, setVoiceGenLogs] = useState([]);
+  const [playingVoice, setPlayingVoice] = useState(false);
+  const audioRef = useRef(null);
 
   const status = getStatus(ad);
   const cfg = statusConfig[status];
+  const voiceReady = ad.voiceStatus === 'generated';
 
   const handleSalvarNome = () => {
     if (editNome.trim()) {
@@ -108,7 +117,7 @@ function AnuncioCard({ ad, onRefresh }) {
   };
 
   const handleDuplicar = () => {
-    const updated = duplicarAnuncio(ad.id);
+    duplicarAnuncio(ad.id);
     onRefresh();
   };
 
@@ -123,11 +132,121 @@ function AnuncioCard({ ad, onRefresh }) {
     onRefresh();
   };
 
+  const handleRemoverAgendamento = () => {
+    atualizarAnuncio(ad.id, { scheduledAt: null });
+    setScheduleDate('');
+    onRefresh();
+  };
+
+  const handleGerarVoz = async () => {
+    setVoiceLoading(true);
+    setVoiceGenLogs([]);
+    const text = ad.narracaoCompleta || ad.nome || ad.legenda;
+    const logs = [];
+
+    try {
+      const { generateVoiceAudio } = await import("../../services/voiceEngine");
+      const log = (msg) => { logs.push(msg); setVoiceGenLogs(prev => [...prev, msg]); };
+      log(`🎤 Gerando voz para: "${text.slice(0, 60)}..."`);
+      log(`🎤 Voz: ${getVoiceName(ad.voiceId)}`);
+
+      const result = await generateVoiceAudio(text, ad.voiceId, log);
+
+      if (result.success && result.blob && result.blob.size > 100) {
+        // Store the blob as a data URL (small enough voice files should fit)
+        const reader = new FileReader();
+        reader.onload = () => {
+          atualizarAnuncio(ad.id, {
+            voiceStatus: 'generated',
+            voiceBlobDataUrl: reader.result,
+            voiceMethod: result.method,
+            voiceError: null,
+          });
+          logs.push(`✅ Voz gerada: ${result.method} (${result.duration}s, ${result.blob.size} bytes)`);
+          setVoiceGenLogs([...logs]);
+          onRefresh();
+          setVoiceLoading(false);
+        };
+        reader.onerror = () => {
+          logs.push('❌ Falha ao converter blob para data URL');
+          setVoiceGenLogs([...logs]);
+          setVoiceLoading(false);
+        };
+        reader.readAsDataURL(result.blob);
+      } else {
+        logs.push(`❌ Falha: ${result.error || 'resultado vazio'}`);
+        atualizarAnuncio(ad.id, { voiceStatus: 'failed', voiceError: result.error, voiceMethod: null });
+        setVoiceGenLogs([...logs]);
+        onRefresh();
+        setVoiceLoading(false);
+      }
+    } catch (err) {
+      logs.push(`❌ Erro: ${err.message}`);
+      atualizarAnuncio(ad.id, { voiceStatus: 'failed', voiceError: err.message });
+      setVoiceGenLogs([...logs]);
+      onRefresh();
+      setVoiceLoading(false);
+    }
+  };
+
+  const handleOuvirVoz = () => {
+    if (playingVoice) {
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+      setPlayingVoice(false);
+      return;
+    }
+
+    if (ad.voiceBlobDataUrl) {
+      try {
+        const audio = new Audio(ad.voiceBlobDataUrl);
+        audio.onended = () => setPlayingVoice(false);
+        audio.onerror = () => {
+          setPlayingVoice(false);
+          // Fallback to Web Speech
+          handleOuvirVozFallback();
+        };
+        audioRef.current = audio;
+        audio.play();
+        setPlayingVoice(true);
+      } catch {
+        handleOuvirVozFallback();
+      }
+    } else {
+      handleOuvirVozFallback();
+    }
+  };
+
+  const handleOuvirVozFallback = () => {
+    const text = ad.narracaoCompleta || ad.nome || ad.legenda;
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      speakWithWebSpeech(text, ad.voiceId)
+        .then(() => setPlayingVoice(false))
+        .catch(() => setPlayingVoice(false));
+      setPlayingVoice(true);
+      // Auto-stop after estimated duration
+      const wpm = 150;
+      const estMs = Math.max((text.split(/\s+/).length / wpm) * 60 * 1000, 3000);
+      setTimeout(() => setPlayingVoice(false), estMs + 1000);
+    } else {
+      alert('❌ Navegador não suporta síntese de voz');
+    }
+  };
+
   const handlePublicarAgora = async () => {
+    if (ad.voiceStatus !== 'generated') {
+      alert('❌ Gere a narração de voz antes de publicar. Clique em "🎤 Gerar voz" primeiro.');
+      return;
+    }
     setPublishLoading(true);
     try {
       const { BrowserAutomator } = await import("../../services/browserAutomation");
       const bot = new BrowserAutomator('tiktok');
+      if (!bot.logado) {
+        alert('❌ TikTok não conectado. Vá em "Publicação Social" e conecte primeiro.');
+        setPublishLoading(false);
+        return;
+      }
       const campanha = {
         nome: ad.nome,
         lojaUrl: ad.lojaUrl,
@@ -147,12 +266,6 @@ function AnuncioCard({ ad, onRefresh }) {
       alert(`❌ Erro: ${err.message}`);
     }
     setPublishLoading(false);
-  };
-
-  const handleRemoverAgendamento = () => {
-    atualizarAnuncio(ad.id, { scheduledAt: null });
-    setScheduleDate('');
-    onRefresh();
   };
 
   const isExpired = ad.scheduledAt && new Date(ad.scheduledAt) < new Date();
@@ -199,12 +312,54 @@ function AnuncioCard({ ad, onRefresh }) {
           <span>📊 {ad.metrics.ctr}% CTR</span>
         </div>
 
+        {/* Voice section */}
+        <div className="an-card-voice">
+          <div className="an-card-voice-info">
+            <span className="an-voice-label">🎤 Voz:</span>
+            <span className={`an-voice-badge ${voiceReady ? 'ready' : ad.voiceStatus === 'failed' ? 'failed' : ''}`}>
+              {voiceReady ? `✅ ${getVoiceName(ad.voiceId)}` : ad.voiceStatus === 'failed' ? '❌ Falha' : '⏳ Pendente'}
+            </span>
+            {ad.voiceMethod && voiceReady && (
+              <span className="an-voice-method">{ad.voiceMethod === 'proxy' ? '🌐 Proxy' : ad.voiceMethod === 'direct' ? '🔗 Direct' : '🎵 Mock'}</span>
+            )}
+          </div>
+
+          <div className="an-card-voice-actions">
+            {voiceReady ? (
+              <button onClick={handleOuvirVoz} className="an-voice-btn an-voice-btn-listen" disabled={voiceLoading}>
+                {playingVoice ? '🔊 Tocando...' : '🔊 Ouvir voz'}
+              </button>
+            ) : null}
+            <button onClick={handleGerarVoz} disabled={voiceLoading || status === 'publicado'} className="an-voice-btn an-voice-btn-generate">
+              {voiceLoading ? '⏳ Gerando...' : voiceReady ? '🔄 Gerar novamente' : '🎤 Gerar voz'}
+            </button>
+            <select value={ad.voiceId}
+              onChange={e => { atualizarAnuncio(ad.id, { voiceId: e.target.value, voiceStatus: 'pending' }); onRefresh(); }}
+              className="an-voice-select" disabled={voiceLoading}>
+              {vozes.map(v => <option key={v.id} value={v.id}>{v.nome}</option>)}
+            </select>
+          </div>
+
+          {voiceGenLogs.length > 0 && (
+            <div className="an-voice-logs">
+              {voiceGenLogs.map((l, i) => (
+                <div key={i} className={`an-voice-log ${l.includes('✅') ? 'ok' : l.includes('❌') ? 'err' : l.includes('⏱️') ? 'warn' : ''}`}>{l}</div>
+              ))}
+            </div>
+          )}
+
+          {ad.voiceError && (
+            <div className="an-voice-error">❌ {ad.voiceError}</div>
+          )}
+        </div>
+
         {detailOpen && (
           <div className="an-card-detail">
             <div className="an-card-detail-row"><strong>Legenda:</strong><p>{ad.legenda || '—'}</p></div>
             <div className="an-card-detail-row"><strong>Hashtags:</strong><p>{ad.hashtags?.join(' ') || '—'}</p></div>
             <div className="an-card-detail-row"><strong>Link loja:</strong><a href={ad.lojaUrl} target="_blank" rel="noopener noreferrer">{ad.lojaUrl || '—'}</a></div>
-            <div className="an-card-detail-row"><strong>Voz:</strong><p>{vozes.find(v => v.id === ad.voiceId)?.nome || ad.voiceId}</p></div>
+            <div className="an-card-detail-row"><strong>Voz:</strong><p>{getVoiceName(ad.voiceId)} {voiceReady ? '✅' : '❌'}</p></div>
+            <div className="an-card-detail-row"><strong>Método voz:</strong><p>{ad.voiceMethod || '—'}</p></div>
             <div className="an-card-detail-row"><strong>Criado em:</strong><p>{formatDate(ad.createdAt)}</p></div>
             {ad.publishedAt && <div className="an-card-detail-row"><strong>Publicado em:</strong><p>{formatDate(ad.publishedAt)}</p></div>}
           </div>
@@ -225,9 +380,15 @@ function AnuncioCard({ ad, onRefresh }) {
         </div>
 
         <div className="an-card-actions">
-          <button onClick={handlePublicarAgora} disabled={publishLoading || status === 'publicado'}
+          <button onClick={handlePublicarAgora}
+            disabled={publishLoading || status === 'publicado'}
             className="an-btn an-btn-primary an-btn-sm">
             {publishLoading ? '⏳ Publicando...' : status === 'publicado' ? '✅ Publicado' : '🚀 Publicar Agora'}
+          </button>
+          <button onClick={handleOuvirVoz}
+            disabled={!voiceReady || voiceLoading || playingVoice || status === 'publicado'}
+            className="an-btn an-btn-ghost an-btn-sm">
+            🔊 Ouvir
           </button>
           <button onClick={() => setDetailOpen(!detailOpen)} className="an-btn an-btn-ghost an-btn-sm">
             {detailOpen ? '▲ Menos' : '▼ Detalhes'}
@@ -278,6 +439,8 @@ export default function AnunciosPage() {
     publicados: anuncios.filter(a => a.publicado).length,
     agendados: anuncios.filter(a => a.scheduledAt && !a.publicado).length,
     pendentes: anuncios.filter(a => !a.publicado && !a.scheduledAt).length,
+    comVoz: anuncios.filter(a => a.voiceStatus === 'generated').length,
+    semVoz: anuncios.filter(a => a.voiceStatus !== 'generated').length,
   };
 
   return (
@@ -286,7 +449,7 @@ export default function AnunciosPage() {
         <div>
           <h1 className="an-title">📺 Prévia de Anúncios</h1>
           <p className="an-subtitle">
-            {totals.total} anúncios · {totals.publicados} publicados · {totals.agendados} agendados · {totals.pendentes} pendentes
+            {totals.total} anúncios · {totals.publicados} publicados · {totals.agendados} agendados · {totals.comVoz} com voz · {totals.semVoz} sem voz
           </p>
         </div>
         <div className="an-header-actions">
@@ -351,6 +514,9 @@ export default function AnunciosPage() {
                       {statusConfig[getStatus(ad)]?.label}
                     </span>
                     {ad.scheduledAt && <span>📅 {formatDate(ad.scheduledAt)}</span>}
+                    <span style={{ fontSize: '0.7rem', color: ad.voiceStatus === 'generated' ? 'var(--aa-success)' : 'var(--aa-danger)' }}>
+                      {ad.voiceStatus === 'generated' ? '🎤 OK' : '🎤 Pendente'}
+                    </span>
                   </div>
                 </div>
               ))}
