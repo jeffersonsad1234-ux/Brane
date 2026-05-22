@@ -1,7 +1,5 @@
 import { buscarEmTodosProvedores, loadConnections } from '../../services/affiliateProviders';
 
-const TRENDS = ['produto em alta', 'produto viral', 'alta conversão', 'muito buscado'];
-
 const NICHOS = [
   { id: 'tecnologia', nome: 'Tecnologia', icone: '💻', cor: '#2563eb' },
   { id: 'casa', nome: 'Casa & Decor', icone: '🏠', cor: '#059669' },
@@ -13,73 +11,7 @@ const NICHOS = [
   { id: 'pets', nome: 'Pets', icone: '🐾', cor: '#84cc16' },
 ];
 
-const PRODUTOS = {
-  tecnologia: [
-    { nome: 'Fone Bluetooth Pro Max', preco: 189.90, img: '🎧' },
-    { nome: 'Carregador Wireless 3 em 1', preco: 129.90, img: '🔋' },
-    { nome: 'Mouse Ergonômico Vertical', preco: 89.90, img: '🖱️' },
-    { nome: 'Teclado Mecânico RGB', preco: 249.90, img: '⌨️' },
-    { nome: 'Monitor 27" 4K HDR', preco: 1899.90, img: '🖥️' },
-    { nome: 'Webcam Full HD com microfone', preco: 159.90, img: '📷' },
-  ],
-  casa: [
-    { nome: 'Luminária LED Inteligente', preco: 79.90, img: '💡' },
-    { nome: 'Organizador de Gavetas', preco: 49.90, img: '📦' },
-    { nome: 'Tapete Antiderrapante', preco: 119.90, img: '🟫' },
-    { nome: 'Conjunto de Panelas Antiaderentes', preco: 299.90, img: '🍳' },
-    { nome: 'Vaso Decorativo Cerâmica', preco: 69.90, img: '🏺' },
-    { nome: 'Cortina Blackout Premium', preco: 159.90, img: '🪟' },
-  ],
-  beleza: [
-    { nome: 'Secador de Cabelo Profissional', preco: 179.90, img: '💇' },
-    { nome: 'Barbeador Elétrico à Prova d\'Água', preco: 199.90, img: '🪒' },
-    { nome: 'Kit Escova Modeladora', preco: 89.90, img: '🪮' },
-    { nome: 'Vaporizador Facial', preco: 129.90, img: '🧖' },
-    { nome: 'Massageador Corporal', preco: 149.90, img: '💆' },
-    { nome: 'Aparelho de Depilação a Laser', preco: 399.90, img: '✨' },
-  ],
-  gadgets: [
-    { nome: 'Smartwatch Esportivo', preco: 299.90, img: '⌚' },
-    { nome: 'Caixa de Som Portátil', preco: 159.90, img: '🔊' },
-    { nome: 'Drone Mini com Câmera', preco: 899.90, img: '🛸' },
-    { nome: 'Óculos de Realidade Virtual', preco: 1299.90, img: '🥽' },
-    { nome: 'Rastreador Inteligente GPS', preco: 69.90, img: '📍' },
-    { nome: 'Hub USB-C 12 em 1', preco: 119.90, img: '🔌' },
-  ],
-  gamer: [
-    { nome: 'Headset Gamer 7.1 RGB', preco: 299.90, img: '🎧' },
-    { nome: 'Mousepad Gamer XXL', preco: 89.90, img: '🖱️' },
-    { nome: 'Controle Pro Sem Fio', preco: 349.90, img: '🎮' },
-    { nome: 'Cadeira Gamer Ergonômica', preco: 1299.90, img: '💺' },
-    { nome: 'Suporte Articulado Monitor', preco: 159.90, img: '🖥️' },
-    { nome: 'Microfone Condensador USB', preco: 199.90, img: '🎤' },
-  ],
-  fitness: [
-    { nome: 'Tapete de Yoga Premium', preco: 89.90, img: '🧘' },
-    { nome: 'Kit Haleres Ajustáveis', preco: 399.90, img: '🏋️' },
-    { nome: 'Corda de Pular Speed', preco: 49.90, img: '⛹️' },
-    { nome: 'Garrafa Térmica 1L', preco: 59.90, img: '🧊' },
-    { nome: 'Faixa Elástica Resistência', preco: 39.90, img: '🏃' },
-    { nome: 'Balança Digital Smart', preco: 119.90, img: '⚖️' },
-  ],
-  cozinha: [
-    { nome: 'Air Fryer Digital 5L', preco: 299.90, img: '🍟' },
-    { nome: 'Mixer Turbo 1000W', preco: 129.90, img: '🥤' },
-    { nome: 'Jogo de Facas Premium', preco: 199.90, img: '🔪' },
-    { nome: 'Cafeteira Elétrica Programável', preco: 159.90, img: '☕' },
-    { nome: 'Panela Elétrica Multifuncional', preco: 259.90, img: '🍲' },
-    { nome: 'Kit Temperos Gourmet', preco: 49.90, img: '🧂' },
-  ],
-  pets: [
-    { nome: 'Cama Ortopédica para Cães', preco: 149.90, img: '🛏️' },
-    { nome: 'Brinquedo Interativo Pet', preco: 59.90, img: '🧸' },
-    { nome: 'Comedouro Automático', preco: 199.90, img: '🍽️' },
-    { nome: 'Coleira LED Recarregável', preco: 79.90, img: '🔦' },
-    { nome: 'Arranhador para Gatos', preco: 129.90, img: '🐱' },
-    { nome: 'Kit Higiene Pet Completo', preco: 89.90, img: '🧴' },
-  ],
-};
-
+const PRODUTOS = {};
 const PLATAFORMAS = [
   { id: 'shopee', nome: 'Shopee Afiliados', icone: '🛒' },
   { id: 'amazon', nome: 'Amazon Afiliados', icone: '📦' },
@@ -92,134 +24,47 @@ const PLATAFORMAS = [
   { id: 'kwai', nome: 'Kwai', icone: '📱' },
   { id: 'facebook', nome: 'Facebook', icone: '📘' },
 ];
-
 const PLATAFORMAS_POST = ['tiktok', 'instagram', 'pinterest', 'x', 'kwai', 'facebook'];
+const AGENDA = {};
 
-function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
-function slugify(text) {
-  return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+function loadAgentState() {
+  try { return JSON.parse(localStorage.getItem('brane_agent_state') || 'null'); } catch { return null; }
+}
+function saveAgentState(s) {
+  try { localStorage.setItem('brane_agent_state', JSON.stringify(s)); } catch {}
+}
+function loadQueue() {
+  try { return JSON.parse(localStorage.getItem('brane_affiliate_links_queue') || '[]'); } catch { return []; }
+}
+function saveQueue(q) {
+  try { localStorage.setItem('brane_affiliate_links_queue', JSON.stringify(q)); } catch {}
+}
+function loadStores() {
+  try { return JSON.parse(localStorage.getItem('brane_stores') || '{}'); } catch { return {}; }
+}
+function saveStores(s) {
+  try { localStorage.setItem('brane_stores', JSON.stringify(s)); } catch {}
 }
 
-function gerarHeadline(nicho, produto) {
-  const h = {
-    tecnologia: [`O ${produto.nome} que está bombando!`, `${produto.nome} com tecnologia de ponta`, `Oferta relâmpago: ${produto.nome}`],
-    casa: [`Transforme seu lar com ${produto.nome}`, `${produto.nome} para uma casa moderna`, `O ${produto.nome} que sua casa merece`],
-    beleza: [`Realce sua beleza com ${produto.nome}`, `${produto.nome} para cuidados premium`, `O segredo de beleza: ${produto.nome}`],
-    gadgets: [`O gadget do momento: ${produto.nome}`, `${produto.nome} que vai facilitar sua vida`, `Descubra o ${produto.nome} inovador`],
-    gamer: [`Domine o jogo com ${produto.nome}`, `${produto.nome} para seu setup gamer`, `Nível pro: ${produto.nome}`],
-    fitness: [`Transforme seu treino com ${produto.nome}`, `${produto.nome} para resultados reais`, `Seu parceiro fitness: ${produto.nome}`],
-    cozinha: [`O ${produto.nome} que sua cozinha precisa`, `Receitas incríveis com ${produto.nome}`, `${produto.nome} para arrasar na cozinha`],
-    pets: [`Seu pet merece ${produto.nome}`, `O ${produto.nome} ideal para seu pet`, `Cuide do seu pet com ${produto.nome}`],
-  };
-  return pick(h[nicho] || [produto.nome]);
-}
-
-function gerarDescSEO(produto, nicho) {
-  return `${produto.nome} original — o melhor em ${nicho}. Produto de alta qualidade com preço imperdível. Aproveite o frete grátis e condições especiais. Compre agora e transforme sua experiência!`;
-}
-
-function gerarTags(nicho, produto) {
-  const base = ['oferta', 'promoção', 'desconto', 'frete grátis', 'compre agora', nicho, produto.nome.split(' ')[0].toLowerCase()];
-  return [...new Set(base)];
-}
-
-function gerarTextoPost(plataforma, produto, link) {
-  const map = {
-    tiktok: `🔥 ${produto.img} ${produto.nome} COM DESCONTO!\n💰 De R$ ${(produto.preco * 1.4).toFixed(2)} por R$ ${produto.preco.toFixed(2)}\n🛒 Link na bio!\n#oferta #promoção #${produto.nome.split(' ')[0].toLowerCase()}`,
-    instagram: `${produto.img} APROVEITE A OFERTA!\n\n✨ ${produto.nome}\n💵 R$ ${produto.preco.toFixed(2)}\n📦 Frete Grátis\n🎯 Link nos Stories\n\n#oferta #produto #promoção`,
-    pinterest: `${produto.img} ${produto.nome} | Oferta Especial\nClique e compre com desconto!\nR$ ${produto.preco.toFixed(2)}`,
-    x: `${produto.img} ${produto.nome} R$ ${produto.preco.toFixed(2)} | Frete Grátis\nLink: ${link}\n#oferta #promoção`,
-    kwai: `${produto.img} ${produto.nome}\nDe R$ ${(produto.preco * 1.4).toFixed(2)} por R$ ${produto.preco.toFixed(2)}!\n🚀 Aproveite!\n#kwai #oferta`,
-    facebook: `${produto.img} ${produto.nome}\n\n🔥 Oferta imperdível! De R$ ${(produto.preco * 1.4).toFixed(2)} por apenas R$ ${produto.preco.toFixed(2)}\n📦 Frete Grátis | 🚀 Entrega Rápida\n\nClique no link para comprar:\n${link}`,
-  };
-  return map[plataforma] || `${produto.img} ${produto.nome} — R$ ${produto.preco.toFixed(2)}`;
-}
-
-const AGENDA = {
-  tiktok: { min: 3, max: 5 },
-  instagram: { min: 2, max: 4 },
-  pinterest: { min: 10, max: 10 },
-  x: { min: 1, max: 2 },
-  kwai: { min: 1, max: 2 },
-  facebook: { min: 1, max: 2 },
+const STORE_BASE = "https://branpy.stormarck/loja";
+const STORE_LINKS = {
+  gamer: `${STORE_BASE}/gamer`, tecnologia: `${STORE_BASE}/tecnologia`,
+  cozinha: `${STORE_BASE}/cozinha`, beleza: `${STORE_BASE}/beleza`,
+  pet: `${STORE_BASE}/pets`, fitness: `${STORE_BASE}/fitness`,
+  moda: `${STORE_BASE}/moda`, casa: `${STORE_BASE}/casa`,
 };
 
-const ESTILOS_THUMB = ['tiktok-shop', 'shopee', 'amazon'];
-const MUSICAS_SUG = ['Sunny Day — Prod By Beat', 'Upbeat Vibes — Free Music', 'Trending 2025 — No Copyright', 'Lo-fi Study Beats', 'Eletro Pop — Royalty Free'];
-
-const CENARIOS = {
-  tecnologia: { pessoa: 'jovem criativo em home office moderno', vibe: 'tecnóloga', cor: '#1a1a2e' },
-  casa: { pessoa: 'mulher realista em sala decorada', vibe: 'aconchegante', cor: '#2d1b00' },
-  beleza: { pessoa: 'mulher realista em banheiro iluminado', vibe: 'glamorosa', cor: '#4a0024' },
-  gadgets: { pessoa: 'jovem em estilo urbano', vibe: 'moderna', cor: '#0a1628' },
-  gamer: { pessoa: 'gamer em quarto RGB cinematográfico', vibe: 'energética', cor: '#0f0020' },
-  fitness: { pessoa: 'atleta em academia moderna', vibe: 'motivacional', cor: '#001a14' },
-  cozinha: { pessoa: 'chef em cozinha profissional', vibe: 'gourmet', cor: '#1a0800' },
-  pets: { pessoa: 'mulher realista com cachorro feliz', vibe: 'emocional', cor: '#0a1a00' },
-};
-
-function gerarRoteiro(produto, nichoId) {
-  const cenario = CENARIOS[nichoId] || CENARIOS.tecnologia;
-  const hocks = {
-    tecnologia: [`ESSE ${produto.nome.toUpperCase()} ESTÁ REVOLUCIONANDO 😱`, `O ${produto.nome} QUE NINGUÉM TE CONTOU 🔥`, `${produto.nome}: VALE CADA CENTAVO? 🤔`],
-    casa: [`SUA CASA PRECISA DISSO! ${produto.img}`, `O ${produto.nome} QUE ESTÁ TRANSFORMANDO LARES 🏠`, `ESSE ${produto.nome} VAI MUDAR SUA CASA 😍`],
-    beleza: [`MENINAS, OLHA O QUE ACHEI! ${produto.img}`, `O ${produto.nome} QUE ESTÁ VIRALIZANDO NO TIKTOK 💄`, `ANTES E DEPOIS COM ${produto.nome.toUpperCase()} 😳`],
-    gadgets: [`VOCÊ PRECISA DESSE GADGET! ${produto.img}`, `O ${produto.nome} MAIS INCRÍVEL DO ANO 🚀`, `ISSO SIM É TECNOLOGIA! ${produto.nome} 🔥`],
-    gamer: [`SETUP COMPLETO COM ${produto.nome.toUpperCase()} 🎮`, `O ${produto.nome} QUE TODO GAMER QUER 🔥`, `NÍVEL PRO: ${produto.nome} RGB 😱`],
-    fitness: [`TRANSFORME SEU TREINO COM ${produto.nome.toUpperCase()} 💪`, `O ${produto.nome} QUE ESTÁ MUDANDO VIDAS 🏋️`, `RESULTADOS REAIS COM ${produto.nome} 😤`],
-    cozinha: [`ESSA RECEITA FICOU INCRÍVEL COM ${produto.nome.toUpperCase()} 👨‍🍳`, `O ${produto.nome} QUE SUA COZINHA PRECISA 🔥`, `CHEF REVELA SEGREDO: ${produto.nome} 😋`],
-    pets: [`ESSA COLEIRA INTELIGENTE ESTÁ VIRALIZANDO 😳`, `O ${produto.nome} QUE SEU PET MERECE 🐾`, `MULHER REALISTA MOSTRA ${produto.nome.toUpperCase()} 🐶`],
-  };
-  const cenas = {
-    tecnologia: [
-      `📱 Abertura: ${cenario.pessoa} usando ${produto.nome}, close no produto com iluminação azul`,
-      `⚡ Corte rápido: zoom no ${produto.nome} com destaque nas funcionalidades`,
-      `🎯 Pessoa interagindo com o produto em ambiente real`,
-      `💥 Montagem com cortes rápidos: produto + reação da pessoa`,
-      `🏁 Final: ${produto.nome} em destaque com CTA animado`,
-    ],
-    gamer: [
-      `🎮 Abertura: ${cenario.pessoa}, iluminação RGB no quarto cinematográfico, close no ${produto.nome}`,
-      `⚡ Corte rápido: zoom no ${produto.nome} com LED piscando`,
-      `🔥 Pessoa jogando e reagindo ao produto`,
-      `💥 Edição rápida com transições estilo TikTok viral`,
-      `🏁 Final: ${produto.nome} + "LINK NA BIO" animado`,
-    ],
-    pets: [
-      `🐕 Abertura: ${cenario.pessoa} com cachorro correndo feliz no parque`,
-      `📸 Close no ${produto.nome} com zoom suave`,
-      `✨ ${cenario.pessoa} mostrando como o produto funciona na prática`,
-      `💖 Cena emocional: cachorro feliz + produto em destaque`,
-      `🏁 Final: ${produto.nome} com badge de desconto e CTA`,
-    ],
-  };
-  const cenasNicho = cenas[nichoId] || [
-    `🎬 Abertura: ${cenario.pessoa} com ${produto.nome}`,
-    `📸 Close cinematográfico no ${produto.nome}`,
-    `✨ Corte rápido: produto em uso`,
-    `💥 Transição estética`,
-    `🏁 CTA final com destaque`,
-  ];
-  return {
-    hook: hocks[nichoId] ? pick(hocks[nichoId]) : `🔥 ${produto.img} ${produto.nome}!`,
-    cenas: cenasNicho,
-    pessoa: cenario.pessoa,
-    vibe: cenario.vibe,
-    legenda: `🚀 ${produto.nome} com frete grátis!\n💰 De R$ ${(produto.preco * 1.4).toFixed(2)} por R$ ${produto.preco.toFixed(2)}\n🔗 Link na bio!\n\n#viral #${nichoId} #promoção`,
-    musica: pick(MUSICAS_SUG),
-    duracao: `${Math.floor(Math.random() * 10 + 12)}s`,
-    cortes: Math.floor(Math.random() * 4 + 6),
-    zoom: Math.random() > 0.3,
-    legendasAnimadas: true,
-    estiloEdicao: pick(['cortes rápidos', 'transições suaves', 'estilo TikTok viral', 'cinematográfico']),
-    score: {
-      hook: +(Math.random() * 1.5 + 8).toFixed(1),
-      viralizacao: +(Math.random() * 1.8 + 7.5).toFixed(1),
-      cta: +(Math.random() * 1.2 + 8).toFixed(1),
-      conversaoEstimada: Math.random() > 0.5 ? 'alta' : Math.random() > 0.3 ? 'muito alta' : 'média-alta',
-    },
-  };
+function getStoreLink(cat) {
+  const stores = loadStores();
+  if (!stores[cat]) {
+    stores[cat] = {
+      id: cat, nome: cat.charAt(0).toUpperCase() + cat.slice(1),
+      url: STORE_LINKS[cat] || `${STORE_BASE}/tecnologia`,
+      criadoEm: new Date().toISOString(), produtos: 0,
+    };
+    saveStores(stores);
+  }
+  return stores[cat].url;
 }
 
 export class AffiliateAgent {
@@ -227,460 +72,122 @@ export class AffiliateAgent {
     this._running = false;
     this._timer = null;
     this._interval = 30000;
-    this._cycleCount = 0;
-    this._allPosts = [];
-    this._allProducts = [];
-    this._stores = [];
-    this._scheduled = [];
     this._logs = [];
-    this._learning = {
-      melhoresNichos: [],
-      melhoresPosts: [],
-      produtosVirais: [],
-      produtosRuins: [],
-    };
-    this._stats = {
-      lojasCriadas: 0, produtosEncontrados: 0, postsGerados: 0,
-      linksAfiliadosPendentes: 0, vendasMock: 0, comissaoMock: 0,
-      cliquesMock: 0, ctrMock: 0, conversaoMock: 0,
-    };
-    this._topProdutos = {};
-    this._topLojas = {};
-    this._topPosts = [];
-    this._mediaLibrary = { thumbnails: [], banners: [], stories: [], videos: [] };
-    this._criativosStats = { totalCriativos: 0, thumbsGeradas: 0, bannersGerados: 0, storiesGeradas: 0, videosGerados: 0 };
-    this._abTests = [];
-    this._melhorThumbnail = null;
-    this._melhorPlataforma = null;
-    this._connectionsMap = null;
-    this._providersAtivos = [];
+
+    const state = loadAgentState();
+    if (state) {
+      this._running = state.running || false;
+      if (state.logs) this._logs = state.logs;
+      if (this._running) {
+        this._startTimer();
+      }
+    }
   }
 
   get running() { return this._running; }
   get logs() { return [...this._logs]; }
-  get stats() { return { ...this._stats }; }
-  get allPosts() { return [...this._allPosts]; }
-  get allProducts() { return [...this._allProducts]; }
-  get stores() { return [...this._stores]; }
-  get scheduled() { return [...this._scheduled]; }
-  get cycleCount() { return this._cycleCount; }
-  get learning() { return JSON.parse(JSON.stringify(this._learning)); }
-  get topProdutos() { return { ...this._topProdutos }; }
-  get topLojas() { return { ...this._topLojas }; }
-  get topPosts() { return [...this._topPosts]; }
-  get mediaLibrary() { return JSON.parse(JSON.stringify(this._mediaLibrary)); }
-  get criativosStats() { return { ...this._criativosStats }; }
-  get abTests() { return [...this._abTests]; }
-  get melhorThumbnail() { return this._melhorThumbnail; }
-  get melhorPlataforma() { return this._melhorPlataforma; }
-  get providersAtivos() { return [...this._providersAtivos]; }
-  get connectionsMap() { return this._connectionsMap ? { ...this._connectionsMap } : null; }
+  get stats() { return { lojasCriadas: 0, produtosEncontrados: 0, postsGerados: 0, linksAfiliadosPendentes: 0, vendasMock: 0, comissaoMock: 0, cliquesMock: 0, ctrMock: 0, conversaoMock: 0 }; }
+  get allPosts() { return []; }
+  get allProducts() { return []; }
+  get stores() { return []; }
+  get scheduled() { return []; }
+  get cycleCount() { return loadAgentState()?.currentCycle || 0; }
+  get learning() { return { melhoresNichos: [], melhoresPosts: [], produtosVirais: [], produtosRuins: [] }; }
+  get topProdutos() { return {}; }
+  get topLojas() { return {}; }
+  get topPosts() { return []; }
+  get mediaLibrary() { return { thumbnails: [], banners: [], stories: [], videos: [] }; }
+  get criativosStats() { return { totalCriativos: 0, thumbsGeradas: 0, bannersGerados: 0, storiesGeradas: 0, videosGerados: 0 }; }
+  get abTests() { return []; }
+  get melhorThumbnail() { return null; }
+  get melhorPlataforma() { return null; }
+  get providersAtivos() { return []; }
+  get connectionsMap() { return null; }
 
   _log(tipo, msg) {
     this._logs.unshift({ tipo, msg, data: new Date().toLocaleTimeString('pt-BR'), timestamp: Date.now() });
     if (this._logs.length > 300) this._logs.pop();
+    const state = loadAgentState() || {};
+    state.logs = this._logs;
+    saveAgentState(state);
   }
 
-  _analisarTendencias() {
-    const tendencia = pick(TRENDS);
-    const nicho = pick(NICHOS);
-    const produtoBase = pick(PRODUTOS[nicho.id]);
-    this._log('info', `📈 Tendência detectada: ${produtoBase.nome} (${nicho.nome}) — ${tendencia}`);
-    return { tendencia, nicho, produto: produtoBase };
-  }
-
-  async _criarLoja(nicho) {
-    if (this._stores.find(s => s.id === nicho.id)) return null;
-    let produtosBase;
-    let fonte = 'mock';
-    if (this._providersAtivos.length > 0) {
-      const providerProdutos = await this._buscarProdutosProvedores(nicho.id);
-      if (providerProdutos && providerProdutos.length > 0) {
-        produtosBase = providerProdutos;
-        fonte = 'provedores';
-      }
-    }
-    if (!produtosBase) {
-      produtosBase = PRODUTOS[nicho.id] || [];
-    }
-    const produtos = produtosBase.map(p => ({
-      ...p,
-      id: p.id || Math.random().toString(36).slice(2, 8),
-      headline: p.headline || gerarHeadline(nicho.id, p),
-      descSEO: p.descSEO || gerarDescSEO(p, nicho.id),
-      tags: p.tags || gerarTags(nicho.id, p),
-      slug: p.slug || slugify(p.nome),
-      thumbnail: p.imagem || p.img || '📦',
-      linkAfiliado: p.linkAfiliado || null,
-      status: fonte === 'provedores' ? 'real' : 'demo',
-      tendencia: p.tendencia || pick(TRENDS),
-      cliques: 0, conversoes: 0, viralScore: Math.random(),
-      provider: p.provider || null,
-      comissao: p.comissao || null,
-    }));
-    const store = {
-      id: nicho.id, nome: nicho.nome, icone: nicho.icone, cor: nicho.cor,
-      banner: `${nicho.icone} ${nicho.nome} — Loja Automática`,
-      headline: `Melhores produtos de ${nicho.nome}`,
-      produtos,
-      posts: [],
-      fonte,
-      criadaEm: new Date().toLocaleString('pt-BR'),
-      acessos: 0, vendas: 0,
+  _saveState(extra) {
+    const state = {
+      running: this._running,
+      startedAt: this._startedAt,
+      currentCycle: this._cycleCount || 0,
+      lastAction: new Date().toISOString(),
+      logs: this._logs,
+      ...extra,
     };
-    this._stores.push(store);
-    this._stats.lojasCriadas++;
-    this._stats.produtosEncontrados += store.produtos.length;
-    store.produtos.forEach(p => {
-      this._allProducts.push(p);
-      this._topProdutos[p.id] = p;
-      if (fonte === 'provedores' && p.linkAfiliado) {
-        this._log('info', `🔗 Link de afiliado gerado: ${p.linkAfiliado}`);
-      }
-      this._log('info', `🎨 Gerando criativos IA para ${p.nome}...`);
-      this._gerarCriativos(p, store);
-    });
-    this._log('success', `🏪 Loja "${nicho.nome}" criada com ${store.produtos.length} produtos (fonte: ${fonte})`);
-    return store;
+    saveAgentState(state);
   }
 
-  _gerarPosts(store) {
-    let count = 0;
-    store.produtos.forEach(prod => {
-      const trendPick = Math.random() > 0.5;
-      const plataformas = trendPick ? PLATAFORMAS_POST : [pick(PLATAFORMAS_POST)];
-      plataformas.forEach(plat => {
-        const link = `https://seu-link-afiliado.com/${store.id}/${prod.id}`;
-        const texto = gerarTextoPost(plat, prod, link);
-        const post = {
-          id: Math.random().toString(36).slice(2, 10),
-          produto: prod.nome, produtoId: prod.id,
-          loja: store.nome, lojaId: store.id,
-          plataforma: plat, texto, link,
-          geradoEm: new Date().toLocaleString('pt-BR'),
-          publicado: false, agendadoPara: null,
-          cliques: 0, viral: Math.random() > 0.7,
-        };
-        if (AGENDA[plat]) {
-          const hora = Math.floor(Math.random() * 12 + 8);
-          const minuto = Math.floor(Math.random() * 60);
-          post.agendadoPara = `${String(hora).padStart(2, '0')}:${String(minuto).padStart(2, '0')}`;
-        }
-        store.posts.push(post);
-        this._allPosts.push(post);
-        this._scheduled.push(post);
-        count++;
-        this._stats.postsGerados++;
-        if (post.viral) {
-          this._learning.produtosVirais.push(prod.nome);
-          this._log('warn', `🔥 Produto viral detectado: ${prod.nome}`);
-        }
-        this._log('info', `📝 Post criado para ${prod.nome} → ${plat} ${post.agendadoPara ? 'às ' + post.agendadoPara : ''}`);
-      });
-    });
-    this._log('success', `✅ ${count} posts gerados para ${store.nome}`);
-  }
-
-  _simularAnalytics() {
-    this._stores.forEach(store => {
-      store.acessos += Math.floor(Math.random() * 50 + 10);
-      store.vendas += Math.floor(Math.random() * 8);
-      store.produtos.forEach(prod => {
-        const cls = Math.floor(Math.random() * 20 + 1);
-        const conv = Math.floor(Math.random() * 5);
-        prod.cliques += cls;
-        prod.conversoes += conv;
-        this._stats.cliquesMock += cls;
-        if (conv > 0) this._stats.conversaoMock += conv;
-      });
-    });
-    this._simularCliquesCriativos();
-    this._stats.ctrMock = this._stats.cliquesMock > 0
-      ? ((this._stats.conversaoMock / this._stats.cliquesMock) * 100)
-      : 0;
-    const v = Math.floor(Math.random() * 5) + 1;
-    this._stats.vendasMock += v;
-    this._stats.comissaoMock += v * (Math.random() * 15 + 5);
-    this._stats.linksAfiliadosPendentes = this._allProducts.length * 2;
-    this._atualizarTop();
-    this._log('info', `📊 Analytics atualizados | CTR: ${this._stats.ctrMock.toFixed(1)}% | Cliques: ${this._stats.cliquesMock}`);
-  }
-
-  _atualizarTop() {
-    this._topProdutos = {};
-    this._stores.forEach(s => s.produtos.forEach(p => { this._topProdutos[p.id] = p; }));
-    this._topLojas = {};
-    this._stores.forEach(s => { this._topLojas[s.id] = s; });
-    const sorted = [...this._allPosts].sort((a, b) => b.cliques - a.cliques);
-    this._topPosts = sorted.slice(0, 5);
-  }
-
-  _aprender() {
-    const nichoCount = {};
-    this._stores.forEach(s => {
-      const totalVendas = s.produtos.reduce((acc, p) => acc + p.conversoes, 0);
-      if (totalVendas > 0) nichoCount[s.nome] = totalVendas;
-    });
-    this._learning.melhoresNichos = Object.entries(nichoCount)
-      .sort((a, b) => b[1] - a[1]).slice(0, 3).map(e => e[0]);
-    const viralPosts = this._allPosts.filter(p => p.viral);
-    this._learning.melhoresPosts = [...new Set(viralPosts.map(p => p.produto))].slice(0, 5);
-    const ruins = this._allProducts
-      .filter(p => p.conversoes === 0 && p.cliques > 5)
-      .map(p => p.nome);
-    this._learning.produtosRuins = ruins.slice(0, 5);
-    if (ruins.length > 0) this._log('warn', `🧠 Aprendizado: ${ruins.length} produto(s) marcado(s) como baixo desempenho`);
-    if (this._learning.melhoresNichos.length > 0) {
-      this._log('success', `🧠 Nichos com melhor performance: ${this._learning.melhoresNichos.join(', ')}`);
-    }
-  }
-
-  setConnections(connectionsMap) {
-    this._connectionsMap = connectionsMap;
-    this._providersAtivos = connectionsMap
-      ? Object.entries(connectionsMap).filter(([, v]) => v.status === 'conectado').map(([k]) => k)
-      : [];
-    if (this._providersAtivos.length > 0) {
-      this._log('success', `🔗 ${this._providersAtivos.length} provedor(es) de afiliados conectados: ${this._providersAtivos.join(', ')}`);
-    }
-  }
-
-  async _buscarProdutosProvedores(nichoId) {
-    if (!this._connectionsMap || this._providersAtivos.length === 0) return null;
-    this._log('info', `🔍 Buscando produtos em ${this._providersAtivos.length} provedor(es) para "${nichoId}"...`);
-    let allProducts = [];
-    let errors = [];
-    try {
-      const results = await buscarEmTodosProvedores(nichoId, this._connectionsMap);
-      results.forEach(r => {
-        if (r.success) {
-          allProducts = allProducts.concat(r.products);
-          this._log('success', `✅ ${r.provider}: ${r.count} produtos encontrados`);
-        } else {
-          errors.push(`${r.provider}: ${r.error}`);
-          this._log('warn', `⚠️ ${r.provider}: ${r.error}`);
-        }
-      });
-    } catch (e) {
-      this._log('error', `❌ Erro ao buscar provedores: ${e.message}`);
-    }
-    if (allProducts.length === 0 && errors.length > 0) {
-      this._log('warn', '⚠️ Nenhum produto encontrado nos provedores. Usando dados mock.');
-      return null;
-    }
-    if (allProducts.length > 0) {
-      this._log('success', `📦 Total: ${allProducts.length} produtos reais de afiliados`);
-      allProducts.forEach(p => {
-        this._log('info', `🔗 Link gerado: ${p.linkAfiliado}`);
-      });
-      return allProducts;
-    }
-    return null;
-  }
-
-  _gerarThumbnail(produto, store, estilo) {
-    const variantes = {
-      'tiktok-shop': {
-        estilo: 'TikTok Shop',
-        desc: `${produto.img} ${produto.nome} — Fundo vibrante, badge "TOP" "${Math.floor(Math.random() * 50 + 10)}% OFF"`,
-        cor: '#fe2c55', rating: (Math.random() * 2 + 3).toFixed(1), vendas: Math.floor(Math.random() * 5000 + 500),
-      },
-      shopee: {
-        estilo: 'Shopee Anúncio',
-        desc: `${produto.img} ${produto.nome} — Fundo branco, badge "Frete Grátis" "Env. ${pick(['Hoje', '24h', '48h'])}"`,
-        cor: '#ee4d2d', rating: (Math.random() * 1.5 + 3.5).toFixed(1), vendas: Math.floor(Math.random() * 3000 + 200),
-      },
-      amazon: {
-        estilo: 'Amazon Anúncio',
-        desc: `${produto.img} ${produto.nome} — Fundo limpo, badge "Best Seller" "Nota ${(Math.random() * 1 + 4).toFixed(1)}"`,
-        cor: '#ff9900', rating: (Math.random() * 1 + 4).toFixed(1), vendas: Math.floor(Math.random() * 8000 + 1000),
-      },
-    };
-    const v = variantes[estilo] || variantes['tiktok-shop'];
-    return {
-      id: Math.random().toString(36).slice(2, 10),
-      produtoId: produto.id, produtoNome: produto.nome, loja: store.nome,
-      estilo: v.estilo, desc: v.desc, cor: v.cor, rating: v.rating, vendas: v.vendas,
-      cliques: 0, ctr: 0, criadoEm: new Date().toLocaleString('pt-BR'),
-    };
-  }
-
-  _gerarBanner(produto, store) {
-    const ofertas = [`${Math.floor(Math.random() * 40 + 10)}% OFF`, `Leve 2 pague 1`, `Frete Grátis`, `Parcele em ${Math.floor(Math.random() * 6 + 3)}x`];
-    return {
-      id: Math.random().toString(36).slice(2, 10),
-      produtoId: produto.id, produtoNome: produto.nome, loja: store.nome,
-      headline: gerarHeadline(store.id, produto),
-      oferta: pick(ofertas),
-      cta: pick(['Compre Agora', 'Aproveitar Oferta', 'Garantir Desconto', 'Quero o Meu']),
-      estilo: pick(['Moderno', 'Minimalista', 'Promocional', 'Premium']),
-      dimensao: '1200x628',
-      cliques: 0, criadoEm: new Date().toLocaleString('pt-BR'),
-    };
-  }
-
-  _gerarStory(produto, store) {
-    return {
-      id: Math.random().toString(36).slice(2, 10),
-      produtoId: produto.id, produtoNome: produto.nome, loja: store.nome,
-      dimensao: '1080x1920',
-      headline: `${produto.img} ${gerarHeadline(store.id, produto)}`,
-      cta: 'Arraste pra cima',
-      cor: pick(['#000000', '#1a1a2e', '#16213e', '#0f3460']),
-      cliques: 0, criadoEm: new Date().toLocaleString('pt-BR'),
-    };
-  }
-
-  _gerarVideoMock(produto, store) {
-    const roteiro = gerarRoteiro(produto, store.id);
-    return {
-      id: Math.random().toString(36).slice(2, 10),
-      produtoId: produto.id, produtoNome: produto.nome, loja: store.nome,
-      roteiro,
-      formato: pick(['TikTok 9:16', 'Reels 9:16', 'Shorts 9:16']),
-      resolucao: '1080x1920',
-      fps: 30,
-      cliques: 0, visualizacoes: Math.floor(Math.random() * 5000 + 500),
-      criadoEm: new Date().toLocaleString('pt-BR'),
-    };
-  }
-
-  _gerarCriativos(produto, store) {
-    const thumbs = ESTILOS_THUMB.map(e => this._gerarThumbnail(produto, store, e));
-    thumbs.forEach(t => {
-      this._mediaLibrary.thumbnails.push(t);
-      this._criativosStats.thumbsGeradas++;
-      this._criativosStats.totalCriativos++;
-    });
-    const banner = this._gerarBanner(produto, store);
-    this._mediaLibrary.banners.push(banner);
-    this._criativosStats.bannersGerados++;
-    this._criativosStats.totalCriativos++;
-
-    const story = this._gerarStory(produto, store);
-    this._mediaLibrary.stories.push(story);
-    this._criativosStats.storiesGeradas++;
-    this._criativosStats.totalCriativos++;
-
-    const video = this._gerarVideoMock(produto, store);
-    this._mediaLibrary.videos.push(video);
-    this._criativosStats.videosGerados++;
-    this._criativosStats.totalCriativos++;
-
-    const abId = Math.random().toString(36).slice(2, 8);
-    const abTest = {
-      id: abId, produtoId: produto.id, produtoNome: produto.nome, loja: store.nome,
-      variantes: thumbs.map(t => ({
-        thumbnailId: t.id, estilo: t.estilo, titulo: gerarHeadline(store.id, produto),
-        cliques: 0, impressoes: 0, ctr: 0,
-      })),
-      vencedor: null, criadoEm: new Date().toLocaleString('pt-BR'),
-    };
-    this._abTests.push(abTest);
-
-    this._log('info', `🎨 Criativos gerados para ${produto.nome}: ${thumbs.length} thumbs, banner, story, vídeo`);
-    return { thumbs, banner, story, video, abTest };
-  }
-
-  _simularCliquesCriativos() {
-    this._mediaLibrary.thumbnails.forEach(t => {
-      const imp = Math.floor(Math.random() * 500 + 50);
-      const cl = Math.floor(Math.random() * imp * 0.3);
-      t.cliques += cl;
-      t.ctr = imp > 0 ? (cl / imp) * 100 : 0;
-    });
-    this._mediaLibrary.banners.forEach(b => {
-      b.cliques += Math.floor(Math.random() * 150 + 10);
-    });
-    this._mediaLibrary.stories.forEach(s => {
-      s.cliques += Math.floor(Math.random() * 80 + 5);
-    });
-    this._abTests.forEach(test => {
-      test.variantes.forEach(v => {
-        const imp = Math.floor(Math.random() * 300 + 30);
-        const cl = Math.floor(Math.random() * imp * 0.25);
-        v.impressoes += imp;
-        v.cliques += cl;
-        v.ctr = imp > 0 ? (cl / imp) * 100 : 0;
-      });
-      const sorted = [...test.variantes].sort((a, b) => b.ctr - a.ctr);
-      test.vencedor = sorted[0]?.estilo || null;
-    });
-    const thumbsCtr = this._mediaLibrary.thumbnails.filter(t => t.ctr > 0);
-    if (thumbsCtr.length > 0) {
-      const best = thumbsCtr.reduce((a, b) => (a.ctr || 0) > (b.ctr || 0) ? a : b);
-      this._melhorThumbnail = best.estilo;
-      this._log('info', `🏆 Melhor thumbnail: "${best.estilo}" com CTR de ${best.ctr.toFixed(1)}%`);
-    }
+  _startTimer() {
+    if (this._timer) clearInterval(this._timer);
+    this._timer = setInterval(() => this._ciclo(), this._interval);
   }
 
   _ciclo() {
-    if (!this._running) return;
-    this._cycleCount++;
-    this._log('info', `🔄 --- Ciclo #${this._cycleCount} ---`);
+    const state = loadAgentState();
+    if (!state || !state.running) { this._running = false; return; }
 
-    const analise = this._analisarTendencias();
+    this._cycleCount = (this._cycleCount || 0) + 1;
+    this._log('info', `🔄 Ciclo #${this._cycleCount}`);
 
-    const pendentes = NICHOS.filter(n => !this._stores.find(s => s.id === n.id));
-    if (pendentes.length > 0 && Math.random() > 0.3) {
-      const nicho = pick(pendentes);
-      this._log('info', `🏗️ Criando loja automática para ${nicho.nome}...`);
-      const store = this._criarLoja(nicho);
-      if (store) this._gerarPosts(store);
-    } else {
-      this._log('info', '⏳ Nenhum novo nicho selecionado neste ciclo');
+    const cards = loadQueue();
+    const approved = cards.filter(c => c.status === 'aprovado');
+
+    if (approved.length === 0) {
+      this._log('info', '⏳ Nenhum anúncio aprovado — aguardando...');
+      this._saveState({ currentCycle: this._cycleCount, processedAdIds: state.processedAdIds || [] });
+      return;
     }
 
-    if (this._cycleCount > 1) {
-      this._simularAnalytics();
-      this._aprender();
-    }
+    this._log('success', `📋 ${approved.length} anúncio(s) aprovado(s) encontrados`);
 
-    const pendAgenda = this._scheduled.filter(p => !p.publicado);
-    if (pendAgenda.length > 0 && Math.random() > 0.5) {
-      const toPub = pendAgenda.slice(0, Math.floor(Math.random() * 3 + 1));
-      toPub.forEach(p => { p.publicado = true; });
-      this._log('success', `📅 ${toPub.length} post(s) publicados automaticamente`);
-    }
-
-    this._log('success', `✅ Ciclo #${this._cycleCount} concluído`);
-  }
-
-  async gerarDadosIniciais() {
-    if (this._stores.length > 0) return;
-    const saved = loadConnections();
-    if (saved) this.setConnections(saved);
-    this._log('success', '🚀 Iniciando geração de dados iniciais...');
-    const primeirosNichos = NICHOS.filter(n => ['tecnologia', 'casa', 'beleza', 'gadgets', 'gamer'].includes(n.id));
-    const alvo = primeirosNichos.slice(0, 3);
-    for (const n of alvo) {
-      this._log('info', `🔍 Analisando nicho: ${n.nome}...`);
-      const store = await this._criarLoja(n);
-      if (store) {
-        this._log('info', `📱 Gerando posts para ${n.nome}...`);
-        this._gerarPosts(store);
+    const stores = loadStores();
+    const updated = cards.map(c => {
+      if (c.status === 'aprovado' && !(state.processedAdIds || []).includes(c.id)) {
+        const storeUrl = getStoreLink(c.categoria);
+        if (stores[c.categoria]) {
+          stores[c.categoria].produtos = (stores[c.categoria].produtos || 0) + 1;
+        }
+        this._log('success', `🏪 Loja "${c.categoria}" atualizada — +1 produto`);
+        this._log('info', `🔗 ${storeUrl}`);
+        return { ...c, status: 'publicado', storeUrl, publicadoEm: new Date().toISOString() };
       }
-    }
-    this._log('info', '📊 Simulando métricas iniciais...');
-    this._simularAnalytics();
-    this._aprender();
-    this._log('success', `✅ Dados iniciais gerados: ${this._stats.lojasCriadas} lojas, ${this._stats.produtosEncontrados} produtos, ${this._stats.postsGerados} posts, ${this._criativosStats.totalCriativos} criativos IA`);
-    this._cycleCount = 1;
+      return c;
+    });
+
+    saveStores(stores);
+    saveQueue(updated);
+
+    const processed = [...(state.processedAdIds || [])];
+    approved.forEach(c => {
+      if (!processed.includes(c.id)) processed.push(c.id);
+    });
+    this._log('success', `✅ ${approved.length} anúncio(s) publicado(s)`);
+    this._saveState({ currentCycle: this._cycleCount, processedAdIds: processed });
   }
 
   async start() {
     if (this._running) return;
     this._running = true;
-    this._log('success', '🚀 Agente Afiliado Inteligente iniciado');
-    await this.gerarDadosIniciais();
+    this._startedAt = new Date().toISOString();
+    this._cycleCount = 0;
+    this._log('success', '🚀 Agente Afiliado iniciado');
+    this._saveState({ running: true, startedAt: this._startedAt, currentCycle: 0, processedAdIds: [] });
     this._ciclo();
-    this._timer = setInterval(() => this._ciclo(), this._interval);
+    this._startTimer();
   }
 
   stop() {
     this._running = false;
     if (this._timer) { clearInterval(this._timer); this._timer = null; }
-    this._log('warn', '⏹️ Agente Afiliado parado');
+    this._log('warn', '⏹️ Agente Afiliado parado manualmente');
+    this._saveState({ running: false });
   }
 
   executarAgora() {

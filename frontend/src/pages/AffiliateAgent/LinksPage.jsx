@@ -115,13 +115,14 @@ export function LinksPage() {
 
   const pendentes = cards.filter(c => c.status === "pendente" || c.status === "pronto").length;
   const aprovados = cards.filter(c => c.status === "aprovado").length;
+  const emExec = cards.filter(c => c.status === "em_execucao").length;
 
   return (
     <div className="aa-content">
       <div className="aa-topbar">
         <h2>🔗 Links Afiliados</h2>
         <span style={{ fontSize: 13, color: "#999" }}>
-          {cards.length} cards · {aprovados} aprovados · {pendentes} pendentes
+          {cards.length} cards · {aprovados} aprovados · {pendentes} pendentes{emExec > 0 ? ` · ${emExec} em execução` : ''}
         </span>
       </div>
 
@@ -220,10 +221,10 @@ export function LinksPage() {
                       </div>
                       <span style={{
                         fontSize: 11, padding: "2px 10px", borderRadius: 10, whiteSpace: "nowrap",
-                        background: card.status === "pronto" ? "rgba(16,185,129,0.2)" : card.status === "aprovado" ? "rgba(37,99,235,0.2)" : card.status === "reprovado" ? "rgba(239,68,68,0.2)" : "rgba(245,158,11,0.2)",
-                        color: card.status === "pronto" ? "#10b981" : card.status === "aprovado" ? "#60a5fa" : card.status === "reprovado" ? "#ef4444" : "#f59e0b",
+                        background: card.status === "pronto" ? "rgba(16,185,129,0.2)" : card.status === "aprovado" ? "rgba(37,99,235,0.2)" : card.status === "em_execucao" ? "rgba(245,158,11,0.2)" : card.status === "erro" ? "rgba(239,68,68,0.2)" : card.status === "reprovado" ? "rgba(239,68,68,0.2)" : "rgba(245,158,11,0.2)",
+                        color: card.status === "pronto" ? "#10b981" : card.status === "aprovado" ? "#60a5fa" : card.status === "em_execucao" ? "#f59e0b" : card.status === "erro" ? "#ef4444" : card.status === "reprovado" ? "#ef4444" : "#f59e0b",
                       }}>
-                        {card.status === "pronto" ? "✅ Pronto" : card.status === "aprovado" ? "✅ Aprovado" : card.status === "reprovado" ? "❌ Reprovado" : "⏳ Pendente"}
+                        {card.status === "pronto" ? "✅ Pronto" : card.status === "aprovado" ? "✅ Aprovado" : card.status === "em_execucao" ? "⏳ Em Execução" : card.status === "erro" ? "❌ Erro" : card.status === "reprovado" ? "❌ Reprovado" : "⏳ Pendente"}
                       </span>
                     </div>
                     <div style={{ fontSize: 12, color: "#6b7280", marginTop: 6, lineHeight: 1.5 }}>

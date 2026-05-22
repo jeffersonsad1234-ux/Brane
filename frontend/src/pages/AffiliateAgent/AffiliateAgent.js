@@ -66,88 +66,87 @@ function StatCard({ label, value, icon, color, sub }) {
 function Dashboard() {
   const navigate = useNavigate();
   const [agent] = useState(() => new AffiliateAgent());
-  const [running, setRunning] = useState(false);
-  const [stats, setStats] = useState(agent.stats);
   const [logs, setLogs] = useState([]);
-  const [posts, setPosts] = useState([]);
-  const [stores, setStores] = useState([]);
-  const [scheduled, setScheduled] = useState([]);
-  const [cycleCount, setCycleCount] = useState(0);
-  const [learning, setLearning] = useState(agent.learning);
-  const [topProdutos, setTopProdutos] = useState({});
-  const [topLojas, setTopLojas] = useState({});
-  const [topPosts, setTopPosts] = useState([]);
-  const [criativosStats, setCriativosStats] = useState(agent.criativosStats);
+
+  function readState() {
+    try { return JSON.parse(localStorage.getItem('brane_agent_state') || 'null'); } catch { return null; }
+  }
+  function readQueue() {
+    try { return JSON.parse(localStorage.getItem('brane_affiliate_links_queue') || '[]'); } catch { return []; }
+  }
+  function readStores() {
+    try { return JSON.parse(localStorage.getItem('brane_stores') || '{}'); } catch { return {}; }
+  }
+
+  const [agentState, setAgentState] = useState(readState());
+  const running = agentState?.running || false;
+  const cycleCount = agentState?.currentCycle || 0;
+  const startedAt = agentState?.startedAt || null;
+
+  const cards = readQueue();
+  const stores = readStores();
+  const pendentes = cards.filter(c => c.status === 'pendente' || c.status === 'pronto').length;
+  const aprovados = cards.filter(c => c.status === 'aprovado').length;
+  const publicados = cards.filter(c => c.status === 'publicado').length;
+  const erros = cards.filter(c => c.status === 'erro').length;
+  const storeKeys = Object.keys(stores);
+  const storeList = storeKeys.map(k => stores[k]);
 
   const refresh = useCallback(() => {
-    setStats(agent.stats);
     setLogs(agent.logs);
-    setPosts(agent.allPosts);
-    setStores(agent.stores);
-    setScheduled(agent.scheduled);
-    setRunning(agent.running);
-    setCycleCount(agent.cycleCount);
-    setLearning(agent.learning);
-    setTopProdutos(agent.topProdutos);
-    setTopLojas(agent.topLojas);
-    setTopPosts(agent.topPosts);
-    setCriativosStats(agent.criativosStats);
+    setAgentState(readState());
   }, [agent]);
 
   useEffect(() => {
-    const iv = setInterval(refresh, 1000);
+    const iv = setInterval(refresh, 1500);
     refresh();
     return () => clearInterval(iv);
   }, [refresh]);
 
   const handleStart = async () => {
-    // Process approved affiliate links first
     try {
-      const raw = localStorage.getItem("brane_affiliate_links_queue");
-      if (raw) {
-        const cards = JSON.parse(raw);
-        const approved = cards.filter(c => c.status === "aprovado");
-        if (approved.length > 0) {
-          const stores = {};
-          const updated = cards.map(c => {
-            if (c.status === "aprovado") {
-              const storeUrl = getStoreLink(c.categoria);
-              stores[c.categoria] = storeUrl;
-              return { ...c, status: "publicado", storeUrl, publicadoEm: new Date().toISOString() };
-            }
-            return c;
-          });
-          // Update store product counts
-          const storeRecords = JSON.parse(localStorage.getItem('brane_stores') || '{}');
-          Object.keys(stores).forEach(cat => {
-            if (storeRecords[cat]) {
-              storeRecords[cat].produtos = updated.filter(c => c.categoria === cat && c.status === 'publicado').length;
-            }
-          });
-          localStorage.setItem('brane_stores', JSON.stringify(storeRecords));
-          localStorage.setItem("brane_affiliate_links_queue", JSON.stringify(updated));
-          const storeKeys = Object.keys(stores);
-          agent._log('success', `🏪 ${storeKeys.length} loja(s) criada(s): ${storeKeys.join(', ')}`);
-          storeKeys.forEach(k => agent._log('info', `  🔗 ${stores[k]} · ${storeRecords[k]?.produtos || 0} produto(s)`));
-          agent._log('success', `✅ ${approved.length} anúncio(s) aprovados publicados`);
-        }
+      const cards = readQueue();
+      const approved = cards.filter(c => c.status === 'aprovado');
+      if (approved.length === 0) {
+        agent._log('warn', '⚠️ Nenhum anúncio aprovado para publicar');
+        refresh();
+        return;
       }
+      agent._log('success', `📋 ${approved.length} anúncio(s) aprovado(s) encontrados`);
+      const stores = readStores();
+      const updated = cards.map(c => {
+        if (c.status === 'aprovado') {
+          const storeUrl = getStoreLink(c.categoria);
+          if (stores[c.categoria]) {
+            stores[c.categoria].produtos = (stores[c.categoria].produtos || 0) + 1;
+          }
+          agent._log('success', `🏪 Loja "${c.categoria}" — produto adicionado`);
+          agent._log('info', `  🔗 ${storeUrl}`);
+          return { ...c, status: 'publicado', storeUrl, publicadoEm: new Date().toISOString() };
+        }
+        return c;
+      });
+      localStorage.setItem('brane_stores', JSON.stringify(stores));
+      localStorage.setItem('brane_affiliate_links_queue', JSON.stringify(updated));
+      agent._log('success', `✅ ${approved.length} anúncio(s) publicado(s)`);
+      const storeKeys = Object.keys(stores);
+      agent._log('success', `🏪 ${storeKeys.length} loja(s) no total`);
     } catch (e) {
       agent._log('error', `❌ Erro ao processar fila: ${e.message}`);
     }
     agent.start();
     refresh();
   };
-  const handleStop = () => { agent.stop(); refresh(); };
-  const handleExecutar = () => { agent.executarAgora(); setTimeout(refresh, 400); };
 
-  const produtosArr = Object.values(topProdutos).filter(Boolean);
-  const topByCliques = [...produtosArr].sort((a, b) => b.cliques - a.cliques).slice(0, 5);
-  const topLojasArr = Object.values(topLojas).filter(Boolean);
-  const lojasByVendas = [...topLojasArr].sort((a, b) => b.vendas - a.vendas);
+  const handleStop = () => {
+    agent.stop();
+    refresh();
+  };
 
-  const publicados = posts.filter(p => p.publicado).length;
-  const pendentes = posts.filter(p => !p.publicado).length;
+  const handleExecutar = () => {
+    agent.executarAgora();
+    setTimeout(refresh, 500);
+  };
 
   return (
     <div className="aa-content">
@@ -157,7 +156,7 @@ function Dashboard() {
           <div className="aa-status">
             <span className={`aa-status-dot ${running ? 'running' : ''}`} />
             <span>{running ? 'Rodando' : 'Parado'}</span>
-            <span className="aa-cycle-badge">Ciclo #{cycleCount}</span>
+            {cycleCount > 0 && <span className="aa-cycle-badge">Ciclo #{cycleCount}</span>}
           </div>
           {!running ? (
             <button className="aa-btn aa-btn-primary" onClick={handleStart}>▶ Iniciar Trabalho</button>
@@ -169,49 +168,29 @@ function Dashboard() {
       </div>
 
       <div className="aa-stats">
-        <StatCard label="Lojas" value={stats.lojasCriadas} icon="🏪" color="#2563eb" sub={`${NICHOS.length - stats.lojasCriadas} restantes`} />
-        <StatCard label="Produtos" value={stats.produtosEncontrados} icon="📦" color="#059669" />
-        <StatCard label="Posts" value={stats.postsGerados} icon="📝" color="#d97706" sub={`${publicados} pub · ${pendentes} pend`} />
-        <StatCard label="Links Pendentes" value={stats.linksAfiliadosPendentes} icon="🔗" color="#7c3aed" />
-        <StatCard label="Cliques (mock)" value={stats.cliquesMock} icon="🖱️" color="#0891b2" />
-        <StatCard label="CTR" value={`${stats.ctrMock.toFixed(1)}%`} icon="📈" color="#0d9488" />
-        <StatCard label="Conversões" value={stats.conversaoMock} icon="✅" color="#84cc16" />
-        <StatCard label="Comissão (mock)" value={`R$ ${stats.comissaoMock.toFixed(2)}`} icon="💰" color="#e11d48" />
-        <StatCard label="Criativos IA" value={criativosStats.totalCriativos} icon="🎨" color="#8b5cf6" sub={`${criativosStats.thumbsGeradas} thumbs · ${criativosStats.videosGerados} vídeos`} />
+        <StatCard label="Lojas Criadas" value={storeKeys.length} icon="🏪" color="#2563eb" sub={`${storeKeys.length} categoria(s)`} />
+        <StatCard label="Anúncios Aprovados" value={aprovados} icon="✅" color="#059669" />
+        <StatCard label="Publicados" value={publicados} icon="📦" color="#d97706" />
+        <StatCard label="Pendentes" value={pendentes} icon="⏳" color="#7c3aed" sub={erros > 0 ? `${erros} com erro` : ''} />
+        <StatCard label="Produtos em Loja" value={storeList.reduce((s, st) => s + (st.produtos || 0), 0)} icon="📋" color="#0891b2" />
       </div>
 
       <div className="aa-grid-3">
         <div className="aa-card">
-          <h3 className="aa-card-title">🏆 Produtos Mais Acessados</h3>
-          {topByCliques.length === 0 ? <p className="aa-muted">Aguardando dados...</p> : (
+          <h3 className="aa-card-title">🏪 Lojas por Categoria</h3>
+          {storeList.length === 0 ? (
+            <p className="aa-muted">Nenhuma loja criada ainda. Aprove anúncios e clique em "Iniciar Trabalho".</p>
+          ) : (
             <div className="aa-rank-list">
-              {topByCliques.map((p, i) => (
-                <div key={p.id || i} className="aa-rank-item">
-                  <span className="aa-rank-pos">{i + 1}</span>
-                  <span className="aa-rank-icon">{p.img}</span>
-                  <div className="aa-rank-info">
-                    <strong>{p.nome}</strong>
-                    <span className="aa-rank-meta">{p.cliques} cliques · {p.conversoes} conv</span>
-                  </div>
-                  <span className="aa-rank-trend">{p.tendencia}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="aa-card">
-          <h3 className="aa-card-title">🏪 Lojas por Vendas</h3>
-          {lojasByVendas.length === 0 ? <p className="aa-muted">Aguardando dados...</p> : (
-            <div className="aa-rank-list">
-              {lojasByVendas.map((s, i) => (
+              {storeList.map((s, i) => (
                 <div key={s.id} className="aa-rank-item" onClick={() => navigate(`/affiliate-agent/loja/${s.id}`)} style={{ cursor: 'pointer' }}>
                   <span className="aa-rank-pos">{i + 1}</span>
-                  <span className="aa-rank-icon">{s.icone}</span>
+                  <span className="aa-rank-icon">{NICHOS.find(n => n.id === s.id)?.icone || '🏪'}</span>
                   <div className="aa-rank-info">
                     <strong>{s.nome}</strong>
-                    <span className="aa-rank-meta">{s.vendas} vendas · {s.acessos} acessos</span>
+                    <span className="aa-rank-meta">{s.produtos || 0} produto(s)</span>
                   </div>
+                  <span className="aa-rank-trend" style={{ fontSize: 11 }}>{s.url?.replace('https://', '')}</span>
                 </div>
               ))}
             </div>
@@ -219,27 +198,33 @@ function Dashboard() {
         </div>
 
         <div className="aa-card">
-          <h3 className="aa-card-title">🔥 Posts Mais Virais</h3>
-          {topPosts.length === 0 ? <p className="aa-muted">Aguardando dados...</p> : (
+          <h3 className="aa-card-title">✅ Anúncios Aprovados</h3>
+          {cards.filter(c => c.status === 'aprovado' || c.status === 'publicado').length === 0 ? (
+            <p className="aa-muted">Nenhum anúncio aprovado. Vá em "Links Afiliados" para criar e aprovar.</p>
+          ) : (
             <div className="aa-rank-list">
-              {topPosts.slice(0, 5).map((p, i) => (
-                <div key={p.id} className="aa-rank-item viral">
-                  <span className="aa-rank-pos">{i + 1}</span>
-                  <span className="aa-rank-icon">{p.plataforma === 'tiktok' ? '🎵' : p.plataforma === 'instagram' ? '📸' : p.plataforma === 'pinterest' ? '📌' : p.plataforma === 'x' ? '🐦' : p.plataforma === 'facebook' ? '📘' : '📱'}</span>
+              {cards.filter(c => c.status === 'aprovado' || c.status === 'publicado').slice(0, 8).map(c => (
+                <div key={c.id} className="aa-rank-item">
+                  <span className="aa-rank-icon">{c.categoria === 'gamer' ? '🎮' : c.categoria === 'tecnologia' ? '💻' : c.categoria === 'cozinha' ? '🍳' : c.categoria === 'beleza' ? '💄' : c.categoria === 'pet' ? '🐾' : c.categoria === 'fitness' ? '💪' : c.categoria === 'moda' ? '👗' : '📦'}</span>
                   <div className="aa-rank-info">
-                    <strong>{p.produto}</strong>
-                    <span className="aa-rank-meta">{p.plataforma} · {p.cliques} cliques</span>
+                    <strong style={{ fontSize: 13 }}>{c.titulo}</strong>
+                    <span className="aa-rank-meta">R$ {c.preco.toFixed(2)} · {c.marketplace}</span>
                   </div>
+                  <span style={{
+                    fontSize: 11, padding: '2px 8px', borderRadius: 8,
+                    color: c.status === 'publicado' ? '#10b981' : '#60a5fa',
+                    background: c.status === 'publicado' ? 'rgba(16,185,129,0.15)' : 'rgba(96,165,250,0.15)',
+                  }}>
+                    {c.status === 'publicado' ? '✅ Publicado' : '✅ Aprovado'}
+                  </span>
                 </div>
               ))}
             </div>
           )}
         </div>
-      </div>
 
-      <div className="aa-grid-2">
         <div className="aa-card">
-          <h3 className="aa-card-title">📋 Logs Inteligentes</h3>
+          <h3 className="aa-card-title">📋 Logs</h3>
           <div className="aa-logs">
             {logs.length === 0 ? <p className="aa-muted">Nenhum log ainda.</p> : (
               logs.slice(0, 25).map((l, i) => (
@@ -250,71 +235,26 @@ function Dashboard() {
               ))
             )}
           </div>
-        </div>
-
-        <div className="aa-card">
-          <h3 className="aa-card-title">📅 Próximos Posts Agendados</h3>
-          {scheduled.filter(p => !p.publicado).length === 0 ? <p className="aa-muted">Nenhum post pendente.</p> : (
-            <div className="aa-schedule-list">
-              {scheduled.filter(p => !p.publicado).slice(0, 12).map(p => (
-                <div key={p.id} className="aa-schedule-item">
-                  <span className={`aa-schedule-icon plat-${p.plataforma}`}>
-                    {p.plataforma === 'tiktok' ? '🎵' : p.plataforma === 'instagram' ? '📸' : p.plataforma === 'pinterest' ? '📌' : p.plataforma === 'x' ? '🐦' : p.plataforma === 'facebook' ? '📘' : '📱'}
-                  </span>
-                  <div className="aa-schedule-info">
-                    <strong>{p.produto}</strong>
-                    <span className="aa-schedule-meta">{p.plataforma} · {p.agendadoPara || 'sem horário'}</span>
-                  </div>
-                  <span className="aa-schedule-status">⏳ Pendente</span>
-                </div>
-              ))}
-            </div>
+          {startedAt && (
+            <p style={{ fontSize: 11, color: '#555', marginTop: 8, textAlign: 'right' }}>
+              Iniciado em: {new Date(startedAt).toLocaleString('pt-BR')}
+            </p>
           )}
         </div>
       </div>
 
-      <div className="aa-card">
-        <h3 className="aa-card-title">📊 Distribuição de Agendamentos por Plataforma</h3>
-        <div className="aa-chart-bars">
-          {Object.entries(AGENDA).map(([plat, cfg]) => {
-            const count = scheduled.filter(p => p.plataforma === plat && !p.publicado).length;
-            return (
-              <div key={plat} className="aa-chart-row">
-                <span className="aa-chart-label">{plat === 'tiktok' ? '🎵' : plat === 'instagram' ? '📸' : plat === 'pinterest' ? '📌' : plat === 'x' ? '🐦' : plat === 'facebook' ? '📘' : '📱'} {plat}</span>
-                <div className="aa-chart-bar-bg">
-                  <div className="aa-chart-bar" style={{ width: `${Math.min((count / cfg.max) * 100, 100)}%` }} />
-                </div>
-                <span className="aa-chart-value">{count}/{cfg.max} {plat === 'pinterest' ? 'pins' : 'posts'}</span>
+      {storeList.length > 0 && (
+        <div className="aa-card" style={{ marginTop: 12 }}>
+          <h3 className="aa-card-title">🔗 URLs das Lojas</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 8 }}>
+            {storeList.map(s => (
+              <div key={s.id} style={{ fontSize: 13, color: '#60a5fa', fontFamily: 'monospace' }}>
+                {NICHOS.find(n => n.id === s.id)?.icone || '📦'} {s.nome}: {s.url}
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
-      </div>
-
-      <div className="aa-card">
-        <h3 className="aa-card-title">🏪 Lojas por Categoria</h3>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10, marginTop: 8 }}>
-          {[
-            { id: "gamer", nome: "Gamer", icone: "🎮" },
-            { id: "tecnologia", nome: "Tecnologia", icone: "💻" },
-            { id: "cozinha", nome: "Cozinha", icone: "🍳" },
-            { id: "beleza", nome: "Beleza", icone: "💄" },
-            { id: "pet", nome: "Pets", icone: "🐾" },
-            { id: "moda", nome: "Moda", icone: "👗" },
-            { id: "fitness", nome: "Fitness", icone: "💪" },
-            { id: "casa", nome: "Casa", icone: "🏠" },
-          ].map(cat => (
-            <div key={cat.id} className="aa-stat" style={{ borderTopColor: "#2563eb", cursor: "pointer" }}
-              onClick={() => window.open(`https://branpy.stormarck/loja/${cat.id}`, "_blank")}>
-              <div className="aa-stat-header">
-                <span className="aa-stat-icon">{cat.icone}</span>
-                <span className="aa-stat-label">{cat.nome}</span>
-              </div>
-              <span style={{ fontSize: 11, color: "#60a5fa" }}>branpy.stormarck/loja/{cat.id}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      )}
     </div>
   );
 }
