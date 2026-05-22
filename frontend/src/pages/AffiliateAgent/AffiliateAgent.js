@@ -4,6 +4,7 @@ import { AffiliateAgent, NICHOS, PRODUTOS, PLATAFORMAS, PLATAFORMAS_POST, AGENDA
 import { loadConnections, saveConnections } from "../../services/affiliateProviders";
 import { AutoPostEngine, SOCIAL_PLATFORMS, loadSocialConnections, saveSocialConnections } from "../../services/autoPostEngine";
 import BrowserConnectionPanel from "../../components/BrowserConnectionPanel";
+import VideoPreviewApproval from "../../components/VideoPreviewApproval";
 import "./AffiliateAgent.css";
 
 function useAgent() {
@@ -971,6 +972,9 @@ function CampanhaPage() {
     lojaDestino: 'minha-loja',
   });
   const [campaign, setCampaign] = useState(null);
+  const [video, setVideo] = useState(null);
+  const [videoLegenda, setVideoLegenda] = useState('');
+  const [videoRoteiro, setVideoRoteiro] = useState('');
   const [campLogs, setCampLogs] = useState([]);
   const [publishing, setPublishing] = useState(false);
   const [publicado, setPublicado] = useState(null);
@@ -1044,29 +1048,59 @@ function CampanhaPage() {
       criadoEm: new Date().toISOString(),
     };
 
+    const { generateVideo } = require("../../services/videoGenerator");
+    const vid = generateVideo(camp);
+    setVideo(vid);
+    setVideoLegenda(legenda);
+    setVideoRoteiro(vid.narracaoCompleta);
+
     setCampaign(camp);
     setStep('aprovacao');
 
     addLog('success', `✅ Loja criada: ${lojaUrl}`);
     addLog('success', `✅ Produto adicionado: ${form.nome}`);
-    addLog('success', '✅ Vídeo gerado para aprovação');
-    addLog('info', '⏳ Aguardando aprovação...');
+    addLog('success', `✅ Vídeo gerado: ${vid.duracao}s · ${vid.formato} · ${vid.cortesRapidos} cortes · ${vid.pessoa.nome} apresentando`);
+    addLog('info', '⏳ Assista, edite se necessário e aprove para publicar');
   };
 
   const handleRegenerate = () => {
-    addLog('info', '🔄 Regenerando criativo...');
-    generateCampanha();
-    addLog('info', '✅ Novo vídeo gerado');
+    if (!campaign) return;
+    addLog('info', '🔄 Gerando nova versão do vídeo...');
+    const { regenerateVideo } = require("../../services/videoGenerator");
+    const novoVideo = regenerateVideo(campaign, video);
+    setVideo(novoVideo);
+    setVideoRoteiro(novoVideo.narracaoCompleta);
+    addLog('success', `✅ Novo vídeo gerado: ${novoVideo.duracao}s · roteiro diferente · nova pessoa`);
+    addLog('info', '⏳ Vídeo ainda não publicado. Aprove para publicar.');
   };
 
   const handleReject = () => {
     addLog('warn', '⏹️ Campanha rejeitada');
     setCampaign(null);
+    setVideo(null);
     setStep('form');
+  };
+
+  const handleEditLegenda = (novaLegenda) => {
+    setVideoLegenda(novaLegenda);
+    if (campaign) setCampaign(prev => ({ ...prev, legenda: novaLegenda }));
+    addLog('info', '✏️ Legenda editada');
+  };
+
+  const handleEditRoteiro = (novoRoteiro) => {
+    setVideoRoteiro(novoRoteiro);
+    if (video) setVideo(prev => ({ ...prev, narracaoCompleta: novoRoteiro }));
+    addLog('info', '✏️ Roteiro editado');
   };
 
   const handleApprove = async () => {
     if (!campaign) return;
+
+    if (!video) {
+      addLog('error', '❌ Gere e aprove um vídeo antes de publicar.');
+      return;
+    }
+
     setPublishing(true);
     addLog('info', '✅ Campanha aprovada');
 
@@ -1079,8 +1113,9 @@ function CampanhaPage() {
       return;
     }
 
+    const campanhaFinal = { ...campaign, legenda: videoLegenda };
     addLog('info', '🚀 Publicando no TikTok...');
-    const result = await bot.publicarCampanha(campaign);
+    const result = await bot.publicarCampanha(campanhaFinal);
 
     if (result.success) {
       addLog('success', `✅ Publicado no TikTok: ${result.postUrl}`);
@@ -1104,7 +1139,7 @@ function CampanhaPage() {
       </div>
 
       <div className="aa-connect-info">
-        <span>Adicione um produto manualmente com link de afiliado Amazon e publique no TikTok conectado.</span>
+        <span>Adicione um produto manualmente com link de afiliado Amazon, gere um vídeo real de divulgação e publique no TikTok conectado.</span>
       </div>
 
       {step === 'form' && (
@@ -1172,59 +1207,26 @@ function CampanhaPage() {
 
       {step === 'aprovacao' && campaign && (
         <>
+          {!video && (
+            <div className="vp-error">⚠️ Nenhum vídeo gerado. Gere um vídeo antes de publicar.</div>
+          )}
+
           <div className="aa-camp-queue">
-            <div className="aa-camp-card">
-              <h4>📹 Vídeo para Publicação</h4>
-              <div className="aa-camp-preview-video" style={{ background: `linear-gradient(135deg, #1a1a2e, #16213e)` }}>
-                <div className="hook">{campaign.hook}</div>
-                <div className="meta">{campaign.cenario} · TikTok</div>
-                <div className="badge">{Math.floor(Math.random() * 60 + 30)}s</div>
-              </div>
-
-              <div className="aa-camp-text-box">
-                <span className="label">📝 Legenda</span>
-                {campaign.legenda}
-              </div>
-
-              <div className="aa-camp-hashtags">
-                {campaign.hashtags.slice(0, 8).map((h, i) => (
-                  <span key={i} className="aa-camp-hashtag">{h}</span>
-                ))}
-              </div>
-
-              <div style={{ fontSize: '0.82rem', marginBottom: 10 }}>
-                <span style={{ fontWeight: 600 }}>🔗 Loja:</span>{' '}
-                <a href={campaign.lojaUrl} target="_blank" rel="noopener noreferrer" className="aa-camp-url" style={{ display: 'inline' }}>
-                  {campaign.lojaUrl}
-                </a>
-              </div>
-
-              <div style={{ fontSize: '0.82rem', marginBottom: 10 }}>
-                <span style={{ fontWeight: 600 }}>🛒 Produto:</span> {campaign.nome} — R$ {campaign.preco.toFixed(2)}
-              </div>
-
-              <div style={{ fontSize: '0.82rem', marginBottom: 10 }}>
-                <span style={{ fontWeight: 600 }}>🔗 Link Afiliado:</span>{' '}
-                <a href={campaign.link} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--aa-primary)', wordBreak: 'break-all' }}>
-                  {campaign.link.length > 50 ? campaign.link.slice(0, 50) + '...' : campaign.link}
-                </a>
-              </div>
-
-              <div className="aa-camp-approval-btns">
-                <button className="aa-btn aa-btn-primary" onClick={handleApprove} disabled={publishing}>
-                  {publishing ? '⏳ Publicando...' : '✅ Aprovar e Publicar no TikTok'}
-                </button>
-                <button className="aa-btn aa-btn-outline" onClick={handleReject} disabled={publishing}>
-                  ❌ Rejeitar
-                </button>
-                <button className="aa-btn aa-btn-ghost" onClick={handleRegenerate} disabled={publishing}>
-                  🔄 Gerar outro
-                </button>
-              </div>
-            </div>
+            <VideoPreviewApproval
+              video={video}
+              legenda={videoLegenda}
+              hashtags={campaign.hashtags}
+              campaign={campaign}
+              publishing={publishing}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              onRegenerate={handleRegenerate}
+              onEditLegenda={handleEditLegenda}
+              onEditRoteiro={handleEditRoteiro}
+            />
           </div>
 
-          <div className="aa-card">
+          <div className="aa-card" style={{ marginTop: 20 }}>
             <h3 className="aa-card-title">📋 Logs da Campanha</h3>
             <div className="aa-camp-logs">
               {campLogs.map((l, i) => (
@@ -1248,7 +1250,7 @@ function CampanhaPage() {
           </div>
 
           <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
-            <button className="aa-btn aa-btn-outline" onClick={() => { setStep('form'); setCampaign(null); setPublicado(null); setCampLogs([]); }}>
+            <button className="aa-btn aa-btn-outline" onClick={() => { setStep('form'); setCampaign(null); setVideo(null); setPublicado(null); setCampLogs([]); }}>
               📦 Nova Campanha
             </button>
             <button className="aa-btn aa-btn-ghost" onClick={() => navigate('/affiliate-agent')}>
