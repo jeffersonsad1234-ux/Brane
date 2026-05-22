@@ -163,25 +163,64 @@ export async function generateRealVideo(campaign, onProgress, voiceId) {
   const logs = [];
   const log = (msg) => { logs.push(msg); if (onProgress && typeof onProgress === 'function') onProgress(null, msg); };
 
-  const { nome, preco, categoria, descricao, lojaUrl, imagem } = campaign;
+  const { nome, preco, categoria, descricao, lojaUrl, imagem, link } = campaign;
 
   log(`🔍 Carregando imagem(ns) do produto...`);
 
   const urls = parseImageUrls(imagem);
   let images = await preloadImages(urls.length > 0 ? urls : [imagem]);
 
-  if (images.length === 0) {
-    log('❌ Nenhuma imagem carregou. Verifique a URL e tente novamente.');
-    return {
-      videoMeta: { id: `vid_${genId()}`, campaignId: campaign.id, produtoNome: nome, preco, imagemError: true },
-      blob: null, url: null,
-      error: 'Imagem do produto não carregou — verifique a URL',
-      logs,
-    };
+  // Auto-extract from link if no images loaded
+  if (images.length === 0 && link) {
+    log('📡 Tentando extrair imagens automaticamente do link...');
+    try {
+      const { extractProductImages } = await import('./amazonScraper');
+      images = await extractProductImages(link, nome);
+      if (images.length > 0) {
+        log(`✅ ${images.length} imagem(ns) extraídas automaticamente`);
+      } else {
+        log('⚠️ Nenhuma imagem encontrada — usando placeholder');
+      }
+    } catch (err) {
+      log(`⚠️ Scraper: ${err.message} — usando placeholder`);
+    }
   }
 
-  log(`✅ ${images.length} imagem(ns) carregada(s)`);
-  if (urls.length > 0) urls.forEach(u => log(`  📸 ${u}`));
+  // Generate placeholder if still no images
+  if (images.length === 0) {
+    log('🎨 Gerando imagem placeholder para o produto');
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = 540;
+      canvas.height = 960;
+      const ctx = canvas.getContext('2d');
+      const grad = ctx.createLinearGradient(0, 0, 0, 960);
+      grad.addColorStop(0, '#1a1a2e'); grad.addColorStop(0.5, '#16213e'); grad.addColorStop(1, '#0f3460');
+      ctx.fillStyle = grad; ctx.fillRect(0, 0, 540, 960);
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.beginPath(); ctx.arc(270, 380, 160, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(210, 320, 120, 120);
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 2; ctx.strokeRect(210, 320, 120, 120);
+      ctx.fillStyle = 'rgba(37,99,235,0.3)'; ctx.fillRect(260, 310, 20, 140);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = '#fff'; ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 10;
+      let fs = 28; ctx.font = `bold ${fs}px Inter, sans-serif`;
+      while (ctx.measureText(nome).width > 400 && fs > 14) { fs -= 2; ctx.font = `bold ${fs}px Inter, sans-serif`; }
+      ctx.fillText(nome, 270, 560);
+      ctx.shadowBlur = 0; ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.font = '16px Inter, sans-serif'; ctx.fillText('Produto em destaque', 270, 600);
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+      const url = URL.createObjectURL(blob);
+      const placeholderImg = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.onerror = () => r(null); i.src = url; });
+      if (placeholderImg) images.push(placeholderImg);
+    } catch {}
+  }
+
+  if (images.length === 0) {
+    log('⚠️ Continuando sem imagens — apenas texto');
+  } else {
+    log(`✅ ${images.length} imagem(ns) disponível(is)`);
+  }
 
   const bgCat = { gamer: 'gamer', tecnologia: 'tecnologia', celular: 'tecnologia', 'eletrônicos': 'tecnologia', cozinha: 'cozinha', beleza: 'beleza', fitness: 'fitness', moda: 'moda', roupa: 'moda', pet: 'pet', casa: 'casa' }[categoria] || 'default';
   log(`🏷️ Categoria detectada: ${categoria}`);

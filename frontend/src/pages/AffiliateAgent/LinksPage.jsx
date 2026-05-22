@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 
 const STORAGE_KEY_LINKS = "brane_links_afiliados";
 const STORE_BASE = "https://branpy.stormarck/loja";
@@ -174,8 +174,6 @@ export function LinksPage() {
   const [msg, setMsg] = useState("");
   const [autoTab, setAutoTab] = useState("form");
 
-  const imgInputsRef = useRef([]);
-
   useEffect(() => { setLinks(loadLinks()); }, []);
 
   function addMsg(m) { setMsg(m); setTimeout(() => setMsg(""), 4000); }
@@ -190,13 +188,6 @@ export function LinksPage() {
     const hashtags = generateHashtags(productName, categoria);
     const lojaUrl = getStoreLink(categoria);
 
-    const imageUrls = [];
-    for (let i = 0; i < 5; i++) {
-      const val = imgInputsRef.current[i]?.value?.trim();
-      if (val && val.startsWith("http")) imageUrls.push(val);
-    }
-    const imagemStr = imageUrls.join('\n');
-
     const entry = {
       id: genId(),
       marketplace,
@@ -209,7 +200,7 @@ export function LinksPage() {
       hashtags,
       categoria,
       lojaUrl,
-      imagem: imagemStr,
+      imagem: '',
       status: "processando",
       criadoEm: new Date().toISOString(),
       videoUrl: null,
@@ -236,7 +227,7 @@ export function LinksPage() {
         preco: price,
         categoria,
         descricao,
-        imagem: imagemStr || '📦',
+        imagem: '',
         lojaUrl,
         titulo,
         legenda: cta,
@@ -401,15 +392,6 @@ export function LinksPage() {
             <input className="aa-input" type="number" step="0.01" placeholder="199.90" value={preco}
               onChange={e => setPreco(e.target.value)} onBlur={handlePrecoBlur} disabled={processing} />
             <span style={{ fontSize: 11, color: "#6b7280" }}>Digite o preço e o processamento começa automaticamente</span>
-          </div>
-
-          <div style={{ marginTop: 12 }}>
-            <label className="aa-label">Imagens (opcional — URLs, até 5)</label>
-            {[0, 1, 2, 3, 4].map(i => (
-              <input key={i} ref={el => imgInputsRef.current[i] = el} className="aa-input" type="url"
-                placeholder={`Imagem ${i + 1} (URL)`} disabled={processing}
-                style={{ marginTop: i > 0 ? 6 : 0 }} />
-            ))}
           </div>
 
           <button className="aa-btn aa-btn-primary" onClick={handlePrecoBlur} disabled={processing}
