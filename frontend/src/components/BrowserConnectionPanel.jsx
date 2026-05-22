@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { BrowserAutomator } from '../services/browserAutomation';
 
-export default function BrowserConnectionPanel({ plataforma, onPublishConfirm }) {
+export default function BrowserConnectionPanel({ plataforma }) {
   const [automator] = useState(() => new BrowserAutomator(plataforma));
   const [logado, setLogado] = useState(automator.logado);
   const [perfil, setPerfil] = useState(automator.perfil);
@@ -12,6 +12,12 @@ export default function BrowserConnectionPanel({ plataforma, onPublishConfirm })
   const [postsHoje, setPostsHoje] = useState(automator.postsHoje);
   const [pendingConfirm, setPendingConfirm] = useState(automator.pendingConfirm);
   const [emergencyStop, setEmergencyStop] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingMsg, setLoadingMsg] = useState('');
+  const [erro, setErro] = useState(null);
+  const [username, setUsername] = useState(automator.username || '');
+  const [testResult, setTestResult] = useState(null);
+  const logsEndRef = useRef(null);
 
   const refresh = useCallback(() => {
     setLogado(automator.logado);
@@ -23,58 +29,105 @@ export default function BrowserConnectionPanel({ plataforma, onPublishConfirm })
     setPostsHoje(automator.postsHoje);
     setPendingConfirm(automator.pendingConfirm);
     setEmergencyStop(automator.emergencyStop);
+    setLoading(automator.loading);
+    setLoadingMsg(automator.loadingMsg);
+    setErro(automator.erro);
   }, [automator]);
 
-  useEffect(() => {
-    const iv = setInterval(refresh, 800);
-    refresh();
-    return () => clearInterval(iv);
-  }, [refresh]);
+  useEffect(() => { const iv = setInterval(refresh, 400); refresh(); return () => clearInterval(iv); }, [refresh]);
 
-  const handleAbrir = async () => { await automator.abrirPlataforma(); };
-  const handleVerificar = async () => { await automator.verificarLogin(); };
-  const handleConectar = async () => { await automator.conectarSessao(); };
+  useEffect(() => { if (logsEndRef.current) logsEndRef.current.scrollTop = 0; }, [logs]);
+
+  const handleAbrir = async () => { setTestResult(null); await automator.abrirPlataforma(); };
+  const handleVerificar = async () => { setTestResult(null); await automator.verificarLogin(); };
+  const handleConectar = async () => { setTestResult(null); await automator.conectarSessao(username); };
+  const handleDesconectar = () => { automator.desconectar(); setUsername(''); setTestResult(null); };
+  const handleTestar = async () => { const r = await automator.testarPublicacao(); setTestResult(r); };
   const handleToggleModo = () => { automator.setModoAprovacao(!modoAprovacao); };
   const handleLimiteChange = (e) => { const v = parseInt(e.target.value) || 5; automator.setLimiteDiario(v); setLimite(v); };
   const handleEmergency = () => { automator.emergencyParar(); };
-  const handleConfirm = () => {
-    const confirmed = automator.confirmarAcao(true);
-    if (confirmed && onPublishConfirm) onPublishConfirm();
-  };
+  const handleConfirm = () => { automator.confirmarAcao(true); };
   const handleCancel = () => { automator.confirmarAcao(false); };
+  const handleExecutarAcao = async (acaoId) => { await automator.executarAcao(acaoId); };
 
-  const handleExecutarAcao = async (acaoId) => {
-    const result = await automator.executarAcao(acaoId);
-    if (result.pending) setPendingConfirm(automator.pendingConfirm);
-  };
+  const platIcon = plataforma === 'tiktok' ? '🎵' : plataforma === 'instagram' ? '📸' : plataforma === 'pinterest' ? '📌' : plataforma === 'facebook' ? '📘' : '▶️';
+  const platName = plataforma.charAt(0).toUpperCase() + plataforma.slice(1);
 
   return (
-    <div className="browser-panel">
+    <div className={`browser-panel ${loading ? 'browser-loading' : ''} ${emergencyStop ? 'browser-emergency' : ''}`}>
       <div className="browser-panel-header">
-        <h4>
-          {plataforma === 'tiktok' ? '🎵' : plataforma === 'instagram' ? '📸' : '▶️'}
-          {' '}Conexão por Navegador — {plataforma.charAt(0).toUpperCase() + plataforma.slice(1)}
-        </h4>
+        <h4>{platIcon} {platName}</h4>
         <div className="browser-session-status">
           <span className={`aa-status-dot ${logado ? 'running' : ''}`} />
-          <span>{logado ? `Logado como ${perfil}` : 'Deslogado'}</span>
+          <span>{logado ? `@${perfil?.replace('@', '') || username}` : 'Deslogado'}</span>
         </div>
       </div>
 
+      {loading && (
+        <div className="browser-loading-bar">
+          <div className="browser-loading-spinner" />
+          <span>{loadingMsg}</span>
+        </div>
+      )}
+
+      {erro && !loading && (
+        <div className="browser-error-box">
+          <span>❌ {erro}</span>
+        </div>
+      )}
+
+      {testResult && !testResult.success && testResult.motivo && (
+        <div className="browser-error-box">
+          <span>⚠️ {testResult.motivo}</span>
+        </div>
+      )}
+
       <div className="browser-connect-actions">
-        <button className="aa-btn aa-btn-outline" onClick={handleAbrir}>🌐 Abrir {plataforma}</button>
-        <button className="aa-btn aa-btn-outline" onClick={handleVerificar}>🔍 Verificar login</button>
-        <button className="aa-btn aa-btn-primary" onClick={handleConectar} disabled={!logado}>🔗 Conectar sessão atual</button>
-        {emergencyStop && (
-          <div className="browser-emergency-active">🛑 Emergência ativada — ações bloqueadas</div>
+        <button className="aa-btn aa-btn-outline" onClick={handleAbrir} disabled={loading}>🌐 Abrir {platName}</button>
+        <button className="aa-btn aa-btn-outline" onClick={handleVerificar} disabled={loading}>🔍 Verificar login</button>
+        {logado ? (
+          <button className="aa-btn aa-btn-outline aa-btn-danger" onClick={handleDesconectar}>🔌 Desconectar</button>
+        ) : (
+          <div className="browser-connect-input-group">
+            <input
+              className="aa-input"
+              type="text"
+              placeholder="@seu_usuario"
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              disabled={loading}
+              style={{ width: 160 }}
+            />
+            <button className="aa-btn aa-btn-primary" onClick={handleConectar} disabled={loading || !username.trim()}>
+              🔗 Conectar sessão
+            </button>
+          </div>
         )}
       </div>
 
-      {logado && perfil && (
+      {!logado && !loading && (
+        <div className="browser-login-help">
+          <p>1. Clique em <strong>"Abrir {platName}"</strong> para abrir o site</p>
+          <p>2. Faça login manualmente no navegador</p>
+          <p>3. Volte aqui e clique em <strong>"Verificar login"</strong></p>
+          <p>4. Digite seu @username e clique em <strong>"Conectar sessão"</strong></p>
+        </div>
+      )}
+
+      {logado && (
         <div className="browser-session-info">
           <span>Perfil: <strong>{perfil}</strong></span>
-          <span>URL: <a href={publicUrl} target="_blank" rel="noreferrer">{publicUrl}</a></span>
+          {publicUrl && <span>URL: <a href={publicUrl} target="_blank" rel="noreferrer">{publicUrl}</a></span>}
           <span>Posts hoje: <strong>{postsHoje}/{limite}</strong></span>
+          <button className="aa-btn aa-btn-outline aa-btn-sm" onClick={handleTestar} disabled={loading}>
+            🧪 Testar publicação
+          </button>
+        </div>
+      )}
+
+      {testResult?.success && (
+        <div className="browser-test-success">
+          ✅ Teste concluído — vídeo NÃO publicado. Automação funcionando.
         </div>
       )}
 
@@ -100,7 +153,7 @@ export default function BrowserConnectionPanel({ plataforma, onPublishConfirm })
               key={acao.id}
               className="browser-perm-btn"
               onClick={() => handleExecutarAcao(acao.id)}
-              disabled={!logado || emergencyStop}
+              disabled={!logado || emergencyStop || loading}
               title={acao.desc}
             >
               <span>{acao.label}</span>
@@ -113,24 +166,26 @@ export default function BrowserConnectionPanel({ plataforma, onPublishConfirm })
         <h5>🛡️ Segurança</h5>
         <div className="browser-safety-grid">
           <label className="browser-safety-item">
-            <input type="checkbox" checked={modoAprovacao} onChange={handleToggleModo} />
+            <input type="checkbox" checked={modoAprovacao} onChange={handleToggleModo} disabled={loading} />
             <span>Modo aprovação obrigatória</span>
           </label>
           <label className="browser-safety-item">
-            <span>Limite diário:</span>
-            <input type="number" className="aa-input" style={{ width: 70, padding: '4px 8px' }} value={limite} onChange={handleLimiteChange} min={1} max={20} />
+            <span>Limite:</span>
+            <input type="number" className="aa-input" style={{ width: 60, padding: '4px 6px' }} value={limite} onChange={handleLimiteChange} min={1} max={20} disabled={loading} />
           </label>
-          <button className="aa-btn aa-btn-danger" onClick={handleEmergency}>🛑 Parar automação</button>
+          <button className="aa-btn aa-btn-danger aa-btn-sm" onClick={handleEmergency} disabled={loading}>
+            🛑 Emergência
+          </button>
         </div>
       </div>
 
       <div className="browser-logs">
-        <h5>📋 Logs da Automação</h5>
-        <div className="browser-logs-list">
+        <h5>📋 Logs</h5>
+        <div className="browser-logs-list" ref={logsEndRef}>
           {logs.length === 0 ? (
             <p className="aa-muted">Nenhuma ação registrada.</p>
           ) : (
-            logs.slice(0, 15).map((l, i) => (
+            logs.slice(0, 20).map((l, i) => (
               <div key={i} className={`aa-log aa-log-${l.tipo}`}>
                 <span className="aa-log-time">[{l.data}]</span>
                 <span>{l.msg}</span>

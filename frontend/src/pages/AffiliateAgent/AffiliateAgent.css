@@ -328,33 +328,62 @@
 
 /* === Browser Connection Panel === */
 .aa-browser-connections { display: flex; flex-direction: column; gap: 24px; margin-bottom: 24px; }
-.browser-panel { background: var(--aa-surface); border: 1px solid var(--aa-border); border-radius: var(--aa-radius); padding: 20px; box-shadow: var(--aa-shadow); }
+.browser-panel { background: var(--aa-surface); border: 1px solid var(--aa-border); border-radius: var(--aa-radius); padding: 20px; box-shadow: var(--aa-shadow); transition: opacity 0.2s; }
+.browser-panel.browser-loading { opacity: 0.85; }
+.browser-panel.browser-emergency { border-color: var(--aa-danger); }
 .browser-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--aa-border); }
 .browser-panel-header h4 { font-size: 0.95rem; font-weight: 600; }
 .browser-session-status { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--aa-text-secondary); }
-.browser-connect-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
-.browser-session-info { display: flex; gap: 16px; flex-wrap: wrap; padding: 10px 14px; background: var(--aa-bg); border-radius: var(--aa-radius-sm); font-size: 0.8rem; margin-bottom: 12px; }
+
+/* Loading */
+.browser-loading-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--aa-primary-light); border-radius: 6px; margin-bottom: 10px; font-size: 0.78rem; color: var(--aa-primary); }
+.browser-loading-spinner { width: 14px; height: 14px; border: 2px solid var(--aa-primary); border-top-color: transparent; border-radius: 50%; animation: browser-spin 0.7s linear infinite; }
+@keyframes browser-spin { to { transform: rotate(360deg); } }
+
+/* Error */
+.browser-error-box { padding: 10px 14px; background: rgba(220,38,38,0.04); border: 1px solid rgba(220,38,38,0.2); border-radius: 6px; font-size: 0.78rem; color: var(--aa-danger); margin-bottom: 10px; }
+
+/* Connect */
+.browser-connect-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+.browser-connect-input-group { display: flex; gap: 6px; align-items: center; }
+
+/* Login help */
+.browser-login-help { padding: 12px 14px; background: var(--aa-bg); border-radius: var(--aa-radius-sm); font-size: 0.78rem; margin-bottom: 12px; }
+.browser-login-help p { margin: 4px 0; color: var(--aa-text-secondary); }
+.browser-login-help strong { color: var(--aa-text); }
+
+/* Session info */
+.browser-session-info { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; padding: 10px 14px; background: var(--aa-bg); border-radius: var(--aa-radius-sm); font-size: 0.8rem; margin-bottom: 12px; }
 .browser-session-info span { color: var(--aa-text-secondary); }
+.browser-test-success { padding: 10px 14px; background: rgba(5,150,105,0.06); border: 1px solid var(--aa-success); border-radius: 6px; font-size: 0.78rem; color: var(--aa-success); margin-bottom: 10px; }
+
+/* Confirm */
 .browser-confirm-box { display: flex; align-items: center; gap: 12px; padding: 14px; background: rgba(217,119,6,0.06); border: 1px solid var(--aa-warning); border-radius: var(--aa-radius-sm); margin-bottom: 12px; }
 .browser-confirm-icon { font-size: 1.3rem; }
 .browser-confirm-text { flex: 1; }
 .browser-confirm-text strong { display: block; font-size: 0.85rem; }
 .browser-confirm-text span { font-size: 0.78rem; color: var(--aa-text-secondary); }
 .browser-confirm-actions { display: flex; gap: 6px; }
+
+/* Permissions */
 .browser-permissions { margin-bottom: 12px; }
 .browser-permissions h5 { font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; }
 .browser-perms-grid { display: flex; gap: 6px; flex-wrap: wrap; }
 .browser-perm-btn { padding: 6px 14px; border: 1px solid var(--aa-border); border-radius: 6px; background: var(--aa-bg); cursor: pointer; font-size: 0.75rem; font-family: inherit; color: var(--aa-text); transition: all 0.12s; }
 .browser-perm-btn:hover:not(:disabled) { border-color: var(--aa-primary); color: var(--aa-primary); background: var(--aa-primary-light); }
 .browser-perm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Safety */
 .browser-safety { padding: 12px; background: var(--aa-bg); border-radius: var(--aa-radius-sm); margin-bottom: 12px; }
 .browser-safety h5 { font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; }
 .browser-safety-grid { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 .browser-safety-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; cursor: pointer; }
 .browser-emergency-active { color: var(--aa-danger); font-weight: 600; font-size: 0.78rem; }
+
+/* Logs */
 .browser-logs { margin-top: 8px; }
 .browser-logs h5 { font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; }
-.browser-logs-list { max-height: 200px; overflow-y: auto; font-size: 0.75rem; }
+.browser-logs-list { max-height: 220px; overflow-y: auto; font-size: 0.75rem; }
 .browser-logs-list::-webkit-scrollbar { width: 4px; }
 .browser-logs-list::-webkit-scrollbar-thumb { background: var(--aa-border); border-radius: 2px; }
 .browser-log-detail { display: block; font-size: 0.7rem; color: var(--aa-text-muted); margin-left: 12px; }
