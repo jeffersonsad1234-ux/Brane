@@ -1289,9 +1289,9 @@ function CampanhaPage() {
               <textarea className="aa-input" placeholder="Descrição natural do produto..." value={form.descricao} onChange={e => updateField('descricao', e.target.value)} />
             </div>
 
-            <div>
-              <label>Imagem / Thumbnail</label>
-              <input className="aa-input" type="text" placeholder="🔗 URL da imagem ou emoji" value={form.imagem} onChange={e => updateField('imagem', e.target.value)} />
+            <div className="full-width">
+              <label>Imagens do Produto (URLs, uma por linha — até 5)</label>
+              <textarea className="aa-input" rows="4" placeholder="https://exemplo.com/imagem1.jpg&#10;https://exemplo.com/imagem2.jpg&#10;https://exemplo.com/imagem3.jpg&#10;https://exemplo.com/imagem4.jpg&#10;https://exemplo.com/imagem5.jpg" value={form.imagem} onChange={e => updateField('imagem', e.target.value)} />
             </div>
 
             <div>

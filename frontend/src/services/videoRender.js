@@ -27,6 +27,29 @@ const TEXT_STYLES = {
 
 // ── Background rendering ──
 
+function drawImageCover(ctx, img, w, h) {
+  const iw = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
+  const ratio = Math.max(w / iw, h / ih);
+  const dw = iw * ratio;
+  const dh = ih * ratio;
+  const dx = (w - dw) / 2;
+  const dy = (h - dh) / 2;
+  ctx.drawImage(img, dx, dy, dw, dh);
+}
+
+function renderBlurredBackground(ctx, w, h, images) {
+  const img = images && images[0];
+  if (!img) return false;
+  ctx.save();
+  ctx.filter = 'blur(28px)';
+  drawImageCover(ctx, img, w, h);
+  ctx.restore();
+  ctx.fillStyle = 'rgba(0,0,0,0.4)';
+  ctx.fillRect(0, 0, w, h);
+  return true;
+}
+
 function renderGradient(ctx, w, h, colors) {
   const grad = ctx.createLinearGradient(0, 0, 0, h);
   grad.addColorStop(0, colors[0] || '#1a1a2e');
@@ -106,7 +129,8 @@ function renderParticlesBubble(ctx, w, h, frame) {
   }
 }
 
-function renderBackground(ctx, w, h, scene, frame) {
+function renderBackground(ctx, w, h, scene, frame, images) {
+  if (renderBlurredBackground(ctx, w, h, images)) return;
   const bg = BACKGROUNDS[scene.background] || { type: 'gradient', colors: ['#1a1a2e', '#16213e', '#0f3460'] };
   if (bg.type === 'neon') {
     renderNeonBackground(ctx, w, h, frame);
@@ -115,9 +139,41 @@ function renderBackground(ctx, w, h, scene, frame) {
   }
 }
 
+// ── Image entry animations based on index ──
+
+function getEntryAnimation(imageIndex, frame, sceneTotal) {
+  const phase = sceneTotal > 0 ? frame / sceneTotal : 0;
+  const base = {
+    scale: 1,
+    offsetX: 0,
+    offsetY: 0,
+    alpha: 1,
+    glowColor: null,
+  };
+  switch ((imageIndex || 0) % 5) {
+    case 0:
+      base.scale = 0.75 + phase * 0.3;
+      return base;
+    case 1:
+      base.offsetX = (1 - Math.min(frame / 10, 1)) * 80;
+      base.alpha = Math.min(frame / 6, 1);
+      return base;
+    case 2:
+      base.alpha = Math.min(frame / 8, 1);
+      return base;
+    case 3:
+      base.offsetX = (Math.min(frame / 10, 1) - 1) * 80;
+      base.alpha = Math.min(frame / 6, 1);
+      return base;
+    case 4:
+      base.scale = 0.7 + phase * 0.4;
+      return base;
+  }
+}
+
 // ── Image rendering with effects ──
 
-function drawProductImage(ctx, w, h, img, maxW, maxH, offsetY, glowColor, scale) {
+function drawProductImage(ctx, w, h, img, maxW, maxH, offsetY, glowColor, scale, offsetX, offsetYOff, alpha) {
   if (!img) return;
   const s = scale || 1;
   const iw = img.naturalWidth || img.width;
@@ -125,68 +181,63 @@ function drawProductImage(ctx, w, h, img, maxW, maxH, offsetY, glowColor, scale)
   const ratio = Math.min(maxW / iw, maxH / ih) * s;
   const dw = iw * ratio;
   const dh = ih * ratio;
-  const dx = (w - dw) / 2;
-  const dy = offsetY + (maxH - dh) / 2;
+  const dx = (w - dw) / 2 + (offsetX || 0);
+  const dy = offsetY + (maxH - dh) / 2 + (offsetYOff || 0);
+
+  ctx.save();
+  ctx.globalAlpha = alpha !== undefined ? alpha : 1;
 
   if (glowColor) {
-    const gs = Math.max(dw, dh) * 0.6;
+    const gs = Math.max(dw, dh) * 0.7;
     const grad = ctx.createRadialGradient(w / 2, offsetY + maxH / 2, 0, w / 2, offsetY + maxH / 2, gs);
     grad.addColorStop(0, glowColor);
     grad.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = grad;
+    ctx.globalAlpha = 1;
     ctx.fillRect(0, 0, w, h);
+    ctx.globalAlpha = alpha !== undefined ? alpha : 1;
   }
 
-  ctx.save();
-  ctx.shadowColor = glowColor || 'rgba(59,130,246,0.2)';
-  ctx.shadowBlur = 20;
+  ctx.shadowColor = 'rgba(0,0,0,0.3)';
+  ctx.shadowBlur = 15;
   ctx.drawImage(img, dx, dy, dw, dh);
   ctx.restore();
 }
 
-function renderImageEffect(ctx, w, h, img, effect, frame, sceneTotal, maxW, maxH, offsetY) {
+function renderImageEffect(ctx, w, h, img, effect, frame, sceneTotal, maxW, maxH, offsetY, imageIndex) {
   if (!img) return;
   const phase = sceneTotal > 0 ? frame / sceneTotal : 0;
+  const anim = getEntryAnimation(imageIndex, frame, sceneTotal);
+
+  let offsetX = anim.offsetX || 0;
+  let offsetYOff = anim.offsetY || 0;
+  let scale = anim.scale || 1;
+
+  const baseGlow = effect === 'glow' ? `hsla(${(frame * 3) % 360}, 100%, 60%, 0.15)` : null;
+
   switch (effect) {
-    case 'zoom-in': {
-      const zoom = 0.8 + phase * 0.3;
-      drawProductImage(ctx, w, h, img, maxW, maxH, offsetY, null, zoom);
-      break;
-    }
     case 'pan': {
-      const panX = Math.sin(frame * 0.04) * 15;
-      ctx.save();
-      ctx.translate(panX, 0);
-      drawProductImage(ctx, w, h, img, maxW, maxH, offsetY, null, 1);
-      ctx.restore();
-      break;
-    }
-    case 'glow': {
-      const hue = (frame * 3) % 360;
-      drawProductImage(ctx, w, h, img, maxW, maxH, offsetY, `hsla(${hue}, 100%, 60%, 0.15)`, 1);
+      offsetX += Math.sin(frame * 0.04) * 15;
       break;
     }
     case 'shake': {
       const intensity = Math.max(0, 1 - phase * 2);
-      const sx = (Math.random() - 0.5) * 8 * intensity;
-      const sy = (Math.random() - 0.5) * 8 * intensity;
-      ctx.save();
-      ctx.translate(sx, sy);
-      drawProductImage(ctx, w, h, img, maxW, maxH, offsetY, null, 1);
-      ctx.restore();
+      offsetX += (Math.random() - 0.5) * 8 * intensity;
+      offsetYOff += (Math.random() - 0.5) * 8 * intensity;
       break;
     }
     case 'parallax': {
-      const px = (phase - 0.5) * 60;
-      ctx.save();
-      ctx.translate(px, 0);
-      drawProductImage(ctx, w, h, img, maxW * 1.2, maxH, offsetY, null, 1);
-      ctx.restore();
+      offsetX += (phase - 0.5) * 40;
       break;
     }
-    default:
-      drawProductImage(ctx, w, h, img, maxW, maxH, offsetY, null, 1);
   }
+
+  let glow = baseGlow;
+  if (effect === 'glow' && anim.glowColor) {
+    glow = anim.glowColor;
+  }
+
+  drawProductImage(ctx, w, h, img, maxW, maxH, offsetY, glow, scale, offsetX, offsetYOff, anim.alpha);
 }
 
 // ── Text rendering ──
@@ -246,12 +297,12 @@ function renderStrikethroughPrice(ctx, oldPrice, x, y, frame) {
 // ── Main scene renderer ──
 
 export function renderSceneFrame(ctx, w, h, scene, frame, sceneTotal, produtoNome, preco, lojaUrl, images, overallProgress) {
-  renderBackground(ctx, w, h, scene, frame);
+  renderBackground(ctx, w, h, scene, frame, images);
 
   const img = images && images.length > 0 ? images[scene.imageIndex % images.length] : null;
   const effect = scene.effect || 'zoom-in';
 
-  renderImageEffect(ctx, w, h, img, effect, frame, sceneTotal, w * 0.75, h * 0.35, h * 0.03);
+  renderImageEffect(ctx, w, h, img, effect, frame, sceneTotal, w * 0.85, h * 0.45, h * 0.12, scene.imageIndex);
 
   switch (scene.tipo) {
     case 'hook': {
