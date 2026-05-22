@@ -1,7 +1,3 @@
-/**
- * Real Video Generator — full pipeline: scenes → render → MP4.
- * Voice generation moved to brane-media-worker/. Videos render with music only.
- */
 import { renderVideo } from "./videoRender";
 
 function genId() { return Math.random().toString(36).slice(2, 10); }
@@ -14,13 +10,72 @@ const MUSICAS = [
   { nome: 'Trending Loop', bpm: 140, vibe: 'viral' },
 ];
 
-export function gerarCenas(produtoNome, preco, descricao) {
+async function preloadImage(url) {
+  if (!url || typeof url !== 'string' || !url.startsWith('http')) return null;
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = url;
+  });
+}
+
+function extrairBeneficios(descricao) {
+  if (!descricao) return ['Produto de alta qualidade', 'Frete grátis', 'Oferta imperdível'];
+  const lines = descricao.split(/[.,;!?\n]+/).filter(l => l.trim().length > 10);
+  if (lines.length === 0) return [descricao.trim()];
+  return lines.slice(0, 3).map(l => l.trim());
+}
+
+export function gerarCenas(produtoNome, preco, descricao, categoria, imageLoaded) {
+  const isTech = categoria === 'tecnologia' || categoria === 'gamer';
+  const beneficios = extrairBeneficios(descricao);
+  const precoAntigo = (preco * 1.4).toFixed(2);
+
   return [
-    { id: 1, tipo: 'abertura', duracao: 5, cor: '#1a1a2e', legenda: `${produtoNome} — imperdível!` },
-    { id: 2, tipo: 'produto', duracao: 7, cor: '#16213e', legenda: `${produtoNome} original de alta qualidade` },
-    { id: 3, tipo: 'beneficio', duracao: 7, cor: '#0f3460', legenda: `Praticidade e design que você merece` },
-    { id: 4, tipo: 'preco', duracao: 5, cor: '#1a1a40', legenda: `De R$ ${(preco * 1.4).toFixed(2)} por R$ ${preco.toFixed(2)}` },
-    { id: 5, tipo: 'cta', duracao: 6, cor: '#0a0a23', legenda: `Clique no link e garanta o seu!` },
+    {
+      id: 1, tipo: 'abertura', duracao: 5,
+      cor: isTech ? '#0a0a1a' : '#1a1a2e',
+      legenda: '🔥 Oferta por tempo limitado!',
+      emoji: '🔥',
+      narracao: `Abertura — ${produtoNome}`,
+      hasImage: imageLoaded,
+      nome: produtoNome,
+    },
+    {
+      id: 2, tipo: 'produto', duracao: 8,
+      cor: isTech ? '#0d0d2b' : '#16213e',
+      legenda: imageLoaded ? '' : produtoNome,
+      emoji: imageLoaded ? '' : '📦',
+      narracao: `Produto — ${produtoNome}`,
+      nome: produtoNome,
+      hasImage: imageLoaded,
+    },
+    {
+      id: 3, tipo: 'beneficio', duracao: 7,
+      cor: isTech ? '#10052a' : '#0f3460',
+      legenda: beneficios.join('\n'),
+      emoji: '✨',
+      narracao: 'Benefícios do produto',
+      beneficios,
+    },
+    {
+      id: 4, tipo: 'preco', duracao: 6,
+      cor: isTech ? '#1a0020' : '#1a1a40',
+      legenda: `De R$ ${precoAntigo} por R$ ${preco.toFixed(2)}`,
+      emoji: '💰',
+      narracao: `Preço: R$ ${preco.toFixed(2)}, de R$ ${precoAntigo}`,
+      preco,
+      precoAntigo: parseFloat(precoAntigo),
+    },
+    {
+      id: 5, tipo: 'cta', duracao: 6,
+      cor: isTech ? '#0a0015' : '#0a0a23',
+      legenda: 'Acesse o link na bio!\nConfira antes que acabe!',
+      emoji: '🔗',
+      narracao: 'Chamada para ação — link na bio',
+    },
   ];
 }
 
@@ -36,8 +91,30 @@ export async function generateRealVideo(campaign, onProgress, voiceId) {
   const logs = [];
   const log = (msg) => { logs.push(msg); if (onProgress && typeof onProgress === 'function') onProgress(null, msg); };
 
-  const { nome, preco, categoria, descricao, lojaUrl } = campaign;
-  const cenas = gerarCenas(nome, preco, descricao);
+  const { nome, preco, categoria, descricao, lojaUrl, imagem } = campaign;
+
+  log(`🔍 Carregando imagem do produto...`);
+  const productImage = await preloadImage(imagem);
+
+  if (!productImage) {
+    log('❌ Imagem do produto não carregou. Verifique a URL e tente novamente.');
+    log('💡 Informe uma URL direta de imagem (jpg/png) no campo "Imagem / Thumbnail".');
+    return {
+      videoMeta: {
+        id: `vid_${genId()}`,
+        campaignId: campaign.id,
+        produtoNome: nome, preco,
+        imagemError: true,
+      },
+      blob: null, url: null,
+      error: 'Imagem do produto não carregou — verifique a URL',
+      logs,
+    };
+  }
+
+  log(`✅ Imagem carregada com sucesso: ${imagem}`);
+
+  const cenas = gerarCenas(nome, preco, descricao, categoria, true);
   const duracao = cenas.reduce((s, c) => s + c.duracao, 0);
   const musica = MUSICAS[Math.floor(Math.random() * MUSICAS.length)];
 
@@ -51,8 +128,9 @@ export async function generateRealVideo(campaign, onProgress, voiceId) {
     formato: '9:16', resolucao: '540x960', duracao, cenas, musica,
     cortesRapidos: 8 + Math.floor(Math.random() * 4),
     zoom: true, legendasAtivadas: true,
-    estiloVisual: 'viral TikTok',
-    thumbnail: '📦', lojaUrl, link: campaign.link,
+    estiloVisual: categoria === 'tecnologia' || categoria === 'gamer' ? 'neon tech' : 'viral TikTok',
+    imagemUrl: imagem,
+    lojaUrl, link: campaign.link,
     criadoEm: new Date().toISOString(),
     voiceId: voiceId || null,
     voiceStatus: 'disabled',
@@ -64,7 +142,7 @@ export async function generateRealVideo(campaign, onProgress, voiceId) {
     const result = await renderVideo(
       nome, preco, lojaUrl, categoria, cenas, duracao,
       (pct) => { if (onProgress && typeof onProgress === 'function') onProgress(pct, `Renderizando... ${Math.round(pct * 100)}%`); },
-      null, 0
+      null, 0, productImage
     );
     log(`✅ Vídeo MP4 gerado: ${result.duration}s`);
     return {

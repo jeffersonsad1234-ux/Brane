@@ -1,9 +1,3 @@
-/**
- * Video Render — renders scenes to real MP4 using canvas.captureStream + MediaRecorder.
- * Supports voice audio (TTS) mixed with background music.
- */
-import { drawAvatarFrame, getPersona } from "./avatarEngine";
-
 export const FPS = 30;
 
 export function getVideoMimeType() {
@@ -13,92 +7,128 @@ export function getVideoMimeType() {
   return 'video/mp4';
 }
 
-export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNome, preco, lojaUrl, persona, progress) {
-  const isDark = scene.cor;
+function drawTechParticles(ctx, w, h, frame) {
+  for (let i = 0; i < 10; i++) {
+    const px = (w * 0.05 + (i * w * 0.1) + Math.sin(frame * 0.03 + i * 1.7) * 30) % w;
+    const py = (h * 0.05 + (i * h * 0.1) + Math.cos(frame * 0.025 + i * 2.3) * 20 + frame * 0.3) % h;
+    const size = 2 + Math.sin(frame * 0.05 + i) * 1.5;
+    const hue = (frame * 0.5 + i * 40) % 360;
+    ctx.fillStyle = `hsla(${hue}, 100%, 60%, ${0.25 + Math.sin(frame * 0.04 + i) * 0.15})`;
+    ctx.beginPath();
+    ctx.arc(px, py, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawProductImage(ctx, w, h, productImage, maxW, maxH, offsetY, glowColor, scale) {
+  if (!productImage) return;
+  const s = scale || 1;
+  const imgW = productImage.naturalWidth;
+  const imgH = productImage.naturalHeight;
+  const ratio = Math.min(maxW / imgW, maxH / imgH) * s;
+  const drawW = imgW * ratio;
+  const drawH = imgH * ratio;
+  const drawX = (w - drawW) / 2;
+  const drawY = offsetY + (maxH - drawH) / 2;
+
+  if (glowColor) {
+    const glowSize = Math.max(drawW, drawH) * 0.8;
+    const grad = ctx.createRadialGradient(w / 2, offsetY + maxH / 2, 0, w / 2, offsetY + maxH / 2, glowSize);
+    grad.addColorStop(0, glowColor);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+  }
+
+  ctx.save();
+  ctx.shadowColor = glowColor || 'rgba(59,130,246,0.3)';
+  ctx.shadowBlur = 30;
+  ctx.drawImage(productImage, drawX, drawY, drawW, drawH);
+  ctx.restore();
+}
+
+export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNome, preco, lojaUrl, productImage, progress) {
+  const isTech = scene.cor && scene.cor.startsWith('#0');
   const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, isDark || '#1a1a2e');
-  grad.addColorStop(0.5, '#16213e');
-  grad.addColorStop(1, '#0f3460');
+  if (isTech) {
+    grad.addColorStop(0, '#0a0a1a');
+    grad.addColorStop(0.5, '#0d0d2b');
+    grad.addColorStop(1, '#0a0a1a');
+  } else {
+    grad.addColorStop(0, '#1a1a2e');
+    grad.addColorStop(0.5, '#16213e');
+    grad.addColorStop(1, '#0f3460');
+  }
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
 
-  for (let i = 0; i < 6; i++) {
-    const px = (w * 0.1 + (i * w * 0.15) + Math.sin(frame * 0.02 + i) * 20) % w;
-    const py = (h * 0.1 + (i * h * 0.14) + Math.cos(frame * 0.015 + i * 2) * 15) % h;
-    const pr = 20 + Math.sin(frame * 0.01 + i) * 10;
-    ctx.fillStyle = `rgba(255,255,255,${0.02 + Math.sin(frame * 0.02 + i) * 0.01})`;
-    ctx.beginPath();
-    ctx.arc(px, py, pr, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  const prodSize = Math.min(w, h) * 0.18;
-  ctx.font = `${prodSize}px serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillStyle = 'rgba(255,255,255,0.15)';
-  ctx.fillText('📦', w * 0.5, h * 0.3);
+  if (isTech) drawTechParticles(ctx, w, h, frame);
 
   const scenePhase = frame / totalFrames;
 
   switch (scene.tipo) {
     case 'abertura': {
-      const avatarSize = Math.min(w, h) * 0.5;
-      const mouthAmt = (Math.sin(frame * 0.15) * 0.5 + 0.5) * 0.8 + 0.1;
-      const blinkCycle = Math.sin(frame * 0.03);
-      const blink = blinkCycle > 0.95 ? 0 : 1;
-      const headTilt = Math.sin(frame * 0.02) * 0.02;
-      drawAvatarFrame(ctx, w * 0.5 - avatarSize / 2, h * 0.12, avatarSize, persona, mouthAmt, blink, headTilt);
+      const zoom = 1 + scenePhase * 0.08;
+      if (productImage) {
+        drawProductImage(ctx, w, h, productImage, w * 0.7, h * 0.45, h * 0.08, 'rgba(59,130,246,0.15)', zoom);
+      }
 
       ctx.fillStyle = '#fff';
       ctx.font = `bold ${Math.min(w, h) * 0.045}px Inter, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
-      const textY = h * 0.78;
+      const textY = h * 0.82;
       ctx.shadowColor = 'rgba(0,0,0,0.5)';
       ctx.shadowBlur = 10;
       ctx.fillText(scene.legenda, w / 2, textY);
       ctx.shadowBlur = 0;
+
+      if (scene.nome) {
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.font = `${Math.min(w, h) * 0.025}px Inter, sans-serif`;
+        ctx.textBaseline = 'top';
+        ctx.fillText(scene.nome, w / 2, textY + 20);
+      }
       break;
     }
 
     case 'produto': {
-      const zoom = 1 + Math.sin(frame * 0.04) * 0.08;
-      ctx.save();
-      ctx.translate(w * 0.5, h * 0.35);
-      ctx.scale(zoom, zoom);
-      ctx.font = `${Math.min(w, h) * 0.25}px serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('📦', 0, 0);
-      ctx.restore();
+      const pulse = 1 + Math.sin(frame * 0.03) * 0.03;
+      if (productImage) {
+        drawProductImage(ctx, w, h, productImage, w * 0.8, h * 0.55, h * 0.08,
+          isTech ? 'rgba(0,255,255,0.2)' : 'rgba(59,130,246,0.15)', pulse);
+      }
 
       ctx.fillStyle = '#fff';
       ctx.font = `bold ${Math.min(w, h) * 0.035}px Inter, sans-serif`;
       ctx.textAlign = 'center';
-      ctx.fillText(produtoNome, w / 2, h * 0.58);
-      ctx.fillStyle = 'rgba(255,255,255,0.6)';
-      ctx.font = `${Math.min(w, h) * 0.025}px Inter, sans-serif`;
-      ctx.fillText(scene.legenda, w / 2, h * 0.65);
+      ctx.fillText(produtoNome, w / 2, h * 0.72);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.font = `${Math.min(w, h) * 0.022}px Inter, sans-serif`;
+      ctx.fillText('Produto original', w / 2, h * 0.78);
       break;
     }
 
     case 'beneficio': {
-      const avSize = Math.min(w, h) * 0.35;
-      const mAmt = (Math.sin(frame * 0.12) * 0.5 + 0.5) * 0.7 + 0.1;
-      const blk = Math.sin(frame * 0.04) > 0.96 ? 0 : 1;
-      drawAvatarFrame(ctx, w * 0.3 - avSize / 2, h * 0.2, avSize, persona, mAmt, blk, Math.sin(frame * 0.015) * 0.03);
+      const benefs = scene.beneficios || ['Produto de alta qualidade', 'Frete grátis', 'Oferta imperdível'];
 
       ctx.fillStyle = '#fff';
-      ctx.font = `bold ${Math.min(w, h) * 0.028}px Inter, sans-serif`;
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
+      ctx.font = `bold ${Math.min(w, h) * 0.032}px Inter, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('⚡ Vantagens', w / 2, h * 0.12);
 
-      const lines = scene.legenda.split('\n');
-      lines.forEach((line, i) => {
-        ctx.fillStyle = i === 0 ? '#fff' : 'rgba(255,255,255,0.7)';
-        ctx.fillText(line, w * 0.55, h * 0.25 + i * (Math.min(w, h) * 0.04));
+      benefs.forEach((b, i) => {
+        const entryDelay = i * 0.15;
+        const alpha = Math.min((scenePhase - entryDelay) / 0.2, 1);
+        if (alpha <= 0) return;
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = '#fff';
+        ctx.font = `${Math.min(w, h) * 0.026}px Inter, sans-serif`;
+        ctx.textAlign = 'left';
+        ctx.fillText(`✅ ${b}`, w * 0.12, h * 0.3 + i * (Math.min(w, h) * 0.06));
       });
+      ctx.globalAlpha = 1;
       break;
     }
 
@@ -108,25 +138,27 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
       ctx.translate(w * 0.5, h * 0.35);
       ctx.scale(pulse, pulse);
 
-      ctx.fillStyle = '#f59e0b';
-      ctx.font = `bold ${Math.min(w, h) * 0.06}px Inter, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.fillText(`R$ ${preco.toFixed(2)}`, 0, 0);
-
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
-      ctx.font = `${Math.min(w, h) * 0.025}px Inter, sans-serif`;
-      ctx.fillText('Frete Grátis', 0, Math.min(w, h) * 0.06);
-
+      const oldPriceY = -Math.min(w, h) * 0.05;
       ctx.fillStyle = '#ef4444';
       ctx.font = `${Math.min(w, h) * 0.03}px Inter, sans-serif`;
-      ctx.fillText(`De R$ ${(preco * 1.4).toFixed(2)}`, 0, -Math.min(w, h) * 0.05);
+      ctx.textAlign = 'center';
+      ctx.fillText(`De R$ ${(preco * 1.4).toFixed(2)}`, 0, oldPriceY);
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-Math.min(w, h) * 0.08, oldPriceY - Math.min(w, h) * 0.005);
+      ctx.lineTo(Math.min(w, h) * 0.08, oldPriceY + Math.min(w, h) * 0.005);
+      ctx.stroke();
+
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = `bold ${Math.min(w, h) * 0.07}px Inter, sans-serif`;
+      ctx.fillText(`R$ ${preco.toFixed(2)}`, 0, oldPriceY + Math.min(w, h) * 0.06);
+
+      ctx.fillStyle = isTech ? '#22d3ee' : '#10b981';
+      ctx.font = `bold ${Math.min(w, h) * 0.025}px Inter, sans-serif`;
+      ctx.fillText('🔥 PROMOÇÃO 🔥', 0, oldPriceY + Math.min(w, h) * 0.13);
 
       ctx.restore();
-
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      ctx.font = `${Math.min(w, h) * 0.022}px Inter, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.fillText(scene.legenda, w / 2, h * 0.6);
       break;
     }
 
@@ -141,11 +173,11 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
 
       ctx.fillStyle = '#60a5fa';
       ctx.font = `${Math.min(w, h) * 0.022}px Inter, sans-serif`;
-      ctx.fillText(lojaUrl, w / 2, h * 0.42);
+      ctx.fillText(lojaUrl, w / 2, h * 0.4);
 
-      ctx.fillStyle = 'rgba(255,255,255,0.6)';
-      ctx.font = `${Math.min(w, h) * 0.025}px Inter, sans-serif`;
-      ctx.fillText(scene.legenda, w / 2, h * 0.55);
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.font = `bold ${Math.min(w, h) * 0.028}px Inter, sans-serif`;
+      ctx.fillText('Confira antes que acabe!', w / 2, h * 0.5);
 
       ctx.globalAlpha = 1;
 
@@ -159,7 +191,7 @@ export function renderSceneFrame(ctx, w, h, scene, frame, totalFrames, produtoNo
   }
 }
 
-export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes, duracao, onProgress, voiceBlob, voiceDuration) {
+export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes, duracao, onProgress, voiceBlob, voiceDuration, productImage) {
   return new Promise(async (resolve, reject) => {
     const W = 540;
     const H = 960;
@@ -169,14 +201,10 @@ export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes
     const ctx = canvas.getContext('2d');
 
     const totalFrames = Math.round(duracao * FPS);
-
     const sceneFrameCounts = scenes.map(s => Math.round(s.duracao * FPS));
-
-    const persona = getPersona(categoria);
 
     const videoStream = canvas.captureStream(FPS);
 
-    // Audio setup with voice + music
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const { createAudioStreamWithVoice } = await import('./voiceEngine');
     const { source, dest, gainNode } = await createAudioStreamWithVoice(audioCtx, duracao, voiceBlob, voiceDuration || duracao);
@@ -232,7 +260,7 @@ export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes
       const sceneTotal = sceneFrameCounts[currentSceneIdx] || 1;
 
       ctx.clearRect(0, 0, W, H);
-      renderSceneFrame(ctx, W, H, scene, frameInScene, sceneTotal, produtoNome, preco, lojaUrl, persona, frame / totalFrames);
+      renderSceneFrame(ctx, W, H, scene, frameInScene, sceneTotal, produtoNome, preco, lojaUrl, productImage, frame / totalFrames);
 
       ctx.fillStyle = 'rgba(0,0,0,0.3)';
       ctx.fillRect(0, H - 60, W, 60);
