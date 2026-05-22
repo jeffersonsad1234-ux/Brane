@@ -284,7 +284,7 @@ export function renderSceneFrame(ctx, w, h, scene, frame, sceneTotal, produtoNom
 
 // ── Main render function ──
 
-export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes, duracao, images, onProgress, voiceBlob, voiceDuration) {
+export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes, duracao, images, onProgress, voiceBlob, voiceDuration, bpm = 128) {
   return new Promise(async (resolve, reject) => {
     const W = 540;
     const H = 960;
@@ -295,12 +295,25 @@ export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes
 
     const totalFrames = Math.round(duracao * FPS);
     const sceneFrameCounts = scenes.map(s => Math.round(s.duracao * FPS));
+    const beatDur = 60 / bpm;
+    const beatTimes = [];
+    for (let t = 0; t < duracao; t += beatDur) beatTimes.push(t);
+
+    function getBeatIntensity(frameTime) {
+      let closest = 0;
+      for (const b of beatTimes) {
+        const dist = Math.abs(frameTime - b);
+        if (dist < beatDur * 0.15 && dist < closest || closest === 0) closest = dist || 1;
+      }
+      if (closest > 0 && closest < beatDur * 0.15) return 1 - closest / (beatDur * 0.15);
+      return 0;
+    }
 
     const videoStream = canvas.captureStream(FPS);
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const { createAudioStreamWithVoice } = await import('./voiceEngine');
-    const { source, dest, gainNode } = await createAudioStreamWithVoice(audioCtx, duracao, voiceBlob, voiceDuration || duracao);
+    const { source, dest, gainNode } = await createAudioStreamWithVoice(audioCtx, duracao, voiceBlob, voiceDuration || duracao, bpm, categoria);
 
     const tracks = [
       ...videoStream.getVideoTracks(),
@@ -333,11 +346,25 @@ export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes
     let currentSceneIdx = 0;
     let frameInScene = 0;
     let flashAlpha = 0;
+    let beatShakeX = 0;
+    let beatShakeY = 0;
 
     const renderLoop = async () => {
       if (frame >= totalFrames) {
         recorder.stop();
         return;
+      }
+
+      const frameTime = frame / FPS;
+      const beatIntensity = getBeatIntensity(frameTime);
+
+      // Beat-synced shake
+      if (beatIntensity > 0.3) {
+        beatShakeX = (Math.random() - 0.5) * beatIntensity * 6;
+        beatShakeY = (Math.random() - 0.5) * beatIntensity * 6;
+      } else {
+        beatShakeX *= 0.85;
+        beatShakeY *= 0.85;
       }
 
       let accum = 0;
@@ -357,12 +384,22 @@ export async function renderVideo(produtoNome, preco, lojaUrl, categoria, scenes
       const sceneTotal = sceneFrameCounts[currentSceneIdx] || 1;
 
       ctx.clearRect(0, 0, W, H);
+      ctx.save();
+      ctx.translate(beatShakeX, beatShakeY);
       renderSceneFrame(ctx, W, H, scene, frameInScene, sceneTotal, produtoNome, preco, lojaUrl, images, frame / totalFrames);
+      ctx.restore();
 
+      // Scene transition flash
       if (flashAlpha > 0.01) {
         ctx.fillStyle = `rgba(255,255,255,${flashAlpha})`;
         ctx.fillRect(0, 0, W, H);
         flashAlpha *= 0.82;
+      }
+
+      // Beat flash — subtle light pulse on every strong beat
+      if (beatIntensity > 0.5) {
+        ctx.fillStyle = `rgba(255,255,255,${beatIntensity * 0.08})`;
+        ctx.fillRect(0, 0, W, H);
       }
 
       frame++;

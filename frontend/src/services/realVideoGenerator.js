@@ -197,7 +197,7 @@ export async function generateRealVideo(campaign, onProgress, voiceId) {
     const result = await renderVideo(
       nome, preco, lojaUrl, categoria, cenas, duracao, images,
       (pct) => { if (onProgress && typeof onProgress === 'function') onProgress(pct, `Renderizando... ${Math.round(pct * 100)}%`); },
-      null, 0
+      null, 0, musica.bpm
     );
     log(`✅ Vídeo MP4 gerado: ${result.duration}s · ${cenas.length} cortes`);
     return {
