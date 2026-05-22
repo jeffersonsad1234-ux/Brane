@@ -33,6 +33,7 @@ function Sidebar({ active }) {
         <Link to="/affiliate-agent/criativos" className={`aa-sidebar-link ${active === 'criativos' ? 'active' : ''}`}>🎨 Criativos IA</Link>
         <Link to="/affiliate-agent/links" className={`aa-sidebar-link ${active === 'links' ? 'active' : ''}`}>🔗 Links Afiliados</Link>
         <Link to="/affiliate-agent/campanha" className={`aa-sidebar-link ${active === 'campanha' ? 'active' : ''}`}>🛒 Campanha Amazon</Link>
+        <Link to="/affiliate-agent/importar" className={`aa-sidebar-link ${active === 'importar' ? 'active' : ''}`}>📥 Importar Produto</Link>
         <div className="aa-sidebar-label">Lojas Automáticas</div>
         {NICHOS.map(n => (
           <Link key={n.id} to={`/affiliate-agent/loja/${n.id}`} className={`aa-sidebar-link ${active === n.id ? 'active' : ''}`}>
@@ -1304,6 +1305,254 @@ function CampanhaPage() {
   );
 }
 
+const BACKEND_URL = (process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app").trim();
+const API_BASE = `${BACKEND_URL}/api`;
+
+function ImportarProdutoPage() {
+  const navigate = useNavigate();
+  const [url, setUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [imported, setImported] = useState(null);
+  const [generatingVideo, setGeneratingVideo] = useState(false);
+  const [genProgress, setGenProgress] = useState(0);
+
+  const handleImport = async () => {
+    const trimmed = url.trim();
+    if (!trimmed.startsWith('http')) {
+      setError('URL inválida. Cole um link começando com http:// ou https://');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    setImported(null);
+    try {
+      const token = localStorage.getItem('brane_token');
+      const res = await fetch(`${API_BASE}/affiliate/import-product`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ url: trimmed }),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || 'Não foi possível importar este produto. Tente outro link ou envie imagens manualmente.');
+      }
+      const data = await res.json();
+      setImported(data);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerateVideo = async () => {
+    if (!imported) return;
+    setGeneratingVideo(true);
+    setGenProgress(0);
+    try {
+      const camp = {
+        nome: imported.titulo_melhorado || imported.titulo_original,
+        preco: parseFloat(imported.preco_texto?.replace(/[^0-9,]/g, '').replace(',', '.') || '0'),
+        categoria: 'tecnologia',
+        descricao: imported.descricao_persuasiva || imported.descricao_original,
+        lojaUrl: '',
+        imagem: imported.imagens?.join(',') || '',
+        link: imported.url_original,
+      };
+      const { generateRealVideo } = await import('../../services/realVideoGenerator');
+      const result = await generateRealVideo(camp, (pct, msg) => {
+        setGenProgress(pct);
+      });
+
+      const ads = JSON.parse(localStorage.getItem('brane_affiliate_ads') || '[]');
+      const newAd = {
+        id: `imp_${Date.now()}`,
+        marketplace: imported.marketplace,
+        link: imported.url_original,
+        titulo: imported.titulo_melhorado || imported.titulo_original,
+        preco: camp.preco,
+        categoria: 'tecnologia',
+        descricao: imported.descricao_persuasiva || imported.descricao_original,
+        imagem: imported.imagens?.[0] || '📦',
+        status: 'criativo_gerado',
+        criadoEm: new Date().toISOString(),
+        videoUrl: result.url,
+        videoBlob: result.blob,
+        importedId: imported.id,
+        tituloOriginal: imported.titulo_original,
+        legenda: imported.legenda_curta,
+        roteiro: imported.roteiro_video,
+        marketplaceOrigem: imported.marketplace,
+      };
+      ads.unshift(newAd);
+      localStorage.setItem('brane_affiliate_ads', JSON.stringify(ads));
+      setImported(prev => ({ ...prev, status: 'criativo_gerado' }));
+    } catch (e) {
+      setError(`Erro ao gerar vídeo: ${e.message}`);
+    } finally {
+      setGeneratingVideo(false);
+    }
+  };
+
+  const handleApprove = () => {
+    const ads = JSON.parse(localStorage.getItem('brane_affiliate_ads') || '[]');
+    const idx = ads.findIndex(a => a.importedId === imported?.id && a.status === 'criativo_gerado');
+    if (idx >= 0) {
+      ads[idx].status = 'aprovado';
+      localStorage.setItem('brane_affiliate_ads', JSON.stringify(ads));
+      setImported(prev => ({ ...prev, status: 'aprovado' }));
+    }
+  };
+
+  const goToAnuncios = () => navigate('/affiliate-agent/anuncios');
+
+  return (
+    <div className="aa-content">
+      <div className="aa-topbar">
+        <div className="aa-topbar-left">
+          <button className="aa-btn aa-btn-ghost" onClick={() => navigate('/affiliate-agent')}>← Dashboard</button>
+          <h2>📥 Importar Produto por URL</h2>
+        </div>
+      </div>
+
+      <div className="aa-import-hero">
+        <p className="aa-import-desc">
+          Cole o link de um produto de qualquer marketplace (Shopee, Amazon, Mercado Livre, AliExpress, etc.)
+          para importar dados reais e gerar criativos automaticamente.
+        </p>
+        <div className="aa-import-input-row">
+          <input
+            className="aa-input aa-import-input"
+            type="url"
+            placeholder="https://shopee.com.br/produto/..."
+            value={url}
+            onChange={e => { setUrl(e.target.value); setError(''); }}
+            onKeyDown={e => e.key === 'Enter' && handleImport()}
+            disabled={loading}
+          />
+          <button
+            className="aa-btn aa-btn-primary aa-import-btn"
+            onClick={handleImport}
+            disabled={loading || !url.trim()}
+          >
+            {loading ? 'Importando...' : 'Importar'}
+          </button>
+        </div>
+        {error && <div className="aa-import-error">{error}</div>}
+        {loading && (
+          <div className="aa-import-loading">
+            <div className="aa-loading-spinner" />
+            <span>Abrindo página e extraindo dados...</span>
+          </div>
+        )}
+      </div>
+
+      {imported && !loading && (
+        <div className="aa-import-result">
+          <div className="aa-import-status-bar">
+            <span className={`aa-import-step ${imported.status === 'importado' || imported.status === 'criativo_gerado' || imported.status === 'aprovado' ? 'active' : ''}`}>📥 Importado</span>
+            <span className="aa-import-arrow">→</span>
+            <span className={`aa-import-step ${imported.status === 'criativo_gerado' || imported.status === 'aprovado' ? 'active' : ''}`}>🎬 Criativo Gerado</span>
+            <span className="aa-import-arrow">→</span>
+            <span className={`aa-import-step ${imported.status === 'aprovado' ? 'active' : ''}`}>✅ Aprovado</span>
+          </div>
+
+          <div className="aa-import-grid">
+            <div className="aa-import-images">
+              <h4>Imagens Reais do Produto</h4>
+              <div className="aa-import-img-grid">
+                {imported.imagens?.map((img, i) => (
+                  <div key={i} className="aa-import-img-wrapper">
+                    <img src={img} alt={`Produto ${i + 1}`} className="aa-import-img" crossOrigin="anonymous" onError={e => { e.target.style.display = 'none'; }} />
+                  </div>
+                ))}
+                {(!imported.imagens || imported.imagens.length === 0) && (
+                  <p className="aa-muted">Nenhuma imagem encontrada</p>
+                )}
+              </div>
+            </div>
+
+            <div className="aa-import-details">
+              <div className="aa-import-field">
+                <label>Marketplace</label>
+                <span className="aa-import-badge">{imported.marketplace || 'Desconhecido'}</span>
+              </div>
+              <div className="aa-import-field">
+                <label>Título Original</label>
+                <p>{imported.titulo_original}</p>
+              </div>
+              <div className="aa-import-field">
+                <label>Preço</label>
+                <p className="aa-import-price">{imported.preco_texto || '—'}</p>
+              </div>
+              <div className="aa-import-field">
+                <label>URL Original</label>
+                <a href={imported.url_original} target="_blank" rel="noopener noreferrer">{imported.url_original}</a>
+              </div>
+            </div>
+          </div>
+
+          <div className="aa-import-ai-content">
+            <h4>🧠 Conteúdo Gerado por IA</h4>
+            <div className="aa-import-ai-grid">
+              <div className="aa-import-ai-card">
+                <strong>Título Comercial</strong>
+                <p>{imported.titulo_melhorado}</p>
+              </div>
+              <div className="aa-import-ai-card">
+                <strong>Descrição Persuasiva</strong>
+                <p>{imported.descricao_persuasiva}</p>
+              </div>
+              <div className="aa-import-ai-card">
+                <strong>Legenda para TikTok/Instagram</strong>
+                <p>{imported.legenda_curta}</p>
+              </div>
+              <div className="aa-import-ai-card">
+                <strong>Roteiro de Vídeo</strong>
+                <p style={{ whiteSpace: 'pre-wrap' }}>{imported.roteiro_video}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="aa-import-actions">
+            {imported.status === 'importado' && (
+              <button
+                className="aa-btn aa-btn-primary"
+                onClick={handleGenerateVideo}
+                disabled={generatingVideo}
+              >
+                {generatingVideo ? (
+                  <>{genProgress > 0 ? `Gerando vídeo (${genProgress}%)...` : 'Gerando vídeo...'}</>
+                ) : '🎬 Gerar Criativo / Vídeo'}
+              </button>
+            )}
+            {imported.status === 'criativo_gerado' && (
+              <button className="aa-btn aa-btn-primary" onClick={handleApprove}>
+                ✅ Aprovar e Publicar
+              </button>
+            )}
+            {imported.status === 'aprovado' && (
+              <div className="aa-import-success">
+                <span>✅ Produto aprovado! Gerencie em</span>
+                <button className="aa-btn aa-btn-outline" onClick={goToAnuncios}>📺 Ver Anúncios</button>
+              </div>
+            )}
+            {generatingVideo && (
+              <div className="aa-import-progress-bar">
+                <div className="aa-import-progress-fill" style={{ width: `${genProgress}%` }} />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AffiliateAgentApp() {
   return (
     <div className="aa-root">
@@ -1317,6 +1566,7 @@ export default function AffiliateAgentApp() {
         <Route path="/links" element={<><Sidebar active="links" /><LinksPage /></>} />
         <Route path="/campanha" element={<><Sidebar active="campanha" /><CampanhaPage /></>} />
         <Route path="/social-publish" element={<><Sidebar active="social" /><SocialPublishPage /></>} />
+        <Route path="/importar" element={<><Sidebar active="importar" /><ImportarProdutoPage /></>} />
         <Route path="*" element={<Navigate to="/affiliate-agent" replace />} />
       </Routes>
     </div>

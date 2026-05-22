@@ -3,11 +3,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-import os
-import logging
-import uuid
-import requests as http_requests
-import base64
+import os, logging, uuid, requests as http_requests, base64
 from PIL import Image
 from io import BytesIO
 from pathlib import Path
@@ -19,6 +15,8 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 import asyncio
 import resend
+import re
+import openai
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -54,6 +52,10 @@ if RESEND_API_KEY:
 #EMERGENT_KEY = os.environ.get("EMERGENT_LLM_KEY")
 APP_NAME = "brane-marketplace"
 #storage_key = None
+
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+if OPENAI_API_KEY:
+    openai.api_key = OPENAI_API_KEY
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -4589,6 +4591,291 @@ async def tts_generate(body: TTSBody):
                 except: pass
             continue
     return JSONResponse(502, {"error": f"TTS falhou apos varias tentativas"})
+
+# ==================== Product Import via Playwright ====================
+
+PLAYWRIGHT_BROWSER = None
+
+async def get_browser():
+    global PLAYWRIGHT_BROWSER
+    if PLAYWRIGHT_BROWSER is None:
+        try:
+            from playwright.async_api import async_playwright
+            p = await async_playwright().start()
+            PLAYWRIGHT_BROWSER = await p.chromium.launch(
+                headless=True,
+                args=["--no-sandbox", "--disable-setuid-sandbox",
+                      "--disable-dev-shm-usage", "--disable-gpu",
+                      "--single-process"],
+            )
+            logger.info("[PLAYWRIGHT] Browser launched")
+        except Exception as e:
+            logger.error(f"[PLAYWRIGHT] Failed to launch: {e}")
+            raise
+    return PLAYWRIGHT_BROWSER
+
+@app.on_event("startup")
+async def startup_playwright():
+    try:
+        await get_browser()
+    except Exception as e:
+        logger.warning(f"[PLAYWRIGHT] Browser not available at startup: {e}")
+
+async def scrape_product_page(url: str) -> dict:
+    browser = await get_browser()
+    context = await browser.new_context(
+        user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                   "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        viewport={"width": 1280, "height": 720},
+        locale="pt-BR",
+    )
+    page = await context.new_page()
+    try:
+        await page.goto(url, timeout=30000, wait_until="domcontentloaded")
+        await page.wait_for_timeout(3000)
+
+        # Try to scroll to trigger lazy images
+        await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+        await page.wait_for_timeout(1000)
+        await page.evaluate("window.scrollTo(0, 0)")
+        await page.wait_for_timeout(500)
+
+        title = await page.title()
+
+        # Extract meta description
+        meta_desc = await page.evaluate("""() => {
+            const m = document.querySelector('meta[name="description"]');
+            return m ? m.content : '';
+        }""")
+
+        # Extract all images
+        images = await page.evaluate("""() => {
+            const imgs = document.querySelectorAll('img[src]');
+            const urls = [];
+            const seen = new Set();
+            for (const img of imgs) {
+                let src = img.src || img.getAttribute('data-src') || '';
+                if (src && !seen.has(src) && src.startsWith('http')) {
+                    if (src.includes('product') || src.includes('produto') ||
+                        src.includes('image') || src.includes('foto') ||
+                        src.includes('img') || img.width > 100) {
+                        seen.add(src);
+                        urls.push(src);
+                    }
+                }
+            }
+            return urls.slice(0, 8);
+        }""")
+
+        # Try to extract price via common patterns
+        price_text = await page.evaluate("""() => {
+            const selectors = [
+                '.product-price', '.price', '[class*=price]', '[class*=preco]',
+                '[class*=Price]', '.a-price', '.a-offscreen',
+                '.andes-money-amount', '.andes_money_amount',
+                '.sh-price', '.product__price',
+                '.skuBestPrice', '.best-price',
+                '[data-testid="price"]', '#priceblock_ourprice',
+                '#price_inside_buybox', '.offer-price',
+            ];
+            for (const sel of selectors) {
+                const el = document.querySelector(sel);
+                if (el) {
+                    const text = el.textContent.trim();
+                    if (text) return text;
+                }
+            }
+            return '';
+        }""")
+
+        # Extract description text
+        description = await page.evaluate("""() => {
+            const selectors = [
+                '#productDescription', '.product-description', '[class*=description]',
+                '[class*=descricao]', '[class*=Description]',
+                '#feature-bullets', '.a-unordered-list',
+                '.product-details', '[data-testid="description"]',
+                '.sh-description', '.andes-description',
+            ];
+            for (const sel of selectors) {
+                const el = document.querySelector(sel);
+                if (el) {
+                    const text = el.textContent.trim();
+                    if (text && text.length > 20) return text.slice(0, 3000);
+                }
+            }
+            return '';
+        }""")
+
+        og_image = await page.evaluate("""() => {
+            const og = document.querySelector('meta[property="og:image"]');
+            return og ? og.content : '';
+        }""")
+
+        # Detect marketplace from URL
+        domain = url.lower()
+        marketplace = "desconhecido"
+        if "amazon" in domain: marketplace = "Amazon"
+        elif "shopee" in domain: marketplace = "Shopee"
+        elif "mercadolivre" in domain or "mercadolibre" in domain: marketplace = "Mercado Livre"
+        elif "aliexpress" in domain: marketplace = "AliExpress"
+        elif "temu" in domain: marketplace = "Temu"
+        elif "magalu" in domain or "magazine" in domain: marketplace = "Magazine Luiza"
+        elif "olx" in domain: marketplace = "OLX"
+        elif "kabum" in domain: marketplace = "KaBuM!"
+        elif "americanas" in domain: marketplace = "Americanas"
+        elif "shein" in domain: marketplace = "Shein"
+
+        if og_image and og_image not in images:
+            images.insert(0, og_image)
+
+        result = {
+            "titulo_original": title.strip(),
+            "descricao_original": (description or meta_desc).strip(),
+            "preco_texto": price_text.strip(),
+            "imagens": images[:6],
+            "url_original": url,
+            "marketplace": marketplace,
+        }
+        return result
+
+    except Exception as e:
+        logger.error(f"[PLAYWRIGHT] Scrape error for {url}: {e}")
+        raise
+    finally:
+        await context.close()
+
+async def generate_product_content(product_data: dict) -> dict:
+    if not OPENAI_API_KEY:
+        return {
+            "titulo_melhorado": product_data["titulo_original"][:80],
+            "descricao_persuasiva": product_data.get("descricao_original", "")[:500],
+            "legenda_curta": f"Confira este produto incrivel! — {product_data.get('titulo_original', '')[:60]}",
+            "roteiro_video": f"Cena 1: Mostre o produto\nCena 2: Destaque os beneficios\nCena 3: Mostre o preco\nCena 4: Chame para acao",
+        }
+    try:
+        titulo = product_data.get("titulo_original", "")
+        desc = product_data.get("descricao_original", "")
+        preco = product_data.get("preco_texto", "")
+        prompt = f"""Com base no produto real abaixo, gere conteudo comercial SEM mentir ou inventar caracteristicas.
+
+PRODUTO ORIGINAL:
+Titulo: {titulo}
+Descricao: {desc[:1000]}
+Preco: {preco}
+
+Gere EXATAMENTE neste formato JSON (sem marcadores):
+{{
+  "titulo_melhorado": "titulo comercial mais atrativo (max 80 chars)",
+  "descricao_persuasiva": "descricao persuasiva baseada nos fatos reais (max 500 chars)",
+  "legenda_curta": "legenda para TikTok/Instagram/Kwai (max 220 chars)",
+  "roteiro_video": "roteiro de video curto em portugues, 4 cenas, max 400 chars"
+}}"""
+        resp = openai.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+            max_tokens=800,
+        )
+        text = resp.choices[0].message.content.strip()
+        text = text.replace("```json", "").replace("```", "").strip()
+        parsed = json.loads(text)
+        return {
+            "titulo_melhorado": parsed.get("titulo_melhorado", titulo[:80]),
+            "descricao_persuasiva": parsed.get("descricao_persuasiva", desc[:500]),
+            "legenda_curta": parsed.get("legenda_curta", ""),
+            "roteiro_video": parsed.get("roteiro_video", ""),
+        }
+    except Exception as e:
+        logger.error(f"[OPENAI] Content generation error: {e}")
+        return {
+            "titulo_melhorado": titulo[:80],
+            "descricao_persuasiva": desc[:500],
+            "legenda_curta": f"Confira este produto! — {titulo[:60]}",
+            "roteiro_video": f"1. Apresente o produto\n2. Mostre os detalhes\n3. Destaque o valor\n4. Chame para acao",
+        }
+
+class ImportRequest(BaseModel):
+    url: str
+
+class ImportResponse(BaseModel):
+    id: str
+    status: str
+    marketplace: str
+    titulo_original: str
+    titulo_melhorado: str
+    descricao_original: str
+    descricao_persuasiva: str
+    preco_texto: str
+    legenda_curta: str
+    roteiro_video: str
+    imagens: List[str]
+    url_original: str
+
+@api_router.post("/affiliate/import-product", response_model=ImportResponse)
+async def import_product(req: ImportRequest):
+    url = req.url.strip()
+    if not url.startswith("http"):
+        raise HTTPException(400, "URL invalida. Forneca uma URL comecando com http:// ou https://")
+    try:
+        data = await scrape_product_page(url)
+    except Exception as e:
+        logger.error(f"[IMPORT] Scrape failed: {e}")
+        raise HTTPException(422, "Nao foi possivel importar este produto. Tente outro link ou envie imagens manualmente.")
+    if not data.get("imagens") and not data.get("titulo_original"):
+        raise HTTPException(422, "Nao foi possivel extrair dados do produto. Tente outro link ou envie imagens manualmente.")
+    generated = await generate_product_content(data)
+    doc = {
+        "url_original": url,
+        "marketplace": data["marketplace"],
+        "titulo_original": data["titulo_original"],
+        "descricao_original": data.get("descricao_original", ""),
+        "preco_texto": data.get("preco_texto", ""),
+        "imagens": data.get("imagens", []),
+        "titulo_melhorado": generated["titulo_melhorado"],
+        "descricao_persuasiva": generated["descricao_persuasiva"],
+        "legenda_curta": generated["legenda_curta"],
+        "roteiro_video": generated["roteiro_video"],
+        "status": "importado",
+        "criado_em": datetime.now(timezone.utc).isoformat(),
+    }
+    result = await db.imported_products.insert_one(doc)
+    doc["id"] = str(result.inserted_id)
+    return ImportResponse(
+        id=doc["id"], status=doc["status"],
+        marketplace=doc["marketplace"],
+        titulo_original=doc["titulo_original"],
+        titulo_melhorado=doc["titulo_melhorado"],
+        descricao_original=doc["descricao_original"],
+        descricao_persuasiva=doc["descricao_persuasiva"],
+        preco_texto=doc["preco_texto"],
+        legenda_curta=doc["legenda_curta"],
+        roteiro_video=doc["roteiro_video"],
+        imagens=doc["imagens"],
+        url_original=doc["url_original"],
+    )
+
+@api_router.get("/affiliate/imported-products")
+async def list_imported_products():
+    products = await db.imported_products.find(
+        {}, {"_id": 0}
+    ).sort("criado_em", -1).to_list(50)
+    return products
+
+@api_router.put("/affiliate/imported-products/{product_id}/status")
+async def update_imported_status(product_id: str, request: Request):
+    body = await request.json()
+    new_status = body.get("status")
+    if new_status not in ("importado", "criativo_gerado", "aprovado", "pronto_para_publicar"):
+        raise HTTPException(400, "Status invalido")
+    from bson.objectid import ObjectId
+    result = await db.imported_products.update_one(
+        {"_id": ObjectId(product_id)},
+        {"$set": {"status": new_status, "atualizado_em": datetime.now(timezone.utc).isoformat()}},
+    )
+    if result.matched_count == 0:
+        raise HTTPException(404, "Produto nao encontrado")
+    return {"status": new_status}
 
 # ==================== OAuth Social (Instagram / TikTok) ====================
 
