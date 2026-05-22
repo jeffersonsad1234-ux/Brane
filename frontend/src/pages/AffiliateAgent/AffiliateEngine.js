@@ -350,10 +350,31 @@ export class AffiliateAgent {
     this._log('success', `✅ Ciclo #${this._cycleCount} concluído`);
   }
 
+  gerarDadosIniciais() {
+    if (this._stores.length > 0) return;
+    this._log('success', '🚀 Iniciando geração de dados iniciais...');
+    const primeirosNichos = NICHOS.filter(n => ['tecnologia', 'casa', 'beleza', 'gadgets', 'gamer'].includes(n.id));
+    const alvo = primeirosNichos.slice(0, 3);
+    alvo.forEach(n => {
+      this._log('info', `🔍 Analisando nicho: ${n.nome}...`);
+      const store = this._criarLoja(n);
+      if (store) {
+        this._log('info', `📱 Gerando posts para ${n.nome}...`);
+        this._gerarPosts(store);
+      }
+    });
+    this._log('info', '📊 Simulando métricas iniciais...');
+    this._simularAnalytics();
+    this._aprender();
+    this._log('success', `✅ Dados iniciais gerados: ${this._stats.lojasCriadas} lojas, ${this._stats.produtosEncontrados} produtos, ${this._stats.postsGerados} posts`);
+    this._cycleCount = 1;
+  }
+
   start() {
     if (this._running) return;
     this._running = true;
     this._log('success', '🚀 Agente Afiliado Inteligente iniciado');
+    this.gerarDadosIniciais();
     this._ciclo();
     this._timer = setInterval(() => this._ciclo(), this._interval);
   }

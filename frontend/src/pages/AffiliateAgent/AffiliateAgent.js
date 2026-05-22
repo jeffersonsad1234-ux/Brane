@@ -32,7 +32,7 @@ function Sidebar({ active }) {
         ))}
       </nav>
       <div className="aa-sidebar-footer">
-        <span className="aa-version">v2.0.0 • Fase 2 — Inteligente</span>
+        <span className="aa-version">v3.0.0 • Fase 3 — Dados Imediatos</span>
       </div>
     </aside>
   );
