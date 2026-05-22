@@ -153,10 +153,19 @@ function AnuncioCard({ ad, onRefresh }) {
 
       // Check backend first
       const health = await checkBackendHealth();
-      if (!health) {
+      if (!health && !getApiBase()) {
+        log(`❌ REACT_APP_TTS_API_URL não configurada`);
+        log(`   Defina em Cloudflare Pages: Settings → Environment → REACT_APP_TTS_API_URL`);
+        setVoiceGenLogs([...logs]);
+        atualizarAnuncio(ad.id, { voiceStatus: 'failed', voiceError: 'API URL não configurada' });
+        onRefresh();
+        setVoiceLoading(false);
+        return;
+      }
+      if (!health && getApiBase()) {
         log(`❌🔌 Backend offline!`);
-        log(`   Rode: cd backend && python tts_server.py`);
-        log(`   ou: npm run dev (no diretório raiz)`);
+        log(`   ${getApiBase()} não está respondendo`);
+        log(`   Verifique se o servidor está rodando no Railway`);
         setVoiceGenLogs([...logs]);
         atualizarAnuncio(ad.id, { voiceStatus: 'failed', voiceError: 'Backend offline' });
         onRefresh();
@@ -426,9 +435,10 @@ function BackendStatusBar() {
 
   const statusConfigs = {
     online: { label: '✅ Backend TTS online', className: 'an-backend-online' },
-    offline: { label: '❌ Backend TTS offline', className: 'an-backend-offline' },
+    offline: { label: '❌ Backend de voz offline', className: 'an-backend-offline' },
     checking: { label: '🔄 Conectando...', className: 'an-backend-checking' },
     unknown: { label: '🔄 Verificando conexão...', className: 'an-backend-checking' },
+    unconfigured: { label: '❌ REACT_APP_TTS_API_URL não configurada', className: 'an-backend-offline' },
   };
 
   const cfg = statusConfigs[status] || statusConfigs.unknown;
@@ -436,16 +446,20 @@ function BackendStatusBar() {
   return (
     <div className={`an-backend-bar ${cfg.className}`}>
       <span className="an-backend-status">{cfg.label}</span>
-      <span className="an-backend-details">URL: {backendUrl}</span>
+      {backendUrl ? (
+        <span className="an-backend-details">URL: {backendUrl}</span>
+      ) : (
+        <span className="an-backend-details">Defina em Settings → Environment → REACT_APP_TTS_API_URL</span>
+      )}
       {health && (
         <span className="an-backend-details">
           · porta {health.port} · ativo há {Math.floor(health.uptime / 60)}min
           {health.ffmpeg ? ' · FFmpeg OK' : ' · sem FFmpeg'}
         </span>
       )}
-      {status === 'offline' && (
+      {status === 'offline' && backendUrl && (
         <span className="an-backend-hint">
-          Rode: <code>cd backend &amp;&amp; python tts_server.py</code>
+          Servidor não está respondendo em {backendUrl}
         </span>
       )}
     </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./BraneAgent.css";
 
-const API = process.env.REACT_APP_AGENT_API || "http://localhost:3200";
+const API = process.env.REACT_APP_AGENT_API || '';
 let PASSWORD = sessionStorage.getItem("ba_pwd") || "";
 
 function headers() { return { "Content-Type": "application/json", "x-agent-password": PASSWORD }; }

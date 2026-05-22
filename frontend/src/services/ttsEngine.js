@@ -1,8 +1,8 @@
 /**
  * TTS Engine — converts text to PT-BR speech via backend API.
- *   Method 1: Backend POST /api/tts (edge-tts + ffmpeg)
- *   Method 2: Web Speech API preview-only fallback
- * Includes health check, connection status, auto-reconnect.
+ *   Uses env var REACT_APP_TTS_API_URL (set in Cloudflare Pages / Railway)
+ *   NO fallback to localhost/127.0.0.1 in production.
+ *   Web Speech API kept as client-side preview only.
  */
 const VOZES = [
   { id: 'pt-BR-FranciscaNeural', nome: 'Francisca', genero: 'Feminino', estilo: 'natural e calorosa' },
@@ -27,13 +27,15 @@ export function getVozesDisponiveis() { return VOZES; }
 export function getVoiceName(id) { return VOZES.find(v => v.id === id)?.nome || id; }
 
 /**
- * API_BASE resolution chain:
- *   1. REACT_APP_TTS_API  (new dedicated Railway URL)
- *   2. REACT_APP_AGENT_API (legacy env var)
- *   3. http://127.0.0.1:3200 (local dev fallback)
+ * API_BASE resolution:
+ *   ONLY from env vars — NO hardcoded localhost/127.0.0.1.
+ *   Priority: REACT_APP_TTS_API_URL > REACT_APP_TTS_API > REACT_APP_AGENT_API
+ *   If none set, returns empty string (callers must check).
  */
 function resolveApiBase() {
   const candidates = [
+    window._env_?.REACT_APP_TTS_API_URL,
+    process.env.REACT_APP_TTS_API_URL,
     window._env_?.REACT_APP_TTS_API,
     process.env.REACT_APP_TTS_API,
     window._env_?.REACT_APP_AGENT_API,
@@ -42,12 +44,12 @@ function resolveApiBase() {
   for (const c of candidates) {
     if (c && typeof c === 'string' && c.startsWith('http')) return c.replace(/\/+$/, '');
   }
-  return 'http://127.0.0.1:3200';
+  return '';
 }
 const API_BASE = resolveApiBase();
 
 // Connection status tracking
-let _backendStatus = 'unknown'; // 'unknown' | 'online' | 'offline' | 'checking'
+let _backendStatus = API_BASE ? 'unknown' : 'unconfigured';
 let _statusListeners = [];
 let _healthCache = null;
 let _lastCheck = 0;
@@ -66,14 +68,19 @@ function notifyStatus(status) {
   _statusListeners.forEach(fn => { try { fn(status); } catch {} });
 }
 
-const CHECK_INTERVAL = 10000; // 10s between checks
-const FAST_RETRY = 3000; // 3s when offline
+const CHECK_INTERVAL = 10000;
+const FAST_RETRY = 3000;
 
 /**
  * Check if the TTS backend is reachable.
- * Returns { status, uptime, ffmpeg, voices, port } or null.
+ * Returns health data or null. Never crashes.
  */
 export async function checkBackendHealth() {
+  if (!API_BASE) {
+    _backendStatus = 'unconfigured';
+    _healthCache = null;
+    return null;
+  }
   const now = Date.now();
   if (_backendStatus === 'online' && now - _lastCheck < CHECK_INTERVAL) {
     return _healthCache;
@@ -105,6 +112,10 @@ export async function checkBackendHealth() {
  * Start polling backend health. Returns unsubscribe function.
  */
 export function startHealthPolling() {
+  if (!API_BASE) {
+    notifyStatus('unconfigured');
+    return () => {};
+  }
   checkBackendHealth();
   const id = setInterval(() => {
     checkBackendHealth();
@@ -115,10 +126,18 @@ export function startHealthPolling() {
 /**
  * Generate TTS audio via backend API.
  * Returns: { success, blob, voiceId, duration, method, error, logs }
+ * Never throws — always returns a result object.
  */
 export async function generateTTSAudio(text, voiceId = 'pt-BR-FranciscaNeural', onLog) {
   const logs = [];
   const log = (msg) => { logs.push(msg); if (onLog) onLog(msg); };
+
+  if (!API_BASE) {
+    log('❌ REACT_APP_TTS_API_URL não configurada');
+    log('   Defina esta variável no Cloudflare Pages (Settings → Environment)');
+    log('   Exemplo: https://seu-app.up.railway.app');
+    return { success: false, blob: null, voiceId, duration: 0, method: 'none', error: 'REACT_APP_TTS_API_URL não configurada', logs };
+  }
 
   if (!text || text.trim().length < 3) {
     log('❌ Texto vazio ou muito curto');
@@ -167,9 +186,8 @@ export async function generateTTSAudio(text, voiceId = 'pt-BR-FranciscaNeural', 
     if (err.name === 'AbortError') {
       log('❌⏱️ Timeout: backend não respondeu em 60s');
     } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-      log(`❌🔌 Backend offline`);
+      log('❌🔌 Backend de voz offline');
       log(`   ${API_BASE} não está respondendo`);
-      log(`   Rode: python backend/tts_server.py`);
       notifyStatus('offline');
     } else {
       log(`❌ ${err.message}`);

@@ -9,7 +9,7 @@
     "install": "npm install --prefix ./frontend --legacy-peer-deps",
     "build": "npm install --prefix ./frontend --legacy-peer-deps && npm run build --prefix ./frontend",
     "start:tts": "python backend/tts_server.py",
-    "dev": "concurrently -k -n frontend,tts -c cyan,green \"cross-env PORT=3001 REACT_APP_TTS_API=http://127.0.0.1:3200 REACT_APP_AGENT_API=http://127.0.0.1:3200 npm start --prefix ./frontend\" \"npm run start:tts\""
+    "dev": "concurrently -k -n frontend,tts -c cyan,green \"cross-env PORT=3001 REACT_APP_TTS_API_URL=http://127.0.0.1:3200 REACT_APP_AGENT_API=http://127.0.0.1:3200 npm start --prefix ./frontend\" \"npm run start:tts\""
   },
   "dependencies": {
     "date-fns": "^3.6.0"

@@ -564,7 +564,7 @@
 .aa-camp-success a { color: var(--aa-primary); word-break: break-all; }
 
 /* === AnunciosPage === */
-.an-root { max-width: 1100px; }
+.an-root { max-width: 1100px; margin: 0 auto; padding: 24px 20px; }
 .an-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
 .an-title { font-size: 1.35rem; font-weight: 700; margin: 0 0 4px; }
 .an-subtitle { font-size: 0.8rem; color: var(--aa-text-muted); margin: 0; }
