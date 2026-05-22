@@ -22,11 +22,11 @@ const BACKGROUNDS = {
 
 const TEXT_STYLES = {
   'big': { size: 42, color: '#fff', anim: 'scale-in', shadow: 'rgba(0,0,0,0.6)' },
-  'product-name': { size: 26, color: '#fff', anim: 'slide-up', shadow: 'rgba(0,0,0,0.4)' },
-  'feature': { size: 34, color: '#fff', anim: 'slide-up', shadow: 'rgba(0,0,0,0.5)' },
-  'price-big': { size: 56, color: '#f59e0b', anim: 'scale-in', shadow: 'rgba(245,158,11,0.3)' },
-  'cta-giant': { size: 48, color: '#60a5fa', anim: 'bounce', shadow: 'rgba(96,165,250,0.4)' },
-  'subtext': { size: 20, color: 'rgba(255,255,255,0.7)', anim: 'slide-up', shadow: 'rgba(0,0,0,0.3)' },
+  'product-name': { size: 22, color: '#fff', anim: 'slide-up', shadow: 'rgba(0,0,0,0.4)' },
+  'feature': { size: 26, color: '#fff', anim: 'slide-up', shadow: 'rgba(0,0,0,0.5)' },
+  'price-big': { size: 52, color: '#f59e0b', anim: 'scale-in', shadow: 'rgba(245,158,11,0.3)' },
+  'cta-giant': { size: 36, color: '#60a5fa', anim: 'bounce', shadow: 'rgba(96,165,250,0.4)' },
+  'subtext': { size: 18, color: 'rgba(255,255,255,0.8)', anim: 'slide-up', shadow: 'rgba(0,0,0,0.3)' },
 };
 
 // ── Background rendering ──
@@ -167,7 +167,24 @@ function renderImageEffect(ctx, w, h, img, effect, frame, sceneTotal, maxW, maxH
 
 // ── Text rendering ──
 
-function renderText(ctx, text, textStyle, frame, totalFrames, x, y) {
+function wrapText(ctx, text, maxWidth) {
+  const words = text.split(' ');
+  const lines = [];
+  let current = '';
+  for (const w of words) {
+    const test = current ? current + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth && current) {
+      lines.push(current);
+      current = w;
+    } else {
+      current = test;
+    }
+  }
+  if (current) lines.push(current);
+  return lines;
+}
+
+function renderText(ctx, text, textStyle, frame, totalFrames, x, y, maxW) {
   const config = TEXT_STYLES[textStyle] || TEXT_STYLES['big'];
   const phase = totalFrames > 0 ? frame / totalFrames : 0;
 
@@ -181,7 +198,7 @@ function renderText(ctx, text, textStyle, frame, totalFrames, x, y) {
       alpha = scale;
       break;
     case 'slide-up':
-      offsetY = (1 - Math.min(frame / 10, 1)) * 25;
+      offsetY = (1 - Math.min(frame / 10, 1)) * 20;
       alpha = Math.min(frame / 8, 1);
       break;
     case 'bounce':
@@ -191,13 +208,33 @@ function renderText(ctx, text, textStyle, frame, totalFrames, x, y) {
 
   ctx.save();
   ctx.globalAlpha = Math.max(0, alpha);
-  ctx.font = `bold ${config.size * scale}px Inter, sans-serif`;
+  const maxWidth = maxW || ctx.canvas.width * 0.85;
+  let fontSize = config.size;
+  const family = 'Inter, sans-serif';
+
+  let lines;
+  let lineHeight;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    ctx.font = `bold ${fontSize * scale}px ${family}`;
+    lines = wrapText(ctx, text, maxWidth);
+    lineHeight = fontSize * scale * 1.3;
+    const totalH = lines.length * lineHeight;
+    if (totalH < ctx.canvas.height * 0.5 || fontSize < 12) break;
+    fontSize -= 2;
+  }
+
+  const startY = y - (lines.length - 1) * lineHeight / 2;
+  ctx.fillStyle = config.color;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.shadowColor = config.shadow;
   ctx.shadowBlur = 12;
-  ctx.fillStyle = config.color;
-  ctx.fillText(text, x, y + offsetY);
+
+  for (let i = 0; i < lines.length; i++) {
+    const ly = startY + i * lineHeight + (offsetY || 0);
+    ctx.fillText(lines[i], x, ly);
+  }
+
   ctx.shadowBlur = 0;
   ctx.restore();
 }
@@ -221,13 +258,30 @@ function renderStrikethroughPrice(ctx, oldPrice, x, y, frame) {
 
 // ── Main scene renderer ──
 
+function renderDarkOverlay(ctx, w, h) {
+  ctx.save();
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(0, 0, w, h);
+  ctx.restore();
+}
+
 export function renderSceneFrame(ctx, w, h, scene, frame, sceneTotal, produtoNome, preco, lojaUrl, images, overallProgress) {
   renderBackground(ctx, w, h, scene, frame, images);
 
   const img = images && images.length > 0 ? images[scene.imageIndex % images.length] : null;
   const effect = scene.effect || 'zoom-in';
 
-  renderImageEffect(ctx, w, h, img, effect, frame, sceneTotal, w * 0.85, h * 0.45, h * 0.12, scene.imageIndex);
+  const isFinal = scene.tipo === 'price' || scene.tipo === 'cta';
+
+  if (isFinal) {
+    ctx.save();
+    ctx.filter = 'blur(10px)';
+    renderImageEffect(ctx, w, h, img, effect, frame, sceneTotal, w * 0.9, h * 0.48, h * 0.10, scene.imageIndex);
+    ctx.restore();
+    renderDarkOverlay(ctx, w, h);
+  } else {
+    renderImageEffect(ctx, w, h, img, effect, frame, sceneTotal, w * 0.85, h * 0.45, h * 0.12, scene.imageIndex);
+  }
 
   switch (scene.tipo) {
     case 'hook': {
@@ -247,25 +301,27 @@ export function renderSceneFrame(ctx, w, h, scene, frame, sceneTotal, produtoNom
     }
     case 'price': {
       if (scene.precoAntigo) {
-        renderStrikethroughPrice(ctx, scene.precoAntigo, w / 2, h * 0.5, frame);
+        renderStrikethroughPrice(ctx, scene.precoAntigo, w / 2, h * 0.46, frame);
       }
-      renderText(ctx, scene.texto, 'price-big', frame, sceneTotal, w / 2, h * 0.56);
+      renderText(ctx, scene.texto, 'price-big', frame, sceneTotal, w / 2, h * 0.53);
 
       const pulse = 1 + Math.sin(frame * 0.06) * 0.02;
       ctx.save();
-      ctx.translate(w / 2, h * 0.72);
+      ctx.translate(w / 2, h * 0.68);
       ctx.scale(pulse, pulse);
-      ctx.font = `bold 22px Inter, sans-serif`;
+      ctx.font = `bold 24px Inter, sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = '#10b981';
+      ctx.shadowColor = 'rgba(16,185,129,0.5)';
+      ctx.shadowBlur = 16;
       ctx.fillText('🔥 PROMOÇÃO 🔥', 0, 0);
       ctx.restore();
       break;
     }
     case 'cta': {
-      renderText(ctx, scene.texto, 'cta-giant', frame, sceneTotal, w / 2, h * 0.3);
-      renderText(ctx, lojaUrl || '', 'subtext', frame, sceneTotal, w / 2, h * 0.42);
+      renderText(ctx, scene.texto, 'cta-giant', frame, sceneTotal, w / 2, h * 0.28);
+      renderText(ctx, lojaUrl || 'disponivel.com', 'subtext', frame, sceneTotal, w / 2, h * 0.42);
       if (scene.subtexto) {
         renderText(ctx, scene.subtexto, 'subtext', frame, sceneTotal, w / 2, h * 0.52);
       }
@@ -274,7 +330,7 @@ export function renderSceneFrame(ctx, w, h, scene, frame, sceneTotal, produtoNom
       ctx.font = '40px serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'rgba(255,255,255,0.25)';
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
       ctx.fillText('👇', w / 2, arrowY);
       ctx.restore();
       break;
