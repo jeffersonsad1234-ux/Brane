@@ -6,33 +6,52 @@ const MUSICAS_POR_CATEGORIA = {
   tecnologia: [
     { nome: 'Tech Phonk', bpm: 140, vibe: 'trap' },
     { nome: 'Neon Bass', bpm: 130, vibe: 'electro' },
+    { nome: 'Digital Pulse', bpm: 135, vibe: 'futurista' },
   ],
   gamer: [
     { nome: 'Gamer Trap', bpm: 150, vibe: 'phonk' },
     { nome: 'Eletro Fight', bpm: 140, vibe: 'trap' },
+    { nome: 'Cyber Clash', bpm: 145, vibe: 'cyberpunk' },
   ],
   fitness: [
     { nome: 'Workout Pump', bpm: 140, vibe: 'energética' },
     { nome: 'Power Up', bpm: 150, vibe: 'motivacional' },
+    { nome: 'Iron Beat', bpm: 145, vibe: 'intensa' },
   ],
   beleza: [
     { nome: 'Glow Up', bpm: 120, vibe: 'trendy' },
     { nome: 'Soft Lux', bpm: 110, vibe: 'clean' },
+    { nome: 'Pink Dream', bpm: 115, vibe: 'chic' },
   ],
   pet: [
     { nome: 'Funny Beat', bpm: 120, vibe: 'divertido' },
     { nome: 'Play Time', bpm: 130, vibe: 'alegre' },
+    { nome: 'Happy Paws', bpm: 125, vibe: 'animado' },
   ],
   cozinha: [
     { nome: 'Kitchen Groove', bpm: 110, vibe: 'moderna' },
     { nome: 'Fresh Vibes', bpm: 120, vibe: 'clean' },
+    { nome: 'Warm Bite', bpm: 115, vibe: 'aconchegante' },
+  ],
+  moda: [
+    { nome: 'Chic Walk', bpm: 120, vibe: 'elegante' },
+    { nome: 'Fashion Beat', bpm: 125, vibe: 'trendy' },
+  ],
+  casa: [
+    { nome: 'Home Vibes', bpm: 110, vibe: 'relax' },
+    { nome: 'Cozy Lounge', bpm: 105, vibe: 'aconchegante' },
   ],
 };
 
+const _lastMusicIdx = {};
+
 function MUSICAS(cat) {
-  const list = MUSICAS_POR_CATEGORIA[cat];
-  if (list && list.length > 0) return list[Math.floor(Math.random() * list.length)];
-  return { nome: 'Upbeat Summer', bpm: 128, vibe: 'energética' };
+  const list = MUSICAS_POR_CATEGORIA[cat] || MUSICAS_POR_CATEGORIA['tecnologia'];
+  if (!list || list.length === 0) return { nome: 'Upbeat Summer', bpm: 128, vibe: 'energética' };
+  const last = _lastMusicIdx[cat] ?? -1;
+  const next = (last + 1) % list.length;
+  _lastMusicIdx[cat] = next;
+  return list[next];
 }
 
 function parseImageUrls(input) {

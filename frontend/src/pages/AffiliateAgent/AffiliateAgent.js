@@ -7,6 +7,7 @@ import BrowserConnectionPanel from "../../components/BrowserConnectionPanel";
 import VideoPreviewApproval from "../../components/VideoPreviewApproval";
 import AnunciosPage, { adicionarAnuncio } from "./AnunciosPage";
 import { isMediaWorkerEnabled, createUGCJob, getUGCJobStatus } from "../../services/mediaWorker";
+import { LinksPage, getStoreLink, getStoreName, getStoreIcon } from "./LinksPage";
 import "./AffiliateAgent.css";
 
 function useAgent() {
@@ -33,6 +34,7 @@ function Sidebar({ active }) {
         <Link to="/affiliate-agent/aprendizado" className={`aa-sidebar-link ${active === 'aprendizado' ? 'active' : ''}`}>🧠 Aprendizado</Link>
         <Link to="/affiliate-agent/social-publish" className={`aa-sidebar-link ${active === 'social' ? 'active' : ''}`}>📱 Publicação Social</Link>
         <Link to="/affiliate-agent/criativos" className={`aa-sidebar-link ${active === 'criativos' ? 'active' : ''}`}>🎨 Criativos IA</Link>
+        <Link to="/affiliate-agent/links" className={`aa-sidebar-link ${active === 'links' ? 'active' : ''}`}>🔗 Links Afiliados</Link>
         <Link to="/affiliate-agent/campanha" className={`aa-sidebar-link ${active === 'campanha' ? 'active' : ''}`}>🛒 Campanha Amazon</Link>
         <div className="aa-sidebar-label">Lojas Automáticas</div>
         {NICHOS.map(n => (
@@ -249,6 +251,31 @@ function Dashboard() {
               </div>
             );
           })}
+        </div>
+      </div>
+
+      <div className="aa-card">
+        <h3 className="aa-card-title">🏪 Lojas por Categoria</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10, marginTop: 8 }}>
+          {[
+            { id: "gamer", nome: "Gamer", icone: "🎮" },
+            { id: "tecnologia", nome: "Tecnologia", icone: "💻" },
+            { id: "cozinha", nome: "Cozinha", icone: "🍳" },
+            { id: "beleza", nome: "Beleza", icone: "💄" },
+            { id: "pet", nome: "Pets", icone: "🐾" },
+            { id: "moda", nome: "Moda", icone: "👗" },
+            { id: "fitness", nome: "Fitness", icone: "💪" },
+            { id: "casa", nome: "Casa", icone: "🏠" },
+          ].map(cat => (
+            <div key={cat.id} className="aa-stat" style={{ borderTopColor: "#2563eb", cursor: "pointer" }}
+              onClick={() => window.open(`https://branpy.stormarck/loja/${cat.id}`, "_blank")}>
+              <div className="aa-stat-header">
+                <span className="aa-stat-icon">{cat.icone}</span>
+                <span className="aa-stat-label">{cat.nome}</span>
+              </div>
+              <span style={{ fontSize: 11, color: "#60a5fa" }}>branpy.stormarck/loja/{cat.id}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -972,7 +999,6 @@ function CampanhaPage() {
     categoria: 'tecnologia',
     descricao: '',
     imagem: '',
-    lojaDestino: 'minha-loja',
   });
   const [campaign, setCampaign] = useState(null);
   const [video, setVideo] = useState(null);
@@ -1023,8 +1049,8 @@ function CampanhaPage() {
       return;
     }
 
-    const storeSlug = generateSlug(form.lojaDestino || form.nome);
-    const lojaUrl = `https://brane.app/loja/${storeSlug}`;
+    const storeSlug = form.categoria;
+    const lojaUrl = getStoreLink(form.categoria);
     const prodId = `camp_${Date.now()}`;
 
     const titulo = form.nome;
@@ -1053,7 +1079,6 @@ function CampanhaPage() {
       categoria: form.categoria,
       descricao,
       imagem: form.imagem || '📦',
-      lojaDestino: form.lojaDestino,
       lojaUrl,
       titulo: titulo,
       legenda,
@@ -1235,7 +1260,7 @@ function CampanhaPage() {
       legenda: videoLegenda,
       hashtags: campaign.hashtags || [],
       lojaUrl: campaign.lojaUrl || campaign.link || '',
-      loja: campaign.lojaDestino || 'Amazon',
+      loja: campaign.nome || 'Amazon',
       produto: campaign.nome,
     });
 
@@ -1294,10 +1319,6 @@ function CampanhaPage() {
               <textarea className="aa-input" rows="4" placeholder="https://exemplo.com/imagem1.jpg&#10;https://exemplo.com/imagem2.jpg&#10;https://exemplo.com/imagem3.jpg&#10;https://exemplo.com/imagem4.jpg&#10;https://exemplo.com/imagem5.jpg" value={form.imagem} onChange={e => updateField('imagem', e.target.value)} />
             </div>
 
-            <div>
-              <label>Loja Destino</label>
-              <input className="aa-input" type="text" placeholder="minha-loja" value={form.lojaDestino} onChange={e => updateField('lojaDestino', e.target.value)} />
-            </div>
           </div>
 
           <div className="aa-camp-actions">
@@ -1508,6 +1529,7 @@ export default function AffiliateAgentApp() {
         <Route path="/aprendizado" element={<><Sidebar active="aprendizado" /><AprendizadoPage /></>} />
         <Route path="/anuncios" element={<><Sidebar active="anuncios" /><AnunciosPage /></>} />
         <Route path="/criativos" element={<><Sidebar active="criativos" /><CreativesPage /></>} />
+        <Route path="/links" element={<><Sidebar active="links" /><LinksPage /></>} />
         <Route path="/campanha" element={<><Sidebar active="campanha" /><CampanhaPage /></>} />
         <Route path="/social-publish" element={<><Sidebar active="social" /><SocialPublishPage /></>} />
         <Route path="*" element={<Navigate to="/affiliate-agent" replace />} />
