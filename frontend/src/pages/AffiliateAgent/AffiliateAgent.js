@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Routes, Route, useNavigate, useParams, Link, Navigate } from "react-router-dom";
-import { AffiliateAgent, NICHOS, PRODUTOS, PLATAFORMAS, PLATAFORMAS_POST, AGENDA } from "./AffiliateEngine";
+import { AffiliateAgent, NICHOS, PLATAFORMAS } from "./AffiliateEngine";
 import { loadConnections, saveConnections } from "../../services/affiliateProviders";
-import { AutoPostEngine, SOCIAL_PLATFORMS, loadSocialConnections, saveSocialConnections } from "../../services/autoPostEngine";
-import BrowserConnectionPanel from "../../components/BrowserConnectionPanel";
-import VideoPreviewApproval from "../../components/VideoPreviewApproval";
-import AnunciosPage, { adicionarAnuncio } from "./AnunciosPage";
-import { isMediaWorkerEnabled, createUGCJob, getUGCJobStatus } from "../../services/mediaWorker";
+import AnunciosPage from "./AnunciosPage";
 import { LinksPage, getStoreLink } from "./LinksPage";
 import "./AffiliateAgent.css";
 
@@ -72,7 +68,7 @@ function Dashboard() {
     try { return JSON.parse(localStorage.getItem('brane_agent_state') || 'null'); } catch { return null; }
   }
   function readQueue() {
-    try { return JSON.parse(localStorage.getItem('brane_affiliate_links_queue') || '[]'); } catch { return []; }
+    try { return JSON.parse(localStorage.getItem('brane_affiliate_ads') || '[]'); } catch { return []; }
   }
   function readStores() {
     try { return JSON.parse(localStorage.getItem('brane_stores') || '{}'); } catch { return {}; }
@@ -261,112 +257,79 @@ function Dashboard() {
 
 function AprendizadoPage() {
   const navigate = useNavigate();
-  const [agent] = useState(() => new AffiliateAgent());
-  const [learning, setLearning] = useState(agent.learning);
-  const [stats, setStats] = useState(agent.stats);
-  const [totalPosts, setTotalPosts] = useState(0);
-
-  useEffect(() => {
-    const iv = setInterval(() => {
-      setLearning(agent.learning);
-      setStats(agent.stats);
-      setTotalPosts(agent.allPosts.length);
-    }, 1000);
-    return () => clearInterval(iv);
-  }, [agent]);
+  const ads = JSON.parse(localStorage.getItem('brane_affiliate_ads') || '[]');
+  const publicados = ads.filter(a => a.status === 'publicado').length;
+  const aprovados = ads.filter(a => a.status === 'aprovado').length;
+  const stores = JSON.parse(localStorage.getItem('brane_stores') || '{}');
+  const storeCount = Object.keys(stores).length;
 
   return (
     <div className="aa-content">
       <div className="aa-topbar">
         <div className="aa-topbar-left">
           <button className="aa-btn aa-btn-ghost" onClick={() => navigate('/affiliate-agent')}>← Dashboard</button>
-          <h2>🧠 Sistema de Aprendizado</h2>
+          <h2>🧠 Dados Reais</h2>
         </div>
       </div>
 
       <div className="aa-grid-3">
-        <div className="aa-card aa-card-learning">
-          <h3 className="aa-card-title">🏆 Melhores Nichos</h3>
-          {learning.melhoresNichos.length === 0 ? (
-            <p className="aa-muted">O agente ainda não coletou dados suficientes.</p>
-          ) : (
-            <div className="aa-learn-list">
-              {learning.melhoresNichos.map((n, i) => (
-                <div key={i} className="aa-learn-item">
-                  <span className="aa-rank-pos">{i + 1}</span>
-                  <span>{n}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="aa-card aa-card-learning">
-          <h3 className="aa-card-title">🔥 Produtos Virais Detectados</h3>
-          {learning.produtosVirais.length === 0 ? (
-            <p className="aa-muted">Nenhum produto viral ainda.</p>
-          ) : (
-            <div className="aa-learn-list">
-              {learning.produtosVirais.slice(0, 10).map((p, i) => (
-                <div key={i} className="aa-learn-item viral">
-                  <span>🔥</span>
-                  <span>{p}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="aa-card aa-card-learning">
-          <h3 className="aa-card-title">⛔ Produtos com Baixo Desempenho</h3>
-          {learning.produtosRuins.length === 0 ? (
-            <p className="aa-muted">Nenhum produto marcado como ruim.</p>
-          ) : (
-            <div className="aa-learn-list">
-              {learning.produtosRuins.slice(0, 5).map((p, i) => (
-                <div key={i} className="aa-learn-item ruin">
-                  <span>⛔</span>
-                  <span>{p}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="aa-grid-2">
         <div className="aa-card">
-          <h3 className="aa-card-title">📈 Métricas de Aprendizado</h3>
+          <h3 className="aa-card-title">📊 Métricas Reais</h3>
           <div className="aa-metrics-grid">
             <div className="aa-metric-box">
-              <span className="aa-metric-value">{stats.postsGerados}</span>
-              <span className="aa-metric-label">Posts Analisados</span>
+              <span className="aa-metric-value">{ads.length}</span>
+              <span className="aa-metric-label">Anúncios Criados</span>
             </div>
             <div className="aa-metric-box">
-              <span className="aa-metric-value">{learning.melhoresPosts.length}</span>
-              <span className="aa-metric-label">Melhores Posts</span>
+              <span className="aa-metric-value">{aprovados}</span>
+              <span className="aa-metric-label">Aprovados</span>
             </div>
             <div className="aa-metric-box">
-              <span className="aa-metric-value">{learning.produtosVirais.length}</span>
-              <span className="aa-metric-label">Produtos Virais</span>
+              <span className="aa-metric-value">{publicados}</span>
+              <span className="aa-metric-label">Publicados</span>
             </div>
             <div className="aa-metric-box">
-              <span className="aa-metric-value">{learning.produtosRuins.length}</span>
-              <span className="aa-metric-label">Produtos em Risco</span>
+              <span className="aa-metric-value">{storeCount}</span>
+              <span className="aa-metric-label">Lojas Criadas</span>
             </div>
           </div>
         </div>
 
         <div className="aa-card">
-          <h3 className="aa-card-title">💡 Como o Agente Aprende</h3>
-          <ul className="aa-learn-list-desc">
-            <li>📊 <strong>Analisa cliques</strong> — produtos com mais cliques são priorizados</li>
-            <li>🔄 <strong>Identifica tendências</strong> — detecta padrões de alta conversão</li>
-            <li>🏪 <strong>Avalia nichos</strong> — nichos com mais vendas ganham mais posts</li>
-            <li>🔥 <strong>Posts virais</strong> — produtos com alto engajamento viral são replicados</li>
-            <li>⛔ <strong>Produtos ruins</strong> — itens sem conversão são despriorizados</li>
-            <li>📅 <strong>Agendamento inteligente</strong> — distribui posts conforme melhor horário</li>
-          </ul>
+          <h3 className="aa-card-title">🏪 Lojas por Categoria</h3>
+          {storeCount === 0 ? (
+            <p className="aa-muted">Nenhuma loja criada ainda.</p>
+          ) : (
+            <div className="aa-learn-list">
+              {Object.entries(stores).map(([id, s]) => (
+                <div key={id} className="aa-learn-item">
+                  <span>{NICHOS.find(n => n.id === id)?.icone || '📦'}</span>
+                  <span>{s.nome} — {s.produtos || 0} produto(s)</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="aa-card">
+          <h3 className="aa-card-title">📋 Últimos Anúncios</h3>
+          {ads.length === 0 ? (
+            <p className="aa-muted">Nenhum anúncio criado. Vá em "Links Afiliados".</p>
+          ) : (
+            <div className="aa-learn-list">
+              {ads.slice(-5).reverse().map(a => (
+                <div key={a.id} className="aa-learn-item">
+                  <span>{a.categoria === 'gamer' ? '🎮' : a.categoria === 'tecnologia' ? '💻' : a.categoria === 'cozinha' ? '🍳' : '📦'}</span>
+                  <span>{a.titulo} — R$ {a.preco.toFixed(2)}</span>
+                  <span style={{
+                    fontSize: 11, padding: '1px 6px', borderRadius: 6,
+                    color: a.status === 'publicado' ? '#10b981' : a.status === 'aprovado' ? '#60a5fa' : '#f59e0b',
+                    background: a.status === 'publicado' ? 'rgba(16,185,129,0.15)' : a.status === 'aprovado' ? 'rgba(96,165,250,0.15)' : 'rgba(245,158,11,0.15)',
+                  }}>{a.status}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -379,11 +342,11 @@ function StorePage() {
   const nichoData = NICHOS.find(n => n.id === nicho);
   const stores = JSON.parse(localStorage.getItem('brane_stores') || '{}');
   const storeInfo = stores[nicho];
-  const queueCards = JSON.parse(localStorage.getItem('brane_affiliate_links_queue') || '[]');
+  const queueCards = JSON.parse(localStorage.getItem('brane_affiliate_ads') || '[]');
   const produtosReais = queueCards.filter(c =>
     c.categoria === nicho && (c.status === 'publicado' || c.status === 'aprovado')
   );
-  const produtos = produtosReais.length > 0 ? produtosReais : (PRODUTOS[nicho] || []);
+  const produtos = produtosReais;
   const isReal = produtosReais.length > 0;
   const ICONES = { gamer: "🎮", tecnologia: "💻", cozinha: "🍳", beleza: "💄", pet: "🐾", fitness: "💪", moda: "👗", casa: "🏠" };
 
@@ -408,7 +371,7 @@ function StorePage() {
           <div>
             <h3>{nichoData.nome} {isReal ? '🛒 Loja Ativa' : '— Loja Automática'}</h3>
             <p>{produtos.length} produto(s) · {isReal ? 'Links afiliados reais' : 'Em modo preparação'}</p>
-            {storeInfo && <p style={{ fontSize: 12, color: '#60a5fa' }}>🔗 {storeInfo.url}</p>}
+            {storeInfo && <p style={{ fontSize: 12, color: '#60a5fa' }}>🔗 {window.location.origin}{storeInfo.url}</p>}
           </div>
         </div>
       </div>
@@ -479,167 +442,33 @@ function gerarTagsLocal(nicho, nome) {
 
 function CreativesPage() {
   const navigate = useNavigate();
-  const [agent] = useState(() => new AffiliateAgent());
-  const [media, setMedia] = useState(agent.mediaLibrary);
-  const [cStats, setCStats] = useState(agent.criativosStats);
-  const [ab, setAb] = useState(agent.abTests);
-  const [melhorThumb, setMelhorThumb] = useState(agent.melhorThumbnail);
-  const [topProd, setTopProd] = useState({});
-
-  useEffect(() => {
-    const iv = setInterval(() => {
-      setMedia(agent.mediaLibrary);
-      setCStats(agent.criativosStats);
-      setAb(agent.abTests);
-      setMelhorThumb(agent.melhorThumbnail);
-      setTopProd(agent.topProdutos);
-    }, 1000);
-    return () => clearInterval(iv);
-  }, [agent]);
-
-  const totalCriativos = cStats.totalCriativos;
-  const thumbs = media.thumbnails || [];
-  const banners = media.banners || [];
-  const stories = media.stories || [];
-  const videos = media.videos || [];
-  const produtosArr = Object.values(topProd).filter(Boolean);
-  const viralProd = [...produtosArr].sort((a, b) => b.viralScore - a.viralScore).slice(0, 3);
+  const ads = JSON.parse(localStorage.getItem('brane_affiliate_ads') || '[]');
+  const videos = ads.filter(a => a.videoUrl).length;
 
   return (
     <div className="aa-content">
       <div className="aa-topbar">
         <div className="aa-topbar-left">
           <button className="aa-btn aa-btn-ghost" onClick={() => navigate('/affiliate-agent')}>← Dashboard</button>
-          <h2>🎨 Criativos IA</h2>
+          <h2>🎨 Criativos</h2>
         </div>
-        <span className="aa-status"><span className="aa-status-dot" /> {totalCriativos} criativos gerados</span>
+        <span className="aa-status"><span className="aa-status-dot" /> {videos} vídeo(s) gerado(s)</span>
       </div>
 
       <div className="aa-stats">
-        <StatCard label="Thumbnails" value={cStats.thumbsGeradas} icon="🖼️" color="#8b5cf6" />
-        <StatCard label="Banners" value={cStats.bannersGerados} icon="📢" color="#f59e0b" />
-        <StatCard label="Stories" value={cStats.storiesGeradas} icon="📱" color="#ec4899" />
-        <StatCard label="Vídeos Mock" value={cStats.videosGerados} icon="🎬" color="#ef4444" />
+        <StatCard label="Vídeos Gerados" value={videos} icon="🎬" color="#8b5cf6" sub="apenas links afiliados" />
       </div>
 
-      <div className="aa-grid-3">
-        <div className="aa-card">
-          <h3 className="aa-card-title">🖼️ Thumbnails Geradas</h3>
-          {thumbs.length === 0 ? <p className="aa-muted">Nenhuma thumbnail ainda.</p> : (
-            <div className="aa-criativos-list">
-              {thumbs.slice(0, 6).map(t => (
-                <div key={t.id} className="aa-criativo-card">
-                  <div className="aa-criativo-preview" style={{ background: t.cor, color: '#fff' }}>
-                    <span style={{ fontSize: '2rem' }}>{t.produtoNome.split(' ').length > 2 ? t.produtoNome.split(' ').slice(0, 2).join(' ') : t.produtoNome}</span>
-                  </div>
-                  <div className="aa-criativo-info">
-                    <strong>{t.estilo}</strong>
-                    <span className="aa-criativo-meta">⭐ {t.rating} · {t.vendas} vendas</span>
-                    <span className="aa-criativo-ctr">CTR: {(t.ctr || 0).toFixed(1)}% · {t.cliques} cliques</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {melhorThumb && <div className="aa-criativo-best">🏆 Melhor estilo: <strong>{melhorThumb}</strong></div>}
-        </div>
-
-        <div className="aa-card">
-          <h3 className="aa-card-title">📢 Banners Promocionais</h3>
-          {banners.length === 0 ? <p className="aa-muted">Nenhum banner ainda.</p> : (
-            <div className="aa-criativos-list">
-              {banners.slice(0, 6).map(b => (
-                <div key={b.id} className="aa-criativo-card">
-                  <div className="aa-criativo-banner" style={{ background: 'linear-gradient(135deg, #1e3a5f, #2d1b69)', color: '#fff' }}>
-                    <span className="aa-criativo-banner-text">{b.headline}</span>
-                    <span className="aa-criativo-banner-offer">{b.oferta}</span>
-                    <span className="aa-criativo-banner-cta">{b.cta}</span>
-                  </div>
-                  <div className="aa-criativo-info">
-                    <strong>{b.produtoNome}</strong>
-                    <span className="aa-criativo-meta">{b.estilo} · {b.dimensao}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="aa-card">
-          <h3 className="aa-card-title">🎬 Vídeos Mock</h3>
-          {videos.length === 0 ? <p className="aa-muted">Nenhum vídeo ainda.</p> : (
-            <div className="aa-criativos-list">
-              {videos.slice(0, 4).map(v => (
-                <div key={v.id} className="aa-video-card">
-                  <div className="aa-video-preview" style={{ background: 'linear-gradient(135deg, #0f0f23, #1a0a2e)' }}>
-                    <span className="aa-video-hook">"{v.roteiro.hook.slice(0, 50)}..."</span>
-                    <div className="aa-video-badge">{v.roteiro.duracao} · {v.roteiro.cortes} cortes</div>
-                  </div>
-                  <div className="aa-video-body">
-                    <strong>{v.produtoNome}</strong>
-                    <span className="aa-criativo-meta">{v.formato} · 🎬 {v.roteiro.estiloEdicao}</span>
-                    <span className="aa-criativo-meta">👤 {v.roteiro.pessoa} · {v.roteiro.vibe}</span>
-                    <div className="aa-video-scores">
-                      <span className="aa-score" style={{ background: v.roteiro.score.hook >= 9 ? 'rgba(5,150,105,0.1)' : 'rgba(217,119,6,0.1)' }}>
-                        🎯 Hook: <strong>{v.roteiro.score.hook}</strong>
-                      </span>
-                      <span className="aa-score" style={{ background: v.roteiro.score.viralizacao >= 9 ? 'rgba(5,150,105,0.1)' : 'rgba(217,119,6,0.1)' }}>
-                        🔥 Viral: <strong>{v.roteiro.score.viralizacao}</strong>
-                      </span>
-                      <span className="aa-score" style={{ background: v.roteiro.score.cta >= 9 ? 'rgba(5,150,105,0.1)' : 'rgba(217,119,6,0.1)' }}>
-                        🛒 CTA: <strong>{v.roteiro.score.cta}</strong>
-                      </span>
-                    </div>
-                    <span className="aa-video-conversion">Conversão estimada: <strong>{v.roteiro.score.conversaoEstimada}</strong></span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="aa-grid-2">
-        <div className="aa-card">
-          <h3 className="aa-card-title">🧪 Testes A/B — Thumbnails</h3>
-          {ab.length === 0 ? <p className="aa-muted">Nenhum teste A/B ainda.</p> : (
-            <div className="aa-ab-list">
-              {ab.slice(0, 5).map(test => (
-                <div key={test.id} className="aa-ab-item">
-                  <strong className="aa-ab-produto">{test.produtoNome}</strong>
-                  <div className="aa-ab-variants">
-                    {test.variantes.map((v, i) => (
-                      <div key={i} className={`aa-ab-variant ${v.estilo === test.vencedor ? 'winner' : ''}`}>
-                        <span>{v.estilo}</span>
-                        <span className="aa-ab-ctr">CTR: {v.ctr.toFixed(1)}%</span>
-                        <span className="aa-ab-cliques">{v.cliques} cliques</span>
-                        {v.estilo === test.vencedor && <span className="aa-ab-winner">🏆</span>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="aa-card">
-          <h3 className="aa-card-title">🔥 Produtos com Criativos Mais Virais</h3>
-          {viralProd.length === 0 ? <p className="aa-muted">Aguardando dados...</p> : (
-            <div className="aa-rank-list">
-              {viralProd.map((p, i) => (
-                <div key={p.id || i} className="aa-rank-item viral">
-                  <span className="aa-rank-pos">{i + 1}</span>
-                  <span className="aa-rank-icon">{p.img}</span>
-                  <div className="aa-rank-info">
-                    <strong>{p.nome}</strong>
-                    <span className="aa-rank-meta">Viral Score: {(p.viralScore * 100).toFixed(0)}% · {p.cliques} cliques</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+      <div className="aa-card" style={{ textAlign: 'center', padding: 40, marginTop: 12 }}>
+        <p style={{ color: '#666', fontSize: 14 }}>
+          Criativos são gerados automaticamente ao criar anúncios em "Links Afiliados".
+        </p>
+        <p style={{ color: '#555', fontSize: 13, marginTop: 8 }}>
+          Cada anúncio aprovado recebe um vídeo viral MP4 pronto para publicação.
+        </p>
+        <p style={{ color: '#555', fontSize: 13, marginTop: 4 }}>
+          Thumbnails, banners e stories: disponível em versão futura.
+        </p>
       </div>
     </div>
   );
@@ -647,140 +476,51 @@ function CreativesPage() {
 
 function SocialPublishPage() {
   const navigate = useNavigate();
-  const [engine] = useState(() => new AutoPostEngine());
-  const [modo, setModo] = useState('navegador');
-  const [connections, setConnections] = useState(() => {
-    const saved = loadSocialConnections();
-    return SOCIAL_PLATFORMS.map(p => ({
-      ...p,
-      ...(saved?.[p.id] || {}),
-      status: saved?.[p.id]?.status || 'desconectado',
-      token: saved?.[p.id]?.token || '',
-      pageId: saved?.[p.id]?.pageId || '',
-      accountName: saved?.[p.id]?.accountName || '',
-    }));
-  });
-  const [schedule, setSchedule] = useState([]);
-  const [published, setPublished] = useState([]);
-  const [failed, setFailed] = useState([]);
-  const [stats, setStats] = useState(engine.stats);
-  const [running, setRunning] = useState(false);
+  const ads = JSON.parse(localStorage.getItem('brane_affiliate_ads') || '[]');
+  const publicados = ads.filter(a => a.status === 'publicado' && a.videoUrl);
+  const pendentes = ads.filter(a => a.status === 'aprovado' && a.videoUrl);
 
-  useEffect(() => {
-    const iv = setInterval(() => {
-      setSchedule(engine.schedule);
-      setPublished(engine.published);
-      setFailed(engine.failed);
-      setStats(engine.stats);
-      setRunning(engine.running);
-    }, 1000);
-    return () => clearInterval(iv);
-  }, [engine]);
-
-  useEffect(() => {
-    const map = {};
-    connections.forEach(c => {
-      map[c.id] = { status: c.status, token: c.token || '', pageId: c.pageId || '', accountName: c.accountName || '' };
-    });
-    saveSocialConnections(map);
-  }, [connections]);
-
-  const updateField = (id, field, value) => {
-    setConnections(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
-    engine.setConnection(id, { [field]: value });
-  };
-
-  const handleConectar = (id) => {
-    setConnections(prev => prev.map(c => c.id === id ? { ...c, status: 'conectado' } : c));
-    engine.setConnection(id, { status: 'conectado' });
-  };
-
-  const handleDesconectar = (id) => {
-    setConnections(prev => prev.map(c => c.id === id ? { ...c, status: 'desconectado', token: '', pageId: '', accountName: '' } : c));
-    engine.disconnect(id);
-  };
-
-  const handleStartPub = () => {
-    engine.startAutoPublish(30000);
-  };
-
-  const handleStopPub = () => {
-    engine.stopAutoPublish();
-  };
+  function downloadVideo(url, nome) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${nome.replace(/\s+/g, '_').toLowerCase()}_video.mp4`;
+    a.click();
+  }
 
   return (
     <div className="aa-content">
       <div className="aa-topbar">
         <div className="aa-topbar-left">
           <button className="aa-btn aa-btn-ghost" onClick={() => navigate('/affiliate-agent')}>← Dashboard</button>
-          <h2>📱 Publicação Social Automática</h2>
-        </div>
-        <div className="aa-topbar-actions">
-          <div className="aa-status">
-            <span className={`aa-status-dot ${running ? 'running' : ''}`} />
-            <span>{running ? 'Publicando' : 'Parado'}</span>
-          </div>
-          {!running ? (
-            <button className="aa-btn aa-btn-primary" onClick={handleStartPub}>▶ Iniciar Publicação</button>
-          ) : (
-            <button className="aa-btn aa-btn-danger" onClick={handleStopPub}>⏹ Parar</button>
-          )}
+          <h2>📱 Publicação Manual</h2>
         </div>
       </div>
 
-      <div className="aa-stats">
-        <StatCard label="Programados" value={stats.totalProgramados} icon="📅" color="#2563eb" />
-        <StatCard label="Publicados" value={stats.totalPublicados} icon="✅" color="#059669" />
-        <StatCard label="Falhas" value={stats.totalFalhas} icon="❌" color="#dc2626" />
-        <StatCard label="Plataformas Ativas" value={stats.totalPlataformas} icon="🔗" color="#7c3aed" />
-      </div>
-
-      <div className="aa-mode-tabs">
-        <button className={`aa-mode-tab ${modo === 'navegador' ? 'active' : ''}`} onClick={() => setModo('navegador')}>
-          🌐 Navegador Logado
-        </button>
-        <button className={`aa-mode-tab ${modo === 'api' ? 'active' : ''}`} onClick={() => setModo('api')}>
-          🔌 API Oficial
-        </button>
-        <button className={`aa-mode-tab ${modo === 'assistida' ? 'active' : ''}`} onClick={() => setModo('assistida')}>
-          🤝 Conexão Assistida
-        </button>
-      </div>
-
-      {modo === 'navegador' && (
-        <div className="aa-browser-connections">
-          {SOCIAL_PLATFORMS.map(p => (
-            <BrowserConnectionPanel key={p.id} plataforma={p.id} onPublishConfirm={() => {}} />
-          ))}
+      <div className="aa-card" style={{ marginBottom: 16 }}>
+        <h3 className="aa-card-title">📤 Publicar Vídeos Manualmente</h3>
+        <p style={{ color: '#999', fontSize: 13, marginTop: 8 }}>
+          A publicação automática no Instagram/TikTok requer integração via API oficial.
+          Enquanto isso, baixe o vídeo e publique manualmente.
+        </p>
+        <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+          <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="aa-btn" style={{ background: '#e1306c' }}>📸 Abrir Instagram</a>
+          <a href="https://www.tiktok.com" target="_blank" rel="noopener noreferrer" className="aa-btn" style={{ background: '#000' }}>🎵 Abrir TikTok</a>
         </div>
-      )}
+      </div>
 
-      {modo === 'api' && (
-        <div className="aa-connect-section">
-          <h3>🔌 API Oficial — Conectar Redes Sociais</h3>
-          <div className="aa-connect-grid">
-            {connections.map(p => (
-              <div key={p.id} className="aa-connect-card">
-                <div className="aa-connect-header">
-                  <span className="aa-connect-icon">{p.icone}</span>
-                  <h4>{p.nome}</h4>
-                  <span className={`aa-connect-status ${p.status === 'conectado' ? 'connected' : ''}`}>{p.status === 'conectado' ? 'Conectado' : 'Desconectado'}</span>
+      {publicados.length > 0 && (
+        <div className="aa-card" style={{ marginBottom: 12 }}>
+          <h3 className="aa-card-title">✅ Publicados — Baixar Vídeos</h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+            {publicados.map(a => (
+              <div key={a.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: 'rgba(16,185,129,0.05)', borderRadius: 8 }}>
+                <div>
+                  <strong style={{ fontSize: 13 }}>{a.titulo}</strong>
+                  <span style={{ fontSize: 11, color: '#999', marginLeft: 8 }}>R$ {a.preco.toFixed(2)} · {a.categoria}</span>
                 </div>
-                <div className="aa-connect-body">
-                  <label>Token de Acesso</label>
-                  <input className="aa-input" type="text" placeholder="Token da API" value={p.token || ''} onChange={e => updateField(p.id, 'token', e.target.value)} />
-                  <label style={{ marginTop: 8 }}>Page / Account ID</label>
-                  <input className="aa-input" type="text" placeholder="ID da página/conta" value={p.pageId || ''} onChange={e => updateField(p.id, 'pageId', e.target.value)} />
-                  <label style={{ marginTop: 8 }}>Nome da Conta</label>
-                  <input className="aa-input" type="text" placeholder="Nome para identificação" value={p.accountName || ''} onChange={e => updateField(p.id, 'accountName', e.target.value)} />
-                  <p className="aa-connect-aviso">Limite: {p.maxDiario}/{p.maxDiario} posts/dia · Intervalo mínimo {p.intervaloMin}min</p>
-                </div>
-                <div className="aa-connect-footer">
-                  {p.status === 'conectado' ? (
-                    <button className="aa-btn aa-btn-sm aa-btn-danger" onClick={() => handleDesconectar(p.id)}>Desconectar</button>
-                  ) : (
-                    <button className="aa-btn aa-btn-sm aa-btn-primary" onClick={() => handleConectar(p.id)}>Conectar</button>
-                  )}
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <button className="aa-btn aa-btn-sm" style={{ background: '#1e3a5f' }} onClick={() => downloadVideo(a.videoUrl, a.titulo)}>⬇ Baixar Vídeo</button>
+                  {a.storeUrl && <span style={{ fontSize: 11, color: '#60a5fa', alignSelf: 'center' }}>{a.storeUrl}</span>}
                 </div>
               </div>
             ))}
@@ -788,80 +528,21 @@ function SocialPublishPage() {
         </div>
       )}
 
-      {modo === 'assistida' && (
-        <div className="aa-connect-section">
-          <h3>🤝 Conexão Assistida</h3>
-          <div className="aa-assistida-card">
-            <p>Configure o agente para operar semi-autonomamente com supervisão. O agente prepara os posts e você revisa antes de publicar.</p>
-            <ul>
-              <li>✅ Agente gera título, legenda, hashtags e CTA</li>
-              <li>👁️ Você revisa antes de cada publicação</li>
-              <li>📅 Posts preparados no agendamento abaixo</li>
-              <li>🚀 Publique manualmente quando aprovar</li>
-            </ul>
-            <p className="aa-connect-aviso" style={{ marginTop: 12 }}>Nenhum post é publicado sem sua aprovação explícita.</p>
-          </div>
+      {pendentes.length > 0 && (
+        <div className="aa-card">
+          <h3 className="aa-card-title">⏳ Aguardando Publicação Manual</h3>
+          <p style={{ color: '#999', fontSize: 12, marginTop: 4 }}>{pendentes.length} anúncio(s) com vídeo pronto — publique manualmente nas redes.</p>
         </div>
       )}
 
-      <div className="aa-grid-3">
-        <div className="aa-card">
-          <h3 className="aa-card-title">📅 Próximos Posts</h3>
-          {schedule.filter(s => s.status === 'agendado').length === 0 ? (
-            <p className="aa-muted">Nenhum post agendado. Inicie o agente para gerar posts.</p>
-          ) : (
-            <div className="aa-social-list">
-              {schedule.filter(s => s.status === 'agendado').slice(0, 8).map(s => (
-                <div key={s.id} className="aa-social-item">
-                  <span className="aa-social-icon">{s.plataforma === 'tiktok' ? '🎵' : s.plataforma === 'instagram' ? '📸' : s.plataforma === 'pinterest' ? '📌' : s.plataforma === 'facebook' ? '📘' : '▶️'}</span>
-                  <div className="aa-social-info">
-                    <strong>{s.titulo.slice(0, 30)}...</strong>
-                    <span className="aa-social-meta">{s.plataforma} · {new Date(s.agendadoPara).toLocaleString('pt-BR')}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+      {publicados.length === 0 && pendentes.length === 0 && (
+        <div className="aa-card" style={{ textAlign: 'center', padding: 40 }}>
+          <p className="aa-muted">Nenhum anúncio publicado ou com vídeo disponível.</p>
+          <p style={{ fontSize: 12, color: '#555', marginTop: 8 }}>
+            Crie e aprove anúncios em "Links Afiliados" primeiro.
+          </p>
         </div>
-
-        <div className="aa-card">
-          <h3 className="aa-card-title">✅ Publicados Recentemente</h3>
-          {published.length === 0 ? (
-            <p className="aa-muted">Nenhum post publicado ainda.</p>
-          ) : (
-            <div className="aa-social-list">
-              {published.slice(0, 8).map(s => (
-                <div key={s.id} className="aa-social-item published">
-                  <span className="aa-social-icon">{s.plataforma === 'tiktok' ? '🎵' : s.plataforma === 'instagram' ? '📸' : s.plataforma === 'pinterest' ? '📌' : s.plataforma === 'facebook' ? '📘' : '▶️'}</span>
-                  <div className="aa-social-info">
-                    <strong>{s.titulo.slice(0, 30)}...</strong>
-                    <span className="aa-social-meta">👁️ {s.visualizacoes} · 🖱️ {s.cliques} cliques</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="aa-card">
-          <h3 className="aa-card-title">❌ Falhas</h3>
-          {failed.length === 0 ? (
-            <p className="aa-muted">Nenhuma falha registrada.</p>
-          ) : (
-            <div className="aa-social-list">
-              {failed.slice(0, 5).map(f => (
-                <div key={f.id} className="aa-social-item failed">
-                  <span className="aa-social-icon">❌</span>
-                  <div className="aa-social-info">
-                    <strong>{f.titulo?.slice(0, 30) || 'Post'}</strong>
-                    <span className="aa-social-meta">{f.motivo}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

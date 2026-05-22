@@ -34,10 +34,10 @@ function saveAgentState(s) {
   try { localStorage.setItem('brane_agent_state', JSON.stringify(s)); } catch {}
 }
 function loadQueue() {
-  try { return JSON.parse(localStorage.getItem('brane_affiliate_links_queue') || '[]'); } catch { return []; }
+  try { return JSON.parse(localStorage.getItem('brane_affiliate_ads') || '[]'); } catch { return []; }
 }
 function saveQueue(q) {
-  try { localStorage.setItem('brane_affiliate_links_queue', JSON.stringify(q)); } catch {}
+  try { localStorage.setItem('brane_affiliate_ads', JSON.stringify(q)); } catch {}
 }
 function loadStores() {
   try { return JSON.parse(localStorage.getItem('brane_stores') || '{}'); } catch { return {}; }
@@ -46,11 +46,11 @@ function saveStores(s) {
   try { localStorage.setItem('brane_stores', JSON.stringify(s)); } catch {}
 }
 
-const STORE_BASE = "https://branpy.stormarck/loja";
+const STORE_BASE = "/loja";
 const STORE_LINKS = {
   gamer: `${STORE_BASE}/gamer`, tecnologia: `${STORE_BASE}/tecnologia`,
   cozinha: `${STORE_BASE}/cozinha`, beleza: `${STORE_BASE}/beleza`,
-  pet: `${STORE_BASE}/pets`, fitness: `${STORE_BASE}/fitness`,
+  pet: `${STORE_BASE}/pet`, fitness: `${STORE_BASE}/fitness`,
   moda: `${STORE_BASE}/moda`, casa: `${STORE_BASE}/casa`,
 };
 

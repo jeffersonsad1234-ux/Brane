@@ -16,8 +16,8 @@ const ICONES = { gamer: "🎮", tecnologia: "💻", cozinha: "🍳", beleza: "�
 export default function PublicStoreFront() {
   const { categoria } = useParams();
   const nicho = NICHOS.find(n => n.id === categoria);
-  const queueCards = JSON.parse(localStorage.getItem('brane_affiliate_links_queue') || '[]');
-  const produtos = queueCards.filter(c =>
+  const cards = JSON.parse(localStorage.getItem('brane_affiliate_ads') || '[]');
+  const produtos = cards.filter(c =>
     c.categoria === categoria && c.status === 'publicado'
   );
 

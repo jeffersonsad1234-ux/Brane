@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 
-const STORE_BASE = "https://branpy.stormarck/loja";
+const STORE_BASE = "/loja";
 const STORE_LINKS = {
   gamer: `${STORE_BASE}/gamer`, tecnologia: `${STORE_BASE}/tecnologia`,
   cozinha: `${STORE_BASE}/cozinha`, beleza: `${STORE_BASE}/beleza`,
-  pet: `${STORE_BASE}/pets`, fitness: `${STORE_BASE}/fitness`,
+  pet: `${STORE_BASE}/pet`, fitness: `${STORE_BASE}/fitness`,
   moda: `${STORE_BASE}/moda`, casa: `${STORE_BASE}/casa`,
 };
 export function getStoreLink(cat) {
@@ -17,10 +17,10 @@ export function getStoreLink(cat) {
     };
     localStorage.setItem('brane_stores', JSON.stringify(stores));
   }
-  return stores[cat].url;
+  return window.location.origin + stores[cat].url;
 }
 
-const STORAGE_KEY = "brane_affiliate_links_queue";
+const STORAGE_KEY = "brane_affiliate_ads";
 const MARKETPLACES = ["Amazon", "Shopee", "AliExpress", "Temu", "Mercado Livre", "Outro"];
 const CATEGORIAS = [
   "gamer", "tecnologia", "cozinha", "beleza", "pet", "fitness", "moda", "casa",
