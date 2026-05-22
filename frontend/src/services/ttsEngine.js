@@ -31,15 +31,21 @@ export function getVoiceName(id) { return VOZES.find(v => v.id === id)?.nome || 
  *   ONLY from env vars — NO hardcoded localhost/127.0.0.1.
  *   Priority: REACT_APP_TTS_API_URL > REACT_APP_TTS_API > REACT_APP_AGENT_API
  *   If none set, returns empty string (callers must check).
+ *   Supports both CRA (process.env) and Vite (import.meta.env).
  */
 function resolveApiBase() {
   const candidates = [
-    window._env_?.REACT_APP_TTS_API_URL,
+    // Vite support (import.meta.env.VITE_TTS_API_URL)
+    typeof import.meta !== 'undefined' && import.meta.env?.VITE_TTS_API_URL,
+    // CRA support (process.env.REACT_APP_TTS_API_URL)
     process.env.REACT_APP_TTS_API_URL,
-    window._env_?.REACT_APP_TTS_API,
+    // Runtime injected (Cloudflare Pages)
+    window._env_?.REACT_APP_TTS_API_URL,
+    // Legacy fallbacks
     process.env.REACT_APP_TTS_API,
-    window._env_?.REACT_APP_AGENT_API,
+    window._env_?.REACT_APP_TTS_API,
     process.env.REACT_APP_AGENT_API,
+    window._env_?.REACT_APP_AGENT_API,
   ];
   for (const c of candidates) {
     if (c && typeof c === 'string' && c.startsWith('http')) return c.replace(/\/+$/, '');
@@ -133,10 +139,13 @@ export async function generateTTSAudio(text, voiceId = 'pt-BR-FranciscaNeural', 
   const log = (msg) => { logs.push(msg); if (onLog) onLog(msg); };
 
   if (!API_BASE) {
-    log('❌ REACT_APP_TTS_API_URL não configurada');
-    log('   Defina esta variável no Cloudflare Pages (Settings → Environment)');
+    log('❌ Variável TTS_API_URL não configurada');
+    log('   Configure uma das seguintes variáveis de ambiente:');
+    log('   • CRA: REACT_APP_TTS_API_URL');
+    log('   • Vite: VITE_TTS_API_URL');
+    log('   Defina no Cloudflare Pages (Settings → Environment) ou .env local');
     log('   Exemplo: https://seu-app.up.railway.app');
-    return { success: false, blob: null, voiceId, duration: 0, method: 'none', error: 'REACT_APP_TTS_API_URL não configurada', logs };
+    return { success: false, blob: null, voiceId, duration: 0, method: 'none', error: 'TTS_API_URL não configurada', logs };
   }
 
   if (!text || text.trim().length < 3) {
