@@ -71,6 +71,8 @@
   "scripts": {
     "start": "cross-env PORT=3001 REACT_APP_AGENT_API=http://localhost:3200 craco start",
     "start:agent": "cross-env PORT=3001 REACT_APP_AGENT_API=http://localhost:3200 craco start",
+    "start:tts": "python ../backend/tts_server.py",
+    "dev": "concurrently -k -n frontend,tts -c cyan,green \"npm start\" \"npm run start:tts\"",
     "build": "cross-env CI=false DISABLE_ESLINT_PLUGIN=true SKIP_PREFLIGHT_CHECK=true craco build",
     "test": "craco test",
     "cap:init": "npx cap init \"B Livre\" com.blivre.app --web-dir build",
@@ -108,6 +110,7 @@
     "ajv": "^8.17.1",
     "ajv-keywords": "^5.1.0",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.2.1",
     "cross-env": "^7.0.3",
     "electron": "^42.1.0",
     "electron-builder": "^26.8.1",

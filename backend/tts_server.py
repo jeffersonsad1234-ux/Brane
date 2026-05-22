@@ -51,6 +51,10 @@ class TTSRequest(BaseModel):
     rate: str = '+0%'
     pitch: str = '+0Hz'
 
+import time, shutil
+
+_start_time = time.time()
+
 @app.get('/')
 async def root():
     return {'status': 'ok', 'service': 'tts', 'voices': TTS_VOICES}
@@ -58,6 +62,18 @@ async def root():
 @app.get('/health')
 async def health():
     return {'status': 'ok'}
+
+@app.get('/api/health')
+async def api_health():
+    return {
+        'status': 'ok',
+        'service': 'tts',
+        'uptime': round(time.time() - _start_time),
+        'port': int(os.environ.get('TTS_PORT', 3200)),
+        'voices': len(TTS_VOICES),
+        'ffmpeg': shutil.which('ffmpeg') is not None,
+        'edge_tts': True,
+    }
 
 @app.post('/api/tts', response_class=FileResponse)
 async def generate_tts(req: TTSRequest):

@@ -2,7 +2,7 @@
  * TTS Engine — converts text to PT-BR speech via backend API.
  *   Method 1: Backend POST /api/tts (edge-tts + ffmpeg)
  *   Method 2: Web Speech API preview-only fallback
- * Returns valid audio blob or error.
+ * Includes health check, connection status, auto-reconnect.
  */
 const VOZES = [
   { id: 'pt-BR-FranciscaNeural', nome: 'Francisca', genero: 'Feminino', estilo: 'natural e calorosa' },
@@ -28,6 +28,72 @@ export function getVoiceName(id) { return VOZES.find(v => v.id === id)?.nome || 
 
 const API_BASE = (window._env_?.REACT_APP_AGENT_API || process.env.REACT_APP_AGENT_API || 'http://localhost:3200').replace(/\/+$/, '');
 
+// Connection status tracking
+let _backendStatus = 'unknown'; // 'unknown' | 'online' | 'offline' | 'checking'
+let _statusListeners = [];
+let _healthCache = null;
+let _lastCheck = 0;
+
+export function getBackendStatus() { return _backendStatus; }
+export function getHealthCache() { return _healthCache; }
+export function getApiBase() { return API_BASE; }
+
+export function onStatusChange(fn) {
+  _statusListeners.push(fn);
+  return () => { _statusListeners = _statusListeners.filter(f => f !== fn); };
+}
+
+function notifyStatus(status) {
+  _backendStatus = status;
+  _statusListeners.forEach(fn => { try { fn(status); } catch {} });
+}
+
+const CHECK_INTERVAL = 10000; // 10s between checks
+const FAST_RETRY = 3000; // 3s when offline
+
+/**
+ * Check if the TTS backend is reachable.
+ * Returns { status, uptime, ffmpeg, voices, port } or null.
+ */
+export async function checkBackendHealth() {
+  const now = Date.now();
+  if (_backendStatus === 'online' && now - _lastCheck < CHECK_INTERVAL) {
+    return _healthCache;
+  }
+
+  notifyStatus('checking');
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const resp = await fetch(`${API_BASE}/api/health`, { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+    const data = await resp.json();
+    _healthCache = data;
+    _lastCheck = Date.now();
+    notifyStatus('online');
+    return data;
+  } catch (err) {
+    notifyStatus('offline');
+    _healthCache = null;
+    _lastCheck = Date.now();
+    return null;
+  }
+}
+
+/**
+ * Start polling backend health. Returns unsubscribe function.
+ */
+export function startHealthPolling() {
+  checkBackendHealth();
+  const id = setInterval(() => {
+    checkBackendHealth();
+  }, _backendStatus === 'online' ? CHECK_INTERVAL : FAST_RETRY);
+  return () => clearInterval(id);
+}
+
 /**
  * Generate TTS audio via backend API.
  * Returns: { success, blob, voiceId, duration, method, error, logs }
@@ -43,7 +109,7 @@ export async function generateTTSAudio(text, voiceId = 'pt-BR-FranciscaNeural', 
 
   log(`📝 Texto: "${text.slice(0, 80)}..." (${text.length} caracteres)`);
   log(`🎤 Voz: ${getVoiceName(voiceId)} (${voiceId})`);
-  log(`🌐 Enviando para backend: ${API_BASE}/api/tts`);
+  log(`🌐 ${API_BASE}/api/tts`);
 
   try {
     const controller = new AbortController();
@@ -73,24 +139,23 @@ export async function generateTTSAudio(text, voiceId = 'pt-BR-FranciscaNeural', 
     const sizeKb = response.headers.get('X-TTS-Size') || (blob.size / 1024).toFixed(1);
     const codec = response.headers.get('X-TTS-Codec') || 'pcm_s16le';
     const sampleRate = response.headers.get('X-TTS-SampleRate') || '24000';
-    const method = 'edge-tts';
 
-    log(`✅ Edge TTS: ${voice}`);
-    log(`⏱️ Duração: ${duration}s`);
-    log(`📦 Tamanho: ${sizeKb}KB`);
-    log(`🎵 Codec: ${codec} · ${sampleRate}Hz`);
+    log(`✅ ${voice}`);
+    log(`⏱️ ${duration}s`);
+    log(`📦 ${sizeKb}KB · ${codec} · ${sampleRate}Hz`);
 
-    return { success: true, blob, voiceId: voice, duration: Math.max(duration, 1), method, error: null, logs };
+    return { success: true, blob, voiceId: voice, duration: Math.max(duration, 1), method: 'edge-tts', error: null, logs };
   } catch (err) {
     if (err.name === 'AbortError') {
       log('❌⏱️ Timeout: backend não respondeu em 60s');
     } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-      log(`❌🔌 Backend offline: ${API_BASE}/api/tts`);
-      log('   Certifique-se de que o servidor backend está rodando (python backend/server.py)');
+      log(`❌🔌 Backend offline`);
+      log(`   ${API_BASE} não está respondendo`);
+      log(`   Rode: python backend/tts_server.py`);
+      notifyStatus('offline');
     } else {
       log(`❌ ${err.message}`);
     }
-    log('❌❌ Todas as tentativas de voz falharam');
     return { success: false, blob: null, voiceId, duration: 0, method: 'none', error: err.message, logs };
   }
 }

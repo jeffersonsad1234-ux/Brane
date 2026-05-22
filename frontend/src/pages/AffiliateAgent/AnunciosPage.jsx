@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getVozesDisponiveis, getVoiceName, speakWithWebSpeech } from "../../services/ttsEngine";
+import { getVozesDisponiveis, getVoiceName, speakWithWebSpeech, checkBackendHealth, startHealthPolling, getBackendStatus, getApiBase, onStatusChange } from "../../services/ttsEngine";
 
 const STORAGE_KEY = 'brane_anuncios';
 const vozes = getVozesDisponiveis();
@@ -149,11 +149,27 @@ function AnuncioCard({ ad, onRefresh }) {
       const log = (msg) => { logs.push(msg); setVoiceGenLogs(prev => [...prev, msg]); };
       log(`🎤 Gerando voz para: "${text.slice(0, 60)}..."`);
       log(`🎤 Voz: ${getVoiceName(ad.voiceId)}`);
+      log(`🌐 Backend: ${getApiBase()}/api/tts`);
+
+      // Check backend first
+      const health = await checkBackendHealth();
+      if (!health) {
+        log(`❌🔌 Backend offline!`);
+        log(`   Rode: cd backend && python tts_server.py`);
+        log(`   ou: npm run dev (no diretório raiz)`);
+        setVoiceGenLogs([...logs]);
+        atualizarAnuncio(ad.id, { voiceStatus: 'failed', voiceError: 'Backend offline' });
+        onRefresh();
+        setVoiceLoading(false);
+        return;
+      }
+      log(`✅ Backend online (porta ${health.port}, ${health.uptime}s ativo)`);
+      if (health.ffmpeg) log(`🎵 FFmpeg disponível`);
 
       const result = await generateVoiceAudio(text, ad.voiceId, log);
+      log(`⏱️ Tempo total de geração: ${result.duration}s`);
 
       if (result.success && result.blob && result.blob.size > 100) {
-        // Store the blob as a data URL (small enough voice files should fit)
         const reader = new FileReader();
         reader.onload = () => {
           atualizarAnuncio(ad.id, {
@@ -162,20 +178,20 @@ function AnuncioCard({ ad, onRefresh }) {
             voiceMethod: result.method,
             voiceError: null,
           });
-          logs.push(`✅ Voz gerada: ${result.method} (${result.duration}s, ${result.blob.size} bytes)`);
+          logs.push(`✅ Voz gerada com sucesso via Edge TTS`);
           setVoiceGenLogs([...logs]);
           onRefresh();
           setVoiceLoading(false);
         };
         reader.onerror = () => {
-          logs.push('❌ Falha ao converter blob para data URL');
+          logs.push('❌ Erro ao converter áudio');
           setVoiceGenLogs([...logs]);
           setVoiceLoading(false);
         };
         reader.readAsDataURL(result.blob);
       } else {
-        logs.push(`❌ Falha: ${result.error || 'resultado vazio'}`);
-        atualizarAnuncio(ad.id, { voiceStatus: 'failed', voiceError: result.error, voiceMethod: null });
+        logs.push(`❌ ${result.error || 'Falha na geração'}`);
+        atualizarAnuncio(ad.id, { voiceStatus: 'failed', voiceError: result.error });
         setVoiceGenLogs([...logs]);
         onRefresh();
         setVoiceLoading(false);
@@ -189,12 +205,14 @@ function AnuncioCard({ ad, onRefresh }) {
     }
   };
 
-  const handleOuvirVoz = () => {
+  const handleTestarVoz = async () => {
     if (playingVoice) {
       if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
       setPlayingVoice(false);
       return;
     }
+
+    const text = ad.narracaoCompleta || ad.nome || ad.legenda;
 
     if (ad.voiceBlobDataUrl) {
       try {
@@ -202,34 +220,21 @@ function AnuncioCard({ ad, onRefresh }) {
         audio.onended = () => setPlayingVoice(false);
         audio.onerror = () => {
           setPlayingVoice(false);
-          // Fallback to Web Speech
-          handleOuvirVozFallback();
+          speakWithWebSpeech(text, ad.voiceId).catch(() => {});
         };
         audioRef.current = audio;
         audio.play();
         setPlayingVoice(true);
       } catch {
-        handleOuvirVozFallback();
+        speakWithWebSpeech(text, ad.voiceId).then(() => setPlayingVoice(false)).catch(() => setPlayingVoice(false));
+        setPlayingVoice(true);
       }
     } else {
-      handleOuvirVozFallback();
-    }
-  };
-
-  const handleOuvirVozFallback = () => {
-    const text = ad.narracaoCompleta || ad.nome || ad.legenda;
-    if (window.speechSynthesis) {
-      window.speechSynthesis.cancel();
-      speakWithWebSpeech(text, ad.voiceId)
-        .then(() => setPlayingVoice(false))
-        .catch(() => setPlayingVoice(false));
+      speakWithWebSpeech(text, ad.voiceId).then(() => setPlayingVoice(false)).catch(() => setPlayingVoice(false));
       setPlayingVoice(true);
-      // Auto-stop after estimated duration
       const wpm = 150;
       const estMs = Math.max((text.split(/\s+/).length / wpm) * 60 * 1000, 3000);
       setTimeout(() => setPlayingVoice(false), estMs + 1000);
-    } else {
-      alert('❌ Navegador não suporta síntese de voz');
     }
   };
 
@@ -247,13 +252,7 @@ function AnuncioCard({ ad, onRefresh }) {
         setPublishLoading(false);
         return;
       }
-      const campanha = {
-        nome: ad.nome,
-        lojaUrl: ad.lojaUrl,
-        legenda: ad.legenda,
-        hashtags: ad.hashtags,
-        produto: ad.produto,
-      };
+      const campanha = { nome: ad.nome, lojaUrl: ad.lojaUrl, legenda: ad.legenda, hashtags: ad.hashtags, produto: ad.produto };
       const result = await bot.publicarCampanha(campanha);
       if (result.success) {
         atualizarAnuncio(ad.id, { publicado: true, publishedAt: new Date().toISOString() });
@@ -320,18 +319,16 @@ function AnuncioCard({ ad, onRefresh }) {
               {voiceReady ? `✅ ${getVoiceName(ad.voiceId)}` : ad.voiceStatus === 'failed' ? '❌ Falha' : '⏳ Pendente'}
             </span>
             {ad.voiceMethod && voiceReady && (
-              <span className="an-voice-method">{ad.voiceMethod === 'proxy' ? '🌐 Proxy' : ad.voiceMethod === 'direct' ? '🔗 Direct' : '🎵 Mock'}</span>
+              <span className="an-voice-method">Edge TTS</span>
             )}
           </div>
 
           <div className="an-card-voice-actions">
-            {voiceReady ? (
-              <button onClick={handleOuvirVoz} className="an-voice-btn an-voice-btn-listen" disabled={voiceLoading}>
-                {playingVoice ? '🔊 Tocando...' : '🔊 Ouvir voz'}
-              </button>
-            ) : null}
             <button onClick={handleGerarVoz} disabled={voiceLoading || status === 'publicado'} className="an-voice-btn an-voice-btn-generate">
               {voiceLoading ? '⏳ Gerando...' : voiceReady ? '🔄 Gerar novamente' : '🎤 Gerar voz'}
+            </button>
+            <button onClick={handleTestarVoz} disabled={voiceLoading || status === 'publicado'} className="an-voice-btn an-voice-btn-listen">
+              {playingVoice ? '🔊 Tocando...' : (voiceReady || ad.voiceStatus === 'failed' ? '🔊 Testar voz' : '🔊 Testar')}
             </button>
             <select value={ad.voiceId}
               onChange={e => { atualizarAnuncio(ad.id, { voiceId: e.target.value, voiceStatus: 'pending' }); onRefresh(); }}
@@ -343,7 +340,7 @@ function AnuncioCard({ ad, onRefresh }) {
           {voiceGenLogs.length > 0 && (
             <div className="an-voice-logs">
               {voiceGenLogs.map((l, i) => (
-                <div key={i} className={`an-voice-log ${l.includes('✅') ? 'ok' : l.includes('❌') ? 'err' : l.includes('⏱️') ? 'warn' : ''}`}>{l}</div>
+                <div key={i} className={`an-voice-log ${l.includes('✅') ? 'ok' : l.includes('❌') ? 'err' : l.includes('⏱️') || l.includes('🔌') ? 'warn' : ''}`}>{l}</div>
               ))}
             </div>
           )}
@@ -385,10 +382,10 @@ function AnuncioCard({ ad, onRefresh }) {
             className="an-btn an-btn-primary an-btn-sm">
             {publishLoading ? '⏳ Publicando...' : status === 'publicado' ? '✅ Publicado' : '🚀 Publicar Agora'}
           </button>
-          <button onClick={handleOuvirVoz}
-            disabled={!voiceReady || voiceLoading || playingVoice || status === 'publicado'}
+          <button onClick={handleTestarVoz}
+            disabled={voiceLoading || playingVoice || status === 'publicado'}
             className="an-btn an-btn-ghost an-btn-sm">
-            🔊 Ouvir
+            🔊 Testar voz
           </button>
           <button onClick={() => setDetailOpen(!detailOpen)} className="an-btn an-btn-ghost an-btn-sm">
             {detailOpen ? '▲ Menos' : '▼ Detalhes'}
@@ -411,6 +408,44 @@ function ChartBar({ label, value, maxValue, color }) {
           <span className="an-chart-bar-value">{value}</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+function BackendStatusBar() {
+  const [status, setStatus] = useState(getBackendStatus());
+  const [health, setHealth] = useState(null);
+
+  useEffect(() => {
+    const unsub = onStatusChange((s) => setStatus(s));
+    checkBackendHealth().then(h => setHealth(h));
+    const poll = setInterval(() => checkBackendHealth().then(h => setHealth(h)), 10000);
+    return () => { unsub(); clearInterval(poll); };
+  }, []);
+
+  const statusConfigs = {
+    online: { label: '✅ Backend TTS online', className: 'an-backend-online' },
+    offline: { label: '❌ Backend TTS offline', className: 'an-backend-offline' },
+    checking: { label: '🔄 Conectando...', className: 'an-backend-checking' },
+    unknown: { label: '🔄 Verificando conexão...', className: 'an-backend-checking' },
+  };
+
+  const cfg = statusConfigs[status] || statusConfigs.unknown;
+
+  return (
+    <div className={`an-backend-bar ${cfg.className}`}>
+      <span className="an-backend-status">{cfg.label}</span>
+      {health && (
+        <span className="an-backend-details">
+          porta {health.port} · ativo há {Math.floor(health.uptime / 60)}min
+          {health.ffmpeg ? ' · FFmpeg OK' : ' · FFmpeg não encontrado'}
+        </span>
+      )}
+      {status === 'offline' && (
+        <span className="an-backend-hint">
+          Rode: <code>cd backend &amp;&amp; python tts_server.py</code>
+        </span>
+      )}
     </div>
   );
 }
@@ -445,6 +480,8 @@ export default function AnunciosPage() {
 
   return (
     <div className="an-root">
+      <BackendStatusBar />
+
       <div className="an-header">
         <div>
           <h1 className="an-title">📺 Prévia de Anúncios</h1>

@@ -677,3 +677,16 @@
 .an-btn-outline { background: transparent; border: 1px solid var(--aa-border); color: var(--aa-text-secondary); }
 .an-btn-outline:hover { background: var(--aa-bg); border-color: var(--aa-text-muted); }
 .an-btn-outline:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* === Backend Status Bar === */
+.an-backend-bar { display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-radius: var(--aa-radius-sm); margin-bottom: 16px; font-size: 0.78rem; flex-wrap: wrap; }
+.an-backend-online { background: rgba(5,150,105,0.06); border: 1px solid rgba(5,150,105,0.15); }
+.an-backend-offline { background: rgba(220,38,38,0.06); border: 1px solid rgba(220,38,38,0.15); }
+.an-backend-checking { background: rgba(37,99,235,0.06); border: 1px solid rgba(37,99,235,0.15); }
+.an-backend-status { font-weight: 600; white-space: nowrap; }
+.an-backend-online .an-backend-status { color: var(--aa-success); }
+.an-backend-offline .an-backend-status { color: var(--aa-danger); }
+.an-backend-checking .an-backend-status { color: var(--aa-primary); }
+.an-backend-details { color: var(--aa-text-muted); font-size: 0.72rem; }
+.an-backend-hint { color: var(--aa-text-muted); font-size: 0.72rem; }
+.an-backend-hint code { background: rgba(0,0,0,0.05); padding: 1px 6px; border-radius: 3px; font-size: 0.7rem; }
