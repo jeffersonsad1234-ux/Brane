@@ -1,13 +1,18 @@
+const TRENDS = ['produto em alta', 'produto viral', 'alta conversão', 'muito buscado'];
+
 const NICHOS = [
-  { id: 'tech', nome: 'Tecnologia', icone: '💻', cor: '#2563eb' },
+  { id: 'tecnologia', nome: 'Tecnologia', icone: '💻', cor: '#2563eb' },
   { id: 'casa', nome: 'Casa & Decor', icone: '🏠', cor: '#059669' },
-  { id: 'moda', nome: 'Moda & Acessórios', icone: '👗', cor: '#d97706' },
-  { id: 'gamer', nome: 'Gamer', icone: '🎮', cor: '#7c3aed' },
   { id: 'beleza', nome: 'Beleza & Saúde', icone: '💄', cor: '#e11d48' },
+  { id: 'gadgets', nome: 'Gadgets', icone: '📱', cor: '#7c3aed' },
+  { id: 'gamer', nome: 'Gamer', icone: '🎮', cor: '#f59e0b' },
+  { id: 'fitness', nome: 'Fitness', icone: '🏋️', cor: '#0891b2' },
+  { id: 'cozinha', nome: 'Cozinha', icone: '🍳', cor: '#ea580c' },
+  { id: 'pets', nome: 'Pets', icone: '🐾', cor: '#84cc16' },
 ];
 
 const PRODUTOS = {
-  tech: [
+  tecnologia: [
     { nome: 'Fone Bluetooth Pro Max', preco: 189.90, img: '🎧' },
     { nome: 'Carregador Wireless 3 em 1', preco: 129.90, img: '🔋' },
     { nome: 'Mouse Ergonômico Vertical', preco: 89.90, img: '🖱️' },
@@ -23,22 +28,6 @@ const PRODUTOS = {
     { nome: 'Vaso Decorativo Cerâmica', preco: 69.90, img: '🏺' },
     { nome: 'Cortina Blackout Premium', preco: 159.90, img: '🪟' },
   ],
-  moda: [
-    { nome: 'Relógio Digital Esportivo', preco: 149.90, img: '⌚' },
-    { nome: 'Mochila Executiva Couro', preco: 259.90, img: '🎒' },
-    { nome: 'Óculos Polarizado Premium', preco: 99.90, img: '🕶️' },
-    { nome: 'Cinto Couro Legítimo', preco: 79.90, img: '🔗' },
-    { nome: 'Bolsa Transversal Casual', preco: 189.90, img: '👜' },
-    { nome: 'Tênis Casual Confort', preco: 219.90, img: '👟' },
-  ],
-  gamer: [
-    { nome: 'Headset Gamer 7.1 RGB', preco: 299.90, img: '🎧' },
-    { nome: 'Mousepad Gamer XXL', preco: 89.90, img: '🖱️' },
-    { nome: 'Controle Pro Sem Fio', preco: 349.90, img: '🎮' },
-    { nome: 'Cadeira Gamer Ergônomica', preco: 1299.90, img: '💺' },
-    { nome: 'Suporte Articulado Monitor', preco: 159.90, img: '🖥️' },
-    { nome: 'Microfone Condensador USB', preco: 199.90, img: '🎤' },
-  ],
   beleza: [
     { nome: 'Secador de Cabelo Profissional', preco: 179.90, img: '💇' },
     { nome: 'Barbeador Elétrico à Prova d\'Água', preco: 199.90, img: '🪒' },
@@ -46,6 +35,46 @@ const PRODUTOS = {
     { nome: 'Vaporizador Facial', preco: 129.90, img: '🧖' },
     { nome: 'Massageador Corporal', preco: 149.90, img: '💆' },
     { nome: 'Aparelho de Depilação a Laser', preco: 399.90, img: '✨' },
+  ],
+  gadgets: [
+    { nome: 'Smartwatch Esportivo', preco: 299.90, img: '⌚' },
+    { nome: 'Caixa de Som Portátil', preco: 159.90, img: '🔊' },
+    { nome: 'Drone Mini com Câmera', preco: 899.90, img: '🛸' },
+    { nome: 'Óculos de Realidade Virtual', preco: 1299.90, img: '🥽' },
+    { nome: 'Rastreador Inteligente GPS', preco: 69.90, img: '📍' },
+    { nome: 'Hub USB-C 12 em 1', preco: 119.90, img: '🔌' },
+  ],
+  gamer: [
+    { nome: 'Headset Gamer 7.1 RGB', preco: 299.90, img: '🎧' },
+    { nome: 'Mousepad Gamer XXL', preco: 89.90, img: '🖱️' },
+    { nome: 'Controle Pro Sem Fio', preco: 349.90, img: '🎮' },
+    { nome: 'Cadeira Gamer Ergonômica', preco: 1299.90, img: '💺' },
+    { nome: 'Suporte Articulado Monitor', preco: 159.90, img: '🖥️' },
+    { nome: 'Microfone Condensador USB', preco: 199.90, img: '🎤' },
+  ],
+  fitness: [
+    { nome: 'Tapete de Yoga Premium', preco: 89.90, img: '🧘' },
+    { nome: 'Kit Haleres Ajustáveis', preco: 399.90, img: '🏋️' },
+    { nome: 'Corda de Pular Speed', preco: 49.90, img: '⛹️' },
+    { nome: 'Garrafa Térmica 1L', preco: 59.90, img: '🧊' },
+    { nome: 'Faixa Elástica Resistência', preco: 39.90, img: '🏃' },
+    { nome: 'Balança Digital Smart', preco: 119.90, img: '⚖️' },
+  ],
+  cozinha: [
+    { nome: 'Air Fryer Digital 5L', preco: 299.90, img: '🍟' },
+    { nome: 'Mixer Turbo 1000W', preco: 129.90, img: '🥤' },
+    { nome: 'Jogo de Facas Premium', preco: 199.90, img: '🔪' },
+    { nome: 'Cafeteira Elétrica Programável', preco: 159.90, img: '☕' },
+    { nome: 'Panela Elétrica Multifuncional', preco: 259.90, img: '🍲' },
+    { nome: 'Kit Temperos Gourmet', preco: 49.90, img: '🧂' },
+  ],
+  pets: [
+    { nome: 'Cama Ortopédica para Cães', preco: 149.90, img: '🛏️' },
+    { nome: 'Brinquedo Interativo Pet', preco: 59.90, img: '🧸' },
+    { nome: 'Comedouro Automático', preco: 199.90, img: '🍽️' },
+    { nome: 'Coleira LED Recarregável', preco: 79.90, img: '🔦' },
+    { nome: 'Arranhador para Gatos', preco: 129.90, img: '🐱' },
+    { nome: 'Kit Higiene Pet Completo', preco: 89.90, img: '🧴' },
   ],
 };
 
@@ -59,57 +88,86 @@ const PLATAFORMAS = [
   { id: 'pinterest', nome: 'Pinterest', icone: '📌' },
   { id: 'x', nome: 'X / Twitter', icone: '🐦' },
   { id: 'kwai', nome: 'Kwai', icone: '📱' },
+  { id: 'facebook', nome: 'Facebook', icone: '📘' },
 ];
 
-function rnd(seed) {
-  let s = seed || 0;
-  return () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+const PLATAFORMAS_POST = ['tiktok', 'instagram', 'pinterest', 'x', 'kwai', 'facebook'];
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function slugify(text) {
+  return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 
-function gerarTituloSEO(produto, nicho) {
-  const prefixos = {
-    tech: ['Oferta Imperdível', 'Melhor Preço', 'Top de Linha', 'Lançamento'],
-    casa: ['Transforme sua Casa', 'Oferta Especial', 'Conforto e Estilo'],
-    moda: ['Estilo em Alta', 'Peça Essencial', 'Imperdível'],
-    gamer: ['Domine o Jogo', 'Setup Perfeito', 'Nível Pro'],
-    beleza: ['Realce sua Beleza', 'Cuidado Premium', 'Oferta Especial'],
+function gerarHeadline(nicho, produto) {
+  const h = {
+    tecnologia: [`O ${produto.nome} que está bombando!`, `${produto.nome} com tecnologia de ponta`, `Oferta relâmpago: ${produto.nome}`],
+    casa: [`Transforme seu lar com ${produto.nome}`, `${produto.nome} para uma casa moderna`, `O ${produto.nome} que sua casa merece`],
+    beleza: [`Realce sua beleza com ${produto.nome}`, `${produto.nome} para cuidados premium`, `O segredo de beleza: ${produto.nome}`],
+    gadgets: [`O gadget do momento: ${produto.nome}`, `${produto.nome} que vai facilitar sua vida`, `Descubra o ${produto.nome} inovador`],
+    gamer: [`Domine o jogo com ${produto.nome}`, `${produto.nome} para seu setup gamer`, `Nível pro: ${produto.nome}`],
+    fitness: [`Transforme seu treino com ${produto.nome}`, `${produto.nome} para resultados reais`, `Seu parceiro fitness: ${produto.nome}`],
+    cozinha: [`O ${produto.nome} que sua cozinha precisa`, `Receitas incríveis com ${produto.nome}`, `${produto.nome} para arrasar na cozinha`],
+    pets: [`Seu pet merece ${produto.nome}`, `O ${produto.nome} ideal para seu pet`, `Cuide do seu pet com ${produto.nome}`],
   };
-  const p = prefixos[nicho] || ['Oferta'];
-  const r = rnd(nicho.charCodeAt(0) + produto.nome.length);
-  return `${p[Math.floor(r() * p.length)]}: ${produto.nome} com ${Math.floor(r() * 30 + 20)}% OFF`;
+  return pick(h[nicho] || [produto.nome]);
 }
 
-function gerarDescricao(produto) {
-  const r = rnd(produto.nome.length);
-  const beneficios = ['qualidade premium', 'design moderno', 'alta durabilidade', 'melhor custo-benefício', 'tecnologia de ponta'];
-  return `${produto.nome} — produto com ${beneficios[Math.floor(r() * beneficios.length)]}. Ideal para uso diário, oferece conforto e performance. Aproveite a oferta limitada!`;
+function gerarDescSEO(produto, nicho) {
+  return `${produto.nome} original — o melhor em ${nicho}. Produto de alta qualidade com preço imperdível. Aproveite o frete grátis e condições especiais. Compre agora e transforme sua experiência!`;
+}
+
+function gerarTags(nicho, produto) {
+  const base = ['oferta', 'promoção', 'desconto', 'frete grátis', 'compre agora', nicho, produto.nome.split(' ')[0].toLowerCase()];
+  return [...new Set(base)];
 }
 
 function gerarTextoPost(plataforma, produto, link) {
-  const textos = {
+  const map = {
     tiktok: `🔥 ${produto.img} ${produto.nome} COM DESCONTO!\n💰 De R$ ${(produto.preco * 1.4).toFixed(2)} por R$ ${produto.preco.toFixed(2)}\n🛒 Link na bio!\n#oferta #promoção #${produto.nome.split(' ')[0].toLowerCase()}`,
     instagram: `${produto.img} APROVEITE A OFERTA!\n\n✨ ${produto.nome}\n💵 R$ ${produto.preco.toFixed(2)}\n📦 Frete Grátis\n🎯 Link nos Stories\n\n#oferta #produto #promoção`,
     pinterest: `${produto.img} ${produto.nome} | Oferta Especial\nClique e compre com desconto!\nR$ ${produto.preco.toFixed(2)}`,
-    x: `${produto.img} ${produto.nome}\nR$ ${produto.preco.toFixed(2)} | Frete Grátis\nLink: ${link}\n#oferta #promoção`,
+    x: `${produto.img} ${produto.nome} R$ ${produto.preco.toFixed(2)} | Frete Grátis\nLink: ${link}\n#oferta #promoção`,
     kwai: `${produto.img} ${produto.nome}\nDe R$ ${(produto.preco * 1.4).toFixed(2)} por R$ ${produto.preco.toFixed(2)}!\n🚀 Aproveite!\n#kwai #oferta`,
+    facebook: `${produto.img} ${produto.nome}\n\n🔥 Oferta imperdível! De R$ ${(produto.preco * 1.4).toFixed(2)} por apenas R$ ${produto.preco.toFixed(2)}\n📦 Frete Grátis | 🚀 Entrega Rápida\n\nClique no link para comprar:\n${link}`,
   };
-  return textos[plataforma] || `${produto.img} ${produto.nome} — R$ ${produto.preco.toFixed(2)}`;
+  return map[plataforma] || `${produto.img} ${produto.nome} — R$ ${produto.preco.toFixed(2)}`;
 }
+
+const AGENDA = {
+  tiktok: { min: 3, max: 5 },
+  instagram: { min: 2, max: 4 },
+  pinterest: { min: 10, max: 10 },
+  x: { min: 1, max: 2 },
+  kwai: { min: 1, max: 2 },
+  facebook: { min: 1, max: 2 },
+};
 
 export class AffiliateAgent {
   constructor() {
     this._running = false;
     this._timer = null;
-    this._interval = 45000;
+    this._interval = 30000;
     this._cycleCount = 0;
     this._allPosts = [];
     this._allProducts = [];
     this._stores = [];
+    this._scheduled = [];
     this._logs = [];
+    this._learning = {
+      melhoresNichos: [],
+      melhoresPosts: [],
+      produtosVirais: [],
+      produtosRuins: [],
+    };
     this._stats = {
       lojasCriadas: 0, produtosEncontrados: 0, postsGerados: 0,
       linksAfiliadosPendentes: 0, vendasMock: 0, comissaoMock: 0,
+      cliquesMock: 0, ctrMock: 0, conversaoMock: 0,
     };
+    this._topProdutos = {};
+    this._topLojas = {};
+    this._topPosts = [];
   }
 
   get running() { return this._running; }
@@ -118,91 +176,184 @@ export class AffiliateAgent {
   get allPosts() { return [...this._allPosts]; }
   get allProducts() { return [...this._allProducts]; }
   get stores() { return [...this._stores]; }
+  get scheduled() { return [...this._scheduled]; }
   get cycleCount() { return this._cycleCount; }
+  get learning() { return JSON.parse(JSON.stringify(this._learning)); }
+  get topProdutos() { return { ...this._topProdutos }; }
+  get topLojas() { return { ...this._topLojas }; }
+  get topPosts() { return [...this._topPosts]; }
 
   _log(tipo, msg) {
     this._logs.unshift({ tipo, msg, data: new Date().toLocaleTimeString('pt-BR'), timestamp: Date.now() });
     if (this._logs.length > 300) this._logs.pop();
   }
 
+  _analisarTendencias() {
+    const tendencia = pick(TRENDS);
+    const nicho = pick(NICHOS);
+    const produtoBase = pick(PRODUTOS[nicho.id]);
+    this._log('info', `📈 Tendência detectada: ${produtoBase.nome} (${nicho.nome}) — ${tendencia}`);
+    return { tendencia, nicho, produto: produtoBase };
+  }
+
   _criarLoja(nicho) {
-    if (this._stores.find(s => s.id === nicho.id)) return;
+    if (this._stores.find(s => s.id === nicho.id)) return null;
+    const produtos = PRODUTOS[nicho.id].map(p => ({
+      ...p,
+      id: Math.random().toString(36).slice(2, 8),
+      headline: gerarHeadline(nicho.id, p),
+      descSEO: gerarDescSEO(p, nicho.id),
+      tags: gerarTags(nicho.id, p),
+      slug: slugify(p.nome),
+      thumbnail: p.img,
+      linkAfiliado: null,
+      status: 'demo',
+      tendencia: pick(TRENDS),
+      cliques: 0, conversoes: 0, viralScore: Math.random(),
+    }));
     const store = {
-      id: nicho.id,
-      nome: nicho.nome,
-      icone: nicho.icone,
-      cor: nicho.cor,
-      produtos: PRODUTOS[nicho.id].map(p => ({
-        ...p,
-        id: Math.random().toString(36).slice(2, 8),
-        tituloSEO: gerarTituloSEO(p, nicho.id),
-        descricao: gerarDescricao(p),
-        linkAfiliado: null,
-        status: 'demo',
-      })),
+      id: nicho.id, nome: nicho.nome, icone: nicho.icone, cor: nicho.cor,
+      banner: `${nicho.icone} ${nicho.nome} — Loja Automática`,
+      headline: `Melhores produtos de ${nicho.nome}`,
+      produtos,
       posts: [],
       criadaEm: new Date().toLocaleString('pt-BR'),
+      acessos: 0, vendas: 0,
     };
     this._stores.push(store);
     this._stats.lojasCriadas++;
     this._stats.produtosEncontrados += store.produtos.length;
-    this._log('success', `Loja "${nicho.nome}" criada com ${store.produtos.length} produtos`);
+    store.produtos.forEach(p => { this._allProducts.push(p); this._topProdutos[p.id] = p; });
+    this._log('success', `🏪 Loja "${nicho.nome}" criada com ${store.produtos.length} produtos`);
+    return store;
   }
 
-  _gerarPosts() {
-    this._stores.forEach(store => {
-      store.produtos.forEach(prod => {
+  _gerarPosts(store) {
+    let count = 0;
+    store.produtos.forEach(prod => {
+      const trendPick = Math.random() > 0.5;
+      const plataformas = trendPick ? PLATAFORMAS_POST : [pick(PLATAFORMAS_POST)];
+      plataformas.forEach(plat => {
         const link = `https://seu-link-afiliado.com/${store.id}/${prod.id}`;
-        const plataformas = ['tiktok', 'instagram', 'pinterest', 'x', 'kwai'];
-        plataformas.forEach(plat => {
-          const texto = gerarTextoPost(plat, prod, link);
-          const post = {
-            id: Math.random().toString(36).slice(2, 10),
-            produto: prod.nome,
-            plataforma: plat,
-            texto,
-            link,
-            geradoEm: new Date().toLocaleString('pt-BR'),
-            publicado: false,
-          };
-          store.posts.push(post);
-          this._allPosts.push(post);
-          this._stats.postsGerados++;
-        });
+        const texto = gerarTextoPost(plat, prod, link);
+        const post = {
+          id: Math.random().toString(36).slice(2, 10),
+          produto: prod.nome, produtoId: prod.id,
+          loja: store.nome, lojaId: store.id,
+          plataforma: plat, texto, link,
+          geradoEm: new Date().toLocaleString('pt-BR'),
+          publicado: false, agendadoPara: null,
+          cliques: 0, viral: Math.random() > 0.7,
+        };
+        if (AGENDA[plat]) {
+          const hora = Math.floor(Math.random() * 12 + 8);
+          const minuto = Math.floor(Math.random() * 60);
+          post.agendadoPara = `${String(hora).padStart(2, '0')}:${String(minuto).padStart(2, '0')}`;
+        }
+        store.posts.push(post);
+        this._allPosts.push(post);
+        this._scheduled.push(post);
+        count++;
+        this._stats.postsGerados++;
+        if (post.viral) {
+          this._learning.produtosVirais.push(prod.nome);
+          this._log('warn', `🔥 Produto viral detectado: ${prod.nome}`);
+        }
+        this._log('info', `📝 Post criado para ${prod.nome} → ${plat} ${post.agendadoPara ? 'às ' + post.agendadoPara : ''}`);
       });
     });
-    this._log('success', `${this._allPosts.length} posts gerados no total`);
+    this._log('success', `✅ ${count} posts gerados para ${store.nome}`);
   }
 
-  _simularVendas() {
+  _simularAnalytics() {
+    this._stores.forEach(store => {
+      store.acessos += Math.floor(Math.random() * 50 + 10);
+      store.vendas += Math.floor(Math.random() * 8);
+      store.produtos.forEach(prod => {
+        const cls = Math.floor(Math.random() * 20 + 1);
+        const conv = Math.floor(Math.random() * 5);
+        prod.cliques += cls;
+        prod.conversoes += conv;
+        this._stats.cliquesMock += cls;
+        if (conv > 0) this._stats.conversaoMock += conv;
+      });
+    });
+    this._stats.ctrMock = this._stats.cliquesMock > 0
+      ? ((this._stats.conversaoMock / this._stats.cliquesMock) * 100)
+      : 0;
     const v = Math.floor(Math.random() * 5) + 1;
     this._stats.vendasMock += v;
     this._stats.comissaoMock += v * (Math.random() * 15 + 5);
     this._stats.linksAfiliadosPendentes = this._allProducts.length * 2;
-    this._log('info', `${v} vendas simuladas | Comissão: R$ ${this._stats.comissaoMock.toFixed(2)}`);
+    this._atualizarTop();
+    this._log('info', `📊 Analytics atualizados | CTR: ${this._stats.ctrMock.toFixed(1)}% | Cliques: ${this._stats.cliquesMock}`);
+  }
+
+  _atualizarTop() {
+    this._topProdutos = {};
+    this._stores.forEach(s => s.produtos.forEach(p => { this._topProdutos[p.id] = p; }));
+    this._topLojas = {};
+    this._stores.forEach(s => { this._topLojas[s.id] = s; });
+    const sorted = [...this._allPosts].sort((a, b) => b.cliques - a.cliques);
+    this._topPosts = sorted.slice(0, 5);
+  }
+
+  _aprender() {
+    const nichoCount = {};
+    this._stores.forEach(s => {
+      const totalVendas = s.produtos.reduce((acc, p) => acc + p.conversoes, 0);
+      if (totalVendas > 0) nichoCount[s.nome] = totalVendas;
+    });
+    this._learning.melhoresNichos = Object.entries(nichoCount)
+      .sort((a, b) => b[1] - a[1]).slice(0, 3).map(e => e[0]);
+    const viralPosts = this._allPosts.filter(p => p.viral);
+    this._learning.melhoresPosts = [...new Set(viralPosts.map(p => p.produto))].slice(0, 5);
+    const ruins = this._allProducts
+      .filter(p => p.conversoes === 0 && p.cliques > 5)
+      .map(p => p.nome);
+    this._learning.produtosRuins = ruins.slice(0, 5);
+    if (ruins.length > 0) this._log('warn', `🧠 Aprendizado: ${ruins.length} produto(s) marcado(s) como baixo desempenho`);
+    if (this._learning.melhoresNichos.length > 0) {
+      this._log('success', `🧠 Nichos com melhor performance: ${this._learning.melhoresNichos.join(', ')}`);
+    }
   }
 
   _ciclo() {
     if (!this._running) return;
     this._cycleCount++;
-    this._log('info', `--- Ciclo #${this._cycleCount} ---`);
-    this._log('info', 'Analisando nichos lucrativos...');
+    this._log('info', `🔄 --- Ciclo #${this._cycleCount} ---`);
+
+    const analise = this._analisarTendencias();
+
     const pendentes = NICHOS.filter(n => !this._stores.find(s => s.id === n.id));
-    if (pendentes.length > 0) {
-      const nicho = pendentes[Math.floor(Math.random() * pendentes.length)];
-      this._criarLoja(nicho);
+    if (pendentes.length > 0 && Math.random() > 0.3) {
+      const nicho = pick(pendentes);
+      this._log('info', `🏗️ Criando loja automática para ${nicho.nome}...`);
+      const store = this._criarLoja(nicho);
+      if (store) this._gerarPosts(store);
     } else {
-      this._log('info', 'Todas as lojas já foram criadas');
+      this._log('info', '⏳ Nenhum novo nicho selecionado neste ciclo');
     }
-    if (this._allPosts.length === 0) this._gerarPosts();
-    if (this._cycleCount > 1) this._simularVendas();
-    this._log('success', 'Ciclo concluído');
+
+    if (this._cycleCount > 1) {
+      this._simularAnalytics();
+      this._aprender();
+    }
+
+    const pendAgenda = this._scheduled.filter(p => !p.publicado);
+    if (pendAgenda.length > 0 && Math.random() > 0.5) {
+      const toPub = pendAgenda.slice(0, Math.floor(Math.random() * 3 + 1));
+      toPub.forEach(p => { p.publicado = true; });
+      this._log('success', `📅 ${toPub.length} post(s) publicados automaticamente`);
+    }
+
+    this._log('success', `✅ Ciclo #${this._cycleCount} concluído`);
   }
 
   start() {
     if (this._running) return;
     this._running = true;
-    this._log('success', 'Agente Afiliado iniciado');
+    this._log('success', '🚀 Agente Afiliado Inteligente iniciado');
     this._ciclo();
     this._timer = setInterval(() => this._ciclo(), this._interval);
   }
@@ -210,7 +361,7 @@ export class AffiliateAgent {
   stop() {
     this._running = false;
     if (this._timer) { clearInterval(this._timer); this._timer = null; }
-    this._log('warn', 'Agente Afiliado parado');
+    this._log('warn', '⏹️ Agente Afiliado parado');
   }
 
   executarAgora() {
@@ -218,4 +369,4 @@ export class AffiliateAgent {
   }
 }
 
-export { NICHOS, PRODUTOS, PLATAFORMAS };
+export { NICHOS, PRODUTOS, PLATAFORMAS, PLATAFORMAS_POST, AGENDA };
