@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Routes, Route, useNavigate, useParams, Link, Navigate } from "react-router-dom";
 import { AffiliateAgent, NICHOS, PRODUTOS, PLATAFORMAS, PLATAFORMAS_POST, AGENDA } from "./AffiliateEngine";
 import { loadConnections, saveConnections } from "../../services/affiliateProviders";
+import { AutoPostEngine, SOCIAL_PLATFORMS, loadSocialConnections, saveSocialConnections } from "../../services/autoPostEngine";
 import "./AffiliateAgent.css";
 
 function useAgent() {
@@ -25,6 +26,7 @@ function Sidebar({ active }) {
         <Link to="/affiliate-agent" className={`aa-sidebar-link ${active === 'dashboard' ? 'active' : ''}`}>📊 Visão Geral</Link>
         <Link to="/affiliate-agent/conexoes" className={`aa-sidebar-link ${active === 'conexoes' ? 'active' : ''}`}>🔗 Conexões</Link>
         <Link to="/affiliate-agent/aprendizado" className={`aa-sidebar-link ${active === 'aprendizado' ? 'active' : ''}`}>🧠 Aprendizado</Link>
+        <Link to="/affiliate-agent/social-publish" className={`aa-sidebar-link ${active === 'social' ? 'active' : ''}`}>📱 Publicação Social</Link>
         <Link to="/affiliate-agent/criativos" className={`aa-sidebar-link ${active === 'criativos' ? 'active' : ''}`}>🎨 Criativos IA</Link>
         <div className="aa-sidebar-label">Lojas Automáticas</div>
         {NICHOS.map(n => (
@@ -34,7 +36,7 @@ function Sidebar({ active }) {
         ))}
       </nav>
       <div className="aa-sidebar-footer">
-        <span className="aa-version">v5.0.0 • Fase 2 — Provedores Afiliados</span>
+        <span className="aa-version">v6.0.0 • Fase 3 — Publicação Social</span>
       </div>
     </aside>
   );
@@ -597,6 +599,188 @@ function CreativesPage() {
   );
 }
 
+function SocialPublishPage() {
+  const navigate = useNavigate();
+  const [engine] = useState(() => new AutoPostEngine());
+  const [connections, setConnections] = useState(() => {
+    const saved = loadSocialConnections();
+    return SOCIAL_PLATFORMS.map(p => ({
+      ...p,
+      ...(saved?.[p.id] || {}),
+      status: saved?.[p.id]?.status || 'desconectado',
+      token: saved?.[p.id]?.token || '',
+      pageId: saved?.[p.id]?.pageId || '',
+      accountName: saved?.[p.id]?.accountName || '',
+    }));
+  });
+  const [schedule, setSchedule] = useState([]);
+  const [published, setPublished] = useState([]);
+  const [failed, setFailed] = useState([]);
+  const [stats, setStats] = useState(engine.stats);
+  const [running, setRunning] = useState(false);
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setSchedule(engine.schedule);
+      setPublished(engine.published);
+      setFailed(engine.failed);
+      setStats(engine.stats);
+      setRunning(engine.running);
+    }, 1000);
+    return () => clearInterval(iv);
+  }, [engine]);
+
+  useEffect(() => {
+    const map = {};
+    connections.forEach(c => {
+      map[c.id] = { status: c.status, token: c.token || '', pageId: c.pageId || '', accountName: c.accountName || '' };
+    });
+    saveSocialConnections(map);
+  }, [connections]);
+
+  const updateField = (id, field, value) => {
+    setConnections(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
+    engine.setConnection(id, { [field]: value });
+  };
+
+  const handleConectar = (id) => {
+    setConnections(prev => prev.map(c => c.id === id ? { ...c, status: 'conectado' } : c));
+    engine.setConnection(id, { status: 'conectado' });
+  };
+
+  const handleDesconectar = (id) => {
+    setConnections(prev => prev.map(c => c.id === id ? { ...c, status: 'desconectado', token: '', pageId: '', accountName: '' } : c));
+    engine.disconnect(id);
+  };
+
+  const handleStartPub = () => {
+    engine.startAutoPublish(30000);
+  };
+
+  const handleStopPub = () => {
+    engine.stopAutoPublish();
+  };
+
+  return (
+    <div className="aa-content">
+      <div className="aa-topbar">
+        <div className="aa-topbar-left">
+          <button className="aa-btn aa-btn-ghost" onClick={() => navigate('/affiliate-agent')}>← Dashboard</button>
+          <h2>📱 Publicação Social Automática</h2>
+        </div>
+        <div className="aa-topbar-actions">
+          <div className="aa-status">
+            <span className={`aa-status-dot ${running ? 'running' : ''}`} />
+            <span>{running ? 'Publicando' : 'Parado'}</span>
+          </div>
+          {!running ? (
+            <button className="aa-btn aa-btn-primary" onClick={handleStartPub}>▶ Iniciar Publicação</button>
+          ) : (
+            <button className="aa-btn aa-btn-danger" onClick={handleStopPub}>⏹ Parar</button>
+          )}
+        </div>
+      </div>
+
+      <div className="aa-stats">
+        <StatCard label="Programados" value={stats.totalProgramados} icon="📅" color="#2563eb" />
+        <StatCard label="Publicados" value={stats.totalPublicados} icon="✅" color="#059669" />
+        <StatCard label="Falhas" value={stats.totalFalhas} icon="❌" color="#dc2626" />
+        <StatCard label="Plataformas Ativas" value={stats.totalPlataformas} icon="🔗" color="#7c3aed" />
+      </div>
+
+      <div className="aa-connect-section">
+        <h3>📱 Conectar Redes Sociais</h3>
+        <div className="aa-connect-grid">
+          {connections.map(p => (
+            <div key={p.id} className="aa-connect-card">
+              <div className="aa-connect-header">
+                <span className="aa-connect-icon">{p.icone}</span>
+                <h4>{p.nome}</h4>
+                <span className={`aa-connect-status ${p.status === 'conectado' ? 'connected' : ''}`}>{p.status === 'conectado' ? 'Conectado' : 'Desconectado'}</span>
+              </div>
+              <div className="aa-connect-body">
+                <label>Token de Acesso</label>
+                <input className="aa-input" type="text" placeholder="Token da API" value={p.token || ''} onChange={e => updateField(p.id, 'token', e.target.value)} />
+                <label style={{ marginTop: 8 }}>Page / Account ID</label>
+                <input className="aa-input" type="text" placeholder="ID da página/conta" value={p.pageId || ''} onChange={e => updateField(p.id, 'pageId', e.target.value)} />
+                <label style={{ marginTop: 8 }}>Nome da Conta</label>
+                <input className="aa-input" type="text" placeholder="Nome para identificação" value={p.accountName || ''} onChange={e => updateField(p.id, 'accountName', e.target.value)} />
+                <p className="aa-connect-aviso">Limite: {p.maxDiario}/{p.maxDiario} posts/dia · Intervalo mínimo {p.intervaloMin}min</p>
+              </div>
+              <div className="aa-connect-footer">
+                {p.status === 'conectado' ? (
+                  <button className="aa-btn aa-btn-sm aa-btn-danger" onClick={() => handleDesconectar(p.id)}>Desconectar</button>
+                ) : (
+                  <button className="aa-btn aa-btn-sm aa-btn-primary" onClick={() => handleConectar(p.id)}>Conectar</button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="aa-grid-3">
+        <div className="aa-card">
+          <h3 className="aa-card-title">📅 Próximos Posts</h3>
+          {schedule.filter(s => s.status === 'agendado').length === 0 ? (
+            <p className="aa-muted">Nenhum post agendado. Inicie o agente para gerar posts.</p>
+          ) : (
+            <div className="aa-social-list">
+              {schedule.filter(s => s.status === 'agendado').slice(0, 8).map(s => (
+                <div key={s.id} className="aa-social-item">
+                  <span className="aa-social-icon">{s.plataforma === 'tiktok' ? '🎵' : s.plataforma === 'instagram' ? '📸' : s.plataforma === 'pinterest' ? '📌' : s.plataforma === 'facebook' ? '📘' : '▶️'}</span>
+                  <div className="aa-social-info">
+                    <strong>{s.titulo.slice(0, 30)}...</strong>
+                    <span className="aa-social-meta">{s.plataforma} · {new Date(s.agendadoPara).toLocaleString('pt-BR')}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="aa-card">
+          <h3 className="aa-card-title">✅ Publicados Recentemente</h3>
+          {published.length === 0 ? (
+            <p className="aa-muted">Nenhum post publicado ainda.</p>
+          ) : (
+            <div className="aa-social-list">
+              {published.slice(0, 8).map(s => (
+                <div key={s.id} className="aa-social-item published">
+                  <span className="aa-social-icon">{s.plataforma === 'tiktok' ? '🎵' : s.plataforma === 'instagram' ? '📸' : s.plataforma === 'pinterest' ? '📌' : s.plataforma === 'facebook' ? '📘' : '▶️'}</span>
+                  <div className="aa-social-info">
+                    <strong>{s.titulo.slice(0, 30)}...</strong>
+                    <span className="aa-social-meta">👁️ {s.visualizacoes} · 🖱️ {s.cliques} cliques</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="aa-card">
+          <h3 className="aa-card-title">❌ Falhas</h3>
+          {failed.length === 0 ? (
+            <p className="aa-muted">Nenhuma falha registrada.</p>
+          ) : (
+            <div className="aa-social-list">
+              {failed.slice(0, 5).map(f => (
+                <div key={f.id} className="aa-social-item failed">
+                  <span className="aa-social-icon">❌</span>
+                  <div className="aa-social-info">
+                    <strong>{f.titulo?.slice(0, 30) || 'Post'}</strong>
+                    <span className="aa-social-meta">{f.motivo}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ConexoesPage() {
   const navigate = useNavigate();
   const [conexoes, setConexoes] = useState(() => {
@@ -730,6 +914,7 @@ export default function AffiliateAgentApp() {
         <Route path="/conexoes" element={<><Sidebar active="conexoes" /><ConexoesPage /></>} />
         <Route path="/aprendizado" element={<><Sidebar active="aprendizado" /><AprendizadoPage /></>} />
         <Route path="/criativos" element={<><Sidebar active="criativos" /><CreativesPage /></>} />
+        <Route path="/social-publish" element={<><Sidebar active="social" /><SocialPublishPage /></>} />
         <Route path="*" element={<Navigate to="/affiliate-agent" replace />} />
       </Routes>
     </div>
