@@ -1129,6 +1129,27 @@ function CampanhaPage() {
     addLog('info', '⏳ Vídeo ainda não publicado. Aprove para publicar.');
   };
 
+  const handleReject = () => {
+    addLog('warn', '⏹️ Campanha rejeitada');
+    setCampaign(null);
+    setVideo(null);
+    setRealVideoUrl(null);
+    setRealVideoBlob(null);
+    setStep('form');
+  };
+
+  const handleEditLegenda = (novaLegenda) => {
+    setVideoLegenda(novaLegenda);
+    if (campaign) setCampaign(prev => ({ ...prev, legenda: novaLegenda }));
+    addLog('info', '✏️ Legenda editada');
+  };
+
+  const handleEditRoteiro = (novoRoteiro) => {
+    setVideoRoteiro(novoRoteiro);
+    if (video) setVideo(prev => ({ ...prev, narracaoCompleta: novoRoteiro }));
+    addLog('info', '✏️ Roteiro editado');
+  };
+
   const handleApprove = async () => {
     if (!campaign) return;
 
