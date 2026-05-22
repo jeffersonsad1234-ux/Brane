@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { getVozesDisponiveis, getVoiceName, speakWithWebSpeech, checkBackendHealth, startHealthPolling, getBackendStatus, getApiBase, onStatusChange } from "../../services/ttsEngine";
+import { getVozesDisponiveis, getVoiceName, speakWithWebSpeech, getApiBase } from "../../services/ttsEngine";
 
 const STORAGE_KEY = 'brane_anuncios';
 const vozes = getVozesDisponiveis();
@@ -149,36 +149,6 @@ function AnuncioCard({ ad, onRefresh }) {
       const log = (msg) => { logs.push(msg); setVoiceGenLogs(prev => [...prev, msg]); };
       log(`🎤 Gerando voz para: "${text.slice(0, 60)}..."`);
       log(`🎤 Voz: ${getVoiceName(ad.voiceId)}`);
-      log(`🌐 Backend: ${getApiBase()}/api/tts`);
-
-      // Check backend first
-      const health = await checkBackendHealth();
-      if (!health && !getApiBase()) {
-        log(`❌ Nenhuma URL de API configurada`);
-        log(`   Variáveis lidas (em ordem):`);
-        log(`   • VITE_TTS_API_URL (Vite / Cloudflare Pages)`);
-        log(`   • REACT_APP_TTS_API_URL (CRA)`);
-        log(`   • REACT_APP_TTS_API`);
-        log(`   • REACT_APP_AGENT_API`);
-        log(`   Defina uma delas nas variáveis de ambiente do seu deploy.`);
-        setVoiceGenLogs([...logs]);
-        atualizarAnuncio(ad.id, { voiceStatus: 'failed', voiceError: 'API URL não configurada' });
-        onRefresh();
-        setVoiceLoading(false);
-        return;
-      }
-      if (!health && getApiBase()) {
-        log(`❌🔌 Backend offline!`);
-        log(`   ${getApiBase()} não está respondendo`);
-        log(`   Verifique se o servidor está rodando no Railway`);
-        setVoiceGenLogs([...logs]);
-        atualizarAnuncio(ad.id, { voiceStatus: 'failed', voiceError: 'Backend offline' });
-        onRefresh();
-        setVoiceLoading(false);
-        return;
-      }
-      log(`✅ Backend online (porta ${health.port}, ${health.uptime}s ativo)`);
-      if (health.ffmpeg) log(`🎵 FFmpeg disponível`);
 
       const result = await generateVoiceAudio(text, ad.voiceId, log);
       log(`⏱️ Tempo total de geração: ${result.duration}s`);
@@ -253,10 +223,6 @@ function AnuncioCard({ ad, onRefresh }) {
   };
 
   const handlePublicarAgora = async () => {
-    if (ad.voiceStatus !== 'generated') {
-      alert('❌ Gere a narração de voz antes de publicar. Clique em "🎤 Gerar voz" primeiro.');
-      return;
-    }
     setPublishLoading(true);
     try {
       const { BrowserAutomator } = await import("../../services/browserAutomation");
@@ -329,8 +295,8 @@ function AnuncioCard({ ad, onRefresh }) {
         <div className="an-card-voice">
           <div className="an-card-voice-info">
             <span className="an-voice-label">🎤 Voz:</span>
-            <span className={`an-voice-badge ${voiceReady ? 'ready' : ad.voiceStatus === 'failed' ? 'failed' : ''}`}>
-              {voiceReady ? `✅ ${getVoiceName(ad.voiceId)}` : ad.voiceStatus === 'failed' ? '❌ Falha' : '⏳ Pendente'}
+            <span className={`an-voice-badge ${voiceReady ? 'ready' : ''}`}>
+              {voiceReady ? `✅ ${getVoiceName(ad.voiceId)}` : 'ℹ️ Voz: opcional/desativada'}
             </span>
             {ad.voiceMethod && voiceReady && (
               <span className="an-voice-method">Edge TTS</span>
@@ -354,13 +320,9 @@ function AnuncioCard({ ad, onRefresh }) {
           {voiceGenLogs.length > 0 && (
             <div className="an-voice-logs">
               {voiceGenLogs.map((l, i) => (
-                <div key={i} className={`an-voice-log ${l.includes('✅') ? 'ok' : l.includes('❌') ? 'err' : l.includes('⏱️') || l.includes('🔌') ? 'warn' : ''}`}>{l}</div>
+                <div key={i} className={`an-voice-log ${l.includes('✅') ? 'ok' : l.includes('❌') ? 'err' : ''}`}>{l}</div>
               ))}
             </div>
-          )}
-
-          {ad.voiceError && (
-            <div className="an-voice-error">❌ {ad.voiceError}</div>
           )}
         </div>
 
@@ -426,45 +388,14 @@ function ChartBar({ label, value, maxValue, color }) {
   );
 }
 
-function BackendStatusBar() {
-  const [status, setStatus] = useState(getBackendStatus());
-  const [health, setHealth] = useState(null);
+function VoiceHint() {
   const backendUrl = getApiBase();
-
-  useEffect(() => {
-    const unsub = onStatusChange((s) => setStatus(s));
-    checkBackendHealth().then(h => setHealth(h));
-    const poll = setInterval(() => checkBackendHealth().then(h => setHealth(h)), 10000);
-    return () => { unsub(); clearInterval(poll); };
-  }, []);
-
-  const statusConfigs = {
-    online: { label: '✅ Backend TTS online', className: 'an-backend-online' },
-    offline: { label: '❌ Backend de voz offline', className: 'an-backend-offline' },
-    checking: { label: '🔄 Conectando...', className: 'an-backend-checking' },
-    unknown: { label: '🔄 Verificando conexão...', className: 'an-backend-checking' },
-    unconfigured: { label: '❌ API URL não configurada', className: 'an-backend-offline' },
-  };
-
-  const cfg = statusConfigs[status] || statusConfigs.unknown;
-
   return (
-    <div className={`an-backend-bar ${cfg.className}`}>
-      <span className="an-backend-status">{cfg.label}</span>
-      {backendUrl ? (
-        <span className="an-backend-details">URL: {backendUrl}</span>
-      ) : (
-        <span className="an-backend-details">Defina VITE_TTS_API_URL ou REACT_APP_TTS_API_URL no deploy</span>
-      )}
-      {health && (
-        <span className="an-backend-details">
-          · porta {health.port} · ativo há {Math.floor(health.uptime / 60)}min
-          {health.ffmpeg ? ' · FFmpeg OK' : ' · sem FFmpeg'}
-        </span>
-      )}
-      {status === 'offline' && backendUrl && (
-        <span className="an-backend-hint">
-          Servidor não está respondendo em {backendUrl}
+    <div className="an-voice-hint">
+      <span>🔇 Voz IA desativada — vídeos continuam sem narração</span>
+      {!backendUrl && (
+        <span className="an-voice-hint-detail">
+          Para ativar, configure REACT_APP_TTS_API_URL no deploy
         </span>
       )}
     </div>
@@ -501,13 +432,13 @@ export default function AnunciosPage() {
 
   return (
     <div className="an-root">
-      <BackendStatusBar />
+      <VoiceHint />
 
       <div className="an-header">
         <div>
           <h1 className="an-title">📺 Prévia de Anúncios</h1>
           <p className="an-subtitle">
-            {totals.total} anúncios · {totals.publicados} publicados · {totals.agendados} agendados · {totals.comVoz} com voz · {totals.semVoz} sem voz
+            {totals.total} anúncios · {totals.publicados} publicados · {totals.agendados} agendados
           </p>
         </div>
         <div className="an-header-actions">
@@ -572,8 +503,8 @@ export default function AnunciosPage() {
                       {statusConfig[getStatus(ad)]?.label}
                     </span>
                     {ad.scheduledAt && <span>📅 {formatDate(ad.scheduledAt)}</span>}
-                    <span style={{ fontSize: '0.7rem', color: ad.voiceStatus === 'generated' ? 'var(--aa-success)' : 'var(--aa-danger)' }}>
-                      {ad.voiceStatus === 'generated' ? '🎤 OK' : '🎤 Pendente'}
+                    <span style={{ fontSize: '0.7rem', color: 'var(--aa-text-muted)' }}>
+                      {ad.voiceStatus === 'generated' ? '🎤 Com voz' : ''}
                     </span>
                   </div>
                 </div>

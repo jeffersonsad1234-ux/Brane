@@ -1,8 +1,6 @@
 /**
- * TTS Engine — converts text to PT-BR speech via backend API.
- *   Uses env var REACT_APP_TTS_API_URL (set in Cloudflare Pages / Railway)
- *   NO fallback to localhost/127.0.0.1 in production.
- *   Web Speech API kept as client-side preview only.
+ * TTS Engine — fully optional. Only activates when user clicks "Gerar voz".
+ * No auto health checks, no blocking, no hardcoded URLs.
  */
 const VOZES = [
   { id: 'pt-BR-FranciscaNeural', nome: 'Francisca', genero: 'Feminino', estilo: 'natural e calorosa' },
@@ -26,21 +24,11 @@ const VOZES = [
 export function getVozesDisponiveis() { return VOZES; }
 export function getVoiceName(id) { return VOZES.find(v => v.id === id)?.nome || id; }
 
-/**
- * API_BASE resolution:
- *   ONLY from env vars — NO hardcoded localhost/127.0.0.1.
- *   Supports Vite (import.meta.env.VITE_TTS_API_URL) and CRA (process.env.REACT_APP_TTS_API_URL).
- *   If none set, returns empty string (callers must check).
- */
 function resolveApiBase() {
   const candidates = [
-    // Vite (import.meta.env.VITE_TTS_API_URL)
     typeof import.meta !== 'undefined' ? import.meta.env?.VITE_TTS_API_URL : undefined,
-    // CRA (process.env.REACT_APP_TTS_API_URL)
     process.env.REACT_APP_TTS_API_URL,
-    // Runtime injected (Cloudflare Pages)
     window._env_?.REACT_APP_TTS_API_URL,
-    // Legacy
     process.env.REACT_APP_TTS_API,
     window._env_?.REACT_APP_TTS_API,
     process.env.REACT_APP_AGENT_API,
@@ -51,112 +39,22 @@ function resolveApiBase() {
   }
   return '';
 }
-const API_BASE = resolveApiBase();
 
-// Connection status tracking
-let _backendStatus = API_BASE ? 'unknown' : 'unconfigured';
-let _statusListeners = [];
-let _healthCache = null;
-let _lastCheck = 0;
-
-export function getBackendStatus() { return _backendStatus; }
-export function getHealthCache() { return _healthCache; }
-export function getApiBase() { return API_BASE; }
-
-export function onStatusChange(fn) {
-  _statusListeners.push(fn);
-  return () => { _statusListeners = _statusListeners.filter(f => f !== fn); };
-}
-
-function notifyStatus(status) {
-  _backendStatus = status;
-  _statusListeners.forEach(fn => { try { fn(status); } catch {} });
-}
-
-const CHECK_INTERVAL = 10000;
-const FAST_RETRY = 3000;
-
-/**
- * Check if the TTS backend is reachable.
- * Returns health data or null. Never crashes.
- */
-export async function checkBackendHealth() {
-  if (!API_BASE) {
-    _backendStatus = 'unconfigured';
-    _healthCache = null;
-    return null;
-  }
-  const now = Date.now();
-  if (_backendStatus === 'online' && now - _lastCheck < CHECK_INTERVAL) {
-    return _healthCache;
-  }
-
-  notifyStatus('checking');
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-    const resp = await fetch(`${API_BASE}/api/health`, { signal: controller.signal });
-    clearTimeout(timeout);
-
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-
-    const data = await resp.json();
-    _healthCache = data;
-    _lastCheck = Date.now();
-    notifyStatus('online');
-    return data;
-  } catch (err) {
-    notifyStatus('offline');
-    _healthCache = null;
-    _lastCheck = Date.now();
-    return null;
-  }
-}
-
-/**
- * Start polling backend health. Returns unsubscribe function.
- */
-export function startHealthPolling() {
-  if (!API_BASE) {
-    notifyStatus('unconfigured');
-    return () => {};
-  }
-  checkBackendHealth();
-  const id = setInterval(() => {
-    checkBackendHealth();
-  }, _backendStatus === 'online' ? CHECK_INTERVAL : FAST_RETRY);
-  return () => clearInterval(id);
-}
+export function getApiBase() { return resolveApiBase(); }
 
 /**
  * Generate TTS audio via backend API.
- * Returns: { success, blob, voiceId, duration, method, error, logs }
- * Never throws — always returns a result object.
+ * Only called when user explicitly clicks "Gerar voz".
  */
 export async function generateTTSAudio(text, voiceId = 'pt-BR-FranciscaNeural', onLog) {
   const logs = [];
   const log = (msg) => { logs.push(msg); if (onLog) onLog(msg); };
 
+  const API_BASE = resolveApiBase();
   if (!API_BASE) {
-<<<<<<< HEAD
-    log('❌ Variável TTS_API_URL não configurada');
-    log('   Configure uma das seguintes variáveis de ambiente:');
-    log('   • CRA: REACT_APP_TTS_API_URL');
-    log('   • Vite: VITE_TTS_API_URL');
-    log('   Defina no Cloudflare Pages (Settings → Environment) ou .env local');
-    log('   Exemplo: https://seu-app.up.railway.app');
-    return { success: false, blob: null, voiceId, duration: 0, method: 'none', error: 'TTS_API_URL não configurada', logs };
-=======
-    log('❌ Nenhuma URL configurada');
-    log('   Variáveis lidas (em ordem):');
-    log('   • VITE_TTS_API_URL (Vite / Cloudflare Pages)');
-    log('   • REACT_APP_TTS_API_URL (CRA)');
-    log('   • REACT_APP_TTS_API');
-    log('   • REACT_APP_AGENT_API');
-    log('   Defina uma delas nas variáveis de ambiente do seu deploy.');
-    log('   Exemplo: REACT_APP_TTS_API_URL=https://seu-app.up.railway.app');
-    return { success: false, blob: null, voiceId, duration: 0, method: 'none', error: 'API URL não configurada', logs };
->>>>>>> 9779deb (Add VITE_TTS_API_URL support alongside REACT_APP_TTS_API_URL)
+    log('ℹ️ Voz IA desativada');
+    log('   Para ativar, configure REACT_APP_TTS_API_URL ou VITE_TTS_API_URL');
+    return { success: false, blob: null, voiceId, duration: 0, method: 'none', error: 'TTS não configurado', logs };
   }
 
   if (!text || text.trim().length < 3) {
@@ -166,7 +64,6 @@ export async function generateTTSAudio(text, voiceId = 'pt-BR-FranciscaNeural', 
 
   log(`📝 Texto: "${text.slice(0, 80)}..." (${text.length} caracteres)`);
   log(`🎤 Voz: ${getVoiceName(voiceId)} (${voiceId})`);
-  log(`🌐 ${API_BASE}/api/tts`);
 
   try {
     const controller = new AbortController();
@@ -205,10 +102,6 @@ export async function generateTTSAudio(text, voiceId = 'pt-BR-FranciscaNeural', 
   } catch (err) {
     if (err.name === 'AbortError') {
       log('❌⏱️ Timeout: backend não respondeu em 60s');
-    } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-      log('❌🔌 Backend de voz offline');
-      log(`   ${API_BASE} não está respondendo`);
-      notifyStatus('offline');
     } else {
       log(`❌ ${err.message}`);
     }
@@ -217,7 +110,7 @@ export async function generateTTSAudio(text, voiceId = 'pt-BR-FranciscaNeural', 
 }
 
 /**
- * Play voice using Web Speech API (for preview only, not captured).
+ * Play voice using Web Speech API (for preview only).
  */
 export function speakWithWebSpeech(text, voiceId, onLog) {
   return new Promise((resolve, reject) => {
