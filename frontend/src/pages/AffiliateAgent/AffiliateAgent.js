@@ -3,6 +3,7 @@ import { Routes, Route, useNavigate, useParams, Link, Navigate } from "react-rou
 import { AffiliateAgent, NICHOS, PRODUTOS, PLATAFORMAS, PLATAFORMAS_POST, AGENDA } from "./AffiliateEngine";
 import { loadConnections, saveConnections } from "../../services/affiliateProviders";
 import { AutoPostEngine, SOCIAL_PLATFORMS, loadSocialConnections, saveSocialConnections } from "../../services/autoPostEngine";
+import BrowserConnectionPanel from "../../components/BrowserConnectionPanel";
 import "./AffiliateAgent.css";
 
 function useAgent() {
@@ -36,7 +37,7 @@ function Sidebar({ active }) {
         ))}
       </nav>
       <div className="aa-sidebar-footer">
-        <span className="aa-version">v6.0.0 • Fase 3 — Publicação Social</span>
+        <span className="aa-version">v7.0.0 • Fase 3 — Automação por Navegador</span>
       </div>
     </aside>
   );
@@ -602,6 +603,7 @@ function CreativesPage() {
 function SocialPublishPage() {
   const navigate = useNavigate();
   const [engine] = useState(() => new AutoPostEngine());
+  const [modo, setModo] = useState('navegador');
   const [connections, setConnections] = useState(() => {
     const saved = loadSocialConnections();
     return SOCIAL_PLATFORMS.map(p => ({
@@ -688,36 +690,74 @@ function SocialPublishPage() {
         <StatCard label="Plataformas Ativas" value={stats.totalPlataformas} icon="🔗" color="#7c3aed" />
       </div>
 
-      <div className="aa-connect-section">
-        <h3>📱 Conectar Redes Sociais</h3>
-        <div className="aa-connect-grid">
-          {connections.map(p => (
-            <div key={p.id} className="aa-connect-card">
-              <div className="aa-connect-header">
-                <span className="aa-connect-icon">{p.icone}</span>
-                <h4>{p.nome}</h4>
-                <span className={`aa-connect-status ${p.status === 'conectado' ? 'connected' : ''}`}>{p.status === 'conectado' ? 'Conectado' : 'Desconectado'}</span>
-              </div>
-              <div className="aa-connect-body">
-                <label>Token de Acesso</label>
-                <input className="aa-input" type="text" placeholder="Token da API" value={p.token || ''} onChange={e => updateField(p.id, 'token', e.target.value)} />
-                <label style={{ marginTop: 8 }}>Page / Account ID</label>
-                <input className="aa-input" type="text" placeholder="ID da página/conta" value={p.pageId || ''} onChange={e => updateField(p.id, 'pageId', e.target.value)} />
-                <label style={{ marginTop: 8 }}>Nome da Conta</label>
-                <input className="aa-input" type="text" placeholder="Nome para identificação" value={p.accountName || ''} onChange={e => updateField(p.id, 'accountName', e.target.value)} />
-                <p className="aa-connect-aviso">Limite: {p.maxDiario}/{p.maxDiario} posts/dia · Intervalo mínimo {p.intervaloMin}min</p>
-              </div>
-              <div className="aa-connect-footer">
-                {p.status === 'conectado' ? (
-                  <button className="aa-btn aa-btn-sm aa-btn-danger" onClick={() => handleDesconectar(p.id)}>Desconectar</button>
-                ) : (
-                  <button className="aa-btn aa-btn-sm aa-btn-primary" onClick={() => handleConectar(p.id)}>Conectar</button>
-                )}
-              </div>
-            </div>
+      <div className="aa-mode-tabs">
+        <button className={`aa-mode-tab ${modo === 'navegador' ? 'active' : ''}`} onClick={() => setModo('navegador')}>
+          🌐 Navegador Logado
+        </button>
+        <button className={`aa-mode-tab ${modo === 'api' ? 'active' : ''}`} onClick={() => setModo('api')}>
+          🔌 API Oficial
+        </button>
+        <button className={`aa-mode-tab ${modo === 'assistida' ? 'active' : ''}`} onClick={() => setModo('assistida')}>
+          🤝 Conexão Assistida
+        </button>
+      </div>
+
+      {modo === 'navegador' && (
+        <div className="aa-browser-connections">
+          {SOCIAL_PLATFORMS.map(p => (
+            <BrowserConnectionPanel key={p.id} plataforma={p.id} onPublishConfirm={() => {}} />
           ))}
         </div>
-      </div>
+      )}
+
+      {modo === 'api' && (
+        <div className="aa-connect-section">
+          <h3>🔌 API Oficial — Conectar Redes Sociais</h3>
+          <div className="aa-connect-grid">
+            {connections.map(p => (
+              <div key={p.id} className="aa-connect-card">
+                <div className="aa-connect-header">
+                  <span className="aa-connect-icon">{p.icone}</span>
+                  <h4>{p.nome}</h4>
+                  <span className={`aa-connect-status ${p.status === 'conectado' ? 'connected' : ''}`}>{p.status === 'conectado' ? 'Conectado' : 'Desconectado'}</span>
+                </div>
+                <div className="aa-connect-body">
+                  <label>Token de Acesso</label>
+                  <input className="aa-input" type="text" placeholder="Token da API" value={p.token || ''} onChange={e => updateField(p.id, 'token', e.target.value)} />
+                  <label style={{ marginTop: 8 }}>Page / Account ID</label>
+                  <input className="aa-input" type="text" placeholder="ID da página/conta" value={p.pageId || ''} onChange={e => updateField(p.id, 'pageId', e.target.value)} />
+                  <label style={{ marginTop: 8 }}>Nome da Conta</label>
+                  <input className="aa-input" type="text" placeholder="Nome para identificação" value={p.accountName || ''} onChange={e => updateField(p.id, 'accountName', e.target.value)} />
+                  <p className="aa-connect-aviso">Limite: {p.maxDiario}/{p.maxDiario} posts/dia · Intervalo mínimo {p.intervaloMin}min</p>
+                </div>
+                <div className="aa-connect-footer">
+                  {p.status === 'conectado' ? (
+                    <button className="aa-btn aa-btn-sm aa-btn-danger" onClick={() => handleDesconectar(p.id)}>Desconectar</button>
+                  ) : (
+                    <button className="aa-btn aa-btn-sm aa-btn-primary" onClick={() => handleConectar(p.id)}>Conectar</button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {modo === 'assistida' && (
+        <div className="aa-connect-section">
+          <h3>🤝 Conexão Assistida</h3>
+          <div className="aa-assistida-card">
+            <p>Configure o agente para operar semi-autonomamente com supervisão. O agente prepara os posts e você revisa antes de publicar.</p>
+            <ul>
+              <li>✅ Agente gera título, legenda, hashtags e CTA</li>
+              <li>👁️ Você revisa antes de cada publicação</li>
+              <li>📅 Posts preparados no agendamento abaixo</li>
+              <li>🚀 Publique manualmente quando aprovar</li>
+            </ul>
+            <p className="aa-connect-aviso" style={{ marginTop: 12 }}>Nenhum post é publicado sem sua aprovação explícita.</p>
+          </div>
+        </div>
+      )}
 
       <div className="aa-grid-3">
         <div className="aa-card">
