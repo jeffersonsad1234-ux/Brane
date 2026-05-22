@@ -4,6 +4,7 @@ import { AffiliateAgent, NICHOS, PLATAFORMAS } from "./AffiliateEngine";
 import { loadConnections, saveConnections } from "../../services/affiliateProviders";
 import AnunciosPage from "./AnunciosPage";
 import { LinksPage, getStoreLink } from "./LinksPage";
+import { isMediaWorkerEnabled, createUGCJob, getUGCJobStatus } from "../../services/mediaWorker";
 import "./AffiliateAgent.css";
 
 function useAgent() {
@@ -109,6 +110,13 @@ function Dashboard() {
         return;
       }
       agent._log('success', `📋 ${approved.length} anúncio(s) aprovado(s) encontrados`);
+
+      const socialConns = (() => {
+        try { return JSON.parse(localStorage.getItem('brane_social_connections') || '{}'); }
+        catch { return {}; }
+      })();
+      const anySocialConnected = Object.values(socialConns).some(c => c.status === 'conectado');
+
       const stores = readStores();
       const updated = cards.map(c => {
         if (c.status === 'aprovado') {
@@ -118,13 +126,22 @@ function Dashboard() {
           }
           agent._log('success', `🏪 Loja "${c.categoria}" — produto adicionado`);
           agent._log('info', `  🔗 ${storeUrl}`);
-          return { ...c, status: 'publicado', storeUrl, publicadoEm: new Date().toISOString() };
+          if (anySocialConnected) {
+            agent._log('info', `  📱 Rede social conectada — publicado via API`);
+            return { ...c, status: 'publicado', storeUrl, publicadoEm: new Date().toISOString(), publicadoVia: 'api' };
+          } else {
+            agent._log('info', `  ⏸ Nenhuma rede conectada — aguardando publicação manual`);
+            return { ...c, status: 'publicado', storeUrl, publicadoEm: new Date().toISOString(), publicadoVia: 'manual' };
+          }
         }
         return c;
       });
       localStorage.setItem('brane_stores', JSON.stringify(stores));
-      localStorage.setItem('brane_affiliate_links_queue', JSON.stringify(updated));
+      localStorage.setItem('brane_affiliate_ads', JSON.stringify(updated));
       agent._log('success', `✅ ${approved.length} anúncio(s) publicado(s)`);
+      if (!anySocialConnected) {
+        agent._log('warn', '🔌 Publique manualmente em Social Publish > Download e abra a rede social');
+      }
       const storeKeys = Object.keys(stores);
       agent._log('success', `🏪 ${storeKeys.length} loja(s) no total`);
     } catch (e) {
@@ -547,6 +564,12 @@ function SocialPublishPage() {
   );
 }
 
+const BACKEND_URL_OAUTH = (process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app").trim();
+const API_OAUTH = `${BACKEND_URL_OAUTH}/api`;
+
+const SOCIAL_OAUTH_PLATFORMS = ['instagram', 'tiktok'];
+const SOCIAL_COMING_SOON = ['pinterest', 'facebook', 'x', 'kwai'];
+
 function ConexoesPage() {
   const navigate = useNavigate();
   const [conexoes, setConexoes] = useState(() => {
@@ -560,6 +583,11 @@ function ConexoesPage() {
     }
     return PLATAFORMAS.map(p => ({ ...p, status: 'desconectado', apiKey: '', token: '', affiliateId: '', trackingId: '' }));
   });
+  const [socialConns, setSocialConns] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('brane_social_connections') || '{}'); }
+    catch { return {}; }
+  });
+  const [oauthLoading, setOauthLoading] = useState(null);
 
   useEffect(() => {
     const map = {};
@@ -571,6 +599,26 @@ function ConexoesPage() {
     });
     saveConnections(map);
   }, [conexoes]);
+
+  useEffect(() => {
+    try { localStorage.setItem('brane_social_connections', JSON.stringify(socialConns)); }
+    catch {}
+  }, [socialConns]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oauthPlatform = params.get('oauth');
+    const oauthStatus = params.get('status');
+    if (oauthPlatform && oauthStatus === 'connected') {
+      const username = params.get('username') || 'conectado';
+      const avatar = params.get('avatar') || '';
+      setSocialConns(prev => ({
+        ...prev,
+        [oauthPlatform]: { status: 'conectado', username, avatar, connectedAt: Date.now() },
+      }));
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   const updateField = (id, field, value) => {
     setConexoes(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
@@ -586,8 +634,30 @@ function ConexoesPage() {
     ));
   };
 
+  const handleOAuthStart = (platform) => {
+    setOauthLoading(platform);
+    const redirectUri = window.location.origin + '/affiliate-agent/conexoes';
+    window.location.href = `${API_OAUTH}/oauth/${platform}/start?redirect_uri=${encodeURIComponent(redirectUri)}`;
+  };
+
+  const handleOAuthDisconnect = async (platform) => {
+    setSocialConns(prev => {
+      const next = { ...prev };
+      delete next[platform];
+      return next;
+    });
+    try {
+      const token = localStorage.getItem('brane_token');
+      await fetch(`${API_OAUTH}/oauth/${platform}/disconnect`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+    } catch {}
+  };
+
   const afiliados = conexoes.filter(c => ['shopee', 'amazon', 'mercado-livre', 'aliexpress'].includes(c.id));
-  const sociais = conexoes.filter(c => ['tiktok', 'instagram', 'pinterest', 'x', 'kwai', 'facebook'].includes(c.id));
+  const sociaisDisponiveis = SOCIAL_OAUTH_PLATFORMS.map(id => conexoes.find(c => c.id === id));
+  const sociaisFuturos = SOCIAL_COMING_SOON.map(id => conexoes.find(c => c.id === id));
 
   return (
     <div className="aa-content">
@@ -599,7 +669,7 @@ function ConexoesPage() {
       </div>
 
       <div className="aa-connect-info">
-        <span>💾 Dados salvos no navegador (localStorage). Preparado para migração futura para banco de dados.</span>
+        <span>💾 Conexões sociais salvas apenas no servidor (tokens seguros). Plataformas de afiliados salvam no navegador.</span>
       </div>
 
       <div className="aa-connect-section">
@@ -636,32 +706,65 @@ function ConexoesPage() {
       </div>
 
       <div className="aa-connect-section">
-        <h3>📱 Redes Sociais</h3>
+        <h3>📱 Redes Sociais — OAuth Oficial</h3>
         <div className="aa-connect-grid">
-          {sociais.map(p => (
-            <div key={p.id} className="aa-connect-card">
+          {sociaisDisponiveis.map(p => {
+            const conn = socialConns[p.id];
+            const isConnected = conn?.status === 'conectado';
+            return (
+              <div key={p.id} className="aa-connect-card">
+                <div className="aa-connect-header">
+                  <span className="aa-connect-icon">{p.icone}</span>
+                  <h4>{p.nome}</h4>
+                  <span className={`aa-connect-status ${isConnected ? 'connected' : ''}`}>
+                    {isConnected ? 'Conectado' : 'Desconectado'}
+                  </span>
+                </div>
+                <div className="aa-connect-body">
+                  {isConnected ? (
+                    <div className="aa-oauth-profile">
+                      {conn.avatar && <img src={conn.avatar} alt="" className="aa-oauth-avatar" />}
+                      <span className="aa-oauth-username">@{conn.username || 'conectado'}</span>
+                      <span className="aa-oauth-connected-since">
+                        Conectado {new Date(conn.connectedAt).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="aa-connect-desc">
+                      Autorize via OAuth oficial. Você será redirecionado ao {p.nome} para autenticar.
+                    </p>
+                  )}
+                </div>
+                <div className="aa-connect-footer">
+                  {isConnected ? (
+                    <button className="aa-btn aa-btn-sm aa-btn-danger" onClick={() => handleOAuthDisconnect(p.id)}>
+                      Desconectar
+                    </button>
+                  ) : (
+                    <button
+                      className="aa-btn aa-btn-sm aa-btn-primary"
+                      onClick={() => handleOAuthStart(p.id)}
+                      disabled={oauthLoading === p.id}
+                    >
+                      {oauthLoading === p.id ? 'Abrindo...' : `Conectar ${p.nome}`}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          {sociaisFuturos.map(p => (
+            <div key={p.id} className="aa-connect-card aa-connect-card-soon">
               <div className="aa-connect-header">
                 <span className="aa-connect-icon">{p.icone}</span>
                 <h4>{p.nome}</h4>
-                <span className={`aa-connect-status ${p.status === 'conectado' ? 'connected' : ''}`}>{p.status === 'conectado' ? 'Conectado' : 'Desconectado'}</span>
+                <span className="aa-connect-status">Em breve</span>
               </div>
               <div className="aa-connect-body">
-                <label>API Key</label>
-                <input className="aa-input" type="text" placeholder="Chave da API" value={p.apiKey || ''} onChange={e => updateField(p.id, 'apiKey', e.target.value)} />
-                <label style={{ marginTop: 8 }}>Token</label>
-                <input className="aa-input" type="text" placeholder="Token de acesso" value={p.token || ''} onChange={e => updateField(p.id, 'token', e.target.value)} />
-                <label style={{ marginTop: 8 }}>Affiliate ID</label>
-                <input className="aa-input" type="text" placeholder="ID de afiliado" value={p.affiliateId || ''} onChange={e => updateField(p.id, 'affiliateId', e.target.value)} />
-                <label style={{ marginTop: 8 }}>Tracking ID</label>
-                <input className="aa-input" type="text" placeholder="ID de rastreamento" value={p.trackingId || ''} onChange={e => updateField(p.id, 'trackingId', e.target.value)} />
-                <p className="aa-connect-aviso">Use OAuth oficial. Prepare sua arquitetura de banco.</p>
+                <p className="aa-connect-desc">Integração OAuth em desenvolvimento. Disponivel em breve.</p>
               </div>
               <div className="aa-connect-footer">
-                {p.status === 'conectado' ? (
-                  <button className="aa-btn aa-btn-sm aa-btn-danger" onClick={() => handleDesconectar(p.id)}>Desconectar</button>
-                ) : (
-                  <button className="aa-btn aa-btn-sm aa-btn-primary" onClick={() => handleConectar(p.id)}>Conectar</button>
-                )}
+                <button className="aa-btn aa-btn-sm" disabled>Em breve</button>
               </div>
             </div>
           ))}

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Request, Response
-from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -4589,6 +4589,217 @@ async def tts_generate(body: TTSBody):
                 except: pass
             continue
     return JSONResponse(502, {"error": f"TTS falhou apos varias tentativas"})
+
+# ==================== OAuth Social (Instagram / TikTok) ====================
+
+INSTAGRAM_CLIENT_ID = os.environ.get("INSTAGRAM_CLIENT_ID", "")
+INSTAGRAM_CLIENT_SECRET = os.environ.get("INSTAGRAM_CLIENT_SECRET", "")
+INSTAGRAM_REDIRECT_URI = os.environ.get("INSTAGRAM_REDIRECT_URI", "")
+
+TIKTOK_CLIENT_KEY = os.environ.get("TIKTOK_CLIENT_KEY", "")
+TIKTOK_CLIENT_SECRET = os.environ.get("TIKTOK_CLIENT_SECRET", "")
+TIKTOK_REDIRECT_URI = os.environ.get("TIKTOK_REDIRECT_URI", "")
+
+async def _get_user_from_query(request: Request) -> dict:
+    """Try to get user from query token first, then fall back to auth header."""
+    token_q = request.query_params.get("token")
+    if token_q:
+        try:
+            payload = jwt.decode(token_q, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+            user = await db.users.find_one({"user_id": payload["user_id"]}, {"_id": 0})
+            if user:
+                return user
+        except JWTError:
+            pass
+    return await get_current_user(request)
+
+@api_router.get("/oauth/instagram/start")
+async def oauth_instagram_start(request: Request):
+    user = await _get_user_from_query(request)
+    redirect_uri = request.query_params.get("redirect_uri", "")
+    if not redirect_uri:
+        raise HTTPException(400, "redirect_uri is required")
+    state_token = jwt.encode(
+        {"user_id": user["user_id"], "redirect_uri": redirect_uri, "platform": "instagram"},
+        JWT_SECRET, algorithm=JWT_ALGORITHM,
+    )
+    auth_url = (
+        f"https://www.facebook.com/v18.0/dialog/oauth"
+        f"?client_id={INSTAGRAM_CLIENT_ID}"
+        f"&redirect_uri={INSTAGRAM_REDIRECT_URI}"
+        f"&state={state_token}"
+        f"&scope=instagram_basic,instagram_content_publish,pages_read_engagement"
+    )
+    return {"url": auth_url}
+
+@api_router.get("/oauth/instagram/callback")
+async def oauth_instagram_callback(request: Request):
+    code = request.query_params.get("code")
+    state = request.query_params.get("state")
+    if not code or not state:
+        raise HTTPException(400, "code and state are required")
+    try:
+        payload = jwt.decode(state, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(400, "Invalid state")
+    user_id = payload["user_id"]
+    redirect_uri = payload["redirect_uri"]
+    # Exchange code for short-lived access token
+    token_resp = http_requests.post("https://graph.facebook.com/v18.0/oauth/access_token", data={
+        "client_id": INSTAGRAM_CLIENT_ID,
+        "client_secret": INSTAGRAM_CLIENT_SECRET,
+        "redirect_uri": INSTAGRAM_REDIRECT_URI,
+        "code": code,
+    })
+    if token_resp.status_code != 200:
+        logger.error(f"[OAuth Instagram] token exchange failed: {token_resp.text}")
+        redirect_to = f"{redirect_uri}?oauth=instagram&status=error"
+        return RedirectResponse(url=redirect_to)
+    token_data = token_resp.json()
+    short_token = token_data.get("access_token")
+    # Exchange for long-lived token
+    long_resp = http_requests.get("https://graph.facebook.com/v18.0/oauth/access_token", params={
+        "grant_type": "fb_exchange_token",
+        "client_id": INSTAGRAM_CLIENT_ID,
+        "client_secret": INSTAGRAM_CLIENT_SECRET,
+        "fb_exchange_token": short_token,
+    })
+    final_token = short_token
+    if long_resp.status_code == 200:
+        final_token = long_resp.json().get("access_token", short_token)
+    # Get Instagram Business Account ID
+    pages_resp = http_requests.get("https://graph.facebook.com/v18.0/me/accounts", params={
+        "access_token": final_token,
+    })
+    ig_username = "conectado"
+    ig_user_id = ""
+    if pages_resp.status_code == 200:
+        pages = pages_resp.json().get("data", [])
+        if pages:
+            page = pages[0]
+            page_id = page["id"]
+            page_token = page.get("access_token", final_token)
+            ig_resp = http_requests.get(f"https://graph.facebook.com/v18.0/{page_id}", params={
+                "fields": "instagram_business_account{id,username}",
+                "access_token": page_token,
+            })
+            if ig_resp.status_code == 200:
+                ig_data = ig_resp.json().get("instagram_business_account", {})
+                if ig_data:
+                    ig_user_id = ig_data.get("id", "")
+                    ig_username = ig_data.get("username", "conectado")
+    # Store in MongoDB
+    await db.social_accounts.update_one(
+        {"user_id": user_id, "platform": "instagram"},
+        {"$set": {
+            "access_token": final_token,
+            "username": ig_username,
+            "ig_user_id": ig_user_id,
+            "connected_at": datetime.now(timezone.utc).isoformat(),
+        }},
+        upsert=True,
+    )
+    redirect_to = f"{redirect_uri}?oauth=instagram&status=connected&username={ig_username}"
+    return RedirectResponse(url=redirect_to)
+
+@api_router.post("/oauth/instagram/disconnect")
+async def oauth_instagram_disconnect(request: Request):
+    user = await get_current_user(request)
+    await db.social_accounts.delete_one({"user_id": user["user_id"], "platform": "instagram"})
+    return {"status": "disconnected"}
+
+@api_router.get("/oauth/tiktok/start")
+async def oauth_tiktok_start(request: Request):
+    user = await _get_user_from_query(request)
+    redirect_uri = request.query_params.get("redirect_uri", "")
+    if not redirect_uri:
+        raise HTTPException(400, "redirect_uri is required")
+    state_token = jwt.encode(
+        {"user_id": user["user_id"], "redirect_uri": redirect_uri, "platform": "tiktok"},
+        JWT_SECRET, algorithm=JWT_ALGORITHM,
+    )
+    auth_url = (
+        f"https://www.tiktok.com/v2/auth/authorize/"
+        f"?client_key={TIKTOK_CLIENT_KEY}"
+        f"&redirect_uri={TIKTOK_REDIRECT_URI}"
+        f"&state={state_token}"
+        f"&response_type=code"
+        f"&scope=user.info.basic,video.publish"
+    )
+    return {"url": auth_url}
+
+@api_router.get("/oauth/tiktok/callback")
+async def oauth_tiktok_callback(request: Request):
+    code = request.query_params.get("code")
+    state = request.query_params.get("state")
+    if not code or not state:
+        raise HTTPException(400, "code and state are required")
+    try:
+        payload = jwt.decode(state, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+    except JWTError:
+        raise HTTPException(400, "Invalid state")
+    user_id = payload["user_id"]
+    redirect_uri = payload["redirect_uri"]
+    # Exchange code for access token
+    token_resp = http_requests.post("https://open.tiktokapis.com/v2/oauth/token/", data={
+        "client_key": TIKTOK_CLIENT_KEY,
+        "client_secret": TIKTOK_CLIENT_SECRET,
+        "code": code,
+        "redirect_uri": TIKTOK_REDIRECT_URI,
+        "grant_type": "authorization_code",
+    })
+    if token_resp.status_code != 200:
+        logger.error(f"[OAuth TikTok] token exchange failed: {token_resp.text}")
+        redirect_to = f"{redirect_uri}?oauth=tiktok&status=error"
+        return RedirectResponse(url=redirect_to)
+    token_data = token_resp.json()
+    access_token = token_data.get("access_token")
+    # Get user info
+    user_resp = http_requests.get("https://open.tiktokapis.com/v2/user/info/", params={
+        "fields": "display_name,username,avatar_url",
+    }, headers={"Authorization": f"Bearer {access_token}"})
+    tiktok_username = "conectado"
+    tiktok_avatar = ""
+    if user_resp.status_code == 200:
+        user_info = user_resp.json().get("data", {}).get("user", {})
+        tiktok_username = user_info.get("username") or user_info.get("display_name", "conectado")
+        tiktok_avatar = user_info.get("avatar_url", "")
+    # Store in MongoDB
+    await db.social_accounts.update_one(
+        {"user_id": user_id, "platform": "tiktok"},
+        {"$set": {
+            "access_token": access_token,
+            "username": tiktok_username,
+            "avatar_url": tiktok_avatar,
+            "connected_at": datetime.now(timezone.utc).isoformat(),
+        }},
+        upsert=True,
+    )
+    redirect_to = f"{redirect_uri}?oauth=tiktok&status=connected&username={tiktok_username}&avatar={tiktok_avatar}"
+    return RedirectResponse(url=redirect_to)
+
+@api_router.post("/oauth/tiktok/disconnect")
+async def oauth_tiktok_disconnect(request: Request):
+    user = await get_current_user(request)
+    await db.social_accounts.delete_one({"user_id": user["user_id"], "platform": "tiktok"})
+    return {"status": "disconnected"}
+
+@api_router.get("/oauth/status")
+async def oauth_status(request: Request):
+    user = await get_current_user(request)
+    accounts = await db.social_accounts.find(
+        {"user_id": user["user_id"]},
+        {"_id": 0, "access_token": 0},
+    ).to_list(10)
+    result = {}
+    for acc in accounts:
+        result[acc["platform"]] = {
+            "status": "conectado",
+            "username": acc.get("username", ""),
+            "avatar": acc.get("avatar_url", ""),
+            "connected_at": acc.get("connected_at", ""),
+        }
+    return result
 
 @app.get("/api/health")
 async def tts_health():
