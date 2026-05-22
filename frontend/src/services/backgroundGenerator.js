@@ -376,10 +376,8 @@ export function generateBackground(category, width = W, height = H) {
   const renderer = RENDERERS[category] || bgDefault;
   renderer(ctx);
 
-  const img = new Image();
-  img.src = canvas.toDataURL('image/png');
-  cache[key] = img;
-  return img;
+  cache[key] = canvas;
+  return canvas;
 }
 
 export function getBackgroundCategory(categoria) {

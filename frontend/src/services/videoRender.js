@@ -1,3 +1,5 @@
+import { generateBackground, getBackgroundCategory } from './backgroundGenerator';
+
 export const FPS = 30;
 
 let _bgCache = {};
@@ -29,71 +31,37 @@ const TEXT_STYLES = {
 
 // ── Background rendering ──
 
-function drawImageCover(ctx, img, w, h) {
-  const iw = img.naturalWidth || img.width;
-  const ih = img.naturalHeight || img.height;
-  const ratio = Math.max(w / iw, h / ih);
-  const dw = iw * ratio;
-  const dh = ih * ratio;
-  const dx = (w - dw) / 2;
-  const dy = (h - dh) / 2;
-  ctx.drawImage(img, dx, dy, dw, dh);
-}
+const _bgFileCache = {};
 
-function renderBlurredProductBg(ctx, w, h, images) {
-  if (!images || !images[0]) return false;
-  ctx.save();
-  ctx.filter = 'blur(28px)';
-  drawImageCover(ctx, images[0], w, h);
-  ctx.restore();
-  ctx.fillStyle = 'rgba(0,0,0,0.35)';
-  ctx.fillRect(0, 0, w, h);
-  return true;
-}
-
-function renderCategoryBackground(ctx, w, h, category) {
-  const key = `bg_${category}`;
-  if (!_bgCache[key]) {
-    const { generateBackground, getBackgroundCategory } = require('./backgroundGenerator');
-    const bgCat = getBackgroundCategory(category);
-    _bgCache[key] = generateBackground(bgCat, w, h);
-  }
-  const img = _bgCache[key];
-  if (img && img.complete && img.naturalWidth > 0) {
-    ctx.drawImage(img, 0, 0, w, h);
-    ctx.fillStyle = 'rgba(0,0,0,0.20)';
-    ctx.fillRect(0, 0, w, h);
-    return true;
-  }
-  return false;
-}
-
-function renderGradient(ctx, w, h, colors) {
-  const grad = ctx.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, colors[0] || '#1a1a2e');
-  grad.addColorStop(0.5, colors[1] || '#16213e');
-  grad.addColorStop(1, colors[2] || '#0f3460');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, w, h);
-}
-
-function renderGradientParticles(ctx, w, h, frame) {
-  for (let i = 0; i < 10; i++) {
-    const px = (w * 0.05 + i * w * 0.1 + Math.sin(frame * 0.03 + i * 1.7) * 25) % w;
-    const py = (h * 0.05 + i * h * 0.1 + Math.cos(frame * 0.025 + i * 2.3) * 20 + frame * 0.4) % h;
-    const ps = 1 + Math.sin(frame * 0.04 + i) * 1.5;
-    ctx.fillStyle = `rgba(255,255,255,${0.03 + Math.sin(frame * 0.03 + i) * 0.02})`;
-    ctx.beginPath();
-    ctx.arc(px, py, Math.max(ps, 1), 0, Math.PI * 2);
-    ctx.fill();
-  }
+function loadFileBackground(category) {
+  const cat = getBackgroundCategory(category);
+  if (_bgFileCache[cat]) return _bgFileCache[cat];
+  const img = new Image();
+  img.src = `/backgrounds/${cat}.jpg`;
+  _bgFileCache[cat] = img;
+  return img;
 }
 
 function renderBackground(ctx, w, h, scene, frame, images) {
-  if (renderBlurredProductBg(ctx, w, h, images)) return;
-  if (renderCategoryBackground(ctx, w, h, scene.background)) return;
-  renderGradient(ctx, w, h, ['#1a1a2e', '#16213e', '#0f3460']);
-  renderGradientParticles(ctx, w, h, frame);
+  const cat = getBackgroundCategory(scene.background);
+  const bgFile = loadFileBackground(cat);
+
+  if (bgFile.complete && bgFile.naturalWidth > 0) {
+    const r = Math.max(w / bgFile.naturalWidth, h / bgFile.naturalHeight);
+    const dw = bgFile.naturalWidth * r;
+    const dh = bgFile.naturalHeight * r;
+    const dx = (w - dw) / 2;
+    const dy = (h - dh) / 2;
+    ctx.drawImage(bgFile, dx, dy, dw, dh);
+    ctx.fillStyle = 'rgba(0,0,0,0.20)';
+    ctx.fillRect(0, 0, w, h);
+    return;
+  }
+
+  const bgCanvas = generateBackground(cat, w, h);
+  ctx.drawImage(bgCanvas, 0, 0, w, h);
+  ctx.fillStyle = 'rgba(0,0,0,0.15)';
+  ctx.fillRect(0, 0, w, h);
 }
 
 // ── Image entry animations based on index ──
