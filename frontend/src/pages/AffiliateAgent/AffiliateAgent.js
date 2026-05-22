@@ -24,6 +24,7 @@ function Sidebar({ active }) {
         <Link to="/affiliate-agent" className={`aa-sidebar-link ${active === 'dashboard' ? 'active' : ''}`}>📊 Visão Geral</Link>
         <Link to="/affiliate-agent/conexoes" className={`aa-sidebar-link ${active === 'conexoes' ? 'active' : ''}`}>🔗 Conexões</Link>
         <Link to="/affiliate-agent/aprendizado" className={`aa-sidebar-link ${active === 'aprendizado' ? 'active' : ''}`}>🧠 Aprendizado</Link>
+        <Link to="/affiliate-agent/criativos" className={`aa-sidebar-link ${active === 'criativos' ? 'active' : ''}`}>🎨 Criativos IA</Link>
         <div className="aa-sidebar-label">Lojas Automáticas</div>
         {NICHOS.map(n => (
           <Link key={n.id} to={`/affiliate-agent/loja/${n.id}`} className={`aa-sidebar-link ${active === n.id ? 'active' : ''}`}>
@@ -32,7 +33,7 @@ function Sidebar({ active }) {
         ))}
       </nav>
       <div className="aa-sidebar-footer">
-        <span className="aa-version">v3.0.0 • Fase 3 — Dados Imediatos</span>
+        <span className="aa-version">v4.0.0 • Fase 4 — Criativos IA</span>
       </div>
     </aside>
   );
@@ -65,6 +66,7 @@ function Dashboard() {
   const [topProdutos, setTopProdutos] = useState({});
   const [topLojas, setTopLojas] = useState({});
   const [topPosts, setTopPosts] = useState([]);
+  const [criativosStats, setCriativosStats] = useState(agent.criativosStats);
 
   const refresh = useCallback(() => {
     setStats(agent.stats);
@@ -78,6 +80,7 @@ function Dashboard() {
     setTopProdutos(agent.topProdutos);
     setTopLojas(agent.topLojas);
     setTopPosts(agent.topPosts);
+    setCriativosStats(agent.criativosStats);
   }, [agent]);
 
   useEffect(() => {
@@ -126,6 +129,7 @@ function Dashboard() {
         <StatCard label="CTR" value={`${stats.ctrMock.toFixed(1)}%`} icon="📈" color="#0d9488" />
         <StatCard label="Conversões" value={stats.conversaoMock} icon="✅" color="#84cc16" />
         <StatCard label="Comissão (mock)" value={`R$ ${stats.comissaoMock.toFixed(2)}`} icon="💰" color="#e11d48" />
+        <StatCard label="Criativos IA" value={criativosStats.totalCriativos} icon="🎨" color="#8b5cf6" sub={`${criativosStats.thumbsGeradas} thumbs · ${criativosStats.videosGerados} vídeos`} />
       </div>
 
       <div className="aa-grid-3">
@@ -436,6 +440,162 @@ function gerarTagsLocal(nicho, nome) {
   return ['oferta', 'promoção', nicho, nome.split(' ')[0].toLowerCase()];
 }
 
+function CreativesPage() {
+  const navigate = useNavigate();
+  const [agent] = useState(() => new AffiliateAgent());
+  const [media, setMedia] = useState(agent.mediaLibrary);
+  const [cStats, setCStats] = useState(agent.criativosStats);
+  const [ab, setAb] = useState(agent.abTests);
+  const [melhorThumb, setMelhorThumb] = useState(agent.melhorThumbnail);
+  const [topProd, setTopProd] = useState({});
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setMedia(agent.mediaLibrary);
+      setCStats(agent.criativosStats);
+      setAb(agent.abTests);
+      setMelhorThumb(agent.melhorThumbnail);
+      setTopProd(agent.topProdutos);
+    }, 1000);
+    return () => clearInterval(iv);
+  }, [agent]);
+
+  const totalCriativos = cStats.totalCriativos;
+  const thumbs = media.thumbnails || [];
+  const banners = media.banners || [];
+  const stories = media.stories || [];
+  const videos = media.videos || [];
+  const produtosArr = Object.values(topProd).filter(Boolean);
+  const viralProd = [...produtosArr].sort((a, b) => b.viralScore - a.viralScore).slice(0, 3);
+
+  return (
+    <div className="aa-content">
+      <div className="aa-topbar">
+        <div className="aa-topbar-left">
+          <button className="aa-btn aa-btn-ghost" onClick={() => navigate('/affiliate-agent')}>← Dashboard</button>
+          <h2>🎨 Criativos IA</h2>
+        </div>
+        <span className="aa-status"><span className="aa-status-dot" /> {totalCriativos} criativos gerados</span>
+      </div>
+
+      <div className="aa-stats">
+        <StatCard label="Thumbnails" value={cStats.thumbsGeradas} icon="🖼️" color="#8b5cf6" />
+        <StatCard label="Banners" value={cStats.bannersGerados} icon="📢" color="#f59e0b" />
+        <StatCard label="Stories" value={cStats.storiesGeradas} icon="📱" color="#ec4899" />
+        <StatCard label="Vídeos Mock" value={cStats.videosGerados} icon="🎬" color="#ef4444" />
+      </div>
+
+      <div className="aa-grid-3">
+        <div className="aa-card">
+          <h3 className="aa-card-title">🖼️ Thumbnails Geradas</h3>
+          {thumbs.length === 0 ? <p className="aa-muted">Nenhuma thumbnail ainda.</p> : (
+            <div className="aa-criativos-list">
+              {thumbs.slice(0, 6).map(t => (
+                <div key={t.id} className="aa-criativo-card">
+                  <div className="aa-criativo-preview" style={{ background: t.cor, color: '#fff' }}>
+                    <span style={{ fontSize: '2rem' }}>{t.produtoNome.split(' ').length > 2 ? t.produtoNome.split(' ').slice(0, 2).join(' ') : t.produtoNome}</span>
+                  </div>
+                  <div className="aa-criativo-info">
+                    <strong>{t.estilo}</strong>
+                    <span className="aa-criativo-meta">⭐ {t.rating} · {t.vendas} vendas</span>
+                    <span className="aa-criativo-ctr">CTR: {(t.ctr || 0).toFixed(1)}% · {t.cliques} cliques</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {melhorThumb && <div className="aa-criativo-best">🏆 Melhor estilo: <strong>{melhorThumb}</strong></div>}
+        </div>
+
+        <div className="aa-card">
+          <h3 className="aa-card-title">📢 Banners Promocionais</h3>
+          {banners.length === 0 ? <p className="aa-muted">Nenhum banner ainda.</p> : (
+            <div className="aa-criativos-list">
+              {banners.slice(0, 6).map(b => (
+                <div key={b.id} className="aa-criativo-card">
+                  <div className="aa-criativo-banner" style={{ background: 'linear-gradient(135deg, #1e3a5f, #2d1b69)', color: '#fff' }}>
+                    <span className="aa-criativo-banner-text">{b.headline}</span>
+                    <span className="aa-criativo-banner-offer">{b.oferta}</span>
+                    <span className="aa-criativo-banner-cta">{b.cta}</span>
+                  </div>
+                  <div className="aa-criativo-info">
+                    <strong>{b.produtoNome}</strong>
+                    <span className="aa-criativo-meta">{b.estilo} · {b.dimensao}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="aa-card">
+          <h3 className="aa-card-title">🎬 Vídeos Mock</h3>
+          {videos.length === 0 ? <p className="aa-muted">Nenhum vídeo ainda.</p> : (
+            <div className="aa-criativos-list">
+              {videos.slice(0, 4).map(v => (
+                <div key={v.id} className="aa-criativo-card">
+                  <div className="aa-criativo-video" style={{ background: '#0f0f23', color: '#fff' }}>
+                    <span style={{ fontSize: '2rem' }}>🎬</span>
+                    <span className="aa-criativo-video-info">{v.roteiro.duracao} · {v.roteiro.musica.slice(0, 20)}...</span>
+                  </div>
+                  <div className="aa-criativo-info">
+                    <strong>{v.produtoNome}</strong>
+                    <span className="aa-criativo-meta">{v.formato} · {v.resolucao}</span>
+                    <span className="aa-criativo-ctr">👁️ {v.visualizacoes} views</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="aa-grid-2">
+        <div className="aa-card">
+          <h3 className="aa-card-title">🧪 Testes A/B — Thumbnails</h3>
+          {ab.length === 0 ? <p className="aa-muted">Nenhum teste A/B ainda.</p> : (
+            <div className="aa-ab-list">
+              {ab.slice(0, 5).map(test => (
+                <div key={test.id} className="aa-ab-item">
+                  <strong className="aa-ab-produto">{test.produtoNome}</strong>
+                  <div className="aa-ab-variants">
+                    {test.variantes.map((v, i) => (
+                      <div key={i} className={`aa-ab-variant ${v.estilo === test.vencedor ? 'winner' : ''}`}>
+                        <span>{v.estilo}</span>
+                        <span className="aa-ab-ctr">CTR: {v.ctr.toFixed(1)}%</span>
+                        <span className="aa-ab-cliques">{v.cliques} cliques</span>
+                        {v.estilo === test.vencedor && <span className="aa-ab-winner">🏆</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="aa-card">
+          <h3 className="aa-card-title">🔥 Produtos com Criativos Mais Virais</h3>
+          {viralProd.length === 0 ? <p className="aa-muted">Aguardando dados...</p> : (
+            <div className="aa-rank-list">
+              {viralProd.map((p, i) => (
+                <div key={p.id || i} className="aa-rank-item viral">
+                  <span className="aa-rank-pos">{i + 1}</span>
+                  <span className="aa-rank-icon">{p.img}</span>
+                  <div className="aa-rank-info">
+                    <strong>{p.nome}</strong>
+                    <span className="aa-rank-meta">Viral Score: {(p.viralScore * 100).toFixed(0)}% · {p.cliques} cliques</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ConexoesPage() {
   const navigate = useNavigate();
   const [conexoes, setConexoes] = useState(() =>
@@ -533,6 +693,7 @@ export default function AffiliateAgentApp() {
         <Route path="/loja/:nicho" element={<><Sidebar active={null} /><StorePage /></>} />
         <Route path="/conexoes" element={<><Sidebar active="conexoes" /><ConexoesPage /></>} />
         <Route path="/aprendizado" element={<><Sidebar active="aprendizado" /><AprendizadoPage /></>} />
+        <Route path="/criativos" element={<><Sidebar active="criativos" /><CreativesPage /></>} />
         <Route path="*" element={<Navigate to="/affiliate-agent" replace />} />
       </Routes>
     </div>

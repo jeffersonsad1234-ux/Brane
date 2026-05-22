@@ -143,6 +143,22 @@ const AGENDA = {
   facebook: { min: 1, max: 2 },
 };
 
+const ESTILOS_THUMB = ['tiktok-shop', 'shopee', 'amazon'];
+const MUSICAS_SUG = ['Sunny Day — Prod By Beat', 'Upbeat Vibes — Free Music', 'Trending 2025 — No Copyright', 'Lo-fi Study Beats', 'Eletro Pop — Royalty Free'];
+
+function gerarRoteiro(produto) {
+  return {
+    hook: `🔥 ${produto.img} VOCÊ PRECISA DISSO!`,
+    cena1: `Abertura: close no ${produto.nome}`,
+    cena2: `Mostrando funcionalidades do ${produto.nome}`,
+    cena3: `Antes e depois usando ${produto.nome}`,
+    cena4: `Final: CTA com desconto`,
+    legenda: `🚀 ${produto.nome} com frete grátis!\n💰 Apenas R$ ${produto.preco.toFixed(2)}\n🔗 Link na bio!`,
+    musica: pick(MUSICAS_SUG),
+    duracao: `${Math.floor(Math.random() * 15 + 15)}s`,
+  };
+}
+
 export class AffiliateAgent {
   constructor() {
     this._running = false;
@@ -168,6 +184,11 @@ export class AffiliateAgent {
     this._topProdutos = {};
     this._topLojas = {};
     this._topPosts = [];
+    this._mediaLibrary = { thumbnails: [], banners: [], stories: [], videos: [] };
+    this._criativosStats = { totalCriativos: 0, thumbsGeradas: 0, bannersGerados: 0, storiesGeradas: 0, videosGerados: 0 };
+    this._abTests = [];
+    this._melhorThumbnail = null;
+    this._melhorPlataforma = null;
   }
 
   get running() { return this._running; }
@@ -182,6 +203,11 @@ export class AffiliateAgent {
   get topProdutos() { return { ...this._topProdutos }; }
   get topLojas() { return { ...this._topLojas }; }
   get topPosts() { return [...this._topPosts]; }
+  get mediaLibrary() { return JSON.parse(JSON.stringify(this._mediaLibrary)); }
+  get criativosStats() { return { ...this._criativosStats }; }
+  get abTests() { return [...this._abTests]; }
+  get melhorThumbnail() { return this._melhorThumbnail; }
+  get melhorPlataforma() { return this._melhorPlataforma; }
 
   _log(tipo, msg) {
     this._logs.unshift({ tipo, msg, data: new Date().toLocaleTimeString('pt-BR'), timestamp: Date.now() });
@@ -223,8 +249,13 @@ export class AffiliateAgent {
     this._stores.push(store);
     this._stats.lojasCriadas++;
     this._stats.produtosEncontrados += store.produtos.length;
-    store.produtos.forEach(p => { this._allProducts.push(p); this._topProdutos[p.id] = p; });
-    this._log('success', `🏪 Loja "${nicho.nome}" criada com ${store.produtos.length} produtos`);
+    store.produtos.forEach(p => {
+      this._allProducts.push(p);
+      this._topProdutos[p.id] = p;
+      this._log('info', `🎨 Gerando criativos IA para ${p.nome}...`);
+      this._gerarCriativos(p, store);
+    });
+    this._log('success', `🏪 Loja "${nicho.nome}" criada com ${store.produtos.length} produtos e criativos`);
     return store;
   }
 
@@ -278,6 +309,7 @@ export class AffiliateAgent {
         if (conv > 0) this._stats.conversaoMock += conv;
       });
     });
+    this._simularCliquesCriativos();
     this._stats.ctrMock = this._stats.cliquesMock > 0
       ? ((this._stats.conversaoMock / this._stats.cliquesMock) * 100)
       : 0;
@@ -315,6 +347,142 @@ export class AffiliateAgent {
     if (ruins.length > 0) this._log('warn', `🧠 Aprendizado: ${ruins.length} produto(s) marcado(s) como baixo desempenho`);
     if (this._learning.melhoresNichos.length > 0) {
       this._log('success', `🧠 Nichos com melhor performance: ${this._learning.melhoresNichos.join(', ')}`);
+    }
+  }
+
+  _gerarThumbnail(produto, store, estilo) {
+    const variantes = {
+      'tiktok-shop': {
+        estilo: 'TikTok Shop',
+        desc: `${produto.img} ${produto.nome} — Fundo vibrante, badge "TOP" "${Math.floor(Math.random() * 50 + 10)}% OFF"`,
+        cor: '#fe2c55', rating: (Math.random() * 2 + 3).toFixed(1), vendas: Math.floor(Math.random() * 5000 + 500),
+      },
+      shopee: {
+        estilo: 'Shopee Anúncio',
+        desc: `${produto.img} ${produto.nome} — Fundo branco, badge "Frete Grátis" "Env. ${pick(['Hoje', '24h', '48h'])}"`,
+        cor: '#ee4d2d', rating: (Math.random() * 1.5 + 3.5).toFixed(1), vendas: Math.floor(Math.random() * 3000 + 200),
+      },
+      amazon: {
+        estilo: 'Amazon Anúncio',
+        desc: `${produto.img} ${produto.nome} — Fundo limpo, badge "Best Seller" "Nota ${(Math.random() * 1 + 4).toFixed(1)}"`,
+        cor: '#ff9900', rating: (Math.random() * 1 + 4).toFixed(1), vendas: Math.floor(Math.random() * 8000 + 1000),
+      },
+    };
+    const v = variantes[estilo] || variantes['tiktok-shop'];
+    return {
+      id: Math.random().toString(36).slice(2, 10),
+      produtoId: produto.id, produtoNome: produto.nome, loja: store.nome,
+      estilo: v.estilo, desc: v.desc, cor: v.cor, rating: v.rating, vendas: v.vendas,
+      cliques: 0, ctr: 0, criadoEm: new Date().toLocaleString('pt-BR'),
+    };
+  }
+
+  _gerarBanner(produto, store) {
+    const ofertas = [`${Math.floor(Math.random() * 40 + 10)}% OFF`, `Leve 2 pague 1`, `Frete Grátis`, `Parcele em ${Math.floor(Math.random() * 6 + 3)}x`];
+    return {
+      id: Math.random().toString(36).slice(2, 10),
+      produtoId: produto.id, produtoNome: produto.nome, loja: store.nome,
+      headline: gerarHeadline(store.id, produto),
+      oferta: pick(ofertas),
+      cta: pick(['Compre Agora', 'Aproveitar Oferta', 'Garantir Desconto', 'Quero o Meu']),
+      estilo: pick(['Moderno', 'Minimalista', 'Promocional', 'Premium']),
+      dimensao: '1200x628',
+      cliques: 0, criadoEm: new Date().toLocaleString('pt-BR'),
+    };
+  }
+
+  _gerarStory(produto, store) {
+    return {
+      id: Math.random().toString(36).slice(2, 10),
+      produtoId: produto.id, produtoNome: produto.nome, loja: store.nome,
+      dimensao: '1080x1920',
+      headline: `${produto.img} ${gerarHeadline(store.id, produto)}`,
+      cta: 'Arraste pra cima',
+      cor: pick(['#000000', '#1a1a2e', '#16213e', '#0f3460']),
+      cliques: 0, criadoEm: new Date().toLocaleString('pt-BR'),
+    };
+  }
+
+  _gerarVideoMock(produto, store) {
+    const roteiro = gerarRoteiro(produto);
+    return {
+      id: Math.random().toString(36).slice(2, 10),
+      produtoId: produto.id, produtoNome: produto.nome, loja: store.nome,
+      roteiro,
+      formato: pick(['TikTok 9:16', 'Reels 9:16', 'Shorts 9:16']),
+      resolucao: '1080x1920',
+      fps: 30,
+      cliques: 0, visualizacoes: Math.floor(Math.random() * 2000 + 100),
+      criadoEm: new Date().toLocaleString('pt-BR'),
+    };
+  }
+
+  _gerarCriativos(produto, store) {
+    const thumbs = ESTILOS_THUMB.map(e => this._gerarThumbnail(produto, store, e));
+    thumbs.forEach(t => {
+      this._mediaLibrary.thumbnails.push(t);
+      this._criativosStats.thumbsGeradas++;
+      this._criativosStats.totalCriativos++;
+    });
+    const banner = this._gerarBanner(produto, store);
+    this._mediaLibrary.banners.push(banner);
+    this._criativosStats.bannersGerados++;
+    this._criativosStats.totalCriativos++;
+
+    const story = this._gerarStory(produto, store);
+    this._mediaLibrary.stories.push(story);
+    this._criativosStats.storiesGeradas++;
+    this._criativosStats.totalCriativos++;
+
+    const video = this._gerarVideoMock(produto, store);
+    this._mediaLibrary.videos.push(video);
+    this._criativosStats.videosGerados++;
+    this._criativosStats.totalCriativos++;
+
+    const abId = Math.random().toString(36).slice(2, 8);
+    const abTest = {
+      id: abId, produtoId: produto.id, produtoNome: produto.nome, loja: store.nome,
+      variantes: thumbs.map(t => ({
+        thumbnailId: t.id, estilo: t.estilo, titulo: gerarHeadline(store.id, produto),
+        cliques: 0, impressoes: 0, ctr: 0,
+      })),
+      vencedor: null, criadoEm: new Date().toLocaleString('pt-BR'),
+    };
+    this._abTests.push(abTest);
+
+    this._log('info', `🎨 Criativos gerados para ${produto.nome}: ${thumbs.length} thumbs, banner, story, vídeo`);
+    return { thumbs, banner, story, video, abTest };
+  }
+
+  _simularCliquesCriativos() {
+    this._mediaLibrary.thumbnails.forEach(t => {
+      const imp = Math.floor(Math.random() * 500 + 50);
+      const cl = Math.floor(Math.random() * imp * 0.3);
+      t.cliques += cl;
+      t.ctr = imp > 0 ? (cl / imp) * 100 : 0;
+    });
+    this._mediaLibrary.banners.forEach(b => {
+      b.cliques += Math.floor(Math.random() * 150 + 10);
+    });
+    this._mediaLibrary.stories.forEach(s => {
+      s.cliques += Math.floor(Math.random() * 80 + 5);
+    });
+    this._abTests.forEach(test => {
+      test.variantes.forEach(v => {
+        const imp = Math.floor(Math.random() * 300 + 30);
+        const cl = Math.floor(Math.random() * imp * 0.25);
+        v.impressoes += imp;
+        v.cliques += cl;
+        v.ctr = imp > 0 ? (cl / imp) * 100 : 0;
+      });
+      const sorted = [...test.variantes].sort((a, b) => b.ctr - a.ctr);
+      test.vencedor = sorted[0]?.estilo || null;
+    });
+    const thumbsCtr = this._mediaLibrary.thumbnails.filter(t => t.ctr > 0);
+    if (thumbsCtr.length > 0) {
+      const best = thumbsCtr.reduce((a, b) => (a.ctr || 0) > (b.ctr || 0) ? a : b);
+      this._melhorThumbnail = best.estilo;
+      this._log('info', `🏆 Melhor thumbnail: "${best.estilo}" com CTR de ${best.ctr.toFixed(1)}%`);
     }
   }
 
@@ -366,7 +534,7 @@ export class AffiliateAgent {
     this._log('info', '📊 Simulando métricas iniciais...');
     this._simularAnalytics();
     this._aprender();
-    this._log('success', `✅ Dados iniciais gerados: ${this._stats.lojasCriadas} lojas, ${this._stats.produtosEncontrados} produtos, ${this._stats.postsGerados} posts`);
+    this._log('success', `✅ Dados iniciais gerados: ${this._stats.lojasCriadas} lojas, ${this._stats.produtosEncontrados} produtos, ${this._stats.postsGerados} posts, ${this._criativosStats.totalCriativos} criativos IA`);
     this._cycleCount = 1;
   }
 
