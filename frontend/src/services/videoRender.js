@@ -327,15 +327,20 @@ export function renderSceneFrame(ctx, w, h, scene, frame, sceneTotal, produtoNom
       if (scene.subtexto) {
         renderText(ctx, scene.subtexto, 'subtext', frame, sceneTotal, w / 2, h * 0.50);
       }
-      // Mãozinha pointing at the link area with bounce
+      // Mãozinha pointing at the link area with pulse + bounce
       const handY = lojaUrl && lojaUrl.startsWith('http') ? h * 0.32 : h * 0.18;
-      const handBob = Math.sin(frame * 0.07) * 6;
+      const handBob = Math.sin(frame * 0.05) * 8;
+      const handPulse = 1 + Math.sin(frame * 0.1) * 0.06;
       ctx.save();
+      ctx.translate(w / 2, handY + handBob);
+      ctx.scale(handPulse, handPulse);
       ctx.font = '44px serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = 'rgba(255,255,255,0.5)';
-      ctx.fillText('👇', w / 2, handY + handBob);
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.shadowColor = 'rgba(255,255,255,0.3)';
+      ctx.shadowBlur = 10;
+      ctx.fillText('👇', 0, 0);
       ctx.restore();
       break;
     }

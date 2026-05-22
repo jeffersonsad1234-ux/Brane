@@ -117,10 +117,18 @@ function Dashboard() {
             }
             return c;
           });
+          // Update store product counts
+          const storeRecords = JSON.parse(localStorage.getItem('brane_stores') || '{}');
+          Object.keys(stores).forEach(cat => {
+            if (storeRecords[cat]) {
+              storeRecords[cat].produtos = updated.filter(c => c.categoria === cat && c.status === 'publicado').length;
+            }
+          });
+          localStorage.setItem('brane_stores', JSON.stringify(storeRecords));
           localStorage.setItem("brane_affiliate_links_queue", JSON.stringify(updated));
           const storeKeys = Object.keys(stores);
           agent._log('success', `🏪 ${storeKeys.length} loja(s) criada(s): ${storeKeys.join(', ')}`);
-          storeKeys.forEach(k => agent._log('info', `  🔗 ${stores[k]}`));
+          storeKeys.forEach(k => agent._log('info', `  🔗 ${stores[k]} · ${storeRecords[k]?.produtos || 0} produto(s)`));
           agent._log('success', `✅ ${approved.length} anúncio(s) aprovados publicados`);
         }
       }
@@ -429,7 +437,15 @@ function StorePage() {
   const { nicho } = useParams();
   const navigate = useNavigate();
   const nichoData = NICHOS.find(n => n.id === nicho);
-  const produtos = PRODUTOS[nicho] || [];
+  const stores = JSON.parse(localStorage.getItem('brane_stores') || '{}');
+  const storeInfo = stores[nicho];
+  const queueCards = JSON.parse(localStorage.getItem('brane_affiliate_links_queue') || '[]');
+  const produtosReais = queueCards.filter(c =>
+    c.categoria === nicho && (c.status === 'publicado' || c.status === 'aprovado')
+  );
+  const produtos = produtosReais.length > 0 ? produtosReais : (PRODUTOS[nicho] || []);
+  const isReal = produtosReais.length > 0;
+  const ICONES = { gamer: "🎮", tecnologia: "💻", cozinha: "🍳", beleza: "💄", pet: "🐾", fitness: "💪", moda: "👗", casa: "🏠" };
 
   if (!nichoData) return <Navigate to="/affiliate-agent" replace />;
 
@@ -440,42 +456,58 @@ function StorePage() {
           <button className="aa-btn aa-btn-ghost" onClick={() => navigate('/affiliate-agent')}>← Dashboard</button>
           <h2>{nichoData.icone} {nichoData.nome}</h2>
         </div>
-        <span className="aa-status"><span className="aa-status-dot" /> Demo · Preparação</span>
+        <span className="aa-status">
+          <span className={`aa-status-dot ${isReal ? 'running' : ''}`} />
+          {isReal ? `${produtos.length} · Loja Ativa` : 'Demo · Preparação'}
+        </span>
       </div>
 
       <div className="aa-store-header">
         <div className="aa-store-banner" style={{ background: `linear-gradient(135deg, ${nichoData.cor}11, ${nichoData.cor}33)` }}>
           <span style={{ fontSize: '3rem' }}>{nichoData.icone}</span>
           <div>
-            <h3>{nichoData.nome} — Loja Automática</h3>
-            <p>{produtos.length} produtos em modo preparação · Todos com headline SEO e tags</p>
-            <div className="aa-store-meta-tags">
-              {gerarTags(nicho, { nome: nichoData.nome }).slice(0, 5).map((t, i) => (
-                <span key={i} className="aa-tag">#{t}</span>
-              ))}
-            </div>
+            <h3>{nichoData.nome} {isReal ? '🛒 Loja Ativa' : '— Loja Automática'}</h3>
+            <p>{produtos.length} produto(s) · {isReal ? 'Links afiliados reais' : 'Em modo preparação'}</p>
+            {storeInfo && <p style={{ fontSize: 12, color: '#60a5fa' }}>🔗 {storeInfo.url}</p>}
           </div>
         </div>
       </div>
 
       <div className="aa-products">
+        {produtos.length === 0 && (
+          <div className="aa-card" style={{ textAlign: 'center', padding: 30, color: '#666' }}>
+            Nenhum produto nesta loja ainda.
+          </div>
+        )}
         {produtos.map((p, i) => {
-          const headline = gerarHeadlineLocal(nicho, p.nome);
+          const headline = isReal
+            ? (p.descricao || p.titulo).slice(0, 80)
+            : gerarHeadlineLocal(nicho, p.nome);
           return (
-            <div key={i} className="aa-product-card">
-              <div className="aa-product-img">{p.img}</div>
+            <div key={p.id || i} className="aa-product-card">
+              <div className="aa-product-img">
+                {isReal ? (ICONES[p.categoria] || '📦') : p.img}
+              </div>
               <div className="aa-product-body">
-                <h4>{p.nome}</h4>
+                <h4>{isReal ? p.titulo : p.nome}</h4>
                 <p className="aa-product-headline">{headline}</p>
-                <span className="aa-product-price">R$ {p.preco.toFixed(2)}</span>
+                <span className="aa-product-price">R$ {(isReal ? p.preco : p.preco).toFixed(2)}</span>
                 <div className="aa-product-tags">
-                  {gerarTagsLocal(nicho, p.nome).slice(0, 3).map((t, j) => (
+                  {['oferta', nicho].concat(isReal ? [p.marketplace || 'afiliado'] : gerarTagsLocal(nicho, p.nome)).slice(0, 3).map((t, j) => (
                     <span key={j} className="aa-tag aa-tag-sm">#{t}</span>
                   ))}
                 </div>
                 <div className="aa-product-footer">
-                  <button className="aa-btn aa-btn-sm aa-btn-primary" disabled>Comprar</button>
-                  <span className="aa-product-link-status">🔗 Aguardando afiliado</span>
+                  {isReal && p.link ? (
+                    <a href={p.link} target="_blank" rel="noopener noreferrer" className="aa-btn aa-btn-sm aa-btn-primary">
+                      🔗 Comprar
+                    </a>
+                  ) : (
+                    <button className="aa-btn aa-btn-sm aa-btn-primary" disabled>Comprar</button>
+                  )}
+                  <span className="aa-product-link-status">
+                    {isReal ? `✅ ${p.storeUrl ? 'Loja vinculada' : 'Aguardando'}` : '🔗 Aguardando afiliado'}
+                  </span>
                 </div>
               </div>
             </div>

@@ -38,6 +38,7 @@ import BraneStudio from "./pages/BraneStudio";
 import BraneAgent from "./pages/BraneAgent";
 import Notanews from "./pages/Notanews/Notanews";
 import AffiliateAgentApp from "./pages/AffiliateAgent/AffiliateAgent";
+import PublicStoreFront from "./pages/AffiliateAgent/PublicStoreFront";
 import BLivreAdminPage from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -209,6 +210,7 @@ function AppRouter() {
             <Route path="/agente" element={<BraneAgent />} />
             <Route path="/notanews/*" element={<Notanews />} />
             <Route path="/affiliate-agent/*" element={<AffiliateAgentApp />} />
+            <Route path="/loja/:categoria" element={<PublicStoreFront />} />
 
             <Route
               path="/add-product"

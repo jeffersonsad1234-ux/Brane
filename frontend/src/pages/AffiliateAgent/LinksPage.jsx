@@ -7,7 +7,18 @@ const STORE_LINKS = {
   pet: `${STORE_BASE}/pets`, fitness: `${STORE_BASE}/fitness`,
   moda: `${STORE_BASE}/moda`, casa: `${STORE_BASE}/casa`,
 };
-export function getStoreLink(cat) { return STORE_LINKS[cat] || `${STORE_BASE}/tecnologia`; }
+export function getStoreLink(cat) {
+  const stores = JSON.parse(localStorage.getItem('brane_stores') || '{}');
+  if (!stores[cat]) {
+    stores[cat] = {
+      id: cat, nome: cat.charAt(0).toUpperCase() + cat.slice(1),
+      url: STORE_LINKS[cat] || `${STORE_BASE}/tecnologia`,
+      criadoEm: new Date().toISOString(), produtos: 0,
+    };
+    localStorage.setItem('brane_stores', JSON.stringify(stores));
+  }
+  return stores[cat].url;
+}
 
 const STORAGE_KEY = "brane_affiliate_links_queue";
 const MARKETPLACES = ["Amazon", "Shopee", "AliExpress", "Temu", "Mercado Livre", "Outro"];
@@ -217,6 +228,7 @@ export function LinksPage() {
                     </div>
                     <div style={{ fontSize: 12, color: "#6b7280", marginTop: 6, lineHeight: 1.5 }}>
                       💰 R$ {card.preco.toFixed(2)} · {card.marketplace} · {card.categoria}
+                      {card.storeUrl && <div style={{ marginTop: 2, color: "#60a5fa" }}>🔗 {card.storeUrl}</div>}
                     </div>
                     <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
                       {(card.status === "pronto" || card.status === "reprovado") && (
