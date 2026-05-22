@@ -154,8 +154,13 @@ function AnuncioCard({ ad, onRefresh }) {
       // Check backend first
       const health = await checkBackendHealth();
       if (!health && !getApiBase()) {
-        log(`❌ REACT_APP_TTS_API_URL não configurada`);
-        log(`   Defina em Cloudflare Pages: Settings → Environment → REACT_APP_TTS_API_URL`);
+        log(`❌ Nenhuma URL de API configurada`);
+        log(`   Variáveis lidas (em ordem):`);
+        log(`   • VITE_TTS_API_URL (Vite / Cloudflare Pages)`);
+        log(`   • REACT_APP_TTS_API_URL (CRA)`);
+        log(`   • REACT_APP_TTS_API`);
+        log(`   • REACT_APP_AGENT_API`);
+        log(`   Defina uma delas nas variáveis de ambiente do seu deploy.`);
         setVoiceGenLogs([...logs]);
         atualizarAnuncio(ad.id, { voiceStatus: 'failed', voiceError: 'API URL não configurada' });
         onRefresh();
@@ -438,7 +443,7 @@ function BackendStatusBar() {
     offline: { label: '❌ Backend de voz offline', className: 'an-backend-offline' },
     checking: { label: '🔄 Conectando...', className: 'an-backend-checking' },
     unknown: { label: '🔄 Verificando conexão...', className: 'an-backend-checking' },
-    unconfigured: { label: '❌ REACT_APP_TTS_API_URL não configurada', className: 'an-backend-offline' },
+    unconfigured: { label: '❌ API URL não configurada', className: 'an-backend-offline' },
   };
 
   const cfg = statusConfigs[status] || statusConfigs.unknown;
@@ -449,7 +454,7 @@ function BackendStatusBar() {
       {backendUrl ? (
         <span className="an-backend-details">URL: {backendUrl}</span>
       ) : (
-        <span className="an-backend-details">Defina em Settings → Environment → REACT_APP_TTS_API_URL</span>
+        <span className="an-backend-details">Defina VITE_TTS_API_URL ou REACT_APP_TTS_API_URL no deploy</span>
       )}
       {health && (
         <span className="an-backend-details">

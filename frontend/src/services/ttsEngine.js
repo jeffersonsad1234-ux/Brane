@@ -29,19 +29,18 @@ export function getVoiceName(id) { return VOZES.find(v => v.id === id)?.nome || 
 /**
  * API_BASE resolution:
  *   ONLY from env vars — NO hardcoded localhost/127.0.0.1.
- *   Priority: REACT_APP_TTS_API_URL > REACT_APP_TTS_API > REACT_APP_AGENT_API
+ *   Supports Vite (import.meta.env.VITE_TTS_API_URL) and CRA (process.env.REACT_APP_TTS_API_URL).
  *   If none set, returns empty string (callers must check).
- *   Supports both CRA (process.env) and Vite (import.meta.env).
  */
 function resolveApiBase() {
   const candidates = [
-    // Vite support (import.meta.env.VITE_TTS_API_URL)
-    typeof import.meta !== 'undefined' && import.meta.env?.VITE_TTS_API_URL,
-    // CRA support (process.env.REACT_APP_TTS_API_URL)
+    // Vite (import.meta.env.VITE_TTS_API_URL)
+    typeof import.meta !== 'undefined' ? import.meta.env?.VITE_TTS_API_URL : undefined,
+    // CRA (process.env.REACT_APP_TTS_API_URL)
     process.env.REACT_APP_TTS_API_URL,
     // Runtime injected (Cloudflare Pages)
     window._env_?.REACT_APP_TTS_API_URL,
-    // Legacy fallbacks
+    // Legacy
     process.env.REACT_APP_TTS_API,
     window._env_?.REACT_APP_TTS_API,
     process.env.REACT_APP_AGENT_API,
@@ -139,6 +138,7 @@ export async function generateTTSAudio(text, voiceId = 'pt-BR-FranciscaNeural', 
   const log = (msg) => { logs.push(msg); if (onLog) onLog(msg); };
 
   if (!API_BASE) {
+<<<<<<< HEAD
     log('❌ Variável TTS_API_URL não configurada');
     log('   Configure uma das seguintes variáveis de ambiente:');
     log('   • CRA: REACT_APP_TTS_API_URL');
@@ -146,6 +146,17 @@ export async function generateTTSAudio(text, voiceId = 'pt-BR-FranciscaNeural', 
     log('   Defina no Cloudflare Pages (Settings → Environment) ou .env local');
     log('   Exemplo: https://seu-app.up.railway.app');
     return { success: false, blob: null, voiceId, duration: 0, method: 'none', error: 'TTS_API_URL não configurada', logs };
+=======
+    log('❌ Nenhuma URL configurada');
+    log('   Variáveis lidas (em ordem):');
+    log('   • VITE_TTS_API_URL (Vite / Cloudflare Pages)');
+    log('   • REACT_APP_TTS_API_URL (CRA)');
+    log('   • REACT_APP_TTS_API');
+    log('   • REACT_APP_AGENT_API');
+    log('   Defina uma delas nas variáveis de ambiente do seu deploy.');
+    log('   Exemplo: REACT_APP_TTS_API_URL=https://seu-app.up.railway.app');
+    return { success: false, blob: null, voiceId, duration: 0, method: 'none', error: 'API URL não configurada', logs };
+>>>>>>> 9779deb (Add VITE_TTS_API_URL support alongside REACT_APP_TTS_API_URL)
   }
 
   if (!text || text.trim().length < 3) {
