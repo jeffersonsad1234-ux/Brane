@@ -148,16 +148,77 @@ const AGENDA = {
 const ESTILOS_THUMB = ['tiktok-shop', 'shopee', 'amazon'];
 const MUSICAS_SUG = ['Sunny Day — Prod By Beat', 'Upbeat Vibes — Free Music', 'Trending 2025 — No Copyright', 'Lo-fi Study Beats', 'Eletro Pop — Royalty Free'];
 
-function gerarRoteiro(produto) {
+const CENARIOS = {
+  tecnologia: { pessoa: 'jovem criativo em home office moderno', vibe: 'tecnóloga', cor: '#1a1a2e' },
+  casa: { pessoa: 'mulher realista em sala decorada', vibe: 'aconchegante', cor: '#2d1b00' },
+  beleza: { pessoa: 'mulher realista em banheiro iluminado', vibe: 'glamorosa', cor: '#4a0024' },
+  gadgets: { pessoa: 'jovem em estilo urbano', vibe: 'moderna', cor: '#0a1628' },
+  gamer: { pessoa: 'gamer em quarto RGB cinematográfico', vibe: 'energética', cor: '#0f0020' },
+  fitness: { pessoa: 'atleta em academia moderna', vibe: 'motivacional', cor: '#001a14' },
+  cozinha: { pessoa: 'chef em cozinha profissional', vibe: 'gourmet', cor: '#1a0800' },
+  pets: { pessoa: 'mulher realista com cachorro feliz', vibe: 'emocional', cor: '#0a1a00' },
+};
+
+function gerarRoteiro(produto, nichoId) {
+  const cenario = CENARIOS[nichoId] || CENARIOS.tecnologia;
+  const hocks = {
+    tecnologia: [`ESSE ${produto.nome.toUpperCase()} ESTÁ REVOLUCIONANDO 😱`, `O ${produto.nome} QUE NINGUÉM TE CONTOU 🔥`, `${produto.nome}: VALE CADA CENTAVO? 🤔`],
+    casa: [`SUA CASA PRECISA DISSO! ${produto.img}`, `O ${produto.nome} QUE ESTÁ TRANSFORMANDO LARES 🏠`, `ESSE ${produto.nome} VAI MUDAR SUA CASA 😍`],
+    beleza: [`MENINAS, OLHA O QUE ACHEI! ${produto.img}`, `O ${produto.nome} QUE ESTÁ VIRALIZANDO NO TIKTOK 💄`, `ANTES E DEPOIS COM ${produto.nome.toUpperCase()} 😳`],
+    gadgets: [`VOCÊ PRECISA DESSE GADGET! ${produto.img}`, `O ${produto.nome} MAIS INCRÍVEL DO ANO 🚀`, `ISSO SIM É TECNOLOGIA! ${produto.nome} 🔥`],
+    gamer: [`SETUP COMPLETO COM ${produto.nome.toUpperCase()} 🎮`, `O ${produto.nome} QUE TODO GAMER QUER 🔥`, `NÍVEL PRO: ${produto.nome} RGB 😱`],
+    fitness: [`TRANSFORME SEU TREINO COM ${produto.nome.toUpperCase()} 💪`, `O ${produto.nome} QUE ESTÁ MUDANDO VIDAS 🏋️`, `RESULTADOS REAIS COM ${produto.nome} 😤`],
+    cozinha: [`ESSA RECEITA FICOU INCRÍVEL COM ${produto.nome.toUpperCase()} 👨‍🍳`, `O ${produto.nome} QUE SUA COZINHA PRECISA 🔥`, `CHEF REVELA SEGREDO: ${produto.nome} 😋`],
+    pets: [`ESSA COLEIRA INTELIGENTE ESTÁ VIRALIZANDO 😳`, `O ${produto.nome} QUE SEU PET MERECE 🐾`, `MULHER REALISTA MOSTRA ${produto.nome.toUpperCase()} 🐶`],
+  };
+  const cenas = {
+    tecnologia: [
+      `📱 Abertura: ${cenario.pessoa} usando ${produto.nome}, close no produto com iluminação azul`,
+      `⚡ Corte rápido: zoom no ${produto.nome} com destaque nas funcionalidades`,
+      `🎯 Pessoa interagindo com o produto em ambiente real`,
+      `💥 Montagem com cortes rápidos: produto + reação da pessoa`,
+      `🏁 Final: ${produto.nome} em destaque com CTA animado`,
+    ],
+    gamer: [
+      `🎮 Abertura: ${cenario.pessoa}, iluminação RGB no quarto cinematográfico, close no ${produto.nome}`,
+      `⚡ Corte rápido: zoom no ${produto.nome} com LED piscando`,
+      `🔥 Pessoa jogando e reagindo ao produto`,
+      `💥 Edição rápida com transições estilo TikTok viral`,
+      `🏁 Final: ${produto.nome} + "LINK NA BIO" animado`,
+    ],
+    pets: [
+      `🐕 Abertura: ${cenario.pessoa} com cachorro correndo feliz no parque`,
+      `📸 Close no ${produto.nome} com zoom suave`,
+      `✨ ${cenario.pessoa} mostrando como o produto funciona na prática`,
+      `💖 Cena emocional: cachorro feliz + produto em destaque`,
+      `🏁 Final: ${produto.nome} com badge de desconto e CTA`,
+    ],
+  };
+  const cenasNicho = cenas[nichoId] || [
+    `🎬 Abertura: ${cenario.pessoa} com ${produto.nome}`,
+    `📸 Close cinematográfico no ${produto.nome}`,
+    `✨ Corte rápido: produto em uso`,
+    `💥 Transição estética`,
+    `🏁 CTA final com destaque`,
+  ];
   return {
-    hook: `🔥 ${produto.img} VOCÊ PRECISA DISSO!`,
-    cena1: `Abertura: close no ${produto.nome}`,
-    cena2: `Mostrando funcionalidades do ${produto.nome}`,
-    cena3: `Antes e depois usando ${produto.nome}`,
-    cena4: `Final: CTA com desconto`,
-    legenda: `🚀 ${produto.nome} com frete grátis!\n💰 Apenas R$ ${produto.preco.toFixed(2)}\n🔗 Link na bio!`,
+    hook: hocks[nichoId] ? pick(hocks[nichoId]) : `🔥 ${produto.img} ${produto.nome}!`,
+    cenas: cenasNicho,
+    pessoa: cenario.pessoa,
+    vibe: cenario.vibe,
+    legenda: `🚀 ${produto.nome} com frete grátis!\n💰 De R$ ${(produto.preco * 1.4).toFixed(2)} por R$ ${produto.preco.toFixed(2)}\n🔗 Link na bio!\n\n#viral #${nichoId} #promoção`,
     musica: pick(MUSICAS_SUG),
-    duracao: `${Math.floor(Math.random() * 15 + 15)}s`,
+    duracao: `${Math.floor(Math.random() * 10 + 12)}s`,
+    cortes: Math.floor(Math.random() * 4 + 6),
+    zoom: Math.random() > 0.3,
+    legendasAnimadas: true,
+    estiloEdicao: pick(['cortes rápidos', 'transições suaves', 'estilo TikTok viral', 'cinematográfico']),
+    score: {
+      hook: +(Math.random() * 1.5 + 8).toFixed(1),
+      viralizacao: +(Math.random() * 1.8 + 7.5).toFixed(1),
+      cta: +(Math.random() * 1.2 + 8).toFixed(1),
+      conversaoEstimada: Math.random() > 0.5 ? 'alta' : Math.random() > 0.3 ? 'muito alta' : 'média-alta',
+    },
   };
 }
 
@@ -471,7 +532,7 @@ export class AffiliateAgent {
   }
 
   _gerarVideoMock(produto, store) {
-    const roteiro = gerarRoteiro(produto);
+    const roteiro = gerarRoteiro(produto, store.id);
     return {
       id: Math.random().toString(36).slice(2, 10),
       produtoId: produto.id, produtoNome: produto.nome, loja: store.nome,
@@ -479,7 +540,7 @@ export class AffiliateAgent {
       formato: pick(['TikTok 9:16', 'Reels 9:16', 'Shorts 9:16']),
       resolucao: '1080x1920',
       fps: 30,
-      cliques: 0, visualizacoes: Math.floor(Math.random() * 2000 + 100),
+      cliques: 0, visualizacoes: Math.floor(Math.random() * 5000 + 500),
       criadoEm: new Date().toLocaleString('pt-BR'),
     };
   }

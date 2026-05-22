@@ -537,15 +537,27 @@ function CreativesPage() {
           {videos.length === 0 ? <p className="aa-muted">Nenhum vídeo ainda.</p> : (
             <div className="aa-criativos-list">
               {videos.slice(0, 4).map(v => (
-                <div key={v.id} className="aa-criativo-card">
-                  <div className="aa-criativo-video" style={{ background: '#0f0f23', color: '#fff' }}>
-                    <span style={{ fontSize: '2rem' }}>🎬</span>
-                    <span className="aa-criativo-video-info">{v.roteiro.duracao} · {v.roteiro.musica.slice(0, 20)}...</span>
+                <div key={v.id} className="aa-video-card">
+                  <div className="aa-video-preview" style={{ background: 'linear-gradient(135deg, #0f0f23, #1a0a2e)' }}>
+                    <span className="aa-video-hook">"{v.roteiro.hook.slice(0, 50)}..."</span>
+                    <div className="aa-video-badge">{v.roteiro.duracao} · {v.roteiro.cortes} cortes</div>
                   </div>
-                  <div className="aa-criativo-info">
+                  <div className="aa-video-body">
                     <strong>{v.produtoNome}</strong>
-                    <span className="aa-criativo-meta">{v.formato} · {v.resolucao}</span>
-                    <span className="aa-criativo-ctr">👁️ {v.visualizacoes} views</span>
+                    <span className="aa-criativo-meta">{v.formato} · 🎬 {v.roteiro.estiloEdicao}</span>
+                    <span className="aa-criativo-meta">👤 {v.roteiro.pessoa} · {v.roteiro.vibe}</span>
+                    <div className="aa-video-scores">
+                      <span className="aa-score" style={{ background: v.roteiro.score.hook >= 9 ? 'rgba(5,150,105,0.1)' : 'rgba(217,119,6,0.1)' }}>
+                        🎯 Hook: <strong>{v.roteiro.score.hook}</strong>
+                      </span>
+                      <span className="aa-score" style={{ background: v.roteiro.score.viralizacao >= 9 ? 'rgba(5,150,105,0.1)' : 'rgba(217,119,6,0.1)' }}>
+                        🔥 Viral: <strong>{v.roteiro.score.viralizacao}</strong>
+                      </span>
+                      <span className="aa-score" style={{ background: v.roteiro.score.cta >= 9 ? 'rgba(5,150,105,0.1)' : 'rgba(217,119,6,0.1)' }}>
+                        🛒 CTA: <strong>{v.roteiro.score.cta}</strong>
+                      </span>
+                    </div>
+                    <span className="aa-video-conversion">Conversão estimada: <strong>{v.roteiro.score.conversaoEstimada}</strong></span>
                   </div>
                 </div>
               ))}
