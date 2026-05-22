@@ -72,7 +72,7 @@ export function gerarCenas(produtoNome, preco, descricao, categoria, imageCount)
 
   return [
     {
-      id: 1, tipo: 'hook', duracao: 1.8,
+      id: 1, tipo: 'hook', duracao: 4,
       cor: isTech ? '#0a0a1a' : '#1a1a2e',
       texto: isTech ? '⚡ OFERTA IMPERDÍVEL' : '🔥 OFERTA IMPERDÍVEL',
       textStyle: 'big',
@@ -80,7 +80,7 @@ export function gerarCenas(produtoNome, preco, descricao, categoria, imageCount)
       background: categoria,
     },
     {
-      id: 2, tipo: 'showcase', duracao: 2.2,
+      id: 2, tipo: 'showcase', duracao: 4,
       cor: isTech ? '#0d0d2b' : '#16213e',
       texto: produtoNome.length > 30 ? produtoNome.slice(0, 28) + '...' : produtoNome,
       textStyle: 'product-name',
@@ -88,7 +88,7 @@ export function gerarCenas(produtoNome, preco, descricao, categoria, imageCount)
       background: categoria,
     },
     {
-      id: 3, tipo: 'feature', duracao: 2.0,
+      id: 3, tipo: 'feature', duracao: 4,
       cor: isTech ? '#10052a' : '#0f3460',
       texto: b[0] || 'ALTA QUALIDADE',
       textStyle: 'feature',
@@ -96,7 +96,7 @@ export function gerarCenas(produtoNome, preco, descricao, categoria, imageCount)
       background: categoria,
     },
     {
-      id: 4, tipo: 'feature', duracao: 1.8,
+      id: 4, tipo: 'feature', duracao: 4,
       cor: isTech ? '#0a0020' : '#1a1a2e',
       texto: b[1] || 'DESIGN PREMIUM',
       textStyle: 'feature',
@@ -104,7 +104,7 @@ export function gerarCenas(produtoNome, preco, descricao, categoria, imageCount)
       background: categoria,
     },
     {
-      id: 5, tipo: 'feature', duracao: 2.0,
+      id: 5, tipo: 'feature', duracao: 4,
       cor: isTech ? '#150030' : '#0d1b2a',
       texto: b[2] || 'MELHOR ESCOLHA',
       textStyle: 'feature',
@@ -112,7 +112,7 @@ export function gerarCenas(produtoNome, preco, descricao, categoria, imageCount)
       background: categoria,
     },
     {
-      id: 6, tipo: 'price', duracao: 2.5,
+      id: 6, tipo: 'price', duracao: 4,
       cor: isTech ? '#1a0020' : '#1a1a40',
       texto: `R$ ${preco.toFixed(2)}`,
       textStyle: 'price-big',
@@ -121,7 +121,7 @@ export function gerarCenas(produtoNome, preco, descricao, categoria, imageCount)
       background: categoria,
     },
     {
-      id: 7, tipo: 'cta', duracao: 2.5,
+      id: 7, tipo: 'cta', duracao: 4,
       cor: isTech ? '#0a0015' : '#0a0a23',
       texto: '🔗 LINK NA BIO',
       textStyle: 'cta-giant',
