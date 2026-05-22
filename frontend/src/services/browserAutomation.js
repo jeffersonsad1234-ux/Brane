@@ -275,7 +275,7 @@ export class BrowserAutomator {
       this._log('success', `✅ Upload concluído (${(Math.random() * 10 + 5).toFixed(1)}MB)`);
 
       this._log('info', '⏳ Preenchendo legenda de teste...');
-      this._log('success', `✅ Legenda: "🧪 Teste de automação — BRANE Affiliate Agent"`);
+      this._log('success', `✅ Legenda: "Confira esse produto incrível com frete grátis!"`);
 
       this._log('info', '#️⃣ Adicionando hashtags de teste...');
       this._log('success', `✅ 4 hashtags adicionadas`);

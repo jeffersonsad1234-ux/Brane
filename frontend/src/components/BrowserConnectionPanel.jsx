@@ -127,7 +127,7 @@ export default function BrowserConnectionPanel({ plataforma }) {
 
       {testResult?.success && (
         <div className="browser-test-success">
-          ✅ Teste concluído — vídeo NÃO publicado. Automação funcionando.
+          ✅ Teste concluído — vídeo NÃO publicado. Sistema operacional.
         </div>
       )}
 
