@@ -406,3 +406,41 @@
 .aa-score strong { display: inline; font-size: 0.72rem; }
 .aa-video-conversion { display: block; font-size: 0.7rem; color: var(--aa-primary); font-weight: 600; }
 .aa-video-conversion strong { display: inline; text-transform: capitalize; }
+
+/* === Campaign Page === */
+.aa-camp-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+.aa-camp-form .full-width { grid-column: 1 / -1; }
+.aa-camp-form label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--aa-text-secondary); margin-bottom: 6px; }
+.aa-camp-form textarea.aa-input { min-height: 70px; resize: vertical; }
+.aa-camp-actions { margin-bottom: 24px; }
+
+.aa-camp-queue { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+.aa-camp-card { background: var(--aa-surface); border: 1px solid var(--aa-border); border-radius: var(--aa-radius); padding: 20px; box-shadow: var(--aa-shadow); }
+.aa-camp-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 12px; }
+.aa-camp-preview-video { padding: 20px; border-radius: var(--aa-radius-sm); margin-bottom: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 100px; }
+.aa-camp-preview-video .hook { font-size: 0.95rem; font-weight: 700; color: #fff; line-height: 1.4; }
+.aa-camp-preview-video .meta { font-size: 0.7rem; color: rgba(255,255,255,0.7); margin-top: 6px; }
+.aa-camp-preview-video .badge { font-size: 0.6rem; background: rgba(255,255,255,0.15); color: #fff; padding: 2px 10px; border-radius: 8px; margin-top: 8px; }
+.aa-camp-text-box { background: var(--aa-bg); border-radius: var(--aa-radius-sm); padding: 12px 14px; font-size: 0.82rem; line-height: 1.5; margin-bottom: 10px; white-space: pre-wrap; }
+.aa-camp-text-box .label { font-size: 0.68rem; font-weight: 600; color: var(--aa-text-muted); display: block; margin-bottom: 4px; }
+.aa-camp-url { display: block; font-size: 0.82rem; color: var(--aa-primary); word-break: break-all; margin-bottom: 10px; }
+.aa-camp-hashtags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; }
+.aa-camp-hashtag { font-size: 0.72rem; color: var(--aa-primary); background: var(--aa-primary-light); padding: 2px 10px; border-radius: 12px; }
+.aa-camp-approval-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--aa-border); }
+
+.aa-camp-logs { max-height: 250px; overflow-y: auto; font-size: 0.77rem; }
+.aa-camp-logs::-webkit-scrollbar { width: 4px; }
+.aa-camp-logs::-webkit-scrollbar-thumb { background: var(--aa-border); border-radius: 2px; }
+.aa-camp-log { padding: 4px 8px; border-radius: 4px; margin-bottom: 2px; line-height: 1.4; }
+.aa-camp-log .time { color: var(--aa-text-muted); margin-right: 8px; font-size: 0.7rem; }
+.aa-camp-log.info { color: var(--aa-text-secondary); }
+.aa-camp-log.success { color: var(--aa-success); background: rgba(5,150,105,0.03); }
+.aa-camp-log.warn { color: var(--aa-warning); background: rgba(217,119,6,0.03); }
+.aa-camp-log.error { color: var(--aa-danger); background: rgba(220,38,38,0.03); }
+
+.aa-camp-empty { text-align: center; padding: 40px 20px; background: var(--aa-surface); border: 2px dashed var(--aa-border); border-radius: var(--aa-radius); color: var(--aa-text-muted); font-size: 0.85rem; }
+.aa-camp-empty strong { display: block; font-size: 1rem; margin-bottom: 6px; color: var(--aa-text-secondary); }
+
+.aa-camp-success { background: rgba(5,150,105,0.06); border: 1px solid var(--aa-success); border-radius: var(--aa-radius-sm); padding: 14px; margin-top: 12px; }
+.aa-camp-success strong { color: var(--aa-success); display: block; margin-bottom: 4px; }
+.aa-camp-success a { color: var(--aa-primary); word-break: break-all; }

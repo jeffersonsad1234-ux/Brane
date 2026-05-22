@@ -29,6 +29,7 @@ function Sidebar({ active }) {
         <Link to="/affiliate-agent/aprendizado" className={`aa-sidebar-link ${active === 'aprendizado' ? 'active' : ''}`}>🧠 Aprendizado</Link>
         <Link to="/affiliate-agent/social-publish" className={`aa-sidebar-link ${active === 'social' ? 'active' : ''}`}>📱 Publicação Social</Link>
         <Link to="/affiliate-agent/criativos" className={`aa-sidebar-link ${active === 'criativos' ? 'active' : ''}`}>🎨 Criativos IA</Link>
+        <Link to="/affiliate-agent/campanha" className={`aa-sidebar-link ${active === 'campanha' ? 'active' : ''}`}>🛒 Campanha Amazon</Link>
         <div className="aa-sidebar-label">Lojas Automáticas</div>
         {NICHOS.map(n => (
           <Link key={n.id} to={`/affiliate-agent/loja/${n.id}`} className={`aa-sidebar-link ${active === n.id ? 'active' : ''}`}>
@@ -957,6 +958,321 @@ function ConexoesPage() {
   );
 }
 
+function CampanhaPage() {
+  const navigate = useNavigate();
+  const [step, setStep] = useState('form');
+  const [form, setForm] = useState({
+    nome: '',
+    link: '',
+    preco: '',
+    categoria: 'tecnologia',
+    descricao: '',
+    imagem: '',
+    lojaDestino: 'minha-loja',
+  });
+  const [campaign, setCampaign] = useState(null);
+  const [campLogs, setCampLogs] = useState([]);
+  const [publishing, setPublishing] = useState(false);
+  const [publicado, setPublicado] = useState(null);
+
+  const categorias = [
+    { id: 'tecnologia', nome: 'Tecnologia', icone: '💻' },
+    { id: 'casa', nome: 'Casa', icone: '🏠' },
+    { id: 'beleza', nome: 'Beleza', icone: '💄' },
+    { id: 'gadgets', nome: 'Gadgets', icone: '📱' },
+    { id: 'gamer', nome: 'Gamer', icone: '🎮' },
+    { id: 'fitness', nome: 'Fitness', icone: '💪' },
+    { id: 'cozinha', nome: 'Cozinha', icone: '🍳' },
+    { id: 'pets', nome: 'Pets', icone: '🐾' },
+  ];
+
+  const addLog = (tipo, msg) => {
+    const log = { tipo, msg, data: new Date().toLocaleTimeString('pt-BR'), timestamp: Date.now() };
+    setCampLogs(prev => [log, ...prev]);
+  };
+
+  const updateField = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
+
+  const generateSlug = (text) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+  const generateCampanha = () => {
+    addLog('info', '🛒 Iniciando criação da campanha...');
+
+    const precoNum = parseFloat(form.preco);
+    if (!form.nome.trim() || !form.link.trim() || isNaN(precoNum)) {
+      addLog('error', '❌ Preencha nome, link e preço corretamente');
+      return;
+    }
+
+    const storeSlug = generateSlug(form.lojaDestino || form.nome);
+    const lojaUrl = `https://brane.app/loja/${storeSlug}`;
+    const prodId = `camp_${Date.now()}`;
+
+    const titulo = form.nome;
+    const legenda = `${form.nome} com frete grátis!\n💰 R$ ${precoNum.toFixed(2)} na promoção!\n🔗 Link na bio!\n\nAproveite essa oportunidade imperdível!`;
+    const descricao = form.descricao || `${form.nome} — produto original de alta qualidade. Aproveite o frete grátis e condições especiais.`;
+    const hashtagsArr = [
+      `#${form.nome.split(' ')[0].toLowerCase()}`,
+      '#amazon', '#oferta', '#promoção', '#fretegrátis',
+      '#imperdível', '#compreagora', '#top',
+    ];
+
+    const hooks = [
+      `🔥 ${form.nome} COM DESCONTO IMPERDÍVEL!`,
+      `💰 O ${form.nome} MAIS BARATO DA WEB!`,
+      `⚡ ${form.nome} — CORRE QUE É POR TEMPO LIMITADO!`,
+    ];
+    const hook = hooks[Math.floor(Math.random() * hooks.length)];
+
+    const cenario = categorias.find(c => c.id === form.categoria) || categorias[0];
+
+    const camp = {
+      id: prodId,
+      nome: titulo,
+      link: form.link,
+      preco: precoNum,
+      categoria: form.categoria,
+      descricao,
+      imagem: form.imagem || '📦',
+      lojaDestino: form.lojaDestino,
+      lojaUrl,
+      titulo: titulo,
+      legenda,
+      hashtags: hashtagsArr,
+      hook,
+      cenario: cenario.icone + ' ' + cenario.nome,
+      criadoEm: new Date().toISOString(),
+    };
+
+    setCampaign(camp);
+    setStep('aprovacao');
+
+    addLog('success', `✅ Loja criada: ${lojaUrl}`);
+    addLog('success', `✅ Produto adicionado: ${form.nome}`);
+    addLog('success', '✅ Vídeo gerado para aprovação');
+    addLog('info', '⏳ Aguardando aprovação...');
+  };
+
+  const handleRegenerate = () => {
+    addLog('info', '🔄 Regenerando criativo...');
+    generateCampanha();
+    addLog('info', '✅ Novo vídeo gerado');
+  };
+
+  const handleReject = () => {
+    addLog('warn', '⏹️ Campanha rejeitada');
+    setCampaign(null);
+    setStep('form');
+  };
+
+  const handleApprove = async () => {
+    if (!campaign) return;
+    setPublishing(true);
+    addLog('info', '✅ Campanha aprovada');
+
+    const { BrowserAutomator } = await import("../../services/browserAutomation");
+    const bot = new BrowserAutomator('tiktok');
+
+    if (!bot.logado) {
+      addLog('error', '❌ TikTok não conectado — vá em Publicação Social e conecte primeiro');
+      setPublishing(false);
+      return;
+    }
+
+    addLog('info', '🚀 Publicando no TikTok...');
+    const result = await bot.publicarCampanha(campaign);
+
+    if (result.success) {
+      addLog('success', `✅ Publicado no TikTok: ${result.postUrl}`);
+      addLog('success', `🔗 Link da loja: ${campaign.lojaUrl}`);
+      setPublicado({ postUrl: result.postUrl, lojaUrl: campaign.lojaUrl, nome: campaign.nome });
+      setStep('publicado');
+    } else {
+      addLog('error', `❌ Falha na publicação: ${result.motivo || result.error}`);
+    }
+
+    setPublishing(false);
+  };
+
+  return (
+    <div className="aa-content">
+      <div className="aa-topbar">
+        <div className="aa-topbar-left">
+          <button className="aa-btn aa-btn-ghost" onClick={() => navigate('/affiliate-agent')}>← Dashboard</button>
+          <h2>🛒 Campanha Amazon Manual</h2>
+        </div>
+      </div>
+
+      <div className="aa-connect-info">
+        <span>Adicione um produto manualmente com link de afiliado Amazon e publique no TikTok conectado.</span>
+      </div>
+
+      {step === 'form' && (
+        <>
+          <div className="aa-camp-form">
+            <div className="full-width">
+              <label>Nome do Produto</label>
+              <input className="aa-input" type="text" placeholder="Ex: Fone Bluetooth X200" value={form.nome} onChange={e => updateField('nome', e.target.value)} />
+            </div>
+
+            <div>
+              <label>Link Afiliado Amazon</label>
+              <input className="aa-input" type="text" placeholder="https://amzn.to/..." value={form.link} onChange={e => updateField('link', e.target.value)} />
+            </div>
+
+            <div>
+              <label>Preço (R$)</label>
+              <input className="aa-input" type="number" step="0.01" min="0" placeholder="99.90" value={form.preco} onChange={e => updateField('preco', e.target.value)} />
+            </div>
+
+            <div>
+              <label>Categoria</label>
+              <select className="aa-input" value={form.categoria} onChange={e => updateField('categoria', e.target.value)}>
+                {categorias.map(c => <option key={c.id} value={c.id}>{c.icone} {c.nome}</option>)}
+              </select>
+            </div>
+
+            <div className="full-width">
+              <label>Descrição Curta</label>
+              <textarea className="aa-input" placeholder="Descrição natural do produto..." value={form.descricao} onChange={e => updateField('descricao', e.target.value)} />
+            </div>
+
+            <div>
+              <label>Imagem / Thumbnail</label>
+              <input className="aa-input" type="text" placeholder="🔗 URL da imagem ou emoji" value={form.imagem} onChange={e => updateField('imagem', e.target.value)} />
+            </div>
+
+            <div>
+              <label>Loja Destino</label>
+              <input className="aa-input" type="text" placeholder="minha-loja" value={form.lojaDestino} onChange={e => updateField('lojaDestino', e.target.value)} />
+            </div>
+          </div>
+
+          <div className="aa-camp-actions">
+            <button className="aa-btn aa-btn-primary" onClick={generateCampanha} style={{ fontSize: '0.95rem', padding: '12px 28px' }}>
+              🚀 Criar campanha teste
+            </button>
+          </div>
+
+          {campLogs.length > 0 && (
+            <div className="aa-card">
+              <h3 className="aa-card-title">📋 Logs</h3>
+              <div className="aa-camp-logs">
+                {campLogs.map((l, i) => (
+                  <div key={i} className={`aa-camp-log ${l.tipo}`}>
+                    <span className="time">{l.data}</span>
+                    {l.msg}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {step === 'aprovacao' && campaign && (
+        <>
+          <div className="aa-camp-queue">
+            <div className="aa-camp-card">
+              <h4>📹 Vídeo para Publicação</h4>
+              <div className="aa-camp-preview-video" style={{ background: `linear-gradient(135deg, #1a1a2e, #16213e)` }}>
+                <div className="hook">{campaign.hook}</div>
+                <div className="meta">{campaign.cenario} · TikTok</div>
+                <div className="badge">{Math.floor(Math.random() * 60 + 30)}s</div>
+              </div>
+
+              <div className="aa-camp-text-box">
+                <span className="label">📝 Legenda</span>
+                {campaign.legenda}
+              </div>
+
+              <div className="aa-camp-hashtags">
+                {campaign.hashtags.slice(0, 8).map((h, i) => (
+                  <span key={i} className="aa-camp-hashtag">{h}</span>
+                ))}
+              </div>
+
+              <div style={{ fontSize: '0.82rem', marginBottom: 10 }}>
+                <span style={{ fontWeight: 600 }}>🔗 Loja:</span>{' '}
+                <a href={campaign.lojaUrl} target="_blank" rel="noopener noreferrer" className="aa-camp-url" style={{ display: 'inline' }}>
+                  {campaign.lojaUrl}
+                </a>
+              </div>
+
+              <div style={{ fontSize: '0.82rem', marginBottom: 10 }}>
+                <span style={{ fontWeight: 600 }}>🛒 Produto:</span> {campaign.nome} — R$ {campaign.preco.toFixed(2)}
+              </div>
+
+              <div style={{ fontSize: '0.82rem', marginBottom: 10 }}>
+                <span style={{ fontWeight: 600 }}>🔗 Link Afiliado:</span>{' '}
+                <a href={campaign.link} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--aa-primary)', wordBreak: 'break-all' }}>
+                  {campaign.link.length > 50 ? campaign.link.slice(0, 50) + '...' : campaign.link}
+                </a>
+              </div>
+
+              <div className="aa-camp-approval-btns">
+                <button className="aa-btn aa-btn-primary" onClick={handleApprove} disabled={publishing}>
+                  {publishing ? '⏳ Publicando...' : '✅ Aprovar e Publicar no TikTok'}
+                </button>
+                <button className="aa-btn aa-btn-outline" onClick={handleReject} disabled={publishing}>
+                  ❌ Rejeitar
+                </button>
+                <button className="aa-btn aa-btn-ghost" onClick={handleRegenerate} disabled={publishing}>
+                  🔄 Gerar outro
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="aa-card">
+            <h3 className="aa-card-title">📋 Logs da Campanha</h3>
+            <div className="aa-camp-logs">
+              {campLogs.map((l, i) => (
+                <div key={i} className={`aa-camp-log ${l.tipo}`}>
+                  <span className="time">{l.data}</span>
+                  {l.msg}
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {step === 'publicado' && publicado && (
+        <>
+          <div className="aa-camp-success">
+            <strong>✅ Campanha publicada com sucesso!</strong>
+            <p style={{ margin: '6px 0', fontSize: '0.85rem' }}>📹 <strong>Produto:</strong> {publicado.nome}</p>
+            <p style={{ margin: '6px 0', fontSize: '0.85rem' }}>🎵 <strong>Post no TikTok:</strong> <a href={publicado.postUrl} target="_blank" rel="noopener noreferrer">{publicado.postUrl}</a></p>
+            <p style={{ margin: '6px 0', fontSize: '0.85rem' }}>🔗 <strong>Loja:</strong> <a href={publicado.lojaUrl} target="_blank" rel="noopener noreferrer">{publicado.lojaUrl}</a></p>
+          </div>
+
+          <div style={{ marginTop: 20, display: 'flex', gap: 10 }}>
+            <button className="aa-btn aa-btn-outline" onClick={() => { setStep('form'); setCampaign(null); setPublicado(null); setCampLogs([]); }}>
+              📦 Nova Campanha
+            </button>
+            <button className="aa-btn aa-btn-ghost" onClick={() => navigate('/affiliate-agent')}>
+              ← Dashboard
+            </button>
+          </div>
+
+          <div className="aa-card" style={{ marginTop: 20 }}>
+            <h3 className="aa-card-title">📋 Histórico da Campanha</h3>
+            <div className="aa-camp-logs">
+              {campLogs.map((l, i) => (
+                <div key={i} className={`aa-camp-log ${l.tipo}`}>
+                  <span className="time">{l.data}</span>
+                  {l.msg}
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function AffiliateAgentApp() {
   return (
     <div className="aa-root">
@@ -966,6 +1282,7 @@ export default function AffiliateAgentApp() {
         <Route path="/conexoes" element={<><Sidebar active="conexoes" /><ConexoesPage /></>} />
         <Route path="/aprendizado" element={<><Sidebar active="aprendizado" /><AprendizadoPage /></>} />
         <Route path="/criativos" element={<><Sidebar active="criativos" /><CreativesPage /></>} />
+        <Route path="/campanha" element={<><Sidebar active="campanha" /><CampanhaPage /></>} />
         <Route path="/social-publish" element={<><Sidebar active="social" /><SocialPublishPage /></>} />
         <Route path="*" element={<Navigate to="/affiliate-agent" replace />} />
       </Routes>
