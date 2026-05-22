@@ -7,7 +7,7 @@ import BrowserConnectionPanel from "../../components/BrowserConnectionPanel";
 import VideoPreviewApproval from "../../components/VideoPreviewApproval";
 import AnunciosPage, { adicionarAnuncio } from "./AnunciosPage";
 import { isMediaWorkerEnabled, createUGCJob, getUGCJobStatus } from "../../services/mediaWorker";
-import { LinksPage, getStoreLink, getStoreName, getStoreIcon } from "./LinksPage";
+import { LinksPage, getStoreLink } from "./LinksPage";
 import "./AffiliateAgent.css";
 
 function useAgent() {
