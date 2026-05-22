@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Routes, Route, useNavigate, useParams, Link, Navigate } from "react-router-dom";
 import { AffiliateAgent, NICHOS, PRODUTOS, PLATAFORMAS, PLATAFORMAS_POST, AGENDA } from "./AffiliateEngine";
+import { loadConnections, saveConnections } from "../../services/affiliateProviders";
 import "./AffiliateAgent.css";
 
 function useAgent() {
@@ -33,7 +34,7 @@ function Sidebar({ active }) {
         ))}
       </nav>
       <div className="aa-sidebar-footer">
-        <span className="aa-version">v4.0.0 • Fase 4 — Criativos IA</span>
+        <span className="aa-version">v5.0.0 • Fase 2 — Provedores Afiliados</span>
       </div>
     </aside>
   );
@@ -598,19 +599,40 @@ function CreativesPage() {
 
 function ConexoesPage() {
   const navigate = useNavigate();
-  const [conexoes, setConexoes] = useState(() =>
-    PLATAFORMAS.map(p => ({ ...p, status: 'desconectado', token: '' }))
-  );
+  const [conexoes, setConexoes] = useState(() => {
+    const saved = loadConnections();
+    if (saved) {
+      return PLATAFORMAS.map(p => ({
+        ...p,
+        ...(saved[p.id] || {}),
+        status: saved[p.id]?.status || 'desconectado',
+      }));
+    }
+    return PLATAFORMAS.map(p => ({ ...p, status: 'desconectado', apiKey: '', token: '', affiliateId: '', trackingId: '' }));
+  });
+
+  useEffect(() => {
+    const map = {};
+    conexoes.forEach(c => {
+      map[c.id] = {
+        status: c.status, apiKey: c.apiKey || '', token: c.token || '',
+        affiliateId: c.affiliateId || '', trackingId: c.trackingId || '',
+      };
+    });
+    saveConnections(map);
+  }, [conexoes]);
+
+  const updateField = (id, field, value) => {
+    setConexoes(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c));
+  };
 
   const handleConectar = (id) => {
-    setConexoes(prev => prev.map(c =>
-      c.id === id ? { ...c, status: 'conectado', token: '••••••••' } : c
-    ));
+    setConexoes(prev => prev.map(c => c.id === id ? { ...c, status: 'conectado' } : c));
   };
 
   const handleDesconectar = (id) => {
     setConexoes(prev => prev.map(c =>
-      c.id === id ? { ...c, status: 'desconectado', token: '' } : c
+      c.id === id ? { ...c, status: 'desconectado', apiKey: '', token: '', affiliateId: '', trackingId: '' } : c
     ));
   };
 
@@ -626,7 +648,9 @@ function ConexoesPage() {
         </div>
       </div>
 
-      <div className="aa-connect-warning">⚠️ Modo Preparação — Nenhuma conexão real é feita. Configure APIs/tokens oficiais no futuro.</div>
+      <div className="aa-connect-info">
+        <span>💾 Dados salvos no navegador (localStorage). Preparado para migração futura para banco de dados.</span>
+      </div>
 
       <div className="aa-connect-section">
         <h3>🛒 Plataformas de Afiliados</h3>
@@ -639,9 +663,15 @@ function ConexoesPage() {
                 <span className={`aa-connect-status ${p.status === 'conectado' ? 'connected' : ''}`}>{p.status === 'conectado' ? 'Conectado' : 'Desconectado'}</span>
               </div>
               <div className="aa-connect-body">
-                <label>API Key / Token</label>
-                <input className="aa-input" type="text" placeholder="Cole sua API key aqui" value={p.token} readOnly />
-                <p className="aa-connect-aviso">Use apenas tokens oficiais. Nunca salve senhas.</p>
+                <label>API Key</label>
+                <input className="aa-input" type="text" placeholder="Chave da API" value={p.apiKey || ''} onChange={e => updateField(p.id, 'apiKey', e.target.value)} />
+                <label style={{ marginTop: 8 }}>Token</label>
+                <input className="aa-input" type="text" placeholder="Token de acesso" value={p.token || ''} onChange={e => updateField(p.id, 'token', e.target.value)} />
+                <label style={{ marginTop: 8 }}>Affiliate ID</label>
+                <input className="aa-input" type="text" placeholder="ID de afiliado" value={p.affiliateId || ''} onChange={e => updateField(p.id, 'affiliateId', e.target.value)} />
+                <label style={{ marginTop: 8 }}>Tracking ID</label>
+                <input className="aa-input" type="text" placeholder="ID de rastreamento" value={p.trackingId || ''} onChange={e => updateField(p.id, 'trackingId', e.target.value)} />
+                <p className="aa-connect-aviso">Use apenas tokens oficiais. Arquitetura preparada para banco de dados.</p>
               </div>
               <div className="aa-connect-footer">
                 {p.status === 'conectado' ? (
@@ -666,9 +696,15 @@ function ConexoesPage() {
                 <span className={`aa-connect-status ${p.status === 'conectado' ? 'connected' : ''}`}>{p.status === 'conectado' ? 'Conectado' : 'Desconectado'}</span>
               </div>
               <div className="aa-connect-body">
-                <label>API Key / Token</label>
-                <input className="aa-input" type="text" placeholder="Token oficial da API" value={p.token} readOnly />
-                <p className="aa-connect-aviso">Use OAuth oficial. Nunca compartilhe senhas.</p>
+                <label>API Key</label>
+                <input className="aa-input" type="text" placeholder="Chave da API" value={p.apiKey || ''} onChange={e => updateField(p.id, 'apiKey', e.target.value)} />
+                <label style={{ marginTop: 8 }}>Token</label>
+                <input className="aa-input" type="text" placeholder="Token de acesso" value={p.token || ''} onChange={e => updateField(p.id, 'token', e.target.value)} />
+                <label style={{ marginTop: 8 }}>Affiliate ID</label>
+                <input className="aa-input" type="text" placeholder="ID de afiliado" value={p.affiliateId || ''} onChange={e => updateField(p.id, 'affiliateId', e.target.value)} />
+                <label style={{ marginTop: 8 }}>Tracking ID</label>
+                <input className="aa-input" type="text" placeholder="ID de rastreamento" value={p.trackingId || ''} onChange={e => updateField(p.id, 'trackingId', e.target.value)} />
+                <p className="aa-connect-aviso">Use OAuth oficial. Prepare sua arquitetura de banco.</p>
               </div>
               <div className="aa-connect-footer">
                 {p.status === 'conectado' ? (

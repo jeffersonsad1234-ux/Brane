@@ -1,3 +1,5 @@
+import { buscarEmTodosProvedores, loadConnections } from '../../services/affiliateProviders';
+
 const TRENDS = ['produto em alta', 'produto viral', 'alta conversão', 'muito buscado'];
 
 const NICHOS = [
@@ -189,6 +191,8 @@ export class AffiliateAgent {
     this._abTests = [];
     this._melhorThumbnail = null;
     this._melhorPlataforma = null;
+    this._connectionsMap = null;
+    this._providersAtivos = [];
   }
 
   get running() { return this._running; }
@@ -208,6 +212,8 @@ export class AffiliateAgent {
   get abTests() { return [...this._abTests]; }
   get melhorThumbnail() { return this._melhorThumbnail; }
   get melhorPlataforma() { return this._melhorPlataforma; }
+  get providersAtivos() { return [...this._providersAtivos]; }
+  get connectionsMap() { return this._connectionsMap ? { ...this._connectionsMap } : null; }
 
   _log(tipo, msg) {
     this._logs.unshift({ tipo, msg, data: new Date().toLocaleTimeString('pt-BR'), timestamp: Date.now() });
@@ -222,20 +228,34 @@ export class AffiliateAgent {
     return { tendencia, nicho, produto: produtoBase };
   }
 
-  _criarLoja(nicho) {
+  async _criarLoja(nicho) {
     if (this._stores.find(s => s.id === nicho.id)) return null;
-    const produtos = PRODUTOS[nicho.id].map(p => ({
+    let produtosBase;
+    let fonte = 'mock';
+    if (this._providersAtivos.length > 0) {
+      const providerProdutos = await this._buscarProdutosProvedores(nicho.id);
+      if (providerProdutos && providerProdutos.length > 0) {
+        produtosBase = providerProdutos;
+        fonte = 'provedores';
+      }
+    }
+    if (!produtosBase) {
+      produtosBase = PRODUTOS[nicho.id] || [];
+    }
+    const produtos = produtosBase.map(p => ({
       ...p,
-      id: Math.random().toString(36).slice(2, 8),
-      headline: gerarHeadline(nicho.id, p),
-      descSEO: gerarDescSEO(p, nicho.id),
-      tags: gerarTags(nicho.id, p),
-      slug: slugify(p.nome),
-      thumbnail: p.img,
-      linkAfiliado: null,
-      status: 'demo',
-      tendencia: pick(TRENDS),
+      id: p.id || Math.random().toString(36).slice(2, 8),
+      headline: p.headline || gerarHeadline(nicho.id, p),
+      descSEO: p.descSEO || gerarDescSEO(p, nicho.id),
+      tags: p.tags || gerarTags(nicho.id, p),
+      slug: p.slug || slugify(p.nome),
+      thumbnail: p.imagem || p.img || '📦',
+      linkAfiliado: p.linkAfiliado || null,
+      status: fonte === 'provedores' ? 'real' : 'demo',
+      tendencia: p.tendencia || pick(TRENDS),
       cliques: 0, conversoes: 0, viralScore: Math.random(),
+      provider: p.provider || null,
+      comissao: p.comissao || null,
     }));
     const store = {
       id: nicho.id, nome: nicho.nome, icone: nicho.icone, cor: nicho.cor,
@@ -243,6 +263,7 @@ export class AffiliateAgent {
       headline: `Melhores produtos de ${nicho.nome}`,
       produtos,
       posts: [],
+      fonte,
       criadaEm: new Date().toLocaleString('pt-BR'),
       acessos: 0, vendas: 0,
     };
@@ -252,10 +273,13 @@ export class AffiliateAgent {
     store.produtos.forEach(p => {
       this._allProducts.push(p);
       this._topProdutos[p.id] = p;
+      if (fonte === 'provedores' && p.linkAfiliado) {
+        this._log('info', `🔗 Link de afiliado gerado: ${p.linkAfiliado}`);
+      }
       this._log('info', `🎨 Gerando criativos IA para ${p.nome}...`);
       this._gerarCriativos(p, store);
     });
-    this._log('success', `🏪 Loja "${nicho.nome}" criada com ${store.produtos.length} produtos e criativos`);
+    this._log('success', `🏪 Loja "${nicho.nome}" criada com ${store.produtos.length} produtos (fonte: ${fonte})`);
     return store;
   }
 
@@ -348,6 +372,49 @@ export class AffiliateAgent {
     if (this._learning.melhoresNichos.length > 0) {
       this._log('success', `🧠 Nichos com melhor performance: ${this._learning.melhoresNichos.join(', ')}`);
     }
+  }
+
+  setConnections(connectionsMap) {
+    this._connectionsMap = connectionsMap;
+    this._providersAtivos = connectionsMap
+      ? Object.entries(connectionsMap).filter(([, v]) => v.status === 'conectado').map(([k]) => k)
+      : [];
+    if (this._providersAtivos.length > 0) {
+      this._log('success', `🔗 ${this._providersAtivos.length} provedor(es) de afiliados conectados: ${this._providersAtivos.join(', ')}`);
+    }
+  }
+
+  async _buscarProdutosProvedores(nichoId) {
+    if (!this._connectionsMap || this._providersAtivos.length === 0) return null;
+    this._log('info', `🔍 Buscando produtos em ${this._providersAtivos.length} provedor(es) para "${nichoId}"...`);
+    let allProducts = [];
+    let errors = [];
+    try {
+      const results = await buscarEmTodosProvedores(nichoId, this._connectionsMap);
+      results.forEach(r => {
+        if (r.success) {
+          allProducts = allProducts.concat(r.products);
+          this._log('success', `✅ ${r.provider}: ${r.count} produtos encontrados`);
+        } else {
+          errors.push(`${r.provider}: ${r.error}`);
+          this._log('warn', `⚠️ ${r.provider}: ${r.error}`);
+        }
+      });
+    } catch (e) {
+      this._log('error', `❌ Erro ao buscar provedores: ${e.message}`);
+    }
+    if (allProducts.length === 0 && errors.length > 0) {
+      this._log('warn', '⚠️ Nenhum produto encontrado nos provedores. Usando dados mock.');
+      return null;
+    }
+    if (allProducts.length > 0) {
+      this._log('success', `📦 Total: ${allProducts.length} produtos reais de afiliados`);
+      allProducts.forEach(p => {
+        this._log('info', `🔗 Link gerado: ${p.linkAfiliado}`);
+      });
+      return allProducts;
+    }
+    return null;
   }
 
   _gerarThumbnail(produto, store, estilo) {
@@ -518,19 +585,21 @@ export class AffiliateAgent {
     this._log('success', `✅ Ciclo #${this._cycleCount} concluído`);
   }
 
-  gerarDadosIniciais() {
+  async gerarDadosIniciais() {
     if (this._stores.length > 0) return;
+    const saved = loadConnections();
+    if (saved) this.setConnections(saved);
     this._log('success', '🚀 Iniciando geração de dados iniciais...');
     const primeirosNichos = NICHOS.filter(n => ['tecnologia', 'casa', 'beleza', 'gadgets', 'gamer'].includes(n.id));
     const alvo = primeirosNichos.slice(0, 3);
-    alvo.forEach(n => {
+    for (const n of alvo) {
       this._log('info', `🔍 Analisando nicho: ${n.nome}...`);
-      const store = this._criarLoja(n);
+      const store = await this._criarLoja(n);
       if (store) {
         this._log('info', `📱 Gerando posts para ${n.nome}...`);
         this._gerarPosts(store);
       }
-    });
+    }
     this._log('info', '📊 Simulando métricas iniciais...');
     this._simularAnalytics();
     this._aprender();
@@ -538,11 +607,11 @@ export class AffiliateAgent {
     this._cycleCount = 1;
   }
 
-  start() {
+  async start() {
     if (this._running) return;
     this._running = true;
     this._log('success', '🚀 Agente Afiliado Inteligente iniciado');
-    this.gerarDadosIniciais();
+    await this.gerarDadosIniciais();
     this._ciclo();
     this._timer = setInterval(() => this._ciclo(), this._interval);
   }
