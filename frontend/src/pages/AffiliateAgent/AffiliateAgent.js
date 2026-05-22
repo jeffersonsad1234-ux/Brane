@@ -973,6 +973,10 @@ function CampanhaPage() {
   });
   const [campaign, setCampaign] = useState(null);
   const [video, setVideo] = useState(null);
+  const [realVideoUrl, setRealVideoUrl] = useState(null);
+  const [realVideoBlob, setRealVideoBlob] = useState(null);
+  const [generating, setGenerating] = useState(false);
+  const [genProgress, setGenProgress] = useState(0);
   const [videoLegenda, setVideoLegenda] = useState('');
   const [videoRoteiro, setVideoRoteiro] = useState('');
   const [campLogs, setCampLogs] = useState([]);
@@ -999,7 +1003,7 @@ function CampanhaPage() {
 
   const generateSlug = (text) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-  const generateCampanha = () => {
+  const generateCampanha = async () => {
     addLog('info', '🛒 Iniciando criação da campanha...');
 
     const precoNum = parseFloat(form.preco);
@@ -1048,29 +1052,71 @@ function CampanhaPage() {
       criadoEm: new Date().toISOString(),
     };
 
-    const { generateVideo } = require("../../services/videoGenerator");
-    const vid = generateVideo(camp);
-    setVideo(vid);
-    setVideoLegenda(legenda);
-    setVideoRoteiro(vid.narracaoCompleta);
-
     setCampaign(camp);
+    setVideoLegenda(legenda);
     setStep('aprovacao');
+    setRealVideoUrl(null);
+    setRealVideoBlob(null);
 
     addLog('success', `✅ Loja criada: ${lojaUrl}`);
     addLog('success', `✅ Produto adicionado: ${form.nome}`);
-    addLog('success', `✅ Vídeo gerado: ${vid.duracao}s · ${vid.formato} · ${vid.cortesRapidos} cortes · ${vid.pessoa.nome} apresentando`);
-    addLog('info', '⏳ Assista, edite se necessário e aprove para publicar');
+    addLog('info', '⏳ Gerando vídeo real com apresentador...');
+
+    // Generate real video
+    setGenerating(true);
+    setGenProgress(0);
+
+    try {
+      const { generateRealVideo } = await import("../../services/realVideoGenerator");
+      const result = await generateRealVideo(camp, (pct) => {
+        setGenProgress(pct);
+      });
+
+      setVideo(result.videoMeta);
+      setVideoRoteiro(result.videoMeta.narracaoCompleta);
+
+      if (result.url) {
+        setRealVideoUrl(result.url);
+        setRealVideoBlob(result.blob);
+        addLog('success', `✅ Vídeo MP4 real gerado: ${result.videoMeta.duracao}s · ${result.videoMeta.resolucao} · ${result.videoMeta.cortesRapidos} cortes · ${result.videoMeta.pessoa?.nome || 'apresentador'} apresentando`);
+        addLog('info', '⏳ Assista, edite se necessário e aprove para publicar');
+      } else {
+        addLog('error', `❌ Falha na renderização do vídeo: ${result.error || 'erro desconhecido'}`);
+      }
+    } catch (err) {
+      addLog('error', `❌ Erro ao gerar vídeo: ${err.message}`);
+    }
+
+    setGenerating(false);
   };
 
-  const handleRegenerate = () => {
+  const handleRegenerate = async () => {
     if (!campaign) return;
     addLog('info', '🔄 Gerando nova versão do vídeo...');
-    const { regenerateVideo } = require("../../services/videoGenerator");
-    const novoVideo = regenerateVideo(campaign, video);
-    setVideo(novoVideo);
-    setVideoRoteiro(novoVideo.narracaoCompleta);
-    addLog('success', `✅ Novo vídeo gerado: ${novoVideo.duracao}s · roteiro diferente · nova pessoa`);
+    setRealVideoUrl(null);
+    setRealVideoBlob(null);
+    setGenerating(true);
+    setGenProgress(0);
+
+    try {
+      const { regenerateRealVideo } = await import("../../services/realVideoGenerator");
+      const result = await regenerateRealVideo(campaign, video, (pct) => setGenProgress(pct));
+
+      setVideo(result.videoMeta);
+      setVideoRoteiro(result.videoMeta.narracaoCompleta);
+
+      if (result.url) {
+        setRealVideoUrl(result.url);
+        setRealVideoBlob(result.blob);
+        addLog('success', `✅ Novo vídeo gerado: ${result.videoMeta.duracao}s · roteiro diferente · nova cena`);
+      } else {
+        addLog('warn', '⚠️ Regenerado metadados, mas render falhou');
+      }
+    } catch (err) {
+      addLog('error', `❌ Erro: ${err.message}`);
+    }
+
+    setGenerating(false);
     addLog('info', '⏳ Vídeo ainda não publicado. Aprove para publicar.');
   };
 
@@ -1096,7 +1142,7 @@ function CampanhaPage() {
   const handleApprove = async () => {
     if (!campaign) return;
 
-    if (!video) {
+    if (!realVideoUrl) {
       addLog('error', '❌ Gere e aprove um vídeo antes de publicar.');
       return;
     }
@@ -1207,17 +1253,20 @@ function CampanhaPage() {
 
       {step === 'aprovacao' && campaign && (
         <>
-          {!video && (
+          {!realVideoUrl && !generating && (
             <div className="vp-error">⚠️ Nenhum vídeo gerado. Gere um vídeo antes de publicar.</div>
           )}
 
           <div className="aa-camp-queue">
             <VideoPreviewApproval
               video={video}
+              realVideoUrl={realVideoUrl}
               legenda={videoLegenda}
               hashtags={campaign.hashtags}
               campaign={campaign}
               publishing={publishing}
+              generating={generating}
+              genProgress={genProgress}
               onApprove={handleApprove}
               onReject={handleReject}
               onRegenerate={handleRegenerate}

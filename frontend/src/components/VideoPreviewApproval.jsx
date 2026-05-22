@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { formatDuracao } from "../services/videoGenerator";
+import { formatDuracao } from "../services/realVideoGenerator";
 
 export default function VideoPreviewApproval({
   video,
+  realVideoUrl,
   legenda,
   hashtags,
   campaign,
   publishing,
+  generating,
+  genProgress,
   onApprove,
   onReject,
   onRegenerate,
@@ -19,10 +22,17 @@ export default function VideoPreviewApproval({
   const [elapsed, setElapsed] = useState(0);
   const [editMode, setEditMode] = useState(null);
   const [editText, setEditText] = useState('');
+  const [videoReady, setVideoReady] = useState(false);
   const timerRef = useRef(null);
+  const videoRef = useRef(null);
 
   const duration = video?.duracao || 30;
   const scenes = video?.cenas || [];
+  const hasRealVideo = !!realVideoUrl;
+
+  useEffect(() => {
+    setVideoReady(hasRealVideo);
+  }, [realVideoUrl, hasRealVideo]);
 
   const startPlayback = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
@@ -65,6 +75,17 @@ export default function VideoPreviewApproval({
   }, []);
 
   const handlePlayPause = () => {
+    if (hasRealVideo && videoRef.current) {
+      if (videoRef.current.paused) {
+        videoRef.current.play();
+        setPlaying(true);
+      } else {
+        videoRef.current.pause();
+        setPlaying(false);
+      }
+      return;
+    }
+
     if (playing) {
       clearInterval(timerRef.current);
       setPlaying(false);
@@ -79,6 +100,14 @@ export default function VideoPreviewApproval({
   };
 
   const handleRestart = () => {
+    if (hasRealVideo && videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play();
+      setPlaying(true);
+      setProgress(0);
+      setElapsed(0);
+      return;
+    }
     clearInterval(timerRef.current);
     setPlaying(false);
     setProgress(0);
@@ -100,54 +129,106 @@ export default function VideoPreviewApproval({
 
   const handleEditCancel = () => setEditMode(null);
 
+  const handleVideoTimeUpdate = () => {
+    if (videoRef.current && duration > 0) {
+      const pct = videoRef.current.currentTime / duration;
+      setProgress(pct);
+      setElapsed(videoRef.current.currentTime);
+
+      let accum = 0;
+      for (let i = 0; i < scenes.length; i++) {
+        accum += scenes[i].duracao;
+        if (videoRef.current.currentTime < accum) {
+          setCurrentScene(i);
+          break;
+        }
+      }
+
+      if (videoRef.current.ended) setPlaying(false);
+    }
+  };
+
   return (
     <div className="aa-camp-card">
       <h4 style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
         <span>📹</span> Prévia do Vídeo
         <span style={{ fontSize: '0.7rem', color: 'var(--aa-text-muted)', fontWeight: 400 }}>
-          {formatDuracao(duration)} · {video?.formato || '9:16'} · {video?.cortesRapidos} cortes
+          {formatDuracao(duration)} · {video?.formato || '9:16'} · {video?.cortesRapidos || scenes.length} cortes
+          {hasRealVideo && ' · MP4 real'}
         </span>
       </h4>
 
+      {generating && (
+        <div className="vp-generating">
+          <div className="vp-generating-spinner" />
+          <div className="vp-generating-text">Gerando vídeo real... {genProgress ? `${Math.round(genProgress * 100)}%` : ''}</div>
+          <div className="vp-generating-bar">
+            <div className="vp-generating-fill" style={{ width: `${(genProgress || 0) * 100}%` }} />
+          </div>
+        </div>
+      )}
+
       <div className="vp-container">
         <div className="vp-player">
-          <div className="vp-screen" onClick={handlePlayPause} style={{ background: scenes[currentScene]?.cor || '#1a1a2e' }}>
-            <div className="vp-scene-indicator">Cena {currentScene + 1}/{scenes.length}</div>
-
-            <div className="vp-persona-badge">
-              <span>{video?.pessoa?.nome}</span>
-              <span className="vp-persona-style">{video?.pessoa?.estilo}</span>
+          {hasRealVideo && videoReady ? (
+            <div className="vp-screen vp-screen-real">
+              <video
+                ref={videoRef}
+                src={realVideoUrl}
+                className="vp-real-video"
+                onTimeUpdate={handleVideoTimeUpdate}
+                onEnded={() => setPlaying(false)}
+                onPlay={() => setPlaying(true)}
+                onPause={() => setPlaying(false)}
+                playsInline
+                preload="auto"
+              />
+              {!playing && (
+                <div className="vp-play-overlay" onClick={handlePlayPause}>
+                  <span className="vp-play-icon">{progress >= 1 ? '↻' : '▶'}</span>
+                  <span className="vp-play-text">{progress >= 1 ? 'Repetir' : 'Assistir'}</span>
+                </div>
+              )}
             </div>
+          ) : (
+            <div className="vp-screen" onClick={handlePlayPause} style={{ background: scenes[currentScene]?.cor || '#1a1a2e' }}>
+              <div className="vp-scene-indicator">Cena {currentScene + 1}/{scenes.length}</div>
 
-            <div className="vp-emoji-display">{scenes[currentScene]?.emoji || '🎬'}</div>
+              <div className="vp-persona-badge">
+                <span>{video?.personaNome || video?.pessoa?.nome || 'Apresentador'}</span>
+                <span className="vp-persona-style">{video?.pessoa?.estilo || video?.estiloVisual || ''}</span>
+              </div>
 
-            <div className="vp-legenda-overlay">
-              {scenes[currentScene]?.legenda || ''}
+              <div className="vp-emoji-display">{scenes[currentScene]?.emoji || '🎬'}</div>
+
+              <div className="vp-legenda-overlay">
+                {scenes[currentScene]?.legenda || ''}
+              </div>
+
+              {!playing && progress === 0 && (
+                <div className="vp-play-overlay" onClick={handlePlayPause}>
+                  <span className="vp-play-icon">▶</span>
+                  <span className="vp-play-text">Assistir prévia</span>
+                </div>
+              )}
+
+              {!playing && progress > 0 && progress < 1 && (
+                <div className="vp-paused-badge">⏸ Pausado</div>
+              )}
+
+              {!playing && progress >= 1 && (
+                <div className="vp-play-overlay" onClick={handlePlayPause}>
+                  <span className="vp-play-icon">↻</span>
+                  <span className="vp-play-text">Repetir</span>
+                </div>
+              )}
             </div>
-
-            {!playing && progress === 0 && (
-              <div className="vp-play-overlay" onClick={handlePlayPause}>
-                <span className="vp-play-icon">▶</span>
-                <span className="vp-play-text">Assistir prévia</span>
-              </div>
-            )}
-
-            {!playing && progress > 0 && progress < 1 && (
-              <div className="vp-paused-badge">⏸ Pausado</div>
-            )}
-
-            {!playing && progress >= 1 && (
-              <div className="vp-play-overlay" onClick={handlePlayPause}>
-                <span className="vp-play-icon">↻</span>
-                <span className="vp-play-text">Repetir</span>
-              </div>
-            )}
-          </div>
+          )}
 
           <div className="vp-controls">
             <div className="vp-progress-bar">
               <div className="vp-progress-fill" style={{ width: `${progress * 100}%` }} />
-              {scenes.map((s, i) => {
+              {!hasRealVideo && scenes.map((s, i) => {
                 const startPct = scenes.slice(0, i).reduce((a, c) => a + c.duracao, 0) / duration * 100;
                 const wPct = s.duracao / duration * 100;
                 return (
@@ -163,16 +244,22 @@ export default function VideoPreviewApproval({
 
             <div className="vp-control-row">
               <div className="vp-buttons">
-                <button className="vp-btn" onClick={handlePlayPause} title={playing ? 'Pausar' : 'Play'}>
+                <button className="vp-btn" onClick={handlePlayPause} title={playing ? 'Pausar' : 'Play'} disabled={generating}>
                   {playing ? '⏸' : progress >= 1 ? '↻' : '▶'}
                 </button>
-                <button className="vp-btn" onClick={handleRestart} title="Reiniciar">⏮</button>
+                <button className="vp-btn" onClick={handleRestart} title="Reiniciar" disabled={generating}>⏮</button>
               </div>
-              <span className="vp-time">{formatDuracao(Math.floor(elapsed))} / {formatDuracao(duration)}</span>
+              <span className="vp-time">
+                {hasRealVideo && videoRef.current
+                  ? `${formatDuracao(Math.floor(videoRef.current.currentTime))} / ${formatDuracao(duration)}`
+                  : `${formatDuracao(Math.floor(elapsed))} / ${formatDuracao(duration)}`
+                }
+              </span>
               <div className="vp-info-tags">
-                <span className="vp-tag">{video?.estiloVisual}</span>
-                <span className="vp-tag">{video?.musica?.nome}</span>
-                <span className="vp-tag">{video?.pessoa?.tom}</span>
+                <span className="vp-tag">{video?.estiloVisual || 'viral'}</span>
+                <span className="vp-tag">{video?.musica?.nome || 'Music'}</span>
+                <span className="vp-tag">{video?.pessoa?.tom || 'natural'}</span>
+                {hasRealVideo && <span className="vp-tag vp-tag-real">🎬 MP4</span>}
               </div>
             </div>
           </div>
@@ -196,19 +283,19 @@ export default function VideoPreviewApproval({
           <div className="vp-details">
             <div className="vp-detail-row">
               <span className="vp-detail-label">🎵 Música</span>
-              <span className="vp-detail-value">{video?.musica?.nome} ({video?.musica?.bpm}BPM)</span>
+              <span className="vp-detail-value">{video?.musica?.nome || 'Background'} ({video?.musica?.bpm || 120}BPM)</span>
             </div>
             <div className="vp-detail-row">
               <span className="vp-detail-label">👤 Apresentador</span>
-              <span className="vp-detail-value">{video?.pessoa?.nome}, {video?.pessoa?.idade} anos — {video?.pessoa?.estilo}</span>
+              <span className="vp-detail-value">{video?.pessoa?.nome || 'Apresentador'}, {video?.pessoa?.idade || ''} — {video?.pessoa?.estilo || 'natural'}</span>
             </div>
             <div className="vp-detail-row">
               <span className="vp-detail-label">🎨 Estilo</span>
-              <span className="vp-detail-value">{video?.estiloVisual}{video?.zoom ? ' · zoom' : ''}{video?.legendasAtivadas ? ' · legendas' : ''}</span>
+              <span className="vp-detail-value">{video?.estiloVisual || 'moderno'}{video?.zoom !== false ? ' · zoom' : ''}{video?.legendasAtivadas !== false ? ' · legendas' : ''}</span>
             </div>
             <div className="vp-detail-row">
               <span className="vp-detail-label">📐 Resolução</span>
-              <span className="vp-detail-value">{video?.resolucao}</span>
+              <span className="vp-detail-value">{video?.resolucao || '540x960'}</span>
             </div>
           </div>
         </div>
@@ -269,13 +356,13 @@ export default function VideoPreviewApproval({
       </div>
 
       <div className="aa-camp-approval-btns">
-        <button className="aa-btn aa-btn-primary" onClick={onApprove} disabled={publishing || !video}>
-          {publishing ? '⏳ Publicando...' : '✅ Aprovar e Publicar no TikTok'}
+        <button className="aa-btn aa-btn-primary" onClick={onApprove} disabled={publishing || generating || !realVideoUrl}>
+          {publishing ? '⏳ Publicando...' : generating ? '⏳ Gerando vídeo...' : '✅ Aprovar e Publicar no TikTok'}
         </button>
-        <button className="aa-btn aa-btn-outline" onClick={onReject} disabled={publishing}>
+        <button className="aa-btn aa-btn-outline" onClick={onReject} disabled={publishing || generating}>
           ❌ Rejeitar
         </button>
-        <button className="aa-btn aa-btn-ghost" onClick={onRegenerate} disabled={publishing}>
+        <button className="aa-btn aa-btn-ghost" onClick={onRegenerate} disabled={publishing || generating}>
           🔄 Gerar Outro Vídeo
         </button>
       </div>
