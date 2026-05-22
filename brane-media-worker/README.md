@@ -112,6 +112,67 @@ Download do vídeo MP4 gerado.
 
 Health check + status da fila.
 
+### POST /api/jobs (Mock)
+
+Cria um job UGC simulado. Retorna imediatamente com `jobId`.  
+O job transita automaticamente por `pending → running → rendering → done` (~12s).
+
+### GET /api/jobs/{jobId} (Mock)
+
+Status do job simulado com progresso e logs.
+
+---
+
+## Integração com o Frontend
+
+No React, defina as variáveis de ambiente:
+
+```bash
+REACT_APP_MEDIA_WORKER_URL=http://localhost:3200
+REACT_APP_MEDIA_WORKER_API_KEY=opcional
+```
+
+Ou no deploy (Cloudflare Pages / Railway):
+
+```bash
+# Dashboard → Environment Variables
+MEDIA_WORKER_URL = https://seu-worker.up.railway.app
+```
+
+Quando configurado, o painel exibe um botão **"Gerar vídeo UGC com apresentador"** na página de campanha.
+
+### Fluxo Frontend → Worker
+
+```
+1. Usuário clica "Gerar vídeo UGC com apresentador"
+2. React → POST /api/jobs { productName, productImageUrl, price, ... }
+3. Worker → { jobId: "abc123", status: "pending" }
+4. React faz polling GET /api/jobs/abc123 a cada 2.5s
+5. Worker → { status: "running" } → { status: "rendering" } → { status: "done", videoUrl: "..." }
+6. React exibe preview do vídeo UGC
+7. Usuário escolhe: usar UGC ou manter vídeo visual atual
+8. Publicação usa o vídeo selecionado
+```
+
+### Substituição por API Real (HeyGen / D-ID / Tavus / Runway)
+
+Para trocar o mock por um serviço real:
+
+1. Crie um novo módulo em `worker/providers/`
+2. Implemente a integração com a API (ex: `heygen_provider.py`)
+3. No `server.py`, aponte o endpoint `/api/jobs` para o provider real
+4. Atualize o mapeamento de status
+
+Exemplo de provider:
+
+```python
+# worker/providers/heygen_provider.py
+async def create_heygen_video(product_data: dict) -> dict:
+    # Chama API HeyGen
+    # Retorna { jobId, status }
+    pass
+```
+
 ---
 
 ## Estrutura de Cenas

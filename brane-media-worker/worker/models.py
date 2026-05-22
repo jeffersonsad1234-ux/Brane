@@ -21,6 +21,10 @@ class UGCJobRequest(BaseModel):
     tone: Optional[Literal["entusiasmado", "calmo", "urgente", "divertido"]] = "entusiasmado"
     avatarStyle: Optional[Literal["profissional", "jovem", "influencer", "minimalista"]] = "profissional"
     callbackUrl: Optional[str] = None
+    script: Optional[str] = ""
+    style: Optional[str] = "ugc"
+    presenter: Optional[str] = "realistic"
+    language: Optional[str] = "pt-BR"
 
 
 class UGCJobResponse(BaseModel):

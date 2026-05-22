@@ -6,6 +6,7 @@ import { AutoPostEngine, SOCIAL_PLATFORMS, loadSocialConnections, saveSocialConn
 import BrowserConnectionPanel from "../../components/BrowserConnectionPanel";
 import VideoPreviewApproval from "../../components/VideoPreviewApproval";
 import AnunciosPage, { adicionarAnuncio } from "./AnunciosPage";
+import { isMediaWorkerEnabled, createUGCJob, getUGCJobStatus } from "../../services/mediaWorker";
 import "./AffiliateAgent.css";
 
 function useAgent() {
@@ -985,6 +986,13 @@ function CampanhaPage() {
   const [campLogs, setCampLogs] = useState([]);
   const [publishing, setPublishing] = useState(false);
   const [publicado, setPublicado] = useState(null);
+  const ugcEnabled = isMediaWorkerEnabled();
+  const [ugcStatus, setUgcStatus] = useState('idle');
+  const [ugcJobId, setUgcJobId] = useState(null);
+  const [ugcProgress, setUgcProgress] = useState(0);
+  const [ugcVideoUrl, setUgcVideoUrl] = useState(null);
+  const [ugcError, setUgcError] = useState(null);
+  const [useUgcVideo, setUseUgcVideo] = useState(false);
 
   const categorias = [
     { id: 'tecnologia', nome: 'Tecnologia', icone: '💻' },
@@ -1129,6 +1137,64 @@ function CampanhaPage() {
     addLog('info', '⏳ Vídeo ainda não publicado. Aprove para publicar.');
   };
 
+  const handleStartUGC = async () => {
+    if (!campaign) return;
+    setUgcStatus('sending');
+    setUgcJobId(null);
+    setUgcVideoUrl(null);
+    setUgcError(null);
+    setUseUgcVideo(false);
+    addLog('info', '🎬 Solicitando vídeo UGC com apresentador...');
+
+    try {
+      const { jobId } = await createUGCJob(campaign);
+      setUgcJobId(jobId);
+      setUgcStatus('processing');
+      addLog('info', `📥 Job UGC enviado: ${jobId}`);
+    } catch (err) {
+      setUgcStatus('failed');
+      setUgcError(err.message);
+      addLog('error', `❌ UGC falhou: ${err.message}`);
+    }
+  };
+
+  useEffect(() => {
+    if (!ugcJobId || ugcStatus === 'ready' || ugcStatus === 'failed') return;
+    const iv = setInterval(async () => {
+      try {
+        const info = await getUGCJobStatus(ugcJobId);
+        const s = info.status;
+        if (s === 'pending' || s === 'running') setUgcStatus('processing');
+        else if (s === 'rendering') setUgcStatus('rendering');
+        else if (s === 'done') {
+          setUgcStatus('ready');
+          setUgcVideoUrl(info.videoUrl || '');
+          addLog('success', `✅ Vídeo UGC pronto: ${info.videoUrl || ''}`);
+          clearInterval(iv);
+        } else if (s === 'failed') {
+          setUgcStatus('failed');
+          setUgcError(info.error || 'Erro desconhecido');
+          addLog('error', `❌ UGC falhou: ${info.error || 'Erro desconhecido'}`);
+          clearInterval(iv);
+        }
+        if (info.progress) setUgcProgress(info.progress);
+      } catch (e) {
+        if (ugcStatus === 'failed') clearInterval(iv);
+      }
+    }, 2500);
+    return () => clearInterval(iv);
+  }, [ugcJobId]);
+
+  const handleUseUgc = () => {
+    setUseUgcVideo(true);
+    addLog('info', '✅ Usando vídeo UGC com apresentador para publicação');
+  };
+
+  const handleKeepVisual = () => {
+    setUseUgcVideo(false);
+    addLog('info', '✅ Mantendo vídeo visual atual para publicação');
+  };
+
   const handleReject = () => {
     addLog('warn', '⏹️ Campanha rejeitada');
     setCampaign(null);
@@ -1153,17 +1219,19 @@ function CampanhaPage() {
   const handleApprove = async () => {
     if (!campaign) return;
 
-    if (!realVideoUrl) {
+    const finalVideoUrl = useUgcVideo && ugcVideoUrl ? ugcVideoUrl : realVideoUrl;
+
+    if (!finalVideoUrl) {
       addLog('error', '❌ Gere um vídeo antes de publicar.');
       return;
     }
 
-    addLog('info', '✅ Campanha aprovada — adicionando à central de anúncios');
+    addLog('info', `✅ Campanha aprovada — usando ${useUgcVideo ? 'UGC com apresentador' : 'vídeo visual'}`);
 
     adicionarAnuncio({
       nome: campaign.nome,
-      videoUrl: realVideoUrl,
-      videoBlob: realVideoBlob,
+      videoUrl: finalVideoUrl,
+      videoBlob: useUgcVideo ? null : realVideoBlob,
       legenda: videoLegenda,
       hashtags: campaign.hashtags || [],
       lojaUrl: campaign.lojaUrl || campaign.link || '',
@@ -1278,6 +1346,108 @@ function CampanhaPage() {
               onEditRoteiro={handleEditRoteiro}
             />
           </div>
+
+          {ugcEnabled && campaign && (
+            <div className="aa-card" style={{ marginTop: 18 }}>
+              <h3 className="aa-card-title" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.95rem' }}>
+                🎬 Vídeo UGC com Apresentador
+                {ugcStatus === 'ready' && <span className="vp-tag vp-tag-real" style={{ fontSize: '0.65rem' }}>PRONTO</span>}
+                {ugcStatus === 'failed' && <span style={{ fontSize: '0.65rem', color: '#ef4444' }}>indisponível</span>}
+              </h3>
+
+              <p style={{ fontSize: '0.78rem', color: 'var(--aa-text-muted)', marginBottom: 12 }}>
+                Gere um vídeo estilo UGC com apresentador IA mostrando o produto.
+              </p>
+
+              {ugcStatus === 'idle' && (
+                <button className="aa-btn aa-btn-outline" onClick={handleStartUGC} style={{ fontSize: '0.85rem' }}>
+                  🎬 Gerar vídeo UGC com apresentador
+                </button>
+              )}
+
+              {(ugcStatus === 'sending' || ugcStatus === 'processing') && (
+                <div className="vp-generating">
+                  <div className="vp-generating-spinner" />
+                  <div className="vp-generating-text">Enviando job para Media Worker...</div>
+                </div>
+              )}
+
+              {ugcStatus === 'processing' && (
+                <div className="vp-generating">
+                  <div className="vp-generating-spinner" />
+                  <div className="vp-generating-text">Processando UGC... gerando cenas</div>
+                  <div className="vp-generating-bar">
+                    <div className="vp-generating-fill" style={{ width: `${Math.max(ugcProgress * 100, 10)}%` }} />
+                  </div>
+                </div>
+              )}
+
+              {ugcStatus === 'rendering' && (
+                <div className="vp-generating">
+                  <div className="vp-generating-spinner" />
+                  <div className="vp-generating-text">🎞️ Renderizando vídeo UGC... </div>
+                  <div className="vp-generating-bar">
+                    <div className="vp-generating-fill" style={{ width: `${Math.max(ugcProgress * 100, 50)}%` }} />
+                  </div>
+                </div>
+              )}
+
+              {ugcStatus === 'ready' && ugcVideoUrl && (
+                <div>
+                  <div className="vp-container" style={{ marginBottom: 12 }}>
+                    <div className="vp-player">
+                      <div className="vp-screen vp-screen-real">
+                        <video src={ugcVideoUrl} className="vp-real-video" controls playsInline preload="auto" style={{ width: '100%', maxHeight: 400 }} />
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <button
+                      className="aa-btn aa-btn-primary"
+                      onClick={handleUseUgc}
+                      style={{ fontSize: '0.85rem' }}
+                      disabled={publishing}
+                    >
+                      ✅ Usar vídeo UGC
+                    </button>
+                    <button
+                      className="aa-btn aa-btn-outline"
+                      onClick={handleKeepVisual}
+                      style={{ fontSize: '0.85rem' }}
+                    >
+                      Manter vídeo visual atual
+                    </button>
+                    <button
+                      className="aa-btn aa-btn-ghost"
+                      onClick={handleStartUGC}
+                      style={{ fontSize: '0.85rem' }}
+                      disabled={publishing}
+                    >
+                      🔄 Gerar outro UGC
+                    </button>
+                  </div>
+                  {useUgcVideo && (
+                    <p style={{ fontSize: '0.78rem', color: '#10b981', marginTop: 8 }}>
+                      ✅ Vídeo UGC selecionado para publicação
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {ugcStatus === 'failed' && (
+                <div className="vp-error" style={{ padding: '10px 14px' }}>
+                  ⚠️ UGC indisponível. Use o vídeo visual atual.
+                  <br />
+                  <span style={{ fontSize: '0.72rem', color: 'var(--aa-text-muted)' }}>{ugcError || ''}</span>
+                  <div style={{ marginTop: 8 }}>
+                    <button className="aa-btn aa-btn-ghost" onClick={() => setUgcStatus('idle')} style={{ fontSize: '0.8rem' }}>
+                      🔄 Tentar novamente
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="aa-card" style={{ marginTop: 20 }}>
             <h3 className="aa-card-title">📋 Logs da Campanha</h3>
