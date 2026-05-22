@@ -3,7 +3,7 @@
   "private": true,
   "description": "Monorepo root for Cloudflare Pages. Option A (recommended): Root directory = repo root, Build command = npm run build, Build output = frontend/build. Option B: Root directory = frontend, Build command = npm run build, Build output = build.",
   "engines": {
-    "node": ">=18"
+    "node": "20.x"
   },
   "scripts": {
     "install": "npm install --prefix ./frontend --legacy-peer-deps",
