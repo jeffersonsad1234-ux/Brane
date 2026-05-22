@@ -37,7 +37,7 @@ function loadFileBackground(category) {
   const cat = getBackgroundCategory(category);
   if (_bgFileCache[cat]) return _bgFileCache[cat];
   const img = new Image();
-  img.src = `/backgrounds/${cat}.jpg`;
+  img.src = `/backgrounds/${cat}.png`;
   _bgFileCache[cat] = img;
   return img;
 }
