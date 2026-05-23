@@ -571,6 +571,16 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
   const nextZRef = useRef(1);
   const showLauncherRef = useRef(showLauncher);
   showLauncherRef.current = showLauncher;
+
+  /* ── Window Manager ── */
+  const closeWindow = useCallback((id) => {
+    setWindows((prev) => prev.filter((w) => w.id !== id));
+  }, []);
+
+  const minimizeWindow = useCallback((id) => {
+    setWindows((prev) => prev.map((w) => w.id === id ? { ...w, minimized: true } : w));
+  }, []);
+
   const closeWindowRef = useRef(closeWindow);
   closeWindowRef.current = closeWindow;
   const minimizeWindowRef = useRef(minimizeWindow);
@@ -586,7 +596,6 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
   const currentApp = useMemo(() => curMod ? APPS.find((a) => a.id === curMod) || null : null, [curMod]);
   const isHome = !currentApp && windows.length === 0;
 
-  /* ── Window Manager ── */
   const bringToFront = useCallback((id) => {
     setWindows((prev) => {
       const w = prev.find((x) => x.id === id);
@@ -627,14 +636,6 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
     setWindows((prev) => [...prev, newWin]);
     setShowLauncher(false);
   }, [navigate, onNavigate, bringToFront]);
-
-  const closeWindow = useCallback((id) => {
-    setWindows((prev) => prev.filter((w) => w.id !== id));
-  }, []);
-
-  const minimizeWindow = useCallback((id) => {
-    setWindows((prev) => prev.map((w) => w.id === id ? { ...w, minimized: true } : w));
-  }, []);
 
   const toggleMaximize = useCallback((id) => {
     setWindows((prev) => prev.map((w) => w.id === id ? { ...w, maximized: !w.maximized } : w));
