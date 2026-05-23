@@ -4617,24 +4617,45 @@ async def tts_generate(body: TTSBody):
 
 # ==================== Product Import via Playwright ====================
 
+PLAYWRIGHT_INSTANCE = None
 PLAYWRIGHT_BROWSER = None
 
 async def get_browser():
-    global PLAYWRIGHT_BROWSER
-    if PLAYWRIGHT_BROWSER is None:
+    global PLAYWRIGHT_INSTANCE, PLAYWRIGHT_BROWSER
+    # Check if existing browser is still alive
+    if PLAYWRIGHT_BROWSER is not None:
         try:
-            from playwright.async_api import async_playwright
-            p = await async_playwright().start()
-            PLAYWRIGHT_BROWSER = await p.chromium.launch(
-                headless=True,
-                args=["--no-sandbox", "--disable-setuid-sandbox",
-                      "--disable-dev-shm-usage", "--disable-gpu",
-                      "--single-process"],
-            )
-            logger.info("[PLAYWRIGHT] Browser launched")
-        except Exception as e:
-            logger.error(f"[PLAYWRIGHT] Failed to launch: {e}")
-            raise
+            contexts = PLAYWRIGHT_BROWSER.contexts
+            logger.debug(f"[PLAYWRIGHT] Browser alive ({len(contexts)} contexts)")
+            return PLAYWRIGHT_BROWSER
+        except Exception:
+            logger.warning("[PLAYWRIGHT] Browser disconnected, will relaunch")
+            PLAYWRIGHT_BROWSER = None
+            PLAYWRIGHT_INSTANCE = None
+
+    # Launch new browser
+    try:
+        from playwright.async_api import async_playwright
+        p = await async_playwright().start()
+        logger.info("[PLAYWRIGHT] Playwright controller started")
+        b = await p.chromium.launch(
+            headless=True,
+            args=[
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-gpu",
+                "--disable-software-rasterizer",
+            ],
+        )
+        logger.info("[PLAYWRIGHT] Browser launched")
+        PLAYWRIGHT_INSTANCE = p
+        PLAYWRIGHT_BROWSER = b
+    except Exception as e:
+        logger.error(f"[PLAYWRIGHT] Failed to launch: {e}")
+        PLAYWRIGHT_INSTANCE = None
+        PLAYWRIGHT_BROWSER = None
+        raise
     return PLAYWRIGHT_BROWSER
 
 @app.on_event("startup")
@@ -4646,27 +4667,31 @@ async def startup_playwright():
 
 async def scrape_product_page(url: str) -> dict:
     browser = await get_browser()
-    context = await browser.new_context(
-        user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                   "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-        viewport={"width": 1280, "height": 720},
-        locale="pt-BR",
-        extra_http_headers={
-            "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-        },
-    )
-    # Override webdriver detection
-    await context.add_init_script("""
-        Object.defineProperty(navigator, 'webdriver', { get: () => false });
-        Object.defineProperty(navigator, 'plugins', { get: () => [1,2,3,4,5] });
-        Object.defineProperty(navigator, 'languages', { get: () => ['pt-BR', 'pt', 'en'] });
-        window.chrome = { runtime: {} };
-    """)
-    page = await context.new_page()
+    context = None
+    page = None
     try:
-        logger.info(f"[PLAYWRIGHT] Navigating to {url}")
-        response = await page.goto(url, timeout=60000, wait_until="domcontentloaded")
+        context = await browser.new_context(
+            user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                       "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+            viewport={"width": 1280, "height": 720},
+            locale="pt-BR",
+            extra_http_headers={
+                "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+            },
+        )
+        logger.info("[PLAYWRIGHT] Context created")
+        # Override webdriver detection
+        await context.add_init_script("""
+            Object.defineProperty(navigator, 'webdriver', { get: () => false });
+            Object.defineProperty(navigator, 'plugins', { get: () => [1,2,3,4,5] });
+            Object.defineProperty(navigator, 'languages', { get: () => ['pt-BR', 'pt', 'en'] });
+            window.chrome = { runtime: {} };
+        """)
+        page = await context.new_page()
+        logger.info(f"[PLAYWRIGHT] Page created, navigating to {url}")
+        await page.goto(url, timeout=60000, wait_until="domcontentloaded")
+        logger.info("[PLAYWRIGHT] goto finished")
         await page.wait_for_timeout(3000)
         final_url = page.url()
         logger.info(f"[PLAYWRIGHT] After redirect final_url={final_url}")
@@ -4745,7 +4770,6 @@ async def scrape_product_page(url: str) -> dict:
         images = await page.evaluate("""() => {
             const urls = [];
             const seen = new Set();
-            // Try img tags
             for (const img of document.querySelectorAll('img[src]')) {
                 let src = img.src || img.getAttribute('data-src') || img.getAttribute('data-old-hires') || '';
                 if (src && !seen.has(src) && src.startsWith('http')) {
@@ -4753,9 +4777,8 @@ async def scrape_product_page(url: str) -> dict:
                     urls.push(src);
                 }
             }
-            // Try background images
             for (const el of document.querySelectorAll('[style*="background"]')) {
-                const m = el.style.backgroundImage?.match(/url\\(["']?([^"')]+)["']?\\)/);
+                const m = el.style.backgroundImage?.match(/url\(["']?([^"')]+)["']?\)/);
                 if (m && !seen.has(m[1]) && m[1].startsWith('http')) {
                     seen.add(m[1]);
                     urls.push(m[1]);
@@ -4813,7 +4836,6 @@ async def scrape_product_page(url: str) -> dict:
         if (not description or len(description) < 20) and og_data["description"]:
             description = og_data["description"]
 
-        # Detect marketplace from domain (also check final_url)
         result = {
             "titulo_original": title.strip(),
             "descricao_original": (description or meta_desc or og_data.get("description", "")).strip(),
@@ -4836,9 +4858,26 @@ async def scrape_product_page(url: str) -> dict:
 
     except Exception as e:
         logger.error(f"[PLAYWRIGHT] Scrape error for {url}: {e}")
+        # If browser is dead, reset global so next request relaunches
+        if "closed" in str(e).lower() or "disconnected" in str(e).lower():
+            global PLAYWRIGHT_INSTANCE, PLAYWRIGHT_BROWSER
+            logger.warning("[PLAYWRIGHT] Resetting browser globals due to connection error")
+            PLAYWRIGHT_INSTANCE = None
+            PLAYWRIGHT_BROWSER = None
         raise
     finally:
-        await context.close()
+        if page:
+            try:
+                await page.close()
+                logger.debug("[PLAYWRIGHT] Page closed")
+            except Exception:
+                pass
+        if context:
+            try:
+                await context.close()
+                logger.debug("[PLAYWRIGHT] Context closed")
+            except Exception:
+                pass
 
 async def generate_product_content(product_data: dict) -> dict:
     if not OPENAI_API_KEY:
