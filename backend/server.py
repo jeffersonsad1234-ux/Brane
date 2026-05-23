@@ -4639,16 +4639,41 @@ async def scrape_product_page(url: str) -> dict:
     browser = await get_browser()
     context = await browser.new_context(
         user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                   "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                   "(KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
         viewport={"width": 1280, "height": 720},
         locale="pt-BR",
+        extra_http_headers={
+            "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        },
     )
+    # Override webdriver detection
+    await context.add_init_script("""
+        Object.defineProperty(navigator, 'webdriver', { get: () => false });
+        Object.defineProperty(navigator, 'plugins', { get: () => [1,2,3,4,5] });
+        Object.defineProperty(navigator, 'languages', { get: () => ['pt-BR', 'pt', 'en'] });
+        window.chrome = { runtime: {} };
+    """)
     page = await context.new_page()
     try:
-        # Follow redirects — short/affiliate links -> real product page
-        await page.goto(url, timeout=45000, wait_until="networkidle")
-        await page.wait_for_timeout(2000)
+        logger.info(f"[PLAYWRIGHT] Navigating to {url}")
+        response = await page.goto(url, timeout=60000, wait_until="domcontentloaded")
+        await page.wait_for_timeout(3000)
         final_url = page.url()
+        logger.info(f"[PLAYWRIGHT] After redirect final_url={final_url}")
+
+        # If still on short domain after first goto, wait more for redirect
+        if url != final_url and ("amzn.to" in final_url or "s.shopee" in final_url):
+            logger.info(f"[PLAYWRIGHT] Still on short URL, waiting for redirect...")
+            await page.wait_for_timeout(5000)
+            final_url = page.url()
+            logger.info(f"[PLAYWRIGHT] Final URL after waiting: {final_url}")
+
+        # Try to wait for network idle (might timeout on heavy pages)
+        try:
+            await page.wait_for_load_state("networkidle", timeout=15000)
+        except:
+            pass
 
         # Scroll to trigger lazy content
         await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
@@ -4656,13 +4681,7 @@ async def scrape_product_page(url: str) -> dict:
         await page.evaluate("window.scrollTo(0, 0)")
         await page.wait_for_timeout(500)
 
-        # Wait a bit more for JS-rendered content (Shopee, etc.)
-        try:
-            await page.wait_for_load_state("domcontentloaded", timeout=5000)
-        except:
-            pass
-
-        # Detect marketplace from final URL (not the short link)
+        # Detect marketplace from final URL
         domain = final_url.lower()
         marketplace = "desconhecido"
         if "amazon" in domain: marketplace = "Amazon"
@@ -4676,44 +4695,61 @@ async def scrape_product_page(url: str) -> dict:
         elif "americanas" in domain: marketplace = "Americanas"
         elif "shein" in domain: marketplace = "Shein"
 
-        # Extract Open Graph meta tags (always in HTML, no JS needed)
+        # Check page content — anti-bot pages have no product data
+        body_text = await page.evaluate("() => document.body?.innerText?.slice(0, 200) || ''")
+        page_title = await page.title()
+        if not body_text or "robot" in body_text.lower() or "captcha" in body_text.lower() or "verify" in body_text.lower():
+            logger.warning(f"[PLAYWRIGHT] Possible anti-bot page for {url}. Title: {page_title}")
+            # Fall through — og tags might still be present
+
+        # Extract meta tags (always available in HTML head)
         og_data = await page.evaluate("""() => {
-            function getMeta(prop) {
-                const el = document.querySelector('meta[property="' + prop + '"], meta[name="' + prop + '"]');
+            function g(prop) {
+                const el = document.querySelector('meta[property="' + prop + '"]') ||
+                           document.querySelector('meta[name="' + prop + '"]');
                 return el ? el.content : '';
             }
             return {
-                title: getMeta('og:title'),
-                image: getMeta('og:image'),
-                description: getMeta('og:description'),
+                title: g('og:title'),
+                image: g('og:image'),
+                description: g('og:description'),
+                price: g('product:price:amount') || g('og:price:amount') || g('twitter:data1'),
+                currency: g('product:price:currency') || g('og:price:currency'),
+                brand: g('product:brand'),
+                availability: g('product:availability'),
             };
         }""")
+        logger.info(f"[PLAYWRIGHT] OG data: title='{og_data['title'][:80]}' image={'yes' if og_data['image'] else 'no'} price='{og_data['price']}'")
 
-        title = await page.title()
-        # Prefer og:title over document title (more accurate for product pages)
-        if og_data["title"] and len(og_data["title"]) >= len(title):
+        # Extract page title
+        title = page_title
+        if og_data["title"] and len(og_data["title"]) >= len(title) // 2:
             title = og_data["title"]
 
+        # Extract meta description
         meta_desc = await page.evaluate("""() => {
             const m = document.querySelector('meta[name="description"]');
             return m ? m.content : '';
         }""")
 
-        # Extract images
+        # Extract images — try multiple sources
         images = await page.evaluate("""() => {
-            const imgs = document.querySelectorAll('img[src]');
             const urls = [];
             const seen = new Set();
-            for (const img of imgs) {
-                let src = img.src || img.getAttribute('data-src') || img.getAttribute('data-original') || '';
+            // Try img tags
+            for (const img of document.querySelectorAll('img[src]')) {
+                let src = img.src || img.getAttribute('data-src') || img.getAttribute('data-old-hires') || '';
                 if (src && !seen.has(src) && src.startsWith('http')) {
-                    if (src.includes('product') || src.includes('produto') ||
-                        src.includes('image') || src.includes('foto') ||
-                        src.includes('img') || src.includes('shopeecdn') ||
-                        src.includes('ssl-image') || img.width > 80) {
-                        seen.add(src);
-                        urls.push(src);
-                    }
+                    seen.add(src);
+                    urls.push(src);
+                }
+            }
+            // Try background images
+            for (const el of document.querySelectorAll('[style*="background"]')) {
+                const m = el.style.backgroundImage?.match(/url\\(["']?([^"')]+)["']?\\)/);
+                if (m && !seen.has(m[1]) && m[1].startsWith('http')) {
+                    seen.add(m[1]);
+                    urls.push(m[1]);
                 }
             }
             return urls.slice(0, 8);
@@ -4722,52 +4758,53 @@ async def scrape_product_page(url: str) -> dict:
         if og_data["image"] and og_data["image"] not in images:
             images.insert(0, og_data["image"])
 
-        # Try to extract price
-        price_text = await page.evaluate("""() => {
-            const selectors = [
-                '.product-price', '.price', '[class*=price]', '[class*=preco]',
-                '[class*=Price]', '.a-price', '.a-offscreen',
-                '.andes-money-amount', '.andes_money_amount',
-                '.sh-price', '.product__price',
-                '.skuBestPrice', '.best-price',
-                '[data-testid="price"]', '#priceblock_ourprice',
-                '#price_inside_buybox', '.offer-price',
-                '[class*=productPrice]', '[class*=ProductPrice]',
-            ];
-            for (const sel of selectors) {
-                const el = document.querySelector(sel);
-                if (el) {
-                    const text = el.textContent.trim();
-                    if (text) return text;
+        # Extract price — try meta tags first, then DOM selectors
+        price_text = og_data.get("price", "") or ""
+        if not price_text:
+            price_text = await page.evaluate("""() => {
+                const s = [
+                    '.a-price .a-offscreen', '.a-price', '.a-color-price',
+                    '#priceblock_ourprice', '#priceblock_dealprice',
+                    '.a-price-whole', '.priceToPay',
+                    '.andes-money-amount__fraction',
+                    '[class*=price]', '[class*=preco]',
+                    '[data-testid="price"]',
+                    '.product-price', '.offer-price',
+                ];
+                for (const sel of s) {
+                    const el = document.querySelector(sel);
+                    if (el) {
+                        const t = el.textContent.trim();
+                        if (t && t.length < 50) return t;
+                    }
                 }
-            }
-            return '';
-        }""")
+                return '';
+            }""")
+        if og_data.get("currency"):
+            price_text = f"{price_text} {og_data['currency']}".strip()
 
-        # Extract description
+        # Extract description — try multiple sources
         description = await page.evaluate("""() => {
-            const selectors = [
-                '#productDescription', '.product-description', '[class*=description]',
-                '[class*=descricao]', '[class*=Description]',
+            const s = [
+                '#productDescription', '#productDescription p',
+                '.product-description', '[class*=description]',
                 '#feature-bullets', '.a-unordered-list',
-                '.product-details', '[data-testid="description"]',
-                '.sh-description', '.andes-description',
-                '[class*=productDetail]', '[class*=ProductDetail]',
+                '#detailBullets', '.product-details',
             ];
-            for (const sel of selectors) {
+            for (const sel of s) {
                 const el = document.querySelector(sel);
                 if (el) {
-                    const text = el.textContent.trim();
-                    if (text && text.length > 20) return text.slice(0, 3000);
+                    const t = el.textContent.trim();
+                    if (t && t.length > 20) return t.slice(0, 3000);
                 }
             }
             return '';
         }""")
 
-        # Fallback to og:description if DOM extraction fails
         if (not description or len(description) < 20) and og_data["description"]:
             description = og_data["description"]
 
+        # Detect marketplace from domain (also check final_url)
         result = {
             "titulo_original": title.strip(),
             "descricao_original": (description or meta_desc or og_data.get("description", "")).strip(),
@@ -4776,7 +4813,16 @@ async def scrape_product_page(url: str) -> dict:
             "url_original": url,
             "url_final": final_url,
             "marketplace": marketplace,
+            "_debug": {
+                "og_title": og_data.get("title", ""),
+                "og_image": og_data.get("image", ""),
+                "page_title": page_title,
+                "body_length": len(body_text),
+            },
         }
+        logger.info(f"[PLAYWRIGHT] Result: title='{result['titulo_original'][:80]}' "
+                    f"images={len(result['imagens'])} price='{result['preco_texto'][:30]}' "
+                    f"marketplace={result['marketplace']}")
         return result
 
     except Exception as e:
