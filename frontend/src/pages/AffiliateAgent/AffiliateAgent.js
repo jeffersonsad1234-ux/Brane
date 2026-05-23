@@ -1572,7 +1572,7 @@ function ImportarProdutoPage() {
 export default function AffiliateAgentApp() {
   return (
     <Routes>
-      <Route path="/" element={<BRANPYLayout activeModule="chat"><AIChat /></BRANPYLayout>} />
+      <Route path="/" element={<BRANPYLayout><AIChat /></BRANPYLayout>} />
       <Route path="/chat" element={<BRANPYLayout activeModule="chat"><AIChat /></BRANPYLayout>} />
       <Route path="/affiliate" element={<BRANPYLayout activeModule="affiliate"><AffiliateModulePage /></BRANPYLayout>} />
       <Route path="/importar" element={<BRANPYLayout activeModule="affiliate"><SimplePage title="📥 Importar Produto"><ImportarProdutoPage /></SimplePage></BRANPYLayout>} />
@@ -1613,17 +1613,10 @@ export default function AffiliateAgentApp() {
   );
 }
 
-function SimplePage({ title, children }) {
-  const navigate = useNavigate();
+function SimplePage({ children }) {
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-[#0d0d0d]">
-      <div className="flex items-center gap-3 px-6 h-14 border-b border-white/[0.06] flex-shrink-0">
-        <button onClick={() => navigate('/affiliate-agent/affiliate')} className="text-xs text-white/30 hover:text-white/70 transition-colors">
-          ← Voltar
-        </button>
-        <h1 className="text-sm font-medium text-white/90">{title}</h1>
-      </div>
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto scrollbar-thin">
         {children}
       </div>
     </div>

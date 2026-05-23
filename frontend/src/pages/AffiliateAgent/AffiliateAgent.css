@@ -70,7 +70,7 @@
 .aa-version { font-size: 0.68rem; color: var(--aa-text-muted); }
 
 /* === Content === */
-.aa-content { flex: 1; margin-left: var(--aa-sidebar); padding: 28px 32px; min-height: 100vh; }
+.aa-content { flex: 1; padding: 28px 32px; min-height: 100vh; }
 
 /* === Topbar === */
 .aa-topbar {
