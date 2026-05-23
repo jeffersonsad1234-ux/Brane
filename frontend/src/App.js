@@ -357,6 +357,8 @@ function AppRouter() {
             />
 
             <Route path="/pages/:slug" element={<StaticPage />} />
+            <Route path="/terms" element={<Navigate to="/pages/termos" replace />} />
+            <Route path="/privacidade" element={<Navigate to="/pages/privacidade" replace />} />
 
             <Route path="*" element={<Navigate to="/market" replace />} />
           </Routes>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import axios from 'axios';
@@ -15,7 +15,7 @@ import FinanceModule from '../components/FinanceModule';
 import PromotionPlansModule from '../components/PromotionPlansModule';
 import PersonalizationModule from '../components/PersonalizationModule';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${(process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim()}/api`;
 
 function DashboardTab({ token }) {
   const [data, setData] = useState(null);
@@ -204,17 +204,39 @@ function SupportTab({ token }) {
 function PagesTab({ token }) {
   const [slug, setSlug] = useState('about');
   const [content, setContent] = useState('');
+  const [saving, setSaving] = useState(false);
   const h = { Authorization: `Bearer ${token}` };
-  const pages = ['about', 'faq', 'contato', 'termos', 'privacidade'];
-  useEffect(() => { axios.get(`${API}/admin/pages/${slug}`, { headers: h }).then(r => setContent(r.data.content || '')).catch(() => {}); }, [slug]);
-  const save = async () => { await axios.put(`${API}/admin/pages/${slug}`, { content }, { headers: h }); toast.success('Pagina atualizada'); };
+  const pages = ['about', 'faq', 'contato', 'termos', 'privacidade', 'seguranca'];
+  const loadPage = useCallback(async (s) => {
+    try {
+      const r = await axios.get(`${API}/admin/pages/${s}`, { headers: h });
+      setContent(r.data.content || '');
+    } catch (e) {
+      toast.error(`Erro ao carregar: ${e.response?.data?.detail || e.message}`);
+      setContent('');
+    }
+  }, [h]);
+  useEffect(() => { loadPage(slug); }, [slug, loadPage]);
+  const save = async () => {
+    setSaving(true);
+    try {
+      const r = await axios.put(`${API}/admin/pages/${slug}`, { content }, { headers: h });
+      toast.success('Pagina atualizada');
+      setContent(r.data.content || content);
+    } catch (e) {
+      toast.error(`Erro ao salvar: ${e.response?.data?.detail || e.message}`);
+    } finally {
+      setSaving(false);
+    }
+  };
   return (
     <div className="dark-card rounded-xl p-6" data-testid="admin-pages-tab">
       <div className="flex gap-2 mb-4 flex-wrap">
         {pages.map(p => (<Button key={p} size="sm" variant={slug === p ? "default" : "outline"} className={slug === p ? "gold-btn" : "border-[#1E2230] text-[#E6E6EA]"} onClick={() => setSlug(p)} data-testid={`page-btn-${p}`}>{p.charAt(0).toUpperCase() + p.slice(1)}</Button>))}
       </div>
       <Textarea value={content} onChange={e => setContent(e.target.value)} rows={10} className="mb-4 bg-[#11131A] border-[#1E2230] text-white" placeholder="Conteudo da pagina..." data-testid="page-content-input" />
-      <Button className="gold-btn rounded-lg" onClick={save} data-testid="save-page-btn">Salvar Pagina</Button>
+      <Button className="gold-btn rounded-lg" onClick={save} disabled={saving} data-testid="save-page-btn">{saving ? 'Salvando...' : 'Salvar Pagina'}</Button>
+      <div className="mt-3 text-xs text-[#6F7280]">Slug: <code class="text-[#D4A24C]">{slug}</code> — Pagina publica em <code class="text-[#D4A24C]">/pages/{slug}</code></div>
     </div>
   );
 }

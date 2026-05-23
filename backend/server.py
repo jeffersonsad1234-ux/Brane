@@ -1984,9 +1984,12 @@ async def get_user_support(request: Request):
 # ==================== PAGES ROUTES ====================
 @api_router.get("/pages/{slug}")
 async def get_page(slug: str):
+    logger.info(f"[PAGES] Public get page slug={slug}")
     page = await db.pages.find_one({"slug": slug}, {"_id": 0})
     if not page:
+        logger.info(f"[PAGES] Public no page for slug={slug}, returning default")
         return {"slug": slug, "title": slug.replace("-", " ").title(), "content": ""}
+    logger.info(f"[PAGES] Public found slug={slug} content_len={len(page.get('content',''))}")
     return page
 
 # ==================== CATEGORIES ====================
@@ -2887,18 +2890,29 @@ async def admin_daily_activity(request: Request, days: int = 7):
 @api_router.get("/admin/pages/{slug}")
 async def admin_get_page(slug: str, request: Request):
     await require_admin(request)
+    logger.info(f"[PAGES] Admin get page slug={slug}")
     page = await db.pages.find_one({"slug": slug}, {"_id": 0})
-    return page or {"slug": slug, "title": slug.replace("-", " ").title(), "content": ""}
+    if not page:
+        logger.info(f"[PAGES] No page found for slug={slug}, returning default")
+        return {"slug": slug, "title": slug.replace("-", " ").title(), "content": ""}
+    logger.info(f"[PAGES] Page found slug={slug} content_len={len(page.get('content',''))}")
+    return page
 
 @api_router.put("/admin/pages/{slug}")
 async def admin_update_page(slug: str, data: PageUpdate, request: Request):
     await require_admin(request)
-    await db.pages.update_one(
+    logger.info(f"[PAGES] Admin update page slug={slug} content_len={len(data.content)}")
+    if not data.content:
+        logger.warning(f"[PAGES] Empty content for slug={slug}, saving anyway")
+    result = await db.pages.update_one(
         {"slug": slug},
         {"$set": {"slug": slug, "title": slug.replace("-", " ").title(), "content": data.content, "updated_at": datetime.now(timezone.utc).isoformat()}},
         upsert=True
     )
-    return {"message": "Pagina atualizada"}
+    logger.info(f"[PAGES] Update result: matched={result.matched_count} upserted={result.upserted_id is not None} modified={result.modified_count}")
+    saved = await db.pages.find_one({"slug": slug}, {"_id": 0})
+    logger.info(f"[PAGES] Verified saved: content_len={len(saved.get('content','')) if saved else 0} exists={saved is not None}")
+    return {"message": "Pagina atualizada", "slug": slug, "content": data.content, "saved": True}
 
 @api_router.get("/admin/financial-settings")
 async def get_financial_settings(request: Request):
