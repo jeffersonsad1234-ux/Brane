@@ -92,7 +92,8 @@ async def add_no_cache_headers(request, call_next):
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-app.include_router(api_router)
+# NOTE: app.include_router(api_router) is called at the END of this file,
+# after all @api_router.* route decorators have been executed.
 # ==================== MODELS ====================
 class UserRegister(BaseModel):
     name: str
@@ -5197,6 +5198,9 @@ async def tts_health():
 @app.get("/health")
 async def railway_health():
     return {"status": "ok"}
+
+# MUST be here: register all @api_router.* routes AFTER all decorators run
+app.include_router(api_router)
 
 port = int(os.environ.get("PORT", 8080))
 
