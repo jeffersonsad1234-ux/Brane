@@ -739,3 +739,30 @@
 .bp-scrollbar::-webkit-scrollbar { width: 4px; }
 .bp-scrollbar::-webkit-scrollbar-track { background: transparent; }
 .bp-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }
+
+/* === Dark Theme (opt-in with data-theme="dark" or .aa-theme-dark) === */
+[data-theme="dark"], .aa-theme-dark {
+  --aa-bg: #0a0a0a;
+  --aa-surface: #0c0c0c;
+  --aa-border: rgba(255,255,255,0.06);
+  --aa-text: rgba(255,255,255,0.85);
+  --aa-text-secondary: rgba(255,255,255,0.55);
+  --aa-text-muted: rgba(255,255,255,0.25);
+  --aa-primary: #3b82f6;
+  --aa-primary-dark: #2563eb;
+  --aa-primary-light: rgba(59,130,246,0.1);
+  --aa-shadow: 0 1px 2px rgba(0,0,0,0.2), 0 1px 4px rgba(0,0,0,0.3);
+  --aa-shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  --aa-shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+/* === Code Studio specific styles === */
+.cs-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+.cs-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.cs-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 4px; }
+.cs-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
+.cs-hover-item:hover { background: rgba(255,255,255,0.03); }
+.cs-hover-activity:hover { background: rgba(255,255,255,0.04); }
+.cs-hover-tab:hover { background: rgba(255,255,255,0.02); }
+.cs-hover-menuitem:hover { background: rgba(255,255,255,0.06); }
+.cs-hover-status:hover { background: rgba(0,0,0,0.15); }
