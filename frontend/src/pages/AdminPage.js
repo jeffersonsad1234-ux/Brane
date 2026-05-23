@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import axios from 'axios';
@@ -205,30 +205,41 @@ function PagesTab({ token }) {
   const [slug, setSlug] = useState('about');
   const [content, setContent] = useState('');
   const [saving, setSaving] = useState(false);
-  const h = { Authorization: `Bearer ${token}` };
   const pages = ['about', 'faq', 'contato', 'termos', 'privacidade', 'seguranca'];
-  const loadPage = useCallback(async (s) => {
-    try {
-      const r = await axios.get(`${API}/admin/pages/${s}`, { headers: h });
-      setContent(r.data.content || '');
-    } catch (e) {
-      toast.error(`Erro ao carregar: ${e.response?.data?.detail || e.message}`);
-      setContent('');
-    }
-  }, [h]);
-  useEffect(() => { loadPage(slug); }, [slug, loadPage]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await axios.get(`${API}/admin/pages/${slug}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!cancelled) setContent(r.data.content || '');
+      } catch (e) {
+        if (!cancelled) {
+          toast.error(`Erro ao carregar: ${e.response?.data?.detail || e.message}`);
+          setContent('');
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [slug, token]);
+
   const save = async () => {
     setSaving(true);
     try {
-      const r = await axios.put(`${API}/admin/pages/${slug}`, { content }, { headers: h });
-      toast.success('Pagina atualizada');
+      const r = await axios.put(`${API}/admin/pages/${slug}`, { content }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setContent(r.data.content || content);
+      toast.success('Pagina atualizada');
     } catch (e) {
       toast.error(`Erro ao salvar: ${e.response?.data?.detail || e.message}`);
     } finally {
       setSaving(false);
     }
   };
+
   return (
     <div className="dark-card rounded-xl p-6" data-testid="admin-pages-tab">
       <div className="flex gap-2 mb-4 flex-wrap">
@@ -236,7 +247,7 @@ function PagesTab({ token }) {
       </div>
       <Textarea value={content} onChange={e => setContent(e.target.value)} rows={10} className="mb-4 bg-[#11131A] border-[#1E2230] text-white" placeholder="Conteudo da pagina..." data-testid="page-content-input" />
       <Button className="gold-btn rounded-lg" onClick={save} disabled={saving} data-testid="save-page-btn">{saving ? 'Salvando...' : 'Salvar Pagina'}</Button>
-      <div className="mt-3 text-xs text-[#6F7280]">Slug: <code class="text-[#D4A24C]">{slug}</code> — Pagina publica em <code class="text-[#D4A24C]">/pages/{slug}</code></div>
+      <div className="mt-3 text-xs text-[#6F7280]">Slug: <code className="text-[#D4A24C]">{slug}</code> — Pagina publica em <code className="text-[#D4A24C]">/pages/{slug}</code></div>
     </div>
   );
 }

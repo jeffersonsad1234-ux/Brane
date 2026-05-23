@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const API = `${(process.env.REACT_APP_BACKEND_URL || 'https://brane-production-3c87.up.railway.app').trim()}/api`;
 
 export default function StaticPage() {
   const { slug } = useParams();
