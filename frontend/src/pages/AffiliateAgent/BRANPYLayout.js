@@ -241,39 +241,42 @@ function AppCard({ app, onClick, index }) {
    ═══════════════════════════════════════════════════════════════ */
 function FloatingWindow({ win, onClose, onMinimize, onMaximize, onFocus, onUpdate, children, index }) {
   const ref = useRef(null);
-  const drag = useRef({ dragging: false, startX: 0, startY: 0, startWx: 0, startWy: 0, resizing: false, resizeDir: null });
+  const drag = useRef({});
+  const posRef = useRef({ x: win.x, y: win.y });
+  const sizeRef = useRef({ w: win.w, h: win.h });
   const [size, setSize] = useState({ w: win.w, h: win.h });
   const [pos, setPos] = useState({ x: win.x, y: win.y });
   const prevWin = useRef(win);
 
-  useEffect(() => { if (prevWin.current.x !== win.x || prevWin.current.y !== win.y || prevWin.current.w !== win.w || prevWin.current.h !== win.h) { setPos({ x: win.x, y: win.y }); setSize({ w: win.w, h: win.h }); } prevWin.current = win; }, [win.x, win.y, win.w, win.h]);
+  useEffect(() => { if (prevWin.current.x !== win.x || prevWin.current.y !== win.y || prevWin.current.w !== win.w || prevWin.current.h !== win.h) { const p = { x: win.x, y: win.y }; const s = { w: win.w, h: win.h }; setPos(p); setSize(s); posRef.current = p; sizeRef.current = s; } prevWin.current = win; }, [win.x, win.y, win.w, win.h]);
 
   const handleMouseDown = useCallback((e) => {
     e.preventDefault(); onFocus(win.id);
     const r = ref.current?.getBoundingClientRect();
     if (!r) return;
     const offX = e.clientX - r.left, offY = e.clientY - r.top;
-    drag.current = { dragging: true, startX: e.clientX, startY: e.clientY, offX, offY, resizing: false, resizeDir: null };
-    const onMove = (ev) => { if (drag.current.dragging) { const nx = ev.clientX - drag.current.offX, ny = ev.clientY - drag.current.offY; setPos({ x: nx, y: ny }); } };
-    const onUp = () => { if (drag.current.dragging) { onUpdate(win.id, { x: pos.x, y: pos.y }); } drag.current.dragging = false; document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
+    drag.current = { dragging: true, offX, offY };
+    const onMove = (ev) => { if (drag.current.dragging) { const nx = ev.clientX - drag.current.offX, ny = ev.clientY - drag.current.offY; posRef.current = { x: nx, y: ny }; setPos({ x: nx, y: ny }); } };
+    const onUp = () => { if (drag.current.dragging) { onUpdate(win.id, posRef.current); } drag.current.dragging = false; document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
     document.addEventListener("mousemove", onMove); document.addEventListener("mouseup", onUp);
-  }, [win.id, onFocus, onUpdate, pos.x, pos.y]);
+  }, [win.id, onFocus, onUpdate]);
 
   const handleResizeStart = useCallback((e, dir) => {
     e.preventDefault(); e.stopPropagation(); onFocus(win.id);
     const r = ref.current?.getBoundingClientRect(); if (!r) return;
-    drag.current = { dragging: false, startX: e.clientX, startY: e.clientY, startW: r.width, startH: r.height, startL: r.left, startT: r.top, resizing: true, resizeDir: dir };
+    drag.current = { resizing: true, startX: e.clientX, startY: e.clientY, startW: r.width, startH: r.height, startL: r.left, startT: r.top, dir };
     const onMove = (ev) => {
-      if (!drag.current.resizing) return; const dx = ev.clientX - drag.current.startX, dy = ev.clientY - drag.current.startY;
-      let nw = drag.current.startW, nh = drag.current.startH, nx = drag.current.startL, ny = drag.current.startT;
-      if (dir.includes("e")) { nw = Math.max(320, drag.current.startW + dx); } if (dir.includes("w")) { nw = Math.max(320, drag.current.startW - dx); nx = drag.current.startL + dx; }
-      if (dir.includes("s")) { nh = Math.max(200, drag.current.startH + dy); } if (dir.includes("n")) { nh = Math.max(200, drag.current.startH - dy); ny = drag.current.startT + dy; }
+      if (!drag.current.resizing) return; const d = drag.current; const dx = ev.clientX - d.startX, dy = ev.clientY - d.startY;
+      let nw = d.startW, nh = d.startH, nx = d.startL, ny = d.startT;
+      if (d.dir.includes("e")) { nw = Math.max(320, d.startW + dx); } if (d.dir.includes("w")) { nw = Math.max(320, d.startW - dx); nx = d.startL + dx; }
+      if (d.dir.includes("s")) { nh = Math.max(200, d.startH + dy); } if (d.dir.includes("n")) { nh = Math.max(200, d.startH - dy); ny = d.startT + dy; }
       const maxW = window.innerWidth - 40, maxH = window.innerHeight - 40;
-      setSize({ w: Math.min(nw, maxW), h: Math.min(nh, maxH) }); setPos({ x: nx, y: ny });
+      const ns = { w: Math.min(nw, maxW), h: Math.min(nh, maxH) }; const np = { x: nx, y: ny };
+      sizeRef.current = ns; posRef.current = np; setSize(ns); setPos(np);
     };
-    const onUp = () => { drag.current.resizing = false; onUpdate(win.id, { x: pos.x, y: pos.y, w: size.w, h: size.h }); document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
+    const onUp = () => { drag.current.resizing = false; onUpdate(win.id, { ...posRef.current, ...sizeRef.current }); document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
     document.addEventListener("mousemove", onMove); document.addEventListener("mouseup", onUp);
-  }, [win.id, onFocus, onUpdate, pos.x, pos.y, size.w, size.h]);
+  }, [win.id, onFocus, onUpdate]);
 
   const isMax = win.maximized;
   const dispX = isMax ? 0 : pos.x;
@@ -563,7 +566,15 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
   const [launcherSearch, setLauncherSearch] = useState("");
   const [launcherCat, setLauncherCat] = useState("all");
   const [windows, setWindows] = useState([]);
-  const [nextZ, setNextZ] = useState(1);
+  const winRef = useRef(windows);
+  winRef.current = windows;
+  const nextZRef = useRef(1);
+  const showLauncherRef = useRef(showLauncher);
+  showLauncherRef.current = showLauncher;
+  const closeWindowRef = useRef(closeWindow);
+  closeWindowRef.current = closeWindow;
+  const minimizeWindowRef = useRef(minimizeWindow);
+  minimizeWindowRef.current = minimizeWindow;
 
   const curMod = useMemo(() => {
     if (activeModule) return activeModule;
@@ -579,11 +590,11 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
   const bringToFront = useCallback((id) => {
     setWindows((prev) => {
       const w = prev.find((x) => x.id === id);
-      if (!w || w.z === nextZ) return prev;
-      setNextZ((z) => z + 1);
-      return prev.map((x) => (x.id === id ? { ...x, z: nextZ } : x));
+      if (!w || w.z === nextZRef.current) return prev;
+      nextZRef.current += 1;
+      return prev.map((x) => (x.id === id ? { ...x, z: nextZRef.current } : x));
     });
-  }, [nextZ]);
+  }, []);
 
   const openWindow = useCallback((appId) => {
     const app = APPS.find((a) => a.id === appId);
@@ -600,20 +611,22 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
     }
 
     // Otherwise open as floating window
-    const existing = windows.find((w) => w.appKey === appId && !w.closed);
+    const cur = winRef.current;
+    const existing = cur.find((w) => w.appKey === appId && !w.closed);
     if (existing) { bringToFront(existing.id); if (existing.minimized) setWindows((prev) => prev.map((w) => w.id === existing.id ? { ...w, minimized: false } : w)); return; }
 
-    const offset = (windows.length % 8) * 28;
+    const offset = (cur.length % 8) * 28;
+    const z = nextZRef.current;
+    nextZRef.current += 1;
     const newWin = {
       id: `w_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
       appKey: appId, name: app.name, icon: app.icon, desc: app.desc, cat: app.cat,
       x: 60 + offset, y: 50 + offset, w: 660, h: 440,
-      minimized: false, maximized: false, closed: false, z: nextZ,
+      minimized: false, maximized: false, closed: false, z,
     };
     setWindows((prev) => [...prev, newWin]);
-    setNextZ((z) => z + 1);
     setShowLauncher(false);
-  }, [windows, nextZ, navigate, onNavigate, bringToFront]);
+  }, [navigate, onNavigate, bringToFront]);
 
   const closeWindow = useCallback((id) => {
     setWindows((prev) => prev.filter((w) => w.id !== id));
@@ -641,21 +654,23 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
     openWindow(appId);
   }, [openWindow]);
 
-  /* ── Keyboard ── */
+  /* ── Keyboard (uses refs to avoid re-attaching on every window change) ── */
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "Escape" && windows.length > 0 && !showLauncher) {
-        const top = [...windows].sort((a, b) => b.z - a.z)[0];
-        if (top) closeWindow(top.id); return;
+      const winList = winRef.current;
+      const isOpen = showLauncherRef.current;
+      if (e.key === "Escape" && winList.length > 0 && !isOpen) {
+        const top = [...winList].sort((a, b) => b.z - a.z)[0];
+        if (top) closeWindowRef.current(top.id); return;
       }
       if (e.key === "Escape") { setShowLauncher(false); setLauncherSearch(""); return; }
       if ((e.metaKey || e.ctrlKey) && e.key === "k") { e.preventDefault(); setShowLauncher((p) => !p); setLauncherSearch(""); return; }
-      if ((e.metaKey || e.ctrlKey) && e.key === "w") { e.preventDefault(); const top = [...windows].sort((a, b) => b.z - a.z)[0]; if (top) closeWindow(top.id); return; }
-      if ((e.metaKey || e.ctrlKey) && e.key === "m") { e.preventDefault(); const top = [...windows].sort((a, b) => b.z - a.z)[0]; if (top) minimizeWindow(top.id); return; }
+      if ((e.metaKey || e.ctrlKey) && e.key === "w") { e.preventDefault(); const top = [...winRef.current].sort((a, b) => b.z - a.z)[0]; if (top) closeWindowRef.current(top.id); return; }
+      if ((e.metaKey || e.ctrlKey) && e.key === "m") { e.preventDefault(); const top = [...winRef.current].sort((a, b) => b.z - a.z)[0]; if (top) minimizeWindowRef.current(top.id); return; }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [windows, showLauncher, closeWindow, minimizeWindow]);
+  }, []);
 
   /* ── Filtered apps ── */
   const visibleApps = useMemo(() => {
