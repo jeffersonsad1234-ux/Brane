@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
 
 /* ═══════════════════════════════════════════════════════════════
    APP REGISTRY — 80+ Apps across 10 Categories
@@ -208,8 +209,9 @@ const PREVIEWS = {
 /* ═══════════════════════════════════════════════════════════════
    APP CARD
    ═══════════════════════════════════════════════════════════════ */
-function AppCard({ app, onClick, index }) {
+function AppCard({ app, onClick, index, isFavorite, onToggleFavorite }) {
   const PreviewComp = PREVIEWS[app.id];
+  const [showStar, setShowStar] = useState(false);
   return (
     <motion.button
       initial={{ opacity: 0, y: 12 }}
@@ -218,9 +220,15 @@ function AppCard({ app, onClick, index }) {
       whileHover={{ scale: 1.02, y: -2 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
-      className="group flex flex-col rounded-xl border text-left overflow-hidden cursor-pointer"
+      onMouseEnter={() => setShowStar(true)}
+      onMouseLeave={() => setShowStar(false)}
+      className="group flex flex-col rounded-xl border text-left overflow-hidden cursor-pointer relative"
       style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.015)" }}
     >
+      <button onClick={(e) => { e.stopPropagation(); onToggleFavorite(app.id); }}
+        className={`absolute top-1.5 right-1.5 w-5 h-5 flex items-center justify-center rounded-md text-[10px] transition-all z-10 ${isFavorite ? "opacity-100" : showStar ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+        style={{ background: "rgba(0,0,0,0.3)", color: isFavorite ? "#f59e0b" : "rgba(255,255,255,0.2)" }}
+      >{isFavorite ? "★" : "☆"}</button>
       <div className="px-3 pt-3 pb-2 min-h-[68px] flex items-center justify-center">
         {PreviewComp ? <PreviewComp /> : <div className="text-lg opacity-20">{app.icon}</div>}
       </div>
@@ -406,7 +414,9 @@ function TopBar({ search, onSearchChange, onNewProject, windows = [], onClose, o
 /* ═══════════════════════════════════════════════════════════════
    HUB HOME VIEW
    ═══════════════════════════════════════════════════════════════ */
-function HomeView({ apps = [], activeCat, onCatChange, search, onSearchChange, onAppOpen, onNewProject }) {
+const recentApps = {};
+
+function HomeView({ apps = [], activeCat, onCatChange, search, onSearchChange, onAppOpen, onNewProject, favorites, onToggleFavorite, recents, allApps }) {
   const cols = useMemo(() => {
     const n = (apps || []).length;
     if (n <= 8) return "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4";
@@ -449,15 +459,54 @@ function HomeView({ apps = [], activeCat, onCatChange, search, onSearchChange, o
               ))}
             </div>
           </div>
+          {/* Recents + Favorites rows */}
+          {activeCat === "all" && !search && (
+            <>
+              {(recents || []).length > 0 && (
+                <div className="flex-shrink-0 px-5 pt-4 pb-1">
+                  <div className="text-[9px] font-medium uppercase tracking-[0.12em] mb-2" style={{ color: "rgba(255,255,255,0.15)" }}>Recent</div>
+                  <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+                    {recents.map((id) => {
+                      const app = (allApps || APPS).find((a) => a.id === id);
+                      if (!app) return null;
+                      return (
+                        <button key={app.id} onClick={() => onAppOpen(app.id)}
+                          className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[10px] whitespace-nowrap transition-all hover:bg-white/[0.06] flex-shrink-0"
+                          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)" }}
+                        >{app.icon} {app.name}</button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              {(favorites || []).length > 0 && (
+                <div className="flex-shrink-0 px-5 pt-2 pb-1">
+                  <div className="text-[9px] font-medium uppercase tracking-[0.12em] mb-2" style={{ color: "rgba(255,255,255,0.15)" }}>Favorites</div>
+                  <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+                    {favorites.map((id) => {
+                      const app = (allApps || APPS).find((a) => a.id === id);
+                      if (!app) return null;
+                      return (
+                        <button key={app.id} onClick={() => onAppOpen(app.id)}
+                          className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[10px] whitespace-nowrap transition-all hover:bg-white/[0.06] flex-shrink-0"
+                          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)" }}
+                        >{app.icon} {app.name}</button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
           {/* Grid */}
-          <div className="flex-1 overflow-y-auto p-5 scrollbar-thin">
+          <div className="flex-1 overflow-y-auto p-5 scrollbar-thin pt-2">
             {(apps || []).length === 0 ? (
               <div className="h-full flex items-center justify-center">
                 <div className="text-center"><div className="text-2xl mb-2 opacity-15">🔍</div><div className="text-xs" style={{ color: "rgba(255,255,255,0.12)" }}>No tools match "<span style={{ color: "rgba(255,255,255,0.3)" }}>{search}</span>"</div></div>
               </div>
             ) : (
               <div className={`grid ${cols} gap-2.5`}>
-                {apps.map((app, i) => <AppCard key={app.id} app={app} index={i} onClick={() => onAppOpen(app.id)} />)}
+                {apps.map((app, i) => <AppCard key={app.id} app={app} index={i} onClick={() => onAppOpen(app.id)} isFavorite={(favorites || []).includes(app.id)} onToggleFavorite={onToggleFavorite} />)}
               </div>
             )}
           </div>
@@ -571,6 +620,21 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
   const nextZRef = useRef(1);
   const showLauncherRef = useRef(showLauncher);
   showLauncherRef.current = showLauncher;
+  const [favorites, setFavorites] = useLocalStorage("branpy_favorites", []);
+  const [recents, setRecents] = useLocalStorage("branpy_recents", []);
+
+  const toggleFavorite = useCallback((appId) => {
+    setFavorites((prev) =>
+      prev.includes(appId) ? prev.filter((id) => id !== appId) : [...prev, appId]
+    );
+  }, [setFavorites]);
+
+  const trackOpen = useCallback((appId) => {
+    setRecents((prev) => {
+      const filtered = prev.filter((id) => id !== appId);
+      return [appId, ...filtered].slice(0, 8);
+    });
+  }, [setRecents]);
 
   /* ── Window Manager ── */
   const closeWindow = useCallback((id) => {
@@ -698,7 +762,7 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
         <AnimatePresence>
           {showLauncher && (
             <Launcher search={launcherSearch} onSearchChange={setLauncherSearch} cat={launcherCat} onCatChange={setLauncherCat}
-              apps={filteredLauncher} onAppOpen={handleHomeAppOpen} onClose={() => { setShowLauncher(false); setLauncherSearch(""); }} />
+              apps={filteredLauncher} onAppOpen={(id) => { trackOpen(id); handleHomeAppOpen(id); }} onClose={() => { setShowLauncher(false); setLauncherSearch(""); }} />
           )}
         </AnimatePresence>
       </>
@@ -711,7 +775,8 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
       {/* Always show home grid behind windows */}
       <HomeView apps={visibleApps} activeCat={activeCat} onCatChange={setActiveCat}
         search={search} onSearchChange={(v) => { setSearch(v); setActiveCat("all"); }}
-        onAppOpen={handleHomeAppOpen} onNewProject={() => openWindow("projects")} />
+        onAppOpen={(id) => { trackOpen(id); handleHomeAppOpen(id); }} onNewProject={() => openWindow("projects")}
+        favorites={favorites} onToggleFavorite={toggleFavorite} recents={recents} allApps={APPS} />
 
       {/* Floating windows */}
       <AnimatePresence>
