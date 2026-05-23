@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { S, I, UID } from "./utils";
 
 export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory }) {
@@ -34,57 +34,123 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
   };
 
   return (
-    <div className="p-3 space-y-2">
-      {/* Create Memory button */}
+    <div style={{ padding: "6px 8px" }}>
       {!showForm && (
-        <button onClick={() => setShowForm(true)} className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/20 hover:from-emerald-500/20 hover:to-blue-500/20 transition-all">
-          <div className="w-7 h-7 rounded-full bg-emerald-500/20 flex items-center justify-center"><span className="text-xs">🧠</span></div>
-          <div className="text-left">
-            <div className="text-[10px] text-emerald-400/80 font-medium">Create Memory</div>
-            <div className="text-[7px] text-white/20">Save current edit style</div>
+        <button onClick={() => setShowForm(true)}
+          style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 6,
+            padding: "6px 8px", borderRadius: 6,
+            background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.12)",
+            cursor: "pointer", fontFamily: "inherit",
+            transition: "background 0.1s",
+          }}
+          className="cs-hover-soft"
+        >
+          <div style={{
+            width: 24, height: 24, borderRadius: "50%",
+            background: "rgba(59,130,246,0.15)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontSize: 11,
+          }}>
+            🧠
+          </div>
+          <div style={{ textAlign: "left" }}>
+            <div style={{ fontSize: 9, color: "rgba(59,130,246,0.6)" }}>Create Memory</div>
+            <div style={{ fontSize: 7, color: "rgba(255,255,255,0.12)" }}>Save current edit style</div>
           </div>
         </button>
       )}
 
-      {/* Save form */}
       {showForm && (
-        <div className="rounded-lg bg-white/5 border border-white/10 p-3 space-y-2">
-          <div className="text-[9px] text-white/30 font-medium">Save Editing Memory</div>
-          <input value={memName} onChange={(e) => setMemName(e.target.value)} placeholder="e.g. Product Review Style" className="w-full bg-white/5 border border-white/8 rounded px-2 py-1.5 text-[9px] text-white/50 outline-none focus:border-white/20 placeholder:text-white/12" autoFocus />
-          <div className="flex gap-1.5">
-            <button onClick={handleSave} disabled={saving || !memName.trim()} className={`flex-1 text-[9px] py-1.5 rounded transition-all ${saving ? "bg-emerald-500/30 text-emerald-400/50" : "bg-emerald-500/70 hover:bg-emerald-500 text-white"}`}>{saving ? "⏳ Saving..." : "Save Memory"}</button>
-            <button onClick={() => setShowForm(false)} className="text-[9px] px-2 py-1.5 rounded bg-white/5 text-white/30 hover:bg-white/10">Cancel</button>
+        <div style={{
+          borderRadius: 6, background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.08)", padding: "8px",
+        }}>
+          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", marginBottom: 4 }}>Save Editing Memory</div>
+          <input value={memName} onChange={(e) => setMemName(e.target.value)}
+            placeholder="e.g. Product Review Style"
+            style={{
+              width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
+              borderRadius: 4, padding: "3px 6px", fontSize: 9, color: "rgba(255,255,255,0.4)",
+              outline: "none", fontFamily: "inherit", marginBottom: 4,
+            }}
+            autoFocus
+          />
+          <div style={{ display: "flex", gap: 4 }}>
+            <button onClick={handleSave} disabled={saving || !memName.trim()}
+              style={{
+                flex: 1, fontSize: 8, padding: "3px 8px", borderRadius: 4,
+                border: "none", cursor: saving ? "wait" : "pointer", fontFamily: "inherit",
+                background: saving ? "rgba(59,130,246,0.2)" : "rgba(59,130,246,0.5)",
+                color: saving ? "rgba(59,130,246,0.3)" : "white",
+                transition: "background 0.1s",
+              }}
+            >{saving ? "⏳ Saving..." : "Save Memory"}</button>
+            <button onClick={() => setShowForm(false)}
+              style={{
+                fontSize: 8, padding: "3px 8px", borderRadius: 4, border: "none",
+                cursor: "pointer", background: "rgba(255,255,255,0.04)",
+                color: "rgba(255,255,255,0.2)", fontFamily: "inherit",
+              }}
+              className="cs-hover-soft"
+            >Cancel</button>
           </div>
         </div>
       )}
 
-      {/* Memory list */}
-      <div className="text-[9px] text-white/18 uppercase tracking-wider pt-1 pb-0.5">Saved Memories</div>
+      <div style={{
+        fontSize: 8, color: "rgba(255,255,255,0.12)",
+        textTransform: "uppercase", letterSpacing: "0.08em",
+        marginTop: 8, marginBottom: 4,
+      }}>
+        Saved Memories
+      </div>
+
       {memories.length === 0 ? (
-        <div className="text-center py-4">
-          <div className="text-xl opacity-10 mb-1">🧠</div>
-          <div className="text-[8px] text-white/12">No saved memories yet</div>
-          <div className="text-[7px] text-white/8">Edit a video and save your style</div>
+        <div style={{ textAlign: "center", padding: "12px 0" }}>
+          <div style={{ fontSize: 18, opacity: 0.08, marginBottom: 4 }}>🧠</div>
+          <div style={{ fontSize: 8, color: "rgba(255,255,255,0.08)" }}>No saved memories yet</div>
+          <div style={{ fontSize: 7, color: "rgba(255,255,255,0.05)", marginTop: 2 }}>Edit a video and save your style</div>
         </div>
       ) : (
         memories.map((mem) => (
-          <div key={mem.id} className="rounded-lg bg-white/5 border border-white/10 p-2.5 hover:bg-white/10 transition-all">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-md bg-gradient-to-br from-emerald-500/20 to-purple-500/20 flex items-center justify-center text-sm">{mem.preview || "🎬"}</div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[10px] text-white/55 font-medium truncate">{mem.name}</div>
-                <div className="text-[7px] text-white/15">{mem.date}</div>
+          <div key={mem.id} style={{
+            borderRadius: 6, background: "rgba(255,255,255,0.03)",
+            border: "1px solid rgba(255,255,255,0.06)", padding: "6px 8px",
+            marginBottom: 4, transition: "background 0.1s",
+          }} className="cs-hover-soft">
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{
+                width: 28, height: 28, borderRadius: 4,
+                background: "rgba(59,130,246,0.1)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 12, flexShrink: 0,
+              }}>
+                {mem.preview || "🎬"}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{mem.name}</div>
+                <div style={{ fontSize: 7, color: "rgba(255,255,255,0.1)" }}>{mem.date}</div>
               </div>
               <button onClick={() => handleApply(mem)} disabled={applying === mem.id}
-                className={`text-[8px] px-2 py-1 rounded transition-all ${applying === mem.id ? "bg-emerald-500/30 text-emerald-400/50 cursor-wait" : "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"}`}
+                style={{
+                  fontSize: 8, padding: "2px 8px", borderRadius: 4, border: "none", cursor: applying === mem.id ? "wait" : "pointer",
+                  background: applying === mem.id ? "rgba(59,130,246,0.15)" : "rgba(59,130,246,0.1)",
+                  color: applying === mem.id ? "rgba(59,130,246,0.3)" : "rgba(59,130,246,0.5)",
+                  fontFamily: "inherit",
+                  transition: "background 0.1s",
+                }}
+                className={applying !== mem.id ? "cs-hover-soft" : ""}
               >
                 {applying === mem.id ? "⏳" : "Apply"}
               </button>
             </div>
-            {/* Style tags */}
-            <div className="flex gap-1 mt-1.5 ml-[42px] flex-wrap">
+            <div style={{ display: "flex", gap: 2, marginTop: 3, marginLeft: 34, flexWrap: "wrap" }}>
               {Object.entries(mem.style || {}).slice(0, 3).map(([key, val]) => (
-                <span key={key} className="text-[6px] px-1.5 py-0.5 rounded-full bg-white/5 text-white/20">{val}</span>
+                <span key={key} style={{
+                  fontSize: 6, padding: "1px 6px", borderRadius: 4,
+                  background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.12)",
+                }}>{val}</span>
               ))}
             </div>
           </div>

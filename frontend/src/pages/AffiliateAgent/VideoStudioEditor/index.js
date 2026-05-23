@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useLocalStorage } from "../../../hooks/useLocalStorage";
-import { I, S, Bi, FMT, SIDEBAR_MAP, INITIAL, UID } from "./utils";
+import { I, S, Bi, FMT, SIDEBAR_MAP, INITIAL, UID, Tp } from "./utils";
 import Timeline from "./timeline";
 import PreviewPanel from "./preview";
 import Inspector from "./inspector";
@@ -13,83 +13,182 @@ import {
   CaptionsPanel, BrandPanel
 } from "./panels";
 
-function TopBar({ proj, setProj, onImp, onExp, ct, dur, onMem }) {
+const WORKSPACES = [
+  { id: "edit", label: "Edit", icon: I.cut },
+  { id: "color", label: "Color", icon: I.adj },
+  { id: "audio", label: "Audio", icon: I.music },
+  { id: "motion", label: "Motion", icon: I.board },
+  { id: "ai", label: "AI Edit", icon: I.ai },
+  { id: "vertical", label: "Vertical", icon: I.fit },
+  { id: "stream", label: "Streaming", icon: I.tool },
+];
+
+function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWorkspace }) {
   const [ed, setEd] = useState(false);
   const [nv, setNv] = useState(proj.name);
   const [sv, setSv] = useState(true);
   const ref = useRef(null);
-  useEffect(() => { ed && ref.current?.focus(); }, [ed]);
+  useEffect(() => { if (ed) ref.current?.focus(); }, [ed]);
   useEffect(() => { if (!sv) { const t = setTimeout(() => setSv(true), 600); return () => clearTimeout(t); } }, [sv]);
   const sub = () => { if (nv.trim()) setProj((p) => ({ ...p, name: nv.trim() })); setEd(false); };
 
   return (
-    <div className="h-11 flex-shrink-0 bg-[#0c0c0c] border-b border-white/[0.06] flex items-center px-3 gap-1.5 z-40 select-none shadow-sm shadow-black/20">
-      <div className="flex items-center gap-2 mr-1.5">
-        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center shadow-sm shadow-emerald-500/10"><S d={I.logo} sz={11} /></div>
-        <span className="text-xs font-bold text-white/70 tracking-tight">BRANPY</span>
+    <div style={{
+      height: 40, flexShrink: 0, background: "#0c0c0c",
+      borderBottom: "1px solid rgba(255,255,255,0.05)",
+      display: "flex", alignItems: "center", padding: "0 8px", gap: 4,
+      zIndex: 40, userSelect: "none",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginRight: 4 }}>
+        <div style={{
+          width: 22, height: 22, borderRadius: 4,
+          background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <S d={I.play} sz={10} style={{ color: "white", marginLeft: 1 }} />
+        </div>
+        <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.03em" }}>BRANPY</span>
       </div>
-      <div className="w-px h-5 bg-white/6" />
+      <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.06)" }} />
       {ed ? (
-        <input ref={ref} value={nv} onChange={(e) => setNv(e.target.value)} onBlur={sub} onKeyDown={(e) => e.key === "Enter" && sub()}
-          className="bg-white/10 border border-white/20 rounded px-2 py-0.5 text-[11px] text-white/60 outline-none w-32" autoFocus />
+        <input ref={ref} value={nv} onChange={(e) => setNv(e.target.value)}
+          onBlur={sub} onKeyDown={(e) => e.key === "Enter" && sub()}
+          style={{
+            background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)",
+            borderRadius: 4, padding: "2px 8px", fontSize: 11, color: "rgba(255,255,255,0.5)",
+            outline: "none", width: 120,
+          }} autoFocus
+        />
       ) : (
-        <button onClick={() => setEd(true)} className="flex items-center gap-1 px-2 py-0.5 rounded hover:bg-white/4 text-[11px] text-white/40 hover:text-white/60">
-          <S d={I.lay} sz={12} /><span className="max-w-[100px] truncate">{proj.name}</span><S d={I.chD} sz={11} />
+        <button onClick={() => setEd(true)}
+          style={{
+            display: "flex", alignItems: "center", gap: 4, padding: "2px 8px",
+            borderRadius: 4, border: "none", background: "none", cursor: "pointer",
+            fontSize: 11, color: "rgba(255,255,255,0.35)",
+          }}
+          className="cs-hover-soft"
+        >
+          <S d={I.lay} sz={11} />
+          <span style={{ maxWidth: 100, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{proj.name}</span>
+          <S d={I.chD} sz={10} />
         </button>
       )}
-      <div className={`flex items-center gap-1 text-[8px] ${sv ? "text-emerald-500/40" : "text-amber-400/50"}`}>
-        <div className={`w-1 h-1 rounded-full ${sv ? "bg-emerald-500/40" : "bg-amber-400/50 animate-pulse"}`} />{sv ? "Saved" : "Saving..."}
+      <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 8 }}>
+        <div style={{ width: 5, height: 5, borderRadius: "50%", background: sv ? "rgba(16,185,129,0.4)" : "rgba(251,191,36,0.5)", transition: "background 0.3s" }} />
+        <span style={{ color: sv ? "rgba(16,185,129,0.3)" : "rgba(251,191,36,0.4)" }}>{sv ? "Saved" : "Saving..."}</span>
       </div>
-      <div className="w-px h-5 bg-white/6 mx-0.5" />
-      <Bi d={I.save} tip="Save" sz={13} />
-      <Bi d={I.undo} tip="Undo (Ctrl+Z)" sz={13} />
-      <Bi d={I.redo} tip="Redo (Ctrl+Shift+Z)" sz={13} />
-      <div className="flex-1" />
-      <div className="flex items-center gap-1.5 bg-white/4 rounded px-2 py-0.5">
-        <span className="text-[9px] text-white/20 font-mono tabular-nums">{FMT(ct)}</span>
-        <span className="text-[9px] text-white/10">/</span>
-        <span className="text-[9px] text-white/20 font-mono tabular-nums">{FMT(dur)}</span>
+      <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.06)", margin: "0 4px" }} />
+      <Bi d={I.undo} sz={12} tip="Undo" />
+      <Bi d={I.redo} sz={12} tip="Redo" />
+
+      <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.06)", margin: "0 4px" }} />
+      {WORKSPACES.map((ws) => (
+        <button key={ws.id} onClick={() => setWorkspace(ws.id)}
+          style={{
+            display: "flex", alignItems: "center", gap: 3, padding: "3px 8px",
+            borderRadius: 4, fontSize: 9, border: "none", cursor: "pointer",
+            background: workspace === ws.id ? "rgba(59,130,246,0.12)" : "transparent",
+            color: workspace === ws.id ? "rgba(59,130,246,0.7)" : "rgba(255,255,255,0.2)",
+            fontFamily: "inherit", whiteSpace: "nowrap",
+          }}
+          className={workspace !== ws.id ? "cs-hover-soft" : ""}
+        >
+          <S d={ws.icon} sz={10} />
+          <span>{ws.label}</span>
+        </button>
+      ))}
+
+      <div style={{ flex: 1 }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.03)", borderRadius: 4, padding: "2px 8px" }}>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.15)", fontFamily: "monospace" }}>{FMT(ct)}</span>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.08)" }}>/</span>
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.15)", fontFamily: "monospace" }}>{FMT(dur)}</span>
       </div>
-      <div className="flex items-center gap-1 bg-white/4 rounded px-2 py-0.5 text-[9px] text-white/20">
-        <span>16:9</span><S d={I.chD} sz={10} />
+      <div style={{ display: "flex", alignItems: "center", gap: 3, background: "rgba(255,255,255,0.03)", borderRadius: 4, padding: "2px 6px", fontSize: 9, color: "rgba(255,255,255,0.15)" }}>
+        <span>30fps</span>
+        <S d={I.chD} sz={8} />
       </div>
-      <button onClick={onMem} className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-purple-500/20 hover:bg-purple-500/30 text-purple-400/70 hover:text-purple-400 text-[10px] transition-all">
-        <S d={I.memory} sz={12} /> Memory
+      <div style={{ display: "flex", alignItems: "center", gap: 3, background: "rgba(255,255,255,0.03)", borderRadius: 4, padding: "2px 6px", fontSize: 9, color: "rgba(255,255,255,0.15)" }}>
+        <span>1080p</span>
+        <S d={I.chD} sz={8} />
+      </div>
+      <button onClick={onMem}
+        style={{
+          display: "flex", alignItems: "center", gap: 3, padding: "3px 8px", borderRadius: 4,
+          fontSize: 9, border: "none", cursor: "pointer", fontFamily: "inherit",
+          background: "rgba(139,92,246,0.15)", color: "rgba(167,139,250,0.6)",
+        }}
+        className="cs-hover-soft"
+      >
+        <S d={I.memory} sz={10} /> Memory
       </button>
-      <button onClick={onImp} className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/6 hover:bg-white/10 text-white/35 hover:text-white/65 text-[10px] transition-all">
-        <S d={I.imp} sz={12} />Import
+      <button onClick={onImp}
+        style={{
+          display: "flex", alignItems: "center", gap: 3, padding: "3px 8px", borderRadius: 4,
+          fontSize: 9, border: "none", cursor: "pointer", fontFamily: "inherit",
+          background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.3)",
+        }}
+        className="cs-hover-soft"
+      >
+        <S d={I.imp} sz={10} />Import
       </button>
-      <button onClick={onExp} className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500/70 hover:bg-emerald-500 text-white text-[10px] transition-all shadow-sm shadow-emerald-500/10">
-        <S d={I.exp} sz={12} />Export
+      <button onClick={onExp}
+        style={{
+          display: "flex", alignItems: "center", gap: 3, padding: "3px 10px", borderRadius: 4,
+          fontSize: 9, fontWeight: 600, border: "none", cursor: "pointer", fontFamily: "inherit",
+          background: "rgba(59,130,246,0.7)", color: "white",
+        }}
+        className="cs-hover-soft"
+      >
+        <S d={I.exp} sz={10} />Export
       </button>
-      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-blue-600 flex items-center justify-center text-[9px] font-bold text-white ml-0.5 cursor-pointer shadow-sm">J</div>
     </div>
   );
 }
 
+const PANEL_LABELS = {
+  media: "Media", audio: "Audio", text: "Text", sticker: "Stickers",
+  transitions: "Transitions", effects: "Effects", luts: "LUTs", color: "Color",
+  motion: "Motion", ai: "AI Tools", assets: "Assets", templates: "Templates",
+  captions: "Captions", brand: "Brand Kit", memory: "Brand Memory",
+};
+
 function LeftPanel({ tab, imm, onImp, fRef, onMDrag }) {
+  const panel = (() => {
+    switch (tab) {
+      case "media": return <MediaPanel imm={imm} onImp={onImp} fRef={fRef} onMDrag={onMDrag} />;
+      case "audio": return <AudioPanel />;
+      case "text": return <TextPanel />;
+      case "sticker": return <StickerPanel />;
+      case "transitions": return <TransitionsPanel />;
+      case "effects": return <EffectsPanel />;
+      case "luts": return <LUTsPanel />;
+      case "color": return <ColorPanel />;
+      case "motion": return <MotionPanel />;
+      case "ai": return <AIPanel />;
+      case "assets": return <AssetsPanel />;
+      case "templates": return <TemplatesPanel />;
+      case "captions": return <CaptionsPanel />;
+      case "brand": return <BrandPanel />;
+      default: return null;
+    }
+  })();
+
   return (
-    <div className="w-[260px] flex-shrink-0 border-r border-white/6 bg-[#0d0d0d] flex flex-col min-h-0">
-      <div className="h-9 flex-shrink-0 flex items-center px-3 border-b border-white/6 gap-2">
-        <span className="text-[10px] font-semibold text-white/18 uppercase tracking-[0.15em]">
-          {tab === "media" ? "Media" : tab === "audio" ? "Audio" : tab === "text" ? "Text" : tab === "sticker" ? "Stickers" : tab === "transitions" ? "Transitions" : tab === "effects" ? "Effects" : tab === "luts" ? "LUTs" : tab === "color" ? "Color" : tab === "motion" ? "Motion" : tab === "ai" ? "AI Tools" : tab === "assets" ? "Assets" : tab === "templates" ? "Templates" : tab === "captions" ? "Captions" : tab === "brand" ? "Brand Kit" : tab === "memory" ? "Brand Memory" : "Tools"}
-        </span>
+    <div style={{
+      width: 240, flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.05)",
+      background: "#0d0d0d", display: "flex", flexDirection: "column", minHeight: 0,
+    }}>
+      <div style={{
+        height: 32, flexShrink: 0, display: "flex", alignItems: "center",
+        padding: "0 12px", borderBottom: "1px solid rgba(255,255,255,0.05)",
+        fontSize: 10, fontWeight: 600, textTransform: "uppercase",
+        letterSpacing: "0.12em", color: "rgba(255,255,255,0.15)",
+      }}>
+        {PANEL_LABELS[tab] || "Tools"}
       </div>
-      <div className="flex-1 overflow-y-auto scrollbar-thin">
-        {tab === "media" && <MediaPanel imm={imm} onImp={onImp} fRef={fRef} onMDrag={onMDrag} />}
-        {tab === "audio" && <AudioPanel />}
-        {tab === "text" && <TextPanel />}
-        {tab === "sticker" && <StickerPanel />}
-        {tab === "transitions" && <TransitionsPanel />}
-        {tab === "effects" && <EffectsPanel />}
-        {tab === "luts" && <LUTsPanel />}
-        {tab === "color" && <ColorPanel />}
-        {tab === "motion" && <MotionPanel />}
-        {tab === "ai" && <AIPanel />}
-        {tab === "assets" && <AssetsPanel />}
-        {tab === "templates" && <TemplatesPanel />}
-        {tab === "captions" && <CaptionsPanel />}
-        {tab === "brand" && <BrandPanel />}
+      <div style={{ flex: 1, overflow: "hidden auto" }} className="cs-scrollbar">
+        {panel}
       </div>
     </div>
   );
@@ -107,13 +206,20 @@ export default function VideoStudioEditor() {
   const [showExport, setShowExport] = useState(false);
   const [memories, setMemories] = useLocalStorage("branpy_memories", []);
   const [showMemories, setShowMemories] = useState(false);
+  const [workspace, setWorkspace] = useState("edit");
+  const [panelOpen, setPanelOpen] = useState(true);
+  const [inspectorOpen, setInspectorOpen] = useState(true);
   const fRef = useRef(null);
   const piRef = useRef(null);
 
   useEffect(() => {
     if (playing) {
       piRef.current = setInterval(() => {
-        setCt((t) => t >= proj.duration ? (setPlaying(false), 0) : t + 1 / proj.fps);
+        setCt((t) => {
+          const n = t + 1 / proj.fps;
+          if (n >= proj.duration) { setPlaying(false); return 0; }
+          return n;
+        });
       }, 1000 / proj.fps);
     }
     return () => clearInterval(piRef.current);
@@ -134,54 +240,147 @@ export default function VideoStudioEditor() {
   }, []);
 
   const handleApplyMemory = useCallback((mem) => {
-    const memClip = { id: UID(), name: `🧠 ${mem.name}`, start: ct, duration: 3, type: "overlay", t: "🧠" };
+    const memClip = {
+      id: UID(), name: `🧠 ${mem.name}`, start: ct,
+      duration: 3, type: "overlay", t: "🧠",
+    };
     setProj((prev) => ({
-      ...prev, duration: Math.max(prev.duration, ct + 3),
-      tracks: prev.tracks.map((t) => t.id === "o1" ? { ...t, clips: [...t.clips, memClip].sort((a, b) => a.start - b.start) } : t),
+      ...prev,
+      duration: Math.max(prev.duration, ct + 3),
+      tracks: prev.tracks.map((t) =>
+        t.id === "o1"
+          ? { ...t, clips: [...t.clips, memClip].sort((a, b) => a.start - b.start) }
+          : t
+      ),
     }));
   }, [ct]);
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 bg-[#0a0a0a] text-white overflow-hidden select-none">
+    <div style={{
+      flex: 1, display: "flex", flexDirection: "column", minHeight: 0,
+      background: "#0a0a0a", color: "white", overflow: "hidden", userSelect: "none",
+      fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
+    }}>
       <TopBar
         proj={proj} setProj={setProj}
+        ct={ct} dur={proj.duration}
         onImp={() => fRef.current?.click()}
         onExp={() => setShowExport(true)}
-        onMem={() => { setShowMemories(!showMemories); if (sTab !== "memory") setSTab("memory"); }}
-        ct={ct} dur={proj.duration}
+        onMem={() => { setShowMemories(true); if (sTab !== "memory") setSTab("memory"); if (!panelOpen) setPanelOpen(true); }}
+        workspace={workspace}
+        setWorkspace={setWorkspace}
       />
 
-      <div className="flex-1 flex min-h-0">
-        {/* Sidebar tools */}
-        <div className="w-10 flex-shrink-0 bg-[#090909] border-r border-white/6 flex flex-col py-2 items-center">
-          {Object.entries(SIDEBAR_MAP).map(([id, icon]) => (
-            <SideTab key={id} icon={icon} label={id} active={sTab === id} onClick={() => { setSTab(id); if (id === "memory") setShowMemories(true); }} />
+      <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
+        {/* Sidebar icon strip */}
+        <div style={{
+          width: 40, flexShrink: 0, background: "#090909",
+          borderRight: "1px solid rgba(255,255,255,0.05)",
+          display: "flex", flexDirection: "column", paddingTop: 2,
+        }}>
+          {SIDEBAR_MAP.map(([id, icon]) => (
+            <SideTab
+              key={id}
+              icon={icon}
+              label={id}
+              active={sTab === id}
+              onClick={() => {
+                if (sTab === id && panelOpen) { setPanelOpen(false); return; }
+                setSTab(id);
+                setShowMemories(false);
+                if (!panelOpen) setPanelOpen(true);
+              }}
+            />
           ))}
         </div>
 
-        {/* Left panel */}
-        {sTab === "memory" && showMemories ? (
-          <div className="w-[260px] flex-shrink-0 border-r border-white/6 bg-[#0d0d0d] flex flex-col min-h-0">
-            <div className="h-9 flex-shrink-0 flex items-center px-3 border-b border-white/6">
-              <span className="text-[10px] font-semibold text-white/18 uppercase tracking-[0.15em]">Brand Memory</span>
+        {/* Secondary panel */}
+        {panelOpen && (
+          sTab === "memory" && showMemories ? (
+            <div style={{
+              width: 240, flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.05)",
+              background: "#0d0d0d", display: "flex", flexDirection: "column", minHeight: 0,
+            }}>
+              <div style={{
+                height: 32, flexShrink: 0, display: "flex", alignItems: "center",
+                padding: "0 12px", borderBottom: "1px solid rgba(255,255,255,0.05)",
+                fontSize: 10, fontWeight: 600, textTransform: "uppercase",
+                letterSpacing: "0.12em", color: "rgba(255,255,255,0.15)",
+              }}>
+                Brand Memory
+              </div>
+              <div style={{ flex: 1, overflow: "hidden auto" }} className="cs-scrollbar">
+                <BrandMemoryPanel
+                  memories={memories}
+                  setMemories={setMemories}
+                  onApplyMemory={handleApplyMemory}
+                />
+              </div>
             </div>
-            <div className="flex-1 overflow-y-auto scrollbar-thin">
-              <BrandMemoryPanel memories={memories} setMemories={setMemories} onApplyMemory={handleApplyMemory} />
-            </div>
-          </div>
-        ) : (
-          <LeftPanel tab={sTab} imm={imm} onImp={handleImp} fRef={fRef} onMDrag={handleMDrag} />
+          ) : (
+            <LeftPanel tab={sTab} imm={imm} onImp={handleImp} fRef={fRef} onMDrag={handleMDrag} />
+          )
         )}
 
-        <PreviewPanel playing={playing} setPlaying={setPlaying} ct={ct} setCt={setCt} proj={proj} vol={vol} setVol={setVol} />
-        <Inspector clip={sel} />
+        {/* Preview */}
+        <PreviewPanel
+          playing={playing}
+          setPlaying={setPlaying}
+          ct={ct}
+          setCt={setCt}
+          proj={proj}
+          vol={vol}
+          setVol={setVol}
+        />
+
+        {/* Inspector toggle */}
+        <Inspector clip={sel} open={inspectorOpen} onToggle={() => setInspectorOpen(!inspectorOpen)} />
       </div>
 
-      <Timeline proj={proj} setProj={setProj} ct={ct} setCt={setCt} zoom={zoom} setZoom={setZoom} playing={playing} setPlaying={setPlaying} sel={sel} setSel={setSel} />
+      <Timeline
+        proj={proj}
+        setProj={setProj}
+        ct={ct}
+        setCt={setCt}
+        zoom={zoom}
+        setZoom={setZoom}
+        playing={playing}
+        setPlaying={setPlaying}
+        sel={sel}
+        setSel={setSel}
+      />
 
-      <input ref={fRef} type="file" multiple accept="video/*,audio/*,image/*" className="hidden" onChange={(e) => { if (e.target.files.length) { handleImp(e.target.files); e.target.value = ""; } }} />
+      <input
+        ref={fRef}
+        type="file"
+        multiple
+        accept="video/*,audio/*,image/*"
+        style={{ display: "none" }}
+        onChange={(e) => {
+          if (e.target.files.length) { handleImp(e.target.files); e.target.value = ""; }
+        }}
+      />
 
       <ExportModal open={showExport} onClose={() => setShowExport(false)} proj={proj} />
+
+      <style>{`
+        .cs-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .cs-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .cs-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+        .cs-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.1); }
+        .cs-hover-soft:hover { background: rgba(255,255,255,0.06) !important; }
+        .cs-hover-item:hover { background: rgba(255,255,255,0.03); }
+        .cs-bi-btn:hover { background: rgba(255,255,255,0.1) !important; color: rgba(255,255,255,0.55) !important; }
+        .cs-tooltip { display: none; }
+        [class*="group"]:hover .cs-tooltip { display: block; }
+        .cs-ruler-tick { position: absolute; top: 0; height: 8px; width: 1px; background: rgba(255,255,255,0.06); }
+        .cs-ruler-label { position: absolute; font-size: 8px; color: rgba(255,255,255,0.12); top: 8px; margin-left: 4px; font-family: monospace; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: #3b82f6; cursor: pointer; border: 2px solid rgba(255,255,255,0.1); }
+        input[type="range"]::-webkit-slider-runnable-track { height: 3px; background: rgba(255,255,255,0.06); border-radius: 999px; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+      `}</style>
     </div>
   );
 }
