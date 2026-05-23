@@ -14,6 +14,9 @@ import {
   TranscriptionAI, CodeGenerator, DocumentsAI, MediaBank,
   MusicHub, AIAvatars, Projects, IntegrationsPage,
   PlansPage, TeamPage, SettingsPage, SupportPage,
+  CanvaEditorFn, PhotoshopEditorFn, CalendarViewFn,
+  CodeStudioFn, StreamingStudioViewFn, TeamChatViewFn,
+  NotesViewFn, TasksViewFn, CloudDriveViewFn, FinanceHubViewFn,
 } from "./BRANPYModules";
 import "./AffiliateAgent.css";
 
@@ -1608,6 +1611,16 @@ export default function AffiliateAgentApp() {
       <Route path="/team" element={<BRANPYLayout activeModule="team"><TeamPage /></BRANPYLayout>} />
       <Route path="/settings" element={<BRANPYLayout activeModule="settings"><SettingsPage /></BRANPYLayout>} />
       <Route path="/support" element={<BRANPYLayout activeModule="support"><SupportPage /></BRANPYLayout>} />
+      <Route path="/canva-editor" element={<BRANPYLayout activeModule="canva-editor"><CanvaEditorFn /></BRANPYLayout>} />
+      <Route path="/photoshop-editor" element={<BRANPYLayout activeModule="photoshop-editor"><PhotoshopEditorFn /></BRANPYLayout>} />
+      <Route path="/calendar" element={<BRANPYLayout activeModule="calendar"><CalendarViewFn /></BRANPYLayout>} />
+      <Route path="/code-studio" element={<BRANPYLayout activeModule="code-studio"><CodeStudioFn /></BRANPYLayout>} />
+      <Route path="/streaming-studio" element={<BRANPYLayout activeModule="streaming-studio"><StreamingStudioViewFn /></BRANPYLayout>} />
+      <Route path="/team-chat" element={<BRANPYLayout activeModule="team-chat"><TeamChatViewFn /></BRANPYLayout>} />
+      <Route path="/notes" element={<BRANPYLayout activeModule="notes"><NotesViewFn /></BRANPYLayout>} />
+      <Route path="/tasks" element={<BRANPYLayout activeModule="tasks"><TasksViewFn /></BRANPYLayout>} />
+      <Route path="/cloud-drive" element={<BRANPYLayout activeModule="cloud-drive"><CloudDriveViewFn /></BRANPYLayout>} />
+      <Route path="/finance-hub" element={<BRANPYLayout activeModule="finance-hub"><FinanceHubViewFn /></BRANPYLayout>} />
       <Route path="*" element={<Navigate to="/affiliate-agent" replace />} />
     </Routes>
   );

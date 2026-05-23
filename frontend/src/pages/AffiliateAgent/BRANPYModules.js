@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocalStorage, useArray } from "../../hooks/useLocalStorage";
 
-function TopBar({ title, children }) {
+export function TopBar({ title, children }) {
   return (
     <div className="flex items-center justify-between px-5 h-11 border-b border-white/[0.06] flex-shrink-0 bg-[#0a0a0a]/80 backdrop-blur-sm">
       <h1 className="text-sm font-medium text-white/80">{title}</h1>
@@ -10,7 +10,7 @@ function TopBar({ title, children }) {
   );
 }
 
-function Btn({ children, onClick, primary, active, className = "" }) {
+export function Btn({ children, onClick, primary, active, className = "" }) {
   return (
     <button
       onClick={onClick}
@@ -27,15 +27,40 @@ function Btn({ children, onClick, primary, active, className = "" }) {
   );
 }
 
-function ScrollArea({ children, className = "" }) {
+export function ScrollArea({ children, className = "" }) {
   return <div className={`flex-1 overflow-y-auto scrollbar-thin ${className}`}>{children}</div>;
 }
 
 import VideoStudioEditor from "./VideoStudioEditor";
+import CanvaEditor from "./CanvaEditor";
+import PhotoshopEditor from "./PhotoshopEditor";
+import CalendarView from "./CalendarView";
+import CodeStudio from "./CodeStudio";
+import StreamingStudioView from "./StreamingStudioView";
+import TeamChatView from "./TeamChatView";
+import NotesView from "./NotesView";
+import TasksView from "./TasksView";
+import CloudDriveView from "./CloudDriveView";
+import FinanceHubView from "./FinanceHubView";
+import EnhancedCRM from "./EnhancedCRM";
+import EnhancedCodeGenerator from "./EnhancedCodeGenerator";
+import EnhancedProjects from "./EnhancedProjects";
+import EnhancedAnalytics from "./EnhancedAnalytics";
+import AgentMarketplaceNew from "./AgentMarketplace";
 
 export function VideoStudio() {
   return <VideoStudioEditor />;
 }
+export function CanvaEditorFn() { return <CanvaEditor />; }
+export function PhotoshopEditorFn() { return <PhotoshopEditor />; }
+export function CalendarViewFn() { return <CalendarView />; }
+export function CodeStudioFn() { return <CodeStudio />; }
+export function StreamingStudioViewFn() { return <StreamingStudioView />; }
+export function TeamChatViewFn() { return <TeamChatView />; }
+export function NotesViewFn() { return <NotesView />; }
+export function TasksViewFn() { return <TasksView />; }
+export function CloudDriveViewFn() { return <CloudDriveView />; }
+export function FinanceHubViewFn() { return <FinanceHubView />; }
 
 export function ImageStudio() {
   const [tool, setTool] = useState("select");
@@ -678,138 +703,11 @@ export function AutomationHub() {
 }
 
 export function AgentMarketplace() {
-  const agentDefaults = [
-    { name: "Agente Afiliado", desc: "Importa produtos, gera anúncios e publica automaticamente", icon: "📊", color: "emerald" },
-    { name: "Agente Social", desc: "Cria e agenda conteúdo para todas as redes sociais", icon: "📱", color: "blue" },
-    { name: "Agente Vendas", desc: "Automatiza prospecção, follow-up e fechamento", icon: "💰", color: "purple" },
-    { name: "Agente Vídeo", desc: "Produz vídeos com IA, edição e legendas automáticas", icon: "🎬", color: "amber" },
-    { name: "Agente Conteúdo", desc: "Gera artigos, posts, newsletters e copywriting", icon: "✍️", color: "rose" },
-    { name: "Agente Suporte", desc: "Chatbot inteligente para atendimento ao cliente", icon: "🤖", color: "cyan" },
-  ];
-  const [activeAgents, setActiveAgents] = useLocalStorage("branpy_agents_active", ["Agente Afiliado"]);
-
-  const toggleAgent = (name) => {
-    setActiveAgents((prev) =>
-      prev.includes(name) ? prev.filter((a) => a !== name) : [...prev, name]
-    );
-  };
-
-  return (
-    <div className="flex-1 flex flex-col min-h-0 bg-[#0a0a0a]">
-      <TopBar title="Agent Marketplace">
-        <Btn primary>Criar Agente</Btn>
-      </TopBar>
-      <ScrollArea className="p-6">
-        <div className="max-w-5xl mx-auto grid grid-cols-3 gap-4">
-          {agentDefaults.map((a) => {
-            const active = activeAgents.includes(a.name);
-            return (
-              <div key={a.name} className={`rounded-xl bg-white/[0.02] border p-5 hover:bg-white/[0.04] transition-all ${active ? "border-emerald-500/40 ring-1 ring-emerald-500/20" : "border-white/[0.06]"}`}>
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-xl">{a.icon}</span>
-                  {active && <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">Ativo</span>}
-                </div>
-                <div className="text-sm font-medium text-white/70">{a.name}</div>
-                <div className="text-xs text-white/40 mt-1 leading-relaxed">{a.desc}</div>
-                <button
-                  onClick={() => toggleAgent(a.name)}
-                  className={`mt-4 w-full text-xs py-1.5 rounded-lg transition-all ${active ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30" : "bg-white/5 text-white/40 hover:bg-white/10"}`}
-                >
-                  {active ? "Gerenciar" : "Ativar"}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </ScrollArea>
-    </div>
-  );
+  return <AgentMarketplaceNew />;
 }
 
 export function LeadsCRM() {
-  const [stages, setStages] = useLocalStorage("branpy_crm_stages", [
-    { name: "Novo Lead", color: "bg-blue-500/20 border-blue-500/30", leads: [{ name: "João Silva", value: "R$ 2.500" }, { name: "Maria Santos", value: "R$ 1.800" }, { name: "Carlos Lima", value: "R$ 5.000" }] },
-    { name: "Contatado", color: "bg-amber-500/20 border-amber-500/30", leads: [{ name: "Ana Costa", value: "R$ 3.200" }, { name: "Pedro Alves", value: "R$ 1.500" }] },
-    { name: "Proposta", color: "bg-purple-500/20 border-purple-500/30", leads: [{ name: "Lucia Pereira", value: "R$ 8.000" }] },
-    { name: "Fechado", color: "bg-emerald-500/20 border-emerald-500/30", leads: [{ name: "Roberto Oliveira", value: "R$ 12.000" }] },
-  ]);
-  const [showForm, setShowForm] = useState(false);
-  const [newLeadName, setNewLeadName] = useState("");
-  const [newLeadValue, setNewLeadValue] = useState("");
-
-  const handleAddLead = () => {
-    if (!newLeadName.trim()) return;
-    const formattedValue = newLeadValue ? `R$ ${newLeadValue}` : "R$ 0";
-    setStages((prev) => prev.map((s, i) =>
-      i === 0 ? { ...s, leads: [...s.leads, { name: newLeadName, value: formattedValue }] } : s
-    ));
-    setNewLeadName("");
-    setNewLeadValue("");
-    setShowForm(false);
-  };
-
-  const advanceLead = (stageIdx, leadIdx) => {
-    if (stageIdx >= stages.length - 1) return;
-    const lead = stages[stageIdx].leads[leadIdx];
-    setStages((prev) => prev.map((s, i) => {
-      if (i === stageIdx) return { ...s, leads: s.leads.filter((_, j) => j !== leadIdx) };
-      if (i === stageIdx + 1) return { ...s, leads: [...s.leads, lead] };
-      return s;
-    }));
-  };
-
-  return (
-    <div className="flex-1 flex flex-col min-h-0 bg-[#0a0a0a]">
-      <TopBar title="Leads & CRM">
-        <Btn primary onClick={() => setShowForm(true)}>Novo Lead</Btn>
-      </TopBar>
-      <ScrollArea className="p-5">
-        <div className="flex gap-4 h-full" style={{ minHeight: 400 }}>
-          {stages.map((s, si) => (
-            <div key={s.name} className="flex-1 min-w-[200px] rounded-xl bg-white/[0.02] border border-white/[0.06] p-3">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium text-white/50">{s.name}</span>
-                <span className="text-[10px] text-white/30">{s.leads.length}</span>
-              </div>
-              <div className="space-y-2">
-                {s.leads.map((l, li) => (
-                  <div
-                    key={l.name + li}
-                    onClick={() => advanceLead(si, li)}
-                    className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 cursor-pointer hover:border-emerald-500/20 transition-all"
-                  >
-                    <div className="text-xs text-white/70">{l.name}</div>
-                    <div className="text-[10px] text-white/30 mt-0.5">{l.value}</div>
-                    {si < stages.length - 1 && (
-                      <div className="text-[8px] text-white/20 mt-1 opacity-0 hover:opacity-100">Clique para avançar</div>
-                    )}
-                  </div>
-                ))}
-                {s.leads.length === 0 && (
-                  <div className="text-[10px] text-white/20 text-center py-4">Nenhum lead</div>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </ScrollArea>
-      {showForm && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50" style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}>
-          <div onClick={(e) => e.stopPropagation()} className="bg-[#0c0c0c] border border-white/[0.06] rounded-xl p-6 max-w-sm w-full mx-4">
-            <div className="text-xs font-medium text-white/50 mb-4">Novo Lead</div>
-            <div className="space-y-3">
-              <input value={newLeadName} onChange={(e) => setNewLeadName(e.target.value)} className="w-full bg-white/[0.03] border border-white/10 rounded px-3 py-2 text-xs text-white/60 outline-none focus:border-white/20" placeholder="Nome do lead" />
-              <input value={newLeadValue} onChange={(e) => setNewLeadValue(e.target.value)} className="w-full bg-white/[0.03] border border-white/10 rounded px-3 py-2 text-xs text-white/60 outline-none focus:border-white/20" placeholder="Valor (ex: 2500)" />
-            </div>
-            <div className="flex gap-2 mt-5">
-              <button onClick={handleAddLead} className="text-xs px-3 py-1.5 rounded-lg bg-emerald-500/80 hover:bg-emerald-500 text-white">Adicionar</button>
-              <button onClick={() => setShowForm(false)} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 text-white/40 hover:bg-white/10">Cancelar</button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+  return <EnhancedCRM />;
 }
 
 export function Ecommerce() {
@@ -946,146 +844,7 @@ export function Ecommerce() {
 }
 
 export function AnalyticsAdvanced() {
-  const [period, setPeriod] = useLocalStorage("branpy_analytics_period", "7d");
-  const periods = ["7d", "30d", "90d"];
-
-  const dataByPeriod = {
-    "7d": {
-      metrics: [
-        { label: "Receita Total", value: "R$ 24.580", change: "+18.5%", up: true },
-        { label: "Visualizações", value: "45.230", change: "+12.3%", up: true },
-        { label: "CTR Médio", value: "4.8%", change: "-0.6%", up: false },
-        { label: "Conversões", value: "342", change: "+22.1%", up: true },
-      ],
-      chart: [40, 55, 45, 70, 60, 80, 65],
-      platforms: [
-        { name: "TikTok", value: 45, color: "bg-blue-500/30" },
-        { name: "Instagram", value: 30, color: "bg-purple-500/30" },
-        { name: "YouTube", value: 15, color: "bg-red-500/30" },
-        { name: "Kwai", value: 10, color: "bg-amber-500/30" },
-      ],
-      chartLabel: "últimos 7 dias",
-      chartDays: ["D1","D2","D3","D4","D5","D6","D7"],
-      topProducts: [
-        { name: "Fone Bluetooth", value: "R$ 4.230", rank: 1 },
-        { name: "Carregador USB", value: "R$ 3.120", rank: 2 },
-        { name: "Capa Silicone", value: "R$ 2.890", rank: 3 },
-      ],
-    },
-    "30d": {
-      metrics: [
-        { label: "Receita Total", value: "R$ 98.450", change: "+24.2%", up: true },
-        { label: "Visualizações", value: "182.500", change: "+18.7%", up: true },
-        { label: "CTR Médio", value: "5.2%", change: "+0.4%", up: true },
-        { label: "Conversões", value: "1.423", change: "+31.5%", up: true },
-      ],
-      chart: [50, 65, 55, 80, 75, 90, 85, 70, 60, 95, 88, 72, 68, 82, 78, 92, 85, 76, 69, 88, 95, 80, 74, 90, 86, 78, 92, 84, 76, 70],
-      platforms: [
-        { name: "TikTok", value: 38, color: "bg-blue-500/30" },
-        { name: "Instagram", value: 32, color: "bg-purple-500/30" },
-        { name: "YouTube", value: 20, color: "bg-red-500/30" },
-        { name: "Kwai", value: 10, color: "bg-amber-500/30" },
-      ],
-      chartLabel: "últimos 30 dias",
-      chartDays: Array.from({ length: 30 }, (_, i) => `D${i + 1}`),
-      topProducts: [
-        { name: "Fone Bluetooth", value: "R$ 12.450", rank: 1 },
-        { name: "Carregador USB", value: "R$ 8.920", rank: 2 },
-        { name: "Capa Silicone", value: "R$ 6.780", rank: 3 },
-      ],
-    },
-    "90d": {
-      metrics: [
-        { label: "Receita Total", value: "R$ 285.700", change: "+42.8%", up: true },
-        { label: "Visualizações", value: "520.100", change: "+35.2%", up: true },
-        { label: "CTR Médio", value: "5.8%", change: "+1.2%", up: true },
-        { label: "Conversões", value: "4.215", change: "+48.3%", up: true },
-      ],
-      chart: [60, 72, 58, 85, 78, 92, 88, 75, 68, 90, 82, 95, 80, 74, 88, 96, 84, 78, 92, 88, 98, 85, 76, 94, 90, 82, 96, 88, 80, 92, 86, 78, 95, 90, 82, 98, 88, 80, 94, 86, 78, 96, 92, 84, 100, 90, 82, 98, 88, 80, 94, 90, 82, 96, 92, 84, 98, 88, 80, 92, 86, 78, 95, 90, 82, 96, 88, 80, 94, 86, 78, 96, 92, 84, 100, 90, 82, 98, 88, 80, 94, 90, 82, 96, 92, 84, 98, 88, 80, 92],
-      platforms: [
-        { name: "TikTok", value: 35, color: "bg-blue-500/30" },
-        { name: "Instagram", value: 28, color: "bg-purple-500/30" },
-        { name: "YouTube", value: 22, color: "bg-red-500/30" },
-        { name: "Kwai", value: 15, color: "bg-amber-500/30" },
-      ],
-      chartLabel: "últimos 90 dias",
-      chartDays: Array.from({ length: 90 }, (_, i) => `D${i + 1}`),
-      topProducts: [
-        { name: "Fone Bluetooth", value: "R$ 32.400", rank: 1 },
-        { name: "Carregador USB", value: "R$ 21.500", rank: 2 },
-        { name: "Capa Silicone", value: "R$ 15.800", rank: 3 },
-      ],
-    },
-  };
-
-  const data = dataByPeriod[period];
-  const maxChart = Math.max(...data.chart);
-
-  return (
-    <div className="flex-1 flex flex-col min-h-0 bg-[#0a0a0a]">
-      <TopBar title="Analytics">
-        {periods.map((p) => (
-          <Btn key={p} active={period === p} onClick={() => setPeriod(p)}>{p === "7d" ? "7 dias" : p === "30d" ? "30 dias" : "90 dias"}</Btn>
-        ))}
-        <div className="w-px h-4 bg-white/10 mx-1" />
-        <Btn primary>Exportar</Btn>
-      </TopBar>
-      <ScrollArea className="p-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-4 gap-3 mb-6">
-            {data.metrics.map((s) => (
-              <div key={s.label} className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-4">
-                <div className="text-[10px] text-white/30">{s.label}</div>
-                <div className="text-lg font-semibold text-white/80 mt-1">{s.value}</div>
-                <div className={`text-[10px] mt-1 ${s.up ? "text-emerald-400" : "text-red-400"}`}>{s.change}</div>
-              </div>
-            ))}
-          </div>
-          <div className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-5 mb-4">
-            <div className="text-xs font-medium text-white/50 mb-4">Receita ({data.chartLabel})</div>
-            <div className="flex items-end gap-[1px] h-32">
-              {data.chart.map((h, i) => {
-                const barHeight = maxChart > 0 ? (h / maxChart) * 100 : 0;
-                return (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-1 relative group">
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 text-[8px] text-white/40 bg-black/60 px-1 rounded whitespace-nowrap">{h}%</div>
-                    <div className="w-full rounded-t bg-emerald-500/30 hover:bg-emerald-500/50 transition-all" style={{ height: `${barHeight}%` }} />
-                    {data.chart.length <= 30 && <span className="text-[8px] text-white/20">{data.chartDays[i]}</span>}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-4">
-              <div className="text-xs font-medium text-white/50 mb-3">Por Plataforma</div>
-              {data.platforms.map((p) => (
-                <div key={p.name} className="flex items-center gap-2 mb-2">
-                  <span className="text-[10px] text-white/40 w-14">{p.name}</span>
-                  <div className="flex-1 h-3 bg-white/5 rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full ${p.color}`} style={{ width: `${p.value}%` }} />
-                  </div>
-                  <span className="text-[10px] text-white/30 w-8 text-right">{p.value}%</span>
-                </div>
-              ))}
-            </div>
-            <div className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-4">
-              <div className="text-xs font-medium text-white/50 mb-3">Top Produtos</div>
-              {data.topProducts.map((p) => (
-                <div key={p.name} className="flex items-center justify-between py-1.5 border-b border-white/[0.03] last:border-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-white/20">#{p.rank}</span>
-                    <span className="text-xs text-white/50">{p.name}</span>
-                  </div>
-                  <span className="text-xs text-white/60">{p.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </ScrollArea>
-    </div>
-  );
+  return <EnhancedAnalytics />;
 }
 
 export function TemplateLibrary() {
@@ -1275,118 +1034,7 @@ export function TranscriptionAI() {
 }
 
 export function CodeGenerator() {
-  const initialFiles = [
-    { name: "App.js", content: 'import React, { useState } from "react";\n\nexport default function App() {\n  const [count, setCount] = useState(0);\n\n  return (\n    <div className="app">\n      <h1>Hello BRANPY</h1>\n      <p>Count: {count}</p>\n      <button onClick={() => setCount(c => c + 1)}>\n        Increment\n      </button>\n    </div>\n  );\n}' },
-    { name: "api.py", content: "from fastapi import FastAPI\n\napp = FastAPI()\n\n@app.get(\"/api/hello\")\nasync def hello():\n    return {\"message\": \"Hello BRANPY\"}" },
-    { name: "styles.css", content: ".app {\n  text-align: center;\n  padding: 2rem;\n}\n\nh1 {\n  color: #333;\n}\n\np {\n  color: #666;\n}" },
-    { name: "index.html", content: "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\" />\n  <title>BRANPY App</title>\n</head>\n<body>\n  <div id=\"root\"></div>\n</body>\n</html>" },
-    { name: "database.sql", content: "CREATE TABLE users (\n  id SERIAL PRIMARY KEY,\n  name VARCHAR(100),\n  email VARCHAR(255) UNIQUE\n);\n\nCREATE TABLE products (\n  id SERIAL PRIMARY KEY,\n  name VARCHAR(200),\n  price DECIMAL(10,2)\n);" },
-  ];
-  const [files, setFiles] = useLocalStorage("codegen_files", initialFiles);
-  const [currentFile, setCurrentFile] = useState(0);
-  const [promptHistory, setPromptHistory] = useLocalStorage("codegen_prompts", []);
-  const [prompt, setPrompt] = useState("");
-  const [terminal, setTerminal] = useLocalStorage("codegen_terminal", ["> npm start", "> server running on port 3000"]);
-
-  const handleNewFile = () => {
-    const name = prompt("Nome do arquivo:");
-    if (name) {
-      setFiles((prev) => [...prev, { name, content: "" }]);
-    }
-  };
-
-  const handleDeleteFile = (i) => {
-    if (files.length <= 1) return;
-    setFiles((prev) => prev.filter((_, idx) => idx !== i));
-    if (currentFile >= files.length - 1) setCurrentFile(Math.max(0, files.length - 2));
-  };
-
-  const handleGenerate = () => {
-    if (!prompt.trim()) return;
-    setPromptHistory((prev) => [...prev, prompt]);
-    setTerminal((prev) => [...prev, `> IA gerando código para: ${prompt}`]);
-    setTimeout(() => setTerminal((prev) => [...prev, "> Código gerado com sucesso!"]), 800);
-    setTimeout(() => setTerminal((prev) => [...prev, "> Pronto para executar"]), 1600);
-    setPrompt("");
-  };
-
-  const handleContentChange = (e) => {
-    setFiles((prev) => prev.map((f, i) => i === currentFile ? { ...f, content: e.target.value } : f));
-  };
-
-  const highlightSyntax = (code) => {
-    const escaped = code.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    const lines = escaped.split("\n");
-    return lines.map((line, i) => {
-      let h = line;
-      h = h.replace(/(\/\/.*)/g, '<span style="color:#6b7280">$1</span>');
-      h = h.replace(/(["'`].*?["'`])/g, '<span style="color:#fbbf24">$1</span>');
-      h = h.replace(/\b(\d+)\b/g, '<span style="color:#a78bfa">$1</span>');
-      const keywords = ["import", "export", "return", "from", "function", "const", "let", "var", "default", "async", "await", "class", "extends", "if", "else", "for", "while", "do", "switch", "case", "break", "continue", "new", "this", "try", "catch", "finally", "throw", "SELECT", "FROM", "WHERE", "CREATE", "TABLE", "INSERT", "INTO", "VALUES", "UPDATE", "SET", "DELETE", "ALTER", "DROP", "INDEX", "JOIN", "PRIMARY", "KEY", "FOREIGN", "REFERENCES", "SERIAL", "INT", "VARCHAR", "DECIMAL", "def", "True", "False", "None", "async", "await", "in", "as", "not", "and", "or", "is"];
-      keywords.forEach((kw) => {
-        h = h.replace(new RegExp(`\\b(${kw})\\b`, "g"), '<span style="color:#60a5fa">$1</span>');
-      });
-      return h;
-    });
-  };
-
-  const current = files[currentFile] || files[0];
-
-  return (
-    <div className="flex-1 flex flex-col min-h-0 bg-[#0a0a0a]">
-      <TopBar title="Gerador de Código">
-        <Btn onClick={() => setTerminal((prev) => [...prev, "> Executando..."])} primary>Executar</Btn>
-        <Btn>Deploy</Btn>
-        <Btn>Git Push</Btn>
-      </TopBar>
-      <div className="flex-1 flex min-h-0">
-        <div className="w-44 flex-shrink-0 border-r border-white/[0.06] bg-[#0c0c0c] p-3 overflow-y-auto scrollbar-thin flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-medium text-white/20 uppercase tracking-wider">Arquivos</span>
-            <button onClick={handleNewFile} className="text-[10px] text-white/30 hover:text-white/60 w-4 h-4 flex items-center justify-center rounded hover:bg-white/10">+</button>
-          </div>
-          {files.map((f, i) => (
-            <div key={i} className="flex items-center group">
-              <button onClick={() => setCurrentFile(i)} className={`flex-1 text-left px-2 py-1.5 rounded-md text-xs mb-0.5 ${currentFile === i ? "bg-white/10 text-white/70" : "text-white/40 hover:bg-white/5"}`}>
-                {f.name}
-              </button>
-              {files.length > 1 && (
-                <button onClick={() => handleDeleteFile(i)} className="opacity-0 group-hover:opacity-100 text-[10px] text-red-400/50 hover:text-red-400 px-1 py-1">×</button>
-              )}
-            </div>
-          ))}
-          <div className="mt-auto pt-3 border-t border-white/[0.06]">
-            <div className="text-[10px] font-medium text-white/20 uppercase tracking-wider mb-2">AI Assistente</div>
-            <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} className="w-full bg-white/[0.03] border border-white/10 rounded-lg p-2 text-[10px] text-white/50 outline-none focus:border-white/20 resize-none h-20" placeholder="Peça para gerar código..." />
-            <button onClick={handleGenerate} className="mt-2 w-full text-[10px] py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30">Gerar</button>
-            {promptHistory.length > 0 && (
-              <div className="mt-2">
-                <div className="text-[10px] text-white/20 mb-1">Histórico</div>
-                {promptHistory.slice(-3).reverse().map((p, i) => (
-                  <div key={i} className="text-[9px] text-white/20 truncate py-0.5 border-b border-white/[0.03]">{p}</div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="flex-1 flex flex-col min-h-0">
-          <div className="flex items-center gap-2 px-4 py-1.5 bg-[#0c0c0c] border-b border-white/[0.06] text-[10px] text-white/30">
-            <span className="text-white/50">{current.name}</span>
-            <span className="ml-auto">{current.name.split(".").pop() === "py" ? "Python" : current.name.split(".").pop() === "css" ? "CSS" : current.name.split(".").pop() === "html" ? "HTML" : current.name.split(".").pop() === "sql" ? "SQL" : "JavaScript"}</span>
-          </div>
-          <textarea value={current.content} onChange={handleContentChange} className="flex-1 bg-[#080808] p-3 font-mono text-xs text-white/40 outline-none resize-none scrollbar-thin" spellCheck={false} />
-          <div className="h-28 bg-[#0c0c0c] border-t border-white/[0.06] p-3 overflow-y-auto scrollbar-thin">
-            <div className="flex items-center gap-2 text-[10px] text-white/20 mb-1">
-              <span className="text-emerald-400">$</span> terminal
-            </div>
-            {terminal.map((line, i) => (
-              <div key={i} className="text-[10px] text-white/20 font-mono">{line}</div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return <EnhancedCodeGenerator />;
 }
 
 export function DocumentsAI() {
@@ -1647,100 +1295,7 @@ export function AIAvatars() {
 }
 
 export function Projects() {
-  const { items: projects, add: addProject, remove: removeProject, update: updateProject } = useArray("projects_list", [
-    { name: "Campanha TikTok", tasks: [{ name: "Criar roteiro", done: true }, { name: "Gravar vídeo", done: true }, { name: "Editar", done: true }, { name: "Publicar", done: true }, { name: "Analisar métricas", done: true }, { name: "Relatório", done: true }, { name: "Otimizar", done: true }, { name: "Anunciar", done: true }, { name: "A/B test", done: false }, { name: "Escalar", done: false }, { name: "Novo criativo", done: false }, { name: "Review", done: false }] },
-    { name: "Review Produtos", tasks: [{ name: "Selecionar produtos", done: true }, { name: "Testar", done: true }, { name: "Escrever review", done: true }, { name: "Fotos", done: false }, { name: "Publicar", done: false }, { name: "Divulgar", done: false }, { name: "Monitorar", done: false }, { name: "Atualizar", done: false }] },
-    { name: "Site Afiliados", tasks: [{ name: "Registrar domínio", done: true }, { name: "Escolher tema", done: true }, { name: "Configurar", done: true }, { name: "Importar produtos", done: true }, { name: "Criar páginas", done: true }, { name: "SEO", done: true }, { name: "Conteúdo", done: true }, { name: "Testar", done: true }, { name: "Lançar", done: true }, { name: "Tráfego", done: true }, { name: "Conversão", done: true }, { name: "Escalar", done: true }, { name: "Email marketing", done: true }, { name: "Webinars", done: true }, { name: "Parcerias", done: true }, { name: "Anúncios", done: true }, { name: "Relatórios", done: true }, { name: "Otimizar landing", done: true }, { name: "CTA teste", done: true }, { name: "Cross-sell", done: true }, { name: "Upsell", done: true }, { name: "Chat", done: true }, { name: "Suporte", done: true }, { name: "Manutenção", done: false }] },
-  ]);
-  const [showForm, setShowForm] = useState(false);
-  const [newProjectName, setNewProjectName] = useState("");
-  const [expanded, setExpanded] = useState(null);
-  const [newTaskText, setNewTaskText] = useState("");
-
-  const handleAddProject = () => {
-    if (!newProjectName.trim()) return;
-    addProject({ name: newProjectName, tasks: [] });
-    setNewProjectName("");
-    setShowForm(false);
-  };
-
-  const handleToggleTask = (projIdx, taskIdx) => {
-    updateProject(projIdx, (prev) => ({
-      ...prev,
-      tasks: prev.tasks.map((t, i) => i === taskIdx ? { ...t, done: !t.done } : t),
-    }));
-  };
-
-  const handleAddTask = (projIdx) => {
-    if (!newTaskText.trim()) return;
-    updateProject(projIdx, (prev) => ({
-      ...prev,
-      tasks: [...prev.tasks, { name: newTaskText, done: false }],
-    }));
-    setNewTaskText("");
-  };
-
-  const doneCount = (tasks) => tasks.filter((t) => t.done).length;
-
-  return (
-    <div className="flex-1 flex flex-col min-h-0 bg-[#0a0a0a]">
-      <TopBar title="Projetos">
-        <Btn primary onClick={() => setShowForm(true)}>Novo Projeto</Btn>
-      </TopBar>
-      <ScrollArea className="p-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            {projects.map((p, i) => {
-              const total = p.tasks.length;
-              const done = doneCount(p.tasks);
-              const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-              return (
-                <div key={i} className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-4 hover:bg-white/[0.04] transition-all">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm font-medium text-white/70">{p.name}</div>
-                    <button onClick={() => removeProject(i)} className="text-[10px] text-white/20 hover:text-red-400">×</button>
-                  </div>
-                  <div className="flex items-center gap-2 mt-3">
-                    <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                      <div className="h-full bg-emerald-500/50 rounded-full transition-all" style={{ width: `${pct}%` }} />
-                    </div>
-                    <span className="text-[10px] text-white/30">{done}/{total}</span>
-                  </div>
-                  <button onClick={() => setExpanded(expanded === i ? null : i)} className="mt-2 text-[10px] text-white/20 hover:text-white/40 w-full text-left">
-                    {expanded === i ? "▲ Recuar" : "▼ Gerenciar tarefas"}
-                  </button>
-                  {expanded === i && (
-                    <div className="mt-2 space-y-1 border-t border-white/[0.06] pt-2">
-                      {p.tasks.map((t, j) => (
-                        <div key={j} className="flex items-center gap-2 text-[10px]">
-                          <input type="checkbox" checked={t.done} onChange={() => handleToggleTask(i, j)} className="accent-emerald-500" />
-                          <span className={t.done ? "text-white/30 line-through" : "text-white/50"}>{t.name}</span>
-                        </div>
-                      ))}
-                      <div className="flex gap-1 pt-1">
-                        <input value={newTaskText} onChange={(e) => setNewTaskText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleAddTask(i)} className="flex-1 bg-white/[0.03] border border-white/10 rounded px-2 py-1 text-[10px] text-white/50 outline-none focus:border-white/20" placeholder="Nova tarefa..." />
-                        <button onClick={() => handleAddTask(i)} className="text-[10px] px-2 py-1 rounded bg-white/5 text-white/30 hover:bg-white/10">+</button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-          {showForm && (
-            <div className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-4">
-              <div className="text-[10px] font-medium text-white/20 uppercase tracking-wider mb-3">Novo Projeto</div>
-              <input value={newProjectName} onChange={(e) => setNewProjectName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleAddProject()} className="w-full bg-white/[0.03] border border-white/10 rounded px-3 py-2 text-xs text-white/60 outline-none focus:border-white/20 mb-3" placeholder="Nome do projeto" />
-              <div className="flex gap-2">
-                <button onClick={handleAddProject} className="text-xs px-3 py-1.5 rounded-lg bg-emerald-500/80 hover:bg-emerald-500 text-white">Criar</button>
-                <button onClick={() => setShowForm(false)} className="text-xs px-3 py-1.5 rounded-lg bg-white/5 text-white/40 hover:bg-white/10">Cancelar</button>
-              </div>
-            </div>
-          )}
-        </div>
-      </ScrollArea>
-    </div>
-  );
+  return <EnhancedProjects />;
 }
 
 export function IntegrationsPage() {
