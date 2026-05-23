@@ -88,6 +88,12 @@ async def add_no_cache_headers(request, call_next):
         response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, max-age=0"
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
+    if response.status_code == 422 and request.method in ("POST", "PUT"):
+        try:
+            body = await request.body()
+            logger.warning(f"[422 BODY] {request.method} {request.url.path} body={body.decode('utf-8', errors='replace')[:500]}")
+        except Exception:
+            pass
     return response
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -4948,8 +4954,18 @@ class ImportResponse(BaseModel):
     url_final: str
 
 @api_router.post("/affiliate/import-product", response_model=ImportResponse)
-async def import_product(req: ImportRequest):
-    url = req.url.strip()
+async def import_product(request: Request):
+    # Log raw body for debugging
+    raw = await request.body()
+    logger.info(f"[IMPORT] Raw body received: {raw.decode('utf-8', errors='replace')[:300]}")
+    try:
+        body = await request.json()
+    except Exception as e:
+        logger.error(f"[IMPORT] Invalid JSON body: {e}")
+        raise HTTPException(422, f"Body invalido: {e}")
+    url = (body.get("url") or "").strip()
+    if not url:
+        raise HTTPException(422, "Campo 'url' obrigatorio no body JSON")
     if not url.startswith("http"):
         raise HTTPException(400, "URL invalida. Forneca uma URL comecando com http:// ou https://")
     try:
