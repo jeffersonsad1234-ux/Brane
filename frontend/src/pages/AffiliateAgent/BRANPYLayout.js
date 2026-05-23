@@ -228,7 +228,7 @@ function AppCard({ app, onClick, index }) {
         <div className="w-6 h-6 rounded-md flex items-center justify-center text-xs flex-shrink-0" style={{ background: `${CAT_COLORS[app.cat]}15` }}>{app.icon}</div>
         <div className="min-w-0 flex-1">
           <div className="text-[11px] font-medium truncate leading-tight" style={{ color: "rgba(255,255,255,0.6)" }}>{app.name}</div>
-          <div className="text-[7px] mt-[1px]" style={{ color: "rgba(255,255,255,0.15)" }}>{app.desc.slice(0, 28)}{app.desc.length > 28 ? "…" : ""}</div>
+          <div className="text-[7px] mt-[1px]" style={{ color: "rgba(255,255,255,0.15)" }}>{(app.desc || "").slice(0, 28)}{((app.desc || "").length > 28 ? "…" : "")}</div>
         </div>
         <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: `${CAT_COLORS[app.cat]}30` }} />
       </div>
@@ -340,7 +340,7 @@ function FloatingWindow({ win, onClose, onMinimize, onMaximize, onFocus, onUpdat
 /* ═══════════════════════════════════════════════════════════════
    DOCK
    ═══════════════════════════════════════════════════════════════ */
-function Dock({ windows, onFocus, onClose, onRestore }) {
+function Dock({ windows = [], onFocus, onClose, onRestore }) {
   return (
     <div style={{
       position: "fixed", bottom: 8, left: "50%", transform: "translateX(-50%)", zIndex: 9999,
@@ -373,7 +373,7 @@ function Dock({ windows, onFocus, onClose, onRestore }) {
 /* ═══════════════════════════════════════════════════════════════
    TOPBAR
    ═══════════════════════════════════════════════════════════════ */
-function TopBar({ search, onSearchChange, onNewProject, windows, onClose, onFocus, onRestore }) {
+function TopBar({ search, onSearchChange, onNewProject, windows = [], onClose, onFocus, onRestore }) {
   return (
     <div className="flex-shrink-0 flex items-center px-5 gap-4 h-12" style={{ background: "rgba(12,12,12,0.95)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
       <div className="flex items-center gap-2.5">
@@ -396,7 +396,7 @@ function TopBar({ search, onSearchChange, onNewProject, windows, onClose, onFocu
       <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.06)" }} />
       <div className="flex items-center gap-2 text-[9px]" style={{ color: "rgba(255,255,255,0.15)" }}>
         <div className="w-1.5 h-1.5 rounded-full" style={{ background: "rgba(16,185,129,0.4)" }} />
-        {windows.length > 0 ? `${windows.filter(w => !w.minimized).length} active` : "Ready"}
+        {(windows || []).length > 0 ? `${(windows || []).filter(w => !w.minimized).length} active` : "Ready"}
       </div>
       <div className="w-7 h-7 rounded-full flex items-center justify-center text-[9px] font-bold" style={{ background: "linear-gradient(135deg, #34d399, #2563eb)", color: "rgba(255,255,255,0.9)" }}>J</div>
     </div>
@@ -406,12 +406,12 @@ function TopBar({ search, onSearchChange, onNewProject, windows, onClose, onFocu
 /* ═══════════════════════════════════════════════════════════════
    HUB HOME VIEW
    ═══════════════════════════════════════════════════════════════ */
-function HomeView({ apps, activeCat, onCatChange, search, onSearchChange, onAppOpen, onNewProject }) {
+function HomeView({ apps = [], activeCat, onCatChange, search, onSearchChange, onAppOpen, onNewProject }) {
   const cols = useMemo(() => {
-    const n = apps.length;
+    const n = (apps || []).length;
     if (n <= 8) return "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4";
     return "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7";
-  }, [apps.length]);
+  }, [(apps || []).length]);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: "#0a0a0a", color: "white" }}>
@@ -438,7 +438,7 @@ function HomeView({ apps, activeCat, onCatChange, search, onSearchChange, onAppO
               <h2 className="text-[11px] font-semibold uppercase tracking-[0.15em]" style={{ color: "rgba(255,255,255,0.35)" }}>
                 {activeCat === "all" ? "All Tools" : CATEGORIES.find((c) => c.id === activeCat)?.label || "Tools"}
               </h2>
-              <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.08)" }}>{apps.length} of {APPS.length}</span>
+              <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.08)" }}>{(apps || []).length} of {(APPS || []).length}</span>
             </div>
             <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
               {CATEGORIES.map((cat) => (
@@ -451,7 +451,7 @@ function HomeView({ apps, activeCat, onCatChange, search, onSearchChange, onAppO
           </div>
           {/* Grid */}
           <div className="flex-1 overflow-y-auto p-5 scrollbar-thin">
-            {apps.length === 0 ? (
+            {(apps || []).length === 0 ? (
               <div className="h-full flex items-center justify-center">
                 <div className="text-center"><div className="text-2xl mb-2 opacity-15">🔍</div><div className="text-xs" style={{ color: "rgba(255,255,255,0.12)" }}>No tools match "<span style={{ color: "rgba(255,255,255,0.3)" }}>{search}</span>"</div></div>
               </div>
@@ -465,7 +465,7 @@ function HomeView({ apps, activeCat, onCatChange, search, onSearchChange, onAppO
           <div className="flex-shrink-0 h-7 flex items-center px-5 gap-3 text-[8px]" style={{ borderTop: "1px solid rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.07)" }}>
             <span>BRANPY v3.0</span>
             <span style={{ color: "rgba(255,255,255,0.04)" }}>·</span>
-            <span>{APPS.length} tools · {CATEGORIES.length} categories</span>
+            <span>{(APPS || []).length} tools · {(CATEGORIES || []).length} categories</span>
             <div className="flex-1" />
             <span>⌘K palette · Double-click dock to close</span>
           </div>
@@ -478,7 +478,7 @@ function HomeView({ apps, activeCat, onCatChange, search, onSearchChange, onAppO
 /* ═══════════════════════════════════════════════════════════════
    LAUNCHER OVERLAY
    ═══════════════════════════════════════════════════════════════ */
-function Launcher({ search, onSearchChange, cat, onCatChange, apps, onAppOpen, onClose }) {
+function Launcher({ search, onSearchChange, cat, onCatChange, apps = [], onAppOpen, onClose }) {
   const inputRef = useRef(null);
   useEffect(() => { inputRef.current?.focus(); }, []);
 
@@ -594,7 +594,7 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
   }, [activeModule, location.pathname]);
 
   const currentApp = useMemo(() => curMod ? APPS.find((a) => a.id === curMod) || null : null, [curMod]);
-  const isHome = !currentApp && windows.length === 0;
+  const isHome = !currentApp && (windows || []).length === 0;
 
   const bringToFront = useCallback((id) => {
     setWindows((prev) => {
@@ -624,7 +624,7 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
     const existing = cur.find((w) => w.appKey === appId && !w.closed);
     if (existing) { bringToFront(existing.id); if (existing.minimized) setWindows((prev) => prev.map((w) => w.id === existing.id ? { ...w, minimized: false } : w)); return; }
 
-    const offset = (cur.length % 8) * 28;
+    const offset = ((cur || []).length % 8) * 28;
     const z = nextZRef.current;
     nextZRef.current += 1;
     const newWin = {
@@ -660,7 +660,7 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
     const onKey = (e) => {
       const winList = winRef.current;
       const isOpen = showLauncherRef.current;
-      if (e.key === "Escape" && winList.length > 0 && !isOpen) {
+      if (e.key === "Escape" && (winList || []).length > 0 && !isOpen) {
         const top = [...winList].sort((a, b) => b.z - a.z)[0];
         if (top) closeWindowRef.current(top.id); return;
       }
@@ -726,7 +726,7 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
       </AnimatePresence>
 
       {/* Dock */}
-      {windows.length > 0 && (
+      {(windows || []).length > 0 && (
         <Dock windows={windows.sort((a, b) => b.z - a.z)} onFocus={bringToFront} onClose={closeWindow}
           onRestore={(id) => setWindows((prev) => prev.map((w) => w.id === id ? { ...w, minimized: false } : w))} />
       )}

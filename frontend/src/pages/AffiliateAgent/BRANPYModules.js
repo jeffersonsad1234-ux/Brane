@@ -383,7 +383,7 @@ export function LeadsCRM() {
             <div key={s.name} className="flex-1 min-w-[200px] rounded-xl bg-white/[0.02] border border-white/[0.06] p-3">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-medium text-white/50">{s.name}</span>
-                <span className="text-[10px] text-white/30">{s.leads.length}</span>
+                <span className="text-[10px] text-white/30">{(s.leads || []).length}</span>
               </div>
               <div className="space-y-2">
                 {s.leads.map((l) => (
