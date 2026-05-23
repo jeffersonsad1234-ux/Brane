@@ -18,19 +18,6 @@ export default function FeaturePanel({ featureKey, onClose }) {
   const [activeTab, setActiveTab] = useState("overview");
   const panelRef = useRef(null);
 
-  if (!data) return null;
-
-  const tabs = [
-    { id: "overview", label: "Visão Geral" },
-    { id: "roadmap", label: "Roadmap" },
-    { id: "script", label: "Código" },
-    { id: "architecture", label: "Arquitetura" },
-    { id: "checklist", label: "Checklist" },
-    { id: "ue5", label: "UE5" },
-    { id: "prompts", label: "Prompts" },
-    { id: "opencode", label: "OpenCode" },
-  ];
-
   const handleGenerate = () => {
     if (generated) return;
     setLoading(true);

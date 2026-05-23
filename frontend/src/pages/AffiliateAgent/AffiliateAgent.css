@@ -734,3 +734,8 @@
   .aa-import-input-row { flex-direction: column; }
   .aa-import-btn { width: 100%; }
 }
+
+/* scrollbar */
+.bp-scrollbar::-webkit-scrollbar { width: 4px; }
+.bp-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.bp-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 2px; }

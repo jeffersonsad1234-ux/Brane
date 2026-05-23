@@ -5,6 +5,16 @@ import { loadConnections, saveConnections } from "../../services/affiliateProvid
 import AnunciosPage from "./AnunciosPage";
 import { LinksPage, getStoreLink } from "./LinksPage";
 import { isMediaWorkerEnabled, createUGCJob, getUGCJobStatus } from "../../services/mediaWorker";
+import BRANPYLayout from "./BRANPYLayout";
+import AIChat from "./AIChat";
+import {
+  VideoStudio, ImageStudio, SiteBuilder, BrandStudio,
+  SocialPublisher, AutomationHub, AgentMarketplace, LeadsCRM,
+  Ecommerce, AnalyticsAdvanced, TemplateLibrary, VoiceAI,
+  TranscriptionAI, CodeGenerator, DocumentsAI, MediaBank,
+  MusicHub, AIAvatars, Projects, IntegrationsPage,
+  PlansPage, TeamPage, SettingsPage, SupportPage,
+} from "./BRANPYModules";
 import "./AffiliateAgent.css";
 
 function useAgent() {
@@ -1561,20 +1571,155 @@ function ImportarProdutoPage() {
 
 export default function AffiliateAgentApp() {
   return (
-    <div className="aa-root">
-      <Routes>
-        <Route path="/" element={<><Sidebar active="dashboard" /><Dashboard /></>} />
-        <Route path="/loja/:nicho" element={<><Sidebar active={null} /><StorePage /></>} />
-        <Route path="/conexoes" element={<><Sidebar active="conexoes" /><ConexoesPage /></>} />
-        <Route path="/aprendizado" element={<><Sidebar active="aprendizado" /><AprendizadoPage /></>} />
-        <Route path="/anuncios" element={<><Sidebar active="anuncios" /><AnunciosPage /></>} />
-        <Route path="/criativos" element={<><Sidebar active="criativos" /><CreativesPage /></>} />
-        <Route path="/links" element={<><Sidebar active="links" /><LinksPage /></>} />
-        <Route path="/campanha" element={<><Sidebar active="campanha" /><CampanhaPage /></>} />
-        <Route path="/social-publish" element={<><Sidebar active="social" /><SocialPublishPage /></>} />
-        <Route path="/importar" element={<><Sidebar active="importar" /><ImportarProdutoPage /></>} />
-        <Route path="*" element={<Navigate to="/affiliate-agent" replace />} />
-      </Routes>
+    <Routes>
+      <Route path="/" element={<BRANPYLayout activeModule="chat"><AIChat /></BRANPYLayout>} />
+      <Route path="/chat" element={<BRANPYLayout activeModule="chat"><AIChat /></BRANPYLayout>} />
+      <Route path="/affiliate" element={<BRANPYLayout activeModule="affiliate"><AffiliateModulePage /></BRANPYLayout>} />
+      <Route path="/importar" element={<BRANPYLayout activeModule="affiliate"><SimplePage title="📥 Importar Produto"><ImportarProdutoPage /></SimplePage></BRANPYLayout>} />
+      <Route path="/anuncios" element={<BRANPYLayout activeModule="affiliate"><SimplePage title="📺 Anúncios"><AnunciosPage /></SimplePage></BRANPYLayout>} />
+      <Route path="/conexoes" element={<BRANPYLayout activeModule="affiliate"><SimplePage title="🔗 Conexões"><ConexoesPage /></SimplePage></BRANPYLayout>} />
+      <Route path="/aprendizado" element={<BRANPYLayout activeModule="affiliate"><SimplePage title="🧠 Aprendizado"><AprendizadoPage /></SimplePage></BRANPYLayout>} />
+      <Route path="/social-publish" element={<BRANPYLayout activeModule="social-publisher"><SocialPublishPage /></BRANPYLayout>} />
+      <Route path="/criativos" element={<BRANPYLayout activeModule="affiliate"><SimplePage title="🎨 Criativos IA"><CreativesPage /></SimplePage></BRANPYLayout>} />
+      <Route path="/links" element={<BRANPYLayout activeModule="affiliate"><SimplePage title="🔗 Links Afiliados"><LinksPage /></SimplePage></BRANPYLayout>} />
+      <Route path="/campanha" element={<BRANPYLayout activeModule="affiliate"><SimplePage title="🛒 Campanha"><CampanhaPage /></SimplePage></BRANPYLayout>} />
+      <Route path="/loja/:nicho" element={<BRANPYLayout activeModule="affiliate"><SimplePage title="Loja"><StorePage /></SimplePage></BRANPYLayout>} />
+      <Route path="/video-studio" element={<BRANPYLayout activeModule="video-studio"><VideoStudio /></BRANPYLayout>} />
+      <Route path="/image-studio" element={<BRANPYLayout activeModule="image-studio"><ImageStudio /></BRANPYLayout>} />
+      <Route path="/site-builder" element={<BRANPYLayout activeModule="site-builder"><SiteBuilder /></BRANPYLayout>} />
+      <Route path="/brand-studio" element={<BRANPYLayout activeModule="brand-studio"><BrandStudio /></BRANPYLayout>} />
+      <Route path="/social-publisher" element={<BRANPYLayout activeModule="social-publisher"><SocialPublisher /></BRANPYLayout>} />
+      <Route path="/automation-hub" element={<BRANPYLayout activeModule="automation-hub"><AutomationHub /></BRANPYLayout>} />
+      <Route path="/agent-marketplace" element={<BRANPYLayout activeModule="agent-marketplace"><AgentMarketplace /></BRANPYLayout>} />
+      <Route path="/leads-crm" element={<BRANPYLayout activeModule="leads-crm"><LeadsCRM /></BRANPYLayout>} />
+      <Route path="/ecommerce" element={<BRANPYLayout activeModule="ecommerce"><Ecommerce /></BRANPYLayout>} />
+      <Route path="/analytics" element={<BRANPYLayout activeModule="analytics"><AnalyticsAdvanced /></BRANPYLayout>} />
+      <Route path="/templates" element={<BRANPYLayout activeModule="templates"><TemplateLibrary /></BRANPYLayout>} />
+      <Route path="/voice-ai" element={<BRANPYLayout activeModule="voice-ai"><VoiceAI /></BRANPYLayout>} />
+      <Route path="/transcription" element={<BRANPYLayout activeModule="transcription"><TranscriptionAI /></BRANPYLayout>} />
+      <Route path="/code-generator" element={<BRANPYLayout activeModule="code-generator"><CodeGenerator /></BRANPYLayout>} />
+      <Route path="/documents" element={<BRANPYLayout activeModule="documents"><DocumentsAI /></BRANPYLayout>} />
+      <Route path="/media-bank" element={<BRANPYLayout activeModule="media-bank"><MediaBank /></BRANPYLayout>} />
+      <Route path="/music-sounds" element={<BRANPYLayout activeModule="music-sounds"><MusicHub /></BRANPYLayout>} />
+      <Route path="/ai-avatars" element={<BRANPYLayout activeModule="ai-avatars"><AIAvatars /></BRANPYLayout>} />
+      <Route path="/projects" element={<BRANPYLayout activeModule="projects"><Projects /></BRANPYLayout>} />
+      <Route path="/integrations" element={<BRANPYLayout activeModule="integrations"><IntegrationsPage /></BRANPYLayout>} />
+      <Route path="/plans" element={<BRANPYLayout activeModule="plans"><PlansPage /></BRANPYLayout>} />
+      <Route path="/team" element={<BRANPYLayout activeModule="team"><TeamPage /></BRANPYLayout>} />
+      <Route path="/settings" element={<BRANPYLayout activeModule="settings"><SettingsPage /></BRANPYLayout>} />
+      <Route path="/support" element={<BRANPYLayout activeModule="support"><SupportPage /></BRANPYLayout>} />
+      <Route path="*" element={<Navigate to="/affiliate-agent" replace />} />
+    </Routes>
+  );
+}
+
+function SimplePage({ title, children }) {
+  const navigate = useNavigate();
+  return (
+    <div className="flex-1 flex flex-col min-h-0 bg-[#0d0d0d]">
+      <div className="flex items-center gap-3 px-6 h-14 border-b border-white/[0.06] flex-shrink-0">
+        <button onClick={() => navigate('/affiliate-agent/affiliate')} className="text-xs text-white/30 hover:text-white/70 transition-colors">
+          ← Voltar
+        </button>
+        <h1 className="text-sm font-medium text-white/90">{title}</h1>
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function AffiliateModulePage() {
+  const navigate = useNavigate();
+  const [agent] = useState(() => new AffiliateAgent());
+  const [logs, setLogs] = useState([]);
+  const [agentState, setAgentState] = useState(null);
+
+  function readQueue() {
+    try { return JSON.parse(localStorage.getItem('brane_affiliate_ads') || '[]'); } catch { return []; }
+  }
+  function readState() {
+    try { return JSON.parse(localStorage.getItem('brane_agent_state') || 'null'); } catch { return null; }
+  }
+
+  const refresh = useCallback(() => {
+    setLogs(agent.logs);
+    setAgentState(readState());
+  }, [agent]);
+
+  useEffect(() => {
+    const iv = setInterval(refresh, 1500);
+    refresh();
+    return () => clearInterval(iv);
+  }, [refresh]);
+
+  const cards = readQueue();
+  const pendentes = cards.filter(c => c.status === 'pendente' || c.status === 'pronto').length;
+  const aprovados = cards.filter(c => c.status === 'aprovado').length;
+  const publicados = cards.filter(c => c.status === 'publicado').length;
+  const criativos = cards.filter(c => c.status === 'criativo_gerado').length;
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0 bg-[#0d0d0d]">
+      <div className="flex items-center px-6 h-14 border-b border-white/[0.06] flex-shrink-0">
+        <h1 className="text-sm font-medium text-white/90">Affiliate AI Agent</h1>
+      </div>
+      <div className="flex-1 overflow-y-auto p-6">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <div className="grid grid-cols-4 gap-3">
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
+              <div className="text-2xl font-semibold text-white/90">{cards.length}</div>
+              <div className="text-xs text-white/40 mt-1">Total Anúncios</div>
+            </div>
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
+              <div className="text-2xl font-semibold text-amber-400">{pendentes}</div>
+              <div className="text-xs text-white/40 mt-1">Pendentes</div>
+            </div>
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
+              <div className="text-2xl font-semibold text-emerald-400">{aprovados + criativos}</div>
+              <div className="text-xs text-white/40 mt-1">Prontos</div>
+            </div>
+            <div className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4">
+              <div className="text-2xl font-semibold text-sky-400">{publicados}</div>
+              <div className="text-xs text-white/40 mt-1">Publicados</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button onClick={() => navigate('/affiliate-agent/importar')} className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4 text-left hover:bg-white/[0.06] transition-colors">
+              <span className="text-lg mb-2 block">📥</span>
+              <span className="text-sm font-medium text-white/80">Importar Produto</span>
+              <span className="text-xs text-white/40 block mt-1">Shopee, Amazon, Mercado Livre e mais</span>
+            </button>
+            <button onClick={() => navigate('/affiliate-agent/anuncios')} className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4 text-left hover:bg-white/[0.06] transition-colors">
+              <span className="text-lg mb-2 block">📺</span>
+              <span className="text-sm font-medium text-white/80">Gerenciar Anúncios</span>
+              <span className="text-xs text-white/40 block mt-1">Aprovar, editar e publicar</span>
+            </button>
+            <button onClick={() => navigate('/affiliate-agent/conexoes')} className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4 text-left hover:bg-white/[0.06] transition-colors">
+              <span className="text-lg mb-2 block">🔗</span>
+              <span className="text-sm font-medium text-white/80">Conexões</span>
+              <span className="text-xs text-white/40 block mt-1">Instagram, TikTok, redes sociais</span>
+            </button>
+            <button onClick={() => navigate('/affiliate-agent/criativos')} className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4 text-left hover:bg-white/[0.06] transition-colors">
+              <span className="text-lg mb-2 block">🎨</span>
+              <span className="text-sm font-medium text-white/80">Criativos IA</span>
+              <span className="text-xs text-white/40 block mt-1">Gerados automaticamente</span>
+            </button>
+            <button onClick={() => navigate('/affiliate-agent/links')} className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4 text-left hover:bg-white/[0.06] transition-colors">
+              <span className="text-lg mb-2 block">🔗</span>
+              <span className="text-sm font-medium text-white/80">Links Afiliados</span>
+              <span className="text-xs text-white/40 block mt-1">Gerenciar links e lojas</span>
+            </button>
+            <button onClick={() => navigate('/affiliate-agent/aprendizado')} className="rounded-xl bg-white/[0.03] border border-white/[0.06] p-4 text-left hover:bg-white/[0.06] transition-colors">
+              <span className="text-lg mb-2 block">🧠</span>
+              <span className="text-sm font-medium text-white/80">Aprendizado</span>
+              <span className="text-xs text-white/40 block mt-1">Guias e estratégias</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
