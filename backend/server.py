@@ -69,6 +69,14 @@ def root():
 def health():
     return {"status": "ok"}
 
+@app.on_event("startup")
+async def log_routes():
+    logger.info("=== ROUTES REGISTERED ===")
+    for route in app.routes:
+        if hasattr(route, "methods") and hasattr(route, "path"):
+            logger.info(f"  {route.methods} {route.path}")
+    logger.info("=== END ROUTES ===")
+
 api_router = APIRouter(prefix="/api")
 
 # Middleware para adicionar headers anti-cache nas respostas da API
