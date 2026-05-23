@@ -3,15 +3,12 @@ import { I, S, Tp, Bi, Wv, ThS, PPS_BASE, TRACK_H, LABEL_W, clipColor, badge, FM
 
 const UID = () => Math.random().toString(36).slice(2, 9);
 
-const SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 4];
-
 export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, playing, setPlaying, sel, setSel }) {
   const rulerRef = useRef(null);
   const tracksRef = useRef(null);
   const [drag, setDrag] = useState(null);
   const [trim, setTrim] = useState(null);
   const [showSpeed, setShowSpeed] = useState(false);
-  const [scrollX, setScrollX] = useState(0);
   const pps = PPS_BASE * (zoom / 100);
   const totalW = Math.max(proj.duration * pps + 400, 2000);
 
@@ -192,7 +189,7 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
 
   return (
     <div style={{
-      height: 220, flexShrink: 0, borderTop: "1px solid rgba(255,255,255,0.05)",
+      height: 220, flexShrink: 0, borderTop: "1px solid rgba(255,255,255,0.06)",
       background: "#0b0b0b", display: "flex", flexDirection: "column",
     }}>
       {/* Toolbar */}
@@ -204,18 +201,18 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
         <Tp text="Selection (V)" ch={
           <button style={{
             padding: 3, borderRadius: 3, border: "none", cursor: "pointer",
-            background: sel ? "rgba(255,255,255,0.08)" : "transparent",
-            color: sel ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.15)",
+            background: sel ? "rgba(59,130,246,0.12)" : "transparent",
+            color: sel ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.18)",
             display: "flex", fontFamily: "inherit",
           }} className="cs-tl-btn"><S d={I.sel} sz={11} /></button>
         } />
-        <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.05)", margin: "0 2px" }} />
+        <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.06)", margin: "0 2px" }} />
         <Tp text="Split (S)" ch={
           <button onClick={handleSplit}
             style={{
-              padding: "2px 6px", fontSize: 9, borderRadius: 3, border: "none",
-              cursor: sel ? "pointer" : "default", fontFamily: "inherit",
-              color: sel ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)",
+              padding: "2px 7px", fontSize: 10, borderRadius: 3, border: "none",
+              cursor: sel ? "pointer" : "default", fontFamily: "inherit", fontWeight: 500,
+              color: sel ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.12)",
               background: sel ? "rgba(255,255,255,0.04)" : "transparent",
             }}
             className={sel ? "cs-tl-btn" : ""}
@@ -224,23 +221,36 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
         <Tp text="Delete (Del)" ch={
           <button onClick={handleDel}
             style={{
-              padding: "2px 6px", fontSize: 9, borderRadius: 3, border: "none",
-              cursor: sel ? "pointer" : "default", fontFamily: "inherit",
-              color: sel ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)",
-              background: sel ? "rgba(255,255,255,0.04)" : "transparent",
+              padding: "2px 7px", fontSize: 10, borderRadius: 3, border: "none",
+              cursor: sel ? "pointer" : "default", fontFamily: "inherit", fontWeight: 500,
+              color: sel ? "rgba(239,68,68,0.45)" : "rgba(255,255,255,0.12)",
+              background: sel ? "rgba(239,68,68,0.06)" : "transparent",
             }}
-            className={sel ? "cs-tl-btn" : ""}
+            className={sel ? "cs-tl-btn-del" : ""}
           >Del</button>
         } />
-        <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.05)", margin: "0 2px" }} />
-        <Tp text="Ripple" ch={<button style={{ padding: "2px 6px", fontSize: 9, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.15)", background: "transparent", fontFamily: "inherit" }} className="cs-tl-btn">Ripple</button>} />
-        <Tp text="Snap" ch={<button style={{ padding: 3, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.25)", background: "transparent", display: "flex" }} className="cs-tl-btn"><S d={I.snap} sz={11} /></button>} />
+        <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.06)", margin: "0 2px" }} />
+        <Tp text="Ripple Edit" ch={<button style={{ padding: "2px 7px", fontSize: 10, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.18)", background: "transparent", fontFamily: "inherit", fontWeight: 500 }} className="cs-tl-btn">Ripple</button>} />
+        <Tp text="Snap" ch={<button style={{ padding: 3, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(59,130,246,0.5)", background: "rgba(59,130,246,0.08)", display: "flex" }}><S d={I.snap} sz={11} /></button>} />
         <div style={{ flex: 1 }} />
-        <Tp text="Add Marker" ch={<button style={{ padding: 3, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.15)", background: "transparent", display: "flex" }} className="cs-tl-btn"><S d={I.mrk} sz={11} /></button>} />
-        <div style={{ display: "flex", alignItems: "center", gap: 2, background: "rgba(255,255,255,0.03)", borderRadius: 3, padding: "1px 4px" }}>
-          <button onClick={() => setZoom((z) => Math.max(25, z - 25))} style={{ padding: 1, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.15)", background: "none", display: "flex" }} className="cs-tl-btn"><S d={I.zoO} sz={9} /></button>
-          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.18)", width: 22, textAlign: "center", fontFamily: "monospace" }}>{zoom}%</span>
-          <button onClick={() => setZoom((z) => Math.min(400, z + 25))} style={{ padding: 1, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.15)", background: "none", display: "flex" }} className="cs-tl-btn"><S d={I.zoI} sz={9} /></button>
+        <Tp text="Add Marker (M)" ch={<button style={{ padding: 3, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.18)", background: "transparent", display: "flex" }} className="cs-tl-btn"><S d={I.mrk} sz={11} /></button>} />
+        <div style={{
+          display: "flex", alignItems: "center", gap: 3,
+          background: "rgba(255,255,255,0.03)", borderRadius: 4,
+          padding: "2px 6px", border: "1px solid rgba(255,255,255,0.04)",
+        }}>
+          <button onClick={() => setZoom((z) => Math.max(25, z - 25))}
+            style={{ padding: 2, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.18)", background: "none", display: "flex" }}
+            className="cs-tl-btn"
+          ><S d={I.zoO} sz={10} /></button>
+          <span style={{
+            fontSize: 9, color: "rgba(255,255,255,0.25)", width: 26,
+            textAlign: "center", fontFamily: "monospace", fontWeight: 500,
+          }}>{zoom}%</span>
+          <button onClick={() => setZoom((z) => Math.min(400, z + 25))}
+            style={{ padding: 2, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.18)", background: "none", display: "flex" }}
+            className="cs-tl-btn"
+          ><S d={I.zoI} sz={10} /></button>
         </div>
       </div>
 
@@ -255,39 +265,41 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
             const b = badge(t.type);
             return (
               <div key={t.id} style={{
-                height: TRACK_H, borderBottom: "1px solid rgba(255,255,255,0.015)",
-                display: "flex", alignItems: "center", padding: "0 6px", gap: 3,
-                opacity: t.visible ? 1 : 0.25,
+                height: TRACK_H, borderBottom: "1px solid rgba(255,255,255,0.02)",
+                display: "flex", alignItems: "center", padding: "0 6px", gap: 4,
+                opacity: t.visible ? 1 : 0.3,
               }}>
                 <button onClick={() => toggleLock(t.id)}
                   style={{
                     padding: 2, borderRadius: 3, border: "none", cursor: "pointer",
-                    color: t.locked ? "rgba(251,191,36,0.35)" : "rgba(255,255,255,0.08)",
+                    color: t.locked ? "rgba(251,191,36,0.4)" : "rgba(255,255,255,0.1)",
                     background: "none", display: "flex", flexShrink: 0,
+                    transition: "color 0.12s",
                   }}
                   className="cs-tl-btn"
                 >
-                  <S d={I.lockI} sz={8} />
+                  <S d={I.lockI} sz={9} />
                 </button>
                 <button onClick={() => toggleVis(t.id)}
                   style={{
                     padding: 2, borderRadius: 3, border: "none", cursor: "pointer",
-                    color: "rgba(255,255,255,0.1)", background: "none", display: "flex", flexShrink: 0,
+                    color: "rgba(255,255,255,0.12)", background: "none", display: "flex", flexShrink: 0,
+                    transition: "color 0.12s",
                   }}
                   className="cs-tl-btn"
                 >
-                  <S d={t.visible ? I.eye : I.close} sz={8} />
+                  <S d={t.visible ? I.eye : I.close} sz={9} />
                 </button>
                 <div style={{
-                  width: 16, height: 16, borderRadius: 3,
+                  width: 18, height: 18, borderRadius: 3,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 7, fontWeight: 700, color: "rgba(255,255,255,0.6)",
-                  background: b.bg, flexShrink: 0,
+                  fontSize: 8, fontWeight: 700, color: "rgba(255,255,255,0.65)",
+                  background: b.bg, flexShrink: 0, letterSpacing: 0,
                 }}>
                   {b.l}
                 </div>
                 <span style={{
-                  fontSize: 8, color: "rgba(255,255,255,0.25)",
+                  fontSize: 10, color: "rgba(255,255,255,0.3)", fontWeight: 500,
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   marginLeft: 2,
                 }}>{t.name}</span>
@@ -302,7 +314,7 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
           <div ref={rulerRef}
             onMouseDown={handleRulerMD}
             style={{
-              height: 20, flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.05)",
+              height: 22, flexShrink: 0, borderBottom: "1px solid rgba(255,255,255,0.05)",
               background: "#0e0e0e", position: "relative", cursor: "pointer", overflow: "hidden",
             }}
           >
@@ -310,23 +322,39 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
               {Array.from({ length: Math.ceil(proj.duration) + 1 }).map((_, i) => (
                 <div key={i} style={{
                   position: "absolute", top: 0, left: i * pps, height: "100%",
-                  borderLeft: i > 0 ? "1px solid rgba(255,255,255,0.04)" : "none",
+                  borderLeft: i > 0 ? "1px solid rgba(255,255,255,0.05)" : "none",
                 }}>
                   <span style={{
-                    position: "absolute", fontSize: 7, color: "rgba(255,255,255,0.1)",
-                    top: 2, left: 3, fontFamily: "monospace", userSelect: "none",
+                    position: "absolute", fontSize: 9, color: "rgba(255,255,255,0.15)",
+                    top: 2, left: 4, fontFamily: "monospace", userSelect: "none",
+                    fontWeight: 500,
                   }}>{i}s</span>
+                  {i < proj.duration && (
+                    <div style={{
+                      position: "absolute", top: 12, left: 4,
+                      display: "flex", gap: i * pps > 40 ? undefined : 0,
+                    }}>
+                      {Array.from({ length: 4 }).map((_, ti) => (
+                        <div key={ti} style={{
+                          width: 1, height: 5, background: "rgba(255,255,255,0.04)",
+                          marginLeft: pps / 5,
+                          position: "absolute", left: (ti + 1) * (pps / 5),
+                        }} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
               {(proj.markers || []).map((mk) => (
                 <div key={mk.id} style={{ position: "absolute", top: 0, left: mk.time * pps, height: "100%", pointerEvents: "none" }}>
                   <div style={{
-                    width: 7, height: 7, borderRadius: "50%", marginTop: 5,
-                    marginLeft: -3.5, background: mk.color, boxShadow: "0 0 4px rgba(0,0,0,0.4)",
+                    width: 8, height: 8, borderRadius: "50%", marginTop: 5,
+                    marginLeft: -4, background: mk.color,
+                    boxShadow: `0 0 6px ${mk.color}40`,
                   }} />
                   <div style={{
                     position: "absolute", top: 0, height: "100%", width: 1,
-                    background: mk.color, opacity: 0.15, left: 3.5,
+                    background: mk.color, opacity: 0.2, left: 4,
                   }} />
                 </div>
               ))}
@@ -357,70 +385,101 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
                       <div key={clip.id}
                         onMouseDown={(e) => handleClipMD(e, clip, t.id)}
                         style={{
-                          position: "absolute", top: 2, height: TRACK_H - 4,
-                          left: lp, width: wp, borderRadius: 2,
+                          position: "absolute", top: 1, height: TRACK_H - 2,
+                          left: lp, width: wp, borderRadius: 3,
                           border: `1px solid ${iSel ? "rgba(59,130,246,0.5)" : col.bd}`,
                           background: col.bg, cursor: "pointer",
                           overflow: "hidden", zIndex: iSel ? 5 : 1,
-                          transition: "box-shadow 0.1s",
-                          boxShadow: iSel ? "0 0 8px rgba(59,130,246,0.08)" : "none",
+                          transition: "box-shadow 0.1s, border-color 0.1s",
+                          boxShadow: iSel
+                            ? "0 0 10px rgba(59,130,246,0.12), inset 0 0 0 1px rgba(59,130,246,0.08)"
+                            : "none",
                         }}
                         className="cs-tl-clip"
                       >
-                        {/* Clip content */}
                         {clip.type === "video" && wp > 25 && (
-                          <div style={{ position: "absolute", inset: 0, overflow: "hidden", borderRadius: 1 }}>
+                          <div style={{ position: "absolute", inset: 0, overflow: "hidden", borderRadius: 2 }}>
                             <ThS dur={clip.duration} />
                           </div>
                         )}
                         {clip.type === "audio" && wp > 15 && (
-                          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 2px" }}>
-                            <Wv w={Math.max(12, wp - 4)} h={TRACK_H - 10} c={col.bar} />
+                          <div style={{
+                            position: "absolute", inset: 0,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            padding: "0 3px",
+                          }}>
+                            <Wv w={Math.max(12, wp - 6)} h={TRACK_H - 10} c={col.bar} />
                           </div>
                         )}
                         {clip.type === "text" && (
-                          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", padding: "0 4px", gap: 3 }}>
-                            <span style={{ fontSize: 8, fontWeight: 700, color: "rgba(245,158,11,0.4)" }}>{clip.t || "T"}</span>
-                            {wp > 40 && <span style={{ fontSize: 7, color: "rgba(255,255,255,0.25)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{clip.name}</span>}
+                          <div style={{
+                            position: "absolute", inset: 0,
+                            display: "flex", alignItems: "center", padding: "0 5px", gap: 4,
+                          }}>
+                            <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(245,158,11,0.5)" }}>{clip.t || "T"}</span>
+                            {wp > 40 && (
+                              <span style={{
+                                fontSize: 9, color: "rgba(255,255,255,0.3)", fontWeight: 500,
+                                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                              }}>{clip.name}</span>
+                            )}
                           </div>
                         )}
                         {clip.type === "sticker" && (
                           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <span style={{ fontSize: 12 }}>{clip.t || "✨"}</span>
+                            <span style={{ fontSize: 14 }}>{clip.t || "✨"}</span>
                           </div>
                         )}
                         {clip.type === "overlay" && (
-                          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", padding: "0 4px", gap: 3 }}>
-                            <span style={{ fontSize: 10 }}>{clip.t || "🌫️"}</span>
-                            {wp > 35 && <span style={{ fontSize: 7, color: "rgba(255,255,255,0.25)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{clip.name}</span>}
+                          <div style={{
+                            position: "absolute", inset: 0,
+                            display: "flex", alignItems: "center", padding: "0 5px", gap: 4,
+                          }}>
+                            <span style={{ fontSize: 12 }}>{clip.t || "🌫️"}</span>
+                            {wp > 35 && (
+                              <span style={{
+                                fontSize: 9, color: "rgba(255,255,255,0.3)", fontWeight: 500,
+                                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                              }}>{clip.name}</span>
+                            )}
                           </div>
                         )}
                         {clip.type === "video" && wp > 45 && (
                           <div style={{
-                            position: "absolute", bottom: 1, left: 4, right: 4,
+                            position: "absolute", bottom: 2, left: 5, right: 5,
                             display: "flex", alignItems: "center", justifyContent: "space-between",
                             pointerEvents: "none",
                           }}>
-                            <span style={{ fontSize: 6, color: "rgba(255,255,255,0.6)", textShadow: "0 1px 3px rgba(0,0,0,0.9)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "60%" }}>{clip.name}</span>
-                            <span style={{ fontSize: 6, color: "rgba(255,255,255,0.35)", textShadow: "0 1px 3px rgba(0,0,0,0.9)", fontFamily: "monospace" }}>{clip.duration.toFixed(1)}s</span>
+                            <span style={{
+                              fontSize: 8, color: "rgba(255,255,255,0.65)", fontWeight: 500,
+                              textShadow: "0 1px 4px rgba(0,0,0,0.8)",
+                              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                              maxWidth: "65%",
+                            }}>{clip.name}</span>
+                            <span style={{
+                              fontSize: 8, color: "rgba(255,255,255,0.3)",
+                              textShadow: "0 1px 4px rgba(0,0,0,0.8)",
+                              fontFamily: "monospace",
+                            }}>{clip.duration.toFixed(1)}s</span>
                           </div>
                         )}
-                        {/* Trim handles */}
                         {iSel && (
                           <>
                             <div style={{
-                              position: "absolute", left: 0, top: 0, bottom: 0, width: 4,
-                              cursor: "col-resize", background: "rgba(255,255,255,0.15)",
-                              borderRight: "1px solid rgba(255,255,255,0.1)",
+                              position: "absolute", left: 0, top: 1, bottom: 1, width: 4,
+                              cursor: "col-resize", background: "rgba(255,255,255,0.12)",
+                              borderRight: "1px solid rgba(255,255,255,0.08)",
+                              borderRadius: "2px 0 0 2px",
                             }} />
                             <div style={{
-                              position: "absolute", right: 0, top: 0, bottom: 0, width: 4,
-                              cursor: "col-resize", background: "rgba(255,255,255,0.15)",
-                              borderLeft: "1px solid rgba(255,255,255,0.1)",
+                              position: "absolute", right: 0, top: 1, bottom: 1, width: 4,
+                              cursor: "col-resize", background: "rgba(255,255,255,0.12)",
+                              borderLeft: "1px solid rgba(255,255,255,0.08)",
+                              borderRadius: "0 2px 2px 0",
                             }} />
                             <div style={{
-                              position: "absolute", inset: 0, borderRadius: 1,
-                              boxShadow: "inset 0 0 0 1px rgba(59,130,246,0.3)",
+                              position: "absolute", inset: 0, borderRadius: 2,
+                              boxShadow: "inset 0 0 0 1px rgba(59,130,246,0.35)",
                               pointerEvents: "none",
                             }} />
                           </>
@@ -428,21 +487,23 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
                       </div>
                     );
                   })}
+                  {/* Playhead line across tracks */}
                 </div>
               ))}
 
               {/* Playhead */}
               <div style={{
                 position: "absolute", top: 0, bottom: 0, width: 1,
-                background: "rgba(239,68,68,0.5)", zIndex: 20,
+                background: "rgba(239,68,68,0.6)", zIndex: 20,
                 pointerEvents: "none", left: ct * pps,
-                boxShadow: "0 0 4px rgba(239,68,68,0.1)",
+                boxShadow: "0 0 6px rgba(239,68,68,0.15)",
               }} />
               <div style={{
-                position: "absolute", top: -18, width: 8, height: 8,
+                position: "absolute", top: -20, width: 9, height: 9,
                 background: "#ef4444", borderRadius: "50% 50% 50% 0",
-                transform: "rotate(-45deg)", zIndex: 20, pointerEvents: "none",
-                left: ct * pps - 4, boxShadow: "0 0 4px rgba(239,68,68,0.3)",
+                transform: "rotate(-45deg)", zIndex: 21, pointerEvents: "none",
+                left: ct * pps - 4.5,
+                boxShadow: "0 0 6px rgba(239,68,68,0.3)",
               }} />
             </div>
           </div>
@@ -451,7 +512,8 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
 
       <style>{`
         .cs-tl-btn:hover { background: rgba(255,255,255,0.08) !important; color: rgba(255,255,255,0.5) !important; }
-        .cs-tl-clip:hover { box-shadow: 0 0 6px rgba(59,130,246,0.12) !important; }
+        .cs-tl-btn-del:hover { background: rgba(239,68,68,0.12) !important; color: rgba(239,68,68,0.6) !important; }
+        .cs-tl-clip:hover { box-shadow: 0 0 6px rgba(59,130,246,0.15) !important; }
       `}</style>
     </div>
   );

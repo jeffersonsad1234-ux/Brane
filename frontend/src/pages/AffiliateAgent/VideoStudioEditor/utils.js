@@ -16,9 +16,9 @@ export const LABEL_W = 128;
 
 export const COLORS = {
   bg: "#0a0a0a", panel: "#0d0d0d", surface: "#111111", raised: "#151515",
-  border: "rgba(255,255,255,0.05)",
-  text: "rgba(255,255,255,0.7)", dim: "rgba(255,255,255,0.3)", muted: "rgba(255,255,255,0.12)",
-  accent: "#3b82f6", accentBg: "rgba(59,130,246,0.1)",
+  border: "rgba(255,255,255,0.06)",
+  text: "rgba(255,255,255,0.8)", dim: "rgba(255,255,255,0.45)", muted: "rgba(255,255,255,0.2)",
+  accent: "#3b82f6", accentBg: "rgba(59,130,246,0.12)",
   track: {
     video: { bar: "#3b82f6", bg: "rgba(59,130,246,0.12)", bd: "rgba(59,130,246,0.25)" },
     audio: { bar: "#10b981", bg: "rgba(16,185,129,0.12)", bd: "rgba(16,185,129,0.25)" },
@@ -87,21 +87,115 @@ export const I = {
   tool: "M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z",
 };
 
-export function Wv({ w = 60, h = 28, c = "#22c55e" }) {
-  const b = useMemo(() => Array.from({ length: 36 }, () => Math.random() * 0.7 + 0.15), []);
+export function MediaThumb({ type, name, duration, size = "normal" }) {
+  const isVideo = type === "video";
+  const isAudio = type === "audio";
+  const isImage = type === "image" || (!isVideo && !isAudio);
+  const seed = useMemo(() => {
+    let h = 0;
+    for (let i = 0; i < (name || "").length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
+    return h;
+  }, [name]);
+  const hue1 = seed;
+  const hue2 = (seed + 40) % 360;
+
+  if (isVideo) {
+    return (
+      <div style={{
+        width: "100%", height: "100%", position: "relative",
+        background: `linear-gradient(135deg, hsl(${hue1}, 30%, 14%), hsl(${hue2}, 25%, 8%))`,
+        overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        <div style={{
+          position: "absolute", inset: 0,
+          background: `repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 4px)`,
+        }} />
+        <div style={{
+          width: 18, height: 14, borderRadius: "50%",
+          border: "2px solid rgba(255,255,255,0.15)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          position: "relative", zIndex: 1,
+        }}>
+          <div style={{
+            width: 0, height: 0, borderStyle: "solid",
+            borderWidth: "4px 0 4px 7px",
+            borderColor: "transparent transparent transparent rgba(255,255,255,0.2)",
+            marginLeft: 2,
+          }} />
+        </div>
+        <div style={{
+          position: "absolute", bottom: 2, right: 3,
+          fontSize: 9, color: "rgba(255,255,255,0.3)",
+          fontFamily: "monospace", fontWeight: 500,
+        }}>
+          {duration ? `${duration.toFixed(1)}s` : ""}
+        </div>
+      </div>
+    );
+  }
+
+  if (isAudio) {
+    return (
+      <div style={{
+        width: "100%", height: "100%", position: "relative",
+        background: `linear-gradient(135deg, hsl(${hue1}, 20%, 12%), hsl(${hue2}, 15%, 8%))`,
+        overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center",
+      }}>
+        <div style={{
+          display: "flex", alignItems: "flex-end", gap: 1.5, height: "60%",
+          position: "relative", zIndex: 1,
+        }}>
+          {Array.from({ length: 24 }, (_, i) => (
+            <div key={i} style={{
+              width: 2.5, height: `${15 + Math.sin(i * 0.8) * 30 + Math.random() * 20}%`,
+              borderRadius: "1px 1px 0 0",
+              background: `rgba(16,185,129,${0.2 + Math.sin(i * 0.5) * 0.15})`,
+            }} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      width: "100%", height: "100%", position: "relative",
+      background: `linear-gradient(135deg, hsl(${hue1}, 25%, 20%), hsl(${hue2}, 20%, 12%))`,
+      overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center",
+    }}>
+      <div style={{
+        position: "absolute", inset: "20%",
+        border: "1px solid rgba(255,255,255,0.06)",
+        borderRadius: 4, transform: "rotate(10deg)",
+      }} />
+      <div style={{
+        position: "absolute", inset: "25%",
+        border: "1px solid rgba(255,255,255,0.04)",
+        borderRadius: 4, transform: "rotate(-5deg)",
+      }} />
+      <div style={{
+        position: "absolute", bottom: 2, right: 3,
+        fontSize: 8, color: "rgba(255,255,255,0.2)",
+        fontFamily: "monospace",
+      }}>
+        {name?.split(".").pop() || ""}
+      </div>
+    </div>
+  );
+}
+
+export function Wv({ w = 60, h = 28, c = "#10b981" }) {
+  const b = useMemo(() => Array.from({ length: 36 }, (_, i) => 0.15 + Math.sin(i * 0.3) * 0.25 + Math.random() * 0.3), []);
   return (
     <div style={{ display: "flex", alignItems: "flex-end", gap: "1px", height: h, width: w }}>
       {b.map((s, i) => (
-        <div
-          key={i}
-          style={{
-            width: Math.max(1.5, (w - 4) / 36),
-            height: `${s * 100}%`,
-            borderRadius: "1px",
-            background: c,
-            opacity: 0.4 + s * 0.6,
-          }}
-        />
+        <div key={i} style={{
+          width: Math.max(1.5, (w - 4) / 36),
+          height: `${Math.max(8, s * 100)}%`,
+          borderRadius: "1px 1px 0 0",
+          background: c,
+          opacity: 0.3 + s * 0.5,
+        }} />
       ))}
     </div>
   );
@@ -113,29 +207,22 @@ export function ThS({ dur }) {
   return (
     <div style={{ display: "flex", height: "100%", width: "100%", overflow: "hidden", borderRadius: "2px" }}>
       {Array.from({ length: n }).map((_, i) => (
-        <div
-          key={i}
-          style={{
-            flex: 1,
-            height: "100%",
-            background: `linear-gradient(135deg, ${pal[i % pal.length]} 0%, ${pal[(i + 2) % pal.length]} 100%)`,
-          }}
-        />
+        <div key={i} style={{
+          flex: 1, height: "100%",
+          background: `linear-gradient(135deg, ${pal[i % pal.length]} 0%, ${pal[(i + 2) % pal.length]} 100%)`,
+        }} />
       ))}
     </div>
   );
 }
 
 export const Rng = ({ min, max, val, onChange, cls = "", step = 1 }) => (
-  <input
-    type="range"
-    min={min}
-    max={max}
-    step={step}
-    value={val}
-    onChange={onChange}
-    style={{ width: "100%", height: "3px", accentColor: "#3b82f6", background: "rgba(255,255,255,0.06)", borderRadius: "999px", appearance: "none", cursor: "pointer", ...(cls ? {} : {}) }}
-    className={`${cls}`}
+  <input type="range" min={min} max={max} step={step} value={val} onChange={onChange}
+    style={{
+      width: "100%", height: 3, accentColor: "#3b82f6",
+      background: "rgba(255,255,255,0.06)", borderRadius: "999px",
+      appearance: "none", cursor: "pointer", outline: "none",
+    }}
   />
 );
 
@@ -144,30 +231,22 @@ export const Tp = ({ text, ch }) => (
     {ch}
     <div style={{
       position: "absolute", bottom: "100%", left: "50%", transform: "translateX(-50%)",
-      marginBottom: 4, padding: "2px 8px", borderRadius: 4,
-      background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)",
-      fontSize: 10, color: "rgba(255,255,255,0.5)", whiteSpace: "nowrap",
-      opacity: 0, pointerEvents: "none", zIndex: 50,
-      transition: "opacity 0.12s",
+      marginBottom: 4, padding: "3px 8px", borderRadius: 4,
+      background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.08)",
+      fontSize: 10, color: "rgba(255,255,255,0.55)", whiteSpace: "nowrap",
+      opacity: 0, pointerEvents: "none", zIndex: 50, transition: "opacity 0.12s",
     }} className="cs-tooltip">{text}</div>
   </div>
 );
 
 export const Bi = ({ d, onClick, sz = 14, cls = "", tip }) => {
   const b = (
-    <button
-      onClick={onClick}
+    <button onClick={onClick}
       style={{
-        padding: 4,
-        borderRadius: 4,
-        background: "none",
-        border: "none",
-        cursor: "pointer",
-        color: "rgba(255,255,255,0.25)",
+        padding: 4, borderRadius: 4, background: "none", border: "none",
+        cursor: "pointer", color: "rgba(255,255,255,0.25)",
         transition: "color 0.12s, background 0.12s",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
+        display: "flex", alignItems: "center", justifyContent: "center",
       }}
       className="cs-bi-btn"
     >

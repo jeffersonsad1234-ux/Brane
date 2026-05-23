@@ -30,7 +30,6 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
 
   return (
     <div ref={ref} style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, minWidth: 0, background: "#080808" }}>
-      {/* Preview monitor */}
       <div style={{
         flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
         padding: 8, position: "relative", overflow: "hidden",
@@ -66,8 +65,8 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
               )}
               <div style={{ position: "relative", zIndex: 10, textAlign: "center" }}>
                 <div style={{ fontSize: 28, opacity: 0.08, marginBottom: 6 }}>🎬</div>
-                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.06)", fontFamily: "monospace" }}>{proj.width}×{proj.height}</div>
-                <div style={{ fontSize: 8, color: "rgba(255,255,255,0.05)", fontFamily: "monospace", marginTop: 2 }}>{FMT(ct)}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.15)", fontFamily: "monospace" }}>{proj.width}×{proj.height}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.12)", fontFamily: "monospace", marginTop: 2 }}>{FMT(ct)}</div>
                 <div style={{
                   marginTop: 8, width: 80, height: 2,
                   background: "rgba(255,255,255,0.04)", borderRadius: "50%", overflow: "hidden", marginLeft: "auto", marginRight: "auto",
@@ -75,7 +74,11 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
                   <div style={{ height: "100%", background: "rgba(59,130,246,0.25)", borderRadius: "50%", width: `${playheadPos}%` }} />
                 </div>
               </div>
-              <div style={{ position: "absolute", top: 6, left: 6, display: "flex", alignItems: "center", gap: 3, background: "rgba(0,0,0,0.4)", borderRadius: 4, padding: "2px 8px", fontSize: 7, color: "rgba(255,255,255,0.2)" }}>
+              <div style={{
+                position: "absolute", top: 6, left: 6, display: "flex", alignItems: "center", gap: 3,
+                background: "rgba(0,0,0,0.5)", borderRadius: 4, padding: "2px 8px", fontSize: 9,
+                color: "rgba(255,255,255,0.35)", fontFamily: "monospace",
+              }}>
                 GPU · {proj.width}×{proj.height} · {proj.fps}fps
               </div>
             </div>
@@ -94,14 +97,13 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
                 >
                   <S d={I.play} sz={18} style={{ color: "rgba(255,255,255,0.2)", marginLeft: 2 }} />
                 </div>
-                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.08)" }}>Preview</div>
-                <div style={{ fontSize: 7, color: "rgba(255,255,255,0.05)", marginTop: 2 }}>{proj.width}×{proj.height} · {proj.fps}fps</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)" }}>Preview</div>
+                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.12)", marginTop: 2 }}>{proj.width}×{proj.height} · {proj.fps}fps</div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Overlay controls */}
         <div style={{
           position: "absolute", right: 8, bottom: 8,
           display: "flex", alignItems: "center", gap: 2,
@@ -125,8 +127,8 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
           <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.05)", margin: "0 2px" }} />
           <select value={aspect} onChange={(e) => setAspect(e.target.value)}
             style={{
-              background: "none", border: "none", color: "rgba(255,255,255,0.15)",
-              fontSize: 8, cursor: "pointer", outline: "none", padding: "1px 2px",
+              background: "none", border: "none", color: "rgba(255,255,255,0.25)",
+              fontSize: 10, cursor: "pointer", outline: "none", padding: "1px 2px",
               fontFamily: "inherit",
             }}
           >
@@ -137,7 +139,7 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
             style={{ padding: 2, border: "none", cursor: "pointer", background: "none", color: "rgba(255,255,255,0.12)", display: "flex" }}
             className="cs-hover-soft"
           ><S d={I.zoO} sz={9} /></button>
-          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.18)", width: 22, textAlign: "center", fontFamily: "monospace" }}>{pz}%</span>
+          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", width: 26, textAlign: "center", fontFamily: "monospace" }}>{pz}%</span>
           <button onClick={() => setPz((z) => Math.min(200, z + 15))}
             style={{ padding: 2, border: "none", cursor: "pointer", background: "none", color: "rgba(255,255,255,0.12)", display: "flex" }}
             className="cs-hover-soft"
@@ -145,7 +147,7 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
           <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.05)", margin: "0 2px" }} />
           <div style={{ position: "relative" }}>
             <button onClick={() => setShowQual(!showQual)}
-              style={{ padding: "1px 4px", border: "none", cursor: "pointer", background: "none", color: "rgba(255,255,255,0.12)", fontSize: 8, fontFamily: "inherit" }}
+              style={{ padding: "1px 4px", border: "none", cursor: "pointer", background: "none", color: "rgba(255,255,255,0.2)", fontSize: 9, fontFamily: "inherit" }}
               className="cs-hover-soft"
             >{qual}</button>
             {showQual && (
@@ -158,7 +160,7 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
                   <button key={q} onClick={() => { setQual(q); setShowQual(false); }}
                     style={{
                       display: "block", width: "100%", textAlign: "left", padding: "3px 10px",
-                      fontSize: 8, border: "none", cursor: "pointer", fontFamily: "inherit",
+                      fontSize: 10, border: "none", cursor: "pointer", fontFamily: "inherit",
                       background: qual === q ? "rgba(255,255,255,0.08)" : "transparent",
                       color: qual === q ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.2)",
                       borderRadius: 3,
@@ -177,7 +179,6 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
         </div>
       </div>
 
-      {/* Playback bar */}
       <div style={{
         height: 36, flexShrink: 0, background: "#0c0c0c",
         borderTop: "1px solid rgba(255,255,255,0.05)",
@@ -196,7 +197,7 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
           <S d={playing ? I.pause : I.play} sz={15} />
         </button>
         <Bi d={I.skipF} tip="End" sz={12} onClick={() => { setCt(proj.duration); setPlaying(false); }} />
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", fontFamily: "monospace", width: 48, textAlign: "right" }}>{FMT(ct)}</span>
+        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", fontFamily: "monospace", width: 52, textAlign: "right" }}>{FMT(ct)}</span>
         <div
           onMouseDown={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -222,7 +223,7 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
             opacity: 0, transition: "opacity 0.1s",
           }} className="cs-scrub-thumb" />
         </div>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.12)", fontFamily: "monospace", width: 48 }}>{FMT(proj.duration)}</span>
+        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "monospace", width: 52 }}>{FMT(proj.duration)}</span>
         <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.05)", margin: "0 4px" }} />
         <button onClick={() => setCt((t) => Math.max(0, t - 1 / proj.fps))}
           style={{ padding: 3, border: "none", cursor: "pointer", background: "none", color: "rgba(255,255,255,0.12)", display: "flex" }}
@@ -234,7 +235,7 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
         ><S d={I.skipF} sz={9} /></button>
         <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.05)", margin: "0 4px" }} />
         <div style={{ display: "flex", alignItems: "center", gap: 3 }}>
-          <S d={I.music} sz={11} style={{ color: "rgba(255,255,255,0.15)" }} />
+          <S d={I.music} sz={11} style={{ color: "rgba(255,255,255,0.25)" }} />
           <input type="range" min={0} max={100} value={vol} onChange={(e) => setVol(+e.target.value)}
             style={{
               width: 48, height: 2, accentColor: "#3b82f6", cursor: "pointer",
