@@ -51,6 +51,13 @@ let webpackConfig = {
         ],
       };
 
+      // Disable scope hoisting (ModuleConcatenationPlugin) to prevent
+      // TDZ errors with const/let in minified production bundles
+      webpackConfig.optimization = {
+        ...webpackConfig.optimization,
+        concatenateModules: false,
+      };
+
       // Add health check plugin to webpack if enabled
       if (config.enableHealthCheck && healthPluginInstance) {
         webpackConfig.plugins.push(healthPluginInstance);
