@@ -1,5 +1,6 @@
 // craco.config.js
 const path = require("path");
+const TerserPlugin = require("terser-webpack-plugin");
 require("dotenv").config();
 
 // Check if we're in development/preview mode (not production build)
@@ -51,11 +52,31 @@ let webpackConfig = {
         ],
       };
 
-      // Disable scope hoisting (ModuleConcatenationPlugin) to prevent
-      // TDZ errors with const/let in minified production bundles
+      // Disable all aggressive optimizations that cause TDZ in production bundles
+      // 1. ModuleConcatenationPlugin (scope hoisting) - prevents cross-module TDZ
+      // 2. Terser mangle - prevents variable renaming that exposes TDZ
+      // 3. Terser compress - prevents code reordering that creates TDZ
       webpackConfig.optimization = {
         ...webpackConfig.optimization,
         concatenateModules: false,
+        minimizer: webpackConfig.optimization.minimizer.map((plugin) => {
+          if (plugin.constructor.name === "TerserPlugin") {
+            return new TerserPlugin({
+              terserOptions: {
+                compress: false,
+                mangle: false,
+                keep_classnames: true,
+                keep_fnames: true,
+                output: {
+                  comments: false,
+                  ascii_only: true,
+                },
+              },
+              extractComments: false,
+            });
+          }
+          return plugin;
+        }),
       };
 
       // Add health check plugin to webpack if enabled
