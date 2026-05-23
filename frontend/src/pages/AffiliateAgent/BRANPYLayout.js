@@ -28,13 +28,13 @@ const CAT_COLORS = {
 const APPS = [
   // ── CREATE ──
   { id: "image-studio", name: "Image Studio", icon: "🎨", cat: "create", route: "/affiliate-agent/image-studio", desc: "AI image generation & editing" },
-  { id: "logo-studio", name: "Logo Studio", icon: "⭐", cat: "create", desc: "Professional logo design" },
-  { id: "mockup-studio", name: "Mockup Studio", icon: "🖼️", cat: "create", desc: "Product & brand mockups" },
+  { id: "logo-studio", name: "Logo Studio", icon: "⭐", cat: "create", route: "/affiliate-agent/logo-studio", desc: "Professional logo design" },
+  { id: "mockup-studio", name: "Mockup Studio", icon: "🖼️", cat: "create", route: "/affiliate-agent/mockup-studio", desc: "Product & brand mockups" },
   { id: "brand-studio", name: "Brand Studio", icon: "🏷️", cat: "create", route: "/affiliate-agent/brand-studio", desc: "Complete brand identity" },
   { id: "canva-editor", name: "Canva Editor", icon: "🎯", cat: "create", route: "/affiliate-agent/canva-editor", desc: "Drag-drop graphic design" },
   { id: "photoshop-editor", name: "Photoshop Editor", icon: "🖌️", cat: "create", route: "/affiliate-agent/photoshop-editor", desc: "Advanced photo editing" },
-  { id: "ai-art", name: "AI Art Generator", icon: "🌈", cat: "create", desc: "Generate art with AI" },
-  { id: "studio-3d", name: "3D Studio", icon: "🧊", cat: "create", desc: "3D modeling & rendering" },
+  { id: "ai-art", name: "AI Art Generator", icon: "🌈", cat: "create", route: "/affiliate-agent/ai-art", desc: "Generate art with AI" },
+  { id: "studio-3d", name: "3D Studio", icon: "🧊", cat: "create", route: "/affiliate-agent/studio-3d", desc: "3D modeling & rendering" },
 
   // ── AI ──
   { id: "chat", name: "AI Chat", icon: "💬", cat: "ai", route: "/affiliate-agent/chat", desc: "Conversational AI assistant" },
@@ -49,14 +49,14 @@ const APPS = [
 
   // ── BUSINESS ──
   { id: "leads-crm", name: "CRM", icon: "👥", cat: "business", route: "/affiliate-agent/leads-crm", desc: "Customer relationship management" },
-  { id: "leads-center", name: "Leads Center", icon: "📋", cat: "business", desc: "Lead capture & scoring" },
+  { id: "leads-center", name: "Leads Center", icon: "📋", cat: "business", route: "/affiliate-agent/leads-center", desc: "Lead capture & scoring" },
   { id: "sales-funnels", name: "Sales Funnels", icon: "🔄", cat: "business", desc: "Build & optimize funnels" },
   { id: "marketplace", name: "Marketplace", icon: "🏪", cat: "business", route: "/affiliate-agent/agent-marketplace", desc: "Multi-vendor marketplace" },
   { id: "affiliate", name: "Affiliate AI", icon: "🛍️", cat: "business", route: "/affiliate-agent/affiliate", desc: "Affiliate marketing automation" },
   { id: "ecommerce", name: "E-commerce", icon: "🛒", cat: "business", route: "/affiliate-agent/ecommerce", desc: "Online store management" },
   { id: "finance-hub", name: "Finance Hub", icon: "💰", cat: "business", route: "/affiliate-agent/finance-hub", desc: "Financial management & insights" },
   { id: "subscriptions", name: "Subscription Manager", icon: "📅", cat: "business", desc: "Recurring billing & plans" },
-  { id: "invoices", name: "Invoice Center", icon: "📄", cat: "business", desc: "Invoicing & payment tracking" },
+  { id: "invoices", name: "Invoice Center", icon: "📄", cat: "business", route: "/affiliate-agent/invoices", desc: "Invoicing & payment tracking" },
   { id: "payments", name: "Payment Center", icon: "💳", cat: "business", desc: "Payment processing & gateway" },
 
   // ── MARKETING ──
@@ -89,44 +89,44 @@ const APPS = [
   { id: "movie-studio", name: "Movie Studio", icon: "🎥", cat: "media", desc: "Cinematic movie creation" },
   { id: "animation-studio", name: "Animation Studio", icon: "🌀", cat: "media", desc: "2D/3D animation" },
   { id: "streaming-studio", name: "Streaming Studio", icon: "📡", cat: "media", route: "/affiliate-agent/streaming-studio", desc: "Live streaming production" },
-  { id: "podcast-studio", name: "Podcast Studio", icon: "🎙️", cat: "media", desc: "Record & edit podcasts" },
+  { id: "podcast-studio", name: "Podcast Studio", icon: "🎙️", cat: "media", route: "/affiliate-agent/podcast-studio", desc: "Record & edit podcasts" },
   { id: "voice-ai", name: "Voice Studio", icon: "🎤", cat: "media", route: "/affiliate-agent/voice-ai", desc: "AI voice generation & cloning" },
   { id: "music-sounds", name: "Music Studio", icon: "🎵", cat: "media", route: "/affiliate-agent/music-sounds", desc: "Music production & editing" },
-  { id: "sound-fx", name: "Sound FX Studio", icon: "🔊", cat: "media", desc: "Sound effects library & tools" },
-  { id: "ai-dub", name: "AI Dub Studio", icon: "🌍", cat: "media", desc: "AI dubbing & localization" },
-  { id: "subtitles", name: "Subtitle Studio", icon: "📝", cat: "media", desc: "Auto subtitle generation" },
-  { id: "thumbnail-studio", name: "Thumbnail Studio", icon: "🖼️", cat: "media", desc: "Video thumbnail creator" },
-  { id: "banner-studio", name: "Banner Studio", icon: "📐", cat: "media", desc: "Ad & social banners" },
+  { id: "sound-fx", name: "Sound FX Studio", icon: "🔊", cat: "media", route: "/affiliate-agent/sound-fx", desc: "Sound effects library & tools" },
+  { id: "ai-dub", name: "AI Dub Studio", icon: "🌍", cat: "media", route: "/affiliate-agent/ai-dub", desc: "AI dubbing & localization" },
+  { id: "subtitles", name: "Subtitle Studio", icon: "📝", cat: "media", route: "/affiliate-agent/subtitles", desc: "Auto subtitle generation" },
+  { id: "thumbnail-studio", name: "Thumbnail Studio", icon: "🖼️", cat: "media", route: "/affiliate-agent/thumbnail-studio", desc: "Video thumbnail creator" },
+  { id: "banner-studio", name: "Banner Studio", icon: "📐", cat: "media", route: "/affiliate-agent/banner-studio", desc: "Ad & social banners" },
 
   // ── PRODUCTIVITY ──
   { id: "documents", name: "Documents AI", icon: "📄", cat: "productivity", route: "/affiliate-agent/documents", desc: "AI-powered document creation" },
-  { id: "spreadsheet", name: "Spreadsheet AI", icon: "📊", cat: "productivity", desc: "Smart spreadsheet editor" },
-  { id: "presentations", name: "Presentation Builder", icon: "📽️", cat: "productivity", desc: "AI presentation designer" },
+  { id: "spreadsheet", name: "Spreadsheet AI", icon: "📊", cat: "productivity", route: "/affiliate-agent/spreadsheet", desc: "Smart spreadsheet editor" },
+  { id: "presentations", name: "Presentation Builder", icon: "📽️", cat: "productivity", route: "/affiliate-agent/presentations", desc: "AI presentation designer" },
   { id: "notes", name: "Notes", icon: "📓", cat: "productivity", route: "/affiliate-agent/notes", desc: "Rich notes & knowledge base" },
   { id: "projects", name: "Projects", icon: "📁", cat: "productivity", route: "/affiliate-agent/projects", desc: "Project management hub" },
   { id: "tasks", name: "Tasks", icon: "✅", cat: "productivity", route: "/affiliate-agent/tasks", desc: "Task management & tracking" },
-  { id: "workspace", name: "Workspace", icon: "🏠", cat: "productivity", desc: "Customizable workspace" },
+  { id: "workspace", name: "Workspace", icon: "🏠", cat: "productivity", route: "/affiliate-agent/workspace", desc: "Customizable workspace" },
   { id: "team-chat", name: "Team Chat", icon: "💬", cat: "productivity", route: "/affiliate-agent/team-chat", desc: "Real-time team messaging" },
   { id: "calendar", name: "Calendar", icon: "📅", cat: "productivity", route: "/affiliate-agent/calendar", desc: "Smart calendar & scheduling" },
-  { id: "meetings", name: "Meetings", icon: "🎥", cat: "productivity", desc: "Video conferencing" },
-  { id: "whiteboard", name: "Whiteboard", icon: "✏️", cat: "productivity", desc: "Collaborative whiteboard" },
+  { id: "meetings", name: "Meetings", icon: "🎥", cat: "productivity", route: "/affiliate-agent/meetings", desc: "Video conferencing" },
+  { id: "whiteboard", name: "Whiteboard", icon: "✏️", cat: "productivity", route: "/affiliate-agent/whiteboard", desc: "Collaborative whiteboard" },
 
   // ── AUTOMATION ──
   { id: "automation-hub", name: "Automation Hub", icon: "🧩", cat: "automation", route: "/affiliate-agent/automation-hub", desc: "Automate workflows & tasks" },
   { id: "import-products", name: "Product Importer", icon: "📥", cat: "automation", route: "/affiliate-agent/importar", desc: "Import products via URL" },
-  { id: "schedule-posts", name: "Schedule Posts", icon: "⏰", cat: "automation", desc: "Auto-schedule content" },
+  { id: "schedule-posts", name: "Schedule Posts", icon: "⏰", cat: "automation", route: "/affiliate-agent/schedule-posts", desc: "Auto-schedule content" },
   { id: "data-pipeline", name: "Data Pipeline", icon: "🔀", cat: "automation", desc: "ETL & data integration" },
-  { id: "webhooks", name: "Webhooks", icon: "🔗", cat: "automation", desc: "Webhook management" },
+  { id: "webhooks", name: "Webhooks", icon: "🔗", cat: "automation", route: "/affiliate-agent/webhooks", desc: "Webhook management" },
   { id: "analytics", name: "Analytics", icon: "📊", cat: "automation", route: "/affiliate-agent/analytics", desc: "Advanced analytics & BI" },
-  { id: "reports", name: "Reports", icon: "📑", cat: "automation", desc: "Automated report generation" },
+  { id: "reports", name: "Reports", icon: "📑", cat: "automation", route: "/affiliate-agent/reports", desc: "Automated report generation" },
   { id: "monitoring", name: "Monitoring", icon: "📡", cat: "automation", desc: "System & app monitoring" },
 
   // ── CLOUD ──
   { id: "cloud-drive", name: "Cloud Drive", icon: "☁️", cat: "cloud", route: "/affiliate-agent/cloud-drive", desc: "Secure cloud file storage" },
-  { id: "assets-manager", name: "Assets Manager", icon: "📦", cat: "cloud", desc: "Digital asset management" },
+  { id: "assets-manager", name: "Assets Manager", icon: "📦", cat: "cloud", route: "/affiliate-agent/assets-manager", desc: "Digital asset management" },
   { id: "media-bank", name: "Media Library", icon: "🏦", cat: "cloud", route: "/affiliate-agent/media-bank", desc: "Media & video library" },
-  { id: "templates-hub", name: "Templates Hub", icon: "📂", cat: "cloud", desc: "Template marketplace" },
-  { id: "brand-kits", name: "Brand Kits", icon: "🎨", cat: "cloud", desc: "Centralized brand assets" },
+  { id: "templates-hub", name: "Templates Hub", icon: "📂", cat: "cloud", route: "/affiliate-agent/templates-hub", desc: "Template marketplace" },
+  { id: "brand-kits", name: "Brand Kits", icon: "🎨", cat: "cloud", route: "/affiliate-agent/brand-kits", desc: "Centralized brand assets" },
   { id: "backup-center", name: "Backup Center", icon: "💾", cat: "cloud", desc: "Automated backup & restore" },
 
   // ── FUTURE LABS ──

@@ -17,6 +17,12 @@ import {
   CanvaEditorFn, PhotoshopEditorFn, CalendarViewFn,
   CodeStudioFn, StreamingStudioViewFn, TeamChatViewFn,
   NotesViewFn, TasksViewFn, CloudDriveViewFn, FinanceHubViewFn,
+  LeadsCenterFn, ReportsViewFn, InvoiceCenterFn, SchedulePostsFn,
+  SpreadsheetAIFn, PresentationBuilderFn, LogoStudioFn, MockupStudioFn,
+  BannerStudioFn, ThumbnailStudioFn, AIArtGeneratorFn, PodcastStudioFn,
+  SoundFXStudioFn, AIDubStudioFn, WhiteboardViewFn, SubtitleStudioFn,
+  BrandKitsFn, AssetsManagerFn, WorkspaceViewFn, MeetingsViewFn,
+  TemplatesHubFn, WebhooksViewFn, Studio3DFn,
 } from "./BRANPYModules";
 import "./AffiliateAgent.css";
 
@@ -1621,6 +1627,29 @@ export default function AffiliateAgentApp() {
       <Route path="/tasks" element={<BRANPYLayout activeModule="tasks"><TasksViewFn /></BRANPYLayout>} />
       <Route path="/cloud-drive" element={<BRANPYLayout activeModule="cloud-drive"><CloudDriveViewFn /></BRANPYLayout>} />
       <Route path="/finance-hub" element={<BRANPYLayout activeModule="finance-hub"><FinanceHubViewFn /></BRANPYLayout>} />
+      <Route path="/leads-center" element={<BRANPYLayout activeModule="leads-center"><LeadsCenterFn /></BRANPYLayout>} />
+      <Route path="/reports" element={<BRANPYLayout activeModule="reports"><ReportsViewFn /></BRANPYLayout>} />
+      <Route path="/invoices" element={<BRANPYLayout activeModule="invoices"><InvoiceCenterFn /></BRANPYLayout>} />
+      <Route path="/schedule-posts" element={<BRANPYLayout activeModule="schedule-posts"><SchedulePostsFn /></BRANPYLayout>} />
+      <Route path="/spreadsheet" element={<BRANPYLayout activeModule="spreadsheet"><SpreadsheetAIFn /></BRANPYLayout>} />
+      <Route path="/presentations" element={<BRANPYLayout activeModule="presentations"><PresentationBuilderFn /></BRANPYLayout>} />
+      <Route path="/logo-studio" element={<BRANPYLayout activeModule="logo-studio"><LogoStudioFn /></BRANPYLayout>} />
+      <Route path="/mockup-studio" element={<BRANPYLayout activeModule="mockup-studio"><MockupStudioFn /></BRANPYLayout>} />
+      <Route path="/banner-studio" element={<BRANPYLayout activeModule="banner-studio"><BannerStudioFn /></BRANPYLayout>} />
+      <Route path="/thumbnail-studio" element={<BRANPYLayout activeModule="thumbnail-studio"><ThumbnailStudioFn /></BRANPYLayout>} />
+      <Route path="/ai-art" element={<BRANPYLayout activeModule="ai-art"><AIArtGeneratorFn /></BRANPYLayout>} />
+      <Route path="/podcast-studio" element={<BRANPYLayout activeModule="podcast-studio"><PodcastStudioFn /></BRANPYLayout>} />
+      <Route path="/sound-fx" element={<BRANPYLayout activeModule="sound-fx"><SoundFXStudioFn /></BRANPYLayout>} />
+      <Route path="/ai-dub" element={<BRANPYLayout activeModule="ai-dub"><AIDubStudioFn /></BRANPYLayout>} />
+      <Route path="/whiteboard" element={<BRANPYLayout activeModule="whiteboard"><WhiteboardViewFn /></BRANPYLayout>} />
+      <Route path="/subtitles" element={<BRANPYLayout activeModule="subtitles"><SubtitleStudioFn /></BRANPYLayout>} />
+      <Route path="/brand-kits" element={<BRANPYLayout activeModule="brand-kits"><BrandKitsFn /></BRANPYLayout>} />
+      <Route path="/assets-manager" element={<BRANPYLayout activeModule="assets-manager"><AssetsManagerFn /></BRANPYLayout>} />
+      <Route path="/workspace" element={<BRANPYLayout activeModule="workspace"><WorkspaceViewFn /></BRANPYLayout>} />
+      <Route path="/meetings" element={<BRANPYLayout activeModule="meetings"><MeetingsViewFn /></BRANPYLayout>} />
+      <Route path="/templates-hub" element={<BRANPYLayout activeModule="templates-hub"><TemplatesHubFn /></BRANPYLayout>} />
+      <Route path="/webhooks" element={<BRANPYLayout activeModule="webhooks"><WebhooksViewFn /></BRANPYLayout>} />
+      <Route path="/studio-3d" element={<BRANPYLayout activeModule="studio-3d"><Studio3DFn /></BRANPYLayout>} />
       <Route path="*" element={<Navigate to="/affiliate-agent" replace />} />
     </Routes>
   );
