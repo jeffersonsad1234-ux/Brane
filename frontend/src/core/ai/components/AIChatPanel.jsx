@@ -99,6 +99,15 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
           fontSize: 12, fontWeight: 700, color: "white",
         }}>B</div>
         <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>BRANPY Chat</span>
+        {currentProvider === "branpy-demo" && (
+          <div style={{
+            fontSize: 10, padding: "1px 6px", borderRadius: 4,
+            background: "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.2)",
+            color: "rgba(251,191,36,0.7)", fontFamily: "monospace", marginLeft: 4,
+          }}>
+            Modo demonstração local
+          </div>
+        )}
 
         {/* Agent selector */}
         <div style={{ position: "relative" }}>
@@ -242,7 +251,47 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
           );
         })}
 
-        {error && (
+        {streaming && currentStream && (
+          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+              background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 13,
+            }}>B</div>
+            <div style={{
+              maxWidth: "75%", padding: "8px 12px", borderRadius: 10,
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.06)",
+              fontSize: 13, lineHeight: "1.5",
+              color: "rgba(255,255,255,0.75)",
+              whiteSpace: "pre-wrap",
+            }}>
+              {currentStream}
+              <span style={{ animation: "blink 1s infinite", marginLeft: 2, color: "rgba(59,130,246,0.5)" }}>▍</span>
+            </div>
+          </div>
+        )}
+
+        {loading && !currentStream && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8, padding: "8px 0",
+            fontSize: 12, color: "rgba(255,255,255,0.35)",
+          }}>
+            <div style={{
+              width: 24, height: 24, borderRadius: 6,
+              background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 11, fontWeight: 700, color: "white",
+            }}>B</div>
+            BRANPY está pensando
+            <span style={{ animation: "blink 1s infinite", marginLeft: 2 }}>.</span>
+            <span style={{ animation: "blink 1s infinite 0.2s", marginLeft: 1 }}>.</span>
+            <span style={{ animation: "blink 1s infinite 0.4s", marginLeft: 1 }}>.</span>
+          </div>
+        )}
+
+        {error && currentProvider !== "branpy-demo" && (
           <div style={{
             padding: "8px 12px", borderRadius: 8, marginBottom: 12,
             background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)",
