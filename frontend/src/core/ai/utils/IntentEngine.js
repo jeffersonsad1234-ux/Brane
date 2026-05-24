@@ -1,4 +1,7 @@
 const INTENT_PATTERNS = [
+  { id: "news", label: "Notícias e Busca", patterns: [/notíci/i, /últimas/i, /jornal/i, /aconteceu/i, /hoje\s*no\s*mundo/i, /ontem\s*no\s*mundo/i, /mundo\s*hoje/i, /manchetes/i, /atualidad/i] },
+  { id: "search", label: "Pesquisa Web", patterns: [/pesquis[aei]/i, /buscar?/i, /procurar?/i, /encontrar?/i, /busque/i, /pesquise/i, /pesquisa\s*sobre/i, /informações\s*sobre/i, /dados\s*sobre/i, /resultados?\s*sobre/i] },
+  { id: "browser", label: "Navegação Web", patterns: [/site/i, /página/i, /url/i, /acess[aeo]/i, /abrir?\s*site/i, /navegar?/i, /web/i, /internet/i, /link/i, /htt(p|ps)/i] },
   { id: "prompt", label: "Criação de Prompt", patterns: [/cri(e|ar|e)\s*(um|o)?\s*prompt/i, /gerar?\s*prompt/i, /monte\s*(um|o)?\s*prompt/i, /elabore\s*(um|o)?\s*prompt/i, /escreva\s*(um|o)?\s*prompt/i, /preciso\s*de\s*(um|o)?\s*prompt/i] },
   { id: "marketing", label: "Marketing", patterns: [/market/i, /estratégia\s*de\s*market/i, /campanha/i, /funil/i, /público.alvo/i, /segmentação/i, /tráfego/i, /anúncio/i, /ads/i] },
   { id: "copywriting", label: "Copywriting", patterns: [/cop(y|i)/i, /texto\s*persuasiv/i, /legenda/i, /descriç[ãa]o\s*de\s*produto/i, /headline/i, /título\s*persuasiv/i, /cta/i, /call.to.action/i] },
@@ -32,6 +35,9 @@ export class IntentEngine {
 
   getAgentForIntent(intentId) {
     const map = {
+      news: "research-agent",
+      search: "research-agent",
+      browser: "research-agent",
       prompt: "branpy-core",
       marketing: "marketing-agent",
       copywriting: "marketing-agent",
@@ -49,27 +55,8 @@ export class IntentEngine {
     return map[intentId] || "branpy-core";
   }
 
-  getToolsForIntent(intentId) {
-    const map = {
-      prompt: [],
-      marketing: ["web_search", "fetch_page", "get_project_info"],
-      copywriting: ["web_search", "generate_report"],
-      seo: ["web_search", "analyze_data"],
-      script: [],
-      video: [],
-      code: ["run_code", "format_code"],
-      automation: ["create_workflow", "run_workflow"],
-      ads: ["web_search", "analyze_data"],
-      branding: ["web_search"],
-      ecommerce: ["web_search", "analyze_data"],
-      affiliate: ["web_search", "get_project_info"],
-      general: [],
-    };
-    return map[intentId] || [];
-  }
-
   shouldExecute(intentId) {
-    return ["prompt", "script", "copywriting", "code"].includes(intentId);
+    return ["news", "search", "browser", "prompt", "script", "copywriting", "code", "affiliate", "marketing", "seo", "video", "automation"].includes(intentId);
   }
 
   generateExecutionPrompt(intentId, userText) {

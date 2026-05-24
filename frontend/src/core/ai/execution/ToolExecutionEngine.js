@@ -1,5 +1,3 @@
-import { intentEngine } from "../utils/IntentEngine";
-import { getAgent } from "../agents/AgentRegistry";
 import { getProvider } from "../providers/ProviderFactory";
 import { ToolContext } from "./ToolContext";
 import { toolResolver } from "./ToolResolver";
@@ -48,7 +46,7 @@ export class ToolExecutionEngine {
       try {
         const tool = new ToolClass();
         const data = await this._executeTool(tool, toolDef, context, options);
-        results.push({ tool: toolDef.name, success: true, data, formatted: "" });
+        results.push({ tool: toolDef.name, success: true, data });
         this._emitStatus({ type: "tool-done", message: `✓ ${toolDef.name} concluído`, tool: toolDef.name });
       } catch (err) {
         results.push({ tool: toolDef.name, success: false, error: err.message });
@@ -70,13 +68,15 @@ export class ToolExecutionEngine {
       content = responseComposer.compose(intent.id, results, context);
     }
 
-    // If no tool content or no tools, fall back to AI provider
     if (!content && hasSuccessfulTools) {
-      content = results.map((r) => r.formatted || "").filter(Boolean).join("\n\n");
+      const hasData = results.some((r) => r.data && (Array.isArray(r.data?.results) ? r.data.results.length > 0 : true));
+      if (hasData) {
+        content = results.map((r) => (r.data ? (typeof r.data === "string" ? r.data : JSON.stringify(r.data, null, 2)) : "")).filter(Boolean).join("\n\n");
+      }
     }
 
     if (!content) {
-      content = await this._fallbackToProvider(userMessage, context, options);
+      content = await this._executePrompt(userMessage, context, options);
     }
 
     this._emitStatus({ type: "done", message: "Resposta pronta" });
@@ -101,20 +101,36 @@ export class ToolExecutionEngine {
     }
   }
 
-  async _fallbackToProvider(message, context, options) {
-    const provider = getProvider(context.provider);
-    if (!provider || !provider.isAvailable()) return "[Nenhum provider disponível para gerar resposta]";
+  async _executePrompt(message, context, options) {
+    const providerId = context.provider;
+    // Skip demo provider — it returns generic templates that ignore system prompts
+    if (providerId === "branpy-demo") {
+      return this._composeNoProviderResponse(message, context);
+    }
+    const provider = getProvider(providerId);
+    if (!provider || !provider.isAvailable()) {
+      return this._composeNoProviderResponse(message, context);
+    }
     try {
       const agent = context.agent;
-      const systemMsg = agent?.getSystemMessage?.() || "Você é um assistente útil. Responda em português brasileiro.";
+      const systemMsg = agent?.getSystemMessage?.() || "Você é um assistente direto que entrega resultados completos sem rodeios. Responda em português brasileiro. NUNCA diga 'entendi sua pergunta', 'posso ajudar', 'vou analisar' ou frases genéricas.";
       const result = await provider.sendMessage([
         { role: "system", content: systemMsg },
+        ...context.history.slice(-4),
         { role: "user", content: message },
       ], { model: context.model });
-      return result;
+      return result || "[Resposta vazia do provider]";
     } catch {
-      return "[Erro ao gerar resposta]";
+      return this._composeNoProviderResponse(message, context);
     }
+  }
+
+  _composeNoProviderResponse(message, context) {
+    const intent = context.intent;
+    if (["news", "search", "browser"].includes(intent.id)) {
+      return "## 🔍 Busca Web\n\nA busca web real requer um provider de IA conectado ou uma API de busca (como SerpAPI, Google Search ou Bing).\n\n**O que eu posso fazer agora:**\n- Estruturar conteúdo para seu nicho\n- Criar estratégias de marketing e conteúdo\n- Gerar roteiros, copy e prompts\n- Desenvolver código\n\nConecte uma API key em **AI Providers** para ativar busca web real.";
+    }
+    return "## 🤖 Modo Demonstração\n\nEstou operando em modo local. Para respostas completas com dados reais da web, conecte uma API key no painel **AI Providers**.\n\nEnquanto isso, posso:\n- Criar prompts profissionais\n- Gerar roteiros e scripts\n- Escrever copy persuasiva\n- Desenvolver código\n- Criar estratégias de marketing\n\n**O que você precisa?**";
   }
 
   _emitStatus(status) {

@@ -35,10 +35,21 @@ export class ResponseComposer {
   _composeNews(results, ctx) {
     const searchResult = results.find((r) => r.tool === "NewsSearchTool" || r.tool === "BrowserSearchTool");
     if (!searchResult || !searchResult.data?.results?.length) {
-      return this._fallback(ctx.userMessage);
+      const query = searchResult?.data?.query || ctx.userMessage;
+      return `## 🔍 Busca por "${query}"
+
+A busca web retornou 0 resultados. Isso pode ocorrer porque:
+
+- O backend de busca (DuckDuckGo) não está disponível no momento
+- A consulta é muito específica
+- Modo demonstração sem API de busca configurada
+
+**Para ativar busca real, conecte uma API key no painel AI Providers.**
+
+💡 Quer que eu pesquise de outra forma ou posso ajudar com criação de conteúdo, estratégia de marketing, roteiros ou código?`;
     }
     const items = searchResult.data.results.slice(0, 8);
-    let md = `## 📰 Últimas notícias e resultados\n\n`;
+    let md = `## 📰 Resultados encontrados\n\n`;
     for (const item of items) {
       md += `### ${item.title}\n`;
       if (item.snippet) md += `${item.snippet}\n\n`;
