@@ -117,7 +117,7 @@ export function useAI(routerInstance = null) {
     const ollama = getProvider("ollama");
     if (!ollama) throw new Error("Ollama provider não encontrado");
     const modelName = model || ollama.defaultModel || "qwen2.5-coder:7b";
-    const stream = ollama.streamMessage([
+    const stream = await ollama.streamMessage([
       { role: "system", content: "Você é uma assistente local inteligente rodando via Ollama. Responda de forma direta, útil e completa em português brasileiro." },
       { role: "user", content: msg },
     ], { model: modelName, signal: controller?.signal });
