@@ -232,7 +232,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
             display: "flex", alignItems: "center", gap: 4,
           }}>
             <span style={{ width: 5, height: 5, borderRadius: "50%", background: "rgba(16,185,129,0.7)", display: "inline-block" }} />
-            Ollama Local
+            Ollama {currentModel || "qwen2.5-coder:7b"}
           </div>
         )}
 

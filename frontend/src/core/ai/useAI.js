@@ -43,6 +43,20 @@ export function useAI(routerInstance = null) {
       router.getSessions().then((list) => { if (mountedRef.current) setSessions(list || []); }).catch(() => {});
       const status = router.getProviderStatus();
       if (mountedRef.current) setProviderStatus(status || []);
+      // Auto-detect Ollama on mount
+      (async () => {
+        try {
+          const ollama = getProvider("ollama");
+          if (ollama && await ollama.healthCheck()) {
+            const models = await ollama.listModels();
+            if (mountedRef.current) {
+              const available = models.length > 0 ? models[0] : ollama.defaultModel;
+              setCurrentProvider("ollama");
+              setCurrentModel(available);
+            }
+          }
+        } catch { /* Ollama not available, keep default */ }
+      })();
     } catch { /* init fail */ }
   }, [router]);
 
