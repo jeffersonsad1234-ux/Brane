@@ -20,6 +20,7 @@ export class BaseProvider {
     this.apiKey = config.apiKey || "";
     this.baseUrl = config.baseUrl || "";
     this.config = config;
+    this.requiresKey = config.requiresKey !== undefined ? config.requiresKey : true;
     this.healthy = true;
     this.lastHealthCheck = null;
   }

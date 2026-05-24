@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { aiRouter as defaultRouter } from "./router/AIRouter";
 import { aiMemory } from "./memory/AIMemory";
 import { getAgent, DEFAULT_AGENT } from "./agents/AgentRegistry";
-import { getAvailableProviders } from "./providers/ProviderFactory";
+import { getAvailableProviders, getProvider } from "./providers/ProviderFactory";
 
 export function useAI(routerInstance = null) {
   const router = routerInstance || defaultRouter;
@@ -110,27 +110,30 @@ export function useAI(routerInstance = null) {
       }
 
       if (!fullContent) {
-        throw new Error("Stream retornou vazio. Tentando modo não-streaming...");
+        throw new Error("Stream retornou vazio");
       }
     } catch (err) {
-      if (err.message?.includes("Tentando modo não-streaming") || err.message?.includes("failed for stream")) {
-        setStreaming(false);
-        setCurrentStream("");
-        try {
-          const result = await sendMessage(content, options);
-          setLoading(false);
-          return result;
-        } catch (fallbackErr) {
-          setError(fallbackErr.message);
-          setLoading(false);
-          return { content: "", error: fallbackErr.message };
-        }
-      }
-      setError(err.message);
-      setLoading(false);
       setStreaming(false);
       setCurrentStream("");
-      return { content: fullContent, error: err.message };
+      try {
+        const result = await sendMessage(content, options);
+        setLoading(false);
+        return result;
+      } catch (fallbackErr) {
+        // Last resort — try demo provider directly
+        try {
+          const demo = getProvider("branpy-demo");
+          if (demo && demo.isAvailable()) {
+            const text = await demo.sendMessage([userMsg], options);
+            const msg = { id: `msg_${Date.now() + 1}`, role: "assistant", content: text, provider: "branpy-demo", timestamp: Date.now() };
+            setMessages((prev) => [...prev, msg]);
+            setLoading(false);
+            return { content: text, provider: "branpy-demo" };
+          }
+        } catch {}
+        setLoading(false);
+        return { content: "", error: fallbackErr.message };
+      }
     }
 
     const assistantMsg = {

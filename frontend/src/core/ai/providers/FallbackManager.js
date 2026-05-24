@@ -1,56 +1,43 @@
 import { PROVIDER_PRIORITY, getProvider } from "./ProviderFactory";
 
-const DEFAULT_FRIENDLY_MSG = "Nenhum provider de IA configurado. Configure uma chave de API em AI Providers ou use o modo demonstração local.";
+const FRIENDLY_MAP = {
+  opencode: "OpenCode local não está respondendo",
+  openrouter: "OpenRouter precisa de uma API key",
+  deepseek: "DeepSeek precisa de uma API key",
+  qwen: "Qwen (Alibaba) precisa de uma API key",
+  llama: "Llama local não está respondendo",
+  local: "Ollama local não está respondendo",
+};
+
+const DEMO_ID = "branpy-demo";
 
 export class FallbackManager {
   constructor(options = {}) {
     this.maxRetries = options.maxRetries ?? 2;
     this.timeout = options.timeout ?? 15000;
     this.fallbackHistory = [];
-    this.currentProviderIndex = 0;
   }
 
   getFriendlyError(providerId, originalError) {
-    const friendly = {
-      opencode: "OpenCode local não está respondendo. Verifique se o serviço está rodando.",
-      openrouter: "OpenRouter precisa de uma API key configurada em AI Providers.",
-      deepseek: "DeepSeek precisa de uma API key configurada em AI Providers.",
-      qwen: "Qwen (Alibaba) precisa de uma API key configurada em AI Providers.",
-      llama: "Llama local não está respondendo. Verifique se o servidor está rodando.",
-      local: "Ollama local não está respondendo. Verifique se o serviço está rodando.",
-    };
-    return friendly[providerId] || originalError?.message || DEFAULT_FRIENDLY_MSG;
+    return FRIENDLY_MAP[providerId] || originalError?.message || "Provider temporariamente indisponível";
   }
 
   async execute(messages, options = {}) {
     const providerOrder = options.providerPriority || PROVIDER_PRIORITY;
     let lastError = null;
 
-    for (let i = this.currentProviderIndex; i < providerOrder.length; i++) {
-      const providerId = providerOrder[i];
-      const provider = getProvider(providerId);
-
-      if (!provider.isAvailable()) {
-        const healthy = await provider.healthCheck();
-        if (!provider.isAvailable()) {
-          this.recordFallback(providerId, "unavailable");
-          continue;
-        }
-      }
+    for (const providerId of providerOrder) {
+      let provider;
+      try { provider = getProvider(providerId); } catch { continue; }
+      if (!provider.isAvailable()) { this.recordFallback(providerId, "unavailable"); continue; }
 
       for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-
-          const result = await provider.sendMessage(messages, {
-            ...options,
-            signal: controller.signal,
-          });
-
-          clearTimeout(timeoutId);
+          const timer = setTimeout(() => controller.abort(), this.timeout);
+          const result = await provider.sendMessage(messages, { ...options, signal: controller.signal });
+          clearTimeout(timer);
           this.recordFallback(providerId, "success", { attempt });
-          this.currentProviderIndex = i;
           return { content: result, provider: providerId, model: options.model || provider.defaultModel };
         } catch (err) {
           lastError = err;
@@ -60,38 +47,29 @@ export class FallbackManager {
       }
     }
 
-    const friendlyMsg = lastError ? this.getFriendlyError(lastError.provider, lastError) : DEFAULT_FRIENDLY_MSG;
-    throw new Error(friendlyMsg);
+    // LAST RESORT: BRANPY Local Demo
+    return await this._demoFallback(messages, options, lastError, "sendMessage");
   }
 
   async *executeStream(messages, options = {}) {
     const providerOrder = options.providerPriority || PROVIDER_PRIORITY;
     let lastError = null;
 
-    for (let i = this.currentProviderIndex; i < providerOrder.length; i++) {
-      const providerId = providerOrder[i];
-      const provider = getProvider(providerId);
-
-      if (!provider.isAvailable()) {
-        const healthy = await provider.healthCheck();
-        if (!provider.isAvailable()) {
-          this.recordFallback(providerId, "unavailable");
-          continue;
-        }
-      }
+    for (const providerId of providerOrder) {
+      let provider;
+      try { provider = getProvider(providerId); } catch { continue; }
+      if (!provider.isAvailable()) { this.recordFallback(providerId, "unavailable"); continue; }
 
       for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
         try {
           const stream = provider.streamMessage(messages, options);
-          let hasYielded = false;
-
+          let yielded = false;
           for await (const chunk of stream) {
-            hasYielded = true;
+            yielded = true;
             yield { content: chunk, provider: providerId, done: false };
           }
-
+          if (!yielded) throw new Error("Stream vazio");
           this.recordFallback(providerId, "success", { attempt });
-          this.currentProviderIndex = i;
           yield { content: "", provider: providerId, done: true };
           return;
         } catch (err) {
@@ -102,27 +80,67 @@ export class FallbackManager {
       }
     }
 
-    const friendlyMsg = lastError ? this.getFriendlyError(lastError.provider, lastError) : DEFAULT_FRIENDLY_MSG;
-    throw new Error(friendlyMsg);
+    // LAST RESORT: BRANPY Local Demo
+    const demoProvider = this._getDemoProvider();
+    if (demoProvider) {
+      console.log("[BRANPY LOCAL DEMO ACTIVE] All providers failed stream — using local demo");
+      try {
+        const stream = demoProvider.streamMessage(messages, options);
+        let yielded = false;
+        for await (const chunk of stream) {
+          yielded = true;
+          yield { content: chunk, provider: DEMO_ID, done: false };
+        }
+        if (yielded) {
+          this.recordFallback(DEMO_ID, "success", { note: "last-resort-stream" });
+          yield { content: "", provider: DEMO_ID, done: true };
+          return;
+        }
+      } catch (demoErr) { /* ignore */ }
+
+      // If stream failed or yielded nothing, use sendMessage
+      try {
+        const fallback = await demoProvider.sendMessage(messages, options);
+        yield { content: fallback, provider: DEMO_ID, done: false };
+        yield { content: "", provider: DEMO_ID, done: true };
+        return;
+      } catch (demoErr2) { /* ignore */ }
+    }
+
+    // Absolute last resort — inline response
+    yield { content: "Olá! Estou em modo de demonstração local. Como posso ajudar?", provider: DEMO_ID, done: false };
+    yield { content: "", provider: DEMO_ID, done: true };
+  }
+
+  async _demoFallback(messages, options, lastError, mode) {
+    const demoProvider = this._getDemoProvider();
+    if (!demoProvider) {
+      throw new Error(lastError ? this.getFriendlyError(lastError.provider, lastError) : "Nenhum provider disponível");
+    }
+
+    console.log("[BRANPY LOCAL DEMO ACTIVE] All providers failed " + mode + " — using local demo");
+    try {
+      const result = await demoProvider.sendMessage(messages, options);
+      this.recordFallback(DEMO_ID, "success", { note: "last-resort-" + mode });
+      return { content: result, provider: DEMO_ID, model: "branpy-demo" };
+    } catch (demoErr) {
+      throw new Error("Erro inesperado no modo demonstração: " + demoErr.message);
+    }
+  }
+
+  _getDemoProvider() {
+    try {
+      const p = getProvider(DEMO_ID);
+      return p.isAvailable() ? p : null;
+    } catch { return null; }
   }
 
   recordFallback(providerId, status, details = {}) {
-    this.fallbackHistory.push({
-      provider: providerId,
-      status,
-      timestamp: Date.now(),
-      ...details,
-    });
+    this.fallbackHistory.push({ provider: providerId, status, timestamp: Date.now(), ...details });
   }
 
-  getFallbackHistory() {
-    return this.fallbackHistory;
-  }
-
-  reset() {
-    this.currentProviderIndex = 0;
-    this.fallbackHistory = [];
-  }
+  getFallbackHistory() { return this.fallbackHistory; }
+  reset() { this.fallbackHistory = []; }
 }
 
 export const fallbackManager = new FallbackManager();
