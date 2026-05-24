@@ -16,13 +16,21 @@ export function useAI(routerInstance = null) {
   const [currentProvider, setCurrentProvider] = useState("opencode");
   const [sessions, setSessions] = useState([]);
   const [providerStatus, setProviderStatus] = useState([]);
+  const [executionStatus, setExecutionStatus] = useState(null);
   const abortRef = useRef(null);
   const activeStreamRef = useRef(null);
 
   useEffect(() => {
     loadSessions();
     updateProviderStatus();
-  }, []);
+    // Wire tool execution status handler
+    router.setToolStatusHandler((status) => {
+      setExecutionStatus(status);
+      if (status.type === "done" || status.type === "tool-error") {
+        setTimeout(() => setExecutionStatus(null), 2000);
+      }
+    });
+  }, [router]);
 
   const stopGeneration = useCallback(() => {
     if (abortRef.current) {
@@ -236,7 +244,7 @@ export function useAI(routerInstance = null) {
   }, [router, loadSessions]);
 
   return {
-    messages, loading, streaming, currentStream, error,
+    messages, loading, streaming, currentStream, error, executionStatus,
     currentAgent, currentModel, currentProvider, sessions, providerStatus,
 
     sendMessage, sendStreamMessage, clearMessages, loadSession, newSession,

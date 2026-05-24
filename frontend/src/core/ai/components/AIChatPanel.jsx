@@ -29,7 +29,7 @@ const PROVIDER_LABELS = {
 
 export default function AIChatPanel({ onClose, initialAgent = null, fullScreen = false }) {
   const {
-    messages, loading, streaming, currentStream, error,
+    messages, loading, streaming, currentStream, error, executionStatus,
     sendMessage, sendStreamMessage, clearMessages, newSession, loadSession,
     sessions, currentAgent, setCurrentAgent, currentProvider, setCurrentProvider,
     currentModel, setCurrentModel, stopGeneration,
@@ -431,6 +431,32 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
 
         <div ref={bottomRef} />
       </div>
+
+      {/* Execution status */}
+      {executionStatus && executionStatus.type !== "done" && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 6, padding: "4px 14px",
+          borderTop: "1px solid rgba(255,255,255,0.03)",
+          background: "rgba(59,130,246,0.03)", fontSize: 11, color: "rgba(255,255,255,0.4)",
+          fontFamily: "monospace", flexShrink: 0,
+        }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: "50%",
+            background: executionStatus.type === "tool-error" ? "rgba(239,68,68,0.6)" :
+                        executionStatus.type === "tool-done" ? "rgba(16,185,129,0.6)" :
+                        "rgba(59,130,246,0.6)",
+            animation: executionStatus.type === "tool" || executionStatus.type === "intent" ? "blink 1s infinite" : "none",
+          }} />
+          <span>
+            {executionStatus.icon || ""} {executionStatus.message}
+          </span>
+          {executionStatus.type === "intent" && executionStatus.intent && (
+            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", marginLeft: 4 }}>
+              ({executionStatus.intent})
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Quick actions */}
       {messages.length <= 1 && !isStreaming && (

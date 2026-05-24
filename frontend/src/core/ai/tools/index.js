@@ -49,19 +49,20 @@ export const TOOLS = {
   // Browser tools
   search: createTool(
     "Web Search",
-    "Pesquisa informações na web.",
+    "Pesquisa informações na web usando o BrowserEngine.",
     async ({ query }) => {
-      return { query, result: `[Web search mock] Results for: ${query}` };
+      const { browserEngine } = await import("../browser/BrowserEngine");
+      const result = await browserEngine.search(query);
+      return result;
     },
     "browser", "🌐"
   ),
   fetchPage: createTool(
     "Fetch Page",
-    "Obtém o conteúdo de uma página web.",
+    "Obtém o conteúdo de uma página web via BrowserEngine.",
     async ({ url }) => {
-      const { AIBrowser } = await import("../browser/AIBrowser");
-      const browser = new AIBrowser();
-      return await browser.fetchPage(url);
+      const { browserEngine } = await import("../browser/BrowserEngine");
+      return await browserEngine.fetchPage(url);
     },
     "browser", "📄"
   ),
@@ -138,9 +139,8 @@ export const TOOLS = {
     "Run Workflow",
     "Executa um workflow existente.",
     async ({ workflowId }) => {
-      const { AIWorkflowEngine } = await import("../workflows/AIWorkflowEngine");
-      const engine = new AIWorkflowEngine();
-      return await engine.execute(workflowId);
+      const { workflowEngine } = await import("../workflows/WorkflowEngine");
+      return await workflowEngine.execute(workflowId);
     },
     "workflow", "▶️"
   ),
@@ -160,3 +160,5 @@ export function listToolCategories() {
   Object.values(TOOLS).forEach((t) => cats.add(t.category));
   return Array.from(cats);
 }
+
+export { executionTools } from "./execution";

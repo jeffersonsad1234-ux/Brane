@@ -1,6 +1,9 @@
 import { fallbackManager } from "../providers/FallbackManager";
 import { getProvider, PROVIDER_PRIORITY } from "../providers/ProviderFactory";
 import { AIMemory } from "../memory/AIMemory";
+import { ToolExecutionEngine } from "../execution/ToolExecutionEngine";
+import { toolResolver } from "../execution/ToolResolver";
+import { intentEngine } from "../utils/IntentEngine";
 
 const UID = () => Math.random().toString(36).slice(2, 9);
 
@@ -15,10 +18,17 @@ export class AIRouter {
     this.maxContextMessages = config.maxContextMessages ?? 50;
     this.sessionId = config.sessionId || `session_${UID()}`;
     this.middleware = [];
+    this.toolEngine = new ToolExecutionEngine({ onStatus: config.onToolStatus || null });
+    this.onToolStatus = config.onToolStatus || null;
   }
 
   use(middlewareFn) {
     this.middleware.push(middlewareFn);
+  }
+
+  setToolStatusHandler(handler) {
+    this.onToolStatus = handler;
+    this.toolEngine.onStatus = handler;
   }
 
   async chat(message, options = {}) {
@@ -27,31 +37,52 @@ export class AIRouter {
     const providerId = options.provider || this.defaultProvider;
     const model = options.model || this.defaultModel;
 
-    let messages = [];
+    await this.memory.addMessage(sessionId, { role: "user", content: message, agent: agent?.id || null });
 
+    // Try tool execution first
+    const intent = intentEngine.classify(message);
+    const hasTools = toolResolver.hasTools(intent.id);
+
+    if (hasTools) {
+      try {
+        const toolResult = await this.toolEngine.execute(message, {
+          agent,
+          provider: providerId,
+          model,
+          sessionId,
+          intent,
+        });
+
+        if (toolResult.content) {
+          await this.memory.addMessage(sessionId, {
+            role: "assistant", content: toolResult.content,
+            agent: agent?.id || null, provider: toolResult.provider, model,
+          });
+          return { content: toolResult.content, provider: toolResult.provider, model, sessionId, intent: toolResult.intent, executed: true };
+        }
+      } catch { /* fall through to provider */ }
+    }
+
+    // Fallback to provider chat
+    let messages = [];
     if (agent) {
       const systemMsg = agent.getSystemMessage?.() || "";
       if (systemMsg) messages.push({ role: "system", content: systemMsg });
-
       const agentContext = await this.memory.getAgentContext(agent.id, sessionId);
       if (agentContext?.length) messages.push(...agentContext);
     }
 
     const history = await this.memory.getConversation(sessionId);
     const recentHistory = history.slice(-this.maxContextMessages);
-
     for (const ctx of recentHistory) {
       if (ctx.role === "system") continue;
       messages.push({ role: ctx.role, content: ctx.content });
     }
-
     messages.push({ role: "user", content: message });
 
     for (const mw of this.middleware) {
       messages = mw(messages, { sessionId, agent, providerId, model }) || messages;
     }
-
-    await this.memory.addMessage(sessionId, { role: "user", content: message, agent: agent?.id || null });
 
     const optionsWithDefaults = {
       ...options,
@@ -89,12 +120,46 @@ export class AIRouter {
     const providerId = options.provider || this.defaultProvider;
     const model = options.model || this.defaultModel;
 
-    let messages = [];
+    await this.memory.addMessage(sessionId, { role: "user", content: message, agent: agent?.id || null });
 
+    // Try tool execution first
+    const intent = intentEngine.classify(message);
+    const hasTools = toolResolver.hasTools(intent.id);
+
+    if (hasTools) {
+      try {
+        const toolResult = await this.toolEngine.execute(message, {
+          agent,
+          provider: providerId,
+          model,
+          sessionId,
+          intent,
+        });
+
+        if (toolResult.content) {
+          // Stream the composed response character by character
+          const chars = toolResult.content.split("");
+          for (let i = 0; i < chars.length; i += 3) {
+            yield { content: chars.slice(i, i + 3).join(""), done: false, provider: toolResult.provider, sessionId };
+            if ((i / 3) % 10 === 0) await new Promise((r) => setTimeout(r, 5));
+          }
+
+          await this.memory.addMessage(sessionId, {
+            role: "assistant", content: toolResult.content,
+            agent: agent?.id || null, provider: toolResult.provider, model,
+          });
+
+          yield { content: "", done: true, provider: toolResult.provider, sessionId, intent: toolResult.intent, executed: true };
+          return;
+        }
+      } catch { /* fall through to streaming provider */ }
+    }
+
+    // Fallback to provider streaming
+    let messages = [];
     if (agent) {
       const systemMsg = agent.getSystemMessage?.() || "";
       if (systemMsg) messages.push({ role: "system", content: systemMsg });
-
       const agentContext = await this.memory.getAgentContext(agent.id, sessionId);
       if (agentContext?.length) messages.push(...agentContext);
     }
@@ -105,14 +170,11 @@ export class AIRouter {
       if (ctx.role === "system") continue;
       messages.push({ role: ctx.role, content: ctx.content });
     }
-
     messages.push({ role: "user", content: message });
 
     for (const mw of this.middleware) {
       messages = mw(messages, { sessionId, agent, providerId, model }) || messages;
     }
-
-    await this.memory.addMessage(sessionId, { role: "user", content: message, agent: agent?.id || null });
 
     const streamOptions = {
       ...options,
@@ -137,7 +199,6 @@ export class AIRouter {
         responseProvider = chunk.provider || responseProvider;
         yield { content: chunk.content, done: false, provider: chunk.provider, sessionId };
       }
-
       responseModel = model || (agent ? agent.defaultModel : "");
     } catch (err) {
       yield { content: "", done: true, error: err.message, sessionId };
