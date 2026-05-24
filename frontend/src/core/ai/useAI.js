@@ -90,6 +90,38 @@ export function useAI(routerInstance = null) {
     setMessages((prev) => [...prev, msg]);
   }, []);
 
+  // ⚠️ ollamaStream/ollamaSend MUST be declared BEFORE sendMessage/sendStreamMessage (const TDZ)
+  const ollamaStream = useCallback(async (msg, model, controller) => {
+    const ollama = getProvider("ollama");
+    if (!ollama) throw new Error("Ollama provider não encontrado");
+    const available = ollama.isAvailable();
+    if (!available) {
+      const ok = await ollama.healthCheck();
+      if (!ok) throw new Error("Ollama Local offline. Verifique se o Ollama está rodando em http://localhost:11434");
+    }
+    const modelName = model || ollama.defaultModel || "qwen2.5-coder:7b";
+    const stream = ollama.streamMessage([
+      { role: "system", content: "Você é a BRANPY AI, uma assistente local inteligente. Responda de forma direta, útil e completa em português brasileiro. NUNCA use frases genéricas como 'entendi sua pergunta', 'posso ajudar', 'vou analisar'." },
+      { role: "user", content: msg },
+    ], { model: modelName, signal: controller?.signal });
+    return { stream, model: modelName, provider: "ollama" };
+  }, []);
+
+  const ollamaSend = useCallback(async (msg, model, controller) => {
+    const ollama = getProvider("ollama");
+    if (!ollama) throw new Error("Ollama provider não encontrado");
+    const available = ollama.isAvailable();
+    if (!available) {
+      const ok = await ollama.healthCheck();
+      if (!ok) throw new Error("Ollama Local offline. Verifique se o Ollama está rodando em http://localhost:11434");
+    }
+    const modelName = model || ollama.defaultModel || "qwen2.5-coder:7b";
+    return await ollama.sendMessage([
+      { role: "system", content: "Você é a BRANPY AI, uma assistente local inteligente. Responda de forma direta, útil e completa em português brasileiro." },
+      { role: "user", content: msg },
+    ], { model: modelName, signal: controller?.signal });
+  }, []);
+
   const sendMessage = useCallback(async (content, options = {}) => {
     if (!mountedRef.current) return { content: "" };
     setLoading(true);
@@ -141,39 +173,6 @@ export function useAI(routerInstance = null) {
       return { content: "", error: err ? err.message : "Chat failed" };
     }
   }, [router, currentAgent, currentModel, currentProvider, addAssistantMessage, ollamaSend]);
-
-  const ollamaStream = useCallback(async (msg, model, controller) => {
-    // Direct Ollama path — bypass router, tools, fallbacks entirely
-    const ollama = getProvider("ollama");
-    if (!ollama) throw new Error("Ollama provider não encontrado");
-    const available = ollama.isAvailable();
-    if (!available) {
-      // Try health check once
-      const ok = await ollama.healthCheck();
-      if (!ok) throw new Error("Ollama Local offline. Verifique se o Ollama está rodando em http://localhost:11434");
-    }
-    const modelName = model || ollama.defaultModel || "qwen2.5-coder:7b";
-    const stream = ollama.streamMessage([
-      { role: "system", content: "Você é a BRANPY AI, uma assistente local inteligente. Responda de forma direta, útil e completa em português brasileiro. NUNCA use frases genéricas como 'entendi sua pergunta', 'posso ajudar', 'vou analisar'." },
-      { role: "user", content: msg },
-    ], { model: modelName, signal: controller?.signal });
-    return { stream, model: modelName, provider: "ollama" };
-  }, []);
-
-  const ollamaSend = useCallback(async (msg, model, controller) => {
-    const ollama = getProvider("ollama");
-    if (!ollama) throw new Error("Ollama provider não encontrado");
-    const available = ollama.isAvailable();
-    if (!available) {
-      const ok = await ollama.healthCheck();
-      if (!ok) throw new Error("Ollama Local offline. Verifique se o Ollama está rodando em http://localhost:11434");
-    }
-    const modelName = model || ollama.defaultModel || "qwen2.5-coder:7b";
-    return await ollama.sendMessage([
-      { role: "system", content: "Você é a BRANPY AI, uma assistente local inteligente. Responda de forma direta, útil e completa em português brasileiro." },
-      { role: "user", content: msg },
-    ], { model: modelName, signal: controller?.signal });
-  }, []);
 
   const sendStreamMessage = useCallback(async (content, options = {}) => {
     if (!mountedRef.current) return { content: "" };
