@@ -4,7 +4,7 @@ import { getProvider } from "../providers/ProviderFactory";
 import { ToolContext } from "./ToolContext";
 import { toolResolver } from "./ToolResolver";
 import { responseComposer } from "./ResponseComposer";
-import { executionTools } from "../tools/execution";
+import { getExecutionTool } from "../tools/execution";
 
 export class ToolExecutionEngine {
   constructor(config = {}) {
@@ -37,7 +37,7 @@ export class ToolExecutionEngine {
     for (const toolDef of tools.slice(0, this.maxTools)) {
       if (context.isAborted()) break;
 
-      const ToolClass = executionTools[toolDef.name];
+      const ToolClass = await getExecutionTool(toolDef.name);
       if (!ToolClass) {
         results.push({ tool: toolDef.name, success: false, error: `Tool ${toolDef.name} not found` });
         continue;

@@ -161,4 +161,4 @@ export function listToolCategories() {
   return Array.from(cats);
 }
 
-export { executionTools } from "./execution";
+export { getExecutionTool, executionToolNames } from "./execution";
