@@ -1,6 +1,9 @@
 import { BaseProvider, ProviderError } from "./BaseProvider";
 
-const OLLAMA_DEFAULT_URL = "http://localhost:11434";
+const OLLAMA_URLS = [
+  "http://127.0.0.1:11434",
+  "http://localhost:11434",
+];
 const DEFAULT_MODEL = "qwen2.5-coder:7b";
 
 function buildPayload(model, messages, stream, options = {}) {
@@ -21,14 +24,13 @@ export class OllamaProvider extends BaseProvider {
     super({
       id: "ollama",
       name: "Ollama Local",
-      baseUrl: config.baseUrl || localStorage.getItem("ollama_url") || OLLAMA_DEFAULT_URL,
+      baseUrl: config.baseUrl || localStorage.getItem("ollama_url") || OLLAMA_URLS[0],
       apiKey: config.apiKey || "",
       models: config.models || [DEFAULT_MODEL],
       defaultModel: config.defaultModel || DEFAULT_MODEL,
       requiresKey: false,
       ...config,
     });
-    this._healthInFlight = null;
   }
 
   async sendMessage(messages, options = {}) {
@@ -134,19 +136,27 @@ export class OllamaProvider extends BaseProvider {
   }
 
   async healthCheck() {
-    if (this._healthInFlight) return this._healthInFlight;
-    this._healthInFlight = (async () => {
+    // Try each possible URL until one works
+    const urls = OLLAMA_URLS.filter((u) => u !== this.baseUrl);
+    urls.unshift(this.baseUrl); // try current URL first
+
+    for (const url of urls) {
       try {
-        const res = await fetch(`${this.baseUrl}/api/tags`, {
-          signal: AbortSignal.timeout(5000),
+        const res = await fetch(`${url}/api/tags`, {
+          signal: AbortSignal.timeout(4000),
         });
-        return res.ok;
+        if (res.ok) {
+          if (this.baseUrl !== url) {
+            console.log(`[Ollama] Conectado via ${url}`);
+            this.baseUrl = url;
+            localStorage.setItem("ollama_url", url);
+          }
+          return true;
+        }
       } catch {
-        return false;
+        // try next URL
       }
-    })();
-    const result = await this._healthInFlight;
-    this._healthInFlight = null;
-    return result;
+    }
+    return false;
   }
 }

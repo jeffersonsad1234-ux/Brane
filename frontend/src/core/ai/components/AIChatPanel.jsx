@@ -207,8 +207,8 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
         }}>B</div>
         <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>BRANPY Chat</span>
 
-        {/* Ollama status badge — always visible when Ollama is detected */}
-        {ollamaOnline && (
+        {/* Ollama status badge — always visible */}
+        {ollamaOnline !== null && (
           <div style={{
             fontSize: 10, padding: "2px 7px", borderRadius: 4,
             background: ollamaStatusBg,

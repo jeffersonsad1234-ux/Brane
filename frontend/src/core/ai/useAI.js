@@ -4,7 +4,7 @@ import { aiMemory } from "./memory/AIMemory";
 import { getAgent, DEFAULT_AGENT } from "./agents/AgentRegistry";
 import { getAvailableProviders, getProvider } from "./providers/ProviderFactory";
 
-const POLL_INTERVAL = 5000;
+const POLL_INTERVAL = 3000;
 const DEFAULT_MODEL = "qwen2.5-coder:7b";
 
 function isCorsError(err) {
@@ -63,6 +63,7 @@ export function useAI(routerInstance = null) {
         const ok = await ollama.healthCheck();
         if (!mountedRef.current) return;
         if (ok) {
+          console.log("[Ollama] Conectado com sucesso");
           setOllamaOnline("online");
           const models = await ollama.listModels();
           if (!mountedRef.current) return;
