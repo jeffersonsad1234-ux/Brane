@@ -33,3 +33,7 @@ local.properties
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Lockfile excluded from git — Cloudflare uses npm install not npm ci
+# CRA (react-scripts@5) requires --legacy-peer-deps incompatible with strict npm ci
+package-lock.json
