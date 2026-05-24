@@ -17,7 +17,7 @@ export const LABEL_W = 128;
 export const COLORS = {
   bg: "#0a0a0a", panel: "#0d0d0d", surface: "#111111", raised: "#151515",
   border: "rgba(255,255,255,0.06)",
-  text: "rgba(255,255,255,0.88)", dim: "rgba(255,255,255,0.6)", muted: "rgba(255,255,255,0.3)",
+  text: "rgba(255,255,255,0.92)", dim: "rgba(255,255,255,0.72)", muted: "rgba(255,255,255,0.42)",
   accent: "#3b82f6", accentBg: "rgba(59,130,246,0.12)",
   track: {
     video: { bar: "#3b82f6", bg: "rgba(59,130,246,0.12)", bd: "rgba(59,130,246,0.25)" },
@@ -124,7 +124,7 @@ export function MediaThumb({ type, name, duration, size = "normal" }) {
         </div>
         <div style={{
           position: "absolute", bottom: 2, right: 3,
-          fontSize: 9, color: "rgba(255,255,255,0.3)",
+          fontSize: 12, color: "rgba(255,255,255,0.55)",
           fontFamily: "monospace", fontWeight: 500,
         }}>
           {duration ? `${duration.toFixed(1)}s` : ""}
@@ -174,7 +174,7 @@ export function MediaThumb({ type, name, duration, size = "normal" }) {
       }} />
       <div style={{
         position: "absolute", bottom: 2, right: 3,
-        fontSize: 8, color: "rgba(255,255,255,0.2)",
+        fontSize: 10, color: "rgba(255,255,255,0.5)",
         fontFamily: "monospace",
       }}>
         {name?.split(".").pop() || ""}
@@ -232,7 +232,7 @@ export const Tp = ({ text, ch }) => (
       position: "absolute", bottom: "100%", left: "50%", transform: "translateX(-50%)",
       marginBottom: 4, padding: "3px 8px", borderRadius: 4,
       background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.08)",
-      fontSize: 11, color: "rgba(255,255,255,0.6)", whiteSpace: "nowrap",
+      fontSize: 12, color: "rgba(255,255,255,0.72)", whiteSpace: "nowrap",
       opacity: 0, pointerEvents: "none", zIndex: 50, transition: "opacity 0.12s",
     }} className="cs-tooltip">{text}</div>
   </div>
@@ -243,7 +243,7 @@ export const Bi = ({ d, onClick, sz = 14, cls = "", tip }) => {
     <button onClick={onClick}
       style={{
         padding: 4, borderRadius: 4, background: "none", border: "none",
-        cursor: "pointer", color: "rgba(255,255,255,0.35)",
+        cursor: "pointer", color: "rgba(255,255,255,0.55)",
         transition: "color 0.12s, background 0.12s",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}

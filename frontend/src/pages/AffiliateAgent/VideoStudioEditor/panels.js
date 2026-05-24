@@ -8,13 +8,13 @@ export function SideTab({ icon, label, active, onClick }) {
         width: "100%", height: 34, display: "flex", alignItems: "center",
         justifyContent: "center", position: "relative", border: "none",
         background: "none", cursor: "pointer",
-        color: active ? "rgba(59,130,246,0.7)" : "rgba(255,255,255,0.28)",
+        color: active ? "rgba(59,130,246,0.8)" : "rgba(255,255,255,0.4)",
         transition: "color 0.12s",
         fontFamily: "inherit",
       }}
       className={!active ? "cs-hover-icon" : ""}
     >
-      <S d={icon} sz={15} />
+      <S d={icon} sz={17} />
       {active && <div style={{
         position: "absolute", left: 0, top: "50%", transform: "translateY(-50%)",
         width: 2, height: 14, borderRadius: "0 2px 2px 0",
@@ -61,10 +61,10 @@ function CategoryBar({ cats, active, onChange }) {
       {cats.map((c) => (
         <button key={c.id} onClick={() => onChange(c.id)}
           style={{
-            flexShrink: 0, fontSize: 11, padding: "3px 10px", borderRadius: 4,
+            flexShrink: 0, fontSize: 13, padding: "3px 10px", borderRadius: 4,
             border: "none", cursor: "pointer", fontFamily: "inherit",
             background: active === c.id ? "rgba(59,130,246,0.12)" : "transparent",
-            color: active === c.id ? "rgba(59,130,246,0.65)" : "rgba(255,255,255,0.3)",
+            color: active === c.id ? "rgba(59,130,246,0.65)" : "rgba(255,255,255,0.42)",
             fontWeight: active === c.id ? 500 : 400,
             transition: "color 0.12s, background 0.12s",
           }}
@@ -103,14 +103,14 @@ function AssetGrid({ items, onDragStart, renderItem }) {
             </div>
             <div style={{ padding: "4px 6px" }}>
               <div style={{
-                fontSize: 11, color: "rgba(255,255,255,0.55)", fontWeight: 500,
+                fontSize: 13, color: "rgba(255,255,255,0.68)", fontWeight: 500,
                 overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               }}>
                 {item.name}
               </div>
               {item.dur && (
                 <div style={{
-                  fontSize: 10, color: "rgba(255,255,255,0.3)",
+                  fontSize: 11, color: "rgba(255,255,255,0.45)",
                   fontFamily: "monospace", marginTop: 1,
                 }}>
                   {item.dur.toFixed?.(1) || item.dur}s
@@ -153,7 +153,7 @@ export function MediaPanel({ imm, onImp, fRef, onMDrag }) {
         style={{
           margin: "0 8px 6px", border: "1px dashed rgba(255,255,255,0.06)",
           borderRadius: 4, padding: "7px 8px", textAlign: "center",
-          cursor: "pointer", fontSize: 11, color: "rgba(255,255,255,0.35)",
+          cursor: "pointer", fontSize: 13, color: "rgba(255,255,255,0.5)",
           transition: "border-color 0.12s, background 0.12s",
         }}
         className="cs-dropzone"
@@ -211,12 +211,12 @@ export function TextPanel() {
           }}>{t.name[0]}</div>
           <div style={{ minWidth: 0 }}>
             <div style={{
-              fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 500,
+              fontSize: 14, color: "rgba(255,255,255,0.68)", fontWeight: 500,
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}>
               {t.name}
             </div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>
               {t.font} · {t.sz}px{t.w ? ` · Weight ${t.w}` : ""}
             </div>
           </div>
@@ -285,7 +285,7 @@ export function LUTsPanel() {
             position: "relative",
           }}>
             <span style={{
-              fontSize: 10, color: "rgba(255,255,255,0.35)",
+              fontSize: 12, color: "rgba(255,255,255,0.5)",
               fontFamily: "monospace", letterSpacing: "0.15em",
               fontWeight: 600, textTransform: "uppercase",
             }}>LUT</span>
@@ -296,7 +296,7 @@ export function LUTsPanel() {
             }} />
           </div>
           <div style={{ padding: "4px 6px" }}>
-            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>{l.name}</span>
+            <span style={{ fontSize: 13, color: "rgba(255,255,255,0.72)", fontWeight: 500 }}>{l.name}</span>
           </div>
         </div>
       ))}
@@ -318,10 +318,10 @@ export function ColorPanel() {
         <div key={s.k} style={{ marginBottom: 4 }}>
           <div style={{
             display: "flex", justifyContent: "space-between",
-            fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 2,
+            fontSize: 13, color: "rgba(255,255,255,0.55)", marginBottom: 2,
           }}>
             <span>{s.label}</span>
-            <span style={{ color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>
+            <span style={{ color: "rgba(255,255,255,0.38)", fontFamily: "monospace" }}>
               {v[s.k] > 0 ? "+" : ""}{v[s.k]}
             </span>
           </div>
@@ -354,7 +354,7 @@ export function MotionPanel() {
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 10,
           }}>↗</div>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>{mp.name}</span>
+          <span style={{ fontSize: 13, color: "rgba(255,255,255,0.65)", fontWeight: 500 }}>{mp.name}</span>
         </div>
       ))}
     </div>
@@ -387,12 +387,12 @@ export function AIPanel() {
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{
-              fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 500,
+              fontSize: 14, color: "rgba(255,255,255,0.68)", fontWeight: 500,
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}>
               {ai.name}
             </div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>
               {proc === ai.id ? "Processing..." : ai.desc}
             </div>
           </div>
@@ -435,8 +435,8 @@ export function CaptionsPanel() {
           }} className="cs-hover-soft">
             <span style={{ fontSize: 16 }}>{c.icon}</span>
             <div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>{c.name}</div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>{c.lang}</div>
+              <div style={{ fontSize: 14, color: "rgba(255,255,255,0.68)", fontWeight: 500 }}>{c.name}</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>{c.lang}</div>
             </div>
           </button>
         ))}
@@ -460,7 +460,7 @@ export function CaptionsPanel() {
               background: "rgba(255,255,255,0.03)", borderRadius: 3,
               padding: "3px 8px", fontSize: 11, color: "rgba(255,255,255,0.45)",
             }}>
-              <span style={{ color: "rgba(255,255,255,0.25)", fontFamily: "monospace", fontSize: 10 }}>{FMT(i * 2)}</span>
+              <span style={{ color: "rgba(255,255,255,0.38)", fontFamily: "monospace", fontSize: 12 }}>{FMT(i * 2)}</span>
               <span>{c}</span>
             </div>
           ))}
@@ -482,11 +482,11 @@ export function BrandPanel() {
           width: 26, height: 26, borderRadius: 4,
           background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 10, fontWeight: 700, color: "white", flexShrink: 0,
+          fontSize: 12, fontWeight: 700, color: "white", flexShrink: 0,
         }}>B</div>
         <div>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>BRANPY Brand</div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>Active kit · 6 assets</div>
+          <div style={{ fontSize: 14, color: "rgba(255,255,255,0.72)", fontWeight: 500 }}>BRANPY Brand</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>Active kit · 6 assets</div>
         </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 4, marginBottom: 8 }}>

@@ -202,7 +202,7 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
           <button style={{
             padding: 3, borderRadius: 3, border: "none", cursor: "pointer",
             background: sel ? "rgba(59,130,246,0.12)" : "transparent",
-            color: sel ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.28)",
+            color: sel ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.38)",
             display: "flex", fontFamily: "inherit",
           }} className="cs-tl-btn"><S d={I.sel} sz={11} /></button>
         } />
@@ -210,9 +210,9 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
         <Tp text="Split (S)" ch={
           <button onClick={handleSplit}
             style={{
-              padding: "2px 7px", fontSize: 11, borderRadius: 3, border: "none",
+              padding: "2px 7px", fontSize: 13, borderRadius: 3, border: "none",
               cursor: sel ? "pointer" : "default", fontFamily: "inherit", fontWeight: 500,
-              color: sel ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.2)",
+              color: sel ? "rgba(255,255,255,0.65)" : "rgba(255,255,255,0.3)",
               background: sel ? "rgba(255,255,255,0.04)" : "transparent",
             }}
             className={sel ? "cs-tl-btn" : ""}
@@ -221,19 +221,19 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
         <Tp text="Delete (Del)" ch={
           <button onClick={handleDel}
             style={{
-              padding: "2px 7px", fontSize: 11, borderRadius: 3, border: "none",
+              padding: "2px 7px", fontSize: 13, borderRadius: 3, border: "none",
               cursor: sel ? "pointer" : "default", fontFamily: "inherit", fontWeight: 500,
-              color: sel ? "rgba(239,68,68,0.55)" : "rgba(255,255,255,0.2)",
+              color: sel ? "rgba(239,68,68,0.65)" : "rgba(255,255,255,0.3)",
               background: sel ? "rgba(239,68,68,0.06)" : "transparent",
             }}
             className={sel ? "cs-tl-btn-del" : ""}
           >Del</button>
         } />
         <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.06)", margin: "0 2px" }} />
-        <Tp text="Ripple Edit" ch={<button style={{ padding: "2px 7px", fontSize: 11, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.28)", background: "transparent", fontFamily: "inherit", fontWeight: 500 }} className="cs-tl-btn">Ripple</button>} />
+        <Tp text="Ripple Edit" ch={<button style={{ padding: "2px 7px", fontSize: 13, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.38)", background: "transparent", fontFamily: "inherit", fontWeight: 500 }} className="cs-tl-btn">Ripple</button>} />
         <Tp text="Snap" ch={<button style={{ padding: 3, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(59,130,246,0.6)", background: "rgba(59,130,246,0.08)", display: "flex" }}><S d={I.snap} sz={11} /></button>} />
         <div style={{ flex: 1 }} />
-        <Tp text="Add Marker (M)" ch={<button style={{ padding: 3, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.28)", background: "transparent", display: "flex" }} className="cs-tl-btn"><S d={I.mrk} sz={11} /></button>} />
+        <Tp text="Add Marker (M)" ch={<button style={{ padding: 3, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.38)", background: "transparent", display: "flex" }} className="cs-tl-btn"><S d={I.mrk} sz={11} /></button>} />
         <div style={{
           display: "flex", alignItems: "center", gap: 3,
           background: "rgba(255,255,255,0.03)", borderRadius: 4,
@@ -244,7 +244,7 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
             className="cs-tl-btn"
           ><S d={I.zoO} sz={10} /></button>
           <span style={{
-            fontSize: 10, color: "rgba(255,255,255,0.35)", width: 26,
+            fontSize: 12, color: "rgba(255,255,255,0.45)", width: 26,
             textAlign: "center", fontFamily: "monospace", fontWeight: 500,
           }}>{zoom}%</span>
           <button onClick={() => setZoom((z) => Math.min(400, z + 25))}
@@ -293,13 +293,13 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
                 <div style={{
                   width: 18, height: 18, borderRadius: 3,
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 9, fontWeight: 700, color: "rgba(255,255,255,0.75)",
+                  fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.85)",
                   background: b.bg, flexShrink: 0, letterSpacing: 0,
                 }}>
                   {b.l}
                 </div>
                 <span style={{
-                  fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 500,
+                  fontSize: 13, color: "rgba(255,255,255,0.6)", fontWeight: 600,
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   marginLeft: 2,
                 }}>{t.name}</span>
@@ -325,7 +325,7 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
                   borderLeft: i > 0 ? "1px solid rgba(255,255,255,0.05)" : "none",
                 }}>
                     <span style={{
-                    position: "absolute", fontSize: 10, color: "rgba(255,255,255,0.25)",
+                    position: "absolute", fontSize: 11, color: "rgba(255,255,255,0.35)",
                     top: 2, left: 4, fontFamily: "monospace", userSelect: "none",
                     fontWeight: 500,
                   }}>{i}s</span>
@@ -416,10 +416,10 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
                             position: "absolute", inset: 0,
                             display: "flex", alignItems: "center", padding: "0 5px", gap: 4,
                           }}>
-                            <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(245,158,11,0.6)" }}>{clip.t || "T"}</span>
+                            <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(245,158,11,0.7)" }}>{clip.t || "T"}</span>
                             {wp > 40 && (
                               <span style={{
-                                fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 500,
+                                fontSize: 11, color: "rgba(255,255,255,0.55)", fontWeight: 500,
                                 overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                               }}>{clip.name}</span>
                             )}
@@ -438,9 +438,9 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
                             <span style={{ fontSize: 12 }}>{clip.t || "🌫️"}</span>
                             {wp > 35 && (
                               <span style={{
-                                fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 500,
-                                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                              }}>{clip.name}</span>
+                              fontSize: 11, color: "rgba(255,255,255,0.55)", fontWeight: 500,
+                              overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                            }}>{clip.name}</span>
                             )}
                           </div>
                         )}
@@ -451,13 +451,13 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
                             pointerEvents: "none",
                           }}>
                             <span style={{
-                              fontSize: 9, color: "rgba(255,255,255,0.75)", fontWeight: 500,
+                              fontSize: 11, color: "rgba(255,255,255,0.85)", fontWeight: 600,
                               textShadow: "0 1px 4px rgba(0,0,0,0.8)",
                               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                               maxWidth: "65%",
                             }}>{clip.name}</span>
                             <span style={{
-                              fontSize: 9, color: "rgba(255,255,255,0.45)",
+                              fontSize: 11, color: "rgba(255,255,255,0.55)",
                               textShadow: "0 1px 4px rgba(0,0,0,0.8)",
                               fontFamily: "monospace",
                             }}>{clip.duration.toFixed(1)}s</span>

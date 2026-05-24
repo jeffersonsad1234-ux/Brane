@@ -55,8 +55,8 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
             🧠
           </div>
           <div style={{ textAlign: "left" }}>
-            <div style={{ fontSize: 11, color: "rgba(59,130,246,0.7)" }}>Create Memory</div>
-            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)" }}>Save current edit style</div>
+            <div style={{ fontSize: 13, color: "rgba(59,130,246,0.8)" }}>Create Memory</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.38)" }}>Save current edit style</div>
           </div>
         </button>
       )}
@@ -66,7 +66,7 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
           borderRadius: 6, background: "rgba(255,255,255,0.04)",
           border: "1px solid rgba(255,255,255,0.08)", padding: "8px",
         }}>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 4 }}>Save Editing Memory</div>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>Save Editing Memory</div>
           <input value={memName} onChange={(e) => setMemName(e.target.value)}
             placeholder="e.g. Product Review Style"
             style={{
@@ -99,7 +99,7 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
       )}
 
       <div style={{
-        fontSize: 11, color: "rgba(255,255,255,0.3)",
+        fontSize: 13, color: "rgba(255,255,255,0.42)",
         textTransform: "uppercase", letterSpacing: "0.1em",
         marginTop: 8, marginBottom: 4, fontWeight: 500,
       }}>
@@ -109,8 +109,8 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
       {memories.length === 0 ? (
         <div style={{ textAlign: "center", padding: "12px 0" }}>
           <div style={{ fontSize: 18, opacity: 0.08, marginBottom: 4 }}>🧠</div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>No saved memories yet</div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.18)", marginTop: 2 }}>Edit a video and save your style</div>
+          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.38)" }}>No saved memories yet</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.28)", marginTop: 2 }}>Edit a video and save your style</div>
         </div>
       ) : (
         memories.map((mem) => (
@@ -130,17 +130,17 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
-                  fontSize: 11, color: "rgba(255,255,255,0.55)",
+                  fontSize: 13, color: "rgba(255,255,255,0.68)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500,
                 }}>{mem.name}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)" }}>{mem.date}</div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.38)" }}>{mem.date}</div>
               </div>
               <button onClick={() => handleApply(mem)} disabled={applying === mem.id}
                 style={{
-                  fontSize: 10, padding: "3px 8px", borderRadius: 4, border: "none",
+                  fontSize: 12, padding: "3px 8px", borderRadius: 4, border: "none",
                   cursor: applying === mem.id ? "wait" : "pointer",
                   background: applying === mem.id ? "rgba(59,130,246,0.15)" : "rgba(59,130,246,0.1)",
-                  color: applying === mem.id ? "rgba(59,130,246,0.4)" : "rgba(59,130,246,0.6)",
+                  color: applying === mem.id ? "rgba(59,130,246,0.4)" : "rgba(59,130,246,0.7)",
                   fontFamily: "inherit", fontWeight: 500,
                   transition: "background 0.1s",
                 }}
@@ -152,8 +152,8 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
             <div style={{ display: "flex", gap: 2, marginTop: 3, marginLeft: 34, flexWrap: "wrap" }}>
               {Object.entries(mem.style || {}).slice(0, 3).map(([key, val]) => (
                 <span key={key} style={{
-                  fontSize: 9, padding: "1px 6px", borderRadius: 4,
-                  background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.3)",
+                  fontSize: 11, padding: "2px 8px", borderRadius: 4,
+                  background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.42)",
                 }}>{val}</span>
               ))}
             </div>

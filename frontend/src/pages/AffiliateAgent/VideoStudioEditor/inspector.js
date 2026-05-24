@@ -19,10 +19,10 @@ function SliderRow({ label, value, min = -100, max = 100, step = 1, onChange, un
     <div style={{ marginBottom: 4 }}>
       <div style={{
         display: "flex", justifyContent: "space-between",
-        fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 2,
+        fontSize: 13, color: "rgba(255,255,255,0.55)", marginBottom: 2,
       }}>
         <span>{label}</span>
-        <span style={{ color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>
+        <span style={{ color: "rgba(255,255,255,0.38)", fontFamily: "monospace" }}>
           {value > 0 ? "+" : ""}{value}{unit}
         </span>
       </div>
@@ -65,13 +65,13 @@ export default function Inspector({ clip, open, onToggle }) {
           justifyContent: "space-between",
         }}>
           <span style={{
-            fontSize: 11, fontWeight: 600, textTransform: "uppercase",
-            letterSpacing: "0.12em", color: "rgba(255,255,255,0.35)",
+            fontSize: 13, fontWeight: 600, textTransform: "uppercase",
+            letterSpacing: "0.12em", color: "rgba(255,255,255,0.5)",
           }}>Inspector</span>
           <button onClick={onToggle}
             style={{
               padding: 3, border: "none", cursor: "pointer", background: "none",
-              color: "rgba(255,255,255,0.3)", display: "flex", fontSize: 11,
+              color: "rgba(255,255,255,0.4)", display: "flex", fontSize: 13,
               fontFamily: "inherit",
             }}
             className="cs-hover-soft"
@@ -90,8 +90,8 @@ export default function Inspector({ clip, open, onToggle }) {
             }}>
               <S d={I.lay} sz={13} style={{ color: "rgba(255,255,255,0.12)" }} />
             </div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>Select a clip</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", marginTop: 2 }}>Click on the timeline</div>
+            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>Select a clip</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>Click on the timeline</div>
           </div>
         </div>
       </div>
@@ -132,11 +132,11 @@ export default function Inspector({ clip, open, onToggle }) {
         {INSPECTOR_TABS.map((t) => (
           <button key={t.id} onClick={() => setTab(t.id)}
             style={{
-              flex: "0 0 auto", fontSize: 11, padding: "6px 8px",
+              flex: "0 0 auto", fontSize: 13, padding: "6px 8px",
               border: "none", cursor: "pointer", fontFamily: "inherit",
               whiteSpace: "nowrap", position: "relative",
               background: tab === t.id ? "rgba(255,255,255,0.03)" : "transparent",
-              color: tab === t.id ? "rgba(255,255,255,0.65)" : "rgba(255,255,255,0.25)",
+              color: tab === t.id ? "rgba(255,255,255,0.72)" : "rgba(255,255,255,0.35)",
               transition: "color 0.1s, background 0.1s",
             }}
             className={tab !== t.id ? "cs-hover-soft" : ""}
@@ -166,8 +166,8 @@ export default function Inspector({ clip, open, onToggle }) {
             {clip.t || "🎬"}
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}>{clip.name}</div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>{FMT(clip.start)} — {FMT(clip.start + clip.duration)}</div>
+            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.78)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}>{clip.name}</div>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontFamily: "monospace" }}>{FMT(clip.start)} — {FMT(clip.start + clip.duration)}</div>
           </div>
         </div>
 
@@ -187,7 +187,7 @@ export default function Inspector({ clip, open, onToggle }) {
             </Section>
             <div style={{ marginBottom: 8 }}>
               <div style={{
-              fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.35)",
+        fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.5)",
               textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4,
               paddingBottom: 4, borderBottom: "1px solid rgba(255,255,255,0.05)",
             }}>Blend Mode</div>
@@ -237,9 +237,9 @@ export default function Inspector({ clip, open, onToggle }) {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
                 {LUTS.slice(0, 6).map((l) => (
                   <button key={l.id} style={{
-                    fontSize: 10, padding: "4px 4px", borderRadius: 3,
+                    fontSize: 12, padding: "4px 4px", borderRadius: 3,
                     border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                    background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
+                    background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.55)",
                     fontFamily: "inherit", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                   }} className="cs-hover-soft">{l.name}</button>
                 ))}
@@ -260,7 +260,7 @@ export default function Inspector({ clip, open, onToggle }) {
               {[60, 200, 500, 2000, 8000, 16000].map((hz) => (
                 <div key={hz} style={{
                   display: "flex", alignItems: "center", gap: 6,
-                  fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2,
+                  fontSize: 12, color: "rgba(255,255,255,0.42)", marginBottom: 2,
                 }}>
                   <span style={{ width: 28, flexShrink: 0 }}>{hz < 1000 ? `${hz}Hz` : `${hz / 1000}k`}</span>
                   <Rng min={-12} max={12} val={0} />
@@ -329,10 +329,10 @@ export default function Inspector({ clip, open, onToggle }) {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2 }}>
                 {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 4].map((s) => (
                   <button key={s} style={{
-                    fontSize: 10, padding: "3px 4px", borderRadius: 3,
+                    fontSize: 11, padding: "3px 4px", borderRadius: 3,
                     border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
                     background: s === 1 ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.03)",
-                    color: s === 1 ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.3)",
+                    color: s === 1 ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.38)",
                     fontFamily: "inherit",
                   }} className={s !== 1 ? "cs-hover-soft" : ""}>{s}x</button>
                 ))}
@@ -359,9 +359,9 @@ export default function Inspector({ clip, open, onToggle }) {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
                 {["Fade", "Slide Up", "Slide Down", "Slide L", "Slide R", "Scale", "Rotate", "Zoom", "Bounce"].map((a) => (
                   <button key={a} style={{
-                    fontSize: 10, padding: "4px 4px", borderRadius: 3,
+                    fontSize: 11, padding: "4px 4px", borderRadius: 3,
                     border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                    background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.35)",
+                    background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
                     fontFamily: "inherit",
                   }} className="cs-hover-soft">{a}</button>
                 ))}
@@ -418,10 +418,10 @@ export default function Inspector({ clip, open, onToggle }) {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2, marginTop: 4 }}>
                 {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 4].map((s) => (
                   <button key={s} style={{
-                    fontSize: 10, padding: "3px 4px", borderRadius: 3,
+                    fontSize: 11, padding: "3px 4px", borderRadius: 3,
                     border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
                     background: s === 1 ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.03)",
-                    color: s === 1 ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.3)",
+                    color: s === 1 ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.38)",
                     fontFamily: "inherit",
                   }} className={s !== 1 ? "cs-hover-soft" : ""}>{s}x</button>
                 ))}
@@ -462,9 +462,9 @@ export default function Inspector({ clip, open, onToggle }) {
               {["position", "scale", "rotation", "opacity"].map((t) => (
                 <button key={t} onClick={() => setKfTarget(t)}
                   style={{
-                    fontSize: 10, padding: "2px 6px", borderRadius: 3, border: "none", cursor: "pointer",
+                    fontSize: 12, padding: "2px 6px", borderRadius: 3, border: "none", cursor: "pointer",
                     background: kfTarget === t ? "rgba(255,255,255,0.08)" : "transparent",
-                    color: kfTarget === t ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.25)",
+                    color: kfTarget === t ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.35)",
                     fontFamily: "inherit",
                   }}
                 >{t}</button>
@@ -472,7 +472,7 @@ export default function Inspector({ clip, open, onToggle }) {
             </div>
             {keyframes.length === 0 && (
               <div style={{
-                fontSize: 10, color: "rgba(255,255,255,0.2)", textAlign: "center", padding: "8px 0",
+                fontSize: 12, color: "rgba(255,255,255,0.35)", textAlign: "center", padding: "8px 0",
               }}>
                 No keyframes. Click "+ Add" to start.
               </div>

@@ -65,8 +65,8 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
               )}
               <div style={{ position: "relative", zIndex: 10, textAlign: "center" }}>
                 <div style={{ fontSize: 28, opacity: 0.08, marginBottom: 6 }}>🎬</div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>{proj.width}×{proj.height}</div>
-                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", fontFamily: "monospace", marginTop: 2 }}>{FMT(ct)}</div>
+                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.4)", fontFamily: "monospace" }}>{proj.width}×{proj.height}</div>
+                <div style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", fontFamily: "monospace", marginTop: 2 }}>{FMT(ct)}</div>
                 <div style={{
                   marginTop: 8, width: 80, height: 2,
                   background: "rgba(255,255,255,0.04)", borderRadius: "50%", overflow: "hidden", marginLeft: "auto", marginRight: "auto",
@@ -76,8 +76,8 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
               </div>
               <div style={{
                 position: "absolute", top: 6, left: 6, display: "flex", alignItems: "center", gap: 3,
-                background: "rgba(0,0,0,0.5)", borderRadius: 4, padding: "2px 8px", fontSize: 10,
-                color: "rgba(255,255,255,0.45)", fontFamily: "monospace",
+                background: "rgba(0,0,0,0.5)", borderRadius: 4, padding: "2px 8px", fontSize: 12,
+                color: "rgba(255,255,255,0.55)", fontFamily: "monospace",
               }}>
                 GPU · {proj.width}×{proj.height} · {proj.fps}fps
               </div>
@@ -97,8 +97,8 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
                 >
                   <S d={I.play} sz={18} style={{ color: "rgba(255,255,255,0.2)", marginLeft: 2 }} />
                 </div>
-                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)" }}>Preview</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", marginTop: 2 }}>{proj.width}×{proj.height} · {proj.fps}fps</div>
+                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)" }}>Preview</div>
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{proj.width}×{proj.height} · {proj.fps}fps</div>
               </div>
             </div>
           )}
@@ -147,7 +147,7 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
           <div style={{ width: 1, height: 12, background: "rgba(255,255,255,0.05)", margin: "0 2px" }} />
           <div style={{ position: "relative" }}>
             <button onClick={() => setShowQual(!showQual)}
-              style={{ padding: "1px 4px", border: "none", cursor: "pointer", background: "none", color: "rgba(255,255,255,0.3)", fontSize: 10, fontFamily: "inherit" }}
+              style={{ padding: "1px 4px", border: "none", cursor: "pointer", background: "none", color: "rgba(255,255,255,0.42)", fontSize: 12, fontFamily: "inherit" }}
               className="cs-hover-soft"
             >{qual}</button>
             {showQual && (
@@ -197,7 +197,7 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
           <S d={playing ? I.pause : I.play} sz={15} />
         </button>
         <Bi d={I.skipF} tip="End" sz={12} onClick={() => { setCt(proj.duration); setPlaying(false); }} />
-        <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", fontFamily: "monospace", width: 52, textAlign: "right" }}>{FMT(ct)}</span>
+        <span style={{ fontSize: 14, color: "rgba(255,255,255,0.65)", fontFamily: "monospace", width: 52, textAlign: "right" }}>{FMT(ct)}</span>
         <div
           onMouseDown={(e) => {
             const rect = e.currentTarget.getBoundingClientRect();
@@ -223,7 +223,7 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
             opacity: 0, transition: "opacity 0.1s",
           }} className="cs-scrub-thumb" />
         </div>
-        <span style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", fontFamily: "monospace", width: 52 }}>{FMT(proj.duration)}</span>
+        <span style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", fontFamily: "monospace", width: 52 }}>{FMT(proj.duration)}</span>
         <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.05)", margin: "0 4px" }} />
         <button onClick={() => setCt((t) => Math.max(0, t - 1 / proj.fps))}
           style={{ padding: 3, border: "none", cursor: "pointer", background: "none", color: "rgba(255,255,255,0.2)", display: "flex" }}
