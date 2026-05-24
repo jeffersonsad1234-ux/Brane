@@ -114,14 +114,25 @@ export class AIRouter {
 
     await this.memory.addMessage(sessionId, { role: "user", content: message, agent: agent?.id || null });
 
+    const streamOptions = {
+      ...options,
+      model: model || undefined,
+      providerPriority: options.providerPriority || PROVIDER_PRIORITY,
+    };
+
     let fullContent = "";
     let responseProvider = "";
     let responseModel = "";
 
     try {
-      const stream = this.fallbackManager.executeStream(messages, optionsWithDefaults);
+      const stream = this.fallbackManager.executeStream(messages, streamOptions);
       for await (const chunk of stream) {
-        if (chunk.done) break;
+        if (chunk.done) {
+          if (chunk.error) {
+            throw new Error(chunk.error);
+          }
+          break;
+        }
         fullContent += chunk.content;
         responseProvider = chunk.provider || responseProvider;
         yield { content: chunk.content, done: false, provider: chunk.provider, sessionId };
@@ -133,10 +144,12 @@ export class AIRouter {
       return;
     }
 
-    await this.memory.addMessage(sessionId, {
-      role: "assistant", content: fullContent,
-      agent: agent?.id || null, provider: responseProvider, model: responseModel,
-    });
+    if (fullContent) {
+      await this.memory.addMessage(sessionId, {
+        role: "assistant", content: fullContent,
+        agent: agent?.id || null, provider: responseProvider, model: responseModel,
+      });
+    }
 
     yield { content: "", done: true, provider: responseProvider, sessionId };
   }

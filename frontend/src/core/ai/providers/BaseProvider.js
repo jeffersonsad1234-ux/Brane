@@ -59,6 +59,8 @@ export class BaseProvider {
   }
 
   isAvailable() {
-    return this.healthy && !!this.apiKey;
+    if (!this.healthy) return false;
+    if (this.requiresKey === false) return true;
+    return !!this.apiKey;
   }
 }

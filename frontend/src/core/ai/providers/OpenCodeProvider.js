@@ -12,6 +12,7 @@ export class OpenCodeProvider extends BaseProvider {
       apiKey: config.apiKey || localStorage.getItem("opencode_key") || "",
       models: config.models || [DEFAULT_MODEL, "opencode/small-pickle", "opencode/tiny-pickle"],
       defaultModel: config.defaultModel || DEFAULT_MODEL,
+      requiresKey: false,
       ...config,
     });
   }

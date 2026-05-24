@@ -12,6 +12,7 @@ export class LlamaProvider extends BaseProvider {
       apiKey: config.apiKey || "",
       models: config.models || ["llama-3.2-3b", "llama-3.2-1b", "llama-3.1-8b"],
       defaultModel: config.defaultModel || DEFAULT_MODEL,
+      requiresKey: false,
       ...config,
     });
   }

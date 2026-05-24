@@ -12,6 +12,7 @@ export class LocalProvider extends BaseProvider {
       apiKey: config.apiKey || "",
       models: config.models || ["llama3.2", "llama3.1", "mistral", "phi3", "gemma2"],
       defaultModel: config.defaultModel || DEFAULT_MODEL,
+      requiresKey: false,
       ...config,
     });
   }

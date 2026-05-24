@@ -45,7 +45,11 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
     const text = input.trim();
     if (!text || loading) return;
     setInput("");
-    await sendStreamMessage(text, { agent: currentAgent, provider: currentProvider, model: currentModel });
+    try {
+      await sendStreamMessage(text, { agent: currentAgent, provider: currentProvider, model: currentModel });
+    } catch (err) {
+      console.error("[AIChat] send error:", err);
+    }
     inputRef.current?.focus();
   }, [input, loading, sendStreamMessage, currentAgent, currentProvider, currentModel]);
 
@@ -194,7 +198,9 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
           </div>
         )}
 
-        {messages.map((msg, i) => (
+        {messages.map((msg, i) => {
+          if (msg.role !== "user" && !msg.content) return null;
+          return (
           <div key={msg.id || i} style={{
             display: "flex", gap: 8, marginBottom: 12,
             justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
@@ -223,26 +229,8 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
               )}
             </div>
           </div>
-        ))}
-
-        {streaming && currentStream && (
-          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-            <div style={{
-              width: 28, height: 28, borderRadius: 8, flexShrink: 0,
-              background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 13,
-            }}>B</div>
-            <div style={{
-              maxWidth: "75%", padding: "8px 12px", borderRadius: 10,
-              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
-              fontSize: 13, lineHeight: "1.5", color: "rgba(255,255,255,0.75)", whiteSpace: "pre-wrap",
-            }}>
-              {currentStream}
-              <span style={{ display: "inline-block", width: 6, height: 14, background: "rgba(59,130,246,0.6)", marginLeft: 2, animation: "blink 1s infinite" }} />
-            </div>
-          </div>
-        )}
+          );
+        })}
 
         {error && (
           <div style={{

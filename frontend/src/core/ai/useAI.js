@@ -98,7 +98,12 @@ export function useAI(routerInstance = null) {
       });
 
       for await (const chunk of stream) {
-        if (chunk.done) break;
+        if (chunk.done) {
+          if (chunk.error) {
+            throw new Error(chunk.error);
+          }
+          break;
+        }
         fullContent += chunk.content;
         resultProvider = chunk.provider || resultProvider;
         setCurrentStream(fullContent);
@@ -107,7 +112,7 @@ export function useAI(routerInstance = null) {
       const assistantMsg = {
         id: `msg_${Date.now() + 1}`,
         role: "assistant",
-        content: fullContent,
+        content: fullContent || "[empty response]",
         provider: resultProvider,
         model: model || (agent ? agent.defaultModel : ""),
         timestamp: Date.now(),
