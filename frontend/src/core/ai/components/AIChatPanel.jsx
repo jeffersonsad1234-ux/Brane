@@ -32,7 +32,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
     messages, loading, streaming, currentStream, error, executionStatus,
     sendMessage, sendStreamMessage, clearMessages, newSession, loadSession,
     sessions, currentAgent, setCurrentAgent, currentProvider, setCurrentProvider,
-    currentModel, setCurrentModel, stopGeneration,
+    currentModel, setCurrentModel, stopGeneration, ollamaOnline,
   } = useAI();
 
   const [input, setInput] = useState("");
@@ -41,7 +41,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
   const [showProviders, setShowProviders] = useState(false);
   const [editingMsg, setEditingMsg] = useState(null);
   const [editText, setEditText] = useState("");
-  const [ollamaStatus, setOllamaStatus] = useState(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -160,24 +159,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
     setShowProviders(false);
   };
 
-  const testOllama = useCallback(async () => {
-    setOllamaStatus("testing");
-    try {
-      const { getProvider } = await import("../providers/ProviderFactory");
-      const ollama = getProvider("ollama");
-      if (!ollama) { setOllamaStatus("error"); return; }
-      const ok = await ollama.healthCheck();
-      const models = ok ? await ollama.listModels() : [];
-      setOllamaStatus(ok ? "ok" : "error");
-      if (ok && models.length > 0) {
-        setTimeout(() => setOllamaStatus(null), 3000);
-      } else if (ok) {
-        setTimeout(() => setOllamaStatus(null), 3000);
-      } else {
-        setTimeout(() => setOllamaStatus(null), 4000);
-      }
-    } catch { setOllamaStatus("error"); setTimeout(() => setOllamaStatus(null), 4000); }
-  }, []);
+  const ollamaIsOnline = ollamaOnline === "online";
 
   const providerName = (id) => PROVIDER_LABELS[id] || id;
   const isDemo = currentProvider === "branpy-demo";
@@ -225,24 +207,22 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
         {currentProvider === "ollama" && (
           <div style={{
             fontSize: 10, padding: "2px 7px", borderRadius: 4,
-            background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.2)",
-            color: "rgba(16,185,129,0.7)", fontFamily: "monospace",
+            background: ollamaIsOnline ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.08)",
+            border: ollamaIsOnline ? "1px solid rgba(16,185,129,0.2)" : "1px solid rgba(239,68,68,0.15)",
+            color: ollamaIsOnline ? "rgba(16,185,129,0.7)" : "rgba(239,68,68,0.6)",
+            fontFamily: "monospace",
             display: "flex", alignItems: "center", gap: 4,
           }}>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: ollamaStatus === "ok" ? "rgba(16,185,129,0.7)" : "rgba(239,68,68,0.5)", display: "inline-block" }} />
-            Ollama {currentModel || "qwen2.5-coder:7b"}
+            <span style={{
+              width: 5, height: 5, borderRadius: "50%", display: "inline-block",
+              background: ollamaIsOnline ? "rgba(16,185,129,0.7)" :
+                          ollamaOnline === "connecting" ? "rgba(251,191,36,0.7)" : "rgba(239,68,68,0.5)",
+              animation: ollamaOnline === "connecting" ? "blink 1s infinite" : "none",
+            }} />
+            {ollamaOnline === "online" ? `Ollama ${currentModel || "qwen2.5-coder:7b"}` :
+             ollamaOnline === "connecting" ? "Ollama conectando..." :
+             "Ollama offline"}
           </div>
-        )}
-        {(currentProvider === "ollama" || ollamaStatus === "ok" || ollamaStatus === "error") && (
-          <button onClick={testOllama}
-            style={{
-              padding: "2px 7px", borderRadius: 4, border: "none", cursor: "pointer",
-              background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.35)",
-              fontSize: 10, fontFamily: "inherit", whiteSpace: "nowrap",
-            }}
-            className="cs-hover-soft"
-            title="Testar conexão com Ollama"
-          >{ollamaStatus === "testing" ? "🔄" : ollamaStatus === "ok" ? "✓ Online" : ollamaStatus === "error" ? "✗ Offline" : "Testar"}</button>
         )}
 
         {/* Agent selector */}
@@ -332,12 +312,12 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                 >
                   <div style={{
                     width: 5, height: 5, borderRadius: "50%", flexShrink: 0,
-                    background: p.id === "ollama" ? (ollamaStatus === "ok" ? "rgba(16,185,129,0.7)" : "rgba(239,68,68,0.5)") : "rgba(59,130,246,0.4)",
+                    background: p.id === "ollama" ? (ollamaIsOnline ? "rgba(16,185,129,0.7)" : "rgba(239,68,68,0.5)") : "rgba(59,130,246,0.4)",
                   }} />
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontWeight: 500, fontSize: 12 }}>{providerName(p.id)}</div>
                     <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>
-                      {p.id === "ollama" ? (ollamaStatus === "ok" ? "qwen2.5-coder:7b" : "offline") : p.id}
+                      {p.id === "ollama" ? (ollamaIsOnline ? currentModel || "qwen2.5-coder:7b" : "offline") : p.id}
                     </div>
                   </div>
                 </button>
