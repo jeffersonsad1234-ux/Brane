@@ -1,38 +1,56 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useAI } from "../useAI";
-import { listAgents, getAgentConfigs } from "../agents/AgentRegistry";
+import { getAgentConfigs } from "../agents/AgentRegistry";
 import { getAvailableProviders } from "../providers/ProviderFactory";
-import { listTools } from "../tools/index";
+import { intentEngine } from "../utils/IntentEngine";
+import MarkdownRenderer from "./MarkdownRenderer";
 
 const QUICK_ACTIONS = [
   { label: "Criar roteiro", prompt: "Crie um roteiro curto para um vídeo de produto no TikTok" },
   { label: "Melhorar copy", prompt: "Melhore esta descrição de produto: " },
   { label: "Ideias de conteúdo", prompt: "Me dê 5 ideias de conteúdo para afiliados" },
-  { label: "Análise de concorrente", prompt: "Analise um concorrente e sugira melhorias" },
+  { label: "Criar prompt", prompt: "Monte um prompt profissional para criar um anúncio do Facebook" },
+  { label: "Estratégia SEO", prompt: "Crie uma estratégia de SEO para um ecommerce de moda" },
+  { label: "Analisar", prompt: "Analise um concorrente e sugira melhorias" },
 ];
+
+const PROVIDER_LABELS = {
+  "branpy-demo": "BRANPY Local AI",
+  opencode: "OpenCode",
+  openrouter: "OpenRouter",
+  groq: "Groq",
+  gemini: "Gemini",
+  openai: "OpenAI",
+  deepseek: "DeepSeek",
+  qwen: "Qwen",
+  llama: "Llama",
+  local: "Ollama",
+};
 
 export default function AIChatPanel({ onClose, initialAgent = null, fullScreen = false }) {
   const {
     messages, loading, streaming, currentStream, error,
     sendMessage, sendStreamMessage, clearMessages, newSession, loadSession,
     sessions, currentAgent, setCurrentAgent, currentProvider, setCurrentProvider,
-    currentModel, setCurrentModel,
+    currentModel, setCurrentModel, stopGeneration,
   } = useAI();
 
   const [input, setInput] = useState("");
   const [showAgents, setShowAgents] = useState(false);
-  const [showModels, setShowModels] = useState(false);
   const [showSessions, setShowSessions] = useState(false);
   const [showProviders, setShowProviders] = useState(false);
+  const [editingMsg, setEditingMsg] = useState(null);
+  const [editText, setEditText] = useState("");
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
   const agents = getAgentConfigs();
   const providers = getAvailableProviders();
+  const isStreaming = streaming || loading;
 
   useEffect(() => {
     if (initialAgent) {
-      const agent = typeof initialAgent === "string" ? getAgentConfigs().find(a => a.id === initialAgent) : initialAgent;
+      const agent = typeof initialAgent === "string" ? getAgentConfigs().find((a) => a.id === initialAgent) : initialAgent;
       if (agent) setCurrentAgent(agent);
     }
   }, [initialAgent]);
@@ -41,17 +59,31 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, currentStream]);
 
-  const handleSend = useCallback(async () => {
-    const text = input.trim();
-    if (!text || loading) return;
+  const handleSend = useCallback(async (text) => {
+    const msg = text || input.trim();
+    if (!msg || isStreaming) return;
     setInput("");
+
+    // Detect intent and auto-switch agent
+    const intent = intentEngine.classify(msg);
+    const targetAgentId = intentEngine.getAgentForIntent(intent.id);
+    if (targetAgentId !== currentAgent.id) {
+      const target = agents.find((a) => a.id === targetAgentId);
+      if (target) setCurrentAgent(target);
+    }
+
     try {
-      await sendStreamMessage(text, { agent: currentAgent, provider: currentProvider, model: currentModel });
+      if (intentEngine.shouldExecute(intent.id)) {
+        const execPrompt = intentEngine.generateExecutionPrompt(intent.id, msg);
+        await sendStreamMessage(execPrompt, { agent: currentAgent, provider: currentProvider, model: currentModel });
+      } else {
+        await sendStreamMessage(msg, { agent: currentAgent, provider: currentProvider, model: currentModel });
+      }
     } catch (err) {
       console.error("[AIChat] send error:", err);
     }
     inputRef.current?.focus();
-  }, [input, loading, sendStreamMessage, currentAgent, currentProvider, currentModel]);
+  }, [input, isStreaming, sendStreamMessage, currentAgent, currentProvider, currentModel, agents]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -61,7 +93,32 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
   };
 
   const handleQuickAction = (prompt) => {
-    setInput(prompt);
+    handleSend(prompt);
+  };
+
+  const handleRegenerate = async (msg) => {
+    await clearMessages();
+    // Resend the previous user message
+    const userMsgs = messages.filter((m) => m.role === "user");
+    if (userMsgs.length > 0) {
+      await handleSend(userMsgs[userMsgs.length - 1].content);
+    }
+  };
+
+  const handleEdit = (msg) => {
+    setEditingMsg(msg.id);
+    setEditText(msg.content);
+  };
+
+  const handleSaveEdit = async () => {
+    // For simplicity, resend the edited text as a new message
+    setEditingMsg(null);
+    await handleSend(editText);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingMsg(null);
+    setEditText("");
   };
 
   const selectAgent = (agent) => {
@@ -74,39 +131,47 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
     setShowProviders(false);
   };
 
-  const selectModel = (model) => {
-    setCurrentModel(model);
-    setShowModels(false);
-  };
+  const providerName = (id) => PROVIDER_LABELS[id] || id;
+  const isDemo = currentProvider === "branpy-demo";
 
   return (
     <div style={{
       flex: 1, display: "flex", flexDirection: "column", minHeight: 0,
-      background: "#0a0a0a", color: "white",
+      background: "linear-gradient(160deg, #080808 0%, #0a0a0a 50%, #0d0d0d 100%)",
+      color: "white",
       fontFamily: "'Segoe UI', system-ui, -apple-system, sans-serif",
+      position: "relative",
       ...(fullScreen ? { position: "fixed", inset: 0, zIndex: 100 } : {}),
     }}>
+      {/* Glassmorphism background effect */}
+      <div style={{
+        position: "absolute", top: "-50%", right: "-20%", width: 400, height: 400,
+        borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.04) 0%, transparent 70%)",
+        pointerEvents: "none",
+      }} />
+
       {/* Header */}
       <div style={{
-        height: 44, flexShrink: 0, display: "flex", alignItems: "center", gap: 6,
-        padding: "0 12px", borderBottom: "1px solid rgba(255,255,255,0.06)",
-        background: "#0c0c0c",
+        height: 48, flexShrink: 0, display: "flex", alignItems: "center", gap: 8,
+        padding: "0 14px",
+        borderBottom: "1px solid rgba(255,255,255,0.06)",
+        background: "rgba(12,12,12,0.8)", backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        zIndex: 2,
       }}>
         <div style={{
-          width: 24, height: 24, borderRadius: 6,
+          width: 26, height: 26, borderRadius: 7,
           background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
           display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 12, fontWeight: 700, color: "white",
+          fontSize: 13, fontWeight: 700, color: "white", flexShrink: 0,
         }}>B</div>
         <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>BRANPY Chat</span>
-        {currentProvider === "branpy-demo" && (
+        {isDemo && (
           <div style={{
-            fontSize: 10, padding: "1px 6px", borderRadius: 4,
+            fontSize: 10, padding: "2px 7px", borderRadius: 4,
             background: "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.2)",
-            color: "rgba(251,191,36,0.7)", fontFamily: "monospace", marginLeft: 4,
-          }}>
-            Modo demonstração local
-          </div>
+            color: "rgba(251,191,36,0.7)", fontFamily: "monospace",
+          }}>Modo demonstração local</div>
         )}
 
         {/* Agent selector */}
@@ -114,38 +179,38 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
           <button onClick={() => setShowAgents(!showAgents)}
             style={{
               display: "flex", alignItems: "center", gap: 4, padding: "3px 8px",
-              borderRadius: 4, border: "none", cursor: "pointer", fontSize: 12,
-              background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.6)",
+              borderRadius: 5, border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer",
+              fontSize: 11, background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.55)",
               fontFamily: "inherit",
             }}
             className="cs-hover-soft"
           >
             <span>{currentAgent.avatar}</span>
             <span>{currentAgent.name}</span>
-            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.3)" }}>▼</span>
+            <span style={{ fontSize: 7, color: "rgba(255,255,255,0.3)", marginLeft: 2 }}>▼</span>
           </button>
           {showAgents && (
             <div style={{
               position: "absolute", top: "100%", left: 0, marginTop: 4,
-              width: 200, background: "#151515", border: "1px solid rgba(255,255,255,0.08)",
-              borderRadius: 8, padding: 4, zIndex: 50, maxHeight: 300, overflow: "hidden auto",
-              boxShadow: "0 12px 40px rgba(0,0,0,0.5)",
+              width: 220, background: "rgba(20,20,20,0.96)", border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 10, padding: 6, zIndex: 50, maxHeight: 340, overflow: "hidden auto",
+              boxShadow: "0 16px 48px rgba(0,0,0,0.6)", backdropFilter: "blur(16px)",
             }}>
               {agents.map((agent) => (
                 <button key={agent.id} onClick={() => selectAgent(agent)}
                   style={{
                     display: "flex", alignItems: "center", gap: 8, width: "100%",
-                    padding: "6px 8px", borderRadius: 4, border: "none", cursor: "pointer",
-                    background: currentAgent.id === agent.id ? "rgba(59,130,246,0.12)" : "transparent",
-                    color: currentAgent.id === agent.id ? "rgba(59,130,246,0.7)" : "rgba(255,255,255,0.65)",
+                    padding: "7px 10px", borderRadius: 6, border: "none", cursor: "pointer",
+                    background: currentAgent.id === agent.id ? (agent.color ? `${agent.color}15` : "rgba(59,130,246,0.12)") : "transparent",
+                    color: currentAgent.id === agent.id ? (agent.color || "rgba(59,130,246,0.7)") : "rgba(255,255,255,0.6)",
                     fontSize: 12, fontFamily: "inherit", textAlign: "left",
                   }}
                   className="cs-hover-item"
                 >
-                  <span style={{ fontSize: 16 }}>{agent.avatar}</span>
-                  <div>
-                    <div style={{ fontWeight: 500 }}>{agent.name}</div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)" }}>{agent.description?.slice(0, 50)}</div>
+                  <span style={{ fontSize: 16, flexShrink: 0 }}>{agent.avatar}</span>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 500, fontSize: 12 }}>{agent.name}</div>
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{agent.description?.slice(0, 50)}</div>
                   </div>
                 </button>
               ))}
@@ -155,17 +220,52 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
 
         <div style={{ flex: 1 }} />
 
-        {/* Provider/Model info */}
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", fontFamily: "monospace" }}>
-          {currentModel || (currentAgent.defaultModel || "")}
+        {/* Sessions */}
+        <div style={{ position: "relative" }}>
+          <button onClick={() => setShowSessions(!showSessions)}
+            style={{
+              padding: "3px 8px", borderRadius: 5, border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer",
+              background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.4)", fontSize: 10, fontFamily: "inherit",
+            }}
+            className="cs-hover-soft"
+            title="Histórico"
+          >Histórico ▾</button>
+          {showSessions && (
+            <div style={{
+              position: "absolute", top: "100%", right: 0, marginTop: 4,
+              width: 260, background: "rgba(20,20,20,0.96)", border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 10, padding: 6, zIndex: 50, maxHeight: 300, overflow: "hidden auto",
+              boxShadow: "0 16px 48px rgba(0,0,0,0.6)", backdropFilter: "blur(16px)",
+            }}>
+              {sessions.length === 0 && (
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", padding: "12px 8px", textAlign: "center" }}>
+                  Nenhuma conversa salva
+                </div>
+              )}
+              {sessions.map((s) => (
+                <button key={s.id} onClick={() => { loadSession(s.id); setShowSessions(false); }}
+                  style={{
+                    display: "block", width: "100%", padding: "7px 10px", borderRadius: 6, border: "none", cursor: "pointer",
+                    background: "transparent", color: "rgba(255,255,255,0.55)", fontSize: 11, fontFamily: "inherit", textAlign: "left",
+                  }}
+                  className="cs-hover-item"
+                >
+                  <div style={{ fontWeight: 500, fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {s.preview || "Nova conversa"}
+                  </div>
+                  <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)", marginTop: 1 }}>
+                    {s.messageCount} msgs · {new Date(s.updated).toLocaleDateString("pt-BR")}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* New session */}
         <button onClick={newSession}
           style={{
-            padding: "3px 8px", borderRadius: 4, border: "none", cursor: "pointer",
-            background: "none", color: "rgba(255,255,255,0.35)", fontSize: 12,
-            fontFamily: "inherit",
+            padding: "3px 8px", borderRadius: 5, border: "none", cursor: "pointer",
+            background: "none", color: "rgba(255,255,255,0.3)", fontSize: 12, fontFamily: "inherit",
           }}
           className="cs-hover-soft"
           title="Nova conversa"
@@ -175,8 +275,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
           <button onClick={onClose}
             style={{
               padding: 3, border: "none", cursor: "pointer", background: "none",
-              color: "rgba(255,255,255,0.3)", display: "flex", fontSize: 13,
-              fontFamily: "inherit",
+              color: "rgba(255,255,255,0.3)", display: "flex", fontSize: 13, fontFamily: "inherit",
             }}
             className="cs-hover-soft"
           >✕</button>
@@ -187,96 +286,135 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
       <div style={{
         flex: 1, overflow: "hidden auto", padding: "12px 16px",
       }} className="cs-scrollbar">
+        {/* Empty state */}
         {messages.length === 0 && !currentStream && (
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center",
-            justifyContent: "center", height: "100%", gap: 12,
+            justifyContent: "center", height: "100%", gap: 14, padding: "0 20px",
           }}>
             <div style={{
-              width: 48, height: 48, borderRadius: 12,
-              background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15))",
+              width: 52, height: 52, borderRadius: 14,
+              background: "linear-gradient(135deg, rgba(59,130,246,0.12), rgba(139,92,246,0.12))",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 22,
+              fontSize: 24,
             }}>🧠</div>
-            <div style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>
+            <div style={{ fontSize: 15, color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>
               Como posso ajudar?
             </div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textAlign: "center", maxWidth: 300 }}>
-              Converse com os agentes BRANPY, peça ajuda com conteúdo, marketing, vídeos, design e muito mais.
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.25)", textAlign: "center", maxWidth: 340, lineHeight: "1.5" }}>
+              Peça ideias, crie roteiros, escreva copy, desenvolva código, pesquise concorrentes e muito mais.
+            </div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.15)", marginTop: 4 }}>
+              Agente ativo: {currentAgent.avatar} {currentAgent.name}
             </div>
           </div>
         )}
 
+        {/* Messages list */}
         {messages.map((msg, i) => {
           if (msg.role !== "user" && !msg.content) return null;
-          const isError = msg.content?.startsWith("[Error:") || msg.content?.startsWith("Provider não configurado") || msg.content?.startsWith("Nenhum provider");
+          const isUser = msg.role === "user";
+          const isEditing = editingMsg === msg.id;
+
           return (
           <div key={msg.id || i} style={{
-            display: "flex", gap: 8, marginBottom: 12,
-            justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
+            display: "flex", gap: 8, marginBottom: 14, position: "relative",
+            justifyContent: isUser ? "flex-end" : "flex-start",
+            animation: "fadeIn 0.2s ease",
           }}>
-            {msg.role !== "user" && !isError && (
+            {!isUser && (
               <div style={{
                 width: 28, height: 28, borderRadius: 8, flexShrink: 0,
                 background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 13,
+                fontSize: 13, marginTop: 2,
               }}>B</div>
             )}
             <div style={{
-              maxWidth: "75%", padding: "8px 12px", borderRadius: 10,
-              background: isError ? "rgba(239,68,68,0.06)" : msg.role === "user" ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.04)",
-              border: isError ? "1px solid rgba(239,68,68,0.12)" : msg.role === "user" ? "1px solid rgba(59,130,246,0.15)" : "1px solid rgba(255,255,255,0.06)",
-              fontSize: 13, lineHeight: "1.5",
-              color: isError ? "rgba(239,68,68,0.65)" : msg.role === "user" ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.75)",
-              whiteSpace: "pre-wrap",
+              maxWidth: "78%", minWidth: editingMsg ? 300 : 0,
+              padding: isEditing ? 4 : "8px 12px",
+              borderRadius: isUser ? "12px 12px 4px 12px" : "12px 12px 12px 4px",
+              background: isUser ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.03)",
+              border: `1px solid ${isUser ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.05)"}`,
+              fontSize: 13, lineHeight: "1.55",
+              color: isUser ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.75)",
+              whiteSpace: isUser ? "pre-wrap" : "normal",
+              wordBreak: "break-word",
+              transition: "background 0.15s",
+              position: "relative",
             }}>
-              {isError ? (
-                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600 }}>⚠️ Provider não configurado</span>
-                  <span style={{ fontSize: 12, color: "rgba(239,68,68,0.5)" }}>
-                    Configure uma chave de API em <strong>AI Providers</strong> ou aguarde o modo demonstração local.
-                  </span>
+              {isEditing ? (
+                <div>
+                  <textarea value={editText} onChange={(e) => setEditText(e.target.value)}
+                    style={{
+                      width: "100%", minHeight: 60, background: "rgba(0,0,0,0.3)", border: "1px solid rgba(59,130,246,0.3)",
+                      borderRadius: 6, color: "white", fontSize: 13, padding: 6, fontFamily: "inherit",
+                      resize: "vertical", outline: "none",
+                    }}
+                  />
+                  <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
+                    <button onClick={handleSaveEdit} style={{ padding: "3px 10px", borderRadius: 4, border: "none", cursor: "pointer", background: "rgba(59,130,246,0.2)", color: "rgba(59,130,246,0.7)", fontSize: 11, fontFamily: "inherit" }}>Salvar</button>
+                    <button onClick={handleCancelEdit} style={{ padding: "3px 10px", borderRadius: 4, border: "none", cursor: "pointer", background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)", fontSize: 11, fontFamily: "inherit" }}>Cancelar</button>
+                  </div>
                 </div>
-              ) : (
+              ) : isUser ? (
                 msg.content
+              ) : (
+                <MarkdownRenderer content={msg.content} />
               )}
+
+              {/* Provider tag */}
               {msg.provider && (
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", marginTop: 4 }}>
-                  via {msg.provider}
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.15)", marginTop: 4, fontFamily: "monospace" }}>
+                  via {providerName(msg.provider)}
                 </div>
               )}
             </div>
+
+            {/* Actions */}
+            {!isEditing && !isUser && msg.content && (
+              <div style={{
+                display: "flex", gap: 2, alignItems: "flex-start", marginTop: 4, opacity: 0.5,
+                transition: "opacity 0.15s",
+              }} className="cs-msg-actions">
+                <button onClick={() => handleRegenerate(msg)}
+                  style={{ padding: 2, border: "none", cursor: "pointer", background: "none", color: "rgba(255,255,255,0.3)", fontSize: 11, fontFamily: "inherit" }}
+                  title="Regenerar"
+                >↻</button>
+              </div>
+            )}
           </div>
           );
         })}
 
+        {/* Streaming message */}
         {streaming && currentStream && (
-          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 14, animation: "fadeIn 0.15s ease" }}>
             <div style={{
               width: 28, height: 28, borderRadius: 8, flexShrink: 0,
               background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 13,
+              fontSize: 13, marginTop: 2,
             }}>B</div>
             <div style={{
-              maxWidth: "75%", padding: "8px 12px", borderRadius: 10,
-              background: "rgba(255,255,255,0.04)",
-              border: "1px solid rgba(255,255,255,0.06)",
-              fontSize: 13, lineHeight: "1.5",
+              maxWidth: "78%", padding: "8px 12px", borderRadius: "12px 12px 12px 4px",
+              background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.05)",
+              fontSize: 13, lineHeight: "1.55",
               color: "rgba(255,255,255,0.75)",
-              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
             }}>
-              {currentStream}
-              <span style={{ animation: "blink 1s infinite", marginLeft: 2, color: "rgba(59,130,246,0.5)" }}>▍</span>
+              <MarkdownRenderer content={currentStream} />
+              <span style={{ animation: "blink 1s infinite", marginLeft: 2, color: "rgba(59,130,246,0.5)", fontSize: 14 }}>▍</span>
             </div>
           </div>
         )}
 
+        {/* Loading (before stream) */}
         {loading && !currentStream && (
           <div style={{
             display: "flex", alignItems: "center", gap: 8, padding: "8px 0",
-            fontSize: 12, color: "rgba(255,255,255,0.35)",
+            fontSize: 12, color: "rgba(255,255,255,0.3)", animation: "fadeIn 0.2s ease",
           }}>
             <div style={{
               width: 24, height: 24, borderRadius: 6,
@@ -291,21 +429,11 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
           </div>
         )}
 
-        {error && currentProvider !== "branpy-demo" && (
-          <div style={{
-            padding: "8px 12px", borderRadius: 8, marginBottom: 12,
-            background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)",
-            fontSize: 12, color: "rgba(239,68,68,0.7)",
-          }}>
-            {error}
-          </div>
-        )}
-
         <div ref={bottomRef} />
       </div>
 
       {/* Quick actions */}
-      {messages.length <= 1 && !streaming && (
+      {messages.length <= 1 && !isStreaming && (
         <div style={{
           display: "flex", gap: 4, padding: "0 16px 4px",
           overflow: "hidden auto", flexShrink: 0,
@@ -314,9 +442,10 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
             <button key={i} onClick={() => handleQuickAction(qa.prompt)}
               style={{
                 flexShrink: 0, padding: "4px 10px", borderRadius: 12,
-                border: "1px solid rgba(255,255,255,0.08)", cursor: "pointer",
-                background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.5)",
+                border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer",
+                background: "rgba(255,255,255,0.02)", color: "rgba(255,255,255,0.4)",
                 fontSize: 11, fontFamily: "inherit", whiteSpace: "nowrap",
+                transition: "all 0.12s",
               }}
               className="cs-hover-soft"
             >{qa.label}</button>
@@ -324,34 +453,47 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
         </div>
       )}
 
-      {/* Input */}
+      {/* Input area */}
       <div style={{
-        padding: "8px 12px", borderTop: "1px solid rgba(255,255,255,0.06)",
-        flexShrink: 0,
+        padding: "8px 14px 10px", borderTop: "1px solid rgba(255,255,255,0.04)",
+        flexShrink: 0, background: "rgba(10,10,10,0.6)", zIndex: 2,
       }}>
         <div style={{
           display: "flex", gap: 6, alignItems: "flex-end",
-          background: "rgba(255,255,255,0.04)", borderRadius: 10,
-          border: "1px solid rgba(255,255,255,0.08)", padding: "4px",
-        }}>
+          background: "rgba(255,255,255,0.04)", borderRadius: 12,
+          border: "1px solid rgba(255,255,255,0.06)", padding: "4px 4px 4px 12px",
+          transition: "border-color 0.15s",
+        }} className="cs-input-border">
           <textarea ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown} rows={1}
-            placeholder="Digite sua mensagem..."
+            placeholder="Digite sua mensagem... (Enter para enviar)"
             style={{
               flex: 1, background: "none", border: "none", outline: "none",
               color: "rgba(255,255,255,0.8)", fontSize: 13, fontFamily: "inherit",
-              padding: "6px 8px", resize: "none", lineHeight: "1.4", minHeight: 24,
+              padding: "7px 0", resize: "none", lineHeight: "1.4", minHeight: 20, maxHeight: 120,
             }}
           />
-          <button onClick={handleSend} disabled={!input.trim() || loading}
+          <button onClick={() => handleSend()} disabled={!input.trim() || isStreaming}
             style={{
-              padding: "6px 12px", borderRadius: 8, border: "none", cursor: "pointer",
-              background: input.trim() ? "rgba(59,130,246,0.7)" : "rgba(255,255,255,0.06)",
-              color: input.trim() ? "white" : "rgba(255,255,255,0.3)",
-              fontSize: 12, fontWeight: 600, fontFamily: "inherit",
-              transition: "background 0.12s",
+              padding: "7px 14px", borderRadius: 8, border: "none", cursor: "pointer",
+              background: input.trim() ? "linear-gradient(135deg, #3b82f6, #2563eb)" : "rgba(255,255,255,0.06)",
+              color: input.trim() ? "white" : "rgba(255,255,255,0.25)",
+              fontSize: 13, fontWeight: 600, fontFamily: "inherit",
+              transition: "all 0.12s", flexShrink: 0,
             }}
-          >{loading ? "..." : "→"}</button>
+          >
+            {isStreaming ? (
+              <span style={{ animation: "blink 1s infinite" }}>■</span>
+            ) : "→"}
+          </button>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4, padding: "0 4px" }}>
+          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.12)" }}>
+            {currentAgent.avatar} {currentAgent.name}
+          </div>
+          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.12)", fontFamily: "monospace" }}>
+            {isDemo ? "Modo local" : providerName(currentProvider)}
+          </div>
         </div>
       </div>
 
@@ -359,9 +501,13 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
         .cs-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .cs-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .cs-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
-        .cs-hover-soft:hover { background: rgba(255,255,255,0.06) !important; }
-        .cs-hover-item:hover { background: rgba(255,255,255,0.04) !important; }
+        .cs-hover-soft:hover { background: rgba(255,255,255,0.08) !important; }
+        .cs-hover-item:hover { background: rgba(255,255,255,0.06) !important; }
+        .cs-input-border:focus-within { border-color: rgba(59,130,246,0.2) !important; }
+        .cs-msg-actions { opacity: 0 !important; }
+        div:hover > .cs-msg-actions { opacity: 0.5 !important; }
         @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
     </div>
   );

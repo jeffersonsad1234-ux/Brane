@@ -4,11 +4,17 @@ import { DeepSeekProvider } from "./DeepSeekProvider";
 import { QwenProvider } from "./QwenProvider";
 import { LlamaProvider } from "./LlamaProvider";
 import { LocalProvider } from "./LocalProvider";
+import { GroqProvider } from "./GroqProvider";
+import { GeminiProvider } from "./GeminiProvider";
+import { OpenAIProvider } from "./OpenAIProvider";
 import { BRANPYLocalDemoProvider } from "./BRANPYLocalDemoProvider";
 
 const PROVIDER_REGISTRY = {
   opencode: OpenCodeProvider,
   openrouter: OpenRouterProvider,
+  groq: GroqProvider,
+  gemini: GeminiProvider,
+  openai: OpenAIProvider,
   deepseek: DeepSeekProvider,
   qwen: QwenProvider,
   llama: LlamaProvider,
@@ -16,7 +22,10 @@ const PROVIDER_REGISTRY = {
   "branpy-demo": BRANPYLocalDemoProvider,
 };
 
-const PROVIDER_PRIORITY = ["opencode", "openrouter", "deepseek", "qwen", "llama", "local", "branpy-demo"];
+const PROVIDER_PRIORITY = [
+  "opencode", "openrouter", "groq", "gemini", "openai",
+  "deepseek", "qwen", "llama", "local", "branpy-demo",
+];
 
 let providerInstances = {};
 
@@ -42,9 +51,9 @@ export function resetProviders() {
 export function getAvailableProviders() {
   return PROVIDER_PRIORITY.map((id) => ({
     id,
-    name: PROVIDER_REGISTRY[id].prototype.constructor?.name || id,
+    name: PROVIDER_REGISTRY[id]?.prototype?.constructor?.name || id,
     instance: getProvider(id),
-  }));
+  })).filter((p) => p.id !== "branpy-demo" || true);
 }
 
 export function getProviderPriority() {
@@ -52,7 +61,7 @@ export function getProviderPriority() {
 }
 
 export function setProviderPriority(priority) {
-  if (priority.length > 0) {
+  if (priority && priority.length > 0) {
     PROVIDER_PRIORITY.length = 0;
     PROVIDER_PRIORITY.push(...priority);
   }

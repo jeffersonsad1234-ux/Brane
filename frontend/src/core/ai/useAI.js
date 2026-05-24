@@ -17,11 +17,35 @@ export function useAI(routerInstance = null) {
   const [sessions, setSessions] = useState([]);
   const [providerStatus, setProviderStatus] = useState([]);
   const abortRef = useRef(null);
+  const activeStreamRef = useRef(null);
 
   useEffect(() => {
     loadSessions();
     updateProviderStatus();
   }, []);
+
+  const stopGeneration = useCallback(() => {
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
+    if (activeStreamRef.current) {
+      try { activeStreamRef.current.return?.(); } catch {}
+      activeStreamRef.current = null;
+    }
+    setStreaming(false);
+    setLoading(false);
+    if (currentStream) {
+      const msg = {
+        id: `msg_${Date.now()}`,
+        role: "assistant",
+        content: currentStream + "\n\n*(geração interrompida)*",
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, msg]);
+      setCurrentStream("");
+    }
+  }, [currentStream]);
 
   const loadSessions = useCallback(async () => {
     try {
@@ -79,6 +103,9 @@ export function useAI(routerInstance = null) {
     setStreaming(true);
     setCurrentStream("");
 
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     const userMsg = { id: `msg_${Date.now()}`, role: "user", content, timestamp: Date.now() };
     setMessages((prev) => [...prev, userMsg]);
 
@@ -94,33 +121,57 @@ export function useAI(routerInstance = null) {
         agent,
         model: model || undefined,
         provider,
+        signal: controller.signal,
         ...options,
       });
+      activeStreamRef.current = stream;
 
       for await (const chunk of stream) {
+        if (controller.signal.aborted) break;
         if (chunk.done) {
           if (chunk.error) {
             throw new Error(chunk.error);
           }
-          break;
+          if (!controller.signal.aborted) break;
         }
         fullContent += chunk.content;
         resultProvider = chunk.provider || resultProvider;
-        setCurrentStream(fullContent);
+        if (!controller.signal.aborted) {
+          setCurrentStream(fullContent);
+        }
       }
 
-      if (!fullContent) {
+      activeStreamRef.current = null;
+
+      if (!fullContent && !controller.signal.aborted) {
         throw new Error("Stream retornou vazio");
+      }
+
+      if (controller.signal.aborted && fullContent) {
+        const msg = {
+          id: `msg_${Date.now() + 1}`,
+          role: "assistant",
+          content: fullContent,
+          provider: resultProvider,
+          model: model || (agent ? agent.defaultModel : ""),
+          timestamp: Date.now(),
+        };
+        setMessages((prev) => [...prev, msg]);
+        setCurrentStream("");
+        setLoading(false);
+        setStreaming(false);
+        return { content: fullContent, provider: resultProvider, aborted: true };
       }
     } catch (err) {
       setStreaming(false);
       setCurrentStream("");
+      abortRef.current = null;
+      activeStreamRef.current = null;
       try {
         const result = await sendMessage(content, options);
         setLoading(false);
         return result;
       } catch (fallbackErr) {
-        // Last resort — try demo provider directly
         try {
           const demo = getProvider("branpy-demo");
           if (demo && demo.isAvailable()) {
@@ -136,18 +187,21 @@ export function useAI(routerInstance = null) {
       }
     }
 
-    const assistantMsg = {
-      id: `msg_${Date.now() + 1}`,
-      role: "assistant",
-      content: fullContent,
-      provider: resultProvider,
-      model: model || (agent ? agent.defaultModel : ""),
-      timestamp: Date.now(),
-    };
-    setMessages((prev) => [...prev, assistantMsg]);
+    if (!controller.signal.aborted && fullContent) {
+      const assistantMsg = {
+        id: `msg_${Date.now() + 1}`,
+        role: "assistant",
+        content: fullContent,
+        provider: resultProvider,
+        model: model || (agent ? agent.defaultModel : ""),
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, assistantMsg]);
+    }
     setCurrentStream("");
     setLoading(false);
     setStreaming(false);
+    abortRef.current = null;
     loadSessions();
     return { content: fullContent, provider: resultProvider };
   }, [router, currentAgent, currentModel, currentProvider, loadSessions, sendMessage]);
@@ -182,33 +236,14 @@ export function useAI(routerInstance = null) {
   }, [router, loadSessions]);
 
   return {
-    // State
-    messages,
-    loading,
-    streaming,
-    currentStream,
-    error,
-    currentAgent,
-    currentModel,
-    currentProvider,
-    sessions,
-    providerStatus,
+    messages, loading, streaming, currentStream, error,
+    currentAgent, currentModel, currentProvider, sessions, providerStatus,
 
-    // Actions
-    sendMessage,
-    sendStreamMessage,
-    clearMessages,
-    loadSession,
-    newSession,
-    setCurrentAgent,
-    setCurrentModel,
-    setCurrentProvider,
+    sendMessage, sendStreamMessage, clearMessages, loadSession, newSession,
+    setCurrentAgent, setCurrentModel, setCurrentProvider, stopGeneration,
 
-    // Utilities
-    loadSessions,
-    updateProviderStatus,
-    router,
-    memory: aiMemory,
+    loadSessions, updateProviderStatus,
+    router, memory: aiMemory,
     getProviderStatus: providerStatus,
     getAgent,
   };
