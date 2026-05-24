@@ -1,6 +1,7 @@
 import { BaseProvider, ProviderError } from "./BaseProvider";
 
 const OLLAMA_URLS = [
+  "/ollama-proxy",
   "http://127.0.0.1:8787",
   "http://localhost:11434",
   "http://127.0.0.1:11434",
