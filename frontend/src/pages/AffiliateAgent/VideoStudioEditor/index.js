@@ -47,7 +47,7 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
         }}>
           <S d={I.play} sz={10} style={{ color: "white", marginLeft: 1 }} />
         </div>
-        <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(255,255,255,0.55)", letterSpacing: "0.03em" }}>BRANPY</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.7)", letterSpacing: "0.03em" }}>BRANPY</span>
       </div>
       <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.06)" }} />
       {ed ? (
@@ -55,7 +55,7 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
           onBlur={sub} onKeyDown={(e) => e.key === "Enter" && sub()}
           style={{
             background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)",
-            borderRadius: 4, padding: "2px 8px", fontSize: 11, color: "rgba(255,255,255,0.5)",
+            borderRadius: 4, padding: "2px 8px", fontSize: 12, color: "rgba(255,255,255,0.6)",
             outline: "none", width: 120,
           }} autoFocus
         />
@@ -64,7 +64,7 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
           style={{
             display: "flex", alignItems: "center", gap: 4, padding: "2px 8px",
             borderRadius: 4, border: "none", background: "none", cursor: "pointer",
-            fontSize: 11, color: "rgba(255,255,255,0.35)",
+            fontSize: 12, color: "rgba(255,255,255,0.5)",
           }}
           className="cs-hover-soft"
         >
@@ -73,9 +73,9 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
           <S d={I.chD} sz={10} />
         </button>
       )}
-      <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 9 }}>
         <div style={{ width: 5, height: 5, borderRadius: "50%", background: sv ? "rgba(16,185,129,0.4)" : "rgba(251,191,36,0.5)", transition: "background 0.3s" }} />
-        <span style={{ color: sv ? "rgba(16,185,129,0.3)" : "rgba(251,191,36,0.4)" }}>{sv ? "Saved" : "Saving..."}</span>
+        <span style={{ color: sv ? "rgba(16,185,129,0.4)" : "rgba(251,191,36,0.5)" }}>{sv ? "Saved" : "Saving..."}</span>
       </div>
       <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.06)", margin: "0 4px" }} />
       <Bi d={I.undo} sz={12} tip="Undo" />
@@ -86,9 +86,9 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
         <button key={ws.id} onClick={() => setWorkspace(ws.id)}
           style={{
             display: "flex", alignItems: "center", gap: 3, padding: "3px 8px",
-            borderRadius: 4, fontSize: 9, border: "none", cursor: "pointer",
+            borderRadius: 4, fontSize: 10, border: "none", cursor: "pointer",
             background: workspace === ws.id ? "rgba(59,130,246,0.12)" : "transparent",
-            color: workspace === ws.id ? "rgba(59,130,246,0.7)" : "rgba(255,255,255,0.2)",
+            color: workspace === ws.id ? "rgba(59,130,246,0.7)" : "rgba(255,255,255,0.3)",
             fontFamily: "inherit", whiteSpace: "nowrap",
           }}
           className={workspace !== ws.id ? "cs-hover-soft" : ""}
@@ -100,22 +100,22 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
 
       <div style={{ flex: 1 }} />
       <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(255,255,255,0.03)", borderRadius: 4, padding: "2px 8px" }}>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.15)", fontFamily: "monospace" }}>{FMT(ct)}</span>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.08)" }}>/</span>
-        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.15)", fontFamily: "monospace" }}>{FMT(dur)}</span>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "monospace", fontWeight: 500 }}>{FMT(ct)}</span>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.12)" }}>/</span>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", fontFamily: "monospace", fontWeight: 500 }}>{FMT(dur)}</span>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 3, background: "rgba(255,255,255,0.03)", borderRadius: 4, padding: "2px 6px", fontSize: 9, color: "rgba(255,255,255,0.15)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 3, background: "rgba(255,255,255,0.03)", borderRadius: 4, padding: "2px 6px", fontSize: 10, color: "rgba(255,255,255,0.3)" }}>
         <span>30fps</span>
         <S d={I.chD} sz={8} />
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 3, background: "rgba(255,255,255,0.03)", borderRadius: 4, padding: "2px 6px", fontSize: 9, color: "rgba(255,255,255,0.15)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 3, background: "rgba(255,255,255,0.03)", borderRadius: 4, padding: "2px 6px", fontSize: 10, color: "rgba(255,255,255,0.3)" }}>
         <span>1080p</span>
         <S d={I.chD} sz={8} />
       </div>
       <button onClick={onMem}
         style={{
           display: "flex", alignItems: "center", gap: 3, padding: "3px 8px", borderRadius: 4,
-          fontSize: 9, border: "none", cursor: "pointer", fontFamily: "inherit",
+          fontSize: 10, border: "none", cursor: "pointer", fontFamily: "inherit",
           background: "rgba(139,92,246,0.15)", color: "rgba(167,139,250,0.6)",
         }}
         className="cs-hover-soft"
@@ -125,8 +125,8 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
       <button onClick={onImp}
         style={{
           display: "flex", alignItems: "center", gap: 3, padding: "3px 8px", borderRadius: 4,
-          fontSize: 9, border: "none", cursor: "pointer", fontFamily: "inherit",
-          background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.3)",
+          fontSize: 10, border: "none", cursor: "pointer", fontFamily: "inherit",
+          background: "rgba(255,255,255,0.05)", color: "rgba(255,255,255,0.4)",
         }}
         className="cs-hover-soft"
       >
@@ -135,7 +135,7 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
       <button onClick={onExp}
         style={{
           display: "flex", alignItems: "center", gap: 3, padding: "3px 10px", borderRadius: 4,
-          fontSize: 9, fontWeight: 600, border: "none", cursor: "pointer", fontFamily: "inherit",
+          fontSize: 10, fontWeight: 600, border: "none", cursor: "pointer", fontFamily: "inherit",
           background: "rgba(59,130,246,0.7)", color: "white",
         }}
         className="cs-hover-soft"
@@ -182,8 +182,8 @@ function LeftPanel({ tab, imm, onImp, fRef, onMDrag }) {
       <div style={{
         height: 32, flexShrink: 0, display: "flex", alignItems: "center",
         padding: "0 12px", borderBottom: "1px solid rgba(255,255,255,0.05)",
-        fontSize: 10, fontWeight: 600, textTransform: "uppercase",
-        letterSpacing: "0.12em", color: "rgba(255,255,255,0.15)",
+        fontSize: 11, fontWeight: 600, textTransform: "uppercase",
+        letterSpacing: "0.12em", color: "rgba(255,255,255,0.25)",
       }}>
         {PANEL_LABELS[tab] || "Tools"}
       </div>
@@ -272,7 +272,6 @@ export default function VideoStudioEditor() {
       />
 
       <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
-        {/* Sidebar icon strip */}
         <div style={{
           width: 40, flexShrink: 0, background: "#090909",
           borderRight: "1px solid rgba(255,255,255,0.05)",
@@ -294,7 +293,6 @@ export default function VideoStudioEditor() {
           ))}
         </div>
 
-        {/* Secondary panel */}
         {panelOpen && (
           sTab === "memory" && showMemories ? (
             <div style={{
@@ -304,8 +302,8 @@ export default function VideoStudioEditor() {
               <div style={{
                 height: 32, flexShrink: 0, display: "flex", alignItems: "center",
                 padding: "0 12px", borderBottom: "1px solid rgba(255,255,255,0.05)",
-                fontSize: 10, fontWeight: 600, textTransform: "uppercase",
-                letterSpacing: "0.12em", color: "rgba(255,255,255,0.15)",
+                fontSize: 11, fontWeight: 600, textTransform: "uppercase",
+                letterSpacing: "0.12em", color: "rgba(255,255,255,0.25)",
               }}>
                 Brand Memory
               </div>
@@ -322,7 +320,6 @@ export default function VideoStudioEditor() {
           )
         )}
 
-        {/* Preview */}
         <PreviewPanel
           playing={playing}
           setPlaying={setPlaying}
@@ -333,7 +330,6 @@ export default function VideoStudioEditor() {
           setVol={setVol}
         />
 
-        {/* Inspector toggle */}
         <Inspector clip={sel} open={inspectorOpen} onToggle={() => setInspectorOpen(!inspectorOpen)} />
       </div>
 
@@ -374,7 +370,7 @@ export default function VideoStudioEditor() {
         .cs-tooltip { display: none; }
         [class*="group"]:hover .cs-tooltip { display: block; }
         .cs-ruler-tick { position: absolute; top: 0; height: 8px; width: 1px; background: rgba(255,255,255,0.06); }
-        .cs-ruler-label { position: absolute; font-size: 8px; color: rgba(255,255,255,0.12); top: 8px; margin-left: 4px; font-family: monospace; }
+        .cs-ruler-label { position: absolute; font-size: 9px; color: rgba(255,255,255,0.2); top: 8px; margin-left: 4px; font-family: monospace; }
         input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: #3b82f6; cursor: pointer; border: 2px solid rgba(255,255,255,0.1); }
         input[type="range"]::-webkit-slider-runnable-track { height: 3px; background: rgba(255,255,255,0.06); border-radius: 999px; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }

@@ -55,8 +55,8 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
             🧠
           </div>
           <div style={{ textAlign: "left" }}>
-            <div style={{ fontSize: 10, color: "rgba(59,130,246,0.6)" }}>Create Memory</div>
-            <div style={{ fontSize: 8, color: "rgba(255,255,255,0.15)" }}>Save current edit style</div>
+            <div style={{ fontSize: 11, color: "rgba(59,130,246,0.7)" }}>Create Memory</div>
+            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.25)" }}>Save current edit style</div>
           </div>
         </button>
       )}
@@ -66,12 +66,12 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
           borderRadius: 6, background: "rgba(255,255,255,0.04)",
           border: "1px solid rgba(255,255,255,0.08)", padding: "8px",
         }}>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginBottom: 4 }}>Save Editing Memory</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 4 }}>Save Editing Memory</div>
           <input value={memName} onChange={(e) => setMemName(e.target.value)}
             placeholder="e.g. Product Review Style"
             style={{
               width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 4, padding: "4px 6px", fontSize: 10, color: "rgba(255,255,255,0.45)",
+              borderRadius: 4, padding: "4px 6px", fontSize: 11, color: "rgba(255,255,255,0.55)",
               outline: "none", fontFamily: "inherit", marginBottom: 4,
             }}
             autoFocus
@@ -79,7 +79,7 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
           <div style={{ display: "flex", gap: 4 }}>
             <button onClick={handleSave} disabled={saving || !memName.trim()}
               style={{
-                flex: 1, fontSize: 10, padding: "4px 8px", borderRadius: 4,
+                flex: 1, fontSize: 11, padding: "4px 8px", borderRadius: 4,
                 border: "none", cursor: saving ? "wait" : "pointer", fontFamily: "inherit",
                 background: saving ? "rgba(59,130,246,0.2)" : "rgba(59,130,246,0.5)",
                 color: saving ? "rgba(59,130,246,0.3)" : "white",
@@ -88,9 +88,9 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
             >{saving ? "⏳ Saving..." : "Save Memory"}</button>
             <button onClick={() => setShowForm(false)}
               style={{
-                fontSize: 10, padding: "4px 8px", borderRadius: 4, border: "none",
+                fontSize: 11, padding: "4px 8px", borderRadius: 4, border: "none",
                 cursor: "pointer", background: "rgba(255,255,255,0.04)",
-                color: "rgba(255,255,255,0.3)", fontFamily: "inherit",
+                color: "rgba(255,255,255,0.4)", fontFamily: "inherit",
               }}
               className="cs-hover-soft"
             >Cancel</button>
@@ -99,7 +99,7 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
       )}
 
       <div style={{
-        fontSize: 10, color: "rgba(255,255,255,0.2)",
+        fontSize: 11, color: "rgba(255,255,255,0.3)",
         textTransform: "uppercase", letterSpacing: "0.1em",
         marginTop: 8, marginBottom: 4, fontWeight: 500,
       }}>
@@ -109,8 +109,8 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
       {memories.length === 0 ? (
         <div style={{ textAlign: "center", padding: "12px 0" }}>
           <div style={{ fontSize: 18, opacity: 0.08, marginBottom: 4 }}>🧠</div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.15)" }}>No saved memories yet</div>
-          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.1)", marginTop: 2 }}>Edit a video and save your style</div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>No saved memories yet</div>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.18)", marginTop: 2 }}>Edit a video and save your style</div>
         </div>
       ) : (
         memories.map((mem) => (
@@ -130,17 +130,17 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
-                  fontSize: 10, color: "rgba(255,255,255,0.45)",
+                  fontSize: 11, color: "rgba(255,255,255,0.55)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500,
                 }}>{mem.name}</div>
-                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.15)" }}>{mem.date}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)" }}>{mem.date}</div>
               </div>
               <button onClick={() => handleApply(mem)} disabled={applying === mem.id}
                 style={{
-                  fontSize: 9, padding: "3px 8px", borderRadius: 4, border: "none",
+                  fontSize: 10, padding: "3px 8px", borderRadius: 4, border: "none",
                   cursor: applying === mem.id ? "wait" : "pointer",
                   background: applying === mem.id ? "rgba(59,130,246,0.15)" : "rgba(59,130,246,0.1)",
-                  color: applying === mem.id ? "rgba(59,130,246,0.3)" : "rgba(59,130,246,0.5)",
+                  color: applying === mem.id ? "rgba(59,130,246,0.4)" : "rgba(59,130,246,0.6)",
                   fontFamily: "inherit", fontWeight: 500,
                   transition: "background 0.1s",
                 }}
@@ -152,8 +152,8 @@ export default function BrandMemoryPanel({ memories, setMemories, onApplyMemory 
             <div style={{ display: "flex", gap: 2, marginTop: 3, marginLeft: 34, flexWrap: "wrap" }}>
               {Object.entries(mem.style || {}).slice(0, 3).map(([key, val]) => (
                 <span key={key} style={{
-                  fontSize: 8, padding: "1px 6px", borderRadius: 4,
-                  background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.2)",
+                  fontSize: 9, padding: "1px 6px", borderRadius: 4,
+                  background: "rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.3)",
                 }}>{val}</span>
               ))}
             </div>

@@ -17,7 +17,7 @@ export const LABEL_W = 128;
 export const COLORS = {
   bg: "#0a0a0a", panel: "#0d0d0d", surface: "#111111", raised: "#151515",
   border: "rgba(255,255,255,0.06)",
-  text: "rgba(255,255,255,0.8)", dim: "rgba(255,255,255,0.45)", muted: "rgba(255,255,255,0.2)",
+  text: "rgba(255,255,255,0.88)", dim: "rgba(255,255,255,0.6)", muted: "rgba(255,255,255,0.3)",
   accent: "#3b82f6", accentBg: "rgba(59,130,246,0.12)",
   track: {
     video: { bar: "#3b82f6", bg: "rgba(59,130,246,0.12)", bd: "rgba(59,130,246,0.25)" },
@@ -50,8 +50,7 @@ export const I = {
   exp: "M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z",
   save: "M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4z",
   keyf: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3z",
-  zoI: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z",
-  zoO: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM7 9h5v1H7V9z",
+  zoI: "M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zM7 9h5v1H7V9z",
   chD: "M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z",
   ck: "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z",
   add: "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z",
@@ -233,7 +232,7 @@ export const Tp = ({ text, ch }) => (
       position: "absolute", bottom: "100%", left: "50%", transform: "translateX(-50%)",
       marginBottom: 4, padding: "3px 8px", borderRadius: 4,
       background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.08)",
-      fontSize: 10, color: "rgba(255,255,255,0.55)", whiteSpace: "nowrap",
+      fontSize: 11, color: "rgba(255,255,255,0.6)", whiteSpace: "nowrap",
       opacity: 0, pointerEvents: "none", zIndex: 50, transition: "opacity 0.12s",
     }} className="cs-tooltip">{text}</div>
   </div>
@@ -244,7 +243,7 @@ export const Bi = ({ d, onClick, sz = 14, cls = "", tip }) => {
     <button onClick={onClick}
       style={{
         padding: 4, borderRadius: 4, background: "none", border: "none",
-        cursor: "pointer", color: "rgba(255,255,255,0.25)",
+        cursor: "pointer", color: "rgba(255,255,255,0.35)",
         transition: "color 0.12s, background 0.12s",
         display: "flex", alignItems: "center", justifyContent: "center",
       }}

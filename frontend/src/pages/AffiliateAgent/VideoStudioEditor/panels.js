@@ -8,7 +8,7 @@ export function SideTab({ icon, label, active, onClick }) {
         width: "100%", height: 34, display: "flex", alignItems: "center",
         justifyContent: "center", position: "relative", border: "none",
         background: "none", cursor: "pointer",
-        color: active ? "rgba(59,130,246,0.7)" : "rgba(255,255,255,0.18)",
+        color: active ? "rgba(59,130,246,0.7)" : "rgba(255,255,255,0.28)",
         transition: "color 0.12s",
         fontFamily: "inherit",
       }}
@@ -37,7 +37,7 @@ function SearchBar({ value, onChange, placeholder = "Search..." }) {
           placeholder={placeholder}
           style={{
             flex: 1, background: "transparent", border: "none",
-            outline: "none", fontSize: 11, color: "rgba(255,255,255,0.45)",
+            outline: "none", fontSize: 12, color: "rgba(255,255,255,0.55)",
             fontFamily: "inherit",
           }}
         />
@@ -45,7 +45,7 @@ function SearchBar({ value, onChange, placeholder = "Search..." }) {
           <button onClick={() => onChange("")}
             style={{
               padding: 1, border: "none", cursor: "pointer",
-              background: "none", color: "rgba(255,255,255,0.15)", fontSize: 10,
+              background: "none", color: "rgba(255,255,255,0.25)", fontSize: 11,
               fontFamily: "inherit",
             }}
           >✕</button>
@@ -61,10 +61,10 @@ function CategoryBar({ cats, active, onChange }) {
       {cats.map((c) => (
         <button key={c.id} onClick={() => onChange(c.id)}
           style={{
-            flexShrink: 0, fontSize: 10, padding: "3px 10px", borderRadius: 4,
+            flexShrink: 0, fontSize: 11, padding: "3px 10px", borderRadius: 4,
             border: "none", cursor: "pointer", fontFamily: "inherit",
             background: active === c.id ? "rgba(59,130,246,0.12)" : "transparent",
-            color: active === c.id ? "rgba(59,130,246,0.65)" : "rgba(255,255,255,0.2)",
+            color: active === c.id ? "rgba(59,130,246,0.65)" : "rgba(255,255,255,0.3)",
             fontWeight: active === c.id ? 500 : 400,
             transition: "color 0.12s, background 0.12s",
           }}
@@ -80,7 +80,7 @@ function AssetGrid({ items, onDragStart, renderItem }) {
     return (
       <div style={{ padding: "20px 8px", textAlign: "center" }}>
         <div style={{ fontSize: 20, opacity: 0.06, marginBottom: 6 }}>📂</div>
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.15)" }}>No items found</div>
+        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>No items found</div>
       </div>
     );
   }
@@ -103,14 +103,14 @@ function AssetGrid({ items, onDragStart, renderItem }) {
             </div>
             <div style={{ padding: "4px 6px" }}>
               <div style={{
-                fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 500,
+                fontSize: 11, color: "rgba(255,255,255,0.55)", fontWeight: 500,
                 overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               }}>
                 {item.name}
               </div>
               {item.dur && (
                 <div style={{
-                  fontSize: 9, color: "rgba(255,255,255,0.2)",
+                  fontSize: 10, color: "rgba(255,255,255,0.3)",
                   fontFamily: "monospace", marginTop: 1,
                 }}>
                   {item.dur.toFixed?.(1) || item.dur}s
@@ -153,7 +153,7 @@ export function MediaPanel({ imm, onImp, fRef, onMDrag }) {
         style={{
           margin: "0 8px 6px", border: "1px dashed rgba(255,255,255,0.06)",
           borderRadius: 4, padding: "7px 8px", textAlign: "center",
-          cursor: "pointer", fontSize: 10, color: "rgba(255,255,255,0.25)",
+          cursor: "pointer", fontSize: 11, color: "rgba(255,255,255,0.35)",
           transition: "border-color 0.12s, background 0.12s",
         }}
         className="cs-dropzone"
@@ -211,12 +211,12 @@ export function TextPanel() {
           }}>{t.name[0]}</div>
           <div style={{ minWidth: 0 }}>
             <div style={{
-              fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 500,
+              fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 500,
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}>
               {t.name}
             </div>
-            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", marginTop: 1 }}>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>
               {t.font} · {t.sz}px{t.w ? ` · Weight ${t.w}` : ""}
             </div>
           </div>
@@ -285,7 +285,7 @@ export function LUTsPanel() {
             position: "relative",
           }}>
             <span style={{
-              fontSize: 9, color: "rgba(255,255,255,0.25)",
+              fontSize: 10, color: "rgba(255,255,255,0.35)",
               fontFamily: "monospace", letterSpacing: "0.15em",
               fontWeight: 600, textTransform: "uppercase",
             }}>LUT</span>
@@ -296,7 +296,7 @@ export function LUTsPanel() {
             }} />
           </div>
           <div style={{ padding: "4px 6px" }}>
-            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>{l.name}</span>
+            <span style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>{l.name}</span>
           </div>
         </div>
       ))}
@@ -318,10 +318,10 @@ export function ColorPanel() {
         <div key={s.k} style={{ marginBottom: 4 }}>
           <div style={{
             display: "flex", justifyContent: "space-between",
-            fontSize: 10, color: "rgba(255,255,255,0.35)", marginBottom: 2,
+            fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 2,
           }}>
             <span>{s.label}</span>
-            <span style={{ color: "rgba(255,255,255,0.15)", fontFamily: "monospace" }}>
+            <span style={{ color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>
               {v[s.k] > 0 ? "+" : ""}{v[s.k]}
             </span>
           </div>
@@ -329,9 +329,9 @@ export function ColorPanel() {
         </div>
       ))}
       <button style={{
-        width: "100%", fontSize: 10, padding: "5px 8px", borderRadius: 4, marginTop: 6,
+        width: "100%", fontSize: 11, padding: "5px 8px", borderRadius: 4, marginTop: 6,
         border: "1px solid rgba(255,255,255,0.05)", cursor: "pointer",
-        background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.35)",
+        background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
         fontFamily: "inherit",
       }} className="cs-hover-soft">Reset All</button>
     </div>
@@ -354,7 +354,7 @@ export function MotionPanel() {
             display: "flex", alignItems: "center", justifyContent: "center",
             fontSize: 10,
           }}>↗</div>
-          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>{mp.name}</span>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>{mp.name}</span>
         </div>
       ))}
     </div>
@@ -387,12 +387,12 @@ export function AIPanel() {
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{
-              fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 500,
+              fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 500,
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}>
               {ai.name}
             </div>
-            <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", marginTop: 1 }}>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>
               {proc === ai.id ? "Processing..." : ai.desc}
             </div>
           </div>
@@ -435,8 +435,8 @@ export function CaptionsPanel() {
           }} className="cs-hover-soft">
             <span style={{ fontSize: 16 }}>{c.icon}</span>
             <div>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 500 }}>{c.name}</div>
-              <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", marginTop: 1 }}>{c.lang}</div>
+              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.55)", fontWeight: 500 }}>{c.name}</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>{c.lang}</div>
             </div>
           </button>
         ))}
@@ -444,9 +444,9 @@ export function CaptionsPanel() {
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.04)", marginTop: 8, paddingTop: 8 }}>
         <button onClick={() => { setGen(true); setTimeout(() => setGen(false), 2500); }}
           style={{
-            width: "100%", fontSize: 10, padding: "5px 8px", borderRadius: 4,
+            width: "100%", fontSize: 11, padding: "5px 8px", borderRadius: 4,
             border: "1px solid rgba(255,255,255,0.05)", cursor: "pointer",
-            background: "rgba(59,130,246,0.08)", color: "rgba(59,130,246,0.5)",
+            background: "rgba(59,130,246,0.08)", color: "rgba(59,130,246,0.6)",
             fontFamily: "inherit", fontWeight: 500,
           }}
           className="cs-hover-soft"
@@ -458,9 +458,9 @@ export function CaptionsPanel() {
             <div key={i} style={{
               display: "flex", alignItems: "center", gap: 6,
               background: "rgba(255,255,255,0.03)", borderRadius: 3,
-              padding: "3px 8px", fontSize: 10, color: "rgba(255,255,255,0.35)",
+              padding: "3px 8px", fontSize: 11, color: "rgba(255,255,255,0.45)",
             }}>
-              <span style={{ color: "rgba(255,255,255,0.15)", fontFamily: "monospace", fontSize: 9 }}>{FMT(i * 2)}</span>
+              <span style={{ color: "rgba(255,255,255,0.25)", fontFamily: "monospace", fontSize: 10 }}>{FMT(i * 2)}</span>
               <span>{c}</span>
             </div>
           ))}
@@ -485,8 +485,8 @@ export function BrandPanel() {
           fontSize: 10, fontWeight: 700, color: "white", flexShrink: 0,
         }}>B</div>
         <div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>BRANPY Brand</div>
-          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.2)", marginTop: 1 }}>Active kit · 6 assets</div>
+          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>BRANPY Brand</div>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", marginTop: 1 }}>Active kit · 6 assets</div>
         </div>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 4, marginBottom: 8 }}>
@@ -501,15 +501,15 @@ export function BrandPanel() {
       <div style={{
         display: "flex", alignItems: "center", gap: 5, padding: "5px 8px", borderRadius: 4,
         background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.04)",
-        fontSize: 10, color: "rgba(255,255,255,0.35)", marginBottom: 8,
+        fontSize: 11, color: "rgba(255,255,255,0.45)", marginBottom: 8,
       }}>
         <span style={{ fontSize: 12 }}>🔤</span>
         <span>Inter · Sans · Open Sans</span>
       </div>
       <button style={{
-        width: "100%", fontSize: 10, padding: "5px 8px", borderRadius: 4,
+        width: "100%", fontSize: 11, padding: "5px 8px", borderRadius: 4,
         border: "1px solid rgba(255,255,255,0.05)", cursor: "pointer",
-        background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.35)",
+        background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
         fontFamily: "inherit",
       }} className="cs-hover-soft">Edit Brand Kit</button>
     </div>

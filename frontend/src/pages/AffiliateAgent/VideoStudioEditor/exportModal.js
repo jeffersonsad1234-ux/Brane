@@ -51,12 +51,12 @@ export default function ExportModal({ open, onClose, proj }) {
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <S d={I.exp} sz={14} style={{ color: "rgba(255,255,255,0.3)" }} />
-            <span style={{ fontSize: 11, fontWeight: 500, color: "rgba(255,255,255,0.5)" }}>Export</span>
+            <span style={{ fontSize: 12, fontWeight: 500, color: "rgba(255,255,255,0.6)" }}>Export</span>
           </div>
           <button onClick={onClose}
             style={{
               padding: 3, border: "none", cursor: "pointer", background: "none",
-              color: "rgba(255,255,255,0.15)", display: "flex", fontSize: 10,
+              color: "rgba(255,255,255,0.25)", display: "flex", fontSize: 11,
               fontFamily: "inherit",
             }}
             className="cs-hover-soft"
@@ -65,7 +65,7 @@ export default function ExportModal({ open, onClose, proj }) {
 
         <div style={{ padding: "10px 14px 0" }}>
           <div style={{
-            fontSize: 10, color: "rgba(255,255,255,0.2)", textTransform: "uppercase",
+            fontSize: 11, color: "rgba(255,255,255,0.3)", textTransform: "uppercase",
             letterSpacing: "0.1em", marginBottom: 6, fontWeight: 500,
           }}>Presets</div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 4 }}>
@@ -82,8 +82,8 @@ export default function ExportModal({ open, onClose, proj }) {
                 className={preset.id !== p.id ? "cs-hover-soft" : ""}
               >
                 <span style={{ fontSize: 16, marginBottom: 2 }}>{p.icon}</span>
-                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)" }}>{p.name}</span>
-                <span style={{ fontSize: 8, color: "rgba(255,255,255,0.15)" }}>{p.res}</span>
+                <span style={{ fontSize: 10, color: "rgba(255,255,255,0.5)" }}>{p.name}</span>
+                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.25)" }}>{p.res}</span>
               </button>
             ))}
           </div>
@@ -91,16 +91,16 @@ export default function ExportModal({ open, onClose, proj }) {
 
         <div style={{ padding: "10px 14px" }}>
           <div style={{
-            fontSize: 10, color: "rgba(255,255,255,0.2)", textTransform: "uppercase",
+            fontSize: 11, color: "rgba(255,255,255,0.3)", textTransform: "uppercase",
             letterSpacing: "0.1em", marginBottom: 6, fontWeight: 500,
           }}>Settings</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
             <div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginBottom: 2 }}>Resolution</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginBottom: 2 }}>Resolution</div>
               <select value={res} onChange={(e) => setRes(e.target.value)}
                 style={{
                   width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
-                  borderRadius: 4, fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "4px 6px",
+                  borderRadius: 4, fontSize: 11, color: "rgba(255,255,255,0.5)", padding: "4px 6px",
                   outline: "none", fontFamily: "inherit", cursor: "pointer",
                 }}
               >
@@ -108,11 +108,11 @@ export default function ExportModal({ open, onClose, proj }) {
               </select>
             </div>
             <div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginBottom: 2 }}>Frame Rate</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginBottom: 2 }}>Frame Rate</div>
               <select value={fps} onChange={(e) => setFps(+e.target.value)}
                 style={{
                   width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
-                  borderRadius: 4, fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "4px 6px",
+                  borderRadius: 4, fontSize: 11, color: "rgba(255,255,255,0.5)", padding: "4px 6px",
                   outline: "none", fontFamily: "inherit", cursor: "pointer",
                 }}
               >
@@ -122,11 +122,11 @@ export default function ExportModal({ open, onClose, proj }) {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 6 }}>
             <div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginBottom: 2 }}>Quality</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginBottom: 2 }}>Quality</div>
               <select value={quality} onChange={(e) => setQuality(e.target.value)}
                 style={{
                   width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
-                  borderRadius: 4, fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "4px 6px",
+                  borderRadius: 4, fontSize: 11, color: "rgba(255,255,255,0.5)", padding: "4px 6px",
                   outline: "none", fontFamily: "inherit", cursor: "pointer",
                 }}
               >
@@ -134,11 +134,11 @@ export default function ExportModal({ open, onClose, proj }) {
               </select>
             </div>
             <div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", marginBottom: 2 }}>Format</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginBottom: 2 }}>Format</div>
               <select value={format} onChange={(e) => setFormat(e.target.value)}
                 style={{
                   width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
-                  borderRadius: 4, fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "4px 6px",
+                  borderRadius: 4, fontSize: 11, color: "rgba(255,255,255,0.5)", padding: "4px 6px",
                   outline: "none", fontFamily: "inherit", cursor: "pointer",
                 }}
               >
@@ -149,7 +149,7 @@ export default function ExportModal({ open, onClose, proj }) {
           <div style={{ marginTop: 6 }}>
             <div style={{
               display: "flex", justifyContent: "space-between",
-              fontSize: 10, color: "rgba(255,255,255,0.25)", marginBottom: 2,
+              fontSize: 11, color: "rgba(255,255,255,0.35)", marginBottom: 2,
             }}>
               <span>Bitrate ({bitrate} Mbps)</span>
             </div>
@@ -163,7 +163,7 @@ export default function ExportModal({ open, onClose, proj }) {
           <div style={{ padding: "0 14px" }}>
             <div style={{
               display: "flex", justifyContent: "space-between",
-              fontSize: 9, color: "rgba(255,255,255,0.2)", marginBottom: 2,
+              fontSize: 10, color: "rgba(255,255,255,0.3)", marginBottom: 2,
             }}>
               <span>{done ? "Complete" : "Exporting..."}</span>
               <span>{Math.round(progress)}%</span>
@@ -177,7 +177,7 @@ export default function ExportModal({ open, onClose, proj }) {
             </div>
             {done && <div style={{
               textAlign: "center", padding: "6px 0",
-              fontSize: 10, color: "rgba(16,185,129,0.5)",
+              fontSize: 11, color: "rgba(16,185,129,0.6)",
             }}>✓ Export completed successfully</div>}
           </div>
         )}
@@ -187,22 +187,22 @@ export default function ExportModal({ open, onClose, proj }) {
           padding: "10px 14px", borderTop: "1px solid rgba(255,255,255,0.05)", marginTop: 4,
         }}>
           <div style={{
-            fontSize: 10, color: "rgba(255,255,255,0.15)", fontFamily: "monospace",
+            fontSize: 11, color: "rgba(255,255,255,0.25)", fontFamily: "monospace",
           }}>
             {proj.name} · {proj.duration.toFixed(1)}s
           </div>
           <div style={{ display: "flex", gap: 4 }}>
             <button onClick={onClose}
               style={{
-                fontSize: 10, padding: "4px 10px", borderRadius: 6, border: "none",
+                fontSize: 11, padding: "4px 10px", borderRadius: 6, border: "none",
                 cursor: "pointer", background: "rgba(255,255,255,0.04)",
-                color: "rgba(255,255,255,0.35)", fontFamily: "inherit",
+                color: "rgba(255,255,255,0.45)", fontFamily: "inherit",
               }}
               className="cs-hover-soft"
             >Cancel</button>
             <button onClick={handleExport} disabled={exporting}
               style={{
-                fontSize: 10, padding: "4px 12px", borderRadius: 6, border: "none",
+                fontSize: 11, padding: "4px 12px", borderRadius: 6, border: "none",
                 cursor: exporting ? "wait" : "pointer", fontFamily: "inherit",
                 background: done ? "rgba(16,185,129,0.5)" : exporting ? "rgba(255,255,255,0.06)" : "rgba(59,130,246,0.6)",
                 color: done || exporting ? "rgba(255,255,255,0.4)" : "white",
@@ -218,7 +218,7 @@ export default function ExportModal({ open, onClose, proj }) {
 
       <style>{`
         .cs-hover-soft:hover { background: rgba(255,255,255,0.06) !important; }
-        .cs-hover-icon:hover { color: rgba(255,255,255,0.25) !important; }
+        .cs-hover-icon:hover { color: rgba(255,255,255,0.35) !important; }
         .cs-asset-card:hover { background: rgba(255,255,255,0.04) !important; border-color: rgba(255,255,255,0.08) !important; }
         .cs-sticker-card:hover { background: rgba(255,255,255,0.06) !important; transform: scale(1.1); }
         .cs-hover-border:hover { border-color: rgba(59,130,246,0.2) !important; }
