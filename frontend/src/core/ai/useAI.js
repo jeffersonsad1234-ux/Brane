@@ -50,7 +50,7 @@ export function useAI(routerInstance = null) {
           if (ollama && await ollama.healthCheck()) {
             const models = await ollama.listModels();
             if (mountedRef.current) {
-              const available = models.length > 0 ? models[0] : ollama.defaultModel;
+              const available = (models.length > 0 ? models[0] : ollama.defaultModel) || "qwen2.5-coder:7b";
               setCurrentProvider("ollama");
               setCurrentModel(available);
             }

@@ -16,17 +16,15 @@ const QUICK_ACTIONS = [
 ];
 
 const PROVIDER_LABELS = {
-  "branpy-demo": "BRANPY Local AI",
   opencode: "OpenCode",
   openrouter: "OpenRouter",
   groq: "Groq",
   gemini: "Gemini",
   openai: "OpenAI",
   deepseek: "DeepSeek",
-  qwen: "Qwen",
-  llama: "Llama",
-  local: "Ollama (Legacy)",
+  qwen: "Qwen API",
   ollama: "Ollama Local",
+  "branpy-demo": "BRANPY Demo",
 };
 
 export default function AIChatPanel({ onClose, initialAgent = null, fullScreen = false }) {
@@ -231,9 +229,20 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
             color: "rgba(16,185,129,0.7)", fontFamily: "monospace",
             display: "flex", alignItems: "center", gap: 4,
           }}>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "rgba(16,185,129,0.7)", display: "inline-block" }} />
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: ollamaStatus === "ok" ? "rgba(16,185,129,0.7)" : "rgba(239,68,68,0.5)", display: "inline-block" }} />
             Ollama {currentModel || "qwen2.5-coder:7b"}
           </div>
+        )}
+        {(currentProvider === "ollama" || ollamaStatus === "ok" || ollamaStatus === "error") && (
+          <button onClick={testOllama}
+            style={{
+              padding: "2px 7px", borderRadius: 4, border: "none", cursor: "pointer",
+              background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.35)",
+              fontSize: 10, fontFamily: "inherit", whiteSpace: "nowrap",
+            }}
+            className="cs-hover-soft"
+            title="Testar conexão com Ollama"
+          >{ollamaStatus === "testing" ? "🔄" : ollamaStatus === "ok" ? "✓ Online" : ollamaStatus === "error" ? "✗ Offline" : "Testar"}</button>
         )}
 
         {/* Agent selector */}
@@ -307,7 +316,10 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
               borderRadius: 10, padding: 6, zIndex: 50, maxHeight: 340, overflow: "hidden auto",
               boxShadow: "0 16px 48px rgba(0,0,0,0.6)", backdropFilter: "blur(16px)",
             }}>
-              {providers.filter((p) => p.id !== "branpy-demo" || true).map((p) => (
+              {providers.filter((p) => p.id !== "branpy-demo" || true).map((p) => {
+                // Hide internal/confusing providers from the visual list
+                if (["local", "llama"].includes(p.id)) return null;
+                return (
                 <button key={p.id} onClick={() => selectProvider(p)}
                   style={{
                     display: "flex", alignItems: "center", gap: 8, width: "100%",
@@ -318,23 +330,19 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                   }}
                   className="cs-hover-item"
                 >
+                  <div style={{
+                    width: 5, height: 5, borderRadius: "50%", flexShrink: 0,
+                    background: p.id === "ollama" ? (ollamaStatus === "ok" ? "rgba(16,185,129,0.7)" : "rgba(239,68,68,0.5)") : "rgba(59,130,246,0.4)",
+                  }} />
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontWeight: 500, fontSize: 12 }}>{providerName(p.id)}</div>
-                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>{p.id}</div>
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>
+                      {p.id === "ollama" ? (ollamaStatus === "ok" ? "qwen2.5-coder:7b" : "offline") : p.id}
+                    </div>
                   </div>
                 </button>
-              ))}
-              {/* Test Ollama button */}
-              <button onClick={async (e) => { e.stopPropagation(); await testOllama(); }}
-                style={{
-                  display: "flex", alignItems: "center", gap: 8, width: "100%",
-                  padding: "7px 10px", borderRadius: 6, border: "none", cursor: "pointer",
-                  background: "transparent", color: "rgba(16,185,129,0.6)",
-                  fontSize: 11, fontFamily: "inherit", textAlign: "left", marginTop: 4,
-                  borderTop: "1px solid rgba(255,255,255,0.04)",
-                }}
-                className="cs-hover-item"
-              >{ollamaStatus === "testing" ? "🔄 Testando..." : ollamaStatus === "ok" ? "✓ Ollama OK" : ollamaStatus === "error" ? "✗ Ollama offline" : "▸ Testar Ollama Local"}</button>
+                );
+              })}
             </div>
           )}
         </div>
