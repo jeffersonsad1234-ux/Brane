@@ -7,6 +7,7 @@ import { LocalProvider } from "./LocalProvider";
 import { GroqProvider } from "./GroqProvider";
 import { GeminiProvider } from "./GeminiProvider";
 import { OpenAIProvider } from "./OpenAIProvider";
+import { OllamaProvider } from "./OllamaProvider";
 import { BRANPYLocalDemoProvider } from "./BRANPYLocalDemoProvider";
 
 const PROVIDER_REGISTRY = {
@@ -19,12 +20,13 @@ const PROVIDER_REGISTRY = {
   qwen: QwenProvider,
   llama: LlamaProvider,
   local: LocalProvider,
+  ollama: OllamaProvider,
   "branpy-demo": BRANPYLocalDemoProvider,
 };
 
 const PROVIDER_PRIORITY = [
   "opencode", "openrouter", "groq", "gemini", "openai",
-  "deepseek", "qwen", "llama", "local", "branpy-demo",
+  "deepseek", "qwen", "llama", "local", "ollama", "branpy-demo",
 ];
 
 let providerInstances = {};

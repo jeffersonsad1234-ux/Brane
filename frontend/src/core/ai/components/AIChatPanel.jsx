@@ -25,7 +25,8 @@ const PROVIDER_LABELS = {
   deepseek: "DeepSeek",
   qwen: "Qwen",
   llama: "Llama",
-  local: "Ollama",
+  local: "Ollama (Legacy)",
+  ollama: "Ollama Local",
 };
 
 export default function AIChatPanel({ onClose, initialAgent = null, fullScreen = false }) {
@@ -42,6 +43,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
   const [showProviders, setShowProviders] = useState(false);
   const [editingMsg, setEditingMsg] = useState(null);
   const [editText, setEditText] = useState("");
+  const [ollamaStatus, setOllamaStatus] = useState(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -160,6 +162,25 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
     setShowProviders(false);
   };
 
+  const testOllama = useCallback(async () => {
+    setOllamaStatus("testing");
+    try {
+      const { getProvider } = await import("../providers/ProviderFactory");
+      const ollama = getProvider("ollama");
+      if (!ollama) { setOllamaStatus("error"); return; }
+      const ok = await ollama.healthCheck();
+      const models = ok ? await ollama.listModels() : [];
+      setOllamaStatus(ok ? "ok" : "error");
+      if (ok && models.length > 0) {
+        setTimeout(() => setOllamaStatus(null), 3000);
+      } else if (ok) {
+        setTimeout(() => setOllamaStatus(null), 3000);
+      } else {
+        setTimeout(() => setOllamaStatus(null), 4000);
+      }
+    } catch { setOllamaStatus("error"); setTimeout(() => setOllamaStatus(null), 4000); }
+  }, []);
+
   const providerName = (id) => PROVIDER_LABELS[id] || id;
   const isDemo = currentProvider === "branpy-demo";
 
@@ -203,6 +224,17 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
             color: "rgba(251,191,36,0.7)", fontFamily: "monospace",
           }}>Modo demonstração local</div>
         )}
+        {currentProvider === "ollama" && (
+          <div style={{
+            fontSize: 10, padding: "2px 7px", borderRadius: 4,
+            background: "rgba(16,185,129,0.12)", border: "1px solid rgba(16,185,129,0.2)",
+            color: "rgba(16,185,129,0.7)", fontFamily: "monospace",
+            display: "flex", alignItems: "center", gap: 4,
+          }}>
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "rgba(16,185,129,0.7)", display: "inline-block" }} />
+            Ollama Local
+          </div>
+        )}
 
         {/* Agent selector */}
         <div style={{ position: "relative" }}>
@@ -244,6 +276,65 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                   </div>
                 </button>
               ))}
+            </div>
+          )}
+        </div>
+
+        {/* Provider selector */}
+        <div style={{ position: "relative" }}>
+          <button onClick={() => setShowProviders(!showProviders)}
+            style={{
+              display: "flex", alignItems: "center", gap: 4, padding: "3px 8px",
+              borderRadius: 5, border: "1px solid rgba(255,255,255,0.06)", cursor: "pointer",
+              fontSize: 11, background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.55)",
+              fontFamily: "inherit",
+            }}
+            className="cs-hover-soft"
+          >
+            <span style={{
+              width: 5, height: 5, borderRadius: "50%", display: "inline-block",
+              background: currentProvider === "ollama" ? "rgba(16,185,129,0.7)" :
+                          currentProvider === "branpy-demo" ? "rgba(251,191,36,0.7)" :
+                          "rgba(59,130,246,0.6)",
+            }} />
+            <span>{providerName(currentProvider)}</span>
+            <span style={{ fontSize: 7, color: "rgba(255,255,255,0.3)", marginLeft: 2 }}>▼</span>
+          </button>
+          {showProviders && (
+            <div style={{
+              position: "absolute", top: "100%", left: 0, marginTop: 4,
+              width: 200, background: "rgba(20,20,20,0.96)", border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 10, padding: 6, zIndex: 50, maxHeight: 340, overflow: "hidden auto",
+              boxShadow: "0 16px 48px rgba(0,0,0,0.6)", backdropFilter: "blur(16px)",
+            }}>
+              {providers.filter((p) => p.id !== "branpy-demo" || true).map((p) => (
+                <button key={p.id} onClick={() => selectProvider(p)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 8, width: "100%",
+                    padding: "7px 10px", borderRadius: 6, border: "none", cursor: "pointer",
+                    background: currentProvider === p.id ? "rgba(59,130,246,0.12)" : "transparent",
+                    color: currentProvider === p.id ? "rgba(59,130,246,0.7)" : "rgba(255,255,255,0.6)",
+                    fontSize: 12, fontFamily: "inherit", textAlign: "left",
+                  }}
+                  className="cs-hover-item"
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontWeight: 500, fontSize: 12 }}>{providerName(p.id)}</div>
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>{p.id}</div>
+                  </div>
+                </button>
+              ))}
+              {/* Test Ollama button */}
+              <button onClick={async (e) => { e.stopPropagation(); await testOllama(); }}
+                style={{
+                  display: "flex", alignItems: "center", gap: 8, width: "100%",
+                  padding: "7px 10px", borderRadius: 6, border: "none", cursor: "pointer",
+                  background: "transparent", color: "rgba(16,185,129,0.6)",
+                  fontSize: 11, fontFamily: "inherit", textAlign: "left", marginTop: 4,
+                  borderTop: "1px solid rgba(255,255,255,0.04)",
+                }}
+                className="cs-hover-item"
+              >{ollamaStatus === "testing" ? "🔄 Testando..." : ollamaStatus === "ok" ? "✓ Ollama OK" : ollamaStatus === "error" ? "✗ Ollama offline" : "▸ Testar Ollama Local"}</button>
             </div>
           )}
         </div>
