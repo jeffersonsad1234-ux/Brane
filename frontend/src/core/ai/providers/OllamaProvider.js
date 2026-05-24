@@ -1,8 +1,9 @@
 import { BaseProvider, ProviderError } from "./BaseProvider";
 
 const OLLAMA_URLS = [
-  "http://127.0.0.1:11434",
+  "http://127.0.0.1:8787",
   "http://localhost:11434",
+  "http://127.0.0.1:11434",
 ];
 const DEFAULT_MODEL = "qwen2.5-coder:7b";
 

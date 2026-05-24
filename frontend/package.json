@@ -73,7 +73,8 @@
     "start:tts": "python ../backend/tts_server.py",
     "dev": "concurrently -k -n frontend,tts -c cyan,green \"npm start\" \"npm run start:tts\"",
     "build": "cross-env CI=false DISABLE_ESLINT_PLUGIN=true SKIP_PREFLIGHT_CHECK=true craco build",
-    "test": "craco test"
+    "test": "craco test",
+    "ollama-proxy": "node local-ollama-proxy.js"
   },
   "browserslist": {
     "production": [
