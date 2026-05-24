@@ -5,6 +5,7 @@ import { getAgent, DEFAULT_AGENT } from "./agents/AgentRegistry";
 import { getAvailableProviders, getProvider } from "./providers/ProviderFactory";
 
 const POLL_INTERVAL = 5000;
+const DEFAULT_MODEL = "qwen2.5-coder:7b";
 
 function isCorsError(err) {
   if (!err) return false;
@@ -62,14 +63,14 @@ export function useAI(routerInstance = null) {
         const ok = await ollama.healthCheck();
         if (!mountedRef.current) return;
         if (ok) {
+          setOllamaOnline("online");
           const models = await ollama.listModels();
           if (!mountedRef.current) return;
-          setOllamaOnline("online");
-          const firstModel = models.length > 0 ? models[0] : ollama.defaultModel || "qwen2.5-coder:7b";
+          const firstModel = models.length > 0 ? models[0] : DEFAULT_MODEL;
           if (currentProviderRef.current !== "ollama") {
             setCurrentProvider("ollama");
           }
-          setCurrentModel(firstModel);
+          if (firstModel) setCurrentModel(firstModel);
         } else {
           setOllamaOnline("offline");
         }

@@ -288,6 +288,11 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                           "rgba(59,130,246,0.6)",
             }} />
             <span>{providerName(currentProvider)}</span>
+            {currentProvider === "ollama" && ollamaOnline === "online" && (
+              <span style={{ fontSize: 9, color: "rgba(16,185,129,0.6)", fontFamily: "monospace" }}>
+                {currentModel || "qwen2.5-coder:7b"}
+              </span>
+            )}
             <span style={{ fontSize: 7, color: "rgba(255,255,255,0.3)", marginLeft: 2 }}>▼</span>
           </button>
           {showProviders && (
@@ -317,7 +322,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontWeight: 500, fontSize: 12 }}>{providerName(p.id)}</div>
                     <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>
-                      {p.id === "ollama" ? (ollamaOnline === "online" ? currentModel || "qwen2.5-coder:7b" : "offline") : p.id}
+                      {p.id === "ollama" ? (ollamaOnline === "online" ? (currentModel || "qwen2.5-coder:7b") : "offline") : p.id}
                     </div>
                   </div>
                 </button>

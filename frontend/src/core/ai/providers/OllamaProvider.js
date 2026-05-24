@@ -140,7 +140,6 @@ export class OllamaProvider extends BaseProvider {
         const res = await fetch(`${this.baseUrl}/api/tags`, {
           signal: AbortSignal.timeout(5000),
         });
-        if (res.ok) this.listModels().catch(() => {});
         return res.ok;
       } catch {
         return false;
