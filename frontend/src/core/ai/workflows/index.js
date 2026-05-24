@@ -1,1 +1,2 @@
-export { AIWorkflowEngine, aiWorkflowEngine } from "./AIWorkflowEngine";
+export { AIWorkflowEngine } from "./AIWorkflowEngine";
+export { WorkflowEngine, workflowEngine } from "./WorkflowEngine";
