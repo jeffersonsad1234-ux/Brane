@@ -19,59 +19,69 @@ export function useAI(routerInstance = null) {
   const [executionStatus, setExecutionStatus] = useState(null);
   const abortRef = useRef(null);
   const activeStreamRef = useRef(null);
+  const mountedRef = useRef(true);
 
   useEffect(() => {
-    loadSessions();
-    updateProviderStatus();
-    // Wire tool execution status handler
-    router.setToolStatusHandler((status) => {
-      setExecutionStatus(status);
-      if (status.type === "done" || status.type === "tool-error") {
-        setTimeout(() => setExecutionStatus(null), 2000);
-      }
-    });
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
+  useEffect(() => {
+    try {
+      router.setToolStatusHandler((status) => {
+        if (!mountedRef.current) return;
+        setExecutionStatus(status);
+        if (status && (status.type === "done" || status.type === "tool-error")) {
+          setTimeout(() => { if (mountedRef.current) setExecutionStatus(null); }, 2000);
+        }
+      });
+    } catch { /* handler setup fail */ }
+  }, [router]);
+
+  useEffect(() => {
+    try {
+      router.getSessions().then((list) => { if (mountedRef.current) setSessions(list || []); }).catch(() => {});
+      const status = router.getProviderStatus();
+      if (mountedRef.current) setProviderStatus(status || []);
+    } catch { /* init fail */ }
   }, [router]);
 
   const stopGeneration = useCallback(() => {
     if (abortRef.current) {
-      abortRef.current.abort();
+      try { abortRef.current.abort(); } catch {}
       abortRef.current = null;
     }
     if (activeStreamRef.current) {
-      try { activeStreamRef.current.return?.(); } catch {}
+      try { activeStreamRef.current.return ? activeStreamRef.current.return() : null; } catch {}
       activeStreamRef.current = null;
     }
     setStreaming(false);
     setLoading(false);
-    if (currentStream) {
-      const msg = {
-        id: `msg_${Date.now()}`,
-        role: "assistant",
-        content: currentStream + "\n\n*(geração interrompida)*",
-        timestamp: Date.now(),
-      };
-      setMessages((prev) => [...prev, msg]);
-      setCurrentStream("");
-    }
-  }, [currentStream]);
+  }, []);
 
-  const loadSessions = useCallback(async () => {
-    try {
-      const list = await router.getSessions();
-      setSessions(list);
-    } catch { }
-  }, [router]);
-
-  const updateProviderStatus = useCallback(() => {
-    setProviderStatus(router.getProviderStatus());
-  }, [router]);
+  const addAssistantMessage = useCallback((content, provider, model, agent) => {
+    if (!mountedRef.current) return;
+    const msg = {
+      id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      role: "assistant",
+      content: content || "",
+      provider: provider || "",
+      model: model || (agent ? agent.defaultModel : "") || "",
+      timestamp: Date.now(),
+    };
+    setMessages((prev) => [...prev, msg]);
+  }, []);
 
   const sendMessage = useCallback(async (content, options = {}) => {
+    if (!mountedRef.current) return { content: "" };
     setLoading(true);
     setError(null);
     setStreaming(false);
 
-    const userMsg = { id: `msg_${Date.now()}`, role: "user", content, timestamp: Date.now() };
+    const msg = (content || "").trim();
+    if (!msg) { setLoading(false); return { content: "" }; }
+
+    const userMsg = { id: `msg_${Date.now()}`, role: "user", content: msg, timestamp: Date.now() };
     setMessages((prev) => [...prev, userMsg]);
 
     const agent = options.agent || currentAgent;
@@ -79,33 +89,28 @@ export function useAI(routerInstance = null) {
     const provider = options.provider || currentProvider;
 
     try {
-      const result = await router.chat(content, {
-        agent,
-        model: model || undefined,
-        provider,
-        ...options,
-      });
-
-      const assistantMsg = {
-        id: `msg_${Date.now() + 1}`,
-        role: "assistant",
-        content: result.content,
-        provider: result.provider,
-        model: result.model,
-        timestamp: Date.now(),
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
-      setLoading(false);
-      loadSessions();
-      return result;
+      const result = await router.chat(msg, { agent, model: model || undefined, provider, ...options });
+      if (mountedRef.current) {
+        setLoading(false);
+        if (result && result.content) {
+          addAssistantMessage(result.content, result.provider, result.model, agent);
+        }
+      }
+      return result || { content: "" };
     } catch (err) {
-      setError(err.message);
-      setLoading(false);
-      throw err;
+      if (mountedRef.current) {
+        setError(err ? err.message : "Chat failed");
+        setLoading(false);
+      }
+      return { content: "", error: err ? err.message : "Chat failed" };
     }
-  }, [router, currentAgent, currentModel, currentProvider, loadSessions]);
+  }, [router, currentAgent, currentModel, currentProvider, addAssistantMessage]);
 
   const sendStreamMessage = useCallback(async (content, options = {}) => {
+    if (!mountedRef.current) return { content: "" };
+    const msg = (content || "").trim();
+    if (!msg) { setLoading(false); return { content: "" }; }
+
     setLoading(true);
     setError(null);
     setStreaming(true);
@@ -114,7 +119,7 @@ export function useAI(routerInstance = null) {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    const userMsg = { id: `msg_${Date.now()}`, role: "user", content, timestamp: Date.now() };
+    const userMsg = { id: `msg_${Date.now()}`, role: "user", content: msg, timestamp: Date.now() };
     setMessages((prev) => [...prev, userMsg]);
 
     const agent = options.agent || currentAgent;
@@ -125,24 +130,17 @@ export function useAI(routerInstance = null) {
     let resultProvider = "";
 
     try {
-      const stream = router.chatStream(content, {
-        agent,
-        model: model || undefined,
-        provider,
-        signal: controller.signal,
-        ...options,
-      });
+      const stream = router.chatStream(msg, { agent, model: model || undefined, provider, signal: controller.signal, ...options });
       activeStreamRef.current = stream;
 
       for await (const chunk of stream) {
-        if (controller.signal.aborted) break;
+        if (!mountedRef.current || controller.signal.aborted) break;
+        if (!chunk) continue;
         if (chunk.done) {
-          if (chunk.error) {
-            throw new Error(chunk.error);
-          }
-          if (!controller.signal.aborted) break;
+          if (chunk.error) break;
+          break;
         }
-        fullContent += chunk.content;
+        fullContent += (chunk.content || "");
         resultProvider = chunk.provider || resultProvider;
         if (!controller.signal.aborted) {
           setCurrentStream(fullContent);
@@ -150,98 +148,67 @@ export function useAI(routerInstance = null) {
       }
 
       activeStreamRef.current = null;
+      abortRef.current = null;
 
-      if (!fullContent && !controller.signal.aborted) {
-        throw new Error("Stream retornou vazio");
-      }
-
-      if (controller.signal.aborted && fullContent) {
-        const msg = {
-          id: `msg_${Date.now() + 1}`,
-          role: "assistant",
-          content: fullContent,
-          provider: resultProvider,
-          model: model || (agent ? agent.defaultModel : ""),
-          timestamp: Date.now(),
-        };
-        setMessages((prev) => [...prev, msg]);
+      if (mountedRef.current) {
+        setStreaming(false);
         setCurrentStream("");
         setLoading(false);
-        setStreaming(false);
-        return { content: fullContent, provider: resultProvider, aborted: true };
+        if (fullContent) {
+          addAssistantMessage(fullContent, resultProvider, model, agent);
+        }
       }
+      return { content: fullContent || "", provider: resultProvider };
     } catch (err) {
+      activeStreamRef.current = null;
+      abortRef.current = null;
+      if (!mountedRef.current) return { content: "" };
       setStreaming(false);
       setCurrentStream("");
-      abortRef.current = null;
-      activeStreamRef.current = null;
+      setLoading(false);
+      // Fallback to non-streaming
       try {
-        const result = await sendMessage(content, options);
-        setLoading(false);
-        return result;
-      } catch (fallbackErr) {
-        try {
-          const demo = getProvider("branpy-demo");
-          if (demo && demo.isAvailable()) {
-            const text = await demo.sendMessage([userMsg], options);
-            const msg = { id: `msg_${Date.now() + 1}`, role: "assistant", content: text, provider: "branpy-demo", timestamp: Date.now() };
-            setMessages((prev) => [...prev, msg]);
-            setLoading(false);
-            return { content: text, provider: "branpy-demo" };
-          }
-        } catch {}
-        setLoading(false);
-        return { content: "", error: fallbackErr.message };
-      }
+        const result = await router.chat(msg, { agent, model: model || undefined, provider, ...options });
+        if (mountedRef.current && result && result.content) {
+          addAssistantMessage(result.content, result.provider, result.model, agent);
+          return { content: result.content, provider: result.provider };
+        }
+      } catch {}
+      return { content: "", error: err ? err.message : "Stream failed" };
     }
-
-    if (!controller.signal.aborted && fullContent) {
-      const assistantMsg = {
-        id: `msg_${Date.now() + 1}`,
-        role: "assistant",
-        content: fullContent,
-        provider: resultProvider,
-        model: model || (agent ? agent.defaultModel : ""),
-        timestamp: Date.now(),
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
-    }
-    setCurrentStream("");
-    setLoading(false);
-    setStreaming(false);
-    abortRef.current = null;
-    loadSessions();
-    return { content: fullContent, provider: resultProvider };
-  }, [router, currentAgent, currentModel, currentProvider, loadSessions, sendMessage]);
+  }, [router, currentAgent, currentModel, currentProvider, addAssistantMessage]);
 
   const clearMessages = useCallback(async () => {
     setMessages([]);
     setCurrentStream("");
     setError(null);
-    await router.clearHistory();
-    loadSessions();
-  }, [router, loadSessions]);
+    try { await router.clearHistory(); } catch {}
+  }, [router]);
 
   const loadSession = useCallback(async (sessionId) => {
-    router.setSession(sessionId);
-    const history = await router.getHistory(sessionId);
-    setMessages(history.map((m) => ({
-      id: m.id || `msg_${m.timestamp || Date.now()}`,
-      role: m.role,
-      content: m.content,
-      provider: m.provider,
-      model: m.model,
-      timestamp: m.timestamp,
-    })));
+    if (!sessionId) return;
+    try {
+      router.setSession(sessionId);
+      const history = await router.getHistory(sessionId);
+      if (mountedRef.current) {
+        setMessages((history || []).map((m) => ({
+          id: m.id || `msg_${m.timestamp || Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+          role: m.role,
+          content: m.content || "",
+          provider: m.provider,
+          model: m.model,
+          timestamp: m.timestamp,
+        })));
+      }
+    } catch { if (mountedRef.current) setMessages([]); }
   }, [router]);
 
   const newSession = useCallback(() => {
-    router.setSession(`session_${Date.now()}`);
     setMessages([]);
     setCurrentStream("");
     setError(null);
-    loadSessions();
-  }, [router, loadSessions]);
+    router.setSession(`session_${Date.now()}`);
+  }, [router]);
 
   return {
     messages, loading, streaming, currentStream, error, executionStatus,
@@ -249,8 +216,8 @@ export function useAI(routerInstance = null) {
 
     sendMessage, sendStreamMessage, clearMessages, loadSession, newSession,
     setCurrentAgent, setCurrentModel, setCurrentProvider, stopGeneration,
+    addAssistantMessage,
 
-    loadSessions, updateProviderStatus,
     router, memory: aiMemory,
     getProviderStatus: providerStatus,
     getAgent,

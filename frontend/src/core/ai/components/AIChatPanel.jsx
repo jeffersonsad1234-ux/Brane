@@ -4,6 +4,7 @@ import { getAgentConfigs } from "../agents/AgentRegistry";
 import { getAvailableProviders } from "../providers/ProviderFactory";
 import { intentEngine } from "../utils/IntentEngine";
 import MarkdownRenderer from "./MarkdownRenderer";
+import { AIChatErrorBoundary } from "./AIChatErrorBoundary";
 
 const QUICK_ACTIONS = [
   { label: "Criar roteiro", prompt: "Crie um roteiro curto para um vídeo de produto no TikTok" },
@@ -44,8 +45,12 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
 
-  const agents = getAgentConfigs();
-  const providers = getAvailableProviders();
+  const agentsRef = useRef(null);
+  if (!agentsRef.current) { try { agentsRef.current = getAgentConfigs(); } catch { agentsRef.current = []; } }
+  const providersRef = useRef(null);
+  if (!providersRef.current) { try { providersRef.current = getAvailableProviders(); } catch { providersRef.current = []; } }
+  const agents = agentsRef.current;
+  const providers = providersRef.current;
   const isStreaming = streaming || loading;
 
   useEffect(() => {
@@ -59,31 +64,55 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, currentStream]);
 
+  const currentAgentRef = useRef(currentAgent);
+  currentAgentRef.current = currentAgent;
+  const currentProviderRef = useRef(currentProvider);
+  currentProviderRef.current = currentProvider;
+  const currentModelRef = useRef(currentModel);
+  currentModelRef.current = currentModel;
+
   const handleSend = useCallback(async (text) => {
-    const msg = text || input.trim();
+    const msg = (text || input || "").trim();
     if (!msg || isStreaming) return;
     setInput("");
 
-    // Detect intent and auto-switch agent
-    const intent = intentEngine.classify(msg);
-    const targetAgentId = intentEngine.getAgentForIntent(intent.id);
-    if (targetAgentId !== currentAgent.id) {
-      const target = agents.find((a) => a.id === targetAgentId);
-      if (target) setCurrentAgent(target);
+    // Detect intent
+    let intent = { id: "general", label: "Geral" };
+    let targetAgentId = null;
+    try {
+      if (intentEngine) {
+        intent = intentEngine.classify(msg);
+        targetAgentId = intentEngine.getAgentForIntent(intent.id);
+      }
+    } catch { intent = { id: "general", label: "Geral" }; }
+
+    // Switch agent synchronously via ref to avoid stale closure
+    const agent = currentAgentRef.current;
+    if (targetAgentId && targetAgentId !== agent.id) {
+      const target = (agentsRef.current || []).find((a) => a.id === targetAgentId);
+      if (target) {
+        setCurrentAgent(target);
+        currentAgentRef.current = target;
+      }
     }
 
     try {
-      if (intentEngine.shouldExecute(intent.id)) {
-        const execPrompt = intentEngine.generateExecutionPrompt(intent.id, msg);
-        await sendStreamMessage(execPrompt, { agent: currentAgent, provider: currentProvider, model: currentModel });
+      const shouldExec = intentEngine ? intentEngine.shouldExecute(intent.id) : false;
+      const finalAgent = currentAgentRef.current;
+      const finalProvider = currentProviderRef.current;
+      const finalModel = currentModelRef.current;
+      if (shouldExec) {
+        let execPrompt = msg;
+        try { execPrompt = intentEngine.generateExecutionPrompt(intent.id, msg) || msg; } catch { execPrompt = msg; }
+        await sendStreamMessage(execPrompt, { agent: finalAgent, provider: finalProvider, model: finalModel });
       } else {
-        await sendStreamMessage(msg, { agent: currentAgent, provider: currentProvider, model: currentModel });
+        await sendStreamMessage(msg, { agent: finalAgent, provider: finalProvider, model: finalModel });
       }
     } catch (err) {
       console.error("[AIChat] send error:", err);
     }
-    inputRef.current?.focus();
-  }, [input, isStreaming, sendStreamMessage, currentAgent, currentProvider, currentModel, agents]);
+    if (inputRef.current) inputRef.current.focus();
+  }, [input, isStreaming, sendStreamMessage]);
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -135,6 +164,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
   const isDemo = currentProvider === "branpy-demo";
 
   return (
+    <AIChatErrorBoundary>
     <div style={{
       flex: 1, display: "flex", flexDirection: "column", minHeight: 0,
       background: "linear-gradient(160deg, #080808 0%, #0a0a0a 50%, #0d0d0d 100%)",
@@ -536,5 +566,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
     </div>
+    </AIChatErrorBoundary>
   );
 }
