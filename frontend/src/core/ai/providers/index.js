@@ -5,5 +5,6 @@ export { DeepSeekProvider } from "./DeepSeekProvider";
 export { QwenProvider } from "./QwenProvider";
 export { LlamaProvider } from "./LlamaProvider";
 export { LocalProvider } from "./LocalProvider";
+export { BRANPYLocalDemoProvider } from "./BRANPYLocalDemoProvider";
 export { createProvider, getProvider, resetProviders, getAvailableProviders, getProviderPriority, setProviderPriority, listProviderIds } from "./ProviderFactory";
 export { FallbackManager, fallbackManager } from "./FallbackManager";

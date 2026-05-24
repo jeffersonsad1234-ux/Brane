@@ -200,12 +200,13 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
 
         {messages.map((msg, i) => {
           if (msg.role !== "user" && !msg.content) return null;
+          const isError = msg.content?.startsWith("[Error:") || msg.content?.startsWith("Provider não configurado") || msg.content?.startsWith("Nenhum provider");
           return (
           <div key={msg.id || i} style={{
             display: "flex", gap: 8, marginBottom: 12,
             justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
           }}>
-            {msg.role !== "user" && (
+            {msg.role !== "user" && !isError && (
               <div style={{
                 width: 28, height: 28, borderRadius: 8, flexShrink: 0,
                 background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
@@ -215,13 +216,22 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
             )}
             <div style={{
               maxWidth: "75%", padding: "8px 12px", borderRadius: 10,
-              background: msg.role === "user" ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.04)",
-              border: msg.role === "user" ? "1px solid rgba(59,130,246,0.15)" : "1px solid rgba(255,255,255,0.06)",
+              background: isError ? "rgba(239,68,68,0.06)" : msg.role === "user" ? "rgba(59,130,246,0.12)" : "rgba(255,255,255,0.04)",
+              border: isError ? "1px solid rgba(239,68,68,0.12)" : msg.role === "user" ? "1px solid rgba(59,130,246,0.15)" : "1px solid rgba(255,255,255,0.06)",
               fontSize: 13, lineHeight: "1.5",
-              color: msg.role === "user" ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.75)",
+              color: isError ? "rgba(239,68,68,0.65)" : msg.role === "user" ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.75)",
               whiteSpace: "pre-wrap",
             }}>
-              {msg.content}
+              {isError ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600 }}>⚠️ Provider não configurado</span>
+                  <span style={{ fontSize: 12, color: "rgba(239,68,68,0.5)" }}>
+                    Configure uma chave de API em <strong>AI Providers</strong> ou aguarde o modo demonstração local.
+                  </span>
+                </div>
+              ) : (
+                msg.content
+              )}
               {msg.provider && (
                 <div style={{ fontSize: 10, color: "rgba(255,255,255,0.2)", marginTop: 4 }}>
                   via {msg.provider}

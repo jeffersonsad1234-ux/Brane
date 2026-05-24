@@ -109,28 +109,45 @@ export function useAI(routerInstance = null) {
         setCurrentStream(fullContent);
       }
 
-      const assistantMsg = {
-        id: `msg_${Date.now() + 1}`,
-        role: "assistant",
-        content: fullContent || "[empty response]",
-        provider: resultProvider,
-        model: model || (agent ? agent.defaultModel : ""),
-        timestamp: Date.now(),
-      };
-      setMessages((prev) => [...prev, assistantMsg]);
-      setCurrentStream("");
-      setLoading(false);
-      setStreaming(false);
-      loadSessions();
-      return { content: fullContent, provider: resultProvider };
+      if (!fullContent) {
+        throw new Error("Stream retornou vazio. Tentando modo não-streaming...");
+      }
     } catch (err) {
+      if (err.message?.includes("Tentando modo não-streaming") || err.message?.includes("failed for stream")) {
+        setStreaming(false);
+        setCurrentStream("");
+        try {
+          const result = await sendMessage(content, options);
+          setLoading(false);
+          return result;
+        } catch (fallbackErr) {
+          setError(fallbackErr.message);
+          setLoading(false);
+          return { content: "", error: fallbackErr.message };
+        }
+      }
       setError(err.message);
       setLoading(false);
       setStreaming(false);
       setCurrentStream("");
       return { content: fullContent, error: err.message };
     }
-  }, [router, currentAgent, currentModel, currentProvider, loadSessions]);
+
+    const assistantMsg = {
+      id: `msg_${Date.now() + 1}`,
+      role: "assistant",
+      content: fullContent,
+      provider: resultProvider,
+      model: model || (agent ? agent.defaultModel : ""),
+      timestamp: Date.now(),
+    };
+    setMessages((prev) => [...prev, assistantMsg]);
+    setCurrentStream("");
+    setLoading(false);
+    setStreaming(false);
+    loadSessions();
+    return { content: fullContent, provider: resultProvider };
+  }, [router, currentAgent, currentModel, currentProvider, loadSessions, sendMessage]);
 
   const clearMessages = useCallback(async () => {
     setMessages([]);

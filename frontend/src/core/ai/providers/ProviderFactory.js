@@ -4,6 +4,7 @@ import { DeepSeekProvider } from "./DeepSeekProvider";
 import { QwenProvider } from "./QwenProvider";
 import { LlamaProvider } from "./LlamaProvider";
 import { LocalProvider } from "./LocalProvider";
+import { BRANPYLocalDemoProvider } from "./BRANPYLocalDemoProvider";
 
 const PROVIDER_REGISTRY = {
   opencode: OpenCodeProvider,
@@ -12,9 +13,10 @@ const PROVIDER_REGISTRY = {
   qwen: QwenProvider,
   llama: LlamaProvider,
   local: LocalProvider,
+  "branpy-demo": BRANPYLocalDemoProvider,
 };
 
-const PROVIDER_PRIORITY = ["opencode", "openrouter", "deepseek", "qwen", "llama", "local"];
+const PROVIDER_PRIORITY = ["opencode", "openrouter", "deepseek", "qwen", "llama", "local", "branpy-demo"];
 
 let providerInstances = {};
 
