@@ -6,6 +6,12 @@ import { getAvailableProviders, getProvider } from "./providers/ProviderFactory"
 
 const POLL_INTERVAL = 5000;
 
+function isCorsError(err) {
+  if (!err) return false;
+  const m = err.message || "";
+  return m.includes("CORS") || m.includes("Failed to fetch") || m.includes("NetworkError") || m.includes("TypeError");
+}
+
 export function useAI(routerInstance = null) {
   const router = routerInstance || defaultRouter;
   const [messages, setMessages] = useState([]);
@@ -24,6 +30,8 @@ export function useAI(routerInstance = null) {
   const activeStreamRef = useRef(null);
   const mountedRef = useRef(true);
   const pollRef = useRef(null);
+  const currentProviderRef = useRef(currentProvider);
+  currentProviderRef.current = currentProvider;
 
   useEffect(() => {
     mountedRef.current = true;
@@ -45,7 +53,6 @@ export function useAI(routerInstance = null) {
     } catch { /* handler setup fail */ }
   }, [router]);
 
-  // Persistent Ollama health polling
   useEffect(() => {
     const checkOllama = async () => {
       if (!mountedRef.current) return;
@@ -55,16 +62,14 @@ export function useAI(routerInstance = null) {
         const ok = await ollama.healthCheck();
         if (!mountedRef.current) return;
         if (ok) {
-          setOllamaOnline("online");
           const models = await ollama.listModels();
-          if (mountedRef.current && models.length > 0 && currentProvider !== "ollama") {
-            const available = models[0] || ollama.defaultModel || "qwen2.5-coder:7b";
+          if (!mountedRef.current) return;
+          setOllamaOnline("online");
+          const firstModel = models.length > 0 ? models[0] : ollama.defaultModel || "qwen2.5-coder:7b";
+          if (currentProviderRef.current !== "ollama") {
             setCurrentProvider("ollama");
-            setCurrentModel(available);
-          } else if (mountedRef.current && models.length > 0 && currentProvider === "ollama") {
-            const available = models[0] || ollama.defaultModel || "qwen2.5-coder:7b";
-            if (currentModel !== available) setCurrentModel(available);
           }
+          setCurrentModel(firstModel);
         } else {
           setOllamaOnline("offline");
         }
@@ -80,7 +85,6 @@ export function useAI(routerInstance = null) {
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const stopGeneration = useCallback(() => {
@@ -114,7 +118,7 @@ export function useAI(routerInstance = null) {
     if (!ollama) throw new Error("Ollama provider não encontrado");
     const modelName = model || ollama.defaultModel || "qwen2.5-coder:7b";
     const stream = ollama.streamMessage([
-      { role: "system", content: "Você é a BRANPY AI, uma assistente local inteligente. Responda de forma direta, útil e completa em português brasileiro. NUNCA use frases genéricas como 'entendi sua pergunta', 'posso ajudar', 'vou analisar'." },
+      { role: "system", content: "Você é uma assistente local inteligente rodando via Ollama. Responda de forma direta, útil e completa em português brasileiro." },
       { role: "user", content: msg },
     ], { model: modelName, signal: controller?.signal });
     return { stream, model: modelName, provider: "ollama" };
@@ -125,7 +129,7 @@ export function useAI(routerInstance = null) {
     if (!ollama) throw new Error("Ollama provider não encontrado");
     const modelName = model || ollama.defaultModel || "qwen2.5-coder:7b";
     return await ollama.sendMessage([
-      { role: "system", content: "Você é a BRANPY AI, uma assistente local inteligente. Responda de forma direta, útil e completa em português brasileiro." },
+      { role: "system", content: "Você é uma assistente local inteligente rodando via Ollama. Responda de forma direta, útil e completa em português brasileiro." },
       { role: "user", content: msg },
     ], { model: modelName, signal: controller?.signal });
   }, []);
@@ -148,20 +152,12 @@ export function useAI(routerInstance = null) {
 
     try {
       if (provider === "ollama") {
-        try {
-          const text = await ollamaSend(msg, model, null);
-          if (mountedRef.current) {
-            setLoading(false);
-            if (text) addAssistantMessage(text, "ollama", model || "qwen2.5-coder:7b", agent);
-          }
-          return { content: text || "", provider: "ollama", model: model || "qwen2.5-coder:7b" };
-        } catch (err) {
-          if (!mountedRef.current) return { content: "" };
+        const text = await ollamaSend(msg, model, null);
+        if (mountedRef.current) {
           setLoading(false);
-          const errorMsg = err ? err.message : "Ollama offline";
-          addAssistantMessage("**Ollama Local offline**\n\n" + errorMsg, "ollama", model || "qwen2.5-coder:7b", agent);
-          return { content: "", error: errorMsg };
+          if (text) addAssistantMessage(text, "ollama", model || "qwen2.5-coder:7b", agent);
         }
+        return { content: text || "", provider: "ollama", model: model || "qwen2.5-coder:7b" };
       }
 
       const result = await router.chat(msg, { agent, model: model || undefined, provider, ...options });
@@ -173,10 +169,20 @@ export function useAI(routerInstance = null) {
       }
       return result || { content: "" };
     } catch (err) {
-      if (mountedRef.current) {
-        setError(err ? err.message : "Chat failed");
-        setLoading(false);
+      if (!mountedRef.current) return { content: "" };
+      setLoading(false);
+      if (provider === "ollama") {
+        const errorMsg = err ? err.message : "Ollama offline";
+        const cors = isCorsError(err);
+        addAssistantMessage(
+          "**Ollama Local offline**\n\n" + (cors
+            ? "Não foi possível conectar ao Ollama pelo navegador (CORS).\nSoluções:\n1. Execute: set OLLAMA_ORIGINS=* && ollama serve\n2. Ou instale extensão 'CORS Unblock' no Chrome\n3. Ou acesse via http://localhost:11434"
+            : errorMsg),
+          "ollama", model || "qwen2.5-coder:7b", agent
+        );
+        return { content: "", error: errorMsg };
       }
+      setError(err ? err.message : "Chat failed");
       return { content: "", error: err ? err.message : "Chat failed" };
     }
   }, [router, currentAgent, currentModel, currentProvider, addAssistantMessage, ollamaSend]);
@@ -207,91 +213,82 @@ export function useAI(routerInstance = null) {
 
     try {
       if (provider === "ollama") {
-        try {
-          const { stream, model: m, provider: p } = await ollamaStream(msg, model, controller);
-          activeStreamRef.current = stream;
-          resultProvider = p;
-          resultModel = m;
-          for await (const chunk of stream) {
-            if (!mountedRef.current || controller.signal.aborted) break;
-            fullContent += (chunk || "");
-            if (!controller.signal.aborted) setCurrentStream(fullContent);
-          }
-          activeStreamRef.current = null;
-          abortRef.current = null;
-          if (!mountedRef.current) return { content: "" };
-          if (fullContent) {
-            setStreaming(false);
-            setCurrentStream("");
-            setLoading(false);
-            addAssistantMessage(fullContent, resultProvider, resultModel, agent);
-            return { content: fullContent, provider: resultProvider };
-          }
-          fullContent = await ollamaSend(msg, model, controller) || "";
-          resultProvider = "ollama";
-          resultModel = model || "qwen2.5-coder:7b";
-          setStreaming(false);
-          setCurrentStream("");
-          setLoading(false);
-          if (fullContent) addAssistantMessage(fullContent, resultProvider, resultModel, agent);
-          return { content: fullContent, provider: resultProvider };
-        } catch (err) {
-          activeStreamRef.current = null;
-          abortRef.current = null;
-          if (!mountedRef.current) return { content: "" };
-          const errorMsg = err ? err.message : "Erro ao conectar com Ollama Local";
-          setStreaming(false);
-          setCurrentStream("");
-          setLoading(false);
-          const isCors = errorMsg.includes("CORS") || errorMsg.includes("fetch") || errorMsg.includes("Failed to fetch") || errorMsg.includes("NetworkError");
-          const cleanError = isCors ?
-            "Ollama Local não está acessível pelo navegador (erro de CORS ou conexão).\n\n" +
-            "Soluções:\n" +
-            "1. Instale extensão 'CORS Unblock' no Chrome\n" +
-            "2. Ou execute: set OLLAMA_ORIGINS=* && ollama serve\n" +
-            "3. Ou use http://localhost:11434 diretamente" :
-            errorMsg;
-          addAssistantMessage("**Ollama Local offline**\n\n" + cleanError, "ollama", model || "qwen2.5-coder:7b", agent);
-          return { content: "", error: cleanError };
-        }
-      }
-
-      try {
-        const stream = router.chatStream(msg, { agent, model: model || undefined, provider, signal: controller.signal, ...options });
+        const { stream, model: m, provider: p } = await ollamaStream(msg, model, controller);
         activeStreamRef.current = stream;
-
+        resultProvider = p;
+        resultModel = m;
         for await (const chunk of stream) {
           if (!mountedRef.current || controller.signal.aborted) break;
-          if (!chunk) continue;
-          if (chunk.done) {
-            if (chunk.error) break;
-            break;
-          }
-          fullContent += (chunk.content || "");
-          resultProvider = chunk.provider || resultProvider;
+          fullContent += (chunk || "");
           if (!controller.signal.aborted) setCurrentStream(fullContent);
         }
-
-        activeStreamRef.current = null;
-        abortRef.current = null;
-
-        if (mountedRef.current) {
-          setStreaming(false);
-          setCurrentStream("");
-          setLoading(false);
-          if (fullContent) addAssistantMessage(fullContent, resultProvider, model, agent);
-        }
-        return { content: fullContent || "", provider: resultProvider };
-      } catch (err) {
         activeStreamRef.current = null;
         abortRef.current = null;
         if (!mountedRef.current) return { content: "" };
+        if (fullContent) {
+          setStreaming(false);
+          setCurrentStream("");
+          setLoading(false);
+          addAssistantMessage(fullContent, resultProvider, resultModel, agent);
+          return { content: fullContent, provider: resultProvider };
+        }
+        fullContent = await ollamaSend(msg, model, controller) || "";
+        resultProvider = "ollama";
+        resultModel = model || "qwen2.5-coder:7b";
         setStreaming(false);
         setCurrentStream("");
         setLoading(false);
-        addAssistantMessage("Erro ao processar resposta. Tente novamente ou selecione outro provider.", provider || "unknown", model, agent);
-        return { content: "", error: err ? err.message : "Stream failed" };
+        if (fullContent) addAssistantMessage(fullContent, resultProvider, resultModel, agent);
+        return { content: fullContent, provider: resultProvider };
       }
+
+      const stream = router.chatStream(msg, { agent, model: model || undefined, provider, signal: controller.signal, ...options });
+      activeStreamRef.current = stream;
+
+      for await (const chunk of stream) {
+        if (!mountedRef.current || controller.signal.aborted) break;
+        if (!chunk) continue;
+        if (chunk.done) {
+          if (chunk.error) break;
+          break;
+        }
+        fullContent += (chunk.content || "");
+        resultProvider = chunk.provider || resultProvider;
+        if (!controller.signal.aborted) setCurrentStream(fullContent);
+      }
+
+      activeStreamRef.current = null;
+      abortRef.current = null;
+
+      if (mountedRef.current) {
+        setStreaming(false);
+        setCurrentStream("");
+        setLoading(false);
+        if (fullContent) addAssistantMessage(fullContent, resultProvider, model, agent);
+      }
+      return { content: fullContent || "", provider: resultProvider };
+    } catch (err) {
+      activeStreamRef.current = null;
+      abortRef.current = null;
+      if (!mountedRef.current) return { content: "" };
+      setStreaming(false);
+      setCurrentStream("");
+      setLoading(false);
+
+      if (provider === "ollama") {
+        const errorMsg = err ? err.message : "Erro ao conectar com Ollama Local";
+        const cors = isCorsError(err);
+        addAssistantMessage(
+          "**Ollama Local offline**\n\n" + (cors
+            ? "Não foi possível conectar ao Ollama pelo navegador (CORS).\nSoluções:\n1. Execute: set OLLAMA_ORIGINS=* && ollama serve\n2. Ou instale extensão 'CORS Unblock' no Chrome\n3. Ou acesse via http://localhost:11434"
+            : errorMsg),
+          "ollama", model || "qwen2.5-coder:7b", agent
+        );
+        return { content: "", error: errorMsg };
+      }
+
+      addAssistantMessage("Erro ao processar resposta. Tente novamente ou selecione outro provider.", provider || "unknown", model, agent);
+      return { content: "", error: err ? err.message : "Stream failed" };
     } finally {
       activeStreamRef.current = null;
       abortRef.current = null;

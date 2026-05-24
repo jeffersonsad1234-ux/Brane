@@ -75,7 +75,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
     if (!msg || isStreaming) return;
     setInput("");
 
-    // Detect intent
     let intent = { id: "general", label: "Geral" };
     let targetAgentId = null;
     try {
@@ -85,7 +84,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
       }
     } catch { intent = { id: "general", label: "Geral" }; }
 
-    // Switch agent synchronously via ref to avoid stale closure
     const agent = currentAgentRef.current;
     if (targetAgentId && targetAgentId !== agent.id) {
       const target = (agentsRef.current || []).find((a) => a.id === targetAgentId);
@@ -126,7 +124,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
 
   const handleRegenerate = async (msg) => {
     await clearMessages();
-    // Resend the previous user message
     const userMsgs = messages.filter((m) => m.role === "user");
     if (userMsgs.length > 0) {
       await handleSend(userMsgs[userMsgs.length - 1].content);
@@ -139,7 +136,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
   };
 
   const handleSaveEdit = async () => {
-    // For simplicity, resend the edited text as a new message
     setEditingMsg(null);
     await handleSend(editText);
   };
@@ -159,10 +155,24 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
     setShowProviders(false);
   };
 
-  const ollamaIsOnline = ollamaOnline === "online";
-
   const providerName = (id) => PROVIDER_LABELS[id] || id;
   const isDemo = currentProvider === "branpy-demo";
+
+  const ollamaStatusColor = ollamaOnline === "online" ? "rgba(16,185,129,0.7)" :
+                            ollamaOnline === "connecting" ? "rgba(251,191,36,0.7)" :
+                            "rgba(239,68,68,0.5)";
+  const ollamaStatusBg = ollamaOnline === "online" ? "rgba(16,185,129,0.12)" :
+                         ollamaOnline === "connecting" ? "rgba(251,191,36,0.08)" :
+                         "rgba(239,68,68,0.08)";
+  const ollamaStatusBorder = ollamaOnline === "online" ? "1px solid rgba(16,185,129,0.2)" :
+                             ollamaOnline === "connecting" ? "1px solid rgba(251,191,36,0.15)" :
+                             "1px solid rgba(239,68,68,0.15)";
+  const ollamaStatusText = ollamaOnline === "online" ? "rgba(16,185,129,0.7)" :
+                           ollamaOnline === "connecting" ? "rgba(251,191,36,0.6)" :
+                           "rgba(239,68,68,0.6)";
+  const ollamaLabel = ollamaOnline === "online" ? `Ollama ${currentModel || "qwen2.5-coder:7b"}` :
+                      ollamaOnline === "connecting" ? "Ollama conectando..." :
+                      "Ollama offline";
 
   return (
     <AIChatErrorBoundary>
@@ -174,7 +184,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
       position: "relative",
       ...(fullScreen ? { position: "fixed", inset: 0, zIndex: 100 } : {}),
     }}>
-      {/* Glassmorphism background effect */}
       <div style={{
         position: "absolute", top: "-50%", right: "-20%", width: 400, height: 400,
         borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.04) 0%, transparent 70%)",
@@ -197,31 +206,23 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
           fontSize: 13, fontWeight: 700, color: "white", flexShrink: 0,
         }}>B</div>
         <span style={{ fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.8)" }}>BRANPY Chat</span>
-        {isDemo && (
+
+        {/* Ollama status badge — always visible when Ollama is detected */}
+        {ollamaOnline && (
           <div style={{
             fontSize: 10, padding: "2px 7px", borderRadius: 4,
-            background: "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.2)",
-            color: "rgba(251,191,36,0.7)", fontFamily: "monospace",
-          }}>Modo demonstração local</div>
-        )}
-        {currentProvider === "ollama" && (
-          <div style={{
-            fontSize: 10, padding: "2px 7px", borderRadius: 4,
-            background: ollamaIsOnline ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.08)",
-            border: ollamaIsOnline ? "1px solid rgba(16,185,129,0.2)" : "1px solid rgba(239,68,68,0.15)",
-            color: ollamaIsOnline ? "rgba(16,185,129,0.7)" : "rgba(239,68,68,0.6)",
+            background: ollamaStatusBg,
+            border: ollamaStatusBorder,
+            color: ollamaStatusText,
             fontFamily: "monospace",
             display: "flex", alignItems: "center", gap: 4,
           }}>
             <span style={{
               width: 5, height: 5, borderRadius: "50%", display: "inline-block",
-              background: ollamaIsOnline ? "rgba(16,185,129,0.7)" :
-                          ollamaOnline === "connecting" ? "rgba(251,191,36,0.7)" : "rgba(239,68,68,0.5)",
+              background: ollamaStatusColor,
               animation: ollamaOnline === "connecting" ? "blink 1s infinite" : "none",
             }} />
-            {ollamaOnline === "online" ? `Ollama ${currentModel || "qwen2.5-coder:7b"}` :
-             ollamaOnline === "connecting" ? "Ollama conectando..." :
-             "Ollama offline"}
+            {ollamaLabel}
           </div>
         )}
 
@@ -282,7 +283,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
           >
             <span style={{
               width: 5, height: 5, borderRadius: "50%", display: "inline-block",
-              background: currentProvider === "ollama" ? "rgba(16,185,129,0.7)" :
+              background: currentProvider === "ollama" ? ollamaStatusColor :
                           currentProvider === "branpy-demo" ? "rgba(251,191,36,0.7)" :
                           "rgba(59,130,246,0.6)",
             }} />
@@ -297,7 +298,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
               boxShadow: "0 16px 48px rgba(0,0,0,0.6)", backdropFilter: "blur(16px)",
             }}>
               {providers.filter((p) => p.id !== "branpy-demo" || true).map((p) => {
-                // Hide internal/confusing providers from the visual list
                 if (["local", "llama"].includes(p.id)) return null;
                 return (
                 <button key={p.id} onClick={() => selectProvider(p)}
@@ -312,12 +312,12 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                 >
                   <div style={{
                     width: 5, height: 5, borderRadius: "50%", flexShrink: 0,
-                    background: p.id === "ollama" ? (ollamaIsOnline ? "rgba(16,185,129,0.7)" : "rgba(239,68,68,0.5)") : "rgba(59,130,246,0.4)",
+                    background: p.id === "ollama" ? ollamaStatusColor : "rgba(59,130,246,0.4)",
                   }} />
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontWeight: 500, fontSize: 12 }}>{providerName(p.id)}</div>
                     <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)", fontFamily: "monospace" }}>
-                      {p.id === "ollama" ? (ollamaIsOnline ? currentModel || "qwen2.5-coder:7b" : "offline") : p.id}
+                      {p.id === "ollama" ? (ollamaOnline === "online" ? currentModel || "qwen2.5-coder:7b" : "offline") : p.id}
                     </div>
                   </div>
                 </button>
@@ -395,7 +395,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
       <div style={{
         flex: 1, overflow: "hidden auto", padding: "12px 16px",
       }} className="cs-scrollbar">
-        {/* Empty state */}
         {messages.length === 0 && !currentStream && (
           <div style={{
             display: "flex", flexDirection: "column", alignItems: "center",
@@ -419,7 +418,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
           </div>
         )}
 
-        {/* Messages list */}
         {messages.map((msg, i) => {
           if (msg.role !== "user" && !msg.content) return null;
           const isUser = msg.role === "user";
@@ -472,7 +470,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                 <MarkdownRenderer content={msg.content} />
               )}
 
-              {/* Provider tag */}
               {msg.provider && (
                 <div style={{ fontSize: 10, color: "rgba(255,255,255,0.15)", marginTop: 4, fontFamily: "monospace" }}>
                   via {providerName(msg.provider)}
@@ -480,7 +477,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
               )}
             </div>
 
-            {/* Actions */}
             {!isEditing && !isUser && msg.content && (
               <div style={{
                 display: "flex", gap: 2, alignItems: "flex-start", marginTop: 4, opacity: 0.5,
@@ -496,7 +492,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
           );
         })}
 
-        {/* Streaming message */}
         {streaming && currentStream && (
           <div style={{ display: "flex", gap: 8, marginBottom: 14, animation: "fadeIn 0.15s ease" }}>
             <div style={{
@@ -519,7 +514,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
           </div>
         )}
 
-        {/* Loading (before stream) */}
         {loading && !currentStream && (
           <div style={{
             display: "flex", alignItems: "center", gap: 8, padding: "8px 0",
@@ -627,7 +621,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
             {currentAgent.avatar} {currentAgent.name}
           </div>
           <div style={{ fontSize: 9, color: "rgba(255,255,255,0.12)", fontFamily: "monospace" }}>
-            {isDemo ? "Modo local" : providerName(currentProvider)}
+            {currentProvider === "ollama" ? ollamaLabel : providerName(currentProvider)}
           </div>
         </div>
       </div>
