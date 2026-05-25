@@ -63,6 +63,49 @@ const server = http.createServer(async (req, res) => {
       req.on("end", () => resolve(Buffer.concat(chunks)));
     });
 
+    // ---- SEARCH API: handle POST /api/search locally ----
+    if (url.pathname === "/api/search" && req.method === "POST") {
+      try {
+        const { query } = JSON.parse(body.toString() || "{}");
+        if (!query || typeof query !== "string" || !query.trim()) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          return res.end(JSON.stringify({ error: "Query is required" }));
+        }
+        const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+        const searchRes = await fetch(searchUrl, {
+          headers: { "User-Agent": "BRANPY/1.0 (compatible; +https://brane.pages.dev)" },
+        });
+        if (!searchRes.ok) throw new Error(`DuckDuckGo HTTP ${searchRes.status}`);
+        const html = await searchRes.text();
+
+        const results = [];
+        const seen = new Set();
+        const linkRe = /<a[^>]+href="([^"]*uddg=[^"]*)"[^>]*>([\s\S]*?)<\/a>/gi;
+        let m;
+        while ((m = linkRe.exec(html)) !== null && results.length < 10) {
+          const uddgMatch = m[1].match(/uddg=([^&]+)/);
+          const url = uddgMatch ? decodeURIComponent(uddgMatch[1]) : m[1];
+          const title = m[2].replace(/<[^>]+>/g, "").trim();
+          if (url && title && url.startsWith("http") && !seen.has(url)) {
+            seen.add(url);
+            results.push({ title, url, snippet: "", source: "DuckDuckGo" });
+          }
+        }
+        const snippetRe = /class="result__snippet"[^>]*>([\s\S]*?)<\/a>/gi;
+        let si = 0;
+        while ((m = snippetRe.exec(html)) !== null && si < results.length) {
+          results[si].snippet = m[1].replace(/<[^>]+>/g, "").trim();
+          si++;
+        }
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ query, results }));
+      } catch (err) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify({ error: err.message || "Search failed" }));
+      }
+    }
+
     // ---- API PROXY: forward /api/* to Ollama ----
     if (url.pathname.startsWith("/api/")) {
       let upstream;

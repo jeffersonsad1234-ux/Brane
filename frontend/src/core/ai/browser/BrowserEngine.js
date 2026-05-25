@@ -113,100 +113,29 @@ export class BrowserEngine {
 
   async search(query) {
     try {
-      const results = [];
-      const seen = new Set();
+      console.log("[BrowserEngine] calling /api/search for:", query);
+      const res = await fetch("/api/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+        signal: AbortSignal.timeout(15000),
+      });
 
-      // Primary: DuckDuckGo HTML search
-      try {
-        const htmlRes = await fetch(
-          `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`,
-          { signal: AbortSignal.timeout(8000) }
-        );
-        if (htmlRes.ok) {
-          const html = await htmlRes.text();
-          // Match all result links (contain uddg= redirect)
-          const linkRe = /<a[^>]+href="([^"]*uddg=[^"]*)"[^>]*>([\s\S]*?)<\/a>/gi;
-          let m;
-          while ((m = linkRe.exec(html)) !== null && results.length < this.settings.maxResults) {
-            const url = this._decodeDdgUrl(m[1]);
-            const title = m[2].replace(/<[^>]+>/g, "").trim();
-            if (url && title && url.startsWith("http") && !seen.has(url)) {
-              seen.add(url);
-              results.push({ title, url, snippet: "", source: "Web" });
-            }
-          }
-          // Extract snippets from result__snippet spans
-          const snippetRe = /class="result__snippet"[^>]*>([\s\S]*?)<\/a>/gi;
-          let si = 0;
-          while ((m = snippetRe.exec(html)) !== null && si < results.length) {
-            results[si].snippet = m[1].replace(/<[^>]+>/g, "").trim();
-            si++;
-          }
-        }
-      } catch { /* DDG HTML search failed */ }
-
-      // Fallback: DuckDuckGo Lite search (simpler HTML table)
-      if (results.length === 0) {
-        try {
-          const liteRes = await fetch(
-            `https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(query)}`,
-            { signal: AbortSignal.timeout(8000) }
-          );
-          if (liteRes.ok) {
-            const html = await liteRes.text();
-            const rowRe = /<tr[^>]*class="result"[^>]*>([\s\S]*?)<\/tr>/gi;
-            let rm;
-            while ((rm = rowRe.exec(html)) !== null && results.length < this.settings.maxResults) {
-              const linkM = rm[1].match(/<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
-              const snippetM = rm[1].match(/<span[^>]*>([\s\S]*?)<\/span>/i);
-              if (linkM) {
-                let url = linkM[1];
-                if (url.startsWith("//")) url = "https:" + url;
-                const title = linkM[2].replace(/<[^>]+>/g, "").trim();
-                const snippet = snippetM ? snippetM[1].replace(/<[^>]+>/g, "").trim() : "";
-                if (url && title && url.startsWith("http") && !seen.has(url)) {
-                  seen.add(url);
-                  results.push({ title, url, snippet, source: "Web" });
-                }
-              }
-            }
-          }
-        } catch { /* DDG Lite search failed */ }
+      if (!res.ok) {
+        const errBody = await res.text();
+        console.error("[BrowserEngine] /api/search error:", res.status, errBody);
+        return { query, results: [], error: `Search API error (${res.status})` };
       }
 
-      // Fallback: try direct URL encoding approach — query known news/pages
-      if (results.length === 0 && /(notíci|news|jornal|última)/i.test(query)) {
-        try {
-          const feedRes = await fetch(
-            `https://lite.duckduckgo.com/lite/?q=${encodeURIComponent("últimas notícias " + query)}`,
-            { signal: AbortSignal.timeout(6000) }
-          );
-          if (feedRes.ok) {
-            const html = await feedRes.text();
-            const rowRe = /<tr[^>]*class="result"[^>]*>([\s\S]*?)<\/tr>/gi;
-            let rm;
-            while ((rm = rowRe.exec(html)) !== null && results.length < this.settings.maxResults) {
-              const linkM = rm[1].match(/<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/i);
-              const snippetM = rm[1].match(/<span[^>]*>([\s\S]*?)<\/span>/i);
-              if (linkM) {
-                let url = linkM[1];
-                if (url.startsWith("//")) url = "https:" + url;
-                const title = linkM[2].replace(/<[^>]+>/g, "").trim();
-                const snippet = snippetM ? snippetM[1].replace(/<[^>]+>/g, "").trim() : "";
-                if (url && title && url.startsWith("http") && !seen.has(url)) {
-                  seen.add(url);
-                  results.push({ title, url, snippet, source: "Web" });
-                }
-              }
-            }
-          }
-        } catch { /* news fallback failed */ }
-      }
+      const data = await res.json();
+      const results = (data.results || []).slice(0, this.settings.maxResults);
+      console.log("[BrowserEngine] /api/search returned", results.length, "results");
 
       this.recordHistory({ type: "search", query, results: results.length, timestamp: Date.now() });
-      return { query, results: results.slice(0, this.settings.maxResults) };
+      return { query, results };
     } catch (err) {
-      return { query, results: [], error: err.message };
+      console.error("[BrowserEngine] search error:", err.message);
+      return { query, results: [], error: err.message || "Search failed" };
     }
   }
 
