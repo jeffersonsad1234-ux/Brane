@@ -32,7 +32,7 @@ export default function ToolsGrid3D({ apps, onAppOpen, favorites, onToggleFavori
             key={app.id}
             app={app}
             index={i}
-            onClick={onAppOpen}
+            onClick={() => onAppOpen(app.id)}
             isFavorite={favorites?.includes(app.id)}
             onToggleFavorite={onToggleFavorite}
           />

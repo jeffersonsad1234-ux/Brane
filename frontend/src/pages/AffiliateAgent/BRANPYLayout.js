@@ -380,11 +380,21 @@ function FloatingWindow({ win, onClose, onMinimize, onMaximize, onFocus, onUpdat
       </div>
       <div className="flex-1 overflow-y-auto scrollbar-thin" style={{ height: "calc(100% - 32px)" }}>
         {children || (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center p-6">
-              <div className="text-2xl mb-2">{win.icon}</div>
-              <div className="text-[11px] text-white/45">{win.name}</div>
-              <div className="text-[9px] text-white/20 mt-1">{win.desc}</div>
+          <div className="flex items-center justify-center h-full p-8">
+            <div className="text-center max-w-xs">
+              <div className="text-4xl mb-4 opacity-60">{win.icon}</div>
+              <h3 className="text-base font-bold mb-2" style={{ color: "rgba(255,255,255,0.7)" }}>{win.name}</h3>
+              <p className="text-xs mb-6" style={{ color: "rgba(255,255,255,0.3)" }}>
+                Ferramenta em construção
+              </p>
+              <button onClick={() => onClose(win.id)}
+                className="px-4 py-2 rounded-lg text-xs font-medium transition-all cursor-pointer border-none"
+                style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.45)" }}
+                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+              >
+                Voltar
+              </button>
             </div>
           </div>
         )}
