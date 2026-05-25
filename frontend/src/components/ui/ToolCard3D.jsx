@@ -189,7 +189,7 @@ export default function ToolCard3D({ app, index = 0, onClick, isFavorite, onTogg
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      whileHover={{ y: -10, scale: 1.02 }}
+      whileHover={{ y: -6, scale: 1.02 }}
       whileTap={{ scale: 0.97 }}
       onMouseMove={(e) => {
         const rect = cardRef.current?.getBoundingClientRect();
@@ -203,7 +203,7 @@ export default function ToolCard3D({ app, index = 0, onClick, isFavorite, onTogg
       }}
       onClick={handleClick}
       className="relative group cursor-pointer rounded-2xl overflow-hidden select-none"
-      style={{ aspectRatio: "3/4", minHeight: 280 }}
+      style={{ aspectRatio: "1/1", minHeight: 180, maxHeight: 220 }}
     >
       {/* Ambient glow */}
       <div
@@ -272,11 +272,11 @@ export default function ToolCard3D({ app, index = 0, onClick, isFavorite, onTogg
         />
 
         {/* Content */}
-        <div className="absolute inset-0 z-20 flex flex-col justify-between p-5">
+        <div className="absolute inset-0 z-20 flex flex-col justify-between p-3">
           {/* Top: Icon + Badge */}
           <div className="flex items-start justify-between">
             <div
-              className="w-11 h-11 rounded-xl flex items-center justify-center text-xl"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-base"
               style={{
                 background: `linear-gradient(135deg, ${color}44, transparent)`,
                 border: `1px solid ${color}44`,
@@ -285,10 +285,10 @@ export default function ToolCard3D({ app, index = 0, onClick, isFavorite, onTogg
             >
               {app.icon}
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <button
                 onClick={(e) => { e.stopPropagation(); onToggleFavorite?.(app.id); }}
-                className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm transition-all ${
+                className={`w-6 h-6 rounded flex items-center justify-center text-xs transition-all ${
                   isFavorite ? "opacity-100" : "opacity-0 group-hover:opacity-70"
                 } hover:scale-110`}
                 style={{ background: `${color}22`, border: `1px solid ${color}33` }}
@@ -296,7 +296,7 @@ export default function ToolCard3D({ app, index = 0, onClick, isFavorite, onTogg
                 {isFavorite ? "★" : "☆"}
               </button>
               <div
-                className="px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-widest"
+                className="px-2 py-0.5 rounded text-[9px] font-semibold uppercase tracking-widest"
                 style={{
                   background: `${color}22`,
                   color: color,
@@ -312,7 +312,7 @@ export default function ToolCard3D({ app, index = 0, onClick, isFavorite, onTogg
           {/* Bottom: Title + Desc + Button */}
           <div style={{ transform: "translateZ(35px)" }}>
             <h3
-              className="text-lg sm:text-xl font-bold mb-1.5 leading-tight"
+              className="text-sm sm:text-base font-semibold mb-0.5 leading-tight"
               style={{
                 color: "rgba(255,255,255,0.95)",
                 textShadow: "0 2px 16px rgba(0,0,0,0.7)",
@@ -321,9 +321,9 @@ export default function ToolCard3D({ app, index = 0, onClick, isFavorite, onTogg
               {app.name}
             </h3>
             <p
-              className="text-xs leading-relaxed mb-4 max-w-[90%]"
+              className="text-[11px] leading-tight mb-2 max-w-[95%]"
               style={{
-                color: "rgba(255,255,255,0.5)",
+                color: "rgba(255,255,255,0.45)",
                 textShadow: "0 1px 8px rgba(0,0,0,0.5)",
               }}
             >
@@ -337,7 +337,7 @@ export default function ToolCard3D({ app, index = 0, onClick, isFavorite, onTogg
               style={{ transform: "translateZ(50px)" }}
             >
               <div
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-semibold"
                 style={{
                   background: `linear-gradient(135deg, ${color}, ${color}bb)`,
                   color: "white",
@@ -345,7 +345,7 @@ export default function ToolCard3D({ app, index = 0, onClick, isFavorite, onTogg
                 }}
               >
                 Abrir ferramenta
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
                   <path d="M5 3l4 4-4 4" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
