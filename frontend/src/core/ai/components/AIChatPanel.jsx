@@ -36,6 +36,12 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
   const [editText, setEditText] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [showToolGrid, setShowToolGrid] = useState(true);
+  const [ollamaModelMode, setOllamaModelMode] = useState("codigo");
+  const OLLAMA_MODELS = { rapido: "llama3.2:3b", codigo: "qwen2.5-coder:7b" };
+  const OLLAMA_MODES = [
+    { id: "rapido", label: "Rápido", model: "llama3.2:3b" },
+    { id: "codigo", label: "Código", model: "qwen2.5-coder:7b" },
+  ];
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const agentsRef = useRef(null);
@@ -119,6 +125,12 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
 
   const selectAgent = (agent) => { setCurrentAgent(agent); setShowAgents(false); };
   const selectProvider = (provider) => { setCurrentProvider(provider.id); setShowProviders(false); };
+  const selectOllamaMode = (modeId) => {
+    setOllamaModelMode(modeId);
+    const model = OLLAMA_MODELS[modeId];
+    if (model) setCurrentModel(model);
+  };
+  const currentOllamaMode = OLLAMA_MODES.find((m) => m.id === ollamaModelMode);
 
   return (
     <AIChatErrorBoundary>
@@ -241,6 +253,31 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                   )}
                 </AnimatePresence>
               </div>
+
+              {/* Ollama model mode selector */}
+              {currentProvider === "ollama" && ollamaOnline === "online" && (
+                <div className="flex items-center gap-1 bg-[rgba(255,255,255,0.03)] rounded-lg p-0.5 border border-[rgba(255,255,255,0.06)]">
+                  {OLLAMA_MODES.map((mode) => (
+                    <motion.button
+                      key={mode.id}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => selectOllamaMode(mode.id)}
+                      className="px-2.5 py-1 rounded-md text-[10px] font-medium transition-all whitespace-nowrap"
+                      style={{
+                        background: ollamaModelMode === mode.id
+                          ? "rgba(99,102,241,0.15)"
+                          : "transparent",
+                        color: ollamaModelMode === mode.id
+                          ? "rgba(255,255,255,0.85)"
+                          : "rgba(255,255,255,0.35)",
+                      }}
+                    >
+                      {mode.label}
+                    </motion.button>
+                  ))}
+                </div>
+              )}
 
               {/* New chat */}
               <motion.button
