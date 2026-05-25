@@ -42,10 +42,12 @@ function proxyRequest(reqPath, method, headers, body) {
     const req = http.request(opts, (res) => {
       const chunks = [];
       res.on("data", (c) => chunks.push(c));
-      res.on("end", () => resolve({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks) }));
+      res.on("end", () =>
+        resolve({ status: res.statusCode, headers: res.headers, body: Buffer.concat(chunks) })
+      );
     });
     req.on("error", reject);
-    if (body) req.write(body);
+    if (body && body.length > 0) req.write(body);
     req.end();
   });
 }
@@ -53,29 +55,48 @@ function proxyRequest(reqPath, method, headers, body) {
 const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
+
+    // Collect body for all requests
     const body = await new Promise((resolve) => {
       const chunks = [];
       req.on("data", (c) => chunks.push(c));
       req.on("end", () => resolve(Buffer.concat(chunks)));
     });
 
-    // API proxy — forward /api/* to Ollama
+    // ---- API PROXY: forward /api/* to Ollama ----
     if (url.pathname.startsWith("/api/")) {
-      const upstream = await proxyRequest(url.pathname + url.search, req.method, req.headers, body);
-      const h = { "Content-Type": upstream.headers["content-type"] || "application/json" };
+      let upstream;
+      try {
+        upstream = await proxyRequest(url.pathname + url.search, req.method, req.headers, body);
+      } catch (err) {
+        console.error("[serve] Ollama proxy error:", err.message);
+        res.writeHead(502, { "Content-Type": "application/json" });
+        return res.end(
+          JSON.stringify({
+            error: `Ollama não está rodando em http://${OLLAMA_HOST}:${OLLAMA_PORT}. Execute: ollama serve`,
+            detail: err.message,
+          })
+        );
+      }
+      const h = {
+        "Content-Type": upstream.headers["content-type"] || "application/json",
+      };
       if (upstream.headers["content-length"]) h["Content-Length"] = upstream.headers["content-length"];
       res.writeHead(upstream.status, h);
       return res.end(upstream.body);
     }
 
-    // Serve static files
+    // ---- STATIC FILES: serve built frontend ----
     let filePath = path.join(BUILD_DIR, url.pathname === "/" ? "index.html" : url.pathname);
-    if (!fs.existsSync(filePath)) filePath = path.join(BUILD_DIR, "index.html");
+    if (!fs.existsSync(filePath)) {
+      filePath = path.join(BUILD_DIR, "index.html");
+    }
     const data = await readFile(filePath);
     const ext = path.extname(filePath);
     res.writeHead(200, { "Content-Type": MIME[ext] || "application/octet-stream" });
     res.end(data);
   } catch (err) {
+    // Fallback: try to serve index.html (SPA)
     if (err.code === "ENOENT") {
       try {
         const data = await readFile(path.join(BUILD_DIR, "index.html"));
@@ -83,13 +104,17 @@ const server = http.createServer(async (req, res) => {
         return res.end(data);
       } catch (_) {}
     }
-    res.writeHead(err.code === "ECONNREFUSED" ? 502 : 500, { "Content-Type": "application/json" });
+    console.error("[serve] Error:", err.message);
+    res.writeHead(err.code === "ECONNREFUSED" ? 502 : 500, {
+      "Content-Type": "application/json",
+    });
     res.end(JSON.stringify({ error: err.message }));
   }
 });
 
 server.listen(PORT, "127.0.0.1", () => {
   console.log(`\n  B Livre server rodando em http://127.0.0.1:${PORT}`);
-  console.log(`  API /api/* → http://${OLLAMA_HOST}:${OLLAMA_PORT}`);
+  console.log(`  API /api/* -> http://${OLLAMA_HOST}:${OLLAMA_PORT}`);
+  console.log(`  Ollama precisa estar rodando: ollama serve`);
   console.log(`  Pressione Ctrl+C para parar\n`);
 });
