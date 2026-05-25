@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { I, S, Rng, FMT, EFX_CATS, AI_TOOLS, LUTS } from "./utils";
 
 const INSPECTOR_TABS = [
