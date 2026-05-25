@@ -87,10 +87,7 @@ export const I = {
   tool: "M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z",
 };
 
-export function MediaThumb({ type, name, duration, size = "normal" }) {
-  const isVideo = type === "video";
-  const isAudio = type === "audio";
-  const isImage = type === "image" || (!isVideo && !isAudio);
+export function MediaThumb({ type, name, duration, size = "normal", url }) {
   const seed = useMemo(() => {
     let h = 0;
     for (let i = 0; i < (name || "").length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
@@ -98,6 +95,56 @@ export function MediaThumb({ type, name, duration, size = "normal" }) {
   }, [name]);
   const hue1 = seed;
   const hue2 = (seed + 40) % 360;
+
+  if (url && (type === "image" || type === "video")) {
+    return (
+      <div style={{
+        width: "100%", height: "100%", position: "relative",
+        overflow: "hidden", background: "#0a0a0a",
+      }}>
+        <img src={url} alt={name} loading="lazy"
+          style={{
+            width: "100%", height: "100%", objectFit: "cover",
+            filter: type === "video" ? "brightness(0.7)" : "none",
+          }}
+        />
+        {type === "video" && (
+          <>
+            <div style={{
+              position: "absolute", inset: 0,
+              background: "linear-gradient(transparent 60%, rgba(0,0,0,0.4))",
+            }} />
+            <div style={{
+              position: "absolute", top: "50%", left: "50%",
+              transform: "translate(-50%,-50%)",
+              width: 24, height: 24, borderRadius: "50%",
+              background: "rgba(0,0,0,0.5)", border: "1.5px solid rgba(255,255,255,0.2)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <div style={{
+                width: 0, height: 0, borderStyle: "solid",
+                borderWidth: "5px 0 5px 9px",
+                borderColor: "transparent transparent transparent rgba(255,255,255,0.4)",
+                marginLeft: 2,
+              }} />
+            </div>
+            <div style={{
+              position: "absolute", bottom: 3, right: 4,
+              fontSize: 11, color: "rgba(255,255,255,0.7)",
+              fontFamily: "monospace", fontWeight: 500,
+              background: "rgba(0,0,0,0.5)", padding: "0 4px", borderRadius: 2,
+            }}>
+              {duration ? `${duration.toFixed(1)}s` : ""}
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  const isVideo = type === "video";
+  const isAudio = type === "audio";
+  const isImage = type === "image" || (!isVideo && !isAudio);
 
   if (isVideo) {
     return (
@@ -264,72 +311,82 @@ export const SIDEBAR_MAP = Object.entries({
   captions: I.cap, brand: I.memory,
 });
 
+export const U = (id) => `https://images.unsplash.com/photo-${id}?w=400&q=80&fit=crop`;
+export const UH = (id) => `https://images.unsplash.com/photo-${id}?w=200&q=70&fit=crop`;
+
 export const MEDIA_LIB = [
-  { id: "m1", name: "Intro Animada.mp4", type: "video", dur: 6 },
-  { id: "m2", name: "Produto Principal.mov", type: "video", dur: 10 },
-  { id: "m3", name: "Demonstração.mp4", type: "video", dur: 12 },
-  { id: "m4", name: "B-Roll Estilo.mp4", type: "video", dur: 8 },
-  { id: "m5", name: "Overlay Efeitos.mp4", type: "video", dur: 5 },
-  { id: "m6", name: "Transição Rápida.mp4", type: "video", dur: 3 },
-  { id: "m7", name: "Slow Motion.mp4", type: "video", dur: 7 },
-  { id: "m8", name: "Time Lapse.mp4", type: "video", dur: 15 },
-  { id: "m9", name: "Green Screen.mp4", type: "video", dur: 9 },
-  { id: "m10", name: "Split Screen.mp4", type: "video", dur: 6 },
-  { id: "m11", name: "Tela Verde 2.mp4", type: "video", dur: 8 },
-  { id: "m12", name: "Cinematic Open.mp4", type: "video", dur: 4 },
-  { id: "m13", name: "Drone Shot.mp4", type: "video", dur: 11 },
-  { id: "m14", name: "Product Reveal.mp4", type: "video", dur: 5 },
-  { id: "m15", name: "Depoimento.mp4", type: "video", dur: 20 },
-  { id: "m16", name: "Logo Animada.mp4", type: "video", dur: 3 },
-  { id: "m17", name: "Foto Produto 1.png", type: "image" },
-  { id: "m18", name: "Foto Produto 2.png", type: "image" },
-  { id: "m19", name: "Background Claro.jpg", type: "image" },
-  { id: "m20", name: "Background Escuro.jpg", type: "image" },
-  { id: "m21", name: "Marca D'Água.png", type: "image" },
-  { id: "m22", name: "Thumbnail.jpg", type: "image" },
-  { id: "m23", name: "Mockup 3D.png", type: "image" },
-  { id: "m24", name: "Card Promocional.png", type: "image" },
-  { id: "m25", name: "Banner.png", type: "image" },
-  { id: "m26", name: "Trilha Principal.mp3", type: "audio", dur: 28 },
-  { id: "m27", name: "Narração.mp3", type: "audio", dur: 18 },
-  { id: "m28", name: "Jingle Curto.mp3", type: "audio", dur: 6 },
-  { id: "m29", name: "Soundtrack.mp3", type: "audio", dur: 32 },
-  { id: "m30", name: "Podcast Clip.mp3", type: "audio", dur: 45 },
+  // videos with real image thumbnails
+  { id: "m1", name: "Influencer.mp4", type: "video", dur: 6, url: U("1494790108377-be9c29b29330"), poster: UH("1494790108377-be9c29b29330") },
+  { id: "m2", name: "Marketing Digital.mp4", type: "video", dur: 10, url: U("1556761176-5978dc2d2cf8"), poster: UH("1556761176-5978dc2d2cf8") },
+  { id: "m3", name: "Drone Aéreo.mp4", type: "video", dur: 12, url: U("1506905925346-21bda4d32df4"), poster: UH("1506905925346-21bda4d32df4") },
+  { id: "m4", name: "City Life.mp4", type: "video", dur: 8, url: U("1518173946687-a36f968f7e6b"), poster: UH("1518173946687-a36f968f7e6b") },
+  { id: "m5", name: "Podcast.mp4", type: "video", dur: 5, url: U("1522071820081-009f0129c71c"), poster: UH("1522071820081-009f0129c71c") },
+  { id: "m6", name: "Gaming Setup.mp4", type: "video", dur: 3, url: U("1550745165-9bc0b252726f"), poster: UH("1550745165-9bc0b252726f") },
+  { id: "m7", name: "Product Review.mp4", type: "video", dur: 7, url: U("1505740420928-5e560c06d30e"), poster: UH("1505740420928-5e560c06d30e") },
+  { id: "m8", name: "Fashion Show.mp4", type: "video", dur: 15, url: U("1534528741775-53994a69daeb"), poster: UH("1534528741775-53994a69daeb") },
+  { id: "m9", name: "Business Pitch.mp4", type: "video", dur: 9, url: U("1504384308090-c894fdcc538d"), poster: UH("1504384308090-c894fdcc538d") },
+  { id: "m10", name: "Cinematic B-Roll.mp4", type: "video", dur: 6, url: U("1470071459604-3b5ec3a7fe05"), poster: UH("1470071459604-3b5ec3a7fe05") },
+  { id: "m11", name: "Tech Unboxing.mp4", type: "video", dur: 8, url: U("1498050108023-c5249f4df085"), poster: UH("1498050108023-c5249f4df085") },
+  { id: "m12", name: "Nature Timelapse.mp4", type: "video", dur: 4, url: U("1441974231531-c6227db76b6e"), poster: UH("1441974231531-c6227db76b6e") },
+  { id: "m13", name: "Street Style.mp4", type: "video", dur: 11, url: U("1483985988355-8c5f0c6b8c2c"), poster: UH("1483985988355-8c5f0c6b8c2c") },
+  { id: "m14", name: "Food Content.mp4", type: "video", dur: 5, url: U("1552566626-52f8b828add9"), poster: UH("1552566626-52f8b828add9") },
+  { id: "m15", name: "Interview.mp4", type: "video", dur: 20, url: U("1522202176988-66273c2fd55f"), poster: UH("1522202176988-66273c2fd55f") },
+  { id: "m16", name: "Motion Graphics.mp4", type: "video", dur: 3, url: U("1518770660439-4636190af475"), poster: UH("1518770660439-4636190af475") },
+  // real professional images
+  { id: "m17", name: "Brand Identity.png", type: "image", url: U("1497366216548-37526070297c") },
+  { id: "m18", name: "Thumbnail YouTube.png", type: "image", url: U("1526374965328-7f61d4dc18c5") },
+  { id: "m19", name: "Ecommerce Product.jpg", type: "image", url: U("1542291026-7eec264c27ff") },
+  { id: "m20", name: "Instagram Post.jpg", type: "image", url: U("1490481651871-5af3c6b0e6b4") },
+  { id: "m21", name: "Ad Banner.png", type: "image", url: U("1551288049-bebda4e38f71") },
+  { id: "m22", name: "Portrait Photo.jpg", type: "image", url: U("1472099645785-5658abf4ff4e") },
+  { id: "m23", name: "Product Mockup.png", type: "image", url: U("1523275335684-37898b6baf30") },
+  { id: "m24", name: "Team Photo.png", type: "image", url: U("1519389950473-47ba0277781c") },
+  { id: "m25", name: "City Night.jpg", type: "image", url: U("1519509249764-8e02e9f6c1c4") },
+  { id: "m26", name: "Brand Assets.png", type: "image", url: U("1517245386807-bb43f82c33c4") },
+  // audio in media library
+  { id: "m27", name: "Background Music.mp3", type: "audio", dur: 180, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+  { id: "m28", name: "Podcast Intro.mp3", type: "audio", dur: 120, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+  { id: "m29", name: "Jingle.mp3", type: "audio", dur: 60, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+  { id: "m30", name: "Soundtrack.mp3", type: "audio", dur: 240, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
 ];
 
 export const AUDIO_LIB = [
-  { id: "au1", name: "Eletronic Beat", cat: "music", dur: 30 },
-  { id: "au2", name: "LoFi Chill", cat: "music", dur: 45 },
-  { id: "au3", name: "Hip Hop Base", cat: "music", dur: 28 },
-  { id: "au4", name: "Pop Upbeat", cat: "music", dur: 22 },
-  { id: "au5", name: "Cinematic Orchestral", cat: "music", dur: 35 },
-  { id: "au6", name: "Jazz Lounge", cat: "music", dur: 40 },
-  { id: "au7", name: "Rock Energia", cat: "music", dur: 25 },
-  { id: "au8", name: "Funk Brasileiro", cat: "music", dur: 20 },
-  { id: "au9", name: "Piano Melody", cat: "music", dur: 38 },
-  { id: "au10", name: "Trap 808", cat: "music", dur: 26 },
-  { id: "au11", name: "Clique", cat: "sfx", dur: 0.3 },
-  { id: "au12", name: "Impacto", cat: "sfx", dur: 1.2 },
-  { id: "au13", name: "Whoosh", cat: "sfx", dur: 0.8 },
-  { id: "au14", name: "Ding", cat: "sfx", dur: 0.5 },
-  { id: "au15", name: "Riser", cat: "sfx", dur: 3 },
-  { id: "au16", name: "Stinger", cat: "sfx", dur: 1 },
-  { id: "au17", name: "Glitch Hit", cat: "sfx", dur: 0.4 },
-  { id: "au18", name: "Swoosh", cat: "sfx", dur: 0.7 },
-  { id: "au19", name: "Alerta", cat: "sfx", dur: 1.5 },
-  { id: "au20", name: "Confirmação", cat: "sfx", dur: 0.6 },
-  { id: "au21", name: "Notificação", cat: "sfx", dur: 0.4 },
-  { id: "au22", name: "Explosão", cat: "sfx", dur: 2 },
-  { id: "au23", name: "Natureza", cat: "ambiance", dur: 60 },
-  { id: "au24", name: "Cidade Trânsito", cat: "ambiance", dur: 45 },
-  { id: "au25", name: "Escritório", cat: "ambiance", dur: 40 },
-  { id: "au26", name: "Chuva", cat: "ambiance", dur: 60 },
-  { id: "au27", name: "Praia", cat: "ambiance", dur: 55 },
-  { id: "au28", name: "Cafeteria", cat: "ambiance", dur: 38 },
-  { id: "au29", name: "Narrador Masculino", cat: "voiceover", dur: 15 },
-  { id: "au30", name: "Narrador Feminino", cat: "voiceover", dur: 18 },
-  { id: "au31", name: "Locução Comercial", cat: "voiceover", dur: 12 },
-  { id: "au32", name: "Voz WhatsApp", cat: "voiceover", dur: 8 },
+  // 10 real music tracks from SoundHelix
+  { id: "au1", name: "LoFi Chill", cat: "music", dur: 360, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", bpm: 85 },
+  { id: "au2", name: "Hip Hop Base", cat: "music", dur: 300, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", bpm: 95 },
+  { id: "au3", name: "Cinematic", cat: "music", dur: 420, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", bpm: 120 },
+  { id: "au4", name: "Electronic", cat: "music", dur: 380, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", bpm: 128 },
+  { id: "au5", name: "Pop Upbeat", cat: "music", dur: 320, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", bpm: 110 },
+  { id: "au6", name: "Ambient", cat: "music", dur: 450, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", bpm: 70 },
+  { id: "au7", name: "Motivational", cat: "music", dur: 280, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3", bpm: 100 },
+  { id: "au8", name: "Trap 808", cat: "music", dur: 260, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3", bpm: 140 },
+  { id: "au9", name: "Jazz Lounge", cat: "music", dur: 340, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3", bpm: 90 },
+  { id: "au10", name: "Gaming", cat: "music", dur: 300, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3", bpm: 130 },
+  // SFX (short sound effects from SoundHelix snippets)
+  { id: "au11", name: "Clique", cat: "sfx", dur: 0.3, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3#t=0,0.3" },
+  { id: "au12", name: "Impacto", cat: "sfx", dur: 1.2, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3#t=0,1.2" },
+  { id: "au13", name: "Whoosh", cat: "sfx", dur: 0.8, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3#t=0,0.8" },
+  { id: "au14", name: "Ding", cat: "sfx", dur: 0.5, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3#t=0,0.5" },
+  { id: "au15", name: "Riser", cat: "sfx", dur: 3, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3#t=0,3" },
+  { id: "au16", name: "Stinger", cat: "sfx", dur: 1, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3#t=0,1" },
+  { id: "au17", name: "Glitch Hit", cat: "sfx", dur: 0.4, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3#t=0,0.4" },
+  { id: "au18", name: "Swoosh", cat: "sfx", dur: 0.7, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3#t=0,0.7" },
+  { id: "au19", name: "Alerta", cat: "sfx", dur: 1.5, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3#t=0,1.5" },
+  { id: "au20", name: "Confirmação", cat: "sfx", dur: 0.6, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3#t=0,0.6" },
+  { id: "au21", name: "Notificação", cat: "sfx", dur: 0.4, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3#t=0,0.4" },
+  { id: "au22", name: "Explosão", cat: "sfx", dur: 2, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3#t=0,2" },
+  // Ambiance (longer tracks)
+  { id: "au23", name: "Natureza", cat: "ambiance", dur: 300, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3" },
+  { id: "au24", name: "Cidade", cat: "ambiance", dur: 280, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3" },
+  { id: "au25", name: "Escritório", cat: "ambiance", dur: 320, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" },
+  { id: "au26", name: "Chuva", cat: "ambiance", dur: 360, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" },
+  { id: "au27", name: "Praia", cat: "ambiance", dur: 300, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+  { id: "au28", name: "Cafeteria", cat: "ambiance", dur: 280, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+  // Voiceover (using different tracks for demo)
+  { id: "au29", name: "Narrador 1", cat: "voiceover", dur: 60, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+  { id: "au30", name: "Narradora 2", cat: "voiceover", dur: 60, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+  { id: "au31", name: "Locução", cat: "voiceover", dur: 60, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
+  { id: "au32", name: "Voz Profissional", cat: "voiceover", dur: 60, src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3" },
 ];
 
 export const EFX_CATS = [
@@ -507,18 +564,18 @@ export const BACKGROUNDS = [
 ];
 
 export const VOICES = [
-  { id: "v1", name: "João (Masculino)", lang: "PT-BR", gender: "M", style: "natural" },
-  { id: "v2", name: "Maria (Feminino)", lang: "PT-BR", gender: "F", style: "natural" },
-  { id: "v3", name: "Pedro (Locução)", lang: "PT-BR", gender: "M", style: "formal" },
-  { id: "v4", name: "Ana (Suave)", lang: "PT-BR", gender: "F", style: "soft" },
-  { id: "v5", name: "Lucas (Jovem)", lang: "PT-BR", gender: "M", style: "casual" },
-  { id: "v6", name: "Julia (Animada)", lang: "PT-BR", gender: "F", style: "excited" },
-  { id: "v7", name: "James (English)", lang: "EN-US", gender: "M", style: "natural" },
-  { id: "v8", name: "Emma (English)", lang: "EN-US", gender: "F", style: "natural" },
-  { id: "v9", name: "Carlos (Espanhol)", lang: "ES", gender: "M", style: "natural" },
-  { id: "v10", name: "Sofia (Espanhol)", lang: "ES", gender: "F", style: "natural" },
-  { id: "v11", name: "Robô 1", lang: "PT-BR", gender: "M", style: "robot" },
-  { id: "v12", name: "Robô 2", lang: "PT-BR", gender: "F", style: "robot" },
+  { id: "v1", name: "Feminino (pt-BR)", lang: "pt-BR", gender: "F", style: "natural" },
+  { id: "v2", name: "Masculino (pt-BR)", lang: "pt-BR", gender: "M", style: "natural" },
+  { id: "v3", name: "Feminino (en-US)", lang: "en-US", gender: "F", style: "natural" },
+  { id: "v4", name: "Masculino (en-US)", lang: "en-US", gender: "M", style: "formal" },
+  { id: "v5", name: "Feminino (es-ES)", lang: "es-ES", gender: "F", style: "soft" },
+  { id: "v6", name: "Masculino (es-ES)", lang: "es-ES", gender: "M", style: "casual" },
+  { id: "v7", name: "Feminino (fr-FR)", lang: "fr-FR", gender: "F", style: "excited" },
+  { id: "v8", name: "Masculino (de-DE)", lang: "de-DE", gender: "M", style: "natural" },
+  { id: "v9", name: "Feminino (ja-JP)", lang: "ja-JP", gender: "F", style: "natural" },
+  { id: "v10", name: "Narrator (en-US)", lang: "en-US", gender: "M", style: "formal" },
+  { id: "v11", name: "Podcaster (en-US)", lang: "en-US", gender: "F", style: "excited" },
+  { id: "v12", name: "Robotic (pt-BR)", lang: "pt-BR", gender: "M", style: "robot" },
 ];
 
 export const CAPTION_STYLES = [
@@ -548,31 +605,31 @@ export const BRAND_ASSETS = [
 ];
 
 export const TEMPLATES = [
-  { id: "tp1", name: "Intro Animada", dur: 5, bg: "linear-gradient(135deg, #1a365d, #3b82f6)", desc: "Abertura animada com motion graphics" },
-  { id: "tp2", name: "Produto", dur: 15, bg: "linear-gradient(135deg, #166534, #22c55e)", desc: "Apresentação de produto" },
-  { id: "tp3", name: "Tutorial", dur: 30, bg: "linear-gradient(135deg, #92400e, #f59e0b)", desc: "Vídeo passo a passo educativo" },
-  { id: "tp4", name: "Vlog", dur: 20, bg: "linear-gradient(135deg, #831843, #ec4899)", desc: "Layout para vlogs e diários" },
-  { id: "tp5", name: "Review", dur: 25, bg: "linear-gradient(135deg, #1e3a5f, #1e40af)", desc: "Avaliação de produtos" },
-  { id: "tp6", name: "Unboxing", dur: 18, bg: "linear-gradient(135deg, #065f46, #10b981)", desc: "Unboxing de produtos" },
-  { id: "tp7", name: "Antes/Depois", dur: 10, bg: "linear-gradient(135deg, #1a1a2a, #3b82f6)", desc: "Comparação visual" },
-  { id: "tp8", name: "CTA Final", dur: 8, bg: "linear-gradient(135deg, #0f172a, #a855f7)", desc: "Chamada para ação" },
-  { id: "tp9", name: "Story Promo", dur: 15, bg: "linear-gradient(135deg, #1e1b4b, #3b82f6)", desc: "Story para redes sociais" },
-  { id: "tp10", name: "Intro Podcast", dur: 10, bg: "linear-gradient(135deg, #2a1a1a, #6a2a2a)", desc: "Abertura de podcast" },
-  { id: "tp11", name: "TikTok Viral", dur: 12, bg: "linear-gradient(135deg, #0a0a2a, #d43af4)", desc: "Template TikTok" },
-  { id: "tp12", name: "Gamer", dur: 20, bg: "linear-gradient(135deg, #1a0a2a, #4a3a8a)", desc: "Layout para conteúdo gamer" },
+  { id: "tp1", name: "Reels Viral", dur: 15, bg: `url(${U("1534528741775-53994a69daeb")})`, desc: "Template Reels com transições animadas", url: U("1534528741775-53994a69daeb") },
+  { id: "tp2", name: "Shorts Game", dur: 20, bg: `url(${U("1550745165-9bc0b252726f")})`, desc: "YouTube Shorts para gaming", url: U("1550745165-9bc0b252726f") },
+  { id: "tp3", name: "TikTok Dance", dur: 15, bg: `url(${U("1494790108377-be9c29b29330")})`, desc: "TikTok trends e desafios", url: U("1494790108377-be9c29b29330") },
+  { id: "tp4", name: "YouTube Intro", dur: 8, bg: `url(${U("1526374965328-7f61d4dc18c5")})`, desc: "Intro animada para YouTube", url: U("1526374965328-7f61d4dc18c5") },
+  { id: "tp5", name: "Podcast Clips", dur: 30, bg: `url(${U("1522071820081-009f0129c71c")})`, desc: "Clips para podcasts", url: U("1522071820081-009f0129c71c") },
+  { id: "tp6", name: "Ecommerce Ad", dur: 12, bg: `url(${U("1542291026-7eec264c27ff")})`, desc: "Anúncio de produto", url: U("1542291026-7eec264c27ff") },
+  { id: "tp7", name: "Storytelling", dur: 25, bg: `url(${U("1441974231531-c6227db76b6e")})`, desc: "Narrativa visual envolvente", url: U("1441974231531-c6227db76b6e") },
+  { id: "tp8", name: "Before/After", dur: 10, bg: `url(${U("1505740420928-5e560c06d30e")})`, desc: "Comparação antes/depois", url: U("1505740420928-5e560c06d30e") },
+  { id: "tp9", name: "Promo Story", dur: 15, bg: `url(${U("1504384308090-c894fdcc538d")})`, desc: "Story promocional", url: U("1504384308090-c894fdcc538d") },
+  { id: "tp10", name: "Podcast Intro", dur: 10, bg: `url(${U("1519389950473-47ba0277781c")})`, desc: "Abertura de podcast profissional", url: U("1519389950473-47ba0277781c") },
+  { id: "tp11", name: "Unboxing", dur: 18, bg: `url(${U("1523275335684-37898b6baf30")})`, desc: "Unboxing de produtos", url: U("1523275335684-37898b6baf30") },
+  { id: "tp12", name: "Gamer Montage", dur: 20, bg: `url(${U("1518770660439-4636190af475")})`, desc: "Montagem gaming épica", url: U("1518770660439-4636190af475") },
 ];
 
 export const SLIDES = [
-  { id: "sl1", name: "Título", type: "slide", dur: 5, bg: "linear-gradient(135deg, #1a365d, #3b82f6)", text: "Título Principal", layout: "center" },
-  { id: "sl2", name: "Produto", type: "slide", dur: 7, bg: "linear-gradient(135deg, #166534, #22c55e)", text: "Produto Destaque", layout: "split" },
-  { id: "sl3", name: "Depoimento", type: "slide", dur: 6, bg: "linear-gradient(135deg, #92400e, #f59e0b)", text: "Depoimento Cliente", layout: "left" },
-  { id: "sl4", name: "CTA", type: "slide", dur: 5, bg: "linear-gradient(135deg, #831843, #ec4899)", text: "Chamada para Ação", layout: "center" },
-  { id: "sl5", name: "Comparação", type: "slide", dur: 8, bg: "linear-gradient(135deg, #1e3a5f, #1e40af)", text: "Antes vs Depois", layout: "split" },
-  { id: "sl6", name: "Números", type: "slide", dur: 5, bg: "linear-gradient(135deg, #0f172a, #4834d4)", text: "99%", layout: "center" },
-  { id: "sl7", name: "Citação", type: "slide", dur: 6, bg: "linear-gradient(135deg, #1a1a2a, #2a2a4a)", text: "\"Frase de destaque\"", layout: "center" },
-  { id: "sl8", name: "Benefícios", type: "slide", dur: 8, bg: "linear-gradient(135deg, #065f46, #10b981)", text: "Benefício 1\nBenefício 2\nBenefício 3", layout: "left" },
-  { id: "sl9", name: "Logo + Título", type: "slide", dur: 5, bg: "linear-gradient(135deg, #1e1b4b, #3b82f6)", text: "BRANPY", layout: "center" },
-  { id: "sl10", name: "Transição", type: "slide", dur: 3, bg: "linear-gradient(135deg, #1a1a2a, #3a3a5a)", text: "---", layout: "center" },
+  { id: "sl1", name: "Título", type: "slide", dur: 5, bg: `url(${U("1469474968028-56623f02e42e")})`, text: "Título Principal", layout: "center", url: U("1469474968028-56623f02e42e") },
+  { id: "sl2", name: "Produto", type: "slide", dur: 7, bg: `url(${U("1505740420928-5e560c06d30e")})`, text: "Produto Destaque", layout: "split", url: U("1505740420928-5e560c06d30e") },
+  { id: "sl3", name: "Depoimento", type: "slide", dur: 6, bg: `url(${U("1522202176988-66273c2fd55f")})`, text: "Depoimento Cliente", layout: "left", url: U("1522202176988-66273c2fd55f") },
+  { id: "sl4", name: "CTA", type: "slide", dur: 5, bg: `url(${U("1497366216548-37526070297c")})`, text: "Chamada para Ação", layout: "center", url: U("1497366216548-37526070297c") },
+  { id: "sl5", name: "Comparação", type: "slide", dur: 8, bg: `url(${U("1542291026-7eec264c27ff")})`, text: "Antes vs Depois", layout: "split", url: U("1542291026-7eec264c27ff") },
+  { id: "sl6", name: "Números", type: "slide", dur: 5, bg: `url(${U("1526374965328-7f61d4dc18c5")})`, text: "99%", layout: "center", url: U("1526374965328-7f61d4dc18c5") },
+  { id: "sl7", name: "Citação", type: "slide", dur: 6, bg: `url(${U("1472099645785-5658abf4ff4e")})`, text: '"Frase de destaque"', layout: "center", url: U("1472099645785-5658abf4ff4e") },
+  { id: "sl8", name: "Benefícios", type: "slide", dur: 8, bg: `url(${U("1498050108023-c5249f4df085")})`, text: "Benefício 1\nBenefício 2\nBenefício 3", layout: "left", url: U("1498050108023-c5249f4df085") },
+  { id: "sl9", name: "Logo + Título", type: "slide", dur: 5, bg: `url(${U("1519389950473-47ba0277781c")})`, text: "BRANPY", layout: "center", url: U("1519389950473-47ba0277781c") },
+  { id: "sl10", name: "Transição", type: "slide", dur: 3, bg: `url(${U("1506905925346-21bda4d32df4")})`, text: "---", layout: "center", url: U("1506905925346-21bda4d32df4") },
 ];
 
 export const EXPORT_PRESETS = [

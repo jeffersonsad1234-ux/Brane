@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
-import { I, S, MEDIA_LIB, AUDIO_LIB, TEXT_STYLES, STICKER_SET, TRANS_LIST, EFX_CATS, LUTS, MOTION_PRESETS, BACKGROUNDS, VOICES, CAPTION_STYLES, AI_TOOLS, BRAND_ASSETS, TEMPLATES, SLIDES, Rng, FMT, MediaThumb, UID } from "./utils";
+import { I, S, MEDIA_LIB, AUDIO_LIB, TEXT_STYLES, STICKER_SET, TRANS_LIST, EFX_CATS, LUTS, MOTION_PRESETS, BACKGROUNDS, VOICES, CAPTION_STYLES, AI_TOOLS, BRAND_ASSETS, TEMPLATES, SLIDES, Rng, FMT, MediaThumb, UID, U } from "./utils";
 
 export function SideTab({ icon, label, active, onClick }) {
   return (
@@ -292,18 +292,17 @@ export function AudioPanel({ onClickItem }) {
       return;
     }
     setErrorId(null);
-    const s = soundForItem(item);
-    if (!s.url) { setErrorId(item.id); return; }
-    const audio = new Audio(s.url);
+    const src = item.src;
+    if (!src) { setErrorId(item.id); return; }
+    const audio = new Audio(src);
     audio.volume = 0.4;
-    audio.onended = () => { setPlayId(null); URL.revokeObjectURL(s.url); };
-    audio.onerror = () => { setErrorId(item.id); setPlayId(null); URL.revokeObjectURL(s.url); };
+    audio.onended = () => setPlayId(null);
+    audio.onerror = () => { setErrorId(item.id); setPlayId(null); };
     audio.play().then(() => {
       audioRefs.current[item.id] = audio;
       setPlayId(item.id);
     }).catch(() => {
       setErrorId(item.id);
-      URL.revokeObjectURL(s.url);
     });
   };
 
@@ -454,10 +453,11 @@ export function StickerPanel({ onClickItem }) {
   );
 }
 
-function TransThumb({ v }) {
+function TransThumb({ v, poster }) {
   const p = v === "opacity" || v === "fade" ? 0 : v === "slideL" ? 1 : v === "slideR" ? 2 : v === "slideUp" ? 3 : v === "slideD" ? 4 : v === "zoomIn" ? 5 : v === "zoomOut" ? 6 : v === "wipeL" ? 7 : v === "wipeR" ? 8 : v?.includes("glitch") ? 9 : v === "spin" ? 10 : v === "flash" ? 11 : v === "mblur" ? 12 : v === "cube" ? 13 : v === "page" ? 14 : v === "radial" ? 15 : v === "diamond" ? 16 : v === "warp" ? 17 : v === "mosaic" ? 18 : v === "cross" ? 19 : 0;
   return (
     <div className={`tr-thumb tr-${p}`} style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden", borderRadius: 2 }}>
+      {poster && <img src={poster} alt="" loading="lazy" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}} />}
       {p === 0 && <><div className="tr-a" style={{position:"absolute",inset:0,background:"#1a1a3a"}}/><div className="tr-b" style={{position:"absolute",inset:0,background:"#3b82f6"}}/></>}
       {p >= 1 && p <= 4 && <><div className="tr-a" style={{position:"absolute",inset:0,background:"#1a1a3a"}}/><div className="tr-b" style={{position:"absolute",inset:0,background:"#3b82f6",width:"50%"}}/></>}
       {p >= 5 && p <= 6 && <><div className="tr-a" style={{position:"absolute",inset:"10%",background:"#1a1a3a"}}/><div className="tr-b" style={{position:"absolute",inset:"10%",background:"#3b82f6"}}/></>}
@@ -536,7 +536,15 @@ export function TransitionsPanel({ onClickItem }) {
           className="cs-asset-card"
         >
           <div style={{ width: "100%", aspectRatio: "16/9", overflow: "hidden", background: "#0d0d1a" }}>
-            <TransThumb v={item.v} />
+            <TransThumb v={item.v} poster={U([
+              "1506905925346-21bda4d32df4","1469474968028-56623f02e42e","1441974231531-c6227db76b6e",
+              "1518173946687-a36f968f7e6b","1497366216548-37526070297c","1472099645785-5658abf4ff4e",
+              "1505740420928-5e560c06d30e","1523275335684-37898b6baf30","1494790108377-be9c29b29330",
+              "1518770660439-4636190af475","1550745165-9bc0b252726f","1526374965328-7f61d4dc18c5",
+              "1522071820081-009f0129c71c","1556761176-5978dc2d2cf8","1522202176988-66273c2fd55f",
+              "1498050108023-c5249f4df085","1521790791593-bce4b3e6f78","1517245386807-bb43f82c33c4",
+              "1552566626-52f8b828add9","1542291026-7eec264c27ff",
+            ][TRANS_LIST.findIndex((t) => t.id === item.id)] || "1506905925346-21bda4d32df4")} />
           </div>
           <div style={{ padding: "3px 6px" }}>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", fontWeight: 500, textAlign: "center" }}>{item.name}</div>
@@ -549,10 +557,11 @@ export function TransitionsPanel({ onClickItem }) {
   );
 }
 
-function EfThumb({ cat }) {
+function EfThumb({ cat, poster }) {
   const p = cat === "blur" ? 0 : cat === "glow" ? 1 : cat === "vhs" ? 2 : cat === "shake" ? 3 : cat === "glitch" ? 4 : cat === "noise" ? 5 : cat === "bw" ? 6 : cat === "vintage" ? 7 : cat === "neon" ? 8 : cat === "cine" ? 9 : cat === "mirror" ? 10 : cat === "pixel" ? 11 : cat === "dream" ? 12 : cat === "film" ? 13 : cat === "sepia" ? 14 : cat === "invert" ? 15 : cat === "sketch" ? 16 : cat === "halftone" ? 17 : cat === "chroma" ? 18 : cat === "sharp" ? 19 : cat === "rgb" ? 20 : cat === "zoom" ? 21 : cat === "lens" ? 22 : cat === "bloom" ? 23 : 0;
   return (
     <div className={`ef-thumb ef-${p}`} style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden", borderRadius: 2 }}>
+      {poster && <img src={poster} alt="" loading="lazy" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}} />}
       <div className="ef-bg" style={{ position: "absolute", inset: 0 }} />
       {p === 0 && <div className="ef-over" style={{position:"absolute",inset:0,background:"rgba(255,255,255,0.03)"}}/>}
       {p === 1 && <div className="ef-over" style={{position:"absolute",inset:0,background:"rgba(59,130,246,0.15)"}}/>}
@@ -652,7 +661,16 @@ export function EffectsPanel({ onClickItem }) {
           className="cs-asset-card"
         >
           <div style={{ width: "100%", aspectRatio: "16/9", overflow: "hidden", background: "#0d0d1a" }}>
-            <EfThumb cat={item.cat} />
+            <EfThumb cat={item.cat} poster={U([
+              "1518770660439-4636190af475","1534528741775-53994a69daeb","1518173946687-a36f968f7e6b",
+              "1550745165-9bc0b252726f","1441974231531-c6227db76b6e","1505740420928-5e560c06d30e",
+              "1517245386807-bb43f82c33c4","1494790108377-be9c29b29330","1498050108023-c5249f4df085",
+              "1472099645785-5658abf4ff4e","1542291026-7eec264c27ff","1526374965328-7f61d4dc18c5",
+              "1522071820081-009f0129c71c","1522202176988-66273c2fd55f","1497366216548-37526070297c",
+              "1556761176-5978dc2d2cf8","1506905925346-21bda4d32df4","1521790791593-bce4b3e6f78",
+              "1523275335684-37898b6baf30","1504384308090-c894fdcc538d","1480714378408-67cf0d13bc1b",
+              "1519389950473-47ba0277781c","1470071459604-3b5ec3a7fe05","1552566626-52f8b828add9",
+            ][EFX_CATS.findIndex((e) => e.id === item.id)] || "1506905925346-21bda4d32df4")} />
           </div>
           <div style={{ padding: "3px 6px" }}>
             <div style={{ fontSize: 12, color: "rgba(255,255,255,0.65)", fontWeight: 500, textAlign: "center" }}>{item.name}</div>
@@ -865,10 +883,17 @@ export function VoicePanel({ onClickItem }) {
   const speak = (voiceId, voiceName, lang, gender) => {
     try {
       window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(voiceName || "Sample voice test");
+      const u = new SpeechSynthesisUtterance(voiceName || "This is a sample voice test");
       if (lang) u.lang = lang;
       u.rate = 0.9;
       u.pitch = gender === "F" ? 1.1 : 0.9;
+      const voices = window.speechSynthesis.getVoices();
+      const match = voices.find((v) => {
+        const vLang = v.lang.toLowerCase().split("-")[0];
+        const tLang = (lang || "").toLowerCase().split("-")[0];
+        return vLang === tLang && (gender === "M" ? v.name.toLowerCase().includes("male") : gender === "F" ? v.name.toLowerCase().includes("female") : true);
+      }) || voices.find((v) => v.lang.toLowerCase().startsWith((lang || "").toLowerCase().split("-")[0]));
+      if (match) u.voice = match;
       u.onend = u.onerror = () => { setSpeaking(false); setSpeakId(null); };
       window.speechSynthesis.speak(u);
       setSpeaking(true);
@@ -882,6 +907,9 @@ export function VoicePanel({ onClickItem }) {
       const u = new SpeechSynthesisUtterance(txt);
       if (lang) u.lang = lang;
       u.rate = 0.9;
+      const voices = window.speechSynthesis.getVoices();
+      const match = voices.find((v) => v.lang.toLowerCase().startsWith((lang || "").toLowerCase().split("-")[0]));
+      if (match) u.voice = match;
       u.onend = u.onerror = () => setSpeaking(false);
       window.speechSynthesis.speak(u);
       setSpeaking(true);

@@ -142,9 +142,9 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
   return (
     <div ref={ref} style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, minWidth: 0, background: "#080808" }}>
       {/* Hidden audio elements for all clips */}
-      {proj.tracks.flatMap((t) => t.clips.filter((c) => c.url && (c.type === "audio" || c.file?.type?.startsWith("audio")))).map((c) => (
+      {proj.tracks.flatMap((t) => t.clips.filter((c) => (c.url || c.src) && (c.type === "audio" || c.file?.type?.startsWith("audio")))).map((c) => (
         <audio key={c.id} ref={(el) => { if (el) audioRefs.current[c.id] = el; }}
-          src={c.url} preload="auto" loop={false}
+          src={c.src || c.url} preload="auto" loop={false}
           style={{ display: "none" }}
         />
       ))}

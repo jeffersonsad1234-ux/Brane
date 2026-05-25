@@ -369,6 +369,7 @@ export default function VideoStudioEditor() {
         start: ct, duration: dur, type: type,
         t: asset.e || asset.name?.[0] || "A",
         url: asset.url || null,
+        src: asset.src || null,
         file: asset.file || null,
         effects: !mediaTypes.includes(type) ? [{ id: UID(), ...asset }] : [],
       };
