@@ -3,6 +3,8 @@ import { aiRouter as defaultRouter } from "./router/AIRouter";
 import { aiMemory } from "./memory/AIMemory";
 import { getAgent, DEFAULT_AGENT } from "./agents/AgentRegistry";
 import { getAvailableProviders, getProvider } from "./providers/ProviderFactory";
+import { intentEngine } from "./utils/IntentEngine";
+import { browserEngine } from "./browser/BrowserEngine";
 
 const POLL_INTERVAL = 3000;
 const DEFAULT_MODEL = "qwen2.5-coder:7b";
@@ -115,6 +117,50 @@ export function useAI(routerInstance = null) {
     ], { model: modelName, signal: controller?.signal });
   }, []);
 
+  const detectAndRunSearch = useCallback(async (message) => {
+    if (!message) return null;
+    try {
+      const intent = intentEngine ? intentEngine.classify(message) : null;
+      const needsSearch = intent && ["news", "search", "browser"].includes(intent.id);
+      if (!needsSearch) {
+        console.log("[SEARCH] not needed — intent:", intent?.id);
+        return null;
+      }
+
+      console.log("[SEARCH DETECTED] intent:", intent.id, intent.label);
+      setExecutionStatus({ type: "search", message: "🔍 Pesquisando na internet..." });
+
+      console.log("[RUNNING WEB SEARCH] query:", message);
+      const result = await browserEngine.search(message);
+
+      if (!result || !result.results || result.results.length === 0) {
+        console.log("[SEARCH RESULTS] empty — no results found");
+        setExecutionStatus({ type: "search-done", message: "Não encontrei resultados atuais." });
+        setTimeout(() => { if (mountedRef.current) setExecutionStatus(null); }, 5000);
+        return null;
+      }
+
+      console.log("[SEARCH RESULTS]", result.results.length, "results found");
+      setExecutionStatus({ type: "search-done", message: "✓ Lendo fontes..." });
+
+      const items = result.results.slice(0, 5);
+      let context = "Pesquisei na web e encontrei os seguintes resultados:\n\n";
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        context += `[${i + 1}] ${item.title || "Sem título"}\n`;
+        if (item.snippet) context += `   ${item.snippet}\n`;
+        if (item.url) context += `   Fonte: ${item.url}\n\n`;
+      }
+      context += "---\n\n";
+      context += `Pergunta original: ${message}\n\n`;
+      context += "Com base nos resultados acima, responda de forma natural e completa em português brasileiro. Inclua os links das fontes quando relevante. Se os resultados não forem suficientes, avise educadamente.";
+      return context;
+    } catch (err) {
+      console.error("[SEARCH ERROR]", err);
+      return null;
+    }
+  }, []);
+
   const sendMessage = useCallback(async (content, options = {}) => {
     if (!mountedRef.current) return { content: "" };
     setLoading(true); setError(null); setStreaming(false);
@@ -127,17 +173,22 @@ export function useAI(routerInstance = null) {
     const provider = options.provider || currentProvider;
 
     try {
+      // Run web search first if query needs current information
+      const searchContext = await detectAndRunSearch(msg);
+      const finalMsg = searchContext || msg;
+
       if (provider === "ollama") {
-        const text = await ollamaSend(msg, model, null);
-        if (mountedRef.current) { setLoading(false); if (text) addAssistantMessage(text, "ollama", model || "qwen2.5-coder:7b", agent); }
+        setExecutionStatus({ type: "composing", message: "Gerando resposta..." });
+        const text = await ollamaSend(finalMsg, model, null);
+        if (mountedRef.current) { setLoading(false); setExecutionStatus(null); if (text) addAssistantMessage(text, "ollama", model || "qwen2.5-coder:7b", agent); }
         return { content: text || "", provider: "ollama", model: model || "qwen2.5-coder:7b" };
       }
-      const result = await router.chat(msg, { agent, model: model || undefined, provider, ...options });
-      if (mountedRef.current) { setLoading(false); if (result && result.content) addAssistantMessage(result.content, result.provider, result.model, agent); }
+      const result = await router.chat(finalMsg, { agent, model: model || undefined, provider, ...options });
+      if (mountedRef.current) { setLoading(false); setExecutionStatus(null); if (result && result.content) addAssistantMessage(result.content, result.provider, result.model, agent); }
       return result || { content: "" };
     } catch (err) {
       if (!mountedRef.current) return { content: "" };
-      setLoading(false);
+      setLoading(false); setExecutionStatus(null);
       if (provider === "ollama") {
         const errorMsg = err ? err.message : "Erro ao conectar com Ollama Local";
         const cors = isCorsError(err);
@@ -147,7 +198,7 @@ export function useAI(routerInstance = null) {
       setError(err ? err.message : "Chat failed");
       return { content: "", error: err ? err.message : "Chat failed" };
     }
-  }, [router, currentAgent, currentModel, currentProvider, addAssistantMessage, ollamaSend]);
+  }, [router, currentAgent, currentModel, currentProvider, addAssistantMessage, ollamaSend, detectAndRunSearch]);
 
   const sendStreamMessage = useCallback(async (content, options = {}) => {
     if (!mountedRef.current) return { content: "" };
@@ -164,14 +215,19 @@ export function useAI(routerInstance = null) {
     let fullContent = ""; let resultProvider = ""; let resultModel = "";
 
     try {
+      // Run web search first if query needs current information
+      const searchContext = await detectAndRunSearch(msg);
+      const finalMsg = searchContext || msg;
+
       if (provider === "ollama") {
-        const text = await ollamaSend(msg, model, controller) || "";
+        setExecutionStatus({ type: "composing", message: "Gerando resposta..." });
+        const text = await ollamaSend(finalMsg, model, controller) || "";
         resultProvider = "ollama"; resultModel = model || "qwen2.5-coder:7b";
-        setStreaming(false); setCurrentStream(""); setLoading(false);
+        setStreaming(false); setCurrentStream(""); setLoading(false); setExecutionStatus(null);
         if (text) addAssistantMessage(text, resultProvider, resultModel, agent);
         return { content: text, provider: resultProvider };
       }
-      const stream = router.chatStream(msg, { agent, model: model || undefined, provider, signal: controller.signal, ...options });
+      const stream = router.chatStream(finalMsg, { agent, model: model || undefined, provider, signal: controller.signal, ...options });
       activeStreamRef.current = stream;
       for await (const chunk of stream) {
         if (!mountedRef.current || controller.signal.aborted) break;
@@ -182,12 +238,12 @@ export function useAI(routerInstance = null) {
         if (!controller.signal.aborted) setCurrentStream(fullContent);
       }
       activeStreamRef.current = null; abortRef.current = null;
-      if (mountedRef.current) { setStreaming(false); setCurrentStream(""); setLoading(false); if (fullContent) addAssistantMessage(fullContent, resultProvider, model, agent); }
+      if (mountedRef.current) { setStreaming(false); setCurrentStream(""); setLoading(false); setExecutionStatus(null); if (fullContent) addAssistantMessage(fullContent, resultProvider, model, agent); }
       return { content: fullContent || "", provider: resultProvider };
     } catch (err) {
       activeStreamRef.current = null; abortRef.current = null;
       if (!mountedRef.current) return { content: "" };
-      setStreaming(false); setCurrentStream(""); setLoading(false);
+      setStreaming(false); setCurrentStream(""); setLoading(false); setExecutionStatus(null);
       if (provider === "ollama") {
         const errorMsg = err ? err.message : "Erro ao conectar com Ollama Local";
         const cors = isCorsError(err);
@@ -200,7 +256,7 @@ export function useAI(routerInstance = null) {
       addAssistantMessage("**Erro no chat**\n\n" + (err ? err.message : "Erro desconhecido"), provider || "unknown", model, agent);
       return { content: "", error: err ? err.message : "Stream failed" };
     } finally { activeStreamRef.current = null; abortRef.current = null; }
-  }, [router, currentAgent, currentModel, currentProvider, addAssistantMessage, ollamaStream, ollamaSend]);
+  }, [router, currentAgent, currentModel, currentProvider, addAssistantMessage, ollamaStream, ollamaSend, detectAndRunSearch]);
 
   const clearMessages = useCallback(async () => { setMessages([]); setCurrentStream(""); setError(null); try { await router.clearHistory(); } catch {} }, [router]);
 

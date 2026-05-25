@@ -513,13 +513,48 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs mx-auto"
-                        style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.1)", color: "rgba(99,102,241,0.7)", maxWidth: 420 }}
+                        className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs mx-auto"
+                        style={{
+                          background: executionStatus.type === "search"
+                            ? "rgba(251,191,36,0.08)"
+                            : executionStatus.type === "search-done"
+                            ? "rgba(16,185,129,0.06)"
+                            : executionStatus.type === "composing"
+                            ? "rgba(99,102,241,0.06)"
+                            : "rgba(99,102,241,0.06)",
+                          border: executionStatus.type === "search"
+                            ? "1px solid rgba(251,191,36,0.15)"
+                            : executionStatus.type === "search-done"
+                            ? "1px solid rgba(16,185,129,0.12)"
+                            : "1px solid rgba(99,102,241,0.1)",
+                          color: executionStatus.type === "search"
+                            ? "rgba(251,191,36,0.8)"
+                            : executionStatus.type === "search-done"
+                            ? "rgba(16,185,129,0.7)"
+                            : "rgba(99,102,241,0.7)",
+                          maxWidth: 460,
+                        }}
                       >
                         <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                          style={{ width: 12, height: 12, border: "2px solid rgba(99,102,241,0.2)", borderTopColor: "#6366f1", borderRadius: "50%", flexShrink: 0 }}
+                          animate={executionStatus.type === "search" || executionStatus.type === "composing"
+                            ? { rotate: 360 }
+                            : { scale: [1, 1.2, 1] }
+                          }
+                          transition={
+                            executionStatus.type === "search" || executionStatus.type === "composing"
+                              ? { duration: 1.5, repeat: Infinity, ease: "linear" }
+                              : { duration: 0.6, repeat: 2 }
+                          }
+                          style={{
+                            width: 12, height: 12,
+                            border: executionStatus.type === "search-done"
+                              ? "none"
+                              : `2px solid ${executionStatus.type === "search" ? "rgba(251,191,36,0.2)" : "rgba(99,102,241,0.2)"}`,
+                            borderTopColor: executionStatus.type === "search" ? "#f59e0b" : "#6366f1",
+                            borderRadius: "50%",
+                            flexShrink: 0,
+                            background: executionStatus.type === "search-done" ? "rgba(16,185,129,0.7)" : "transparent",
+                          }}
                         />
                         <span>{executionStatus.message || "Executando..."}</span>
                       </motion.div>
