@@ -215,33 +215,14 @@ export function useAI(routerInstance = null) {
 
     try {
       if (provider === "ollama") {
-        const { stream, model: m, provider: p } = await ollamaStream(msg, model, controller);
-        activeStreamRef.current = stream;
-        resultProvider = p;
-        resultModel = m;
-        for await (const chunk of stream) {
-          if (!mountedRef.current || controller.signal.aborted) break;
-          fullContent += (chunk || "");
-          if (!controller.signal.aborted) setCurrentStream(fullContent);
-        }
-        activeStreamRef.current = null;
-        abortRef.current = null;
-        if (!mountedRef.current) return { content: "" };
-        if (fullContent) {
-          setStreaming(false);
-          setCurrentStream("");
-          setLoading(false);
-          addAssistantMessage(fullContent, resultProvider, resultModel, agent);
-          return { content: fullContent, provider: resultProvider };
-        }
-        fullContent = await ollamaSend(msg, model, controller) || "";
+        const text = await ollamaSend(msg, model, controller) || "";
         resultProvider = "ollama";
         resultModel = model || "qwen2.5-coder:7b";
         setStreaming(false);
         setCurrentStream("");
         setLoading(false);
-        if (fullContent) addAssistantMessage(fullContent, resultProvider, resultModel, agent);
-        return { content: fullContent, provider: resultProvider };
+        if (text) addAssistantMessage(text, resultProvider, resultModel, agent);
+        return { content: text, provider: resultProvider };
       }
 
       const stream = router.chatStream(msg, { agent, model: model || undefined, provider, signal: controller.signal, ...options });
