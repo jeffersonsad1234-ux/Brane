@@ -36,8 +36,9 @@ export class ToolExecutionEngine {
         return { content: await this._executePrompt(userMessage || "", context, options), provider: context.provider, intent: intent.id, results: [] };
       }
 
-      this._emitStatus({ type: "intent", message: `Detectado: ${intent.label}`, intent: intent.id });
-      this._emitStatus({ type: "tools", message: `Executando ${tools.length} ferramenta(s)...`, tools: tools.map((t) => t.name) });
+      const isSearchIntent = intent && ["news", "search", "browser"].includes(intent.id);
+      this._emitStatus({ type: "intent", message: isSearchIntent ? "🔍 Pesquisando na web..." : `Detectado: ${intent.label}`, intent: intent.id });
+      this._emitStatus({ type: "tools", message: isSearchIntent ? "Buscando informações atualizadas..." : `Executando ${tools.length} ferramenta(s)...`, tools: tools.map((t) => t.name) });
 
       const results = [];
       for (const toolDef of tools.slice(0, this.maxTools)) {
@@ -51,13 +52,20 @@ export class ToolExecutionEngine {
           continue;
         }
 
-        this._emitStatus({ type: "tool", message: `▶ ${toolDef.name}...`, tool: toolDef.name });
+        const toolLabel = toolDef.name === "NewsSearchTool" ? "Buscando notícias..."
+          : toolDef.name === "BrowserSearchTool" ? "Pesquisando na web..."
+          : toolDef.name === "ContentExtractTool" ? "Lendo conteúdo de páginas..."
+          : `▶ ${toolDef.name}...`;
+        this._emitStatus({ type: "tool", message: toolLabel, tool: toolDef.name });
 
         try {
           const tool = new ToolClass();
           const data = await this._executeTool(tool, toolDef, context);
           results.push({ tool: toolDef.name, success: true, data: data || {} });
-          this._emitStatus({ type: "tool-done", message: `✓ ${toolDef.name} concluído`, tool: toolDef.name });
+          const doneLabel = toolDef.name === "NewsSearchTool" || toolDef.name === "BrowserSearchTool"
+            ? "✓ Fontes encontradas"
+            : `✓ ${toolDef.name} concluído`;
+          this._emitStatus({ type: "tool-done", message: doneLabel, tool: toolDef.name });
         } catch (err) {
           results.push({ tool: toolDef.name, success: false, error: err ? err.message : "Unknown error" });
           this._emitStatus({ type: "tool-error", message: `✗ ${toolDef.name}: falha`, tool: toolDef.name });
@@ -69,26 +77,36 @@ export class ToolExecutionEngine {
         return { content: "", aborted: true, results, provider: context.provider, intent: intent.id };
       }
 
-      this._emitStatus({ type: "composing", message: "Montando resposta..." });
+      this._emitStatus({ type: "composing", message: "Gerando resposta com dados da web..." });
 
       const hasSuccessfulTools = results.some((r) => r.success);
       let content = "";
 
       if (hasSuccessfulTools) {
+        // Inject search results as context for the LLM
+        const enrichedMessage = this._buildSearchContext(userMessage || "", results);
         try {
-          content = responseComposer.compose(intent.id, results, context);
+          content = await this._executePrompt(enrichedMessage, context, options);
         } catch { content = ""; }
       }
 
+      // Fallback: no tools or provider unavailable — use ResponseComposer
       if (!content || content.length === 0) {
-        content = await this._executePrompt(userMessage || "", context, options);
+        if (hasSuccessfulTools) {
+          try {
+            content = responseComposer.compose(intent.id, results, context);
+          } catch { content = ""; }
+        }
+        if (!content || content.length === 0) {
+          content = await this._executePrompt(userMessage || "", context, options);
+        }
       }
 
       if (content && content.length > MAX_CONTENT_LENGTH) {
         content = content.slice(0, MAX_CONTENT_LENGTH) + "\n\n*(conteúdo truncado — muito longo)*";
       }
 
-      this._emitStatus({ type: "done", message: "Resposta pronta" });
+      this._emitStatus({ type: "done", message: "✓ Resposta gerada com informações atualizadas" });
 
       return {
         content: content || "",
@@ -97,7 +115,7 @@ export class ToolExecutionEngine {
         results,
       };
     } catch (err) {
-      this._emitStatus({ type: "done", message: "Erro ao processar" });
+      this._emitStatus({ type: "done", message: "Não consegui buscar agora — use outro provider ou tente novamente" });
       return { content: "", provider: options.provider || "branpy-demo", intent: "general", results: [], error: err ? err.message : "Unknown error" };
     }
   }
@@ -117,6 +135,31 @@ export class ToolExecutionEngine {
         reject(err);
       }
     });
+  }
+
+  _buildSearchContext(userMessage, results) {
+    try {
+      const searchResult = results.find(
+        (r) => r.success && r.data && r.data.results && r.data.results.length > 0
+      );
+      if (!searchResult) return userMessage;
+
+      const items = searchResult.data.results.slice(0, 5);
+      let context = "Pesquisei na web e encontrei os seguintes resultados:\n\n";
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        context += `[${i + 1}] ${item.title || "Sem título"}\n`;
+        if (item.snippet) context += `   ${item.snippet}\n`;
+        if (item.url) context += `   Fonte: ${item.url}\n`;
+        context += "\n";
+      }
+      context += "---\n\n";
+      context += `Pergunta original do usuário: ${userMessage}\n\n`;
+      context += "Com base nos resultados acima, responda de forma natural, completa e em português brasileiro. Inclua os links das fontes quando relevante. Se os resultados não forem suficientes, avise o usuário educadamente.";
+      return context;
+    } catch {
+      return userMessage;
+    }
   }
 
   async _executePrompt(message, context, options) {
@@ -146,7 +189,7 @@ export class ToolExecutionEngine {
     try {
       const intent = context && context.intent;
       if (intent && ["news", "search", "browser"].includes(intent.id)) {
-        return "Não consegui buscar em tempo real agora, mas posso continuar com uma resposta geral ou tentar outro provider.";
+        return "Não consegui buscar informações atualizadas agora. Selecione outro provedor no menu superior (OpenRouter, Groq, OpenAI etc.) ou tente novamente mais tarde.";
       }
       return "Estou operando em modo local. Para uma resposta completa, conecte uma API key no painel AI Providers ou tente novamente.";
     } catch {

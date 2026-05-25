@@ -45,7 +45,7 @@ export function useAI(routerInstance = null) {
         if (!mountedRef.current) return;
         setExecutionStatus(status);
         if (status && (status.type === "done" || status.type === "tool-error")) {
-          setTimeout(() => { if (mountedRef.current) setExecutionStatus(null); }, 2000);
+          setTimeout(() => { if (mountedRef.current) setExecutionStatus(null); }, 5000);
         }
       });
     } catch { }

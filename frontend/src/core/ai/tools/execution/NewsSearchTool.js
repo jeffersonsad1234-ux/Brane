@@ -10,8 +10,10 @@ export class NewsSearchTool extends BaseExecutionTool {
 
   async execute(context) {
     try {
-      const rawQuery = (context.userMessage || "").replace(/(notícias?\s+(do|da|de|sobre)?|últimas\s+)?/i, "").trim();
-      const query = rawQuery || "últimas notícias";
+      const rawMsg = context.userMessage || "";
+      const cleaned = rawMsg.replace(/^(notícias?\s+(do|da|de|sobre)?|últimas\s+)?/i, "").trim();
+      const query = cleaned && cleaned !== rawMsg ? cleaned : rawMsg;
+      const searchQuery = query ? `últimas notícias ${query}` : "últimas notícias";
       const browser = context.browser;
       if (!browser || typeof browser.search !== "function") {
         return { query, results: [], totalResults: 0, error: "Browser engine not available" };
@@ -21,7 +23,7 @@ export class NewsSearchTool extends BaseExecutionTool {
       const timer = setTimeout(() => controller.abort(), SEARCH_TIMEOUT);
 
       const searchResult = await Promise.race([
-        browser.search(`últimas notícias ${query}`),
+        browser.search(searchQuery),
         new Promise((_, reject) => {
           controller.signal.addEventListener("abort", () => reject(new Error("Search timed out")));
         }),

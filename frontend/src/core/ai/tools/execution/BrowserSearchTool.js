@@ -10,7 +10,8 @@ export class BrowserSearchTool extends BaseExecutionTool {
 
   async execute(context) {
     try {
-      const query = (context.userMessage || "").replace(/(pesquisar?|buscar?|procurar?|encontrar?|search?|notícias?\s+(sobre|de|do|da)?)\s*/i, "").trim() || context.userMessage || "";
+      const rawMsg = context.userMessage || "";
+      const query = rawMsg.replace(/^(pesquis[ae]r?|buscar?|procurar?|encontrar?|search|notícias?\s+(sobre|de|do|da)?)\s*/i, "").trim() || rawMsg;
       const browser = context.browser;
       if (!browser || typeof browser.search !== "function") {
         return { query, results: [], totalResults: 0, error: "Browser engine not available" };

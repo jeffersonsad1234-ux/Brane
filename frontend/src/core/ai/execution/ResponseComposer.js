@@ -54,12 +54,13 @@ export class ResponseComposer {
         return "";
       }
       const items = searchResult.data.results.slice(0, 8);
-      let md = `## Resultados encontrados\n\n`;
+      let md = `## Informações encontradas na web\n\n`;
       for (const item of items) {
         md += `### ${item.title || "Sem título"}\n`;
         if (item.snippet) md += `${item.snippet}\n\n`;
         if (item.url) md += `🔗 [Ler mais](${item.url})\n\n`;
       }
+      md += `---\n*Resultados de pesquisa web — verifique as fontes para detalhes completos.*`;
       return md;
     } catch {
       return "";
