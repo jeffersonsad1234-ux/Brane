@@ -569,7 +569,18 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
         <AnimatePresence>
           {showLauncher && (
             <Launcher search={launcherSearch} onSearchChange={setLauncherSearch} cat={launcherCat} onCatChange={setLauncherCat}
-              apps={filteredLauncher} onAppOpen={(id) => { trackOpen(id); handleHomeAppOpen(id); }} onClose={() => { setShowLauncher(false); setLauncherSearch(""); }} />
+              apps={filteredLauncher} onAppOpen={(id) => {
+                trackOpen(id);
+                const app = APPS.find((a) => a.id === id);
+                if (!app) return;
+                setShowLauncher(false);
+                setLauncherSearch("");
+                if (app.route) {
+                  navigate(app.route);
+                } else {
+                  openWindow(id);
+                }
+              }} onClose={() => { setShowLauncher(false); setLauncherSearch(""); }} />
           )}
         </AnimatePresence>
       </>
@@ -580,7 +591,17 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
     <>
       <HomeView apps={visibleApps} activeCat={activeCat} onCatChange={setActiveCat}
         search={search} onSearchChange={(v) => { setSearch(v); setActiveCat("all"); }}
-        onAppOpen={(id) => { trackOpen(id); handleHomeAppOpen(id); }} onNewProject={() => openWindow("projects")}
+        onAppOpen={(id) => {
+          trackOpen(id);
+          const app = APPS.find((a) => a.id === id);
+          if (!app) return;
+          if (app.route) {
+            navigate(app.route);
+          } else {
+            openWindow(id);
+          }
+        }}
+        onNewProject={() => openWindow("projects")}
         favorites={favorites} onToggleFavorite={toggleFavorite} recents={recents} allApps={APPS} />
 
       <AnimatePresence>
@@ -598,9 +619,19 @@ export default function BRANPYLayout({ children, activeModule, onNavigate }) {
       )}
 
       <AnimatePresence>
-        {showLauncher && (
-          <Launcher search={launcherSearch} onSearchChange={setLauncherSearch} cat={launcherCat} onCatChange={setLauncherCat}
-            apps={filteredLauncher} onAppOpen={handleHomeAppOpen} onClose={() => { setShowLauncher(false); setLauncherSearch(""); }} />
+          {showLauncher && (
+            <Launcher search={launcherSearch} onSearchChange={setLauncherSearch} cat={launcherCat} onCatChange={setLauncherCat}
+              apps={filteredLauncher} onAppOpen={(id) => {
+                const app = APPS.find((a) => a.id === id);
+                if (!app) return;
+                setShowLauncher(false);
+                setLauncherSearch("");
+                if (app.route) {
+                  navigate(app.route);
+                } else {
+                  openWindow(id);
+                }
+              }} onClose={() => { setShowLauncher(false); setLauncherSearch(""); }} />
         )}
       </AnimatePresence>
     </>
