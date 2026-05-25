@@ -9,8 +9,8 @@ import BrandMemoryPanel from "./brandMemory";
 import {
   SideTab, MediaPanel, AudioPanel, TextPanel, StickerPanel,
   TransitionsPanel, EffectsPanel, LUTsPanel, ColorPanel,
-  MotionPanel, AIPanel, AssetsPanel, TemplatesPanel,
-  CaptionsPanel, BrandPanel
+  MotionPanel, BackgroundsPanel, VoicePanel, AIPanel, AssetsPanel,
+  TemplatesPanel, CaptionsPanel, BrandPanel
 } from "./panels";
 
 const WORKSPACES = [
@@ -149,27 +149,30 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
 const PANEL_LABELS = {
   media: "Media", audio: "Audio", text: "Text", sticker: "Stickers",
   transitions: "Transitions", effects: "Effects", luts: "LUTs", color: "Color",
-  motion: "Motion", ai: "AI Tools", assets: "Assets", templates: "Templates",
+  motion: "Motion", backgrounds: "Backgrounds", voice: "Voice",
+  ai: "AI Tools", assets: "Assets", templates: "Templates",
   captions: "Captions", brand: "Brand Kit", memory: "Brand Memory",
 };
 
-function LeftPanel({ tab, imm, onImp, fRef, onMDrag }) {
+function LeftPanel({ tab, imm, onImp, fRef, onMDrag, onClickItem }) {
   const panel = (() => {
     switch (tab) {
-      case "media": return <MediaPanel imm={imm} onImp={onImp} fRef={fRef} onMDrag={onMDrag} />;
-      case "audio": return <AudioPanel />;
-      case "text": return <TextPanel />;
-      case "sticker": return <StickerPanel />;
-      case "transitions": return <TransitionsPanel />;
-      case "effects": return <EffectsPanel />;
-      case "luts": return <LUTsPanel />;
-      case "color": return <ColorPanel />;
-      case "motion": return <MotionPanel />;
+      case "media": return <MediaPanel imm={imm} onImp={onImp} fRef={fRef} onMDrag={onMDrag} onClickItem={onClickItem} />;
+      case "audio": return <AudioPanel onClickItem={onClickItem} />;
+      case "text": return <TextPanel onClickItem={onClickItem} />;
+      case "sticker": return <StickerPanel onClickItem={onClickItem} />;
+      case "transitions": return <TransitionsPanel onClickItem={onClickItem} />;
+      case "effects": return <EffectsPanel onClickItem={onClickItem} />;
+      case "luts": return <LUTsPanel onClickItem={onClickItem} />;
+      case "color": return <ColorPanel onClickItem={onClickItem} />;
+      case "motion": return <MotionPanel onClickItem={onClickItem} />;
+      case "backgrounds": return <BackgroundsPanel onClickItem={onClickItem} />;
+      case "voice": return <VoicePanel onClickItem={onClickItem} />;
       case "ai": return <AIPanel />;
-      case "assets": return <AssetsPanel />;
-      case "templates": return <TemplatesPanel />;
-      case "captions": return <CaptionsPanel />;
-      case "brand": return <BrandPanel />;
+      case "assets": return <AssetsPanel onClickItem={onClickItem} />;
+      case "templates": return <TemplatesPanel onClickItem={onClickItem} />;
+      case "captions": return <CaptionsPanel onClickItem={onClickItem} />;
+      case "brand": return <BrandPanel onClickItem={onClickItem} />;
       default: return null;
     }
   })();
@@ -238,6 +241,49 @@ export default function VideoStudioEditor() {
   const handleMDrag = useCallback((e, item) => {
     try { e.dataTransfer.setData("application/json", JSON.stringify(item)); e.dataTransfer.effectAllowed = "copy"; } catch {}
   }, []);
+
+  const handleAssetAction = useCallback((asset) => {
+    // When an asset is clicked in the panels, apply it to selected clip or add as new
+    if (!asset) return;
+    const type = asset.type || "overlay";
+    if (sel) {
+      setProj((prev) => ({
+        ...prev,
+        tracks: prev.tracks.map((t) => ({
+          ...t,
+          clips: t.clips.map((c) =>
+            c.id === sel.id
+              ? { ...c, effects: [...(c.effects || []), { id: UID(), type: asset.id || asset.name, asset }] }
+              : c
+          ),
+        })),
+      }));
+    } else {
+      // No clip selected — add new clip at current time
+      let trackType = "overlay";
+      let trackId = "o1";
+      if (type === "audio" || type === "voice" || type === "tts") { trackType = "audio"; trackId = "a2"; }
+      else if (type === "text" || type === "captionStyle" || type === "captionLang") { trackType = "text"; trackId = "t1"; }
+      else if (type === "sticker") { trackType = "sticker"; trackId = "s1"; }
+      else if (type === "background") { trackType = "overlay"; trackId = "o1"; }
+      else if (type === "video" || type === "image") { trackType = "video"; trackId = "v2"; }
+      const dur = asset.dur || (type === "background" ? 5 : 3);
+      const newClip = {
+        id: UID(), name: asset.name || asset.id || "Asset",
+        start: ct, duration: dur, type: trackType, t: asset.e || asset.name?.[0] || "A",
+        effects: [{ id: UID(), type: asset.id || asset.name, asset }],
+      };
+      setProj((prev) => ({
+        ...prev,
+        duration: Math.max(prev.duration, ct + dur),
+        tracks: prev.tracks.map((t) =>
+          t.id === trackId
+            ? { ...t, clips: [...t.clips, newClip].sort((a, b) => a.start - b.start) }
+            : t
+        ),
+      }));
+    }
+  }, [sel, ct]);
 
   const handleApplyMemory = useCallback((mem) => {
     const memClip = {
@@ -316,7 +362,7 @@ export default function VideoStudioEditor() {
               </div>
             </div>
           ) : (
-            <LeftPanel tab={sTab} imm={imm} onImp={handleImp} fRef={fRef} onMDrag={handleMDrag} />
+            <LeftPanel tab={sTab} imm={imm} onImp={handleImp} fRef={fRef} onMDrag={handleMDrag} onClickItem={handleAssetAction} />
           )
         )}
 
