@@ -15,8 +15,6 @@ export default function ExportModal({ open, onClose, proj }) {
   const [saving, setSaving] = useState(false);
   const [exportMode, setExportMode] = useState("json");
 
-  if (!open) return null;
-
   const handlePreset = (p) => {
     setPreset(p); setRes(p.res); setFps(p.fps); setBitrate(p.bitrate);
     setDone(false); setProgress(0); setError(null);
@@ -123,6 +121,8 @@ export default function ExportModal({ open, onClose, proj }) {
   const handleExportJSON = useCallback(() => {
     handleSaveProject();
   }, [handleSaveProject]);
+
+  if (!open) return null;
 
   const handleExport = () => {
     if (exportMode === "json") {
