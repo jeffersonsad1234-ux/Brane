@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from "react"
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
+import ToolsGrid3D from "../../components/ui/ToolsGrid3D";
 
 const CATEGORIES = [
   { id: "create", label: "Create" }, { id: "ai", label: "AI" }, { id: "business", label: "Business" },
@@ -113,23 +114,7 @@ const CAT_ICONS = {
   media: "🎬", productivity: "⚡", automation: "🤖", cloud: "☁️", future: "🔮",
 };
 
-/* ─── Dense App Card ─── */
-function AppCard({ app, onClick, isFavorite, onToggleFavorite }) {
-  return (
-    <button onClick={onClick}
-      className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-left transition-all hover:bg-white/[0.04] border border-transparent hover:border-white/[0.06] cursor-pointer"
-    >
-      <div className="w-7 h-7 rounded flex items-center justify-center text-xs flex-shrink-0 bg-white/[0.04]">{app.icon}</div>
-      <div className="min-w-0 flex-1">
-        <div className="text-[11px] font-medium text-white/60 leading-tight truncate">{app.name}</div>
-        <div className="text-[8px] text-white/20 truncate">{app.desc || ""}</div>
-      </div>
-      <button onClick={(e) => { e.stopPropagation(); onToggleFavorite(app.id); }}
-        className={`flex-shrink-0 w-4 h-4 flex items-center justify-center text-[8px] rounded transition-opacity ${isFavorite ? "text-amber-400/60" : "opacity-0 group-hover:opacity-100 text-white/15 hover:text-white/35"}`}
-      >{isFavorite ? "★" : "☆"}</button>
-    </button>
-  );
-}
+
 
 /* ─── TopBar ─── */
 function TopBar({ search, onSearchChange, onNewProject, recentCount, activeCount }) {
@@ -179,44 +164,10 @@ function StatusBar({ toolCount, catCount }) {
   );
 }
 
-/* ─── Category Section ─── */
-function CategorySection({ cat, apps, onAppOpen, favorites, onToggleFavorite, collapsed, onToggle }) {
-  if (!apps || apps.length === 0) return null;
-  return (
-    <div className="mb-4">
-      <button onClick={onToggle} className="flex items-center gap-1.5 px-0.5 py-1 text-[9px] font-medium uppercase tracking-[0.1em] text-white/20 hover:text-white/35 transition-colors w-full text-left cursor-pointer">
-        <span className="text-[10px]">{CAT_ICONS[cat]}</span>
-        <span>{cat}</span>
-        <span className="text-white/8 font-normal ml-auto">{apps.length}</span>
-        <motion.span animate={{ rotate: collapsed ? 0 : 90 }} className="text-[7px] text-white/10">▸</motion.span>
-      </button>
-      <AnimatePresence>
-        {!collapsed && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-px pt-0.5">
-              {apps.map((app) => (
-                <AppCard key={app.id} app={app} onClick={() => onAppOpen(app.id)} isFavorite={favorites.includes(app.id)} onToggleFavorite={onToggleFavorite} />
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
+
 
 /* ─── HomeView ─── */
 function HomeView({ apps, search, onSearchChange, onAppOpen, onNewProject, favorites, onToggleFavorite, recents, allApps, activeCat, onCatChange }) {
-  const grouped = useMemo(() => {
-    const g = {};
-    CATEGORIES.forEach((c) => { g[c.id] = []; });
-    apps.forEach((a) => { if (!g[a.cat]) g[a.cat] = []; g[a.cat].push(a); });
-    return g;
-  }, [apps]);
-
-  const [collapsed, setCollapsed] = useLocalStorage("branpy_cat_collapsed", {});
-  const toggleCat = (id) => setCollapsed((prev) => ({ ...prev, [id]: !prev[id] }));
-
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-[#0a0a0a] text-white">
       <TopBar search={search} onSearchChange={onSearchChange} onNewProject={onNewProject} recentCount={(recents || []).length} activeCount={0} />
@@ -240,7 +191,7 @@ function HomeView({ apps, search, onSearchChange, onAppOpen, onNewProject, favor
         {/* Main area */}
         <div className="flex-1 flex flex-col min-h-0">
           {/* Quick bar — category chips + recents */}
-          <div className="flex-shrink-0 flex items-center px-4 py-2 gap-2 border-b border-white/[0.03] overflow-x-auto scrollbar-none">
+          <div className="flex-shrink-0 flex items-center px-4 py-2 gap-2 border-b border-white/[0.03] overflow-x-auto scrollbar-none" style={{ background: "#0c0c0c" }}>
             <div className="flex gap-1 text-[8px]">
               {CATEGORIES.map((cat) => (
                 <button key={cat.id} onClick={() => onCatChange(activeCat === cat.id ? "all" : cat.id)}
@@ -266,31 +217,20 @@ function HomeView({ apps, search, onSearchChange, onAppOpen, onNewProject, favor
             )}
           </div>
 
-          {/* Content grid */}
-          <div className="flex-1 overflow-y-auto px-4 py-3 scrollbar-thin">
-            {search.trim() ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-px">
-                {apps.map((app) => (
-                  <AppCard key={app.id} app={app} onClick={() => onAppOpen(app.id)} isFavorite={favorites.includes(app.id)} onToggleFavorite={onToggleFavorite} />
-                ))}
-                {apps.length === 0 && (
-                  <div className="col-span-full flex items-center justify-center py-16">
-                    <div className="text-center"><div className="text-lg mb-2 opacity-20">🔍</div><div className="text-[11px] text-white/15">No results for "<span className="text-white/30">{search}</span>"</div></div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              Object.entries(grouped).map(([catId, catApps]) => (
-                <CategorySection key={catId} cat={catId} apps={catApps} onAppOpen={onAppOpen}
-                  favorites={favorites} onToggleFavorite={onToggleFavorite}
-                  collapsed={collapsed[catId]} onToggle={() => toggleCat(catId)} />
-              ))
-            )}
+          {/* 3D Card Grid */}
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 scrollbar-thin">
+            <ToolsGrid3D
+              apps={apps}
+              onAppOpen={onAppOpen}
+              favorites={favorites}
+              onToggleFavorite={onToggleFavorite}
+              search={search}
+            />
           </div>
           <StatusBar toolCount={APPS.length} catCount={CATEGORIES.length} />
         </div>
 
-        {/* Right sidebar — Activity / Favorites */}
+        {/* Right sidebar — Favorites */}
         {(favorites || []).length > 0 && !search && (
           <div className="w-48 flex-shrink-0 border-l border-white/[0.05] bg-[#090909] flex flex-col">
             <div className="h-9 flex items-center px-3 border-b border-white/[0.04]">
