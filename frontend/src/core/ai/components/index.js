@@ -4,3 +4,5 @@ export { default as ProviderConfigPanel } from "./ProviderConfigPanel";
 export { default as BrowserPanel } from "./BrowserPanel";
 export { default as OperatorPanel } from "./OperatorPanel";
 export { default as BRANPYWorkspace } from "./BRANPYWorkspace";
+export { default as ToolGrid } from "./ToolGrid";
+export { default as ToolCard } from "./ToolCard";
