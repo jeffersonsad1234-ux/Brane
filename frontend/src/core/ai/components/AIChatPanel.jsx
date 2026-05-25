@@ -126,25 +126,25 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
         className="flex flex-col min-h-0"
         style={{
           flex: 1,
-          background: "linear-gradient(160deg, #050505 0%, #080808 50%, #0a0a0a 100%)",
+          background: "linear-gradient(160deg, #030303 0%, #070707 50%, #0a0a0a 100%)",
           color: "white",
           fontFamily: "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           position: "relative",
           ...(fullScreen ? { position: "fixed", inset: 0, zIndex: 100 } : {}),
         }}
       >
-        {/* Ambient background glow */}
+        {/* Ambient glow background */}
         <div className="pointer-events-none fixed inset-0 overflow-hidden" style={{ zIndex: 0 }}>
-          <div style={{ position: "absolute", top: "-15%", right: "-5%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.03) 0%, transparent 70%)" }} />
-          <div style={{ position: "absolute", bottom: "-10%", left: "-5%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.02) 0%, transparent 70%)" }} />
-          <div style={{ position: "absolute", top: "40%", right: "30%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.02) 0%, transparent 70%)" }} />
+          <div style={{ position: "absolute", top: "-20%", left: "-10%", width: 800, height: 800, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.04) 0%, transparent 70%)" }} />
+          <div style={{ position: "absolute", bottom: "-15%", right: "-5%", width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.03) 0%, transparent 70%)" }} />
+          <div style={{ position: "absolute", top: "30%", right: "40%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.02) 0%, transparent 70%)" }} />
         </div>
 
         {/* ===== TOP BAR ===== */}
         <motion.header
           initial={false}
           className="flex-shrink-0 relative z-20"
-          style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(5,5,5,0.85)", backdropFilter: "blur(20px) saturate(1.5)" }}
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(3,3,3,0.85)", backdropFilter: "blur(20px) saturate(1.5)" }}
         >
           <div className="flex items-center justify-between px-5 h-14">
             {/* Left: Brand */}
@@ -266,36 +266,61 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
         {/* ===== MAIN CONTENT ===== */}
         <div className="flex-1 overflow-hidden relative z-10" style={{ display: "flex", flexDirection: "column" }}>
           {!hasMessages && showToolGrid ? (
-            /* ===== LANDING: EMPTY STATE WITH TOOL GRID ===== */
+            /* ===== LANDING: HERO + TOOL GRID ===== */
             <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
-              <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-16">
-                {/* Hero */}
+              <div className="max-w-7xl mx-auto px-5 sm:px-8 py-10 sm:py-20">
+                {/* Premium Hero */}
                 <motion.div
-                  initial={{ opacity: 0, y: 24 }}
+                  initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  className="text-center mb-10"
+                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  className="text-center mb-12 sm:mb-16 relative"
                 >
+                  {/* Hero glow */}
+                  <div
+                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                    style={{ width: "80%", height: 200, background: "radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)" }}
+                  />
+
                   <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
+                    initial={{ scale: 0.85, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.1, duration: 0.5 }}
-                    className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-5"
+                    transition={{ delay: 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-6"
                     style={{
-                      background: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))",
-                      border: "1px solid rgba(99,102,241,0.15)",
-                      boxShadow: "0 8px 32px rgba(99,102,241,0.1)",
+                      background: "linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1))",
+                      border: "1px solid rgba(99,102,241,0.2)",
+                      boxShadow: "0 8px 40px rgba(99,102,241,0.12)",
                     }}
                   >
                     <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                       <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </motion.div>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 tracking-tight" style={{ color: "rgba(255,255,255,0.95)" }}>
-                    O que você quer criar?
+
+                  <h1
+                    className="text-3xl sm:text-4xl lg:text-6xl font-bold mb-4 tracking-tight"
+                    style={{
+                      color: "rgba(255,255,255,0.95)",
+                      textShadow: "0 2px 24px rgba(0,0,0,0.4)",
+                      letterSpacing: "-0.03em",
+                    }}
+                  >
+                    BRANPY
+                    <span style={{
+                      background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}> AI Studio</span>
                   </h1>
-                  <p className="text-sm sm:text-base max-w-md mx-auto" style={{ color: "rgba(255,255,255,0.35)" }}>
-                    Escolha uma ferramenta ou digite sua mensagem para começar
+
+                  <p
+                    className="text-sm sm:text-base lg:text-lg max-w-xl mx-auto mb-8"
+                    style={{ color: "rgba(255,255,255,0.3)" }}
+                  >
+                    Crie, edite e publique com inteligência artificial.
+                    <br />
+                    Escolha uma ferramenta abaixo para começar.
                   </p>
                 </motion.div>
 
@@ -303,7 +328,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15, duration: 0.6 }}
+                  transition={{ delay: 0.2, duration: 0.6 }}
                 >
                   <ToolGrid
                     onSelectTool={handleToolSelect}
@@ -513,7 +538,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
           initial={false}
           className="flex-shrink-0 relative z-20 px-4 sm:px-6 pb-5 pt-3"
           style={{
-            background: "linear-gradient(0deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0) 100%)",
+            background: "linear-gradient(0deg, rgba(3,3,3,0.95) 0%, rgba(3,3,3,0) 100%)",
           }}
         >
           <div className="max-w-3xl mx-auto">
