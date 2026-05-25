@@ -203,32 +203,27 @@ function AudioWave({ cat }) {
   );
 }
 
-const AudioCtx = typeof window !== "undefined" && (window.AudioContext || window.webkitAudioContext);
-
-function playTone(cat) {
+function playAudioBlob(cat) {
   try {
-    const ctx = new AudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    const baseFreq = cat === "music" ? 440 : cat === "sfx" ? 660 : cat === "voiceover" ? 330 : 220;
-    const detune = cat === "music" ? 5 : cat === "sfx" ? 20 : 0;
-    osc.frequency.value = baseFreq;
-    osc.detune.value = detune;
-    osc.type = cat === "sfx" ? "sawtooth" : cat === "music" ? "triangle" : "sine";
-    gain.gain.setValueAtTime(0, ctx.currentTime);
-    gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.05);
-    if (cat === "sfx") {
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-      ctx.close();
-    } else {
-      gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.5);
-      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.0);
-      setTimeout(() => ctx.close(), 1100);
+    const sr = 44100, dur = 1.5, len = sr * dur;
+    const buf = new ArrayBuffer(44 + len * 2);
+    const v = new DataView(buf);
+    const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + len * 2, true); w(8, 'WAVE');
+    w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    w(36, 'data'); v.setUint32(40, len * 2, true);
+    const freq = cat === "music" ? 440 : cat === "sfx" ? 660 : cat === "voiceover" ? 330 : 220;
+    for (let i = 0; i < len; i++) {
+      const t = i / sr;
+      const s = Math.sin(2 * Math.PI * freq * t) * 0.3 * Math.max(0, 1 - t / dur) * (cat === "sfx" ? 1 + (1 - t / dur) * 2 : 1);
+      v.setInt16(44 + i * 2, Math.max(-32767, Math.min(32767, s * 32767)), true);
     }
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + (cat === "sfx" ? 0.4 : 1.0));
+    const blob = new Blob([buf], { type: 'audio/wav' });
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.volume = 0.4;
+    audio.play().then(() => { audio.onended = () => URL.revokeObjectURL(url); }).catch(() => {});
   } catch {}
 }
 
@@ -293,7 +288,7 @@ export function AudioPanel({ onClickItem }) {
                 {item.cat} · {item.dur.toFixed?.(1) || item.dur}s
               </div>
             </div>
-            <button onClick={(e) => { e.stopPropagation(); setPlayId(item.id); playTone(item.cat); setTimeout(() => setPlayId(null), 800); }}
+            <button onClick={(e) => { e.stopPropagation(); setPlayId(item.id); playAudioBlob(item.cat); setTimeout(() => setPlayId(null), 1000); }}
               style={{
                 width: 22, height: 22, borderRadius: "50%", border: "none", cursor: "pointer",
                 background: playId === item.id ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.04)",

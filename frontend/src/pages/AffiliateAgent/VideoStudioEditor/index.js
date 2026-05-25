@@ -342,7 +342,9 @@ export default function VideoStudioEditor() {
   const handleAssetAction = useCallback((asset) => {
     if (!asset) return;
     const type = asset.type || "overlay";
-    if (sel) {
+    const fxTypes = ["overlay", "luts", "colorPreset", "colorAdjust", "motion", "brandColor", "voice"];
+    const mediaTypes = ["video", "image", "audio", "text", "sticker", "background", "slide", "template"];
+    if (sel && fxTypes.includes(type)) {
       setProj((prev) => ({
         ...prev,
         tracks: prev.tracks.map((t) => ({
@@ -355,20 +357,20 @@ export default function VideoStudioEditor() {
         })),
       }));
     } else {
-      let trackType = "overlay";
       let trackId = "o1";
-      if (type === "audio" || type === "voice" || type === "tts") { trackType = "audio"; trackId = "a2"; }
-      else if (type === "text" || type === "captionStyle" || type === "captionLang") { trackType = "text"; trackId = "t1"; }
-      else if (type === "sticker") { trackType = "sticker"; trackId = "s1"; }
-      else if (type === "background") { trackType = "overlay"; trackId = "o1"; }
-      else if (type === "video" || type === "image") { trackType = "video"; trackId = "v2"; }
+      if (type === "audio" || type === "voice" || type === "tts") trackId = "a2";
+      else if (type === "text" || type === "captionStyle" || type === "captionLang") trackId = "t1";
+      else if (type === "sticker") trackId = "s1";
+      else if (type === "background" || type === "slide" || type === "template") trackId = "o1";
+      else if (type === "video" || type === "image") trackId = "v2";
       const dur = asset.dur || (type === "background" ? 5 : 3);
       const newClip = {
         id: UID(), name: asset.name || asset.id || "Asset",
-        start: ct, duration: dur, type: trackType,
+        start: ct, duration: dur, type: type,
         t: asset.e || asset.name?.[0] || "A",
         url: asset.url || null,
-        effects: [{ id: UID(), ...asset }],
+        file: asset.file || null,
+        effects: !mediaTypes.includes(type) ? [{ id: UID(), ...asset }] : [],
       };
       setProj((prev) => ({
         ...prev,
@@ -520,6 +522,7 @@ export default function VideoStudioEditor() {
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 2px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
     </div>
   );

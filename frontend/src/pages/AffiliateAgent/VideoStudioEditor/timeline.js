@@ -430,7 +430,7 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
                         }}
                         className="cs-tl-clip"
                       >
-                        {clip.type === "video" && wp > 25 && (
+                        {(clip.type === "video" || clip.type === "image") && wp > 25 && (
                           <div style={{ position: "absolute", inset: 0, overflow: "hidden", borderRadius: 2 }}>
                             <ThS dur={clip.duration} />
                           </div>
@@ -477,7 +477,7 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
                             )}
                           </div>
                         )}
-                        {clip.type === "video" && wp > 45 && (
+                        {(clip.type === "video" || clip.type === "image") && wp > 45 && (
                           <div style={{
                             position: "absolute", bottom: 2, left: 5, right: 5,
                             display: "flex", alignItems: "center", justifyContent: "space-between",
