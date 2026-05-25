@@ -20,12 +20,6 @@ const PROVIDER_COLORS = {
   "branpy-demo": "#06b6d4",
 };
 
-const CHAT_INTRO = [
-  { text: "Comece digitando sua mensagem abaixo", icon: "💬" },
-  { text: "Ou escolha uma ferramenta rápida acima", icon: "⚡" },
-  { text: "Pressione ⌘K para comandos", icon: "⌨️" },
-];
-
 export default function AIChatPanel({ onClose, initialAgent = null, fullScreen = false }) {
   const {
     messages, loading, streaming, currentStream, error, executionStatus,
@@ -132,79 +126,79 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
         className="flex flex-col min-h-0"
         style={{
           flex: 1,
-          background: "linear-gradient(160deg, #080808 0%, #0a0a0a 50%, #0d0d0d 100%)",
+          background: "linear-gradient(160deg, #050505 0%, #080808 50%, #0a0a0a 100%)",
           color: "white",
-          fontFamily: "'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif",
+          fontFamily: "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
           position: "relative",
           ...(fullScreen ? { position: "fixed", inset: 0, zIndex: 100 } : {}),
         }}
       >
-        {/* Ambient glow */}
+        {/* Ambient background glow */}
         <div className="pointer-events-none fixed inset-0 overflow-hidden" style={{ zIndex: 0 }}>
-          <div style={{ position: "absolute", top: "-20%", right: "-10%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.03) 0%, transparent 70%)" }} />
-          <div style={{ position: "absolute", bottom: "-10%", left: "-5%", width: 400, height: 400, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.02) 0%, transparent 70%)" }} />
+          <div style={{ position: "absolute", top: "-15%", right: "-5%", width: 600, height: 600, borderRadius: "50%", background: "radial-gradient(circle, rgba(99,102,241,0.03) 0%, transparent 70%)" }} />
+          <div style={{ position: "absolute", bottom: "-10%", left: "-5%", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle, rgba(168,85,247,0.02) 0%, transparent 70%)" }} />
+          <div style={{ position: "absolute", top: "40%", right: "30%", width: 300, height: 300, borderRadius: "50%", background: "radial-gradient(circle, rgba(59,130,246,0.02) 0%, transparent 70%)" }} />
         </div>
 
         {/* ===== TOP BAR ===== */}
-        <motion.div
+        <motion.header
           initial={false}
-          className="flex-shrink-0 relative z-10"
-          style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(10,10,10,0.8)", backdropFilter: "blur(16px)" }}
+          className="flex-shrink-0 relative z-20"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", background: "rgba(5,5,5,0.85)", backdropFilter: "blur(20px) saturate(1.5)" }}
         >
-          <div className="flex items-center justify-between px-4 h-12">
-            {/* Left: Brand + Status */}
+          <div className="flex items-center justify-between px-5 h-14">
+            {/* Left: Brand */}
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2.5">
                 <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold"
-                  style={{ background: "linear-gradient(135deg, #3b82f6, #1d4ed8)", color: "white" }}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-sm"
+                  style={{
+                    background: "linear-gradient(135deg, #3b82f6, #6366f1)",
+                    color: "white",
+                    boxShadow: "0 2px 12px rgba(59,130,246,0.3)",
+                  }}
                 >
                   B
                 </div>
-                <span className="text-sm font-semibold" style={{ color: "rgba(255,255,255,0.85)" }}>
+                <span className="text-sm font-semibold tracking-tight" style={{ color: "rgba(255,255,255,0.9)" }}>
                   BRANPY
                 </span>
               </div>
 
-              {/* Online status */}
-              {currentProvider === "ollama" && ollamaOnline && (
+              {/* Status */}
+              {ollamaOnline !== null && currentProvider === "ollama" && (
                 <div
-                  className="flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono"
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-medium tracking-wide"
                   style={{
                     background: ollamaOnline === "online"
                       ? "rgba(16,185,129,0.1)"
                       : ollamaOnline === "connecting"
                       ? "rgba(251,191,36,0.08)"
                       : "rgba(239,68,68,0.08)",
-                    border: ollamaOnline === "online"
-                      ? "1px solid rgba(16,185,129,0.15)"
-                      : ollamaOnline === "connecting"
-                      ? "1px solid rgba(251,191,36,0.12)"
-                      : "1px solid rgba(239,68,68,0.12)",
+                    border: `1px solid ${ollamaStatusColor}22`,
                     color: ollamaStatusColor,
                   }}
                 >
-                  <span
+                  <motion.span
                     className="w-1.5 h-1.5 rounded-full"
-                    style={{
-                      background: ollamaStatusColor,
-                      animation: ollamaOnline === "connecting" ? "pulse 1.5s infinite" : "none",
-                    }}
+                    style={{ background: ollamaStatusColor }}
+                    animate={ollamaOnline === "connecting" ? { scale: [1, 1.3, 1], opacity: [1, 0.5, 1] } : {}}
+                    transition={{ duration: 1.5, repeat: Infinity }}
                   />
-                  {ollamaOnline === "online" ? `Ollama ${currentModel || "qwen2.5-coder:7b"}` : ollamaOnline === "connecting" ? "Conectando..." : "Offline"}
+                  {ollamaOnline === "online" ? "Ollama Online" : ollamaOnline === "connecting" ? "Conectando..." : "Offline"}
                 </div>
               )}
             </div>
 
             {/* Right: Controls */}
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               {/* Provider selector */}
               <div className="relative">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => setShowProviders(!showProviders)}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
                   style={{
                     background: showProviders ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.03)",
                     color: "rgba(255,255,255,0.7)",
@@ -224,23 +218,23 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -4, scale: 0.96 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute top-full right-0 mt-1 rounded-xl overflow-hidden z-50 min-w-[160px]"
-                      style={{ background: "#0d0d0d", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 12px 40px rgba(0,0,0,0.5)" }}
+                      className="absolute top-full right-0 mt-1.5 rounded-xl overflow-hidden z-50 min-w-[180px]"
+                      style={{ background: "#0d0d0d", border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 12px 40px rgba(0,0,0,0.6)" }}
                     >
                       {providers.map((p) => (
                         <button
                           key={p.id}
                           onClick={() => selectProvider(p)}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 text-xs transition-colors text-left"
+                          className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs transition-colors text-left"
                           style={{
-                            color: currentProvider === p.id ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.5)",
+                            color: currentProvider === p.id ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.45)",
                             background: currentProvider === p.id ? "rgba(59,130,246,0.1)" : "transparent",
                           }}
                           onMouseEnter={(e) => { if (currentProvider !== p.id) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
                           onMouseLeave={(e) => { if (currentProvider !== p.id) e.currentTarget.style.background = "transparent"; }}
                         >
                           <span className="w-2 h-2 rounded-full" style={{ background: PROVIDER_COLORS[p.id] || "#666" }} />
-                          <span>{p.name}</span>
+                          <span className="font-medium">{p.name}</span>
                         </button>
                       ))}
                     </motion.div>
@@ -253,45 +247,55 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleNewChat}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-colors"
-                style={{ background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.6)", border: "1px solid rgba(255,255,255,0.06)" }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  color: "rgba(255,255,255,0.6)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                }}
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path d="M6 2.5v7M2.5 6h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
-                Novo chat
+                Nova conversa
               </motion.button>
             </div>
           </div>
-        </motion.div>
+        </motion.header>
 
         {/* ===== MAIN CONTENT ===== */}
         <div className="flex-1 overflow-hidden relative z-10" style={{ display: "flex", flexDirection: "column" }}>
           {!hasMessages && showToolGrid ? (
             /* ===== LANDING: EMPTY STATE WITH TOOL GRID ===== */
             <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
-              <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-                {/* Hero section */}
+              <div className="max-w-6xl mx-auto px-5 sm:px-8 py-10 sm:py-16">
+                {/* Hero */}
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="text-center mb-8"
+                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  className="text-center mb-10"
                 >
                   <motion.div
-                    initial={{ scale: 0.8, opacity: 0 }}
+                    initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
-                    transition={{ delay: 0.1, duration: 0.4 }}
-                    className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4"
-                    style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(99,102,241,0.1))", border: "1px solid rgba(59,130,246,0.15)" }}
+                    transition={{ delay: 0.1, duration: 0.5 }}
+                    className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-5"
+                    style={{
+                      background: "linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08))",
+                      border: "1px solid rgba(99,102,241,0.15)",
+                      boxShadow: "0 8px 32px rgba(99,102,241,0.1)",
+                    }}
                   >
-                    <span className="text-2xl">🧠</span>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
                   </motion.div>
-                  <h1 className="text-xl sm:text-2xl font-bold mb-2" style={{ color: "rgba(255,255,255,0.9)" }}>
-                    O que você quer criar hoje?
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 tracking-tight" style={{ color: "rgba(255,255,255,0.95)" }}>
+                    O que você quer criar?
                   </h1>
-                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
-                    Escolha uma ferramenta abaixo ou digite sua mensagem
+                  <p className="text-sm sm:text-base max-w-md mx-auto" style={{ color: "rgba(255,255,255,0.35)" }}>
+                    Escolha uma ferramenta ou digite sua mensagem para começar
                   </p>
                 </motion.div>
 
@@ -299,7 +303,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
+                  transition={{ delay: 0.15, duration: 0.6 }}
                 >
                   <ToolGrid
                     onSelectTool={handleToolSelect}
@@ -307,67 +311,47 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                     onCategoryChange={setActiveCategory}
                   />
                 </motion.div>
-
-                {/* Bottom hints */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                  className="flex justify-center gap-4 mt-8"
-                >
-                  {CHAT_INTRO.map((hint, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px]"
-                      style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.04)", color: "rgba(255,255,255,0.35)" }}
-                    >
-                      <span>{hint.icon}</span>
-                      <span>{hint.text}</span>
-                    </div>
-                  ))}
-                </motion.div>
               </div>
             </div>
           ) : (
             /* ===== CHAT VIEW ===== */
             <div className="flex-1 flex flex-col min-h-0">
               {/* Messages area */}
-              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4" style={{ scrollbarWidth: "thin" }}>
-                <div className="max-w-3xl mx-auto space-y-3">
+              <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5" style={{ scrollbarWidth: "thin" }}>
+                <div className="max-w-3xl mx-auto space-y-4">
                   <AnimatePresence initial={false}>
                     {messages.map((msg, i) => {
                       if (msg.role !== "user" && !msg.content) return null;
                       const isUser = msg.role === "user";
                       const isEditing = editingMsg === msg.id;
+                      const pColor = PROVIDER_COLORS[msg.provider] || providerColor;
 
                       return (
                         <motion.div
                           key={msg.id || i}
-                          initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                          initial={{ opacity: 0, y: 12, scale: 0.98 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
-                          transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+                          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                           className={`flex gap-3 ${isUser ? "flex-row-reverse" : ""}`}
                         >
                           {/* Avatar */}
                           {!isUser && (
                             <div
-                              className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5"
+                              className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5"
                               style={{
-                                background: msg.provider
-                                  ? `linear-gradient(135deg, ${PROVIDER_COLORS[msg.provider] || "#6366f1"}33, transparent)`
-                                  : "linear-gradient(135deg, rgba(59,130,246,0.15), transparent)",
-                                border: `1px solid ${msg.provider ? (PROVIDER_COLORS[msg.provider] || "#6366f1") + "22" : "rgba(59,130,246,0.15)"}`,
-                                color: msg.provider ? (PROVIDER_COLORS[msg.provider] || "#6366f1") : "#3b82f6",
+                                background: `linear-gradient(135deg, ${pColor}22, transparent)`,
+                                border: `1px solid ${pColor}22`,
+                                color: pColor,
                               }}
                             >
                               B
                             </div>
                           )}
 
-                          {/* Message bubble */}
-                          <div className={`max-w-[80%] ${isUser ? "text-right" : ""}`}>
+                          {/* Message */}
+                          <div className={`max-w-[85%] sm:max-w-[75%] ${isUser ? "text-right" : ""}`}>
                             <div
-                              className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                              className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                                 isUser ? "rounded-tr-md" : "rounded-tl-md"
                               }`}
                               style={
@@ -375,12 +359,12 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                                   ? {
                                       background: "linear-gradient(135deg, rgba(59,130,246,0.15), rgba(99,102,241,0.1))",
                                       border: "1px solid rgba(59,130,246,0.12)",
-                                      color: "rgba(255,255,255,0.85)",
+                                      color: "rgba(255,255,255,0.9)",
                                     }
                                   : {
                                       background: "rgba(255,255,255,0.03)",
                                       border: "1px solid rgba(255,255,255,0.06)",
-                                      color: "rgba(255,255,255,0.8)",
+                                      color: "rgba(255,255,255,0.85)",
                                     }
                               }
                             >
@@ -394,8 +378,8 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                                     autoFocus
                                   />
                                   <div className="flex gap-2 justify-end">
-                                    <button onClick={handleCancelEdit} className="text-[11px] px-2.5 py-1 rounded-md" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)" }}>Cancelar</button>
-                                    <button onClick={handleSaveEdit} className="text-[11px] px-2.5 py-1 rounded-md" style={{ background: "rgba(59,130,246,0.2)", color: "#3b82f6" }}>Enviar</button>
+                                    <button onClick={handleCancelEdit} className="text-xs px-3 py-1 rounded-lg" style={{ background: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)" }}>Cancelar</button>
+                                    <button onClick={handleSaveEdit} className="text-xs px-3 py-1 rounded-lg font-medium" style={{ background: "rgba(59,130,246,0.2)", color: "#3b82f6" }}>Enviar</button>
                                   </div>
                                 </div>
                               ) : isUser ? (
@@ -405,17 +389,17 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                               )}
                             </div>
 
-                            {/* Provider badge */}
+                            {/* Footer badge */}
                             {!isUser && msg.provider && (
-                              <div className="flex items-center gap-1.5 mt-1 px-1">
-                                <span className="w-1.5 h-1.5 rounded-full" style={{ background: PROVIDER_COLORS[msg.provider] || "#666" }} />
-                                <span className="text-[10px] font-medium" style={{ color: "rgba(255,255,255,0.25)" }}>
+                              <div className="flex items-center gap-2 mt-1.5 px-1">
+                                <span className="w-1.5 h-1.5 rounded-full" style={{ background: pColor }} />
+                                <span className="text-[10px] font-medium tracking-wide" style={{ color: "rgba(255,255,255,0.2)" }}>
                                   {providerName(msg.provider)}
                                 </span>
-                                {!isStreaming && (
+                                {!isStreaming && msg.content && (
                                   <button
                                     onClick={() => handleEdit(msg)}
-                                    className="text-[10px] ml-1 opacity-0 hover:opacity-100 transition-opacity"
+                                    className="text-[10px] opacity-0 hover:opacity-100 transition-opacity px-1.5 py-0.5 rounded"
                                     style={{ color: "rgba(255,255,255,0.2)" }}
                                   >
                                     Editar
@@ -429,28 +413,30 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                     })}
                   </AnimatePresence>
 
-                  {/* Streaming indicator */}
+                  {/* Streaming */}
                   <AnimatePresence>
                     {streaming && currentStream && (
                       <motion.div
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
                         className="flex gap-3"
                       >
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5"
-                          style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.15), transparent)", border: "1px solid rgba(59,130,246,0.15)", color: "#3b82f6" }}
+                        <div
+                          className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5"
+                          style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.15), transparent)", border: "1px solid rgba(99,102,241,0.15)", color: "#6366f1" }}
                         >
                           B
                         </div>
-                        <div className="rounded-2xl rounded-tl-md px-4 py-2.5 text-sm leading-relaxed max-w-[80%]"
-                          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.8)" }}
+                        <div
+                          className="rounded-2xl rounded-tl-md px-4 py-3 text-sm leading-relaxed max-w-[85%] sm:max-w-[75%]"
+                          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.85)" }}
                         >
                           <MarkdownRenderer content={currentStream} />
                           <motion.span
                             animate={{ opacity: [1, 0] }}
                             transition={{ duration: 0.8, repeat: Infinity, repeatType: "reverse" }}
-                            style={{ color: "#3b82f6" }}
+                            style={{ color: "#6366f1" }}
                           >
                             ▍
                           </motion.span>
@@ -459,21 +445,23 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                     )}
                   </AnimatePresence>
 
-                  {/* Loading indicator */}
+                  {/* Loading */}
                   <AnimatePresence>
                     {loading && !currentStream && (
                       <motion.div
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
                         className="flex gap-3"
                       >
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5"
-                          style={{ background: "linear-gradient(135deg, rgba(59,130,246,0.15), transparent)", border: "1px solid rgba(59,130,246,0.15)", color: "#3b82f6" }}
+                        <div
+                          className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5"
+                          style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.15), transparent)", border: "1px solid rgba(99,102,241,0.15)", color: "#6366f1" }}
                         >
                           B
                         </div>
-                        <div className="flex items-center gap-2 px-4 py-3 rounded-2xl rounded-tl-md"
+                        <div
+                          className="flex items-center gap-3 px-4 py-3 rounded-2xl rounded-tl-md"
                           style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
                         >
                           <div className="flex gap-1">
@@ -481,7 +469,7 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                               <motion.div
                                 key={i}
                                 className="w-1.5 h-1.5 rounded-full"
-                                style={{ background: "#3b82f6" }}
+                                style={{ background: "#6366f1" }}
                                 animate={{ opacity: [0.3, 1, 0.3] }}
                                 transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.2 }}
                               />
@@ -497,16 +485,16 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                   <AnimatePresence>
                     {executionStatus && (
                       <motion.div
-                        initial={{ opacity: 0, y: 10 }}
+                        initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs mx-auto"
-                        style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.1)", color: "rgba(59,130,246,0.7)", maxWidth: 400 }}
+                        className="flex items-center gap-2.5 px-4 py-2 rounded-xl text-xs mx-auto"
+                        style={{ background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.1)", color: "rgba(99,102,241,0.7)", maxWidth: 420 }}
                       >
                         <motion.div
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                          style={{ width: 12, height: 12, border: "2px solid rgba(59,130,246,0.2)", borderTopColor: "#3b82f6", borderRadius: "50%" }}
+                          style={{ width: 12, height: 12, border: "2px solid rgba(99,102,241,0.2)", borderTopColor: "#6366f1", borderRadius: "50%", flexShrink: 0 }}
                         />
                         <span>{executionStatus.message || "Executando..."}</span>
                       </motion.div>
@@ -516,11 +504,6 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                   <div ref={bottomRef} />
                 </div>
               </div>
-
-              {/* Separator */}
-              {hasMessages && (
-                <div className="flex-shrink-0" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }} />
-              )}
             </div>
           )}
         </div>
@@ -528,20 +511,20 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
         {/* ===== INPUT AREA ===== */}
         <motion.div
           initial={false}
-          className="flex-shrink-0 relative z-10 px-4 sm:px-6 pb-4 pt-3"
+          className="flex-shrink-0 relative z-20 px-4 sm:px-6 pb-5 pt-3"
           style={{
-            background: "linear-gradient(0deg, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0) 100%)",
+            background: "linear-gradient(0deg, rgba(5,5,5,0.95) 0%, rgba(5,5,5,0) 100%)",
           }}
         >
           <div className="max-w-3xl mx-auto">
             <div
-              className="relative rounded-2xl overflow-hidden transition-all duration-200"
+              className="relative rounded-2xl overflow-hidden transition-all duration-300"
               style={{
                 background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                border: `1px solid ${input.trim() ? `${providerColor}44` : "rgba(255,255,255,0.08)"}`,
                 boxShadow: input.trim()
-                  ? `0 0 0 1px ${providerColor}33, 0 4px 20px rgba(0,0,0,0.3)`
-                  : "0 2px 12px rgba(0,0,0,0.2)",
+                  ? `0 0 20px ${providerColor}11, 0 4px 24px rgba(0,0,0,0.3)`
+                  : "0 2px 16px rgba(0,0,0,0.2)",
               }}
             >
               <div className="flex items-end gap-2 p-2">
@@ -550,10 +533,10 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Digite sua mensagem..."
+                  placeholder={hasMessages ? "Digite sua mensagem..." : "Digite sua mensagem ou escolha uma ferramenta..."}
                   rows={1}
-                  className="flex-1 bg-transparent text-sm outline-none resize-none px-2 py-1.5"
-                  style={{ color: "rgba(255,255,255,0.8)", maxHeight: 120, lineHeight: 1.5 }}
+                  className="flex-1 bg-transparent text-sm outline-none resize-none px-3 py-2"
+                  style={{ color: "rgba(255,255,255,0.85)", maxHeight: 120, lineHeight: 1.5 }}
                   onInput={(e) => {
                     e.target.style.height = "auto";
                     e.target.style.height = Math.min(e.target.scrollHeight, 120) + "px";
@@ -564,13 +547,14 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                   whileTap={{ scale: 0.95 }}
                   onClick={() => handleSend()}
                   disabled={!input.trim() || isStreaming}
-                  className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200"
+                  className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200"
                   style={{
                     background: input.trim()
                       ? `linear-gradient(135deg, ${providerColor}, ${providerColor}cc)`
                       : "rgba(255,255,255,0.06)",
                     opacity: input.trim() && !isStreaming ? 1 : 0.4,
                     cursor: input.trim() && !isStreaming ? "pointer" : "not-allowed",
+                    boxShadow: input.trim() ? `0 4px 12px ${providerColor}33` : "none",
                   }}
                 >
                   {isStreaming ? (
@@ -590,14 +574,14 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
             </div>
 
             {/* Bottom bar */}
-            <div className="flex items-center justify-between mt-1.5 px-1">
+            <div className="flex items-center justify-between mt-2 px-2">
               <div className="flex items-center gap-2">
-                <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>
+                <span className="text-[10px] font-medium" style={{ color: "rgba(255,255,255,0.2)" }}>
                   {providerName(currentProvider)}
                 </span>
                 {currentModel && (
                   <>
-                    <span style={{ color: "rgba(255,255,255,0.1)", fontSize: 8 }}>●</span>
+                    <span style={{ color: "rgba(255,255,255,0.08)", fontSize: 6 }}>●</span>
                     <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>
                       {currentModel}
                     </span>
@@ -605,13 +589,15 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
                 )}
               </div>
               {hasMessages && (
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setShowToolGrid(true)}
-                  className="text-[10px] px-2 py-0.5 rounded-md transition-colors"
+                  className="text-[10px] font-medium px-2.5 py-1 rounded-lg transition-colors"
                   style={{ background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.25)" }}
                 >
                   Ferramentas
-                </button>
+                </motion.button>
               )}
             </div>
           </div>
