@@ -215,6 +215,32 @@ export default function VideoStudioEditor() {
   const fRef = useRef(null);
   const piRef = useRef(null);
 
+  // Save/load from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("branpy_project");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setProj(parsed);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("branpy_project", JSON.stringify(proj));
+    } catch {}
+  }, [proj]);
+
+  const handleNewProject = useCallback(() => {
+    setProj(INITIAL);
+    setImm([]);
+    setCt(0);
+    setSel(null);
+    setPlaying(false);
+    try { localStorage.removeItem("branpy_project"); } catch {}
+  }, []);
+
   useEffect(() => {
     if (playing) {
       piRef.current = setInterval(() => {
@@ -233,7 +259,6 @@ export default function VideoStudioEditor() {
       id: UID() + i, name: f.name,
       type: f.type.startsWith("video") ? "video" : f.type.startsWith("audio") ? "audio" : "image",
       file: f, url: URL.createObjectURL(f), dur: 5 + (i % 3) * 2,
-      thumb: f.type.startsWith("video") ? "🎬" : f.type.startsWith("audio") ? "🎵" : "🖼️",
     }));
     setImm((prev) => [...prev, ...items]);
   }, []);
@@ -243,7 +268,6 @@ export default function VideoStudioEditor() {
   }, []);
 
   const handleAssetAction = useCallback((asset) => {
-    // When an asset is clicked in the panels, apply it to selected clip or add as new
     if (!asset) return;
     const type = asset.type || "overlay";
     if (sel) {
@@ -253,13 +277,12 @@ export default function VideoStudioEditor() {
           ...t,
           clips: t.clips.map((c) =>
             c.id === sel.id
-              ? { ...c, effects: [...(c.effects || []), { id: UID(), type: asset.id || asset.name, asset }] }
+              ? { ...c, effects: [...(c.effects || []), { id: UID(), ...asset }] }
               : c
           ),
         })),
       }));
     } else {
-      // No clip selected — add new clip at current time
       let trackType = "overlay";
       let trackId = "o1";
       if (type === "audio" || type === "voice" || type === "tts") { trackType = "audio"; trackId = "a2"; }
@@ -270,8 +293,10 @@ export default function VideoStudioEditor() {
       const dur = asset.dur || (type === "background" ? 5 : 3);
       const newClip = {
         id: UID(), name: asset.name || asset.id || "Asset",
-        start: ct, duration: dur, type: trackType, t: asset.e || asset.name?.[0] || "A",
-        effects: [{ id: UID(), type: asset.id || asset.name, asset }],
+        start: ct, duration: dur, type: trackType,
+        t: asset.e || asset.name?.[0] || "A",
+        url: asset.url || null,
+        effects: [{ id: UID(), ...asset }],
       };
       setProj((prev) => ({
         ...prev,
@@ -376,7 +401,7 @@ export default function VideoStudioEditor() {
           setVol={setVol}
         />
 
-        <Inspector clip={sel} open={inspectorOpen} onToggle={() => setInspectorOpen(!inspectorOpen)} />
+        <Inspector clip={sel} open={inspectorOpen} onToggle={() => setInspectorOpen(!inspectorOpen)} proj={proj} setProj={setProj} />
       </div>
 
       <Timeline

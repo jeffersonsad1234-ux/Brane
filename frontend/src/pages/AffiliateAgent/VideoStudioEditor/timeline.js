@@ -137,9 +137,13 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
       const nc = {
         id: UID(), name: item.name, start: st, duration: dur,
         type: item.type || "video", t: item.t || item.thumb || item.e || "🎬",
+        url: item.url || null,
+        file: item.file || null,
+        effects: item.effects || [],
       };
       setProj((prev) => ({
         ...prev,
+        duration: Math.max(prev.duration, st + dur),
         tracks: prev.tracks.map((t) => t.id === tId ? {
           ...t, clips: [...t.clips, nc].sort((a, b) => a.start - b.start),
         } : t),
@@ -179,6 +183,24 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
     setSel(null);
   }, [sel, setProj, setSel]);
 
+  const handleDup = useCallback(() => {
+    if (!sel?.trackId) return;
+    setProj((prev) => {
+      const track = prev.tracks.find((t) => t.id === sel.trackId);
+      if (!track) return prev;
+      const clip = track.clips.find((c) => c.id === sel.id);
+      if (!clip) return prev;
+      const dc = { ...clip, id: UID(), start: clip.start + clip.duration + 0.5 };
+      return {
+        ...prev,
+        duration: Math.max(prev.duration, dc.start + dc.duration),
+        tracks: prev.tracks.map((t) =>
+          t.id === sel.trackId ? { ...t, clips: [...t.clips, dc].sort((a, b) => a.start - b.start) } : t
+        ),
+      };
+    });
+  }, [sel, setProj]);
+
   const toggleVis = useCallback((tid) => setProj((prev) => ({
     ...prev, tracks: prev.tracks.map((t) => t.id === tid ? { ...t, visible: !t.visible } : t),
   })), [setProj]);
@@ -217,6 +239,17 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
             }}
             className={sel ? "cs-tl-btn" : ""}
           >Split</button>
+        } />
+        <Tp text="Duplicate (D)" ch={
+          <button onClick={handleDup}
+            style={{
+              padding: "2px 7px", fontSize: 13, borderRadius: 3, border: "none",
+              cursor: sel ? "pointer" : "default", fontFamily: "inherit", fontWeight: 500,
+              color: sel ? "rgba(255,255,255,0.65)" : "rgba(255,255,255,0.3)",
+              background: sel ? "rgba(255,255,255,0.04)" : "transparent",
+            }}
+            className={sel ? "cs-tl-btn" : ""}
+          >Dup</button>
         } />
         <Tp text="Delete (Del)" ch={
           <button onClick={handleDel}
@@ -461,6 +494,21 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
                               textShadow: "0 1px 4px rgba(0,0,0,0.8)",
                               fontFamily: "monospace",
                             }}>{clip.duration.toFixed(1)}s</span>
+                          </div>
+                        )}
+                        {clip.effects?.length > 0 && wp > 50 && (
+                          <div style={{
+                            position: "absolute", top: 2, right: 2,
+                            display: "flex", gap: 2, pointerEvents: "none",
+                          }}>
+                            {clip.effects.slice(0, 3).map((ef, i) => (
+                              <span key={i} style={{
+                                fontSize: 8, padding: "0 4px", borderRadius: 2,
+                                background: "rgba(59,130,246,0.2)",
+                                color: "rgba(59,130,246,0.5)",
+                                lineHeight: "14px",
+                              }}>{(ef.name || ef.type || "fx").slice(0, 6)}</span>
+                            ))}
                           </div>
                         )}
                         {iSel && (

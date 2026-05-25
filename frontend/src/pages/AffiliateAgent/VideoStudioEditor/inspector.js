@@ -46,10 +46,48 @@ function Section({ label, children }) {
   );
 }
 
-export default function Inspector({ clip, open, onToggle }) {
+function applyClipEffect(clip, proj, setProj, effectData) {
+  if (!clip?.trackId) return;
+  setProj((prev) => ({
+    ...prev,
+    tracks: prev.tracks.map((t) =>
+      t.id === clip.trackId
+        ? { ...t, clips: t.clips.map((c) =>
+            c.id === clip.id
+              ? { ...c, effects: [...(c.effects || []), { id: Date.now().toString(36), ...effectData }] }
+              : c
+          ) }
+        : t
+    ),
+  }));
+}
+
+function updateClipProp(clip, proj, setProj, updates) {
+  if (!clip?.trackId) return;
+  setProj((prev) => ({
+    ...prev,
+    tracks: prev.tracks.map((t) =>
+      t.id === clip.trackId
+        ? { ...t, clips: t.clips.map((c) => c.id === clip.id ? { ...c, ...updates } : c) }
+        : t
+    ),
+  }));
+}
+
+export default function Inspector({ clip, open, onToggle, proj, setProj }) {
   const [tab, setTab] = useState("transform");
   const [keyframes, setKeyframes] = useState([]);
   const [kfTarget, setKfTarget] = useState("position");
+  const [cutStart, setCutStart] = useState(clip ? clip.start : 0);
+  const [cutEnd, setCutEnd] = useState(clip ? clip.start + clip.duration : 0);
+  const [animStatus, setAnimStatus] = useState(null);
+
+  useEffect(() => {
+    if (clip) {
+      setCutStart(clip.start);
+      setCutEnd(clip.start + clip.duration);
+    }
+  }, [clip?.id, clip?.start, clip?.duration]);
 
   if (!clip) {
     return (
@@ -174,48 +212,89 @@ export default function Inspector({ clip, open, onToggle }) {
         {tab === "transform" && (
           <>
             <Section label="Position">
-              <SliderRow label="X" value={0} min={-2000} max={2000} />
-              <SliderRow label="Y" value={0} min={-2000} max={2000} />
+              <SliderRow label="X" value={clip.transform?.x || 0} min={-2000} max={2000} onChange={(e) => updateClipProp(clip, proj, setProj, { transform: { ...(clip.transform || {}), x: +e.target.value } })} />
+              <SliderRow label="Y" value={clip.transform?.y || 0} min={-2000} max={2000} onChange={(e) => updateClipProp(clip, proj, setProj, { transform: { ...(clip.transform || {}), y: +e.target.value } })} />
             </Section>
             <Section label="Scale & Rotate">
-              <SliderRow label="Scale" value={100} min={1} max={500} unit="%" />
-              <SliderRow label="Rotation" value={0} min={-180} max={180} unit="°" />
+              <SliderRow label="Scale" value={clip.transform?.scale || 100} min={1} max={500} unit="%" onChange={(e) => updateClipProp(clip, proj, setProj, { transform: { ...(clip.transform || {}), scale: +e.target.value } })} />
+              <SliderRow label="Rotation" value={clip.transform?.rotation || 0} min={-180} max={180} unit="°" onChange={(e) => updateClipProp(clip, proj, setProj, { transform: { ...(clip.transform || {}), rotation: +e.target.value } })} />
             </Section>
             <Section label="Opacity & Blur">
-              <SliderRow label="Opacity" value={100} min={0} max={100} unit="%" />
-              <SliderRow label="Blur" value={0} min={0} max={50} />
+              <SliderRow label="Opacity" value={clip.transform?.opacity ?? 100} min={0} max={100} unit="%" onChange={(e) => updateClipProp(clip, proj, setProj, { transform: { ...(clip.transform || {}), opacity: +e.target.value } })} />
+              <SliderRow label="Blur" value={clip.transform?.blur || 0} min={0} max={50} onChange={(e) => updateClipProp(clip, proj, setProj, { transform: { ...(clip.transform || {}), blur: +e.target.value } })} />
             </Section>
             <div style={{ marginBottom: 8 }}>
               <div style={{
-        fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.5)",
-              textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4,
-              paddingBottom: 4, borderBottom: "1px solid rgba(255,255,255,0.05)",
-            }}>Blend Mode</div>
-            <select style={{
-              width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
-              borderRadius: 3, fontSize: 11, color: "rgba(255,255,255,0.5)", padding: "4px 6px",
-                outline: "none", fontFamily: "inherit", cursor: "pointer",
-              }}>
+                fontSize: 13, fontWeight: 600, color: "rgba(255,255,255,0.5)",
+                textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4,
+                paddingBottom: 4, borderBottom: "1px solid rgba(255,255,255,0.05)",
+              }}>Blend Mode</div>
+              <select value={clip.transform?.blendMode || "normal"} onChange={(e) => updateClipProp(clip, proj, setProj, { transform: { ...(clip.transform || {}), blendMode: e.target.value } })}
+                style={{
+                  width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
+                  borderRadius: 3, fontSize: 11, color: "rgba(255,255,255,0.5)", padding: "4px 6px",
+                  outline: "none", fontFamily: "inherit", cursor: "pointer",
+                }}
+              >
                 {[{ v: "normal", l: "Normal" }, { v: "multiply", l: "Multiply" }, { v: "screen", l: "Screen" },
                   { v: "overlay", l: "Overlay" }, { v: "add", l: "Add" }].map((o) => (
                   <option key={o.v} value={o.v}>{o.l}</option>
                 ))}
               </select>
             </div>
+            <Section label="Cut">
+              <div style={{ display: "flex", gap: 4, alignItems: "center", marginBottom: 4 }}>
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", width: 36 }}>Start:</span>
+                <input type="number" min={0} max={clip.start + clip.duration} step={0.1} value={parseFloat(cutStart.toFixed(1))}
+                  onChange={(e) => setCutStart(+e.target.value)}
+                  style={{
+                    flex: 1, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
+                    borderRadius: 3, padding: "2px 4px", fontSize: 11, color: "rgba(255,255,255,0.5)",
+                    outline: "none", fontFamily: "monospace", width: 50,
+                  }}
+                />
+                <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", width: 36 }}>End:</span>
+                <input type="number" min={cutStart + 0.3} max={proj.duration} step={0.1} value={parseFloat(cutEnd.toFixed(1))}
+                  onChange={(e) => setCutEnd(+e.target.value)}
+                  style={{
+                    flex: 1, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)",
+                    borderRadius: 3, padding: "2px 4px", fontSize: 11, color: "rgba(255,255,255,0.5)",
+                    outline: "none", fontFamily: "monospace", width: 50,
+                  }}
+                />
+              </div>
+              <button onClick={() => {
+                const s = Math.max(0, Math.min(cutStart, clip.start + clip.duration - 0.3));
+                const e = Math.max(s + 0.3, Math.min(cutEnd, proj.duration));
+                if (e - s < 0.3) return;
+                updateClipProp(clip, proj, setProj, { start: s, duration: e - s });
+                setAnimStatus("cut");
+                setTimeout(() => setAnimStatus(null), 1500);
+              }}
+                style={{
+                  width: "100%", fontSize: 11, padding: "4px 8px", borderRadius: 3, border: "none",
+                  cursor: "pointer", fontFamily: "inherit", fontWeight: 500,
+                  background: animStatus === "cut" ? "rgba(16,185,129,0.15)" : "rgba(59,130,246,0.12)",
+                  color: animStatus === "cut" ? "rgba(16,185,129,0.6)" : "rgba(59,130,246,0.6)",
+                }}
+              >{animStatus === "cut" ? "✓ Cut applied" : "Apply Cut"}</button>
+            </Section>
             <Section label="Tools">
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}>
-                <button style={{
-                  fontSize: 11, padding: "4px 6px", borderRadius: 3,
-                  border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                  background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
-                  fontFamily: "inherit",
-                }} className="cs-hover-soft">Chroma Key</button>
-                <button style={{
-                  fontSize: 11, padding: "4px 6px", borderRadius: 3,
-                  border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                  background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
-                  fontFamily: "inherit",
-                }} className="cs-hover-soft">Stabilize</button>
+                <button onClick={() => applyClipEffect(clip, proj, setProj, { type: "chroma", name: "Chroma Key" })}
+                  style={{
+                    fontSize: 11, padding: "4px 6px", borderRadius: 3,
+                    border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                    background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
+                    fontFamily: "inherit",
+                  }} className="cs-hover-soft">Chroma Key</button>
+                <button onClick={() => applyClipEffect(clip, proj, setProj, { type: "shake", name: "Stabilize" })}
+                  style={{
+                    fontSize: 11, padding: "4px 6px", borderRadius: 3,
+                    border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                    background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
+                    fontFamily: "inherit",
+                  }} className="cs-hover-soft">Stabilize</button>
               </div>
             </Section>
           </>
@@ -224,24 +303,25 @@ export default function Inspector({ clip, open, onToggle }) {
         {tab === "video" && (
           <>
             <Section label="Color Correction">
-              <SliderRow label="Exposure" value={0} />
-              <SliderRow label="Contrast" value={0} />
-              <SliderRow label="Highlights" value={0} />
-              <SliderRow label="Shadows" value={0} />
+              <SliderRow label="Exposure" value={clip.colorAdj?.exposure || 0} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), exposure: +e.target.value } })} />
+              <SliderRow label="Contrast" value={clip.colorAdj?.contrast || 0} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), contrast: +e.target.value } })} />
+              <SliderRow label="Highlights" value={clip.colorAdj?.highlights || 0} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), highlights: +e.target.value } })} />
+              <SliderRow label="Shadows" value={clip.colorAdj?.shadows || 0} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), shadows: +e.target.value } })} />
             </Section>
             <Section label="Details">
-              <SliderRow label="Sharpness" value={0} min={0} max={100} />
-              <SliderRow label="Denoise" value={0} min={0} max={100} />
+              <SliderRow label="Sharpness" value={clip.colorAdj?.sharpness || 0} min={0} max={100} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), sharpness: +e.target.value } })} />
+              <SliderRow label="Denoise" value={clip.colorAdj?.denoise || 0} min={0} max={100} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), denoise: +e.target.value } })} />
             </Section>
             <Section label="LUTs">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
                 {LUTS.slice(0, 6).map((l) => (
-                  <button key={l.id} style={{
-                    fontSize: 12, padding: "4px 4px", borderRadius: 3,
-                    border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                    background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.55)",
-                    fontFamily: "inherit", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                  }} className="cs-hover-soft">{l.name}</button>
+                  <button key={l.id} onClick={() => applyClipEffect(clip, proj, setProj, { type: "luts", name: l.name, id: l.id })}
+                    style={{
+                      fontSize: 12, padding: "4px 4px", borderRadius: 3,
+                      border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                      background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.55)",
+                      fontFamily: "inherit", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    }} className="cs-hover-soft">{l.name}</button>
                 ))}
               </div>
             </Section>
@@ -251,35 +331,41 @@ export default function Inspector({ clip, open, onToggle }) {
         {tab === "audio" && (
           <>
             <Section label="Volume">
-              <SliderRow label="Volume" value={100} min={0} max={200} unit="%" />
-              <SliderRow label="Fade In" value={0} min={0} max={5} unit="s" />
-              <SliderRow label="Fade Out" value={0} min={0} max={5} unit="s" />
-              <SliderRow label="Pan" value={0} min={-100} max={100} />
+              <SliderRow label="Volume" value={clip.audioAdj?.volume ?? 100} min={0} max={200} unit="%" onChange={(e) => updateClipProp(clip, proj, setProj, { audioAdj: { ...(clip.audioAdj || {}), volume: +e.target.value } })} />
+              <SliderRow label="Fade In" value={clip.audioAdj?.fadeIn || 0} min={0} max={5} unit="s" onChange={(e) => updateClipProp(clip, proj, setProj, { audioAdj: { ...(clip.audioAdj || {}), fadeIn: +e.target.value } })} />
+              <SliderRow label="Fade Out" value={clip.audioAdj?.fadeOut || 0} min={0} max={5} unit="s" onChange={(e) => updateClipProp(clip, proj, setProj, { audioAdj: { ...(clip.audioAdj || {}), fadeOut: +e.target.value } })} />
+              <SliderRow label="Pan" value={clip.audioAdj?.pan || 0} min={-100} max={100} onChange={(e) => updateClipProp(clip, proj, setProj, { audioAdj: { ...(clip.audioAdj || {}), pan: +e.target.value } })} />
             </Section>
             <Section label="Equalizer">
-              {[60, 200, 500, 2000, 8000, 16000].map((hz) => (
-                <div key={hz} style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  fontSize: 12, color: "rgba(255,255,255,0.42)", marginBottom: 2,
-                }}>
-                  <span style={{ width: 28, flexShrink: 0 }}>{hz < 1000 ? `${hz}Hz` : `${hz / 1000}k`}</span>
-                  <Rng min={-12} max={12} val={0} />
-                </div>
-              ))}
+              {[60, 200, 500, 2000, 8000, 16000].map((hz) => {
+                const key = `eq${hz}`;
+                return (
+                  <div key={hz} style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    fontSize: 12, color: "rgba(255,255,255,0.42)", marginBottom: 2,
+                  }}>
+                    <span style={{ width: 28, flexShrink: 0 }}>{hz < 1000 ? `${hz}Hz` : `${hz / 1000}k`}</span>
+                    <Rng min={-12} max={12} val={clip.audioAdj?.[key] || 0} onChange={(e) => updateClipProp(clip, proj, setProj, { audioAdj: { ...(clip.audioAdj || {}), [key]: +e.target.value } })} />
+                  </div>
+                );
+              })}
             </Section>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3, marginTop: 4 }}>
-              <button style={{
-                fontSize: 11, padding: "4px 6px", borderRadius: 3,
-                border: "1px solid rgba(239,68,68,0.15)", cursor: "pointer",
-                background: "rgba(239,68,68,0.06)", color: "rgba(239,68,68,0.6)",
-                fontFamily: "inherit",
-              }} className="cs-hover-soft">Denoise</button>
-              <button style={{
-                fontSize: 11, padding: "4px 6px", borderRadius: 3,
-                border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
-                fontFamily: "inherit",
-              }} className="cs-hover-soft">Normalize</button>
+              <button onClick={() => applyClipEffect(clip, proj, setProj, { type: "denoise", name: "Denoise" })}
+                style={{
+                  fontSize: 11, padding: "4px 6px", borderRadius: 3,
+                  border: "1px solid rgba(239,68,68,0.15)", cursor: "pointer",
+                  background: "rgba(239,68,68,0.06)", color: "rgba(239,68,68,0.6)",
+                  fontFamily: "inherit",
+                }} className="cs-hover-soft">Denoise</button>
+              <button onClick={() => { const v = clip.audioAdj?.volume || 100; updateClipProp(clip, proj, setProj, { audioAdj: { ...(clip.audioAdj || {}), normalized: true } }); }}
+                style={{
+                  fontSize: 11, padding: "4px 6px", borderRadius: 3,
+                  border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                  background: clip.audioAdj?.normalized ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.03)",
+                  color: clip.audioAdj?.normalized ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.45)",
+                  fontFamily: "inherit",
+                }} className="cs-hover-soft">{clip.audioAdj?.normalized ? "✓ Normalized" : "Normalize"}</button>
             </div>
           </>
         )}
@@ -287,23 +373,29 @@ export default function Inspector({ clip, open, onToggle }) {
         {tab === "color" && (
           <>
             <Section label="Adjustments">
-              <SliderRow label="Saturation" value={0} />
-              <SliderRow label="Hue" value={0} />
-              <SliderRow label="Temperature" value={0} min={-50} max={50} />
-              <SliderRow label="Tint" value={0} min={-50} max={50} />
-              <SliderRow label="Vibrance" value={0} />
+              <SliderRow label="Saturation" value={clip.colorAdj?.saturation || 0} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), saturation: +e.target.value } })} />
+              <SliderRow label="Hue" value={clip.colorAdj?.hue || 0} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), hue: +e.target.value } })} />
+              <SliderRow label="Temperature" value={clip.colorAdj?.temperature || 0} min={-50} max={50} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), temperature: +e.target.value } })} />
+              <SliderRow label="Tint" value={clip.colorAdj?.tint || 0} min={-50} max={50} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), tint: +e.target.value } })} />
+              <SliderRow label="Vibrance" value={clip.colorAdj?.vibrance || 0} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), vibrance: +e.target.value } })} />
             </Section>
             <Section label="Lighting">
-              <SliderRow label="Whites" value={0} />
-              <SliderRow label="Blacks" value={0} />
-              <SliderRow label="Vignette" value={0} min={0} max={100} />
+              <SliderRow label="Whites" value={clip.colorAdj?.whites || 0} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), whites: +e.target.value } })} />
+              <SliderRow label="Blacks" value={clip.colorAdj?.blacks || 0} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), blacks: +e.target.value } })} />
+              <SliderRow label="Vignette" value={clip.colorAdj?.vignette || 0} min={0} max={100} onChange={(e) => updateClipProp(clip, proj, setProj, { colorAdj: { ...(clip.colorAdj || {}), vignette: +e.target.value } })} />
             </Section>
-            <button style={{
-              width: "100%", fontSize: 11, padding: "5px 8px", borderRadius: 3,
-              border: "1px solid rgba(59,130,246,0.1)", cursor: "pointer",
-              background: "rgba(59,130,246,0.08)", color: "rgba(59,130,246,0.6)",
-              fontFamily: "inherit", marginTop: 4,
-            }} className="cs-hover-soft">Auto Color Grade</button>
+            <button onClick={() => {
+              applyClipEffect(clip, proj, setProj, { type: "autoColor", name: "Auto Color Grade" });
+              setAnimStatus("color");
+              setTimeout(() => setAnimStatus(null), 1500);
+            }}
+              style={{
+                width: "100%", fontSize: 11, padding: "5px 8px", borderRadius: 3,
+                border: "1px solid rgba(59,130,246,0.1)", cursor: "pointer",
+                background: animStatus === "color" ? "rgba(16,185,129,0.1)" : "rgba(59,130,246,0.08)",
+                color: animStatus === "color" ? "rgba(16,185,129,0.6)" : "rgba(59,130,246,0.6)",
+                fontFamily: "inherit", marginTop: 4,
+              }} className="cs-hover-soft">{animStatus === "color" ? "✓ Applied" : "Auto Color Grade"}</button>
           </>
         )}
 
@@ -312,29 +404,52 @@ export default function Inspector({ clip, open, onToggle }) {
             <Section label="Apply Effect">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 2 }}>
                 {EFX_CATS.map((ef) => (
-                  <button key={ef.id} style={{
-                    display: "flex", alignItems: "center", gap: 4, padding: "4px 6px",
-                    borderRadius: 3, border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                    background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
-                    fontSize: 11, fontFamily: "inherit",
-                  }} className="cs-hover-soft">
-                    <span style={{ fontSize: 12 }}>{ef.i}</span>
+                  <button key={ef.id} onClick={() => applyClipEffect(clip, proj, setProj, { type: ef.cat || ef.id, name: ef.name, id: ef.id })}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 4, padding: "4px 6px",
+                      borderRadius: 3, border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                      background: (clip.effects || []).some((e) => (e.id || e.type) === ef.id) ? "rgba(59,130,246,0.1)" : "rgba(255,255,255,0.03)",
+                      color: (clip.effects || []).some((e) => (e.id || e.type) === ef.id) ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.45)",
+                      fontSize: 11, fontFamily: "inherit",
+                    }} className="cs-hover-soft">
+                    <span style={{ fontSize: 12, opacity: 0.6 }}>{ef.cat === "blur" ? "🌫️" : ef.cat === "glow" ? "✨" : ef.cat === "vhs" ? "📼" : ef.cat === "glitch" ? "💥" : "🎨"}</span>
                     <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ef.name}</span>
                   </button>
                 ))}
               </div>
             </Section>
+            <Section label="Applied">
+              {(clip.effects || []).length === 0 ? (
+                <div style={{ fontSize: 12, color: "rgba(255,255,255,0.3)", textAlign: "center", padding: "4px 0" }}>No effects applied</div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  {(clip.effects || []).map((ef, i) => (
+                    <div key={i} style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      background: "rgba(255,255,255,0.03)", borderRadius: 3, padding: "2px 6px",
+                      fontSize: 11, color: "rgba(255,255,255,0.5)",
+                    }}>
+                      <span>{(ef.asset?.name || ef.name || ef.type || "fx")}</span>
+                      <button onClick={() => updateClipProp(clip, proj, setProj, { effects: (clip.effects || []).filter((_, j) => j !== i) })}
+                        style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(239,68,68,0.5)", fontSize: 11, fontFamily: "inherit", padding: 0 }}
+                      >✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Section>
             <Section label="Speed Ramp">
-              <SliderRow label="Speed" value={1} min={0.1} max={8} step={0.1} />
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2 }}>
+              <SliderRow label="Speed" value={clip.speed ?? 1} min={0.1} max={8} step={0.1} onChange={(e) => updateClipProp(clip, proj, setProj, { speed: +e.target.value })} />
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2, marginTop: 2 }}>
                 {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 4].map((s) => (
-                  <button key={s} style={{
-                    fontSize: 11, padding: "3px 4px", borderRadius: 3,
-                    border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                    background: s === 1 ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.03)",
-                    color: s === 1 ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.38)",
-                    fontFamily: "inherit",
-                  }} className={s !== 1 ? "cs-hover-soft" : ""}>{s}x</button>
+                  <button key={s} onClick={() => updateClipProp(clip, proj, setProj, { speed: s })}
+                    style={{
+                      fontSize: 11, padding: "3px 4px", borderRadius: 3,
+                      border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                      background: (clip.speed || 1) === s ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.03)",
+                      color: (clip.speed || 1) === s ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.38)",
+                      fontFamily: "inherit",
+                    }} className={(clip.speed || 1) !== s ? "cs-hover-soft" : ""}>{s}x</button>
                 ))}
               </div>
             </Section>
@@ -346,24 +461,28 @@ export default function Inspector({ clip, open, onToggle }) {
             <Section label="Easing">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 2 }}>
                 {["Linear", "Ease In", "Ease Out", "Ease In Out", "Bounce", "Elastic"].map((e) => (
-                  <button key={e} style={{
-                    fontSize: 11, padding: "4px 6px", borderRadius: 3,
-                    border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                    background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
-                    fontFamily: "inherit",
-                  }} className="cs-hover-soft">{e}</button>
+                  <button key={e} onClick={() => updateClipProp(clip, proj, setProj, { easing: e.toLowerCase().replace(" ", "") })}
+                    style={{
+                      fontSize: 11, padding: "4px 6px", borderRadius: 3,
+                      border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                      background: (clip.easing || "").toLowerCase() === e.toLowerCase().replace(" ", "") ? "rgba(59,130,246,0.1)" : "rgba(255,255,255,0.03)",
+                      color: (clip.easing || "").toLowerCase() === e.toLowerCase().replace(" ", "") ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.45)",
+                      fontFamily: "inherit",
+                    }} className="cs-hover-soft">{e}</button>
                 ))}
               </div>
             </Section>
             <Section label="Presets">
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2 }}>
                 {["Fade", "Slide Up", "Slide Down", "Slide L", "Slide R", "Scale", "Rotate", "Zoom", "Bounce"].map((a) => (
-                  <button key={a} style={{
-                    fontSize: 11, padding: "4px 4px", borderRadius: 3,
-                    border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                    background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
-                    fontFamily: "inherit",
-                  }} className="cs-hover-soft">{a}</button>
+                  <button key={a} onClick={() => applyClipEffect(clip, proj, setProj, { type: "animation", name: a, id: a.toLowerCase().replace(" ", "") })}
+                    style={{
+                      fontSize: 11, padding: "4px 4px", borderRadius: 3,
+                      border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                      background: (clip.effects || []).some((e) => (e.name || e.id) === a) ? "rgba(59,130,246,0.1)" : "rgba(255,255,255,0.03)",
+                      color: (clip.effects || []).some((e) => (e.name || e.id) === a) ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.45)",
+                      fontFamily: "inherit",
+                    }} className="cs-hover-soft">{a}</button>
                 ))}
               </div>
             </Section>
