@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import { I, S, MEDIA_LIB, AUDIO_LIB, TEXT_STYLES, STICKER_SET, TRANS_LIST, EFX_CATS, LUTS, MOTION_PRESETS, BACKGROUNDS, VOICES, CAPTION_STYLES, AI_TOOLS, BRAND_ASSETS, TEMPLATES, SLIDES, Rng, FMT, MediaThumb, UID } from "./utils";
 
 export function SideTab({ icon, label, active, onClick }) {
@@ -203,9 +203,9 @@ function AudioWave({ cat }) {
   );
 }
 
-function playAudioBlob(cat) {
+function genWav(freqs, dur, sr, type, amp) {
   try {
-    const sr = 44100, dur = 1.5, len = sr * dur;
+    const len = Math.ceil(sr * dur);
     const buf = new ArrayBuffer(44 + len * 2);
     const v = new DataView(buf);
     const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
@@ -213,24 +213,68 @@ function playAudioBlob(cat) {
     w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
     v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
     w(36, 'data'); v.setUint32(40, len * 2, true);
-    const freq = cat === "music" ? 440 : cat === "sfx" ? 660 : cat === "voiceover" ? 330 : 220;
+    const nFreqs = freqs.length;
     for (let i = 0; i < len; i++) {
       const t = i / sr;
-      const s = Math.sin(2 * Math.PI * freq * t) * 0.3 * Math.max(0, 1 - t / dur) * (cat === "sfx" ? 1 + (1 - t / dur) * 2 : 1);
+      let s = 0;
+      for (let f = 0; f < nFreqs; f++) {
+        const fi = freqs[f];
+        const wf = f === 0 ? 1 : 0.5 / f;
+        if (type === "saw") s += wf * 2 * ((fi * t) % 1 - 0.5);
+        else if (type === "sqr") s += wf * (Math.sin(2 * Math.PI * fi * t) > 0 ? 0.5 : -0.5);
+        else if (type === "noise") s += wf * (Math.random() * 2 - 1);
+        else s += wf * Math.sin(2 * Math.PI * fi * t);
+      }
+      s = s * (amp || 0.3) * Math.max(0, 1 - t / (dur * 1.05));
       v.setInt16(44 + i * 2, Math.max(-32767, Math.min(32767, s * 32767)), true);
     }
     const blob = new Blob([buf], { type: 'audio/wav' });
-    const url = URL.createObjectURL(blob);
-    const audio = new Audio(url);
-    audio.volume = 0.4;
-    audio.play().then(() => { audio.onended = () => URL.revokeObjectURL(url); }).catch(() => {});
-  } catch {}
+    return URL.createObjectURL(blob);
+  } catch { return null; }
+}
+
+// Sound profiles: each item ID maps to a unique set of frequencies + waveform
+function soundForItem(item) {
+  const i = parseInt(item.id.replace(/\D/g, "")) || 1;
+  const cat = item.cat || "music";
+  const sr = 44100;
+  if (cat === "music") {
+    const baseMap = { au1:[440,660,880], au2:[392,494,587], au3:[110,220,330], au4:[523,659,784],
+      au5:[220,330,440], au6:[349,440,523], au7:[165,330,495], au8:[293,440,587],
+      au9:[659,523,440,659], au10:[55,110,165] };
+    const freqs = baseMap[item.id] || [300 + i * 30, 400 + i * 40, 500 + i * 50];
+    const wf = i % 3 === 0 ? "saw" : i % 3 === 1 ? "sine" : "sqr";
+    return { url: genWav(freqs, 2.0, sr, wf, 0.28), dur: 2.0 };
+  }
+  if (cat === "sfx") {
+    const sfxMap = {
+      au11:{f:[2000],d:0.08,w:"sine",a:0.5}, au12:{f:[100],d:0.4,w:"sine",a:0.6},
+      au13:{f:[200],d:0.5,w:"saw",a:0.3}, au14:{f:[3000],d:0.2,w:"sine",a:0.4},
+      au15:{f:[100,200,500,1000,2000],d:1.0,w:"sine",a:0.3}, au16:{f:[500,1000],d:0.3,w:"sqr",a:0.4},
+      au17:{f:[800],d:0.15,w:"sqr",a:0.5}, au18:{f:[2000],d:0.5,w:"saw",a:0.3},
+      au19:{f:[600],d:0.6,w:"sine",a:0.4}, au20:{f:[880],d:0.4,w:"sine",a:0.4},
+      au21:{f:[1200],d:0.5,w:"sine",a:0.4}, au22:{f:[60,80,100],d:0.6,w:"noise",a:0.5},
+    };
+    const p = sfxMap[item.id] || { f:[500 + i*100], d:0.3, w:"sine", a:0.4 };
+    return { url: genWav(p.f, p.d, sr, p.w, p.a), dur: p.d };
+  }
+  if (cat === "ambiance") {
+    const freqs = [100 + i * 20, 150 + i * 30, 200 + i * 40];
+    return { url: genWav(freqs, 3.0, sr, "sine", 0.15), dur: 3.0 };
+  }
+  if (cat === "voiceover") {
+    const freqs = [250 + i * 30, 350 + i * 40];
+    return { url: genWav(freqs, 1.5, sr, "sine", 0.25), dur: 1.5 };
+  }
+  return { url: genWav([440], 1, sr, "sine", 0.3), dur: 1 };
 }
 
 export function AudioPanel({ onClickItem }) {
   const [srch, setSrch] = useState("");
   const [cat, setCat] = useState("all");
   const [playId, setPlayId] = useState(null);
+  const [errorId, setErrorId] = useState(null);
+  const audioRefs = useRef({});
   const filtered = useMemo(() => {
     let items = AUDIO_LIB;
     if (cat !== "all") items = items.filter((a) => a.cat === cat);
@@ -238,6 +282,30 @@ export function AudioPanel({ onClickItem }) {
     return items;
   }, [cat, srch]);
   const [hvr, setHvr] = useState(null);
+
+  const togglePlay = (item) => {
+    const existing = audioRefs.current[item.id];
+    if (existing && !existing.paused) {
+      existing.pause();
+      existing.currentTime = 0;
+      setPlayId(null);
+      return;
+    }
+    setErrorId(null);
+    const s = soundForItem(item);
+    if (!s.url) { setErrorId(item.id); return; }
+    const audio = new Audio(s.url);
+    audio.volume = 0.4;
+    audio.onended = () => { setPlayId(null); URL.revokeObjectURL(s.url); };
+    audio.onerror = () => { setErrorId(item.id); setPlayId(null); URL.revokeObjectURL(s.url); };
+    audio.play().then(() => {
+      audioRefs.current[item.id] = audio;
+      setPlayId(item.id);
+    }).catch(() => {
+      setErrorId(item.id);
+      URL.revokeObjectURL(s.url);
+    });
+  };
 
   return (
     <>
@@ -252,8 +320,8 @@ export function AudioPanel({ onClickItem }) {
             style={{
               display: "flex", alignItems: "center", gap: 8, padding: "5px 8px",
               borderRadius: 4, cursor: onClickItem ? "pointer" : "grab",
-              background: hvr === item.id ? "rgba(255,255,255,0.03)" : "transparent",
-              border: "1px solid rgba(255,255,255,0.03)",
+              background: errorId === item.id ? "rgba(239,68,68,0.04)" : hvr === item.id ? "rgba(255,255,255,0.03)" : "transparent",
+              border: errorId === item.id ? "1px solid rgba(239,68,68,0.12)" : "1px solid rgba(255,255,255,0.03)",
               transition: "background 0.12s",
               position: "relative",
             }}
@@ -268,8 +336,10 @@ export function AudioPanel({ onClickItem }) {
               flexShrink: 0, overflow: "hidden",
               position: "relative",
             }}>
-              {playId === item.id ? (
-                <span style={{ fontSize: 14, animation: "pulse 0.3s linear infinite", color: "#10b981" }}>🔊</span>
+              {errorId === item.id ? (
+                <span style={{ fontSize: 12, color: "rgba(239,68,68,0.5)" }}>⚠</span>
+              ) : playId === item.id ? (
+                <span style={{ fontSize: 14, color: "#10b981" }}>🔊</span>
               ) : (
                 <AudioWave cat={item.cat} />
               )}
@@ -282,22 +352,22 @@ export function AudioPanel({ onClickItem }) {
                 {item.name}
               </div>
               <div style={{
-                fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 1,
+                fontSize: 11, color: errorId === item.id ? "rgba(239,68,68,0.5)" : "rgba(255,255,255,0.35)", marginTop: 1,
                 textTransform: "capitalize",
               }}>
-                {item.cat} · {item.dur.toFixed?.(1) || item.dur}s
+                {errorId === item.id ? "Failed to play" : `${item.cat} · ${item.dur.toFixed?.(1) || item.dur}s`}
               </div>
             </div>
-            <button onClick={(e) => { e.stopPropagation(); setPlayId(item.id); playAudioBlob(item.cat); setTimeout(() => setPlayId(null), 1000); }}
+            <button onClick={(e) => { e.stopPropagation(); togglePlay(item); }}
               style={{
                 width: 22, height: 22, borderRadius: "50%", border: "none", cursor: "pointer",
-                background: playId === item.id ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.04)",
-                color: playId === item.id ? "#10b981" : "rgba(255,255,255,0.3)",
+                background: playId === item.id ? "rgba(16,185,129,0.15)" : errorId === item.id ? "rgba(239,68,68,0.1)" : "rgba(255,255,255,0.04)",
+                color: playId === item.id ? "#10b981" : errorId === item.id ? "rgba(239,68,68,0.4)" : "rgba(255,255,255,0.3)",
                 fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center",
                 fontFamily: "inherit", flexShrink: 0, transition: "all 0.12s",
               }}
               className="cs-hover-soft"
-            >▶</button>
+            >{playId === item.id ? "⏹" : errorId === item.id ? "↻" : "▶"}</button>
             <span style={{
               fontSize: 10, color: "rgba(255,255,255,0.25)",
               fontFamily: "monospace",
@@ -385,81 +455,71 @@ export function StickerPanel({ onClickItem }) {
 }
 
 function TransThumb({ v }) {
-  const dir = v === "slideL" ? "to right" : v === "slideR" ? "to left" : v === "slideUp" ? "to bottom" : v === "slideD" ? "to top" : v === "wipeL" ? "to right" : v === "wipeR" ? "to left" : v === "zoomIn" ? "to right bottom" : v === "zoomOut" ? "to left top" : "to right";
-  const isFade = v === "opacity" || v === "fade";
-  const isGlitch = v?.includes("glitch");
-  const isSpin = v === "spin";
-  const isCube = v === "cube";
-  const isPage = v === "page";
-  const isRadial = v === "radial";
-  const isDiamond = v === "diamond";
-  if (isFade) {
-    return (
-      <div style={{ width: "100%", height: "100%", display: "flex" }}>
-        <div style={{ flex: 1, background: "#1a1a2a" }} />
-        <div style={{ flex: 1, background: "linear-gradient(90deg, #1a1a2a, #2a2a4a)" }} />
-        <div style={{ flex: 1, background: "#2a2a4a" }} />
-      </div>
-    );
-  }
-  if (isGlitch) {
-    return (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", gap: 2, padding: 4 }}>
-        {[0, 1, 2].map((r) => (
-          <div key={r} style={{ flex: 1, background: `#${r === 0 ? "ff0040" : r === 1 ? "00ff40" : "0040ff"}${r % 2 === 0 ? "40" : "60"}`, transform: `translateX(${(r % 2 === 0 ? 1 : -1) * 3}px)` }} />
-        ))}
-      </div>
-    );
-  }
-  if (isSpin) {
-    return (
-      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: 18, height: 18, border: "2px solid #3b82f6", borderTopColor: "transparent", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-      </div>
-    );
-  }
-  if (isCube) {
-    return (
-      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", perspective: 40 }}>
-        <div style={{ width: 20, height: 20, background: "linear-gradient(135deg, #3b82f6, #1d4ed8)", transform: "rotateY(45deg) rotateX(30deg)", borderRadius: 3 }} />
-      </div>
-    );
-  }
-  if (isPage) {
-    return (
-      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: 18, height: 22, background: "rgba(255,255,255,0.08)", borderRadius: 2, transform: "skewY(-10deg)", border: "1px solid rgba(255,255,255,0.06)" }} />
-      </div>
-    );
-  }
-  if (isRadial) {
-    return (
-      <div style={{ width: "100%", height: "100%", background: "radial-gradient(circle, #3b82f6 0%, transparent 70%)" }} />
-    );
-  }
-  if (isDiamond) {
-    return (
-      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: 16, height: 16, background: "#3b82f6", transform: "rotate(45deg)", opacity: 0.4 }} />
-      </div>
-    );
-  }
-  if (v === "warp" || v === "mosaic") {
-    return (
-      <div style={{ width: "100%", height: "100%", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1 }}>
-        {[0, 1, 2, 3].map((i) => (
-          <div key={i} style={{ background: `hsl(${i * 90}, 40%, 20%)`, borderRadius: 1 }} />
-        ))}
-      </div>
-    );
-  }
+  const p = v === "opacity" || v === "fade" ? 0 : v === "slideL" ? 1 : v === "slideR" ? 2 : v === "slideUp" ? 3 : v === "slideD" ? 4 : v === "zoomIn" ? 5 : v === "zoomOut" ? 6 : v === "wipeL" ? 7 : v === "wipeR" ? 8 : v?.includes("glitch") ? 9 : v === "spin" ? 10 : v === "flash" ? 11 : v === "mblur" ? 12 : v === "cube" ? 13 : v === "page" ? 14 : v === "radial" ? 15 : v === "diamond" ? 16 : v === "warp" ? 17 : v === "mosaic" ? 18 : v === "cross" ? 19 : 0;
   return (
-    <div style={{ width: "100%", height: "100%", background: `linear-gradient(${dir}, #1a1a2a 0%, #3b82f6 50%, #2a2a4a 100%)` }} />
+    <div className={`tr-thumb tr-${p}`} style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden", borderRadius: 2 }}>
+      {p === 0 && <><div className="tr-a" style={{position:"absolute",inset:0,background:"#1a1a3a"}}/><div className="tr-b" style={{position:"absolute",inset:0,background:"#3b82f6"}}/></>}
+      {p >= 1 && p <= 4 && <><div className="tr-a" style={{position:"absolute",inset:0,background:"#1a1a3a"}}/><div className="tr-b" style={{position:"absolute",inset:0,background:"#3b82f6",width:"50%"}}/></>}
+      {p >= 5 && p <= 6 && <><div className="tr-a" style={{position:"absolute",inset:"10%",background:"#1a1a3a"}}/><div className="tr-b" style={{position:"absolute",inset:"10%",background:"#3b82f6"}}/></>}
+      {p >= 7 && p <= 8 && <><div className="tr-a" style={{position:"absolute",inset:0,background:"#1a1a3a"}}/><div className="tr-b" style={{position:"absolute",inset:0,background:"linear-gradient(90deg,#3b82f6,#60a5fa)",width:"60%"}}/></>}
+      {p === 9 && <><div className="tr-a" style={{position:"absolute",inset:0,background:"#1a1a1a"}}/><div className="tr-b" style={{position:"absolute",inset:0,background:"#ff0040",opacity:0.6}}/><div className="tr-c" style={{position:"absolute",inset:0,background:"#00ff40",opacity:0.4}}/></>}
+      {p === 10 && <div style={{position:"absolute",inset:"20%",border:"2px solid #3b82f6",borderTopColor:"transparent",borderRadius:"50%"}} className="tr-spin"/>}
+      {p === 11 && <><div className="tr-a" style={{position:"absolute",inset:0,background:"#1a1a3a"}}/><div className="tr-b" style={{position:"absolute",inset:0,background:"white"}}/></>}
+      {p === 12 && <><div className="tr-a" style={{position:"absolute",inset:0,background:"#1a1a3a"}}/><div className="tr-b" style={{position:"absolute",inset:0,background:"rgba(59,130,246,0.3)"}}/></>}
+      {p === 13 && <div style={{position:"absolute",inset:"15%",background:"linear-gradient(135deg,#3b82f6,#1d4ed8)",borderRadius:3}} className="tr-cube"/>}
+      {p === 14 && <div style={{position:"absolute",inset:"10%",width:"60%",background:"rgba(255,255,255,0.08)",borderRadius:2,border:"1px solid rgba(255,255,255,0.06)"}} className="tr-page"/>}
+      {p === 15 && <div style={{position:"absolute",inset:0,background:"radial-gradient(circle,#3b82f6 0%,transparent 70%)"}} className="tr-radial"/>}
+      {p === 16 && <div style={{position:"absolute",inset:"25%",background:"#3b82f6",transform:"rotate(45deg)",opacity:0.4}} className="tr-diamond"/>}
+      {p === 17 && <div style={{position:"absolute",inset:0,display:"grid",gridTemplateColumns:"1fr 1fr",gap:1,padding:2}}><div style={{background:"#3b82f6"}}/><div style={{background:"#1a1a3a"}}/><div style={{background:"#1a1a3a"}}/><div style={{background:"#3b82f6"}}/></div>}
+      {p === 18 && <div style={{position:"absolute",inset:0,display:"grid",gridTemplateColumns:"1fr 1fr",gap:2,padding:3}}><div style={{background:"hsl(0,40%,20%)"}}/><div style={{background:"hsl(90,40%,20%)"}}/><div style={{background:"hsl(180,40%,20%)"}}/><div style={{background:"hsl(270,40%,20%)"}}/></div>}
+      {p === 19 && <><div className="tr-a" style={{position:"absolute",inset:0,background:"#1a1a3a"}}/><div className="tr-b" style={{position:"absolute",inset:0,background:"#3b82f6"}}/></>}
+    </div>
   );
 }
 
 export function TransitionsPanel({ onClickItem }) {
-  return (
+  return (<><style>{`
+.tr-thumb{background:#0d0d1a}
+.tr-a,.tr-b,.tr-c{animation-duration:2s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}
+.tr-0 .tr-a{animation-name:tFdA}.tr-0 .tr-b{animation-name:tFdB;background:#3b82f6}
+@keyframes tFdA{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes tFdB{0%,100%{opacity:0}50%{opacity:1}}
+.tr-1 .tr-b{animation-name:tSL;width:50%}.tr-2 .tr-b{animation-name:tSR;width:50%}
+@keyframes tSL{0%,100%{transform:translateX(0)}50%{transform:translateX(-50%)}}
+@keyframes tSR{0%,100%{transform:translateX(0)}50%{transform:translateX(50%)}}
+.tr-3 .tr-b{animation-name:tSU;width:100%;height:50%}.tr-4 .tr-b{animation-name:tSD;width:100%;height:50%}
+@keyframes tSU{0%,100%{transform:translateY(0)}50%{transform:translateY(-50%)}}
+@keyframes tSD{0%,100%{transform:translateY(0)}50%{transform:translateY(50%)}}
+.tr-5 .tr-b{animation-name:tZI}.tr-6 .tr-b{animation-name:tZO}
+@keyframes tZI{0%,100%{transform:scale(1)}50%{transform:scale(0.6)}}
+@keyframes tZO{0%,100%{transform:scale(1)}50%{transform:scale(1.4)}}
+.tr-7 .tr-b{animation-name:tWL}.tr-8 .tr-b{animation-name:tWR}
+@keyframes tWL{0%,100%{width:0}50%{width:100%}}
+@keyframes tWR{0%,100%{width:100%}50%{width:0}}
+.tr-9 .tr-a{background:#0a0a0a}.tr-9 .tr-b{animation-name:tGb;opacity:0.6}.tr-9 .tr-c{animation-name:tGc;opacity:0.4}
+@keyframes tGb{0%,100%{transform:translateX(0)}25%{transform:translateX(4px)}75%{transform:translateX(-3px)}}
+@keyframes tGc{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(4px)}}
+.tr-spin{animation:tSpin 0.8s linear infinite}
+@keyframes tSpin{to{transform:rotate(360deg)}}
+.tr-11 .tr-a{background:#1a1a3a}.tr-11 .tr-b{animation-name:tFl;background:white}
+@keyframes tFl{0%,100%{opacity:0}30%{opacity:1}60%{opacity:0}}
+.tr-12 .tr-a{background:#1a1a2a}.tr-12 .tr-b{animation-name:tMb;background:rgba(59,130,246,0.2)}
+@keyframes tMb{0%,100%{transform:translateX(-20%)}50%{transform:translateX(20%)}}
+.tr-cube{animation:tCube 1.5s ease-in-out infinite}
+@keyframes tCube{0%,100%{transform:rotateY(0deg) rotateX(0deg)}50%{transform:rotateY(180deg) rotateX(20deg)}}
+.tr-page{animation:tPage 2s ease-in-out infinite}
+@keyframes tPage{0%,100%{transform:skewY(-10deg) scaleX(1)}50%{transform:skewY(10deg) scaleX(0.6)}}
+.tr-radial{animation:tRadial 2s ease-in-out infinite}
+@keyframes tRadial{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+.tr-diamond{animation:tDia 1.5s ease-in-out infinite}
+@keyframes tDia{0%,100%{transform:rotate(45deg) scale(1);opacity:0.3}50%{transform:rotate(45deg) scale(1.5);opacity:0.6}}
+.tr-17 div{animation:tWarp 1s ease-in-out infinite alternate}
+@keyframes tWarp{0%{opacity:0.3}100%{opacity:1}}
+.tr-18 div{animation:tMosaic 1.5s ease-in-out infinite alternate}
+@keyframes tMosaic{0%{opacity:0.2}100%{opacity:0.8}}
+.tr-19 .tr-a{background:#1a1a3a}.tr-19 .tr-b{animation:tCross;background:#3b82f6}
+@keyframes tCross{0%,100%{transform:scale(0.3);opacity:0}50%{transform:scale(1);opacity:1}}
+`}</style>
     <AssetGrid
       items={TRANS_LIST.map((tr) => ({ ...tr, type: "video", name: tr.name }))}
       onDragStart={(e, item) => { try { e.dataTransfer.setData("application/json", JSON.stringify({ ...item, type: "overlay" })); e.dataTransfer.effectAllowed = "copy"; } catch {} }}
@@ -485,41 +545,28 @@ export function TransitionsPanel({ onClickItem }) {
         </div>
       )}
     />
+    </>
   );
 }
 
 function EfThumb({ cat }) {
-  const pal = {
-    blur: ["#1a1a2a", "#2a2a4a", "#3a3a5a"],
-    glow: ["#1a1a2a", "#3b82f6", "#60a5fa"],
-    vhs: ["#004040", "#ff0040", "#00ff40"],
-    shake: ["#2a1a1a", "#4a2a2a", "#2a1a1a"],
-    rgb: ["#ff0040", "#00ff40", "#0040ff"],
-    zoom: ["#1a1a2a", "#2a2a4a", "#3a3a5a"],
-    cine: ["#1a0a0a", "#2a1a1a", "#4a2a1a"],
-    noise: ["#1a1a1a", "#2a2a2a", "#3a3a3a"],
-    film: ["#2a2a1a", "#4a4a2a", "#3a3a1a"],
-    dream: ["#1a1a2a", "#4a2a6a", "#8a4aba"],
-    glitch: ["#0a0a0a", "#ff0040", "#00ff40"],
-    mirror: ["#1a2a3a", "#2a4a6a", "#1a2a3a"],
-    sharp: ["#0a0a0a", "#ffffff", "#0a0a0a"],
-    bw: ["#1a1a1a", "#4a4a4a", "#8a8a8a"],
-    vintage: ["#3a2a1a", "#6a4a2a", "#8a6a3a"],
-    chroma: ["#004400", "#00ff44", "#004400"],
-    neon: ["#0a0a2a", "#d43af4", "#3af4d4"],
-    sketch: ["#ffffff", "#d4d4d4", "#ffffff"],
-    pixel: ["#1a1a2a", "#2a2a4a", "#3a3a5a"],
-    halftone: ["#ffffff", "#d4d4d4", "#8a8a8a"],
-    invert: ["#ffffff", "#1a1a1a", "#ffffff"],
-    sepia: ["#4a2a1a", "#8a6a3a", "#4a2a1a"],
-    lens: ["#1a1a2a", "#d4a430", "#ffffff"],
-    bloom: ["#1a1a1a", "#ffffff", "#d4d4f4"],
-  }[cat] || ["#1a1a2a", "#2a2a4a", "#3a3a5a"];
+  const p = cat === "blur" ? 0 : cat === "glow" ? 1 : cat === "vhs" ? 2 : cat === "shake" ? 3 : cat === "glitch" ? 4 : cat === "noise" ? 5 : cat === "bw" ? 6 : cat === "vintage" ? 7 : cat === "neon" ? 8 : cat === "cine" ? 9 : cat === "mirror" ? 10 : cat === "pixel" ? 11 : cat === "dream" ? 12 : cat === "film" ? 13 : cat === "sepia" ? 14 : cat === "invert" ? 15 : cat === "sketch" ? 16 : cat === "halftone" ? 17 : cat === "chroma" ? 18 : cat === "sharp" ? 19 : cat === "rgb" ? 20 : cat === "zoom" ? 21 : cat === "lens" ? 22 : cat === "bloom" ? 23 : 0;
   return (
-    <div style={{ width: "100%", height: "100%", display: "flex" }}>
-      {pal.map((c, i) => (
-        <div key={i} style={{ flex: 1, background: c, opacity: 0.8 - i * 0.2 }} />
-      ))}
+    <div className={`ef-thumb ef-${p}`} style={{ width: "100%", height: "100%", position: "relative", overflow: "hidden", borderRadius: 2 }}>
+      <div className="ef-bg" style={{ position: "absolute", inset: 0 }} />
+      {p === 0 && <div className="ef-over" style={{position:"absolute",inset:0,background:"rgba(255,255,255,0.03)"}}/>}
+      {p === 1 && <div className="ef-over" style={{position:"absolute",inset:0,background:"rgba(59,130,246,0.15)"}}/>}
+      {p === 2 && <><div className="ef-line" style={{position:"absolute",left:0,right:0,height:"20%",background:"rgba(255,0,64,0.3)",top:"10%"}}/><div className="ef-line" style={{position:"absolute",left:0,right:0,height:"15%",background:"rgba(0,255,64,0.2)",top:"50%"}}/></>}
+      {p === 3 && <><div className="ef-line" style={{position:"absolute",left:0,right:0,height:"8%",background:"rgba(255,255,255,0.04)",top:"30%"}}/><div className="ef-line" style={{position:"absolute",left:0,right:0,height:"8%",background:"rgba(255,255,255,0.04)",top:"55%"}}/></>}
+      {p === 4 && <><div className="ef-over" style={{position:"absolute",inset:0,background:"rgba(255,0,64,0.2)"}}/><div className="ef-over2" style={{position:"absolute",inset:0,background:"rgba(0,255,64,0.15)"}}/></>}
+      {p === 5 && <div className="ef-over" style={{position:"absolute",inset:0,background:"rgba(255,255,255,0.02)"}}/>}
+      {p === 6 && <div className="ef-over" style={{position:"absolute",inset:0}}/>}
+      {p === 7 && <div className="ef-over" style={{position:"absolute",inset:0,background:"rgba(139,90,43,0.2)"}}/>}
+      {p === 8 && <><div className="ef-over" style={{position:"absolute",inset:0,background:"rgba(212,58,244,0.12)"}}/><div className="ef-over2" style={{position:"absolute",inset:0,background:"rgba(58,244,212,0.08)"}}/></>}
+      {p === 9 && <><div className="ef-over" style={{position:"absolute",top:0,left:0,right:0,height:"15%",background:"rgba(0,0,0,0.3)"}}/><div className="ef-over" style={{position:"absolute",bottom:0,left:0,right:0,height:"15%",background:"rgba(0,0,0,0.3)"}}/></>}
+      {p === 10 && <div className="ef-over" style={{position:"absolute",inset:0,background:"linear-gradient(90deg,transparent 0%,rgba(59,130,246,0.1) 30%,transparent 70%)"}}/>}
+      {p === 11 && <div style={{position:"absolute",inset:0,display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:1}}>{Array.from({length:16}).map((_,i)=><div key={i} style={{background:`hsl(${Math.floor(i/4)*90+i%4*20},15%,${15+i%3*8}%)`}}/>)}</div>}
+      {p >= 12 && <div className="ef-over" style={{position:"absolute",inset:0}}/>}
     </div>
   );
 }
@@ -530,7 +577,65 @@ export function EffectsPanel({ onClickItem }) {
       ...ef, type: "video", dur: 3,
     })),
   []);
-  return (
+  return (<><style>{`
+.ef-thumb{background:#0d0d1a}
+.ef-bg{animation:efBg 3s ease-in-out infinite alternate}
+@keyframes efBg{0%{background:#1a1a2a}100%{background:#2a2a4a}}
+.ef-over,.ef-over2,.ef-line{animation-duration:2s;animation-iteration-count:infinite}
+.ef-0 .ef-over{animation-name:efBlur;background:rgba(255,255,255,0.03)}
+@keyframes efBlur{0%,100%{opacity:0.1}50%{opacity:0.5}}
+.ef-1 .ef-over{animation-name:efGlow;background:rgba(59,130,246,0.15)}
+@keyframes efGlow{0%,100%{opacity:0.1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.1)}}
+.ef-2 .ef-line{animation-name:efVhs;background:rgba(255,0,64,0.3)}
+@keyframes efVhs{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
+.ef-2 .ef-line+div{animation-name:efVhs2;background:rgba(0,255,64,0.2)}
+@keyframes efVhs2{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.ef-3 .ef-line{animation-name:efShake;animation-duration:0.15s;background:rgba(255,255,255,0.04)}
+@keyframes efShake{0%,100%{transform:translateX(0)}20%{transform:translateX(4px)}40%{transform:translateX(-3px)}60%{transform:translateX(2px)}80%{transform:translateX(-1px)}}
+.ef-4 .ef-over{animation-name:efGlt1;background:rgba(255,0,64,0.2)}.ef-4 .ef-over2{animation-name:efGlt2;background:rgba(0,255,64,0.15)}
+@keyframes efGlt1{0%,100%{transform:translateX(0)}25%{transform:translateX(5px)}75%{transform:translateX(-4px)}}
+@keyframes efGlt2{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(5px)}}
+.ef-5 .ef-over{animation-name:efNoise;animation-duration:0.1s;background:rgba(255,255,255,0.02)}
+@keyframes efNoise{0%,100%{opacity:0.1}50%{opacity:0.4}}
+.ef-6 .ef-over{animation-name:efBw;background:#888}
+@keyframes efBw{0%,100%{opacity:0}50%{opacity:0.5}}
+.ef-7 .ef-over{animation-name:efVin;background:rgba(139,90,43,0.2)}
+@keyframes efVin{0%,100%{opacity:0.1}50%{opacity:0.5}}
+.ef-8 .ef-over{animation-name:efNn1;background:rgba(212,58,244,0.12)}.ef-8 .ef-over2{animation-name:efNn2;background:rgba(58,244,212,0.08)}
+@keyframes efNn1{0%,100%{opacity:0.1}50%{opacity:0.7}}
+@keyframes efNn2{0%,100%{opacity:0.3}50%{opacity:0.8}}
+.ef-9 .ef-over{animation-name:efCine;background:rgba(0,0,0,0.3)}
+@keyframes efCine{0%,100%{opacity:0.3}50%{opacity:0.8}}
+.ef-10 .ef-over{animation-name:efMir;background:linear-gradient(90deg,transparent 0%,rgba(59,130,246,0.1) 30%,transparent 70%)}
+@keyframes efMir{0%,100%{transform:translateX(-30%)}50%{transform:translateX(30%)}}
+.ef-11{animation:efPix 0.8s steps(4) infinite}
+@keyframes efPix{0%{filter:contrast(1)}50%{filter:contrast(2)}}
+.ef-12 .ef-over{animation-name:efDrm;background:rgba(74,42,106,0.15)}
+@keyframes efDrm{0%,100%{opacity:0}50%{opacity:0.6}}
+.ef-13 .ef-over{animation-name:efFlm;background:rgba(255,255,200,0.03)}
+@keyframes efFlm{0%,100%{opacity:0}50%{opacity:0.3}}
+.ef-14 .ef-over{animation-name:efSep;background:rgba(139,90,43,0.15)}
+@keyframes efSep{0%,100%{opacity:0.1}50%{opacity:0.4}}
+.ef-15 .ef-over{animation-name:efInv;background:white}
+@keyframes efInv{0%,100%{opacity:0}50%{opacity:0.3}}
+.ef-16 .ef-over{animation-name:efSk;background:white}
+@keyframes efSk{0%,100%{opacity:0.4}50%{opacity:0.9}}
+.ef-17 .ef-over{animation-name:efHlf;background:rgba(255,255,255,0.08)}
+@keyframes efHlf{0%,100%{opacity:0.1}50%{opacity:0.5}}
+.ef-18 .ef-over{animation-name:efChr;background:rgba(0,255,68,0.08)}
+@keyframes efChr{0%,100%{opacity:0}50%{opacity:0.4}}
+.ef-19 .ef-over{animation-name:efShrp;background:white}
+@keyframes efShrp{0%,100%{opacity:0.05}50%{opacity:0.2}}
+.ef-20 .ef-over{animation-name:efRgb;background:rgba(255,0,64,0.08)}.ef-20 .ef-over2{animation-name:efRgb2;background:rgba(0,64,255,0.06)}
+@keyframes efRgb{0%,100%{transform:translateX(0)}50%{transform:translateX(3px)}}
+@keyframes efRgb2{0%,100%{transform:translateX(0)}50%{transform:translateX(-3px)}}
+.ef-21 .ef-over{animation-name:efZm;background:rgba(255,255,255,0.02)}
+@keyframes efZm{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+.ef-22 .ef-over{animation-name:efLn;background:rgba(212,164,48,0.08)}
+@keyframes efLn{0%,100%{opacity:0;transform:translateX(-20%)}50%{opacity:0.5;transform:translateX(20%)}}
+.ef-23 .ef-over{animation-name:efBlm;background:rgba(255,255,255,0.06)}
+@keyframes efBlm{0%,100%{opacity:0;transform:scale(0.8)}50%{opacity:0.6;transform:scale(1.1)}}
+`}</style>
     <AssetGrid
       items={items}
       onDragStart={(e, item) => { try { e.dataTransfer.setData("application/json", JSON.stringify({ ...item, type: "overlay", dur: 3 })); e.dataTransfer.effectAllowed = "copy"; } catch {} }}
@@ -555,6 +660,7 @@ export function EffectsPanel({ onClickItem }) {
         </div>
       )}
     />
+    </>
   );
 }
 
