@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { I, S, MEDIA_LIB, AUDIO_LIB, TEXT_STYLES, STICKER_SET, TRANS_LIST, EFX_CATS, LUTS, MOTION_PRESETS, BACKGROUNDS, VOICES, CAPTION_STYLES, AI_TOOLS, BRAND_ASSETS, TEMPLATES, Rng, FMT, MediaThumb, UID } from "./utils";
+import { I, S, MEDIA_LIB, AUDIO_LIB, TEXT_STYLES, STICKER_SET, TRANS_LIST, EFX_CATS, LUTS, MOTION_PRESETS, BACKGROUNDS, VOICES, CAPTION_STYLES, AI_TOOLS, BRAND_ASSETS, TEMPLATES, SLIDES, Rng, FMT, MediaThumb, UID } from "./utils";
 
 export function SideTab({ icon, label, active, onClick }) {
   return (
@@ -203,9 +203,39 @@ function AudioWave({ cat }) {
   );
 }
 
+const AudioCtx = typeof window !== "undefined" && (window.AudioContext || window.webkitAudioContext);
+
+function playTone(cat) {
+  try {
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    const baseFreq = cat === "music" ? 440 : cat === "sfx" ? 660 : cat === "voiceover" ? 330 : 220;
+    const detune = cat === "music" ? 5 : cat === "sfx" ? 20 : 0;
+    osc.frequency.value = baseFreq;
+    osc.detune.value = detune;
+    osc.type = cat === "sfx" ? "sawtooth" : cat === "music" ? "triangle" : "sine";
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.05);
+    if (cat === "sfx") {
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      ctx.close();
+    } else {
+      gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.5);
+      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 1.0);
+      setTimeout(() => ctx.close(), 1100);
+    }
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + (cat === "sfx" ? 0.4 : 1.0));
+  } catch {}
+}
+
 export function AudioPanel({ onClickItem }) {
   const [srch, setSrch] = useState("");
   const [cat, setCat] = useState("all");
+  const [playId, setPlayId] = useState(null);
   const filtered = useMemo(() => {
     let items = AUDIO_LIB;
     if (cat !== "all") items = items.filter((a) => a.cat === cat);
@@ -241,8 +271,13 @@ export function AudioPanel({ onClickItem }) {
               }`,
               display: "flex", alignItems: "center", justifyContent: "center",
               flexShrink: 0, overflow: "hidden",
+              position: "relative",
             }}>
-              <AudioWave cat={item.cat} />
+              {playId === item.id ? (
+                <span style={{ fontSize: 14, animation: "pulse 0.3s linear infinite", color: "#10b981" }}>🔊</span>
+              ) : (
+                <AudioWave cat={item.cat} />
+              )}
             </div>
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{
@@ -258,6 +293,16 @@ export function AudioPanel({ onClickItem }) {
                 {item.cat} · {item.dur.toFixed?.(1) || item.dur}s
               </div>
             </div>
+            <button onClick={(e) => { e.stopPropagation(); setPlayId(item.id); playTone(item.cat); setTimeout(() => setPlayId(null), 800); }}
+              style={{
+                width: 22, height: 22, borderRadius: "50%", border: "none", cursor: "pointer",
+                background: playId === item.id ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.04)",
+                color: playId === item.id ? "#10b981" : "rgba(255,255,255,0.3)",
+                fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "inherit", flexShrink: 0, transition: "all 0.12s",
+              }}
+              className="cs-hover-soft"
+            >▶</button>
             <span style={{
               fontSize: 10, color: "rgba(255,255,255,0.25)",
               fontFamily: "monospace",
@@ -700,9 +745,11 @@ export function BackgroundsPanel({ onClickItem }) {
 export function VoicePanel({ onClickItem }) {
   const [srch, setSrch] = useState("");
   const [text, setText] = useState("");
-  const [gen, setGen] = useState(null);
+  const [sel, setSel] = useState(null);
   const [cat, setCat] = useState("all");
   const [hvr, setHvr] = useState(null);
+  const [speaking, setSpeaking] = useState(false);
+  const [speakId, setSpeakId] = useState(null);
   const VOICE_CATS = [
     { id: "all", label: "All" }, { id: "PT-BR", label: "Português" },
     { id: "EN-US", label: "English" }, { id: "ES", label: "Español" },
@@ -714,19 +761,45 @@ export function VoicePanel({ onClickItem }) {
     return items;
   }, [cat, srch]);
 
+  const speak = (voiceId, voiceName, lang, gender) => {
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(voiceName || "Sample voice test");
+      if (lang) u.lang = lang;
+      u.rate = 0.9;
+      u.pitch = gender === "F" ? 1.1 : 0.9;
+      u.onend = u.onerror = () => { setSpeaking(false); setSpeakId(null); };
+      window.speechSynthesis.speak(u);
+      setSpeaking(true);
+      setSpeakId(voiceId);
+    } catch {}
+  };
+
+  const speakTTS = (txt, voiceId, lang) => {
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(txt);
+      if (lang) u.lang = lang;
+      u.rate = 0.9;
+      u.onend = u.onerror = () => setSpeaking(false);
+      window.speechSynthesis.speak(u);
+      setSpeaking(true);
+    } catch {}
+  };
+
   return (
     <>
       <SearchBar value={srch} onChange={setSrch} placeholder="Search voices..." />
       <CategoryBar cats={VOICE_CATS} active={cat} onChange={setCat} />
       <div style={{ padding: "0 8px 6px", display: "flex", flexDirection: "column", gap: 3 }}>
         {filtered.map((v) => (
-          <div key={v.id} onClick={() => { setGen(v.id); onClickItem?.({ ...v, type: "voice" }); }}
+          <div key={v.id} onClick={() => { setSel(v.id); onClickItem?.({ ...v, type: "voice" }); }}
             onMouseEnter={() => setHvr(v.id)} onMouseLeave={() => setHvr(null)}
             style={{
               display: "flex", alignItems: "center", gap: 8, padding: "5px 8px",
               borderRadius: 4, cursor: "pointer",
-              background: gen === v.id ? "rgba(16,185,129,0.06)" : hvr === v.id ? "rgba(255,255,255,0.03)" : "transparent",
-              border: gen === v.id ? "1px solid rgba(16,185,129,0.12)" : "1px solid transparent",
+              background: sel === v.id ? "rgba(16,185,129,0.06)" : hvr === v.id ? "rgba(255,255,255,0.03)" : "transparent",
+              border: sel === v.id ? "1px solid rgba(16,185,129,0.12)" : "1px solid transparent",
               transition: "all 0.12s",
             }}
           >
@@ -745,7 +818,16 @@ export function VoicePanel({ onClickItem }) {
                 {v.lang} · {v.style}
               </div>
             </div>
-            {gen === v.id && <span style={{ fontSize: 9, color: "rgba(16,185,129,0.5)" }}>⏳</span>}
+            <button onClick={(e) => { e.stopPropagation(); speak(v.id, v.name, v.lang, v.gender); }}
+              style={{
+                width: 22, height: 22, borderRadius: "50%", border: "none", cursor: "pointer",
+                background: speakId === v.id ? "rgba(16,185,129,0.15)" : "rgba(255,255,255,0.04)",
+                color: speakId === v.id ? "#10b981" : "rgba(255,255,255,0.3)",
+                fontSize: 9, display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "inherit", flexShrink: 0, transition: "all 0.12s",
+              }}
+              className="cs-hover-soft"
+            >{speakId === v.id ? "⏹" : "▶"}</button>
           </div>
         ))}
       </div>
@@ -759,16 +841,21 @@ export function VoicePanel({ onClickItem }) {
             fontFamily: "inherit", resize: "none", outline: "none", boxSizing: "border-box",
           }}
         />
-        <button onClick={() => { if (!text.trim() || !gen) return; onClickItem?.({ type: "tts", voiceId: gen, text: text.trim() }); }}
+        <button
+          onClick={() => {
+            if (!text.trim() || !sel) return;
+            speakTTS(text.trim(), sel, filtered.find((v) => v.id === sel)?.lang);
+            onClickItem?.({ type: "tts", voiceId: sel, text: text.trim() });
+          }}
           style={{
             width: "100%", fontSize: 11, padding: "5px 8px", borderRadius: 4, marginTop: 4,
             border: "none", cursor: "pointer",
-            background: text.trim() && gen ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.03)",
-            color: text.trim() && gen ? "rgba(59,130,246,0.65)" : "rgba(255,255,255,0.25)",
+            background: text.trim() && sel && !speaking ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.03)",
+            color: text.trim() && sel && !speaking ? "rgba(59,130,246,0.65)" : "rgba(255,255,255,0.25)",
             fontFamily: "inherit", fontWeight: 500,
           }}
-          disabled={!text.trim() || !gen}
-        >{gen ? "Generate Voiceover" : "Select a voice first"}</button>
+          disabled={!text.trim() || !sel || speaking}
+        >{speaking ? "🔊 Speaking..." : sel ? "Generate Voiceover" : "Select a voice first"}</button>
       </div>
     </>
   );
@@ -823,11 +910,91 @@ export function AssetsPanel({ onClickItem }) {
 }
 
 export function TemplatesPanel({ onClickItem }) {
+  const [hvr, setHvr] = useState(null);
   return (
-    <AssetGrid
-      items={TEMPLATES.map((t) => ({ ...t, type: "video" }))}
-      onClickItem={onClickItem}
-    />
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, padding: "0 8px 8px" }}>
+      {TEMPLATES.map((t) => (
+        <div key={t.id} onClick={() => onClickItem?.({ ...t, type: "template" })}
+          onMouseEnter={() => setHvr(t.id)} onMouseLeave={() => setHvr(null)}
+          style={{
+            display: "flex", flexDirection: "column", borderRadius: 4,
+            border: hvr === t.id ? "1px solid rgba(59,130,246,0.2)" : "1px solid rgba(255,255,255,0.04)",
+            cursor: "pointer", overflow: "hidden",
+            transition: "border-color 0.12s, transform 0.12s",
+            transform: hvr === t.id ? "scale(1.02)" : "scale(1)",
+          }}
+        >
+          <div style={{
+            width: "100%", aspectRatio: "16/9",
+            background: t.bg,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            position: "relative",
+          }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: 6,
+              background: "rgba(255,255,255,0.1)",
+              backdropFilter: "blur(4px)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 14,
+            }}>{t.name[0]}</div>
+            <span style={{
+              position: "absolute", bottom: 4, right: 5,
+              fontSize: 9, color: "rgba(255,255,255,0.4)",
+              fontFamily: "monospace",
+            }}>{t.dur}s</span>
+          </div>
+          <div style={{ padding: "4px 6px" }}>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>{t.name}</div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 1 }}>{t.desc}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function SlidesPanel({ onClickItem }) {
+  const [hvr, setHvr] = useState(null);
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 5, padding: "0 8px 8px" }}>
+      {SLIDES.map((s) => (
+        <div key={s.id} onClick={() => onClickItem?.({ ...s, type: "slide" })}
+          onMouseEnter={() => setHvr(s.id)} onMouseLeave={() => setHvr(null)}
+          style={{
+            display: "flex", flexDirection: "column", borderRadius: 4,
+            border: hvr === s.id ? "1px solid rgba(59,130,246,0.2)" : "1px solid rgba(255,255,255,0.04)",
+            cursor: "pointer", overflow: "hidden",
+            transition: "border-color 0.12s, transform 0.12s",
+            transform: hvr === s.id ? "scale(1.02)" : "scale(1)",
+          }}
+        >
+          <div style={{
+            width: "100%", aspectRatio: "16/9",
+            background: s.bg,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            position: "relative",
+          }}>
+            <span style={{
+              fontSize: 10, color: "rgba(255,255,255,0.7)",
+              fontWeight: 600, textAlign: "center",
+              padding: "0 8px",
+              textShadow: "0 1px 4px rgba(0,0,0,0.3)",
+              overflow: "hidden",
+              maxHeight: "80%",
+            }}>{s.text}</span>
+            <span style={{
+              position: "absolute", bottom: 4, right: 5,
+              fontSize: 9, color: "rgba(255,255,255,0.4)",
+              fontFamily: "monospace",
+            }}>{s.dur}s</span>
+          </div>
+          <div style={{ padding: "4px 6px" }}>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.6)", fontWeight: 500 }}>{s.name}</div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 1, textTransform: "capitalize" }}>{s.layout}</div>
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 

@@ -10,7 +10,7 @@ import {
   SideTab, MediaPanel, AudioPanel, TextPanel, StickerPanel,
   TransitionsPanel, EffectsPanel, LUTsPanel, ColorPanel,
   MotionPanel, BackgroundsPanel, VoicePanel, AIPanel, AssetsPanel,
-  TemplatesPanel, CaptionsPanel, BrandPanel
+  TemplatesPanel, SlidesPanel, CaptionsPanel, BrandPanel
 } from "./panels";
 
 const WORKSPACES = [
@@ -23,14 +23,31 @@ const WORKSPACES = [
   { id: "stream", label: "Streaming", icon: I.tool },
 ];
 
-function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWorkspace }) {
+function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWorkspace, setSTab }) {
   const [ed, setEd] = useState(false);
   const [nv, setNv] = useState(proj.name);
   const [sv, setSv] = useState(true);
+  const [showFps, setShowFps] = useState(false);
+  const [showRes, setShowRes] = useState(false);
   const ref = useRef(null);
   useEffect(() => { if (ed) ref.current?.focus(); }, [ed]);
   useEffect(() => { if (!sv) { const t = setTimeout(() => setSv(true), 600); return () => clearTimeout(t); } }, [sv]);
+  useEffect(() => { const h = () => { setShowFps(false); setShowRes(false); }; document.addEventListener("mousedown", h); return () => document.removeEventListener("mousedown", h); }, []);
   const sub = () => { if (nv.trim()) setProj((p) => ({ ...p, name: nv.trim() })); setEd(false); };
+  const onWorkspace = (wid) => {
+    setWorkspace(wid);
+    if (wid === "edit") setSTab("media");
+    else if (wid === "color") setSTab("color");
+    else if (wid === "audio") setSTab("audio");
+    else if (wid === "motion") setSTab("motion");
+    else if (wid === "ai") setSTab("ai");
+  };
+  const fpsOpts = [24, 30, 60];
+  const resOpts = [
+    { label: "1080p", w: 1920, h: 1080 }, { label: "2K", w: 2560, h: 1440 },
+    { label: "4K", w: 3840, h: 2160 }, { label: "720p", w: 1280, h: 720 },
+    { label: "Vertical", w: 1080, h: 1920 },
+  ];
 
   return (
     <div style={{
@@ -83,7 +100,7 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
 
       <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.06)", margin: "0 4px" }} />
       {WORKSPACES.map((ws) => (
-        <button key={ws.id} onClick={() => setWorkspace(ws.id)}
+        <button key={ws.id} onClick={() => onWorkspace(ws.id)}
           style={{
             display: "flex", alignItems: "center", gap: 3, padding: "3px 8px",
             borderRadius: 4, fontSize: 12, border: "none", cursor: "pointer",
@@ -104,13 +121,67 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
         <span style={{ fontSize: 12, color: "rgba(255,255,255,0.2)" }}>/</span>
         <span style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", fontFamily: "monospace", fontWeight: 500 }}>{FMT(dur)}</span>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 3, background: "rgba(255,255,255,0.03)", borderRadius: 4, padding: "2px 6px", fontSize: 12, color: "rgba(255,255,255,0.45)" }}>
-        <span>30fps</span>
-        <S d={I.chD} sz={8} />
+      <div style={{ position: "relative" }}>
+        <button onClick={(e) => { e.stopPropagation(); setShowFps(!showFps); setShowRes(false); }}
+          style={{
+            display: "flex", alignItems: "center", gap: 3,
+            background: "rgba(255,255,255,0.03)", borderRadius: 4,
+            padding: "2px 6px", fontSize: 12, color: "rgba(255,255,255,0.45)",
+            border: "none", cursor: "pointer", fontFamily: "inherit",
+          }}
+        >
+          <span>{proj.fps}fps</span>
+          <S d={I.chD} sz={8} />
+        </button>
+        {showFps && (
+          <div style={{
+            position: "absolute", top: "100%", right: 0, marginTop: 4,
+            background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 4, zIndex: 100, minWidth: 70, overflow: "hidden",
+          }}>
+            {fpsOpts.map((f) => (
+              <div key={f} onClick={(e) => { e.stopPropagation(); setProj((p) => ({ ...p, fps: f })); setShowFps(false); }}
+                style={{
+                  padding: "4px 10px", fontSize: 12, cursor: "pointer",
+                  background: proj.fps === f ? "rgba(59,130,246,0.12)" : "transparent",
+                  color: proj.fps === f ? "rgba(59,130,246,0.65)" : "rgba(255,255,255,0.55)",
+                }}
+                className="cs-hover-soft"
+              >{f}fps</div>
+            ))}
+          </div>
+        )}
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 3, background: "rgba(255,255,255,0.03)", borderRadius: 4, padding: "2px 6px", fontSize: 12, color: "rgba(255,255,255,0.45)" }}>
-        <span>1080p</span>
-        <S d={I.chD} sz={8} />
+      <div style={{ position: "relative" }}>
+        <button onClick={(e) => { e.stopPropagation(); setShowRes(!showRes); setShowFps(false); }}
+          style={{
+            display: "flex", alignItems: "center", gap: 3,
+            background: "rgba(255,255,255,0.03)", borderRadius: 4,
+            padding: "2px 6px", fontSize: 12, color: "rgba(255,255,255,0.45)",
+            border: "none", cursor: "pointer", fontFamily: "inherit",
+          }}
+        >
+          <span>{proj.width >= 3800 ? "4K" : proj.width >= 2500 ? "2K" : proj.width === 1920 && proj.height === 1080 ? "1080p" : proj.width === 1080 && proj.height === 1920 ? "Vertical" : proj.width >= 1900 ? "1080p" : "720p"}</span>
+          <S d={I.chD} sz={8} />
+        </button>
+        {showRes && (
+          <div style={{
+            position: "absolute", top: "100%", right: 0, marginTop: 4,
+            background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 4, zIndex: 100, minWidth: 90, overflow: "hidden",
+          }}>
+            {resOpts.map((r) => (
+              <div key={r.label} onClick={(e) => { e.stopPropagation(); setProj((p) => ({ ...p, width: r.w, height: r.h })); setShowRes(false); }}
+                style={{
+                  padding: "4px 10px", fontSize: 12, cursor: "pointer",
+                  background: proj.width === r.w && proj.height === r.h ? "rgba(59,130,246,0.12)" : "transparent",
+                  color: proj.width === r.w && proj.height === r.h ? "rgba(59,130,246,0.65)" : "rgba(255,255,255,0.55)",
+                }}
+                className="cs-hover-soft"
+              >{r.label} <span style={{ opacity: 0.4 }}>({r.w}×{r.h})</span></div>
+            ))}
+          </div>
+        )}
       </div>
       <button onClick={onMem}
         style={{
@@ -151,7 +222,7 @@ const PANEL_LABELS = {
   transitions: "Transitions", effects: "Effects", luts: "LUTs", color: "Color",
   motion: "Motion", backgrounds: "Backgrounds", voice: "Voice",
   ai: "AI Tools", assets: "Assets", templates: "Templates",
-  captions: "Captions", brand: "Brand Kit", memory: "Brand Memory",
+  slides: "Slides", captions: "Captions", brand: "Brand Kit", memory: "Brand Memory",
 };
 
 function LeftPanel({ tab, imm, onImp, fRef, onMDrag, onClickItem }) {
@@ -171,6 +242,7 @@ function LeftPanel({ tab, imm, onImp, fRef, onMDrag, onClickItem }) {
       case "ai": return <AIPanel />;
       case "assets": return <AssetsPanel onClickItem={onClickItem} />;
       case "templates": return <TemplatesPanel onClickItem={onClickItem} />;
+      case "slides": return <SlidesPanel onClickItem={onClickItem} />;
       case "captions": return <CaptionsPanel onClickItem={onClickItem} />;
       case "brand": return <BrandPanel onClickItem={onClickItem} />;
       default: return null;
@@ -340,6 +412,7 @@ export default function VideoStudioEditor() {
         onMem={() => { setShowMemories(true); if (sTab !== "memory") setSTab("memory"); if (!panelOpen) setPanelOpen(true); }}
         workspace={workspace}
         setWorkspace={setWorkspace}
+        setSTab={setSTab}
       />
 
       <div style={{ flex: 1, display: "flex", minHeight: 0 }}>

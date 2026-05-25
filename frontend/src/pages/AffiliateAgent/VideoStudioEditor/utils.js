@@ -260,7 +260,7 @@ export const SIDEBAR_MAP = Object.entries({
   media: I.srch, audio: I.music, text: I.textI, sticker: I.star,
   transitions: I.trans, effects: I.efx, luts: I.pal, color: I.adj,
   motion: I.board, backgrounds: I.grid, voice: I.speaker,
-  ai: I.ai, assets: I.lay, templates: I.doc,
+  ai: I.ai, assets: I.lay, templates: I.doc, slides: I.board,
   captions: I.cap, brand: I.memory,
 });
 
@@ -548,18 +548,31 @@ export const BRAND_ASSETS = [
 ];
 
 export const TEMPLATES = [
-  { id: "tp1", name: "Intro Animada", dur: 5, thumb: "🚀" },
-  { id: "tp2", name: "Produto", dur: 15, thumb: "📦" },
-  { id: "tp3", name: "Tutorial", dur: 30, thumb: "📚" },
-  { id: "tp4", name: "Vlog", dur: 20, thumb: "🎥" },
-  { id: "tp5", name: "Review", dur: 25, thumb: "⭐" },
-  { id: "tp6", name: "Unboxing", dur: 18, thumb: "📬" },
-  { id: "tp7", name: "Antes/Depois", dur: 10, thumb: "🔄" },
-  { id: "tp8", name: "CTA Final", dur: 8, thumb: "🎯" },
-  { id: "tp9", name: "Story Promo", dur: 15, thumb: "📱" },
-  { id: "tp10", name: "Intro Podcast", dur: 10, thumb: "🎙️" },
-  { id: "tp11", name: "TikTok Viral", dur: 12, thumb: "🔥" },
-  { id: "tp12", name: "Gamer", dur: 20, thumb: "🎮" },
+  { id: "tp1", name: "Intro Animada", dur: 5, bg: "linear-gradient(135deg, #1a365d, #3b82f6)", desc: "Abertura animada com motion graphics" },
+  { id: "tp2", name: "Produto", dur: 15, bg: "linear-gradient(135deg, #166534, #22c55e)", desc: "Apresentação de produto" },
+  { id: "tp3", name: "Tutorial", dur: 30, bg: "linear-gradient(135deg, #92400e, #f59e0b)", desc: "Vídeo passo a passo educativo" },
+  { id: "tp4", name: "Vlog", dur: 20, bg: "linear-gradient(135deg, #831843, #ec4899)", desc: "Layout para vlogs e diários" },
+  { id: "tp5", name: "Review", dur: 25, bg: "linear-gradient(135deg, #1e3a5f, #1e40af)", desc: "Avaliação de produtos" },
+  { id: "tp6", name: "Unboxing", dur: 18, bg: "linear-gradient(135deg, #065f46, #10b981)", desc: "Unboxing de produtos" },
+  { id: "tp7", name: "Antes/Depois", dur: 10, bg: "linear-gradient(135deg, #1a1a2a, #3b82f6)", desc: "Comparação visual" },
+  { id: "tp8", name: "CTA Final", dur: 8, bg: "linear-gradient(135deg, #0f172a, #a855f7)", desc: "Chamada para ação" },
+  { id: "tp9", name: "Story Promo", dur: 15, bg: "linear-gradient(135deg, #1e1b4b, #3b82f6)", desc: "Story para redes sociais" },
+  { id: "tp10", name: "Intro Podcast", dur: 10, bg: "linear-gradient(135deg, #2a1a1a, #6a2a2a)", desc: "Abertura de podcast" },
+  { id: "tp11", name: "TikTok Viral", dur: 12, bg: "linear-gradient(135deg, #0a0a2a, #d43af4)", desc: "Template TikTok" },
+  { id: "tp12", name: "Gamer", dur: 20, bg: "linear-gradient(135deg, #1a0a2a, #4a3a8a)", desc: "Layout para conteúdo gamer" },
+];
+
+export const SLIDES = [
+  { id: "sl1", name: "Título", type: "slide", dur: 5, bg: "linear-gradient(135deg, #1a365d, #3b82f6)", text: "Título Principal", layout: "center" },
+  { id: "sl2", name: "Produto", type: "slide", dur: 7, bg: "linear-gradient(135deg, #166534, #22c55e)", text: "Produto Destaque", layout: "split" },
+  { id: "sl3", name: "Depoimento", type: "slide", dur: 6, bg: "linear-gradient(135deg, #92400e, #f59e0b)", text: "Depoimento Cliente", layout: "left" },
+  { id: "sl4", name: "CTA", type: "slide", dur: 5, bg: "linear-gradient(135deg, #831843, #ec4899)", text: "Chamada para Ação", layout: "center" },
+  { id: "sl5", name: "Comparação", type: "slide", dur: 8, bg: "linear-gradient(135deg, #1e3a5f, #1e40af)", text: "Antes vs Depois", layout: "split" },
+  { id: "sl6", name: "Números", type: "slide", dur: 5, bg: "linear-gradient(135deg, #0f172a, #4834d4)", text: "99%", layout: "center" },
+  { id: "sl7", name: "Citação", type: "slide", dur: 6, bg: "linear-gradient(135deg, #1a1a2a, #2a2a4a)", text: "\"Frase de destaque\"", layout: "center" },
+  { id: "sl8", name: "Benefícios", type: "slide", dur: 8, bg: "linear-gradient(135deg, #065f46, #10b981)", text: "Benefício 1\nBenefício 2\nBenefício 3", layout: "left" },
+  { id: "sl9", name: "Logo + Título", type: "slide", dur: 5, bg: "linear-gradient(135deg, #1e1b4b, #3b82f6)", text: "BRANPY", layout: "center" },
+  { id: "sl10", name: "Transição", type: "slide", dur: 3, bg: "linear-gradient(135deg, #1a1a2a, #3a3a5a)", text: "---", layout: "center" },
 ];
 
 export const EXPORT_PRESETS = [
