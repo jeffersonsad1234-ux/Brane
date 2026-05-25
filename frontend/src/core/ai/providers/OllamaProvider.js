@@ -38,15 +38,21 @@ export class OllamaProvider extends BaseProvider {
   async sendMessage(messages, options = {}) {
     const model = options.model || this.defaultModel;
     const body = buildPayload(model, messages, false, options);
+    const url = `${this.baseUrl}/api/chat`;
 
-    const res = await fetch(`${this.baseUrl}/api/chat`, {
+    console.log("[Ollama] sendMessage", { url, model });
+    const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
       signal: options.signal,
     });
 
+    console.log("[Ollama] response status:", res.status);
+
     if (!res.ok) {
+      const text = await res.text();
+      console.log("[Ollama] error body:", text);
       if (res.status === 404) {
         throw new ProviderError(
           `Modelo "${model}" não encontrado no Ollama. Execute: ollama pull ${model}`,
@@ -58,8 +64,26 @@ export class OllamaProvider extends BaseProvider {
       });
     }
 
-    const data = await res.json();
-    return data.message?.content || "";
+    const raw = await res.text();
+    console.log("[Ollama] raw body:", raw);
+
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      throw new ProviderError("Resposta inválida do Ollama (não é JSON)", {
+        code: "INVALID_RESPONSE", provider: this.id,
+      });
+    }
+    console.log("[Ollama] parsed data:", data);
+
+    const content = data.message?.content || data.response || "";
+    if (!content) {
+      throw new ProviderError("Ollama respondeu vazio. Verifique o parser.", {
+        code: "EMPTY_RESPONSE", provider: this.id,
+      });
+    }
+    return content;
   }
 
   async streamMessage(messages, options = {}) {
@@ -138,23 +162,25 @@ export class OllamaProvider extends BaseProvider {
   }
 
   async healthCheck() {
-    // Try each possible URL until one works
     const urls = OLLAMA_URLS.filter((u) => u !== this.baseUrl);
-    urls.unshift(this.baseUrl); // try current URL first
+    urls.unshift(this.baseUrl);
 
     for (const url of urls) {
       try {
         const res = await fetch(`${url}/api/tags`, {
           signal: AbortSignal.timeout(4000),
         });
-        if (res.ok) {
-          if (this.baseUrl !== url) {
-            console.log(`[Ollama] Conectado via ${url}`);
-            this.baseUrl = url;
-            localStorage.setItem("ollama_url", url);
-          }
-          return true;
+        if (!res.ok) continue;
+        const text = await res.text();
+        let data;
+        try { data = JSON.parse(text); } catch { continue; }
+        if (!data.models || !Array.isArray(data.models)) continue;
+        if (this.baseUrl !== url) {
+          console.log(`[Ollama] Conectado via ${url}`);
+          this.baseUrl = url;
+          localStorage.setItem("ollama_url", url);
         }
+        return true;
       } catch {
         // try next URL
       }

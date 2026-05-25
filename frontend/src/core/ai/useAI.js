@@ -261,12 +261,14 @@ export function useAI(routerInstance = null) {
       if (provider === "ollama") {
         const errorMsg = err ? err.message : "Erro ao conectar com Ollama Local";
         const cors = isCorsError(err);
-        addAssistantMessage(
-          "**Ollama Local offline**\n\n" + (cors
-            ? "Não foi possível conectar ao Ollama pelo navegador (CORS).\nSoluções:\n1. Execute: set OLLAMA_ORIGINS=* && ollama serve\n2. Ou instale extensão 'CORS Unblock' no Chrome\n3. Ou acesse via http://localhost:11434"
-            : errorMsg),
-          "ollama", model || "qwen2.5-coder:7b", agent
-        );
+        const isConnError = cors || err?.message?.includes("offline") || err?.message?.includes("ECONNREFUSED");
+        const prefix = isConnError
+          ? "**Ollama Local offline**\n\n"
+          : "**Ollama erro**\n\n";
+        const body = cors
+          ? "Não foi possível conectar ao Ollama pelo navegador (CORS).\nSoluções:\n1. Execute: set OLLAMA_ORIGINS=* && ollama serve\n2. Ou instale extensão 'CORS Unblock' no Chrome\n3. Ou acesse via http://localhost:11434"
+          : errorMsg;
+        addAssistantMessage(prefix + body, "ollama", model || "qwen2.5-coder:7b", agent);
         return { content: "", error: errorMsg };
       }
 

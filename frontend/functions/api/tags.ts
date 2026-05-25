@@ -1,14 +1,8 @@
 const OLLAMA_HOST = typeof OLLAMA_HOST_ENV !== "undefined" ? OLLAMA_HOST_ENV : "http://127.0.0.1:11434";
 
-export async function onRequestPost(context) {
-  const { request } = context;
+export async function onRequestGet(context) {
   try {
-    const body = await request.text();
-    const res = await fetch(`${OLLAMA_HOST}/api/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body,
-    });
+    const res = await fetch(`${OLLAMA_HOST}/api/tags`);
     const text = await res.text();
     return new Response(text, {
       status: res.status,
