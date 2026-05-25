@@ -1,18 +1,36 @@
 import { BaseProvider, ProviderError } from "./BaseProvider";
 
-const OLLAMA_URLS = [
+function isDev() {
+  try {
+    const h = window.location.hostname;
+    return h === "localhost" || h === "127.0.0.1" || h.startsWith("192.168.");
+  } catch { return false; }
+}
+
+const DEV_URLS = [
+  "",
   "http://127.0.0.1:11434",
   "http://localhost:11434",
-  "",
   "http://127.0.0.1:8787",
 ];
+
+const PROD_URLS = [
+  "http://127.0.0.1:11434",
+  "http://localhost:11434",
+  "http://127.0.0.1:8787",
+];
+
+function getUrls() {
+  return isDev() ? DEV_URLS : PROD_URLS;
+}
+
 const DEFAULT_MODEL = "qwen2.5-coder:7b";
 
 function buildPayload(model, messages, stream, options = {}) {
   return {
     model,
     messages,
-    stream,
+    stream: false,
     keep_alive: "30m",
     options: {
       temperature: options.temperature ?? 0.7,
@@ -26,7 +44,7 @@ export class OllamaProvider extends BaseProvider {
     super({
       id: "ollama",
       name: "Ollama Local",
-      baseUrl: config.baseUrl || localStorage.getItem("ollama_url") || OLLAMA_URLS[0],
+      baseUrl: config.baseUrl || localStorage.getItem("ollama_url") || getUrls()[0],
       apiKey: config.apiKey || "",
       models: config.models || [DEFAULT_MODEL],
       defaultModel: config.defaultModel || DEFAULT_MODEL,
@@ -55,7 +73,7 @@ export class OllamaProvider extends BaseProvider {
       console.log("[Ollama] error body:", text);
       if (res.status === 404) {
         throw new ProviderError(
-          `Modelo "${model}" não encontrado no Ollama. Execute: ollama pull ${model}`,
+          `Modelo "${model}" não encontrado. Execute: ollama pull ${model}`,
           { code: "MODEL_NOT_FOUND", provider: this.id, retryable: false }
         );
       }
@@ -68,9 +86,7 @@ export class OllamaProvider extends BaseProvider {
     console.log("[Ollama] raw body:", raw);
 
     let data;
-    try {
-      data = JSON.parse(raw);
-    } catch {
+    try { data = JSON.parse(raw); } catch {
       throw new ProviderError("Resposta inválida do Ollama (não é JSON)", {
         code: "INVALID_RESPONSE", provider: this.id,
       });
@@ -98,22 +114,14 @@ export class OllamaProvider extends BaseProvider {
     });
 
     if (!res.ok) {
-      if (res.status === 404) {
-        throw new ProviderError(
-          `Modelo "${model}" não encontrado. Execute: ollama pull ${model}`,
-          { code: "MODEL_NOT_FOUND", provider: this.id, retryable: false }
-        );
-      }
-      throw new ProviderError(`Ollama stream error: ${res.status}`, {
-        code: "PROVIDER_ERROR", status: res.status, provider: this.id,
-      });
+      if (res.status === 404) throw new ProviderError(`Modelo "${model}" não encontrado. Execute: ollama pull ${model}`, { code: "MODEL_NOT_FOUND", provider: this.id, retryable: false });
+      throw new ProviderError(`Ollama stream error: ${res.status}`, { code: "PROVIDER_ERROR", status: res.status, provider: this.id });
     }
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = "";
     let done = false;
-
     return {
       async next() {
         if (done) return { done: true, value: undefined };
@@ -129,15 +137,13 @@ export class OllamaProvider extends BaseProvider {
             try {
               const chunk = JSON.parse(trimmed);
               const content = chunk.message?.content || "";
-              if (chunk.done) { done = true; }
+              if (chunk.done) done = true;
               if (content) return { done: false, value: content };
             } catch {}
           }
         }
       },
-      [Symbol.asyncIterator]() {
-        return this;
-      },
+      [Symbol.asyncIterator]() { return this; },
     };
   }
 
@@ -156,13 +162,11 @@ export class OllamaProvider extends BaseProvider {
         }
       }
       return models;
-    } catch {
-      return this.models;
-    }
+    } catch { return this.models; }
   }
 
   async healthCheck() {
-    const urls = OLLAMA_URLS.filter((u) => u !== this.baseUrl);
+    const urls = getUrls().filter((u) => u !== this.baseUrl);
     urls.unshift(this.baseUrl);
 
     for (const url of urls) {
@@ -174,16 +178,14 @@ export class OllamaProvider extends BaseProvider {
         const text = await res.text();
         let data;
         try { data = JSON.parse(text); } catch { continue; }
-        if (!data.models || !Array.isArray(data.models)) continue;
+        if (!Array.isArray(data?.models) || data.models.length === 0) continue;
         if (this.baseUrl !== url) {
           console.log(`[Ollama] Conectado via ${url}`);
           this.baseUrl = url;
           localStorage.setItem("ollama_url", url);
         }
         return true;
-      } catch {
-        // try next URL
-      }
+      } catch {}
     }
     return false;
   }

@@ -36,10 +36,7 @@ export function useAI(routerInstance = null) {
 
   useEffect(() => {
     mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-      if (pollRef.current) clearInterval(pollRef.current);
-    };
+    return () => { mountedRef.current = false; if (pollRef.current) clearInterval(pollRef.current); };
   }, []);
 
   useEffect(() => {
@@ -51,7 +48,7 @@ export function useAI(routerInstance = null) {
           setTimeout(() => { if (mountedRef.current) setExecutionStatus(null); }, 2000);
         }
       });
-    } catch { /* handler setup fail */ }
+    } catch { }
   }, [router]);
 
   useEffect(() => {
@@ -62,44 +59,26 @@ export function useAI(routerInstance = null) {
         if (!ollama) { setOllamaOnline("offline"); return; }
         const ok = await ollama.healthCheck();
         if (!mountedRef.current) return;
+        setOllamaOnline(ok ? "online" : "offline");
         if (ok) {
           console.log("[Ollama] Conectado com sucesso");
-          setOllamaOnline("online");
           const models = await ollama.listModels();
           if (!mountedRef.current) return;
           const firstModel = models.length > 0 ? models[0] : DEFAULT_MODEL;
-          if (currentProviderRef.current !== "ollama") {
-            setCurrentProvider("ollama");
-          }
           if (firstModel) setCurrentModel(firstModel);
-        } else {
-          setOllamaOnline("offline");
         }
-      } catch {
-        if (mountedRef.current) setOllamaOnline("offline");
-      }
+      } catch { if (mountedRef.current) setOllamaOnline("offline"); }
     };
-
     setOllamaOnline("connecting");
     checkOllama();
     pollRef.current = setInterval(checkOllama, POLL_INTERVAL);
-
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-    };
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, []);
 
   const stopGeneration = useCallback(() => {
-    if (abortRef.current) {
-      try { abortRef.current.abort(); } catch {}
-      abortRef.current = null;
-    }
-    if (activeStreamRef.current) {
-      try { activeStreamRef.current.return ? activeStreamRef.current.return() : null; } catch {}
-      activeStreamRef.current = null;
-    }
-    setStreaming(false);
-    setLoading(false);
+    if (abortRef.current) { try { abortRef.current.abort(); } catch {} abortRef.current = null; }
+    if (activeStreamRef.current) { try { activeStreamRef.current.return ? activeStreamRef.current.return() : null; } catch {} activeStreamRef.current = null; }
+    setStreaming(false); setLoading(false);
   }, []);
 
   const addAssistantMessage = useCallback((content, provider, model, agent) => {
@@ -138,16 +117,11 @@ export function useAI(routerInstance = null) {
 
   const sendMessage = useCallback(async (content, options = {}) => {
     if (!mountedRef.current) return { content: "" };
-    setLoading(true);
-    setError(null);
-    setStreaming(false);
-
+    setLoading(true); setError(null); setStreaming(false);
     const msg = (content || "").trim();
     if (!msg) { setLoading(false); return { content: "" }; }
-
     const userMsg = { id: `msg_${Date.now()}`, role: "user", content: msg, timestamp: Date.now() };
     setMessages((prev) => [...prev, userMsg]);
-
     const agent = options.agent || currentAgent;
     const model = options.model || currentModel;
     const provider = options.provider || currentProvider;
@@ -155,33 +129,19 @@ export function useAI(routerInstance = null) {
     try {
       if (provider === "ollama") {
         const text = await ollamaSend(msg, model, null);
-        if (mountedRef.current) {
-          setLoading(false);
-          if (text) addAssistantMessage(text, "ollama", model || "qwen2.5-coder:7b", agent);
-        }
+        if (mountedRef.current) { setLoading(false); if (text) addAssistantMessage(text, "ollama", model || "qwen2.5-coder:7b", agent); }
         return { content: text || "", provider: "ollama", model: model || "qwen2.5-coder:7b" };
       }
-
       const result = await router.chat(msg, { agent, model: model || undefined, provider, ...options });
-      if (mountedRef.current) {
-        setLoading(false);
-        if (result && result.content) {
-          addAssistantMessage(result.content, result.provider, result.model, agent);
-        }
-      }
+      if (mountedRef.current) { setLoading(false); if (result && result.content) addAssistantMessage(result.content, result.provider, result.model, agent); }
       return result || { content: "" };
     } catch (err) {
       if (!mountedRef.current) return { content: "" };
       setLoading(false);
       if (provider === "ollama") {
-        const errorMsg = err ? err.message : "Ollama offline";
+        const errorMsg = err ? err.message : "Erro ao conectar com Ollama Local";
         const cors = isCorsError(err);
-        addAssistantMessage(
-          "**Ollama Local offline**\n\n" + (cors
-            ? "Não foi possível conectar ao Ollama pelo navegador (CORS).\nSoluções:\n1. Execute: set OLLAMA_ORIGINS=* && ollama serve\n2. Ou instale extensão 'CORS Unblock' no Chrome\n3. Ou acesse via http://localhost:11434"
-            : errorMsg),
-          "ollama", model || "qwen2.5-coder:7b", agent
-        );
+        addAssistantMessage("**Ollama Local offline**\n\n" + (cors ? "CORS bloqueado. Execute: set OLLAMA_ORIGINS=* && ollama serve\nOu use http://localhost:3001 (proxy incluído)" : errorMsg), "ollama", model || "qwen2.5-coder:7b", agent);
         return { content: "", error: errorMsg };
       }
       setError(err ? err.message : "Chat failed");
@@ -193,136 +153,78 @@ export function useAI(routerInstance = null) {
     if (!mountedRef.current) return { content: "" };
     const msg = (content || "").trim();
     if (!msg) { setLoading(false); return { content: "" }; }
-
-    setLoading(true);
-    setError(null);
-    setStreaming(true);
-    setCurrentStream("");
-
+    setLoading(true); setError(null); setStreaming(true); setCurrentStream("");
     const controller = new AbortController();
     abortRef.current = controller;
-
     const userMsg = { id: `msg_${Date.now()}`, role: "user", content: msg, timestamp: Date.now() };
     setMessages((prev) => [...prev, userMsg]);
-
     const agent = options.agent || currentAgent;
     const model = options.model || currentModel;
     const provider = options.provider || currentProvider;
-
-    let fullContent = "";
-    let resultProvider = "";
-    let resultModel = "";
+    let fullContent = ""; let resultProvider = ""; let resultModel = "";
 
     try {
       if (provider === "ollama") {
         const text = await ollamaSend(msg, model, controller) || "";
-        resultProvider = "ollama";
-        resultModel = model || "qwen2.5-coder:7b";
-        setStreaming(false);
-        setCurrentStream("");
-        setLoading(false);
+        resultProvider = "ollama"; resultModel = model || "qwen2.5-coder:7b";
+        setStreaming(false); setCurrentStream(""); setLoading(false);
         if (text) addAssistantMessage(text, resultProvider, resultModel, agent);
         return { content: text, provider: resultProvider };
       }
-
       const stream = router.chatStream(msg, { agent, model: model || undefined, provider, signal: controller.signal, ...options });
       activeStreamRef.current = stream;
-
       for await (const chunk of stream) {
         if (!mountedRef.current || controller.signal.aborted) break;
         if (!chunk) continue;
-        if (chunk.done) {
-          if (chunk.error) break;
-          break;
-        }
+        if (chunk.done) { if (chunk.error) break; break; }
         fullContent += (chunk.content || "");
         resultProvider = chunk.provider || resultProvider;
         if (!controller.signal.aborted) setCurrentStream(fullContent);
       }
-
-      activeStreamRef.current = null;
-      abortRef.current = null;
-
-      if (mountedRef.current) {
-        setStreaming(false);
-        setCurrentStream("");
-        setLoading(false);
-        if (fullContent) addAssistantMessage(fullContent, resultProvider, model, agent);
-      }
+      activeStreamRef.current = null; abortRef.current = null;
+      if (mountedRef.current) { setStreaming(false); setCurrentStream(""); setLoading(false); if (fullContent) addAssistantMessage(fullContent, resultProvider, model, agent); }
       return { content: fullContent || "", provider: resultProvider };
     } catch (err) {
-      activeStreamRef.current = null;
-      abortRef.current = null;
+      activeStreamRef.current = null; abortRef.current = null;
       if (!mountedRef.current) return { content: "" };
-      setStreaming(false);
-      setCurrentStream("");
-      setLoading(false);
-
+      setStreaming(false); setCurrentStream(""); setLoading(false);
       if (provider === "ollama") {
         const errorMsg = err ? err.message : "Erro ao conectar com Ollama Local";
         const cors = isCorsError(err);
-        const isConnError = cors || err?.message?.includes("offline") || err?.message?.includes("ECONNREFUSED");
-        const prefix = isConnError
-          ? "**Ollama Local offline**\n\n"
-          : "**Ollama erro**\n\n";
-        const body = cors
-          ? "Não foi possível conectar ao Ollama pelo navegador (CORS).\nSoluções:\n1. Execute: set OLLAMA_ORIGINS=* && ollama serve\n2. Ou instale extensão 'CORS Unblock' no Chrome\n3. Ou acesse via http://localhost:11434"
-          : errorMsg;
+        const isConnError = cors || err?.message?.includes("offline") || err?.message?.includes("ECONNREFUSED") || err?.message?.includes("CLOUDFLARE");
+        const prefix = isConnError ? "**Ollama Local offline**\n\n" : "**Ollama erro**\n\n";
+        const body = cors ? "CORS bloqueado. Execute: set OLLAMA_ORIGINS=* && ollama serve\nOu use http://localhost:3001 (proxy incluído)" : errorMsg;
         addAssistantMessage(prefix + body, "ollama", model || "qwen2.5-coder:7b", agent);
         return { content: "", error: errorMsg };
       }
-
-      addAssistantMessage("Erro ao processar resposta. Tente novamente ou selecione outro provider.", provider || "unknown", model, agent);
+      addAssistantMessage("**Erro no chat**\n\n" + (err ? err.message : "Erro desconhecido"), provider || "unknown", model, agent);
       return { content: "", error: err ? err.message : "Stream failed" };
-    } finally {
-      activeStreamRef.current = null;
-      abortRef.current = null;
-    }
+    } finally { activeStreamRef.current = null; abortRef.current = null; }
   }, [router, currentAgent, currentModel, currentProvider, addAssistantMessage, ollamaStream, ollamaSend]);
 
-  const clearMessages = useCallback(async () => {
-    setMessages([]);
-    setCurrentStream("");
-    setError(null);
-    try { await router.clearHistory(); } catch {}
-  }, [router]);
+  const clearMessages = useCallback(async () => { setMessages([]); setCurrentStream(""); setError(null); try { await router.clearHistory(); } catch {} }, [router]);
 
   const loadSession = useCallback(async (sessionId) => {
     if (!sessionId) return;
     try {
-      router.setSession(sessionId);
-      const history = await router.getHistory(sessionId);
-      if (mountedRef.current) {
-        setMessages((history || []).map((m) => ({
-          id: m.id || `msg_${m.timestamp || Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-          role: m.role,
-          content: m.content || "",
-          provider: m.provider,
-          model: m.model,
-          timestamp: m.timestamp,
-        })));
+      const history = await router.loadSession(sessionId);
+      if (history && history.length > 0 && mountedRef.current) {
+        if (history[0] && history[0].agent) setCurrentAgent(history[0].agent);
+        setMessages(history);
       }
-    } catch { if (mountedRef.current) setMessages([]); }
+    } catch { /* ignore */ }
   }, [router]);
 
   const newSession = useCallback(() => {
-    setMessages([]);
-    setCurrentStream("");
-    setError(null);
+    setMessages([]); setCurrentStream(""); setError(null);
     router.setSession(`session_${Date.now()}`);
   }, [router]);
 
   return {
     messages, loading, streaming, currentStream, error, executionStatus,
-    currentAgent, currentModel, currentProvider, sessions, providerStatus,
-    ollamaOnline,
-
+    currentAgent, currentModel, currentProvider, sessions, providerStatus, ollamaOnline,
     sendMessage, sendStreamMessage, clearMessages, loadSession, newSession,
-    setCurrentAgent, setCurrentModel, setCurrentProvider, stopGeneration,
-    addAssistantMessage,
-
-    router, memory: aiMemory,
-    getProviderStatus: providerStatus,
-    getAgent,
+    setCurrentAgent, setCurrentModel, setCurrentProvider, stopGeneration, addAssistantMessage,
+    router, memory: aiMemory, getProviderStatus: providerStatus, getAgent,
   };
 }
