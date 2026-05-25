@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import ToolCard3D from "./ToolCard3D";
+import ToolCard3D from "../../../components/ui/ToolCard3D";
 
 const TOOLS = [
   {
@@ -162,7 +162,7 @@ export default function ToolGrid({ onSelectTool, activeCategory, onCategoryChang
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <AnimatePresence mode="popLayout">
           {filtered.map((tool, i) => (
-            <ToolCard3D key={tool.id} tool={tool} index={i} onClick={onSelectTool} />
+            <ToolCard3D key={tool.id} app={{ id: tool.id, name: tool.title, desc: tool.description, cat: tool.tag.toLowerCase(), icon: tool.icon }} index={i} onClick={onSelectTool} />
           ))}
         </AnimatePresence>
       </div>
