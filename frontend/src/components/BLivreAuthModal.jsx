@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, User, Mail, Lock } from "lucide-react";
+import { X, User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function BLivreAuthModal({ isOpen, onClose, onAuthSuccess }) {
@@ -13,6 +13,8 @@ export default function BLivreAuthModal({ isOpen, onClose, onAuthSuccess }) {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -135,13 +137,17 @@ export default function BLivreAuthModal({ isOpen, onClose, onAuthSuccess }) {
             <div className="relative">
               <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8F9A]" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-[#7B7E8B] focus:border-[#D4A24C] focus:outline-none"
+                className="w-full pl-10 pr-12 py-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-[#7B7E8B] focus:border-[#D4A24C] focus:outline-none"
                 placeholder="Sua senha"
                 required
               />
+              <button type="button" onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C8F9A] hover:text-[#D4A24C] transition-colors">
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
           </div>
 
@@ -153,13 +159,17 @@ export default function BLivreAuthModal({ isOpen, onClose, onAuthSuccess }) {
               <div className="relative">
                 <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8F9A]" />
                 <input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   value={formData.confirmPassword}
                   onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-[#7B7E8B] focus:border-[#D4A24C] focus:outline-none"
+                  className="w-full pl-10 pr-12 py-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-[#7B7E8B] focus:border-[#D4A24C] focus:outline-none"
                   placeholder="Confirme sua senha"
                   required={!isLogin}
                 />
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C8F9A] hover:text-[#D4A24C] transition-colors">
+                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
           )}

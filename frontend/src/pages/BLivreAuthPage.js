@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { User, Mail, Lock, ArrowLeft } from "lucide-react";
+import { User, Mail, Lock, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { useBLivreAuth } from "../contexts/BLivreAuthContext";
 import BLivreSEO from "../components/BLivreSEO";
 
@@ -17,6 +17,8 @@ export default function BLivreAuthPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -116,10 +118,14 @@ export default function BLivreAuthPage() {
               <label className="block text-sm text-[#8C8F9A] font-bold mb-2">Senha</label>
               <div className="relative">
                 <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8F9A]" />
-                <input type="password" value={formData.password}
+                <input type={showPassword ? "text" : "password"} value={formData.password}
                   onChange={(e) => handleInputChange('password', e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-[#7B7E8B] focus:border-[#D4A24C] focus:outline-none"
+                  className="w-full pl-10 pr-12 py-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-[#7B7E8B] focus:border-[#D4A24C] focus:outline-none"
                   placeholder="Sua senha" required />
+                <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C8F9A] hover:text-[#D4A24C] transition-colors">
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
               </div>
             </div>
 
@@ -128,10 +134,14 @@ export default function BLivreAuthPage() {
                 <label className="block text-sm text-[#8C8F9A] font-bold mb-2">Confirmar senha</label>
                 <div className="relative">
                   <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8F9A]" />
-                  <input type="password" value={formData.confirmPassword}
+                  <input type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword}
                     onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-[#7B7E8B] focus:border-[#D4A24C] focus:outline-none"
+                    className="w-full pl-10 pr-12 py-3 rounded-xl bg-black/30 border border-white/10 text-white placeholder-[#7B7E8B] focus:border-[#D4A24C] focus:outline-none"
                     placeholder="Confirme sua senha" required={!isLogin} />
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C8F9A] hover:text-[#D4A24C] transition-colors">
+                    {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
               </div>
             )}
