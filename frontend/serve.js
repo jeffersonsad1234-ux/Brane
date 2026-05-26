@@ -131,7 +131,7 @@ const server = http.createServer(async (req, res) => {
 
     // ---- STATIC FILES: serve built frontend ----
     const ENGINE_DIR = path.join(BUILD_DIR, "engine");
-    const isEnginePath = url.pathname.startsWith("/engine");
+    const isEnginePath = url.pathname === "/engine" || url.pathname.startsWith("/engine/");
     let filePath;
     if (isEnginePath) {
       const subPath = url.pathname.replace("/engine", "") || "/";
