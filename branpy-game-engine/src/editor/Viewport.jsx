@@ -6,6 +6,7 @@ import { useEditorStore } from "@store/editorStore";
 import Effects from "./Effects";
 import PBRMaterial from "./PBRMaterial";
 import SoundSystem from "../engine/systems/SoundSystem";
+import PlayMode from "./PlayMode";
 
 const Flashlight = lazy(() => import("./Flashlight"));
 const FlickeringLight = lazy(() => import("./FlickeringLight"));
@@ -223,6 +224,7 @@ export default function Viewport() {
   const setSelected = useEditorStore((s) => s.setSelected);
   const fpsCam = useEditorStore((s) => s.fpsCam);
   const showGrid = useEditorStore((s) => s.showGrid);
+  const mode = useEditorStore((s) => s.mode);
   const env = scene.environment || {};
   const objects = scene.objects;
 
@@ -257,45 +259,51 @@ export default function Viewport() {
 
         <ProceduralSkybox />
 
-        {env.shadows !== false && <SoftShadows samples={env.shadowQuality === "low" ? 4 : 6} />}
+        {mode === "play" ? (
+          <PlayMode />
+        ) : (
+          <>
+            {env.shadows !== false && <SoftShadows samples={env.shadowQuality === "low" ? 4 : 6} />}
 
-        <ambientLight intensity={0.15} />
-        <directionalLight position={[8, 20, -5]} intensity={0.5} castShadow shadow-mapSize={[shadowRes, shadowRes]} shadow-bias={-0.002} shadow-camera-far={35} shadow-camera-top={15} shadow-camera-bottom={-15} shadow-camera-left={-15} shadow-camera-right={15} />
-        <directionalLight position={[-5, 8, -5]} intensity={0.1} color="#4466aa" />
-        <hemisphereLight args={["#334466", "#0a0a15", 0.15]} />
+            <ambientLight intensity={0.15} />
+            <directionalLight position={[8, 20, -5]} intensity={0.5} castShadow shadow-mapSize={[shadowRes, shadowRes]} shadow-bias={-0.002} shadow-camera-far={35} shadow-camera-top={15} shadow-camera-bottom={-15} shadow-camera-left={-15} shadow-camera-right={15} />
+            <directionalLight position={[-5, 8, -5]} intensity={0.1} color="#4466aa" />
+            <hemisphereLight args={["#334466", "#0a0a15", 0.15]} />
 
-        <SceneObjects />
-        <TransformControlsWrapper />
+            <SceneObjects />
+            <TransformControlsWrapper />
 
-        <Suspense fallback={null}>
-          <WetGroundWrapper />
-          <RainWrapper />
-          <FlickeringLightsWrapper />
-          <FlashlightWrapper />
-        </Suspense>
+            <Suspense fallback={null}>
+              <WetGroundWrapper />
+              <RainWrapper />
+              <FlickeringLightsWrapper />
+              <FlashlightWrapper />
+            </Suspense>
 
-        <VolumetricFogLayer />
+            <VolumetricFogLayer />
 
-        {showGrid && (
-          <Grid position={[0, -0.01, 0]} args={[30, 30]}
-            cellSize={1} cellThickness={0.4} cellColor="rgba(255,255,255,0.03)"
-            sectionSize={5} sectionThickness={0.8} sectionColor="rgba(255,255,255,0.06)"
-            fadeDistance={30} fadeStrength={1.5} infiniteGrid />
-        )}
+            {showGrid && (
+              <Grid position={[0, -0.01, 0]} args={[30, 30]}
+                cellSize={1} cellThickness={0.4} cellColor="rgba(255,255,255,0.03)"
+                sectionSize={5} sectionThickness={0.8} sectionColor="rgba(255,255,255,0.06)"
+                fadeDistance={30} fadeStrength={1.5} infiniteGrid />
+            )}
 
-        {env.shadows !== false && (
-          <ContactShadows position={[0, -0.49, 0]} opacity={0.3} scale={25} blur={4} far={6} color="#000022" />
+            {env.shadows !== false && (
+              <ContactShadows position={[0, -0.49, 0]} opacity={0.3} scale={25} blur={4} far={6} color="#000022" />
+            )}
+
+            {fpsCam ? <FpsCam /> : (
+              <OrbitControls makeDefault enableDamping dampingFactor={0.1}
+                minDistance={0.5} maxDistance={60} rotateSpeed={0.5} zoomSpeed={1}
+                minPolarAngle={0} maxPolarAngle={Math.PI / 2.05}
+                target={orbitTarget} />
+            )}
+          </>
         )}
 
         <Effects />
         <SoundSystem />
-
-        {fpsCam ? <FpsCam /> : (
-          <OrbitControls makeDefault enableDamping dampingFactor={0.1}
-            minDistance={0.5} maxDistance={60} rotateSpeed={0.5} zoomSpeed={1}
-            minPolarAngle={0} maxPolarAngle={Math.PI / 2.05}
-            target={orbitTarget} />
-        )}
       </Canvas>
 
       <div className="viewport-toolbar">

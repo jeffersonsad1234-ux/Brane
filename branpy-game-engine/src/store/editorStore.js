@@ -1,41 +1,10 @@
 import { create } from "zustand";
+import cyberpunkScene from "@engine/presets/cyberpunkScene";
 
 let idCounter = 0;
 export const genId = () => `obj_${++idCounter}_${Date.now().toString(36)}`;
 
-const defaultScene = {
-  name: "Untitled Scene",
-  objects: [
-    { id: genId(), type: "plane", name: "Ground", position: [0, -0.5, 0], rotation: [0, 0, 0], scale: [10, 1, 10], color: "#1a1a2e", visible: true },
-    { id: genId(), type: "cube", name: "Cube", position: [0, 0.5, 0], rotation: [0, 0, 0], scale: [1, 1, 1], color: "#6366f1", visible: true },
-    { id: genId(), type: "light", name: "Sun", position: [5, 10, 5], rotation: [-0.6, 0.8, 0], intensity: 1.5, color: "#ffffff", visible: true },
-  ],
-  environment: {
-    background: "#0a0a12",
-    fog: { color: "#0a0a12", near: 15, far: 50 },
-    shadows: true,
-    bloom: false,
-    bloomIntensity: 0.3,
-    bloomThreshold: 0.1,
-    ssao: false,
-    colorGrading: false,
-    chromaticAberration: false,
-    volumetricFog: false,
-    rain: false,
-    wetGround: false,
-    flashlight: false,
-    flickeringLights: false,
-    ambientSound: false,
-    vignette: true,
-    exposure: 1.0,
-    toneMapping: 3,
-    shadowQuality: "medium",
-    pixelRatio: 1,
-    maxLights: 8,
-    useLOD: true,
-    qualityPreset: "balanced",
-  },
-};
+const defaultScene = JSON.parse(JSON.stringify(cyberpunkScene));
 
 export const useEditorStore = create((set, get) => ({
   mode: "edit",
