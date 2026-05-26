@@ -1,7 +1,23 @@
 import React from "react";
 import { useEditorStore } from "@store/editorStore";
 
-const icons = { cube: "⬡", sphere: "⬤", plane: "▭", cylinder: "⬢", light: "☀", camera: "◉" };
+const icons = {
+  cube: "◇",
+  sphere: "●",
+  plane: "▭",
+  cylinder: "⬢",
+  light: "☀",
+  camera: "◉",
+};
+
+const typeColors = {
+  cube: "var(--accent)",
+  sphere: "#ec4899",
+  plane: "#2a2a3a",
+  cylinder: "#f59e0b",
+  light: "#fbbf24",
+  camera: "#10b981",
+};
 
 export default function ObjectList() {
   const objects = useEditorStore((s) => s.scene.objects);
@@ -10,26 +26,41 @@ export default function ObjectList() {
   const removeObject = useEditorStore((s) => s.removeObject);
   const updateObject = useEditorStore((s) => s.updateObject);
 
+  if (objects.length === 0) {
+    return (
+      <div className="empty-state">
+        <div className="empty-state-icon">◇</div>
+        <div>Empty Scene</div>
+        <div style={{ marginTop: 4, fontSize: 10 }}>Add objects from the toolbar</div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-1 space-y-0.5">
-      {objects.length === 0 && (
-        <div className="text-xs text-[rgba(255,255,255,0.2)] p-3 text-center">Empty scene</div>
-      )}
-      {objects.map((obj) => (
+    <div>
+      {objects.map((obj, i) => (
         <div key={obj.id}
+          className={`tree-item ${selectedId === obj.id ? "tree-item--selected" : ""}`}
           onClick={() => setSelected(obj.id)}
-          className={`flex items-center gap-2 px-2 py-1.5 rounded cursor-pointer text-xs transition-colors group ${
-            selectedId === obj.id ? "bg-[rgba(99,102,241,0.1)] text-[#6366f1]" : "hover:bg-[rgba(255,255,255,0.03)] text-[rgba(255,255,255,0.55)]"
-          }`}
+          style={{ paddingLeft: 8 + (obj.parent ? 16 : 0) }}
         >
-          <span className="w-5 text-center opacity-50 text-sm">{icons[obj.type] || "?"}</span>
-          <span className="flex-1 truncate">{obj.name}</span>
-          <button onClick={(e) => { e.stopPropagation(); updateObject(obj.id, { visible: !obj.visible }); }}
-            className={`text-xs opacity-0 group-hover:opacity-50 transition-opacity ${obj.visible ? "text-[rgba(255,255,255,0.3)]" : "text-[rgba(255,255,255,0.1)]"}`}
-          >{obj.visible ? "👁" : "—"}</button>
-          <button onClick={(e) => { e.stopPropagation(); removeObject(obj.id); }}
-            className="text-xs opacity-0 group-hover:opacity-40 hover:!opacity-80 transition-opacity text-red-400"
-          >✕</button>
+          {/* Expand hint (flat list, no nesting yet) */}
+          <span className="tree-item-icon" style={{ color: typeColors[obj.type] || "var(--text-faint)" }}>
+            {icons[obj.type] || "?"}
+          </span>
+
+          <span className="tree-item-label">{obj.name}</span>
+
+          <div className="tree-item-actions">
+            <button className="tree-item-action"
+              onClick={(e) => { e.stopPropagation(); updateObject(obj.id, { visible: !obj.visible }); }}
+              title={obj.visible ? "Hide" : "Show"}
+            >{obj.visible ? "◉" : "○"}</button>
+            <button className="tree-item-action tree-item-action--danger"
+              onClick={(e) => { e.stopPropagation(); removeObject(obj.id); }}
+              title="Delete"
+            >✕</button>
+          </div>
         </div>
       ))}
     </div>

@@ -50,6 +50,18 @@ export default function Toolbar() {
     downloadBuildHTML(scene);
   };
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "w" || e.key === "W") { setTransformMode("translate"); e.preventDefault(); }
+      if (e.key === "e" || e.key === "E") { setTransformMode("rotate"); e.preventDefault(); }
+      if (e.key === "r" || e.key === "R") { setTransformMode("scale"); e.preventDefault(); }
+      if (e.key === "Delete" || e.key === "Backspace") { if (selectedId) { removeObject(selectedId); e.preventDefault(); } }
+      if ((e.key === "d" || e.key === "D") && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (selectedId) duplicateObject(selectedId); }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
+
   const gizmoModes = [
     { key: "translate", label: "T", title: "Translate (W)" },
     { key: "rotate", label: "R", title: "Rotate (E)" },
@@ -57,126 +69,124 @@ export default function Toolbar() {
   ];
 
   const addButtons = [
-    { type: "cube", label: "Cube", icon: "◇" },
-    { type: "sphere", label: "Sphere", icon: "●" },
-    { type: "plane", label: "Plane", icon: "▭" },
-    { type: "cylinder", label: "Cylinder", icon: "⬢" },
-    { type: "light", label: "Light", icon: "☀" },
-    { type: "camera", label: "Camera", icon: "◉" },
+    { type: "cube", icon: "◇" },
+    { type: "sphere", icon: "●" },
+    { type: "plane", icon: "▭" },
+    { type: "cylinder", icon: "⬢" },
+    { type: "light", icon: "☀" },
+    { type: "camera", icon: "◉" },
   ];
 
-  const handleKeyDown = (e) => {
-    if (e.key === "w" || e.key === "W") setTransformMode("translate");
-    if (e.key === "e" || e.key === "E") setTransformMode("rotate");
-    if (e.key === "r" || e.key === "R") setTransformMode("scale");
-    if (e.key === "Delete" || e.key === "Backspace") { if (selectedId) removeObject(selectedId); }
-    if (e.key === "d" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (selectedId) duplicateObject(selectedId); }
-  };
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  });
-
   return (
-    <div
-      className="flex items-center gap-1 px-2 flex-shrink-0"
-      style={{ height: "var(--toolbar-h)", background: "var(--panel)", borderBottom: "1px solid var(--border)" }}
-    >
-      <div className="flex items-center gap-2 mr-3">
-        <span className="text-sm font-bold" style={{ color: "var(--accent)" }}>BRANPY</span>
-        <span className="text-[10px]" style={{ color: "rgba(255,255,255,0.15)" }}>v0.2</span>
+    <div style={{
+      display: "flex", alignItems: "center", gap: 2, padding: "0 8px",
+      height: "var(--toolbar-h)", background: "linear-gradient(180deg, var(--bg-alt) 0%, var(--panel) 100%)",
+      borderBottom: "1px solid var(--border)", flexShrink: 0,
+      position: "relative", zIndex: 20
+    }}>
+      {/* Brand */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 12 }}>
+        <span style={{
+          fontSize: 14, fontWeight: 700,
+          background: "var(--gradient-accent)", WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent", letterSpacing: "-0.02em"
+        }}>BRANPY</span>
+        <span style={{ fontSize: 9, color: "var(--text-faint)", fontFamily: "var(--font-mono)" }}>v0.2</span>
       </div>
 
-      <div className="separator" />
+      <div className="sep" />
 
-      {/* File menu */}
-      <div className="relative">
-        <button onClick={() => setShowFile(!showFile)} className="btn"
-        >File ▾</button>
+      {/* File Menu */}
+      <div style={{ position: "relative" }}>
+        <button className="btn" onClick={() => setShowFile(!showFile)}>File ▾</button>
         {showFile && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowFile(false)} />
-            <div className="absolute top-full left-0 mt-1 z-20 panel p-1 min-w-[140px] shadow-xl">
-              <button onClick={() => { resetScene(); setShowFile(false); }} className="btn w-full text-left px-2.5 py-1.5 rounded"
-              >New Scene</button>
-              <button onClick={() => { exportScene(); setShowFile(false); }} className="btn w-full text-left px-2.5 py-1.5 rounded"
-              >Export JSON</button>
-              <button onClick={() => { fileRef.current?.click(); }} className="btn w-full text-left px-2.5 py-1.5 rounded"
-              >Import JSON</button>
-              <button onClick={() => { handleDownloadBuild(); setShowFile(false); }} className="btn w-full text-left px-2.5 py-1.5 rounded"
-              >Download Build</button>
+            <div className="panel animate-slide-up" style={{
+              position: "absolute", top: "100%", left: 0, marginTop: 4, zIndex: 20,
+              minWidth: 150, padding: 4
+            }}>
+              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }}
+                onClick={() => { resetScene(); setShowFile(false); }}>New Scene</button>
+              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }}
+                onClick={() => { exportScene(); setShowFile(false); }}>Export JSON</button>
+              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }}
+                onClick={() => { fileRef.current?.click(); }}>Import JSON</button>
+              <div className="sep" style={{ width: "100%", height: 1, margin: "4px 0" }} />
+              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }}
+                onClick={() => { handleDownloadBuild(); setShowFile(false); }}>Download Build</button>
               <input ref={fileRef} type="file" accept=".json" onChange={handleImport} style={{ display: "none" }} />
             </div>
           </>
         )}
       </div>
 
-      <div className="separator" />
+      <div className="sep" />
 
-      {/* Add object buttons */}
-      {addButtons.map(({ type, label, icon }) => (
-        <button key={type} onClick={() => addObject(type)} title={`Add ${label}`}
-          className="btn btn--icon text-sm"
-        >{icon}</button>
+      {/* Add Objects */}
+      {addButtons.map(({ type, icon }) => (
+        <button key={type} className="btn btn--icon" title={`Add ${type}`}
+          onClick={() => addObject(type)} style={{ fontSize: 13 }}>{icon}</button>
       ))}
 
-      <div className="separator" />
+      <div className="sep" />
 
-      {/* Gizmo mode buttons */}
+      {/* Gizmo Modes */}
       {gizmoModes.map(({ key, label, title }) => (
-        <button key={key} onClick={() => setTransformMode(key)} title={title}
-          className={`btn btn--icon text-xs font-bold ${transformMode === key ? "btn--active" : ""}`}
-        >{label}</button>
+        <button key={key} className={`btn btn--icon ${transformMode === key ? "btn--active" : ""}`}
+          onClick={() => setTransformMode(key)} title={title}
+          style={{ fontSize: 11, fontWeight: 600, fontFamily: "var(--font-mono)" }}>{label}</button>
       ))}
 
-      <div className="separator" />
+      <div className="sep" />
 
-      {/* Snap toggle */}
-      <button onClick={() => setSnapEnabled(!snapEnabled)} title="Toggle Snap (S)"
-        className={`btn btn--icon text-xs ${snapEnabled ? "btn--active" : ""}`}
-        style={{ fontSize: 10 }}
-      >⊞</button>
+      {/* Snap */}
+      <button className={`btn btn--icon ${snapEnabled ? "btn--active" : ""}`}
+        onClick={() => setSnapEnabled(!snapEnabled)} title="Toggle Snap"
+        style={{ fontSize: 11 }}>⊞</button>
 
-      {/* Grid toggle */}
-      <button onClick={() => setShowGrid(!showGrid)} title="Toggle Grid (G)"
-        className={`btn btn--icon text-xs ${showGrid ? "" : ""}`}
-        style={{ fontSize: 10 }}
-      >⊟</button>
+      {/* Grid */}
+      <button className={`btn btn--icon ${!showGrid ? "" : ""}`}
+        onClick={() => setShowGrid(!showGrid)} title="Toggle Grid (G)"
+        style={{ fontSize: 11 }}>⊟</button>
 
-      <div className="flex-1" />
+      <div style={{ flex: 1 }} />
 
-      {/* FPS cam toggle */}
-      <button onClick={() => setFpsCam(!fpsCam)} title="FPS Camera"
-        className={`btn btn--icon text-xs ${fpsCam ? "btn--active" : ""}`}
-      >👁</button>
+      {/* Edit/Play mode */}
+      <button className={`btn btn--icon ${fpsCam ? "btn--active" : ""}`}
+        onClick={() => setFpsCam(!fpsCam)} title="FPS Camera"
+        style={{ fontSize: 11 }}>👁</button>
 
-      {/* Scene presets */}
-      <div className="relative">
-        <button onClick={() => setShowDemo(!showDemo)} className="btn"
-        >Scenes ▾</button>
+      {/* Scene Presets */}
+      <div style={{ position: "relative" }}>
+        <button className="btn" onClick={() => setShowDemo(!showDemo)}>Scenes ▾</button>
         {showDemo && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowDemo(false)} />
-            <div className="absolute top-full right-0 mt-1 z-20 panel p-1 min-w-[160px] shadow-xl">
-              <button onClick={loadHorrorDemo}
-                className="btn w-full text-left px-2.5 py-1.5 rounded"
-              >Silent Hill — Dark Street</button>
+            <div className="panel animate-slide-up" style={{
+              position: "absolute", top: "100%", right: 0, marginTop: 4, zIndex: 20,
+              minWidth: 170, padding: 4
+            }}>
+              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }}
+                onClick={loadHorrorDemo}>Silent Hill &mdash; Dark Street</button>
             </div>
           </>
         )}
       </div>
 
-      <div className="separator" />
+      <div className="sep" />
 
       {/* Play/Stop */}
       <button onClick={() => setMode(mode === "edit" ? "play" : "edit")}
-        className={`btn ${mode === "play" ? "btn--active" : ""}`}
+        className="btn"
         style={{
-          color: mode === "play" ? "var(--success)" : undefined,
-          background: mode === "play" ? "rgba(16,185,129,0.1)" : undefined,
-        }}
-      >{mode === "edit" ? "▶ Play" : "◼ Stop"}</button>
+          color: mode === "play" ? "var(--success)" : "var(--text-dim)",
+          background: mode === "play" ? "rgba(16,185,129,0.08)" : "transparent",
+          border: mode === "play" ? "1px solid rgba(16,185,129,0.15)" : "1px solid transparent",
+          fontWeight: 500
+        }}>
+        {mode === "edit" ? "▶ Play" : "◼ Stop"}
+      </button>
     </div>
   );
 }

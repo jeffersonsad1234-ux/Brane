@@ -4,68 +4,68 @@ import Viewport from "./Viewport";
 import ObjectList from "./ObjectList";
 import Properties from "./Properties";
 import StatusBar from "./StatusBar";
+import BottomPanel from "./BottomPanel";
 import { useEditorStore } from "@store/editorStore";
 
 export default function Editor() {
   const mode = useEditorStore((s) => s.mode);
-  const transformMode = useEditorStore((s) => s.transformMode);
-  const snapEnabled = useEditorStore((s) => s.snapEnabled);
+  const scene = useEditorStore((s) => s.scene);
 
   return (
-    <div className="w-full h-full flex flex-col" style={{ background: "var(--bg)" }}>
+    <div style={{ display: "flex", flexDirection: "column", width: "100%", height: "100%", background: "var(--bg)" }}>
       <Toolbar />
 
-      <div className="flex-1 flex overflow-hidden" style={{ minHeight: 0 }}>
-        {/* Left Panel - Object List */}
-        <aside
-          className="flex-shrink-0 flex flex-col overflow-hidden"
-          style={{ width: "var(--panel-w)", background: "var(--panel)", borderRight: "1px solid var(--border)" }}
-        >
-          <div
-            className="flex items-center gap-2 px-3 py-2 text-[10px] font-semibold tracking-widest uppercase"
-            style={{ color: "rgba(255,255,255,0.25)", borderBottom: "1px solid var(--border)" }}
-          >
-            <span>Objects</span>
-            <span style={{ color: "rgba(255,255,255,0.12)", fontWeight: 400 }}>
-              ({useEditorStore((s) => s.scene.objects.length)})
-            </span>
+      <div style={{ flex: 1, display: "flex", overflow: "hidden", minHeight: 0 }}>
+        {/* Left Panel - Hierarchy */}
+        <aside style={{
+          width: "var(--panel-w)", flexShrink: 0, display: "flex", flexDirection: "column",
+          overflow: "hidden", background: "var(--panel)", borderRight: "1px solid var(--border)"
+        }}>
+          <div className="panel-header">
+            <span>Hierarchy</span>
+            <span className="badge">{scene.objects.length}</span>
           </div>
-          <div className="flex-1 overflow-y-auto">
-            <ObjectList />
+          <div style={{ flex: 1, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            <div style={{ padding: "4px 6px", flexShrink: 0 }}>
+              <input className="input input--string" placeholder="Search objects..." style={{ fontSize: 10, padding: "3px 6px" }} />
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: "2px 0" }}>
+              <ObjectList />
+            </div>
           </div>
         </aside>
 
         {/* Center - Viewport */}
         <Viewport />
 
-        {/* Right Panel - Properties */}
-        <aside
-          className="flex-shrink-0 flex flex-col overflow-hidden"
-          style={{ width: "var(--panel-w)", background: "var(--panel)", borderLeft: "1px solid var(--border)" }}
-        >
-          <div
-            className="flex items-center gap-2 px-3 py-2 text-[10px] font-semibold tracking-widest uppercase"
-            style={{ color: "rgba(255,255,255,0.25)", borderBottom: "1px solid var(--border)" }}
-          >
-            <span>Properties</span>
+        {/* Right Panel - Inspector */}
+        <aside style={{
+          width: "var(--panel-w)", flexShrink: 0, display: "flex", flexDirection: "column",
+          overflow: "hidden", background: "var(--panel)", borderLeft: "1px solid var(--border)"
+        }}>
+          <div className="panel-header">
+            <span>Inspector</span>
           </div>
-          <div className="flex-1 overflow-y-auto">
+          <div style={{ flex: 1, overflowY: "auto" }}>
             <Properties />
           </div>
         </aside>
       </div>
 
+      <BottomPanel />
       <StatusBar />
 
       {mode === "play" && (
-        <div
-          className="absolute inset-0 flex items-center justify-center z-20"
-          style={{ background: "rgba(0,0,0,0.5)", backdropFilter: "blur(4px)" }}
-        >
-          <div className="text-center" style={{ color: "rgba(255,255,255,0.5)" }}>
-            <div className="text-3xl mb-2 opacity-40">▶</div>
-            <div className="text-sm mb-1">Play Mode</div>
-            <div className="text-xs opacity-40">WASD move · Mouse look · Esc to exit</div>
+        <div style={{
+          position: "absolute", inset: 0, zIndex: 20,
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)",
+          WebkitBackdropFilter: "blur(8px)"
+        }}>
+          <div style={{ textAlign: "center", color: "rgba(255,255,255,0.4)", animation: "fadeIn 0.3s ease" }}>
+            <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.3 }}>▶</div>
+            <div style={{ fontSize: 13, marginBottom: 6, fontWeight: 500 }}>Play Mode</div>
+            <div style={{ fontSize: 10, opacity: 0.4 }}>WASD &middot; Mouse &middot; Esc to exit</div>
           </div>
         </div>
       )}

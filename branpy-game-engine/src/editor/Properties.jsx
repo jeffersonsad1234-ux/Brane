@@ -1,115 +1,285 @@
-import React from "react";
+import React, { useState } from "react";
 import { useEditorStore } from "@store/editorStore";
 
 const labels = { cube: "Cube", sphere: "Sphere", plane: "Plane", cylinder: "Cylinder", light: "Light", camera: "Camera" };
 
-function EnvironmentTab() {
+const colorPresets = {
+  cube: ["#6366f1", "#8b5cf6", "#ec4899", "#ef4444", "#f59e0b", "#10b981", "#3b82f6", "#888888"],
+  default: ["#888888", "#ef4444", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6", "#ec4899", "#ffffff"],
+};
+
+function TransformSection({ obj, updateObject }) {
+  const setPos = (i, v) => {
+    const p = [...obj.position]; p[i] = parseFloat(v) || 0;
+    updateObject(obj.id, { position: p });
+  };
+  const setRot = (i, v) => {
+    const r = [...obj.rotation]; r[i] = parseFloat(v) || 0;
+    updateObject(obj.id, { rotation: r });
+  };
+  const setScale = (i, v) => {
+    const s = [...obj.scale]; s[i] = parseFloat(v) || 0.01;
+    updateObject(obj.id, { scale: s });
+  };
+
+  return (
+    <div className="section">
+      <div className="section-header">
+        <span>Transform</span>
+      </div>
+
+      <div style={{ marginBottom: 2 }}>
+        <span className="label">Position</span>
+        <div className="transform-row">
+          {[["X", "var(--danger)"], ["Y", "var(--success)"], ["Z", "var(--info)"]].map(([l, c], i) => (
+            <div key={l} className="transform-field">
+              <span className="transform-label" style={{ color: c }}>{l}</span>
+              <input className="transform-input" type="number" step="0.1"
+                value={(obj.position?.[i] || 0).toFixed(2)}
+                onChange={(e) => setPos(i, e.target.value)} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 2 }}>
+        <span className="label">Rotation</span>
+        <div className="transform-row">
+          {[["X", "var(--danger)"], ["Y", "var(--success)"], ["Z", "var(--info)"]].map(([l, c], i) => (
+            <div key={l} className="transform-field">
+              <span className="transform-label" style={{ color: c }}>{l}</span>
+              <input className="transform-input" type="number" step="5"
+                value={((obj.rotation?.[i] || 0) * 180 / Math.PI).toFixed(0)}
+                onChange={(e) => setRot(i, (parseFloat(e.target.value) || 0) * Math.PI / 180)} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <span className="label">Scale</span>
+        <div className="transform-row">
+          {[["X", "var(--danger)"], ["Y", "var(--success)"], ["Z", "var(--info)"]].map(([l, c], i) => (
+            <div key={l} className="transform-field">
+              <span className="transform-label" style={{ color: c }}>{l}</span>
+              <input className="transform-input" type="number" step="0.1" min="0.01"
+                value={(obj.scale?.[i] || 1).toFixed(2)}
+                onChange={(e) => setScale(i, e.target.value)} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MaterialSection({ obj, updateObject }) {
+  return (
+    <div className="section">
+      <div className="section-header">
+        <span>Material</span>
+      </div>
+
+      <div style={{ marginBottom: 6 }}>
+        <span className="label">Color</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+          <input type="color" value={obj.color || "#888888"}
+            onChange={(e) => updateObject(obj.id, { color: e.target.value })}
+            style={{ width: 28, height: 28, borderRadius: 6, cursor: "pointer", background: "transparent", border: "1px solid var(--border)", padding: 1 }} />
+          <span style={{ fontSize: 10, fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>{obj.color || "#888888"}</span>
+        </div>
+        <div style={{ display: "flex", gap: 4, marginTop: 6, flexWrap: "wrap" }}>
+          {(colorPresets[obj.type] || colorPresets.default).map((c) => (
+            <div key={c} className={`color-preset ${obj.color === c ? "color-preset--active" : ""}`}
+              style={{ background: c }}
+              onClick={() => updateObject(obj.id, { color: c })} />
+          ))}
+        </div>
+      </div>
+
+      <div style={{ marginBottom: 4 }}>
+        <span className="label">Roughness: {obj.roughness?.toFixed(2) ?? "0.60"}</span>
+        <input type="range" min={0} max={1} step={0.05} value={obj.roughness ?? 0.6}
+          onChange={(e) => updateObject(obj.id, { roughness: parseFloat(e.target.value) })}
+          style={{ width: "100%", marginTop: 4 }} />
+      </div>
+
+      <div>
+        <span className="label">Metalness: {obj.metalness?.toFixed(2) ?? "0.10"}</span>
+        <input type="range" min={0} max={1} step={0.05} value={obj.metalness ?? 0.1}
+          onChange={(e) => updateObject(obj.id, { metalness: parseFloat(e.target.value) })}
+          style={{ width: "100%", marginTop: 4 }} />
+      </div>
+
+      {obj.emissive !== undefined && (
+        <div style={{ marginTop: 6 }}>
+          <span className="label">Emissive</span>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+            <input type="color" value={obj.emissive || "#000000"}
+              onChange={(e) => updateObject(obj.id, { emissive: e.target.value })}
+              style={{ width: 28, height: 28, borderRadius: 6, cursor: "pointer", background: "transparent", border: "1px solid var(--border)", padding: 1 }} />
+            <span style={{ fontSize: 10, fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>{obj.emissive || "#000000"}</span>
+          </div>
+          <div style={{ marginTop: 4 }}>
+            <span className="label">Intensity: {obj.emissiveIntensity?.toFixed(1) ?? "0"}</span>
+            <input type="range" min={0} max={5} step={0.1} value={obj.emissiveIntensity || 0}
+              onChange={(e) => updateObject(obj.id, { emissiveIntensity: parseFloat(e.target.value) })}
+              style={{ width: "100%", marginTop: 4 }} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LightSection({ obj, updateObject }) {
+  if (obj.type !== "light") return null;
+  return (
+    <div className="section">
+      <div className="section-header">
+        <span>Light</span>
+      </div>
+
+      <div style={{ marginBottom: 4 }}>
+        <span className="label">Color</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+          <input type="color" value={obj.color || "#ffffff"}
+            onChange={(e) => updateObject(obj.id, { color: e.target.value })}
+            style={{ width: 28, height: 28, borderRadius: 6, cursor: "pointer", background: "transparent", border: "1px solid var(--border)", padding: 1 }} />
+          <span style={{ fontSize: 10, fontFamily: "var(--font-mono)", color: "var(--text-muted)" }}>{obj.color || "#ffffff"}</span>
+        </div>
+      </div>
+
+      <div>
+        <span className="label">Intensity: {obj.intensity?.toFixed(1) ?? "1.0"}</span>
+        <input type="range" min={0} max={5} step={0.1} value={obj.intensity || 1}
+          onChange={(e) => updateObject(obj.id, { intensity: parseFloat(e.target.value) })}
+          style={{ width: "100%", marginTop: 4 }} />
+      </div>
+    </div>
+  );
+}
+
+function CameraSection({ obj, updateObject }) {
+  if (obj.type !== "camera") return null;
+  return (
+    <div className="section">
+      <div className="section-header">
+        <span>Camera</span>
+      </div>
+
+      <div>
+        <span className="label">FOV: {obj.fov || 60}°</span>
+        <input type="range" min={20} max={120} value={obj.fov || 60}
+          onChange={(e) => updateObject(obj.id, { fov: parseInt(e.target.value) })}
+          style={{ width: "100%", marginTop: 4 }} />
+      </div>
+    </div>
+  );
+}
+
+function EnvironmentPanel() {
   const env = useEditorStore((s) => s.scene.environment);
   const updateEnvironment = useEditorStore((s) => s.updateEnvironment);
-
   if (!env) return null;
 
   const toggle = (key) => updateEnvironment({ [key]: !env[key] });
 
+  const fxToggles = [
+    { key: "bloom", label: "Bloom" },
+    { key: "ssao", label: "SSAO" },
+    { key: "colorGrading", label: "Color Grading" },
+    { key: "vignette", label: "Vignette" },
+    { key: "volumetricFog", label: "Volumetric Fog" },
+    { key: "rain", label: "Rain" },
+    { key: "wetGround", label: "Wet Ground" },
+    { key: "flashlight", label: "Flashlight" },
+    { key: "flickeringLights", label: "Flicker Lights" },
+    { key: "ambientSound", label: "Ambient Sound" },
+    { key: "shadows", label: "Shadows", negate: true },
+  ];
+
   return (
-    <div className="p-3 space-y-2.5">
-      <div className="text-xs font-medium text-[rgba(255,255,255,0.5)] uppercase tracking-wider mb-3">Renderer</div>
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={env.bloom} onChange={() => toggle("bloom")} className="accent-[#6366f1]" />
-        <span className="text-xs text-[rgba(255,255,255,0.45)]">Bloom</span>
-      </label>
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={env.ssao} onChange={() => toggle("ssao")} className="accent-[#6366f1]" />
-        <span className="text-xs text-[rgba(255,255,255,0.45)]">SSAO</span>
-      </label>
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={env.colorGrading} onChange={() => toggle("colorGrading")} className="accent-[#6366f1]" />
-        <span className="text-xs text-[rgba(255,255,255,0.45)]">Color Grading</span>
-      </label>
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={env.vignette !== false} onChange={() => toggle("vignette")} className="accent-[#6366f1]" />
-        <span className="text-xs text-[rgba(255,255,255,0.45)]">Vignette</span>
-      </label>
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={env.volumetricFog} onChange={() => toggle("volumetricFog")} className="accent-[#6366f1]" />
-        <span className="text-xs text-[rgba(255,255,255,0.45)]">Volumetric Fog</span>
-      </label>
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={env.rain} onChange={() => toggle("rain")} className="accent-[#6366f1]" />
-        <span className="text-xs text-[rgba(255,255,255,0.45)]">Rain</span>
-      </label>
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={env.wetGround} onChange={() => toggle("wetGround")} className="accent-[#6366f1]" />
-        <span className="text-xs text-[rgba(255,255,255,0.45)]">Wet Ground</span>
-      </label>
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={env.flashlight} onChange={() => toggle("flashlight")} className="accent-[#6366f1]" />
-        <span className="text-xs text-[rgba(255,255,255,0.45)]">Flashlight</span>
-      </label>
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={env.flickeringLights} onChange={() => toggle("flickeringLights")} className="accent-[#6366f1]" />
-        <span className="text-xs text-[rgba(255,255,255,0.45)]">Flickering Lights</span>
-      </label>
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={env.ambientSound} onChange={() => toggle("ambientSound")} className="accent-[#6366f1]" />
-        <span className="text-xs text-[rgba(255,255,255,0.45)]">Ambient Sound</span>
-      </label>
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" checked={env.shadows !== false} onChange={() => toggle("shadows")} className="accent-[#6366f1]" />
-        <span className="text-xs text-[rgba(255,255,255,0.45)]">Shadows</span>
-      </label>
-
-      <div className="text-xs text-[rgba(255,255,255,0.3)] mt-3 mb-1">Bloom Intensity: {env.bloomIntensity?.toFixed(2)}</div>
-      <input type="range" min={0} max={2} step={0.05} value={env.bloomIntensity ?? 0.5}
-        onChange={(e) => updateEnvironment({ bloomIntensity: parseFloat(e.target.value) })}
-        className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[rgba(255,255,255,0.06)]"
-      />
-
-      <div className="text-xs text-[rgba(255,255,255,0.3)] mb-1">Exposure (ACES): {env.exposure?.toFixed(2)}</div>
-      <input type="range" min={0.1} max={3} step={0.05} value={env.exposure ?? 0.7}
-        onChange={(e) => updateEnvironment({ exposure: parseFloat(e.target.value) })}
-        className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[rgba(255,255,255,0.06)]"
-      />
-
-      <div className="text-xs text-[rgba(255,255,255,0.3)] mb-1">Fog Distance: {env.fog?.far ?? 60}</div>
-      <input type="range" min={5} max={100} step={1} value={env.fog?.far ?? 60}
-        onChange={(e) => updateEnvironment({ fog: { ...env.fog, far: parseInt(e.target.value) } })}
-        className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[rgba(255,255,255,0.06)]"
-      />
-
-      <div className="text-xs font-medium text-[rgba(255,255,255,0.5)] uppercase tracking-wider mt-4 mb-2">Quality</div>
-
-      <div className="flex gap-1">
-        {[
-          { key: "performance", label: "Low" },
-          { key: "balanced", label: "Med" },
-          { key: "ultra", label: "Ultra" },
-        ].map(({ key, label }) => (
-          <button key={key} onClick={() => updateEnvironment({
-            qualityPreset: key,
-            pixelRatio: key === "performance" ? 0.75 : key === "ultra" ? 2 : 1,
-            shadowQuality: key === "performance" ? "low" : key === "balanced" ? "medium" : "high",
-          })}
-            className={`flex-1 py-1 text-xs rounded transition-colors ${
-              env.qualityPreset === key ? "bg-[#6366f1] text-white" : "bg-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.4)] hover:bg-[rgba(255,255,255,0.08)]"
-            }`}
-          >{label}</button>
-        ))}
+    <div>
+      <div className="section">
+        <div className="section-header">
+          <span>Post-Processing</span>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4px 8px" }}>
+          {fxToggles.map(({ key, label, negate }) => (
+            <label key={key} style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer", padding: "2px 0" }}>
+              <div className="toggle">
+                <input type="checkbox" checked={negate ? env[key] !== false : !!env[key]}
+                  onChange={() => toggle(key)} />
+                <div className="toggle-track" />
+                <div className="toggle-thumb" />
+              </div>
+              <span style={{ fontSize: 10, color: "var(--text-dim)" }}>{label}</span>
+            </label>
+          ))}
+        </div>
       </div>
 
-      <div className="text-[10px] text-[rgba(255,255,255,0.2)] mt-1">
-        Shadows: {env.shadowQuality} · Pixel Ratio: {env.pixelRatio}x · LOD: {env.useLOD ? "on" : "off"}
+      <div className="section">
+        <div className="section-header">
+          <span>Bloom</span>
+        </div>
+        <div style={{ marginBottom: 4 }}>
+          <span className="label">Intensity: {env.bloomIntensity?.toFixed(2) ?? "0.50"}</span>
+          <input type="range" min={0} max={2} step={0.05} value={env.bloomIntensity ?? 0.5}
+            onChange={(e) => updateEnvironment({ bloomIntensity: parseFloat(e.target.value) })}
+            style={{ width: "100%", marginTop: 4 }} />
+        </div>
+        <div>
+          <span className="label">Threshold: {env.bloomThreshold?.toFixed(2) ?? "0.20"}</span>
+          <input type="range" min={0} max={1} step={0.05} value={env.bloomThreshold ?? 0.2}
+            onChange={(e) => updateEnvironment({ bloomThreshold: parseFloat(e.target.value) })}
+            style={{ width: "100%", marginTop: 4 }} />
+        </div>
+      </div>
+
+      <div className="section">
+        <div className="section-header">
+          <span>Camera</span>
+        </div>
+        <div style={{ marginBottom: 4 }}>
+          <span className="label">Exposure: {env.exposure?.toFixed(2) ?? "1.20"}</span>
+          <input type="range" min={0.1} max={3} step={0.05} value={env.exposure ?? 1.2}
+            onChange={(e) => updateEnvironment({ exposure: parseFloat(e.target.value) })}
+            style={{ width: "100%", marginTop: 4 }} />
+        </div>
+        <div>
+          <span className="label">Fog Distance: {env.fog?.far ?? 60}m</span>
+          <input type="range" min={5} max={100} step={1} value={env.fog?.far ?? 60}
+            onChange={(e) => updateEnvironment({ fog: { ...env.fog, far: parseInt(e.target.value) } })}
+            style={{ width: "100%", marginTop: 4 }} />
+        </div>
+      </div>
+
+      <div className="section">
+        <div className="section-header">
+          <span>Quality</span>
+        </div>
+        <div style={{ display: "flex", gap: 4 }}>
+          {[
+            { key: "performance", label: "Low" },
+            { key: "balanced", label: "Med" },
+            { key: "ultra", label: "Ultra" },
+          ].map(({ key, label }) => (
+            <button key={key} onClick={() => updateEnvironment({
+              qualityPreset: key,
+              pixelRatio: key === "performance" ? 0.75 : key === "ultra" ? 2 : 1,
+              shadowQuality: key === "performance" ? "low" : key === "balanced" ? "medium" : "high",
+            })}
+              className={`btn ${env.qualityPreset === key ? "btn--active" : ""}`}
+              style={{ flex: 1, justifyContent: "center", fontSize: 10 }}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <div style={{ fontSize: 9, color: "var(--text-faint)", marginTop: 6, fontFamily: "var(--font-mono)" }}>
+          Shadows: {env.shadowQuality} &middot; Pixel Ratio: {env.pixelRatio}x
+        </div>
       </div>
     </div>
   );
@@ -121,109 +291,31 @@ export default function Properties() {
   const updateObject = useEditorStore((s) => s.updateObject);
 
   if (!obj) {
-    return <EnvironmentTab />;
+    return <EnvironmentPanel />;
   }
 
-  const setPos = (i, v) => {
-    const p = [...obj.position];
-    p[i] = parseFloat(v) || 0;
-    updateObject(obj.id, { position: p });
-  };
-
-  const setRot = (i, v) => {
-    const r = [...obj.rotation];
-    r[i] = parseFloat(v) || 0;
-    updateObject(obj.id, { rotation: r });
-  };
-
-  const setScale = (i, v) => {
-    const s = [...obj.scale];
-    s[i] = parseFloat(v) || 0.01;
-    updateObject(obj.id, { scale: s });
-  };
-
   return (
-    <div className="p-3 space-y-3">
-      <div className="text-xs font-medium text-[rgba(255,255,255,0.5)] uppercase tracking-wider">{labels[obj.type] || obj.type}</div>
-
-      <div>
-        <div className="text-xs text-[rgba(255,255,255,0.3)] mb-1">Name</div>
-        <input value={obj.name} onChange={(e) => updateObject(obj.id, { name: e.target.value })}
-          className="w-full bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)] rounded px-2 py-1 text-xs text-[rgba(255,255,255,0.65)] outline-none"
-        />
-      </div>
-
-      <div>
-        <div className="text-xs text-[rgba(255,255,255,0.3)] mb-1">Position</div>
-        <div className="flex gap-1">
-          {["X", "Y", "Z"].map((l, i) => (
-            <div key={l} className="flex-1 flex items-center gap-1 bg-[rgba(255,255,255,0.03)] rounded px-1.5 py-1">
-              <span className="text-xs text-[rgba(255,255,255,0.2)]">{l}</span>
-              <input value={(obj.position?.[i] || 0).toFixed(2)} onChange={(e) => setPos(i, e.target.value)}
-                className="w-full bg-transparent text-xs text-[rgba(255,255,255,0.6)] outline-none text-right font-mono" type="number" step="0.1"
-              />
-            </div>
-          ))}
+    <div>
+      {/* Header */}
+      <div className="section" style={{ borderBottom: "1px solid var(--border)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span style={{ fontSize: 12, opacity: 0.5 }}>
+            {{ cube: "◇", sphere: "●", plane: "▭", cylinder: "⬢", light: "☀", camera: "◉" }[obj.type] || "?"}
+          </span>
+          <input className="input input--string"
+            value={obj.name}
+            onChange={(e) => updateObject(obj.id, { name: e.target.value })}
+            style={{ flex: 1, fontSize: 11, fontWeight: 500, fontFamily: "var(--font)" }} />
+        </div>
+        <div style={{ fontSize: 9, color: "var(--text-faint)", marginTop: 4 }}>
+          {labels[obj.type] || obj.type} &middot; ID: {obj.id.slice(0, 8)}
         </div>
       </div>
 
-      <div>
-        <div className="text-xs text-[rgba(255,255,255,0.3)] mb-1">Rotation</div>
-        <div className="flex gap-1">
-          {["X", "Y", "Z"].map((l, i) => (
-            <div key={l} className="flex-1 flex items-center gap-1 bg-[rgba(255,255,255,0.03)] rounded px-1.5 py-1">
-              <span className="text-xs text-[rgba(255,255,255,0.2)]">{l}</span>
-              <input value={((obj.rotation?.[i] || 0) * 180 / Math.PI).toFixed(0)} onChange={(e) => setRot(i, (parseFloat(e.target.value) || 0) * Math.PI / 180)}
-                className="w-full bg-transparent text-xs text-[rgba(255,255,255,0.6)] outline-none text-right font-mono" type="number" step="5"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <div className="text-xs text-[rgba(255,255,255,0.3)] mb-1">Scale</div>
-        <div className="flex gap-1">
-          {["X", "Y", "Z"].map((l, i) => (
-            <div key={l} className="flex-1 flex items-center gap-1 bg-[rgba(255,255,255,0.03)] rounded px-1.5 py-1">
-              <span className="text-xs text-[rgba(255,255,255,0.2)]">{l}</span>
-              <input value={(obj.scale?.[i] || 1).toFixed(2)} onChange={(e) => setScale(i, e.target.value)}
-                className="w-full bg-transparent text-xs text-[rgba(255,255,255,0.6)] outline-none text-right font-mono" type="number" step="0.1" min="0.01"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <div className="text-xs text-[rgba(255,255,255,0.3)] mb-1">Color</div>
-        <div className="flex items-center gap-2">
-          <input value={obj.color || "#888888"} onChange={(e) => updateObject(obj.id, { color: e.target.value })}
-            type="color" className="w-8 h-8 rounded cursor-pointer bg-transparent border-0"
-          />
-          <span className="text-xs font-mono text-[rgba(255,255,255,0.4)]">{obj.color || "#888888"}</span>
-        </div>
-      </div>
-
-      {obj.type === "light" && (
-        <div>
-          <div className="text-xs text-[rgba(255,255,255,0.3)] mb-1">Intensity: {obj.intensity?.toFixed(1)}</div>
-          <input type="range" min={0} max={3} step={0.1} value={obj.intensity || 1}
-            onChange={(e) => updateObject(obj.id, { intensity: parseFloat(e.target.value) })}
-            className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[rgba(255,255,255,0.06)]"
-          />
-        </div>
-      )}
-
-      {obj.type === "camera" && (
-        <div>
-          <div className="text-xs text-[rgba(255,255,255,0.3)] mb-1">FOV: {obj.fov || 60}°</div>
-          <input type="range" min={20} max={120} value={obj.fov || 60}
-            onChange={(e) => updateObject(obj.id, { fov: parseInt(e.target.value) })}
-            className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[rgba(255,255,255,0.06)]"
-          />
-        </div>
-      )}
+      <TransformSection obj={obj} updateObject={updateObject} />
+      <MaterialSection obj={obj} updateObject={updateObject} />
+      <LightSection obj={obj} updateObject={updateObject} />
+      <CameraSection obj={obj} updateObject={updateObject} />
     </div>
   );
 }

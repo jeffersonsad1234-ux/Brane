@@ -1,4 +1,4 @@
-import React, { useRef, useMemo, Suspense, lazy, useEffect } from "react";
+import React, { useRef, useMemo, Suspense, lazy, useEffect, useState } from "react";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { OrbitControls, Grid, TransformControls, ContactShadows, Html, SoftShadows, PointerLockControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -31,10 +31,8 @@ function SceneObject({ obj }) {
         <pointLight
           intensity={obj.intensity || 1}
           color={obj.color || "#ffffff"}
-          distance={30}
-          decay={1}
-          castShadow
-          shadow-mapSize={[256, 256]}
+          distance={30} decay={1}
+          castShadow shadow-mapSize={[256, 256]}
         />
         {selected && (
           <Html center>
@@ -71,8 +69,7 @@ function SceneObject({ obj }) {
         rotation={rot}
         scale={scl}
         onClick={(e) => { e.stopPropagation(); setSelected(obj.id); }}
-        castShadow
-        receiveShadow
+        castShadow receiveShadow
         visible={obj.visible !== false}
         frustumCulled
       >
@@ -82,13 +79,14 @@ function SceneObject({ obj }) {
         {obj.type === "cylinder" && <cylinderGeometry args={args} />}
         <PBRMaterial obj={obj} />
       </mesh>
+      {/* Selection outline glow */}
       {selected && (
         <mesh position={pos} rotation={rot} scale={scl}>
-          {obj.type === "cube" && <boxGeometry args={[args[0] * 1.04, args[1] * 1.04, args[2] * 1.04]} />}
-          {obj.type === "sphere" && <sphereGeometry args={[args[0] * 1.06, args[1], args[2]]} />}
-          {obj.type === "plane" && <planeGeometry args={[args[0] * 1.06, args[1] * 1.06]} />}
-          {obj.type === "cylinder" && <cylinderGeometry args={[args[0] * 1.06, args[1] * 1.06, args[2], args[3]]} />}
-          <meshBasicMaterial color="#6366f1" wireframe transparent opacity={0.25} depthWrite={false} />
+          {obj.type === "cube" && <boxGeometry args={[args[0] * 1.05, args[1] * 1.05, args[2] * 1.05]} />}
+          {obj.type === "sphere" && <sphereGeometry args={[args[0] * 1.07, args[1], args[2]]} />}
+          {obj.type === "plane" && <planeGeometry args={[args[0] * 1.07, args[1] * 1.07]} />}
+          {obj.type === "cylinder" && <cylinderGeometry args={[args[0] * 1.07, args[1] * 1.07, args[2], args[3]]} />}
+          <meshBasicMaterial color="#818cf8" wireframe transparent opacity={0.3} depthWrite={false} />
         </mesh>
       )}
     </group>
@@ -107,7 +105,6 @@ function TransformControlsWrapper() {
   const mode = useEditorStore((s) => s.transformMode || "translate");
   const snapEnabled = useEditorStore((s) => s.snapEnabled);
   const snapSize = useEditorStore((s) => s.snapSize);
-  const controlRef = useRef();
 
   if (!obj || obj.type === "light" || obj.type === "camera") return null;
 
@@ -118,15 +115,12 @@ function TransformControlsWrapper() {
 
   return (
     <TransformControls
-      ref={controlRef}
       mode={mode}
       object={null}
-      showX
-      showY
-      showZ
+      showX showY showZ
       snap={snapEnabled ? snap : null}
       space={mode === "scale" ? "local" : "world"}
-      size={0.5}
+      size={0.6}
       onChange={(e) => {
         if (e?.target?.object) {
           const m = e.target.object;
@@ -145,17 +139,11 @@ function FlickeringLightsWrapper() {
   const env = useEditorStore((s) => s.scene.environment);
   const objects = useEditorStore((s) => s.scene.objects);
   if (!env?.flickeringLights) return null;
-
   return objects
     .filter((o) => o.type === "light" && o.name?.toLowerCase().includes("flicker"))
     .map((o) => (
-      <FlickeringLight
-        key={o.id}
-        position={o.position || [0, 0, 0]}
-        color={o.color || "#ffaa33"}
-        baseIntensity={o.intensity || 0.8}
-        radius={12}
-      />
+      <FlickeringLight key={o.id} position={o.position || [0, 0, 0]}
+        color={o.color || "#ffaa33"} baseIntensity={o.intensity || 0.8} radius={12} />
     ));
 }
 
@@ -180,15 +168,16 @@ function FlashlightWrapper() {
 function VolumetricFogLayer() {
   const env = useEditorStore((s) => s.scene.environment);
   if (!env?.volumetricFog) return null;
+  const fogColor = env.fog?.color || "#0a0a14";
   return (
     <>
       <mesh position={[0, 0.5, -15]} rotation={[0, 0, 0]}>
         <planeGeometry args={[40, 15]} />
-        <meshBasicMaterial color={env.fog?.color || "#0a0a14"} transparent opacity={0.5} depthWrite={false} />
+        <meshBasicMaterial color={fogColor} transparent opacity={0.45} depthWrite={false} />
       </mesh>
       <mesh position={[0, -0.3, -8]} rotation={[0, 0, 0]}>
         <planeGeometry args={[25, 4]} />
-        <meshBasicMaterial color="#111122" transparent opacity={0.25} depthWrite={false} />
+        <meshBasicMaterial color="#111122" transparent opacity={0.2} depthWrite={false} />
       </mesh>
     </>
   );
@@ -204,25 +193,42 @@ function FpsCam() {
   }, [fpsCam]);
 
   if (!fpsCam) return null;
-
-  return (
-    <PointerLockControls selector="#viewport-canvas" />
-  );
+  return <PointerLockControls selector="#viewport-canvas" />;
 }
 
 export default function Viewport() {
   const scene = useEditorStore((s) => s.scene);
   const setSelected = useEditorStore((s) => s.setSelected);
-  const mode = useEditorStore((s) => s.mode);
   const fpsCam = useEditorStore((s) => s.fpsCam);
   const showGrid = useEditorStore((s) => s.showGrid);
   const env = scene.environment || {};
+  const objects = scene.objects;
 
   const shadowRes = env.shadowQuality === "low" ? 256 : env.shadowQuality === "medium" ? 512 : 1024;
   const pixelRatio = env.pixelRatio ?? (env.qualityPreset === "performance" ? 0.75 : env.qualityPreset === "ultra" ? 1.5 : 1);
 
+  const [fps, setFps] = useState(0);
+  const fpsState = useRef({ frames: 0, last: performance.now() });
+
+  useEffect(() => {
+    let raf;
+    const tick = () => {
+      const s = fpsState.current;
+      s.frames++;
+      const now = performance.now();
+      if (now - s.last >= 1000) {
+        setFps(s.frames);
+        s.frames = 0;
+        s.last = now;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   return (
-    <div className="canvas-container" id="viewport-canvas">
+    <div className="viewport" id="viewport-canvas">
       <Canvas
         shadows={env.shadows !== false}
         camera={{ position: [5, 4, 8], fov: 50, near: 0.1, far: 100 }}
@@ -272,7 +278,7 @@ export default function Viewport() {
         )}
 
         {env.shadows !== false && (
-          <ContactShadows position={[0, -0.49, 0]} opacity={0.3} scale={25} blur={3.5} far={6} color="#000022" />
+          <ContactShadows position={[0, -0.49, 0]} opacity={0.35} scale={25} blur={3.5} far={6} color="#000022" />
         )}
 
         <Effects />
@@ -282,12 +288,41 @@ export default function Viewport() {
           <OrbitControls
             makeDefault
             enableDamping
-            dampingFactor={0.1}
+            dampingFactor={0.08}
             minDistance={1}
             maxDistance={50}
+            rotateSpeed={0.6}
+            zoomSpeed={0.8}
+            target={[0, 0.5, 0]}
           />
         )}
       </Canvas>
+
+      {/* Viewport Toolbar Overlay */}
+      <div className="viewport-toolbar">
+        <button className="btn btn--sm" style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.06)" }}
+          title="Perspective">3D</button>
+        <button className="btn btn--sm" style={{ opacity: 0.5 }} title="Top">Top</button>
+        <button className="btn btn--sm" style={{ opacity: 0.5 }} title="Front">Front</button>
+        <button className="btn btn--sm" style={{ opacity: 0.5 }} title="Right">Right</button>
+        <div className="sep" style={{ background: "rgba(255,255,255,0.08)" }} />
+        <span style={{ fontSize: 9, color: "rgba(255,255,255,0.15)", marginLeft: 4 }}>{fpsCam ? "FPS" : "Orbit"}</span>
+      </div>
+
+      {/* Viewport Info Overlay */}
+      <div className="viewport-info">
+        <span>{fps} FPS</span>
+        <span>{objects.length} objects</span>
+        <span>ACES</span>
+      </div>
+
+      {/* Empty state hint */}
+      {objects.length === 0 && (
+        <div className="viewport-center-info">
+          <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.2 }}>◇</div>
+          <div>Empty scene — add objects from toolbar</div>
+        </div>
+      )}
     </div>
   );
 }
