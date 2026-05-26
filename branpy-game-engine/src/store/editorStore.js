@@ -43,15 +43,39 @@ export const useEditorStore = create((set, get) => ({
   isPlaying: false,
   isLoading: false,
   importQueue: [],
+  transformMode: "translate",
+  snapEnabled: false,
+  snapSize: 0.5,
+  fpsCam: false,
+  showGrid: true,
 
   setMode: (mode) => set({ mode }),
   setSelected: (id) => set({ selectedId: id }),
   setIsPlaying: (v) => set({ isPlaying: v }),
   setIsLoading: (v) => set({ isLoading: v }),
+  setTransformMode: (mode) => set({ transformMode: mode }),
+  setSnapEnabled: (v) => set({ snapEnabled: v }),
+  setSnapSize: (v) => set({ snapSize: v }),
+  setFpsCam: (v) => set({ fpsCam: v }),
+  setShowGrid: (v) => set({ showGrid: v }),
 
   getSelected: () => {
     const { scene, selectedId } = get();
     return scene.objects.find((o) => o.id === selectedId) || null;
+  },
+
+  duplicateObject: (id) => {
+    const { scene } = get();
+    const obj = scene.objects.find((o) => o.id === id);
+    if (!obj) return null;
+    const dup = {
+      ...JSON.parse(JSON.stringify(obj)),
+      id: genId(),
+      name: obj.name + " (copy)",
+      position: obj.position.map((v, i) => v + (i === 0 ? 0.5 : i === 2 ? 0.5 : 0)),
+    };
+    set((s) => ({ scene: { ...s.scene, objects: [...s.scene.objects, dup] }, selectedId: dup.id }));
+    return dup.id;
   },
 
   addObject: (type) => {

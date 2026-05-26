@@ -1,6 +1,6 @@
-import React, { useRef, useMemo, Suspense, lazy } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Grid, TransformControls, ContactShadows, Html, SoftShadows } from "@react-three/drei";
+import React, { useRef, useMemo, Suspense, lazy, useEffect } from "react";
+import { Canvas, useThree, useFrame } from "@react-three/fiber";
+import { OrbitControls, Grid, TransformControls, ContactShadows, Html, SoftShadows, PointerLockControls } from "@react-three/drei";
 import * as THREE from "three";
 import { useEditorStore } from "@store/editorStore";
 import Effects from "./Effects";
@@ -14,7 +14,6 @@ const Rain = lazy(() => import("./Rain"));
 
 function SceneObject({ obj }) {
   const selected = useEditorStore((s) => s.selectedId === obj.id);
-  const updateObject = useEditorStore((s) => s.updateObject);
   const setSelected = useEditorStore((s) => s.setSelected);
   const meshRef = useRef();
 
@@ -65,23 +64,34 @@ function SceneObject({ obj }) {
   const args = geo[obj.type] || geo.cube;
 
   return (
-    <mesh
-      ref={meshRef}
-      position={pos}
-      rotation={rot}
-      scale={scl}
-      onClick={(e) => { e.stopPropagation(); setSelected(obj.id); }}
-      castShadow
-      receiveShadow
-      visible={obj.visible !== false}
-      frustumCulled
-    >
-      {obj.type === "cube" && <boxGeometry args={args} />}
-      {obj.type === "sphere" && <sphereGeometry args={args} />}
-      {obj.type === "plane" && <planeGeometry args={args} />}
-      {obj.type === "cylinder" && <cylinderGeometry args={args} />}
-      <PBRMaterial obj={obj} />
-    </mesh>
+    <group>
+      <mesh
+        ref={meshRef}
+        position={pos}
+        rotation={rot}
+        scale={scl}
+        onClick={(e) => { e.stopPropagation(); setSelected(obj.id); }}
+        castShadow
+        receiveShadow
+        visible={obj.visible !== false}
+        frustumCulled
+      >
+        {obj.type === "cube" && <boxGeometry args={args} />}
+        {obj.type === "sphere" && <sphereGeometry args={args} />}
+        {obj.type === "plane" && <planeGeometry args={args} />}
+        {obj.type === "cylinder" && <cylinderGeometry args={args} />}
+        <PBRMaterial obj={obj} />
+      </mesh>
+      {selected && (
+        <mesh position={pos} rotation={rot} scale={scl}>
+          {obj.type === "cube" && <boxGeometry args={[args[0] * 1.04, args[1] * 1.04, args[2] * 1.04]} />}
+          {obj.type === "sphere" && <sphereGeometry args={[args[0] * 1.06, args[1], args[2]]} />}
+          {obj.type === "plane" && <planeGeometry args={[args[0] * 1.06, args[1] * 1.06]} />}
+          {obj.type === "cylinder" && <cylinderGeometry args={[args[0] * 1.06, args[1] * 1.06, args[2], args[3]]} />}
+          <meshBasicMaterial color="#6366f1" wireframe transparent opacity={0.25} depthWrite={false} />
+        </mesh>
+      )}
+    </group>
   );
 }
 
@@ -95,14 +105,28 @@ function TransformControlsWrapper() {
   const updateObject = useEditorStore((s) => s.updateObject);
   const obj = useEditorStore((s) => s.scene.objects.find((o) => o.id === s.selectedId));
   const mode = useEditorStore((s) => s.transformMode || "translate");
+  const snapEnabled = useEditorStore((s) => s.snapEnabled);
+  const snapSize = useEditorStore((s) => s.snapSize);
+  const controlRef = useRef();
 
   if (!obj || obj.type === "light" || obj.type === "camera") return null;
 
+  const isRotate = mode === "rotate";
+  const snap = isRotate
+    ? [THREE.MathUtils.degToRad(snapSize * 45)]
+    : [snapSize, snapSize, snapSize];
+
   return (
     <TransformControls
+      ref={controlRef}
       mode={mode}
       object={null}
-      onObjectChange={() => {}}
+      showX
+      showY
+      showZ
+      snap={snapEnabled ? snap : null}
+      space={mode === "scale" ? "local" : "world"}
+      size={0.5}
       onChange={(e) => {
         if (e?.target?.object) {
           const m = e.target.object;
@@ -170,18 +194,35 @@ function VolumetricFogLayer() {
   );
 }
 
+function FpsCam() {
+  const fpsCam = useEditorStore((s) => s.fpsCam);
+  const { camera } = useThree();
+
+  useEffect(() => {
+    if (!fpsCam) return;
+    camera.position.set(0, 1.6, 5);
+  }, [fpsCam]);
+
+  if (!fpsCam) return null;
+
+  return (
+    <PointerLockControls selector="#viewport-canvas" />
+  );
+}
+
 export default function Viewport() {
   const scene = useEditorStore((s) => s.scene);
   const setSelected = useEditorStore((s) => s.setSelected);
   const mode = useEditorStore((s) => s.mode);
+  const fpsCam = useEditorStore((s) => s.fpsCam);
+  const showGrid = useEditorStore((s) => s.showGrid);
   const env = scene.environment || {};
 
   const shadowRes = env.shadowQuality === "low" ? 256 : env.shadowQuality === "medium" ? 512 : 1024;
   const pixelRatio = env.pixelRatio ?? (env.qualityPreset === "performance" ? 0.75 : env.qualityPreset === "ultra" ? 1.5 : 1);
-  const maxAnisotropy = env.qualityPreset === "performance" ? 1 : env.qualityPreset === "ultra" ? 4 : 2;
 
   return (
-    <div className="flex-1 relative">
+    <div className="canvas-container" id="viewport-canvas">
       <Canvas
         shadows={env.shadows !== false}
         camera={{ position: [5, 4, 8], fov: 50, near: 0.1, far: 100 }}
@@ -216,44 +257,37 @@ export default function Viewport() {
 
         <VolumetricFogLayer />
 
-        <Grid
-          position={[0, -0.01, 0]}
-          args={[30, 30]}
-          cellSize={1}
-          cellThickness={0.6}
-          cellColor="rgba(255,255,255,0.04)"
-          sectionSize={5}
-          sectionThickness={1}
-          sectionColor="rgba(255,255,255,0.08)"
-          fadeDistance={40}
-        />
+        {showGrid && (
+          <Grid
+            position={[0, -0.01, 0]}
+            args={[30, 30]}
+            cellSize={1}
+            cellThickness={0.6}
+            cellColor="rgba(255,255,255,0.04)"
+            sectionSize={5}
+            sectionThickness={1}
+            sectionColor="rgba(255,255,255,0.08)"
+            fadeDistance={40}
+          />
+        )}
 
         {env.shadows !== false && (
           <ContactShadows position={[0, -0.49, 0]} opacity={0.3} scale={25} blur={3.5} far={6} color="#000022" />
         )}
 
         <Effects />
-
         <SoundSystem />
 
-        <OrbitControls
-          makeDefault
-          enableDamping
-          dampingFactor={0.1}
-          minDistance={1}
-          maxDistance={50}
-        />
+        {fpsCam ? <FpsCam /> : (
+          <OrbitControls
+            makeDefault
+            enableDamping
+            dampingFactor={0.1}
+            minDistance={1}
+            maxDistance={50}
+          />
+        )}
       </Canvas>
-
-      {mode === "play" && (
-        <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10">
-          <div className="text-center">
-            <div className="text-2xl mb-2 opacity-30">🎮</div>
-            <div className="text-sm opacity-40">Play mode · WASD move · Mouse look</div>
-            <div className="text-xs opacity-30 mt-1">Press Esc to exit</div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
