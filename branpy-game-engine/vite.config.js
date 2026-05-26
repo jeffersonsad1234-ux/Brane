@@ -13,6 +13,7 @@ export default defineConfig({
       "@store": path.resolve(__dirname, "src/store"),
       "@components": path.resolve(__dirname, "src/components"),
       "@assets": path.resolve(__dirname, "assets"),
+      "@game": path.resolve(__dirname, "src/game"),
     },
   },
   build: {
