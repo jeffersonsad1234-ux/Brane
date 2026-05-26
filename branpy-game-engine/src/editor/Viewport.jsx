@@ -246,9 +246,31 @@ export default function Viewport() {
   }, []);
 
   const [orbitTarget] = useState(() => new THREE.Vector3(0, 0.5, 0));
+  const [collectedCount, setCollectedCount] = useState(0);
+  const totalCollectibles = 5;
 
   return (
     <div className="viewport" id="viewport-canvas">
+      {mode === "play" && (
+        <div style={{
+          position: "absolute", top: 60, left: "50%", transform: "translateX(-50%)",
+          zIndex: 200, pointerEvents: "none", fontFamily: "'Courier New', monospace",
+          textAlign: "center",
+        }}>
+          {collectedCount >= totalCollectibles ? (
+            <div style={{ color: "#00ff88", fontSize: 16, fontWeight: "bold", textShadow: "0 0 20px rgba(0,255,136,0.5)" }}>
+              AREA SINCRONIZADA
+            </div>
+          ) : (
+            <>
+              <div style={{ color: "rgba(0,200,255,0.7)", fontSize: 12, letterSpacing: "0.05em" }}>SINCRONIZE A AREA</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+                Colete artefatos de dados: {collectedCount}/{totalCollectibles}
+              </div>
+            </>
+          )}
+        </div>
+      )}
       <Canvas shadows={env.shadows !== false}
         camera={{ position: [5, 4, 8], fov: 50, near: 0.1, far: 100 }}
         gl={{ antialias: env.qualityPreset !== "performance", toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: env.exposure ?? 0.7, outputColorSpace: THREE.SRGBColorSpace }}
@@ -260,7 +282,7 @@ export default function Viewport() {
         <ProceduralSkybox />
 
         {mode === "play" ? (
-          <PlayMode />
+          <PlayMode onCollect={() => setCollectedCount((c) => c + 1)} />
         ) : (
           <>
             {env.shadows !== false && <SoftShadows samples={env.shadowQuality === "low" ? 4 : 6} />}

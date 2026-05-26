@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useMemo, useCallback } from "react";
+import React, { useRef, useEffect, useMemo, useCallback } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Physics, RigidBody, CapsuleCollider } from "@react-three/rapier";
 import { useEditorStore } from "@store/editorStore";
@@ -200,38 +200,9 @@ function CollectibleItem({ data, playerPosRef, onCollect }) {
   );
 }
 
-function CollectionUI({ collected, total }) {
-  if (collected >= total) {
-    return (
-      <div style={{
-        position: "fixed", top: 60, left: "50%", transform: "translateX(-50%)",
-        color: "#00ff88", fontSize: 16, fontWeight: "bold",
-        textShadow: "0 0 20px rgba(0,255,136,0.5)",
-        fontFamily: "'Courier New', monospace", zIndex: 200,
-        pointerEvents: "none",
-      }}>
-        AREA SINCRONIZADA
-      </div>
-    );
-  }
-  return (
-    <div style={{
-      position: "fixed", top: 60, left: "50%", transform: "translateX(-50%)",
-      textAlign: "center", zIndex: 200, pointerEvents: "none",
-      fontFamily: "'Courier New', monospace",
-    }}>
-      <div style={{ color: "rgba(0,200,255,0.7)", fontSize: 12, letterSpacing: "0.05em" }}>SINCRONIZE A AREA</div>
-      <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
-        Colete artefatos de dados: {collected}/{total}
-      </div>
-    </div>
-  );
-}
-
-export default function PlayMode() {
+export default function PlayMode({ onCollect }) {
   const scene = useEditorStore((s) => s.scene);
   const playerPosRef = useRef(new THREE.Vector3(0, 0, 0));
-  const [collectedCount, setCollectedCount] = useState(0);
 
   const physicalObjects = useMemo(() =>
     scene.objects.filter((o) => ["cube", "sphere", "plane", "cylinder"].includes(o.type) && !o.collectible && !o.player),
@@ -252,8 +223,8 @@ export default function PlayMode() {
   const playerStart = playerObj ? playerObj.position : [0, 0.8, 0];
 
   const handleCollect = useCallback(() => {
-    setCollectedCount((prev) => prev + 1);
-  }, []);
+    onCollect?.();
+  }, [onCollect]);
 
   return (
     <>
@@ -299,8 +270,6 @@ export default function PlayMode() {
           />
         )
       ))}
-
-      <CollectionUI collected={collectedCount} total={collectibles.length} />
     </>
   );
 }
