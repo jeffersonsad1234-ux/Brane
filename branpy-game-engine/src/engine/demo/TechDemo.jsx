@@ -1,10 +1,13 @@
-import React, { useRef, useMemo, useEffect, useState } from "react";
+import React, { useRef, useMemo, useEffect, useState, useCallback } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Sky, SoftShadows, ContactShadows, useHelper } from "@react-three/drei";
+import { Sky, SoftShadows, ContactShadows } from "@react-three/drei";
 import { Physics, RigidBody, CapsuleCollider, useRapier } from "@react-three/rapier";
 import { EffectComposer, Bloom, SSAO, Vignette, ChromaticAberration, Noise, ToneMapping } from "@react-three/postprocessing";
 import { BlendFunction } from "postprocessing";
 import * as THREE from "three";
+import RainSystem from "./RainSystem";
+import Collectibles from "./Collectibles";
+import { createAudioSystem } from "./AudioSystem";
 
 const COLORS = {
   ground: "#0a0a12", road: "#0d0d18",
@@ -76,7 +79,7 @@ const GROUND_FIXTURES = [
   { pos: [0, -0.5, 3], scale: [30, 1, 30] },
 ];
 
-function NeonSign({ pos, color, width, label }) {
+function NeonSign({ pos, color, width }) {
   return (
     <group position={pos}>
       <mesh>
@@ -189,16 +192,13 @@ function PhysicsGround() {
   );
 }
 
-function PlayerController() {
+function PlayerController({ setHealth, setStamina, playerPosRef, audioRef }) {
   const ref = useRef();
-  const cameraRef = useRef();
   const { camera } = useThree();
-  const rapier = useRapier();
   const keys = useRef({ forward: false, backward: false, left: false, right: false, jump: false, sprint: false });
   const canJump = useRef(true);
-  const [health, setHealth] = useState(100);
-  const [stamina, setStamina] = useState(100);
   const isSprinting = useRef(false);
+  const footstepTimer = useRef(0);
 
   useEffect(() => {
     const down = (e) => {
@@ -226,7 +226,7 @@ function PlayerController() {
     return () => { window.removeEventListener("keydown", down); window.removeEventListener("keyup", up); };
   }, []);
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!ref.current) return;
     const body = ref.current;
     const k = keys.current;
@@ -237,7 +237,6 @@ function PlayerController() {
     if (k.backward) dir.z += 1;
     if (k.left) dir.x -= 1;
     if (k.right) dir.x += 1;
-    dir.normalize().multiplyScalar(speed);
 
     const camDir = new THREE.Vector3();
     camera.getWorldDirection(camDir);
@@ -263,10 +262,23 @@ function PlayerController() {
     }
 
     const p = body.translation();
+    playerPosRef.current.set(p.x, p.y, p.z);
     const ideal = new THREE.Vector3(p.x, p.y + 1.6, p.z + 4);
     camera.position.lerp(ideal, 5 * delta);
     camera.lookAt(p.x, p.y + 1.2, p.z);
-    cameraRef.current = camera;
+
+    const isMoving = k.forward || k.backward || k.left || k.right;
+    const onGround = canJump.current && Math.abs(vel.y) < 0.1;
+    if (isMoving && onGround) {
+      footstepTimer.current += delta;
+      const interval = isSprinting.current ? 0.28 : 0.45;
+      if (footstepTimer.current >= interval) {
+        footstepTimer.current = 0;
+        audioRef.current?.playFootstep();
+      }
+    } else {
+      footstepTimer.current = 0.3;
+    }
   });
 
   return (
@@ -352,7 +364,7 @@ function DemoEffects() {
   );
 }
 
-function DemoHUD({ health, stamina, fps }) {
+function DemoHUD({ health, stamina, fps, collectedCount, totalCollectibles, muted, showComplete, onToggleMute }) {
   return (
     <div style={{
       position: "fixed", top: 0, left: 0, right: 0, bottom: 0, pointerEvents: "none",
@@ -362,6 +374,7 @@ function DemoHUD({ health, stamina, fps }) {
         <span>WASD — Move</span>
         <span>SPACE — Jump</span>
         <span>SHIFT — Sprint</span>
+        <span>M — Som</span>
       </div>
 
       <div style={{ position: "absolute", bottom: 80, left: 20, width: 180 }}>
@@ -385,6 +398,27 @@ function DemoHUD({ health, stamina, fps }) {
       <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", fontSize: 9, color: "rgba(255,255,255,0.15)", letterSpacing: "0.1em", textTransform: "uppercase" }}>
         BRANPY ENGINE v0.3 — Tech Demo
       </div>
+
+      <div style={{ position: "absolute", top: 42, left: "50%", transform: "translateX(-50%)", fontSize: 12, color: "rgba(0,200,255,0.7)", letterSpacing: "0.05em", textAlign: "center", transition: "all 0.5s" }}>
+        {showComplete ? (
+          <div style={{ color: "#00ff88", fontSize: 16, fontWeight: "bold", textShadow: "0 0 20px rgba(0,255,136,0.5)" }}>
+            AREA SINCRONIZADA
+          </div>
+        ) : (
+          <div>
+            <div>SINCRONIZE A AREA</div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 4 }}>
+              Colete artefatos de dados: {collectedCount}/{totalCollectibles}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div
+        onClick={(e) => { e.stopPropagation(); onToggleMute?.(); }}
+        style={{ position: "absolute", top: 12, left: 16, pointerEvents: "auto", cursor: "pointer", background: "rgba(0,0,0,0.5)", border: "1px solid rgba(255,255,255,0.1)", color: muted ? "rgba(255,100,100,0.7)" : "rgba(100,255,100,0.7)", padding: "3px 8px", borderRadius: 4, fontSize: 10, fontFamily: "monospace", backdropFilter: "blur(4px)", userSelect: "none" }}>
+        SOM: {muted ? "OFF" : "ON"}
+      </div>
     </div>
   );
 }
@@ -393,7 +427,49 @@ export default function TechDemo() {
   const [health, setHealth] = useState(100);
   const [stamina, setStamina] = useState(100);
   const [fps, setFps] = useState(0);
+  const [collectedCount, setCollectedCount] = useState(0);
+  const [showComplete, setShowComplete] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const [rainIntensity, setRainIntensity] = useState(1);
   const fpsRef = useRef({ frames: 0, last: performance.now() });
+  const playerPosRef = useRef(new THREE.Vector3(0, 0, 0));
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    const initAudio = () => {
+      if (!audioRef.current) {
+        const audio = createAudioSystem();
+        audio.init();
+        audioRef.current = audio;
+      }
+    };
+    window.addEventListener("click", initAudio, { once: true });
+    window.addEventListener("keydown", initAudio, { once: true });
+    return () => {
+      window.removeEventListener("click", initAudio);
+      window.removeEventListener("keydown", initAudio);
+      audioRef.current?.destroy();
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.code === "KeyM") {
+        if (audioRef.current) {
+          const nowMuted = audioRef.current.toggleMute();
+          setMuted(nowMuted);
+        }
+      }
+      if (e.code === "Minus") {
+        setRainIntensity((r) => Math.max(0.2, +(r - 0.2).toFixed(1)));
+      }
+      if (e.code === "Equal") {
+        setRainIntensity((r) => Math.min(2, +(r + 0.2).toFixed(1)));
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
 
   useEffect(() => {
     let raf;
@@ -407,6 +483,22 @@ export default function TechDemo() {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  const handleCollect = useCallback(() => {
+    setCollectedCount((prev) => {
+      const next = prev + 1;
+      if (next >= 5) setTimeout(() => setShowComplete(true), 600);
+      return next;
+    });
+    audioRef.current?.playCollect();
+  }, []);
+
+  const handleToggleMute = useCallback(() => {
+    if (audioRef.current) {
+      const nowMuted = audioRef.current.toggleMute();
+      setMuted(nowMuted);
+    }
+  }, []);
+
   return (
     <div style={{ width: "100%", height: "100%", background: "#000" }}>
       <Canvas shadows camera={{ position: [0, 3, 8], fov: 55, near: 0.1, far: 60 }}
@@ -415,16 +507,23 @@ export default function TechDemo() {
         <Physics gravity={[0, -20, 0]}>
           <PhysicsGround />
           <ProceduralCity />
-          <PlayerController setHealth={setHealth} setStamina={setStamina} />
+          <PlayerController setHealth={setHealth} setStamina={setStamina} playerPosRef={playerPosRef} audioRef={audioRef} />
+          <Collectibles playerPosRef={playerPosRef} onCollect={handleCollect} />
         </Physics>
         <Atmosphere />
+        <RainSystem intensity={rainIntensity} />
         <SmokeParticles />
         <SoftShadows samples={6} />
         <DemoEffects />
         <ContactShadows position={[0, -0.49, 0]} opacity={0.4} scale={50} blur={3} far={8} color="#000022" />
         <ambientLight intensity={0.08} color="#222244" />
       </Canvas>
-      <DemoHUD health={health} stamina={stamina} fps={fps} />
+      <DemoHUD
+        health={health} stamina={stamina} fps={fps}
+        collectedCount={collectedCount} totalCollectibles={5}
+        muted={muted} showComplete={showComplete}
+        onToggleMute={handleToggleMute}
+      />
     </div>
   );
 }
