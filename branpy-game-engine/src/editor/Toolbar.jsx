@@ -5,12 +5,24 @@ export default function Toolbar() {
   const addObject = useEditorStore((s) => s.addObject);
   const exportScene = useEditorStore((s) => s.exportScene);
   const importScene = useEditorStore((s) => s.importScene);
+  const setScene = useEditorStore((s) => s.setScene);
   const resetScene = useEditorStore((s) => s.resetScene);
   const scene = useEditorStore((s) => s.scene);
   const mode = useEditorStore((s) => s.mode);
   const setMode = useEditorStore((s) => s.setMode);
   const [showFile, setShowFile] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
   const fileRef = useRef(null);
+
+  const loadHorrorDemo = async () => {
+    try {
+      const mod = await import("@engine/presets/horrorScene");
+      setScene(mod.default);
+      setShowDemo(false);
+    } catch (e) {
+      console.error("Failed to load horror demo:", e);
+    }
+  };
 
   const handleImport = (e) => {
     const f = e.target.files?.[0];
@@ -68,6 +80,22 @@ export default function Toolbar() {
       ))}
 
       <div className="flex-1" />
+
+      <div className="relative">
+        <button onClick={() => setShowDemo(!showDemo)}
+          className="px-2 py-1 text-xs text-[rgba(255,255,255,0.45)] hover:text-[rgba(255,255,255,0.7)] rounded transition-colors"
+        >Scenes ▾</button>
+        {showDemo && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setShowDemo(false)} />
+            <div className="absolute top-full right-0 mt-1 bg-[#151515] border border-[rgba(255,255,255,0.08)] rounded-lg p-1 z-20 min-w-[160px] shadow-xl">
+              <button onClick={loadHorrorDemo}
+                className="block w-full text-left px-2.5 py-1.5 text-xs text-[rgba(255,255,255,0.55)] hover:bg-[rgba(255,255,255,0.04)] rounded"
+              >🌫️ Silent Hill — Dark Street</button>
+            </div>
+          </>
+        )}
+      </div>
 
       <div className="flex items-center gap-1">
         <button onClick={() => setMode(mode === "edit" ? "play" : "edit")}

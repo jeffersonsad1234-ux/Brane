@@ -1,8 +1,10 @@
 import React, { useRef, useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Grid, TransformControls, ContactShadows, Environment, Html } from "@react-three/drei";
+import { OrbitControls, Grid, TransformControls, ContactShadows, Environment, Html, SoftShadows } from "@react-three/drei";
 import * as THREE from "three";
 import { useEditorStore } from "@store/editorStore";
+import Effects from "./Effects";
+import Rain from "./Rain";
 
 function SceneObject({ obj }) {
   const selected = useEditorStore((s) => s.selectedId === obj.id);
@@ -27,6 +29,7 @@ function SceneObject({ obj }) {
           distance={30}
           decay={1}
           castShadow
+          shadow-mapSize={[512, 512]}
         />
         {selected && (
           <Html center>
@@ -53,7 +56,6 @@ function SceneObject({ obj }) {
   }
 
   const geo = { cube: [1, 1, 1], sphere: [0.5, 16, 12], plane: [1, 1], cylinder: [0.5, 0.5, 1, 12] };
-  const Comp = obj.type === "plane" ? "mesh" : "mesh";
   const args = geo[obj.type] || geo.cube;
 
   return (
@@ -73,9 +75,11 @@ function SceneObject({ obj }) {
       {obj.type === "cylinder" && <cylinderGeometry args={args} />}
       <meshStandardMaterial
         color={obj.color || "#888888"}
-        roughness={0.6}
-        metalness={obj.type === "sphere" ? 0.3 : 0.1}
-        transparent={false}
+        roughness={obj.roughness ?? 0.6}
+        metalness={obj.metalness ?? (obj.type === "sphere" ? 0.3 : 0.1)}
+        emissive={obj.emissive || "#000000"}
+        emissiveIntensity={obj.emissiveIntensity || 0}
+        envMapIntensity={0.4}
       />
     </mesh>
   );
@@ -117,22 +121,29 @@ export default function Viewport() {
   const scene = useEditorStore((s) => s.scene);
   const setSelected = useEditorStore((s) => s.setSelected);
   const mode = useEditorStore((s) => s.mode);
+  const env = scene.environment || {};
+
+  const shadowRes = env.shadowQuality === "low" ? 512 : env.shadowQuality === "medium" ? 1024 : 2048;
+  const pixelRatio = env.pixelRatio ?? (env.qualityPreset === "performance" ? 0.75 : env.qualityPreset === "ultra" ? 2 : 1);
 
   return (
     <div className="flex-1 relative">
       <Canvas
-        shadows={scene.environment?.shadows !== false}
+        shadows={env.shadows !== false}
         camera={{ position: [5, 4, 8], fov: 50, near: 0.1, far: 100 }}
-        gl={{ antialias: true, toneMapping: 3, toneMappingExposure: 1.2 }}
-        dpr={[1, 2]}
+        gl={{ antialias: true, toneMapping: env.toneMapping ?? 3, toneMappingExposure: env.exposure ?? 1.2 }}
+        dpr={[pixelRatio, Math.min(pixelRatio * 1.5, 2)]}
         onPointerMissed={() => setSelected(null)}
       >
-        <color attach="background" args={[scene.environment?.background || "#0a0a0a"]} />
-        <fog attach="fog" args={[scene.environment?.fog?.color || "#0a0a0a", scene.environment?.fog?.near || 20, scene.environment?.fog?.far || 60]} />
+        <color attach="background" args={[env.background || "#0a0a0a"]} />
+        <fog attach="fog" args={[env.fog?.color || "#0a0a0a", env.fog?.near || 20, env.fog?.far || 60]} />
 
-        <ambientLight intensity={0.3} />
-        <directionalLight position={[5, 8, 5]} intensity={0.8} castShadow shadow-mapSize={[1024, 1024]} />
-        <directionalLight position={[-3, 4, -3]} intensity={0.3} />
+        {env.shadows !== false && <SoftShadows samples={env.shadowQuality === "low" ? 4 : 8} />}
+
+        <ambientLight intensity={0.25} />
+        <directionalLight position={[5, 12, 5]} intensity={0.6} castShadow shadow-mapSize={[shadowRes, shadowRes]} shadow-bias={-0.001} shadow-camera-far={30} />
+        <directionalLight position={[-3, 6, -3]} intensity={0.2} />
+        <hemisphereLight args={["#4466aa", "#111122", 0.3]} />
 
         <SceneObjects />
         <TransformControlsWrapper />
@@ -149,9 +160,20 @@ export default function Viewport() {
           fadeDistance={40}
         />
 
-        {scene.environment?.shadows !== false && (
-          <ContactShadows position={[0, -0.49, 0]} opacity={0.3} scale={20} blur={2.5} far={5} />
+        {env.volumetricFog && (
+          <mesh position={[0, -1, -20]} rotation={[0, 0, 0]}>
+            <planeGeometry args={[80, 40]} />
+            <meshBasicMaterial color={env.fog?.color || "#0a0a12"} transparent opacity={0.6} depthWrite={false} />
+          </mesh>
         )}
+
+        {env.rain && <Rain count={3000} area={28} height={14} />}
+
+        {env.shadows !== false && (
+          <ContactShadows position={[0, -0.49, 0]} opacity={0.25} scale={25} blur={3} far={6} />
+        )}
+
+        <Effects />
 
         <OrbitControls
           makeDefault

@@ -15,6 +15,20 @@ const defaultScene = {
     fog: { color: "#0a0a0a", near: 20, far: 60 },
     shadows: true,
     bloom: false,
+    ssao: false,
+    colorGrading: false,
+    volumetricFog: false,
+    rain: false,
+    vignette: true,
+    bloomIntensity: 0.5,
+    bloomThreshold: 0.2,
+    exposure: 1.2,
+    toneMapping: 3,
+    shadowQuality: "medium",
+    pixelRatio: 1,
+    maxLights: 6,
+    useLOD: true,
+    qualityPreset: "balanced",
   },
 };
 
@@ -66,7 +80,41 @@ export const useEditorStore = create((set, get) => ({
     }));
   },
 
-  setScene: (scene) => set({ scene, selectedId: null }),
+  setScene: (scene) => {
+    if (scene.environment) {
+      scene.environment = {
+        background: "#0a0a0a",
+        fog: { color: "#0a0a0a", near: 20, far: 60 },
+        shadows: true,
+        bloom: false,
+        ssao: false,
+        colorGrading: false,
+        volumetricFog: false,
+        rain: false,
+        vignette: true,
+        bloomIntensity: 0.5,
+        bloomThreshold: 0.2,
+        exposure: 1.2,
+        toneMapping: 3,
+        shadowQuality: "medium",
+        pixelRatio: 1,
+        maxLights: 6,
+        useLOD: true,
+        qualityPreset: "balanced",
+        ...scene.environment,
+      };
+    }
+    set({ scene, selectedId: null });
+  },
+
+  updateEnvironment: (props) => {
+    set((s) => ({
+      scene: {
+        ...s.scene,
+        environment: { ...s.scene.environment, ...props },
+      },
+    }));
+  },
 
   resetScene: () => set({ scene: JSON.parse(JSON.stringify(defaultScene)), selectedId: null }),
 
