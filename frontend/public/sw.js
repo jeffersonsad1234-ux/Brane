@@ -1,4 +1,4 @@
-const CACHE = 'b-livre-v1';
+const CACHE = 'b-livre-v2';
 const STATIC_ASSETS = [
   '/logo-belivre.png',
   '/manifest.json'
@@ -26,6 +26,11 @@ self.addEventListener('fetch', (event) => {
 
   // API calls — network only, never cache
   if (url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // Engine assets — network only, never cache (avoids stale engine builds)
+  if (url.pathname.startsWith('/engine/')) {
     return;
   }
 
