@@ -1,5 +1,2 @@
 name = "brane"
-
-# Build a partir da raiz para executar build:engine
-build = { command = "npm install --legacy-peer-deps && npm run build", cwd = "/" }
 pages_build_output_dir = "./frontend/build"
