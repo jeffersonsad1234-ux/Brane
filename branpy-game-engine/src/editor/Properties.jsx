@@ -46,6 +46,26 @@ function EnvironmentTab() {
       </label>
 
       <label className="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" checked={env.wetGround} onChange={() => toggle("wetGround")} className="accent-[#6366f1]" />
+        <span className="text-xs text-[rgba(255,255,255,0.45)]">Wet Ground</span>
+      </label>
+
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" checked={env.flashlight} onChange={() => toggle("flashlight")} className="accent-[#6366f1]" />
+        <span className="text-xs text-[rgba(255,255,255,0.45)]">Flashlight</span>
+      </label>
+
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" checked={env.flickeringLights} onChange={() => toggle("flickeringLights")} className="accent-[#6366f1]" />
+        <span className="text-xs text-[rgba(255,255,255,0.45)]">Flickering Lights</span>
+      </label>
+
+      <label className="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" checked={env.ambientSound} onChange={() => toggle("ambientSound")} className="accent-[#6366f1]" />
+        <span className="text-xs text-[rgba(255,255,255,0.45)]">Ambient Sound</span>
+      </label>
+
+      <label className="flex items-center gap-2 cursor-pointer">
         <input type="checkbox" checked={env.shadows !== false} onChange={() => toggle("shadows")} className="accent-[#6366f1]" />
         <span className="text-xs text-[rgba(255,255,255,0.45)]">Shadows</span>
       </label>
@@ -56,8 +76,8 @@ function EnvironmentTab() {
         className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[rgba(255,255,255,0.06)]"
       />
 
-      <div className="text-xs text-[rgba(255,255,255,0.3)] mb-1">Exposure: {env.exposure?.toFixed(2)}</div>
-      <input type="range" min={0.1} max={3} step={0.05} value={env.exposure ?? 1.2}
+      <div className="text-xs text-[rgba(255,255,255,0.3)] mb-1">Exposure (ACES): {env.exposure?.toFixed(2)}</div>
+      <input type="range" min={0.1} max={3} step={0.05} value={env.exposure ?? 0.7}
         onChange={(e) => updateEnvironment({ exposure: parseFloat(e.target.value) })}
         className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-[rgba(255,255,255,0.06)]"
       />
