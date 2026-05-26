@@ -1,3 +1,2 @@
 /engine/* /engine/index.html 200
-/engine/assets/* /engine/assets/:splat 200
 /* /index.html 200
