@@ -1,0 +1,11 @@
+{
+  "build": {
+    "builder": "NIXPACKS",
+    "buildCommand": "cd branpy-game-engine && npm install && npm run build"
+  },
+  "deploy": {
+    "startCommand": "cd branpy-game-engine && npx serve -s dist -l $PORT",
+    "healthcheckPath": "/",
+    "numReplicas": 1
+  }
+}

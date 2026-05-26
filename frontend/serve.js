@@ -130,9 +130,16 @@ const server = http.createServer(async (req, res) => {
     }
 
     // ---- STATIC FILES: serve built frontend ----
-    let filePath = path.join(BUILD_DIR, url.pathname === "/" ? "index.html" : url.pathname);
-    if (!fs.existsSync(filePath)) {
-      filePath = path.join(BUILD_DIR, "index.html");
+    const ENGINE_DIR = path.join(BUILD_DIR, "engine");
+    const isEnginePath = url.pathname.startsWith("/engine");
+    let filePath;
+    if (isEnginePath) {
+      const subPath = url.pathname.replace("/engine", "") || "/";
+      filePath = path.join(ENGINE_DIR, subPath === "/" ? "index.html" : subPath);
+      if (!fs.existsSync(filePath)) filePath = path.join(ENGINE_DIR, "index.html");
+    } else {
+      filePath = path.join(BUILD_DIR, url.pathname === "/" ? "index.html" : url.pathname);
+      if (!fs.existsSync(filePath)) filePath = path.join(BUILD_DIR, "index.html");
     }
     const data = await readFile(filePath);
     const ext = path.extname(filePath);
