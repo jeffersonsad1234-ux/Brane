@@ -44,7 +44,7 @@ function PhysicsObject({ obj }) {
   );
 }
 
-function PlayerController({ startPos, audioRef }) {
+function PlayerController({ startPos, audioRef, playerPosRef }) {
   const ref = useRef();
   const { camera } = useThree();
   const keys = useRef({ forward: false, backward: false, left: false, right: false, jump: false, sprint: false });
@@ -111,6 +111,7 @@ function PlayerController({ startPos, audioRef }) {
     }
 
     const p = body.translation();
+    if (playerPosRef?.current) playerPosRef.current.set(p.x, p.y, p.z);
     const ideal = new THREE.Vector3(p.x, p.y + 1.6, p.z + 4);
     camera.position.lerp(ideal, 5 * delta);
     camera.lookAt(p.x, p.y + 1.2, p.z);
@@ -272,37 +273,32 @@ export default function PlayMode() {
           />
         ))}
 
-        <PlayerController startPos={playerStart} audioRef={null} />
+        <PlayerController startPos={playerStart} audioRef={null} playerPosRef={playerPosRef} />
       </Physics>
 
-      {lights.map((l) => {
-        const pos = new THREE.Vector3(...l.position);
-        if (l.type === "spotlight") {
-          const rot = new THREE.Euler(...(l.rotation || [0, 0, 0]));
-          return (
-            <spotLight
-              key={l.id}
-              position={pos}
-              rotation={rot}
-              intensity={l.intensity || 2}
-              color={l.color || "#ffffff"}
-              angle={l.angle || 0.4}
-              penumbra={l.penumbra || 0.3}
-              distance={l.distance || 20}
-              castShadow
-            />
-          );
-        }
-        return (
+      {lights.map((l) => (
+        l.type === "spotlight" ? (
+          <spotLight
+            key={l.id}
+            position={l.position}
+            rotation={l.rotation || [0, 0, 0]}
+            intensity={l.intensity || 2}
+            color={l.color || "#ffffff"}
+            angle={l.angle || 0.4}
+            penumbra={l.penumbra || 0.3}
+            distance={l.distance || 20}
+            castShadow
+          />
+        ) : (
           <pointLight
             key={l.id}
-            position={pos}
+            position={l.position}
             intensity={l.intensity || 1}
             color={l.color || "#ffffff"}
             distance={30}
           />
-        );
-      })}
+        )
+      ))}
 
       <CollectionUI collected={collectedCount} total={collectibles.length} />
     </>

@@ -1,7 +1,6 @@
-import { genId } from "@store/editorStore";
-
-/* Helper to reduce boilerplate */
-function id() { return genId(); }
+/* Local ID generator to avoid circular dependency with editorStore */
+let _idCounter = 0;
+function id() { return `obj_${++_idCounter}_${Date.now().toString(36)}`; }
 function cube(name, pos, scale, color, extra = {}) {
   return { id: id(), type: "cube", name, position: pos, rotation: extra.rot || [0, 0, 0], scale, color, visible: true, roughness: extra.roughness ?? 0.7, metalness: extra.metalness ?? 0.2, emissive: extra.emissive || "#000000", emissiveIntensity: extra.emissiveIntensity || 0, ...extra };
 }
