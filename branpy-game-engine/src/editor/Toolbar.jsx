@@ -14,8 +14,6 @@ export default function Toolbar() {
   const setTransformMode = useEditorStore((s) => s.setTransformMode);
   const snapEnabled = useEditorStore((s) => s.snapEnabled);
   const setSnapEnabled = useEditorStore((s) => s.setSnapEnabled);
-  const fpsCam = useEditorStore((s) => s.fpsCam);
-  const setFpsCam = useEditorStore((s) => s.setFpsCam);
   const showGrid = useEditorStore((s) => s.showGrid);
   const setShowGrid = useEditorStore((s) => s.setShowGrid);
   const selectedId = useEditorStore((s) => s.selectedId);
@@ -31,9 +29,15 @@ export default function Toolbar() {
       const mod = await import("@engine/presets/horrorScene");
       setScene(mod.default);
       setShowDemo(false);
-    } catch (e) {
-      console.error("Failed to load horror demo:", e);
-    }
+    } catch (e) { console.error(e); }
+  };
+
+  const loadCyberpunkDemo = async () => {
+    try {
+      const mod = await import("@engine/presets/cyberpunkScene");
+      setScene(mod.default);
+      setShowDemo(false);
+    } catch (e) { console.error(e); }
   };
 
   const handleImport = (e) => {
@@ -69,122 +73,97 @@ export default function Toolbar() {
   ];
 
   const addButtons = [
-    { type: "cube", icon: "◇" },
-    { type: "sphere", icon: "●" },
-    { type: "plane", icon: "▭" },
-    { type: "cylinder", icon: "⬢" },
-    { type: "light", icon: "☀" },
-    { type: "camera", icon: "◉" },
+    { type: "cube", icon: "◇", label: "Cube" },
+    { type: "sphere", icon: "●", label: "Sphere" },
+    { type: "capsule", icon: "⬡", label: "Capsule" },
+    { type: "plane", icon: "▭", label: "Plane" },
+    { type: "cylinder", icon: "⬢", label: "Cylinder" },
+    { type: "light", icon: "◉", label: "Point Light" },
+    { type: "spotlight", icon: "⌾", label: "Spotlight" },
+    { type: "camera", icon: "◻", label: "Camera" },
   ];
 
   return (
     <div style={{
-      display: "flex", alignItems: "center", gap: 2, padding: "0 8px",
+      display: "flex", alignItems: "center", gap: 1, padding: "0 6px",
       height: "var(--toolbar-h)", background: "linear-gradient(180deg, var(--bg-alt) 0%, var(--panel) 100%)",
       borderBottom: "1px solid var(--border)", flexShrink: 0,
       position: "relative", zIndex: 20
     }}>
-      {/* Brand */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 12 }}>
-        <span style={{
-          fontSize: 14, fontWeight: 700,
-          background: "var(--gradient-accent)", WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent", letterSpacing: "-0.02em"
-        }}>BRANPY</span>
-        <span style={{ fontSize: 9, color: "var(--text-faint)", fontFamily: "var(--font-mono)" }}>v0.2</span>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginRight: 10 }}>
+        <span style={{ fontSize: 14, fontWeight: 700, background: "var(--gradient-accent)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.02em" }}>BRANPY</span>
+        <span style={{ fontSize: 9, color: "var(--text-faint)", fontFamily: "var(--font-mono)" }}>v0.3</span>
       </div>
 
-      <div className="sep" />
+      <span className="sep" />
 
-      {/* File Menu */}
       <div style={{ position: "relative" }}>
-        <button className="btn" onClick={() => setShowFile(!showFile)}>File ▾</button>
+        <button className="btn" onClick={() => setShowFile(!showFile)} style={{ fontSize: 10 }}>File ▾</button>
         {showFile && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowFile(false)} />
-            <div className="panel animate-slide-up" style={{
-              position: "absolute", top: "100%", left: 0, marginTop: 4, zIndex: 20,
-              minWidth: 150, padding: 4
-            }}>
-              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }}
-                onClick={() => { resetScene(); setShowFile(false); }}>New Scene</button>
-              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }}
-                onClick={() => { exportScene(); setShowFile(false); }}>Export JSON</button>
-              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }}
-                onClick={() => { fileRef.current?.click(); }}>Import JSON</button>
+            <div className="panel animate-slide-up" style={{ position: "absolute", top: "100%", left: 0, marginTop: 4, zIndex: 20, minWidth: 150, padding: 4 }}>
+              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }} onClick={() => { resetScene(); setShowFile(false); }}>New Scene</button>
+              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }} onClick={() => { exportScene(); setShowFile(false); }}>Export JSON</button>
+              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }} onClick={() => { fileRef.current?.click(); }}>Import JSON</button>
               <div className="sep" style={{ width: "100%", height: 1, margin: "4px 0" }} />
-              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }}
-                onClick={() => { handleDownloadBuild(); setShowFile(false); }}>Download Build</button>
+              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }} onClick={() => { handleDownloadBuild(); setShowFile(false); }}>Download Build</button>
               <input ref={fileRef} type="file" accept=".json" onChange={handleImport} style={{ display: "none" }} />
             </div>
           </>
         )}
       </div>
 
-      <div className="sep" />
+      <span className="sep" />
 
-      {/* Add Objects */}
-      {addButtons.map(({ type, icon }) => (
-        <button key={type} className="btn btn--icon" title={`Add ${type}`}
-          onClick={() => addObject(type)} style={{ fontSize: 13 }}>{icon}</button>
+      {addButtons.map(({ type, icon, label }) => (
+        <button key={type} className="btn btn--icon" title={label} onClick={() => addObject(type)}
+          style={{ fontSize: 13, position: "relative" }}
+          onMouseEnter={(e) => {
+            const tip = document.createElement("div");
+            tip.className = "tooltip";
+            tip.textContent = label;
+            tip.style.cssText = "position:fixed;bottom:100%;left:50%;transform:translateX(-50%);padding:2px 6px;font-size:9px;background:#000;color:#aaa;border:1px solid rgba(255,255,255,0.1);border-radius:3px;white-space:nowrap;pointer-events:none;z-index:999;margin-bottom:4px";
+            e.target.appendChild(tip);
+          }}
+          onMouseLeave={(e) => { const t = e.target.querySelector(".tooltip"); if (t) t.remove(); }}>
+          {icon}
+        </button>
       ))}
 
-      <div className="sep" />
+      <span className="sep" />
 
-      {/* Gizmo Modes */}
       {gizmoModes.map(({ key, label, title }) => (
         <button key={key} className={`btn btn--icon ${transformMode === key ? "btn--active" : ""}`}
           onClick={() => setTransformMode(key)} title={title}
           style={{ fontSize: 11, fontWeight: 600, fontFamily: "var(--font-mono)" }}>{label}</button>
       ))}
 
-      <div className="sep" />
+      <span className="sep" />
 
-      {/* Snap */}
-      <button className={`btn btn--icon ${snapEnabled ? "btn--active" : ""}`}
-        onClick={() => setSnapEnabled(!snapEnabled)} title="Toggle Snap"
-        style={{ fontSize: 11 }}>⊞</button>
+      <button className={`btn btn--icon ${snapEnabled ? "btn--active" : ""}`} onClick={() => setSnapEnabled(!snapEnabled)} title="Toggle Snap" style={{ fontSize: 11 }}>⊞</button>
 
-      {/* Grid */}
-      <button className={`btn btn--icon ${!showGrid ? "" : ""}`}
-        onClick={() => setShowGrid(!showGrid)} title="Toggle Grid (G)"
-        style={{ fontSize: 11 }}>⊟</button>
+      <button className={`btn btn--icon ${showGrid ? "btn--active" : ""}`} onClick={() => setShowGrid(!showGrid)} title="Toggle Grid" style={{ fontSize: 11 }}>⊟</button>
 
       <div style={{ flex: 1 }} />
 
-      {/* Edit/Play mode */}
-      <button className={`btn btn--icon ${fpsCam ? "btn--active" : ""}`}
-        onClick={() => setFpsCam(!fpsCam)} title="FPS Camera"
-        style={{ fontSize: 11 }}>👁</button>
-
-      {/* Scene Presets */}
       <div style={{ position: "relative" }}>
-        <button className="btn" onClick={() => setShowDemo(!showDemo)}>Scenes ▾</button>
+        <button className="btn" onClick={() => setShowDemo(!showDemo)} style={{ fontSize: 10 }}>Scenes ▾</button>
         {showDemo && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowDemo(false)} />
-            <div className="panel animate-slide-up" style={{
-              position: "absolute", top: "100%", right: 0, marginTop: 4, zIndex: 20,
-              minWidth: 170, padding: 4
-            }}>
-              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }}
-                onClick={loadHorrorDemo}>Silent Hill &mdash; Dark Street</button>
+            <div className="panel animate-slide-up" style={{ position: "absolute", top: "100%", right: 0, marginTop: 4, zIndex: 20, minWidth: 180, padding: 4 }}>
+              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }} onClick={loadHorrorDemo}>Silent Hill — Dark Street</button>
+              <button className="btn" style={{ width: "100%", justifyContent: "flex-start", padding: "5px 8px", borderRadius: 3 }} onClick={loadCyberpunkDemo}>Cyberpunk — Neon District</button>
             </div>
           </>
         )}
       </div>
 
-      <div className="sep" />
+      <span className="sep" />
 
-      {/* Play/Stop */}
-      <button onClick={() => setMode(mode === "edit" ? "play" : "edit")}
-        className="btn"
-        style={{
-          color: mode === "play" ? "var(--success)" : "var(--text-dim)",
-          background: mode === "play" ? "rgba(16,185,129,0.08)" : "transparent",
-          border: mode === "play" ? "1px solid rgba(16,185,129,0.15)" : "1px solid transparent",
-          fontWeight: 500
-        }}>
+      <button onClick={() => setMode(mode === "edit" ? "play" : "edit")} className="btn"
+        style={{ color: mode === "play" ? "var(--success)" : "var(--text-dim)", background: mode === "play" ? "rgba(16,185,129,0.08)" : "transparent", border: mode === "play" ? "1px solid rgba(16,185,129,0.15)" : "1px solid transparent", fontWeight: 500, fontSize: 10 }}>
         {mode === "edit" ? "▶ Play" : "◼ Stop"}
       </button>
     </div>

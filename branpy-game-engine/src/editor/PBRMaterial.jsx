@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { makeNormalMap, makeRoughnessMap, createProceduralEnvMap } from "../utils/proceduralAssets";
@@ -41,8 +41,7 @@ export default function PBRMaterial({ obj }) {
     if (!obj) return null;
     if (obj.type === "plane") return getNormalMap(1, 128);
     if (obj.name?.toLowerCase().includes("ground") || obj.name?.toLowerCase().includes("road")) return getNormalMap(5, 128);
-    if (obj.name?.toLowerCase().includes("building") || obj.name?.toLowerCase().includes("wall")) return getNormalMap(3, 64);
-    if (obj.name?.toLowerCase().includes("debris") || obj.name?.toLowerCase().includes("car")) return getNormalMap(7, 64);
+    if (obj.name?.toLowerCase().includes("building") || obj.name?.toLowerCase().includes("tower")) return getNormalMap(3, 64);
     return getNormalMap(2, 64);
   }, [obj?.type, obj?.name]);
 
@@ -51,23 +50,23 @@ export default function PBRMaterial({ obj }) {
     return getRoughnessMap(obj.roughness ?? 0.6);
   }, [obj?.roughness]);
 
-  const isWet = obj?.name?.toLowerCase().includes("ground") || obj?.name?.toLowerCase().includes("road") || obj?.name?.toLowerCase().includes("asphalt");
+  const isMetallic = (obj?.metalness ?? 0.1) > 0.3;
+  const name = obj?.name?.toLowerCase() || "";
 
   return (
     <meshPhysicalMaterial
       color={obj?.color || "#888888"}
-      roughness={obj?.roughness ?? (isWet ? 0.3 : 0.6)}
+      roughness={obj?.roughness ?? 0.6}
       metalness={obj?.metalness ?? (obj?.type === "sphere" ? 0.3 : 0.1)}
       emissive={obj?.emissive || "#000000"}
       emissiveIntensity={obj?.emissiveIntensity || 0}
       envMap={envMap}
-      envMapIntensity={isWet ? 0.8 : 0.3}
+      envMapIntensity={isMetallic ? 0.6 : 0.25}
       normalMap={normalMap}
-      normalScale={new THREE.Vector2(isWet ? 0.3 : 0.8, isWet ? 0.3 : 0.8)}
+      normalScale={new THREE.Vector2(0.5, 0.5)}
       roughnessMap={roughnessMap}
-      clearcoat={isWet ? 0.4 : 0}
-      clearcoatRoughness={isWet ? 0.15 : 0}
-      reflectivity={isWet ? 0.6 : 0.2}
+      clearcoat={name.includes("glass") || name.includes("gloss") ? 0.5 : 0}
+      clearcoatRoughness={0.2}
       side={THREE.FrontSide}
     />
   );

@@ -6,17 +6,20 @@ export const genId = () => `obj_${++idCounter}_${Date.now().toString(36)}`;
 const defaultScene = {
   name: "Untitled Scene",
   objects: [
-    { id: genId(), type: "plane", name: "Ground", position: [0, -0.5, 0], rotation: [0, 0, 0], scale: [10, 1, 10], color: "#2a2a3a", visible: true },
+    { id: genId(), type: "plane", name: "Ground", position: [0, -0.5, 0], rotation: [0, 0, 0], scale: [10, 1, 10], color: "#1a1a2e", visible: true },
     { id: genId(), type: "cube", name: "Cube", position: [0, 0.5, 0], rotation: [0, 0, 0], scale: [1, 1, 1], color: "#6366f1", visible: true },
     { id: genId(), type: "light", name: "Sun", position: [5, 10, 5], rotation: [-0.6, 0.8, 0], intensity: 1.5, color: "#ffffff", visible: true },
   ],
   environment: {
-    background: "#0a0a0a",
-    fog: { color: "#0a0a0a", near: 20, far: 60 },
+    background: "#0a0a12",
+    fog: { color: "#0a0a12", near: 15, far: 50 },
     shadows: true,
     bloom: false,
+    bloomIntensity: 0.3,
+    bloomThreshold: 0.1,
     ssao: false,
     colorGrading: false,
+    chromaticAberration: false,
     volumetricFog: false,
     rain: false,
     wetGround: false,
@@ -24,13 +27,11 @@ const defaultScene = {
     flickeringLights: false,
     ambientSound: false,
     vignette: true,
-    bloomIntensity: 0.5,
-    bloomThreshold: 0.2,
-    exposure: 1.2,
+    exposure: 1.0,
     toneMapping: 3,
     shadowQuality: "medium",
     pixelRatio: 1,
-    maxLights: 6,
+    maxLights: 8,
     useLOD: true,
     qualityPreset: "balanced",
   },
@@ -79,8 +80,16 @@ export const useEditorStore = create((set, get) => ({
   },
 
   addObject: (type) => {
-    const colors = { cube: "#6366f1", sphere: "#ec4899", plane: "#2a2a3a", cylinder: "#f59e0b", light: "#ffffff", camera: "#10b981" };
-    const names = { cube: "Cube", sphere: "Sphere", plane: "Plane", cylinder: "Cylinder", light: "Light", camera: "Camera" };
+    const colors = {
+      cube: "#6366f1", sphere: "#ec4899", capsule: "#22c55e",
+      plane: "#2a2a3a", cylinder: "#f59e0b",
+      light: "#ffffff", spotlight: "#ffdd44", camera: "#10b981",
+    };
+    const names = {
+      cube: "Cube", sphere: "Sphere", capsule: "Capsule",
+      plane: "Plane", cylinder: "Cylinder",
+      light: "Point Light", spotlight: "Spotlight", camera: "Camera",
+    };
     const obj = {
       id: genId(), type, name: names[type] || type,
       position: [0, type === "plane" ? -0.5 : 1, 0],
@@ -89,6 +98,7 @@ export const useEditorStore = create((set, get) => ({
       color: colors[type] || "#888888",
       visible: true,
       ...(type === "light" ? { intensity: 1.5 } : {}),
+      ...(type === "spotlight" ? { intensity: 2, angle: 0.4, penumbra: 0.3, distance: 20 } : {}),
       ...(type === "camera" ? { fov: 60 } : {}),
     };
     set((s) => ({ scene: { ...s.scene, objects: [...s.scene.objects, obj] } }));
@@ -111,12 +121,15 @@ export const useEditorStore = create((set, get) => ({
   setScene: (scene) => {
     if (scene.environment) {
       scene.environment = {
-        background: "#0a0a0a",
-        fog: { color: "#0a0a0a", near: 20, far: 60 },
+        background: "#0a0a12",
+        fog: { color: "#0a0a12", near: 15, far: 50 },
         shadows: true,
         bloom: false,
+        bloomIntensity: 0.3,
+        bloomThreshold: 0.1,
         ssao: false,
         colorGrading: false,
+        chromaticAberration: false,
         volumetricFog: false,
         rain: false,
         wetGround: false,
@@ -124,13 +137,11 @@ export const useEditorStore = create((set, get) => ({
         flickeringLights: false,
         ambientSound: false,
         vignette: true,
-        bloomIntensity: 0.5,
-        bloomThreshold: 0.2,
-        exposure: 1.2,
+        exposure: 1.0,
         toneMapping: 3,
         shadowQuality: "medium",
         pixelRatio: 1,
-        maxLights: 6,
+        maxLights: 8,
         useLOD: true,
         qualityPreset: "balanced",
         ...scene.environment,
