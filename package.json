@@ -8,7 +8,7 @@
   "scripts": {
     "install": "npm install --prefix ./frontend --legacy-peer-deps",
     "build": "npm install --prefix ./frontend --legacy-peer-deps && npm run build --prefix ./frontend && npm run build:engine",
-    "build:engine": "cd branpy-game-engine && npm install --legacy-peer-deps && npm run build && node -e \"const fs=require('fs'); const s='branpy-game-engine/dist', d='frontend/build/engine'; if(!fs.existsSync(s)){console.error('engine dist missing');process.exit(1)}; fs.rmSync(d,{recursive:true,force:true}); fs.cpSync(s,d,{recursive:true}); console.log('Engine copied to '+d);\"",
+    "build:engine": "cd branpy-game-engine && npm install --legacy-peer-deps && npm run build && node -e \"const fs=require('fs'); const s='dist', d='../frontend/build/engine'; if(!fs.existsSync(s)){console.error('engine dist missing');process.exit(1)}; fs.rmSync(d,{recursive:true,force:true}); fs.cpSync(s,d,{recursive:true}); console.log('Engine copied to '+d);\"",
     "start:fe": "npm start --prefix ./frontend",
     "dev": "npm start --prefix ./frontend"
   },
