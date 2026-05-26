@@ -1,26 +1,53 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Editor from "@editor/Editor";
-import HollowCity from "./game/HollowCity";
 import TechDemo from "./engine/demo/TechDemo";
 import { useEditorStore } from "@store/editorStore";
+
+function getPageFromPath() {
+  const path = window.location.pathname;
+  if (path.endsWith("/editor")) return "editor";
+  return "play";
+}
 
 export default function App() {
   const mode = useEditorStore((s) => s.mode);
   const setMode = useEditorStore((s) => s.setMode);
-  const [showDemo, setShowDemo] = useState(true);
+  const [page, setPage] = useState(getPageFromPath);
+
+  useEffect(() => {
+    const handlePop = () => setPage(getPageFromPath());
+    window.addEventListener("popstate", handlePop);
+    return () => window.removeEventListener("popstate", handlePop);
+  }, []);
+
+  const goToPlay = useCallback(() => {
+    window.history.pushState(null, "", "/engine/play");
+    setPage("play");
+  }, []);
+
+  const goToEditor = useCallback(() => {
+    window.history.pushState(null, "", "/engine/editor");
+    setPage("editor");
+    setMode("edit");
+  }, [setMode]);
+
+  useEffect(() => {
+    if (mode === "play" && page === "editor") {
+      goToPlay();
+    }
+  }, [mode, page, goToPlay]);
 
   useEffect(() => {
     const handleKey = (e) => {
-      if (e.key === "Escape" && mode !== "edit") {
-        setMode("edit");
-        setShowDemo(false);
+      if (e.key === "Escape") {
+        if (page === "play") goToEditor();
       }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, [mode, setMode]);
+  }, [page, goToEditor]);
 
-  if (showDemo && mode === "edit") {
+  if (page === "play") {
     return (
       <div className="w-full h-full" style={{ position: "relative" }}>
         <TechDemo />
@@ -28,7 +55,7 @@ export default function App() {
           position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)",
           display: "flex", gap: 8, zIndex: 50, pointerEvents: "auto",
         }}>
-          <button onClick={() => setShowDemo(false)}
+          <button onClick={goToEditor}
             style={{ background: "rgba(0,0,0,0.6)", border: "1px solid rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)", padding: "5px 14px", borderRadius: 6, fontSize: 10, cursor: "pointer", fontFamily: "inherit", backdropFilter: "blur(4px)" }}>
             Open Editor
           </button>
@@ -39,11 +66,7 @@ export default function App() {
 
   return (
     <div className="w-full h-full flex flex-col" tabIndex={0}>
-      {mode === "edit" ? (
-        <Editor />
-      ) : (
-        <HollowCity onStop={() => setMode("edit")} />
-      )}
+      <Editor />
     </div>
   );
 }
