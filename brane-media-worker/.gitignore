@@ -1,0 +1,4 @@
+outputs/*.mp4
+mock_jobs/*.json
+__pycache__/
+*.pyc
