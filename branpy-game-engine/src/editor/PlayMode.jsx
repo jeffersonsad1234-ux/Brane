@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useMemo, useCallback } from "react";
+import React, { useRef, useState, useEffect, useMemo, useCallback } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Physics, RigidBody, CapsuleCollider } from "@react-three/rapier";
 import { useEditorStore } from "@store/editorStore";
