@@ -1,8 +1,11 @@
 import { BaseProvider, ProviderError } from "./BaseProvider";
 
 const GROQ_MODELS = [
-  "llama3-70b-8192", "llama3-8b-8192", "mixtral-8x7b-32768",
-  "gemma2-9b-it", "gemma-7b-it",
+  "llama-3.3-70b-versatile",
+  "llama-3.1-70b-versatile",
+  "llama-3.1-8b-instant",
+  "mixtral-8x7b-32768",
+  "gemma2-9b-it",
 ];
 
 export class GroqProvider extends BaseProvider {
@@ -11,8 +14,9 @@ export class GroqProvider extends BaseProvider {
       id: "groq",
       name: "Groq",
       baseUrl: "https://api.groq.com/openai/v1",
+      apiKey: config.apiKey || localStorage.getItem("groq_api_key") || process.env.REACT_APP_GROQ_API_KEY || "",
       models: config.models || GROQ_MODELS,
-      defaultModel: "llama3-70b-8192",
+      defaultModel: config.defaultModel || "llama-3.3-70b-versatile",
       requiresKey: true,
       ...config,
     });

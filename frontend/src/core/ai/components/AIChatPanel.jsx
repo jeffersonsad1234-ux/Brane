@@ -13,10 +13,16 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
   } = useAI();
 
   const [input, setInput] = useState("");
+  const [apiKeySetup, setApiKeySetup] = useState(false);
+  const [tempApiKey, setTempApiKey] = useState("");
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const isStreaming = streaming || loading;
   const hasMessages = messages.length > 0;
+  
+  // Check if Groq API key is configured
+  const groqApiKey = localStorage.getItem("groq_api_key") || "";
+  const needsSetup = !groqApiKey && !apiKeySetup;
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, currentStream]);
 
@@ -31,6 +37,19 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
   }, [input, isStreaming, sendStreamMessage, currentAgent]);
 
   const handleKeyDown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } };
+
+  const handleSaveApiKey = () => {
+    const key = tempApiKey.trim();
+    if (key) {
+      localStorage.setItem("groq_api_key", key);
+      setApiKeySetup(true);
+      setTempApiKey("");
+    }
+  };
+
+  const handleSkipSetup = () => {
+    setApiKeySetup(true);
+  };
 
   return (
     <AIChatErrorBoundary>
@@ -107,7 +126,108 @@ export default function AIChatPanel({ onClose, initialAgent = null, fullScreen =
 
         {/* ===== MAIN CONTENT ===== */}
         <div className="flex-1 overflow-hidden relative z-10" style={{ display: "flex", flexDirection: "column" }}>
-          {!hasMessages ? (
+          {needsSetup ? (
+            <div className="flex-1 overflow-y-auto flex items-center justify-center" style={{ scrollbarWidth: "thin" }}>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="max-w-md mx-auto px-6 py-8 rounded-2xl"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              >
+                <div className="text-center mb-6">
+                  <div
+                    className="inline-flex items-center justify-center w-14 h-14 rounded-xl mb-4"
+                    style={{
+                      background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                      boxShadow: "0 8px 24px rgba(99,102,241,0.3)",
+                    }}
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-bold mb-2" style={{ color: "rgba(255,255,255,0.95)" }}>
+                    Configure sua API Key
+                  </h2>
+                  <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+                    Para usar o BRANPY Chat, você precisa de uma API key do Groq (grátis e rápido)
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium mb-2" style={{ color: "rgba(255,255,255,0.6)" }}>
+                      Groq API Key
+                    </label>
+                    <input
+                      type="password"
+                      value={tempApiKey}
+                      onChange={(e) => setTempApiKey(e.target.value)}
+                      placeholder="gsk_..."
+                      className="w-full px-4 py-3 rounded-lg text-sm outline-none transition-all"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        color: "rgba(255,255,255,0.9)",
+                      }}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleSaveApiKey(); }}
+                    />
+                  </div>
+
+                  <div
+                    className="p-3 rounded-lg text-xs"
+                    style={{
+                      background: "rgba(59,130,246,0.08)",
+                      border: "1px solid rgba(59,130,246,0.15)",
+                      color: "rgba(147,197,253,0.9)",
+                    }}
+                  >
+                    <strong>Como obter:</strong>
+                    <ol className="mt-2 space-y-1 ml-4 list-decimal">
+                      <li>Acesse <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer" className="underline">console.groq.com/keys</a></li>
+                      <li>Crie conta (grátis, sem cartão)</li>
+                      <li>Copie sua API key</li>
+                      <li>Cole aqui e clique em Salvar</li>
+                    </ol>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleSaveApiKey}
+                      disabled={!tempApiKey.trim()}
+                      className="flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all"
+                      style={{
+                        background: tempApiKey.trim() ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "rgba(255,255,255,0.06)",
+                        color: "white",
+                        opacity: tempApiKey.trim() ? 1 : 0.4,
+                        cursor: tempApiKey.trim() ? "pointer" : "not-allowed",
+                      }}
+                    >
+                      Salvar e Começar
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleSkipSetup}
+                      className="px-4 py-3 rounded-lg text-sm font-medium transition-all"
+                      style={{
+                        background: "rgba(255,255,255,0.03)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        color: "rgba(255,255,255,0.5)",
+                      }}
+                    >
+                      Pular
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          ) : !hasMessages ? (
             <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "thin" }}>
               <div className="max-w-3xl mx-auto px-5 sm:px-8 py-10 sm:py-20">
                 <motion.div

@@ -14,7 +14,7 @@ export class AIRouter {
     this.name = config.name || "BRANPY AI Router";
     this.memory = config.memory || new AIMemory();
     this.fallbackManager = config.fallbackManager || fallbackManager;
-    this.defaultProvider = config.defaultProvider || "ollama";
+    this.defaultProvider = config.defaultProvider || "groq";
     this.defaultModel = config.defaultModel || "";
     this.maxContextMessages = config.maxContextMessages ?? 50;
     this.sessionId = config.sessionId || `session_${UID()}`;

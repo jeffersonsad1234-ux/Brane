@@ -30,7 +30,7 @@ function buildPayload(model, messages, stream, options = {}) {
   return {
     model,
     messages,
-    stream: false,
+    stream: stream,
     keep_alive: "30m",
     options: {
       temperature: options.temperature ?? 0.7,

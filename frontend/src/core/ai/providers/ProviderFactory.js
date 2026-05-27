@@ -1,10 +1,12 @@
 import { OllamaProvider } from "./OllamaProvider";
+import { GroqProvider } from "./GroqProvider";
 
 const PROVIDER_REGISTRY = {
+  groq: GroqProvider,
   ollama: OllamaProvider,
 };
 
-const PROVIDER_PRIORITY = ["ollama"];
+const PROVIDER_PRIORITY = ["groq", "ollama"];
 
 let providerInstances = {};
 
