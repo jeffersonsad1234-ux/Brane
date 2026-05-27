@@ -5,6 +5,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { toast } from 'sonner';
+import { useTranslation } from '../i18n/I18nContext';
 
 function PasswordInput({ value, onChange, placeholder }) {
   const [show, setShow] = useState(false);
@@ -33,6 +34,7 @@ function PasswordInput({ value, onChange, placeholder }) {
 }
 
 export default function AuthModal({ open, onClose }) {
+  const { t } = useTranslation();
   const { login, register, loginWithGoogle } = useAuth();
 
   const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -53,10 +55,10 @@ export default function AuthModal({ open, onClose }) {
 
     try {
       await login(loginData.email, loginData.password);
-      toast.success('Login realizado!');
+      toast.success(t('auth.loginSuccess'));
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Email ou senha incorretos');
+      toast.error(err.response?.data?.detail || t('auth.invalidCredentials'));
     } finally {
       setLoading(false);
     }
@@ -68,10 +70,10 @@ export default function AuthModal({ open, onClose }) {
 
     try {
       await register(regData.name, regData.email, regData.password, regData.role);
-      toast.success('Conta criada com sucesso!');
+      toast.success(t('auth.registerSuccess'));
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Erro ao criar conta');
+      toast.error(err.response?.data?.detail || t('auth.registerError'));
     } finally {
       setLoading(false);
     }
@@ -99,14 +101,14 @@ export default function AuthModal({ open, onClose }) {
               value="login"
               className="rounded-xl font-black text-[#111318] data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#5B1CB5] data-[state=active]:to-[#D4A24C] data-[state=active]:text-white"
             >
-              Entrar
+              {t('auth.login')}
             </TabsTrigger>
 
             <TabsTrigger
               value="register"
               className="rounded-xl font-black text-[#111318] data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#5B1CB5] data-[state=active]:to-[#D4A24C] data-[state=active]:text-white"
             >
-              Criar conta
+              {t('auth.register')}
             </TabsTrigger>
           </TabsList>
 
@@ -114,7 +116,7 @@ export default function AuthModal({ open, onClose }) {
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <Label className="text-[#111318] text-xs uppercase tracking-wider font-black">
-                  Email
+                  {t('auth.email')}
                 </Label>
                 <Input
                   type="email"
@@ -127,7 +129,7 @@ export default function AuthModal({ open, onClose }) {
 
               <div>
                 <Label className="text-[#111318] text-xs uppercase tracking-wider font-black">
-                  Senha
+                  {t('auth.password')}
                 </Label>
                 <PasswordInput
                   value={loginData.password}
@@ -140,7 +142,7 @@ export default function AuthModal({ open, onClose }) {
                 disabled={loading}
                 className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#5B1CB5] via-[#8A2CFF] to-[#D4A24C] text-white font-black shadow-[0_14px_35px_rgba(91,28,181,0.28)] disabled:opacity-60"
               >
-                {loading ? 'Entrando...' : 'Entrar'}
+                {loading ? t('auth.loggingIn') : t('auth.login')}
               </button>
             </form>
           </TabsContent>
@@ -149,14 +151,14 @@ export default function AuthModal({ open, onClose }) {
             <form onSubmit={handleRegister} className="space-y-4">
               <div>
                 <Label className="text-[#111318] text-xs uppercase tracking-wider font-black">
-                  Cadastrar como
+                  {t('auth.registerAs')}
                 </Label>
 
                 <div className="grid grid-cols-3 gap-2 mt-2">
                   {[
-                    { value: 'buyer', label: 'Comprador' },
-                    { value: 'seller', label: 'Vendedor' },
-                    { value: 'affiliate', label: 'Afiliado' }
+                    { value: 'buyer', label: t('auth.buyer') },
+                    { value: 'seller', label: t('auth.seller') },
+                    { value: 'affiliate', label: t('auth.affiliate') }
                   ].map((opt) => {
                     const active = regData.role === opt.value;
 
@@ -181,7 +183,7 @@ export default function AuthModal({ open, onClose }) {
 
               <div>
                 <Label className="text-[#111318] text-xs uppercase tracking-wider font-black">
-                  Nome completo
+                  {t('auth.fullName')}
                 </Label>
                 <Input
                   value={regData.name}
@@ -193,7 +195,7 @@ export default function AuthModal({ open, onClose }) {
 
               <div>
                 <Label className="text-[#111318] text-xs uppercase tracking-wider font-black">
-                  Email
+                  {t('auth.email')}
                 </Label>
                 <Input
                   type="email"
@@ -206,7 +208,7 @@ export default function AuthModal({ open, onClose }) {
 
               <div>
                 <Label className="text-[#111318] text-xs uppercase tracking-wider font-black">
-                  Senha
+                  {t('auth.password')}
                 </Label>
                 <PasswordInput
                   value={regData.password}
@@ -219,7 +221,7 @@ export default function AuthModal({ open, onClose }) {
                 disabled={loading}
                 className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#5B1CB5] via-[#8A2CFF] to-[#D4A24C] text-white font-black shadow-[0_14px_35px_rgba(91,28,181,0.28)] disabled:opacity-60"
               >
-                {loading ? 'Criando...' : 'Criar conta'}
+                {loading ? t('auth.creating') : t('auth.register')}
               </button>
             </form>
           </TabsContent>
@@ -230,7 +232,7 @@ export default function AuthModal({ open, onClose }) {
           onClick={loginWithGoogle}
           className="mt-5 w-full h-12 rounded-2xl bg-white text-[#111318] font-black border border-[#D8D1C5] shadow-sm hover:bg-[#F7F3EA]"
         >
-          Entrar com Google
+          {t('auth.googleLogin')}
         </button>
       </div>
     </div>

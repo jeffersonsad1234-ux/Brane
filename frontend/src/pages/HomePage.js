@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from '../i18n/I18nContext';
 
 import HomeHero from '../components/home/HomeHero';
 import HomeCategories from '../components/home/HomeCategories';
@@ -30,34 +31,35 @@ import {
 const API = process.env.REACT_APP_BACKEND_URL + '/api';
 const CACHE_KEY = 'brane_market_products_cache_v15';
 
-const environments = [
-  { id: 'eletronicos', name: 'Tecnologia', icon: Smartphone, image: 'linear-gradient(135deg, rgba(31,41,55,0.92), rgba(109,40,217,0.45))' },
-  { id: 'roupas', name: 'Moda', icon: Shirt, image: 'linear-gradient(135deg, rgba(55,35,25,0.92), rgba(212,162,76,0.40))' },
-  { id: 'casa', name: 'Casa', icon: Sofa, image: 'linear-gradient(135deg, rgba(26,43,33,0.92), rgba(120,180,120,0.35))' },
-  { id: 'cosmeticos', name: 'Beleza', icon: Sparkles, image: 'linear-gradient(135deg, rgba(58,28,50,0.92), rgba(255,120,160,0.35))' },
-  { id: 'esportes', name: 'Esportes', icon: Dumbbell, image: 'linear-gradient(135deg, rgba(30,35,48,0.92), rgba(80,120,255,0.35))' },
-  { id: 'automoveis', name: 'Auto', icon: Car, image: 'linear-gradient(135deg, rgba(20,24,32,0.92), rgba(212,162,76,0.34))' },
-  { id: 'games', name: 'Games', icon: Gamepad2, image: 'linear-gradient(135deg, rgba(28,20,48,0.92), rgba(138,44,255,0.40))' }
-];
-
-const benefits = [
-  { title: 'Frete rápido', text: 'para todo o Brasil', icon: Truck },
-  { title: 'Pagamento seguro', text: 'ambiente protegido', icon: ShieldCheck },
-  { title: 'Devolução fácil', text: 'até 7 dias', icon: RotateCcw },
-  { title: 'Suporte real', text: 'atendimento humano', icon: Headphones }
-];
-
-const bottomBanners = [
-  { title: 'Ofertas relâmpago', text: 'Termina em', value: '02:45:18', icon: Zap, tone: 'from-[#0B0D12] to-[#2B1608]' },
-  { title: 'Venda na BRANE', text: 'Transforme o que você não usa em dinheiro.', value: 'Começar agora', icon: Package, tone: 'from-[#2B1A08] to-[#A46E24]' },
-  { title: 'Clube BRANE', text: 'Ofertas exclusivas, frete grátis e muito mais.', value: 'Seja membro', icon: Crown, tone: 'from-[#09090D] to-[#3B2505]' },
-  { title: 'Cupons exclusivos', text: 'Descontos selecionados para você.', value: 'Ver cupons', icon: Percent, tone: 'from-[#1A1025] to-[#6D28D9]' }
-];
-
 export default function HomePage() {
+  const { t, lang } = useTranslation();
   const { user } = useAuth();
   const productsRef = useRef(null);
   const requestIdRef = useRef(0);
+
+  const environments = useMemo(() => [
+    { id: 'eletronicos', name: t('home.technology'), icon: Smartphone, image: 'linear-gradient(135deg, rgba(31,41,55,0.92), rgba(109,40,217,0.45))' },
+    { id: 'roupas', name: t('home.fashion'), icon: Shirt, image: 'linear-gradient(135deg, rgba(55,35,25,0.92), rgba(212,162,76,0.40))' },
+    { id: 'casa', name: t('home.home'), icon: Sofa, image: 'linear-gradient(135deg, rgba(26,43,33,0.92), rgba(120,180,120,0.35))' },
+    { id: 'cosmeticos', name: t('home.beauty'), icon: Sparkles, image: 'linear-gradient(135deg, rgba(58,28,50,0.92), rgba(255,120,160,0.35))' },
+    { id: 'esportes', name: t('home.sports'), icon: Dumbbell, image: 'linear-gradient(135deg, rgba(30,35,48,0.92), rgba(80,120,255,0.35))' },
+    { id: 'automoveis', name: t('home.automotive'), icon: Car, image: 'linear-gradient(135deg, rgba(20,24,32,0.92), rgba(212,162,76,0.34))' },
+    { id: 'games', name: t('home.games'), icon: Gamepad2, image: 'linear-gradient(135deg, rgba(28,20,48,0.92), rgba(138,44,255,0.40))' }
+  ], [lang]);
+
+  const benefits = useMemo(() => [
+    { title: t('home.fastShipping'), text: t('home.acrossBrazil'), icon: Truck },
+    { title: t('home.securePayment'), text: t('home.protectedEnvironment'), icon: ShieldCheck },
+    { title: t('home.easyReturn'), text: t('home.upTo7Days'), icon: RotateCcw },
+    { title: t('home.realSupport'), text: t('home.humanService'), icon: Headphones }
+  ], [lang]);
+
+  const bottomBanners = useMemo(() => [
+    { title: t('home.flashOffers'), text: t('home.endsIn'), value: '02:45:18', icon: Zap, tone: 'from-[#0B0D12] to-[#2B1608]' },
+    { title: t('home.sellOnBrane2'), text: t('home.transformUnused'), value: t('home.start'), icon: Package, tone: 'from-[#2B1A08] to-[#A46E24]' },
+    { title: t('home.braneClub'), text: t('home.exclusiveCoupons'), value: t('home.becomeMember'), icon: Crown, tone: 'from-[#09090D] to-[#3B2505]' },
+    { title: t('home.exclusiveCoupons'), text: t('home.viewCoupons'), value: t('home.viewCoupons'), icon: Percent, tone: 'from-[#1A1025] to-[#6D28D9]' }
+  ], [lang]);
 
   const [showCompactBar, setShowCompactBar] = useState(false);
   const [compactHero, setCompactHero] = useState(false);

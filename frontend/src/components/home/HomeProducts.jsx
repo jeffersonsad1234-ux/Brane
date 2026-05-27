@@ -1,5 +1,6 @@
 import { Store as StoreIcon } from 'lucide-react';
 import Product3DCard from '../Product3DCard';
+import { useTranslation } from '../../i18n/I18nContext';
 
 export default function HomeProducts({
   productsRef,
@@ -9,6 +10,8 @@ export default function HomeProducts({
   page,
   setPage
 }) {
+  const { t } = useTranslation();
+
   return (
     <section ref={productsRef} className="max-w-7xl mx-auto px-4 pt-5 scroll-mt-20 bg-white">
       {loadingProducts && products.length === 0 ? (
@@ -47,7 +50,7 @@ export default function HomeProducts({
                   onClick={() => setPage(page - 1)}
                   className="px-5 py-3 rounded-2xl bg-white border border-[#E5E7EB] text-[#111318] font-bold"
                 >
-                  Anterior
+                  {t('common.previous')}
                 </button>
               )}
 
@@ -72,7 +75,7 @@ export default function HomeProducts({
                   onClick={() => setPage(page + 1)}
                   className="px-5 py-3 rounded-2xl bg-white border border-[#E5E7EB] text-[#111318] font-bold"
                 >
-                  Próximo
+                  {t('common.next')}
                 </button>
               )}
             </div>
@@ -81,7 +84,7 @@ export default function HomeProducts({
       ) : (
         <div className="py-14 text-center">
           <StoreIcon className="w-10 h-10 text-[#B7A88D] mx-auto mb-3" />
-          <p className="text-[#6F6659]">Nenhum produto encontrado.</p>
+          <p className="text-[#6F6659]">{t('common.noResults')}</p>
         </div>
       )}
     </section>

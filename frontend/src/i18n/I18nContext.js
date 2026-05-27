@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import translationsData from "./translations";
 
 const I18nContext = createContext(null);
@@ -42,7 +42,8 @@ function resolveTranslation(obj, key) {
 }
 
 export function I18nProvider({ children }) {
-  const [lang, setLangState] = useState(getInitialLang);
+  const [lang, setLang] = useState(getInitialLang);
+  const [revision, setRevision] = useState(0);
   const langRef = useRef(lang);
   langRef.current = lang;
 
@@ -51,27 +52,37 @@ export function I18nProvider({ children }) {
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   }, [lang]);
 
-  const setLanguage = useCallback((code) => {
+  const setLanguage = (code) => {
     if (!LANGUAGES.some((l) => l.code === code)) return;
-    setLangState(code);
+    setLang(code);
+    setRevision((r) => r + 1);
     try { localStorage.setItem(STORAGE_KEY, code); } catch {}
-  }, []);
+  };
 
-  const t = useCallback((key, params) => {
-    let value =
-      resolveTranslation(translationsData[lang], key) ||
-      resolveTranslation(translationsData[FALLBACK_LANG], key);
-    if (value == null) return key;
-    if (params) {
-      value = value.replace(/\{\{(\w+)\}\}/g, (_, p) =>
-        params[p] != null ? String(params[p]) : `{{${p}}}`
-      );
-    }
-    return value;
-  }, [lang]);
+  const contextValue = {
+    lang,
+    revision,
+    setLanguage,
+    t: (key, params) => {
+      void revision; // ensure consumers re-render when language changes
+      const currentLang = langRef.current || FALLBACK_LANG;
+      const translations = translationsData[currentLang] || translationsData[FALLBACK_LANG];
+      let value = resolveTranslation(translations, key);
+      if (value == null) {
+        value = resolveTranslation(translationsData[FALLBACK_LANG], key);
+      }
+      if (value == null) return key;
+      if (params) {
+        value = value.replace(/\{\{(\w+)\}\}/g, (_, p) =>
+          params[p] != null ? String(params[p]) : `{{${p}}}`
+        );
+      }
+      return value;
+    },
+    languages: LANGUAGES,
+  };
 
-  const value = { lang, setLanguage, t, languages: LANGUAGES };
-  return React.createElement(I18nContext.Provider, { value }, children);
+  return React.createElement(I18nContext.Provider, { value: contextValue }, children);
 }
 
 export function useTranslation() {

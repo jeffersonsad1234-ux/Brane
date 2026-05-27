@@ -10,6 +10,7 @@ import {
   Headphones,
   Home
 } from 'lucide-react';
+import { useTranslation } from '../../i18n/I18nContext';
 
 export default function HomeHero({
   compactHero,
@@ -18,6 +19,7 @@ export default function HomeHero({
   onGoProducts
 }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <section className="relative overflow-hidden border-b border-[#E5E7EB] bg-white">
@@ -47,7 +49,7 @@ export default function HomeHero({
           >
             <p className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-[#B98228] mb-2">
               <Sparkles size={13} />
-              Marketplace premium
+              {t('home.premiumMarketplace')}
             </p>
 
             <h1
@@ -57,13 +59,13 @@ export default function HomeHero({
                   : 'text-2xl md:text-3xl font-black leading-[1.02] tracking-tight text-[#111318]'
               }
             >
-              O futuro das compras
-              <span className="block text-[#C4892F]">é BRANE.</span>
+              {t('home.futureOfShopping')}
+              <span className="block text-[#C4892F]">{t('home.isBrane')}</span>
             </h1>
 
             {!compactHero && (
               <p className="mt-3 text-sm text-[#3F4652] max-w-md leading-relaxed">
-                Tecnologia, segurança e milhares de produtos em uma vitrine premium.
+                {t('home.heroSubtitle')}
               </p>
             )}
 
@@ -81,7 +83,7 @@ export default function HomeHero({
                 onClick={() => selectCategory('')}
                 className="h-10 px-4 rounded-2xl bg-white border border-[#D4A24C]/35 text-[#111318] font-bold flex items-center gap-2"
               >
-                Ofertas
+                {t('home.offers')}
                 <Zap size={15} className="text-[#C4892F]" />
               </button>
             </div>
@@ -119,22 +121,22 @@ export default function HomeHero({
             <div className="relative z-10 h-full grid md:grid-cols-2 gap-3 p-5 items-center">
               <div>
                 <p className="text-[10px] text-[#F1D28A] mb-2">
-                  <Star size={13} /> Fornecedores globais
+                  <Star size={13} /> {t('home.globalSuppliers')}
                 </p>
 
                 <h2 className="text-2xl font-black text-white">
-                  Compre direto de fornecedores
+                  {t('home.buyFromSuppliers')}
                 </h2>
 
                 <p className="text-white/70 text-xs mt-2">
-                  Conecte sua loja a fábricas e distribuidoras.
+                  {t('home.connectSupplier')}
                 </p>
 
                 <button
                   onClick={() => navigate('/fornecedores')}
                   className="mt-3 bg-white text-black px-4 py-2 rounded-xl"
                 >
-                  Explorar
+                  {t('home.explore')}
                 </button>
               </div>
 
@@ -146,37 +148,35 @@ export default function HomeHero({
             </div>
           </div>
 
-          {/* COLUNA DIREITA (SEM DESAPEGA) */}
+          {/* COLUNA DIREITA */}
           <div className="hidden lg:flex flex-col gap-3">
-            {/* Parte Superior: Lojas parceiras */}
             <button
               type="button"
               onClick={() => navigate('/stores')}
               className="relative flex-1 rounded-[24px] bg-[#1A1715] p-4 text-left"
             >
               <h3 className="text-white font-black">
-                Lojas parceiras
+                {t('home.partnerStores')}
               </h3>
 
               <span className="text-xs text-white/70">
-                Ver lojas
+                {t('home.viewStores')}
               </span>
 
               <Home className="absolute right-5 bottom-5 text-[#D4A24C]" />
             </button>
 
-            {/* Parte Inferior: B Livre */}
             <button
               type="button"
               onClick={() => navigate('/blivre')}
               className="relative flex-1 rounded-[24px] bg-gradient-to-br from-[#090B10] via-[#1A1F2E] to-[#090B10] border border-[#D4A24C]/20 p-4 text-left"
             >
               <h3 className="text-white font-black">
-                B Livre
+                {t('home.bLivre')}
               </h3>
 
               <span className="text-xs text-[#F1D28A]/70">
-                Compre e venda direto
+                {t('home.buySellDirect')}
               </span>
 
               <Home className="absolute right-5 bottom-5 text-[#F1D28A]" />
