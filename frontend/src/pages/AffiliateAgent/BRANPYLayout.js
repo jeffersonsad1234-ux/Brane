@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import ToolsGrid3D from "../../components/ui/ToolsGrid3D";
+import LanguageSelector from "../../components/LanguageSelector";
 
 const CATEGORIES = [
   { id: "create", label: "Create" }, { id: "ai", label: "AI" }, { id: "business", label: "Business" },
@@ -141,6 +142,7 @@ function TopBar({ search, onSearchChange, onNewProject, recentCount, activeCount
       <div className="flex items-center gap-2 text-[9px] text-white/15">
         <div className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500/40" />{activeCount > 0 ? `${activeCount} active` : "Ready"}</div>
       </div>
+      <LanguageSelector variant="branpy" />
       <div className="w-px h-4 bg-white/[0.06]" />
       <button onClick={onNewProject} className="flex items-center gap-1 px-2 py-1 rounded-md text-[9px] bg-white/[0.04] text-white/35 hover:bg-white/[0.08] hover:text-white/55 transition-all">
         <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>

@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { Instagram, Facebook, Twitter, Globe, Mail, Send } from 'lucide-react';
 import { BRANE_LOGO_URL } from './Navbar';
 import AdSlot from './AdSlot';
+import { useTranslation } from '../i18n/I18nContext';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -23,6 +24,7 @@ const SOCIAL_LABEL_MAP = {
 };
 
 export default function Footer() {
+  const { t } = useTranslation();
   const [socialLinks, setSocialLinks] = useState([]);
 
   useEffect(() => {
@@ -58,32 +60,32 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-sm text-[#A6A8B3] max-w-sm leading-relaxed mb-6">
-              Conectando pessoas, criando oportunidades. Compre, venda e anuncie com segurança em uma plataforma premium.
+              {t('footer.description')}
             </p>
             <NewsletterForm />
           </div>
 
-          <FooterCol title="Navegação" links={[
-            { label: 'Início', to: '/' },
-            { label: 'Explorar', to: '/products' },
-            { label: 'Lojas', to: '/stores' },
-            { label: 'Anunciar', to: '/add-product' },
+          <FooterCol title={t('footer.navigation')} links={[
+            { label: t('footer.home'), to: '/' },
+            { label: t('footer.explore'), to: '/products' },
+            { label: t('footer.stores'), to: '/stores' },
+            { label: t('footer.advertise'), to: '/add-product' },
           ]} />
-          <FooterCol title="Suporte" links={[
-            { label: 'Sobre Nós', to: '/pages/sobre' },
-            { label: 'Central de ajuda (FAQ)', to: '/pages/faq' },
-            { label: 'Contato', to: '/pages/contato' },
-            { label: 'Falar com Suporte', to: '/support' },
+          <FooterCol title={t('footer.support')} links={[
+            { label: t('footer.aboutUs'), to: '/pages/sobre' },
+            { label: t('footer.faq'), to: '/pages/faq' },
+            { label: t('footer.contact'), to: '/pages/contato' },
+            { label: t('footer.talkToSupport'), to: '/support' },
           ]} />
-          <FooterCol title="Legal" links={[
-            { label: 'Termos de uso', to: '/pages/termos' },
-            { label: 'Privacidade', to: '/pages/privacidade' },
-            { label: 'Segurança', to: '/pages/seguranca' },
+          <FooterCol title={t('footer.legal')} links={[
+            { label: t('footer.terms'), to: '/pages/termos' },
+            { label: t('footer.privacy'), to: '/pages/privacidade' },
+            { label: t('footer.security'), to: '/pages/seguranca' },
           ]} />
         </div>
 
         <div className="mt-14 pt-6 border-t border-[#14171F] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[#6F7280]">&copy; {new Date().getFullYear()} Belivre. Todos os direitos reservados.</p>
+          <p className="text-xs text-[#6F7280]">&copy; {new Date().getFullYear()} Belivre. {t('footer.rights')}.</p>
           <div className="flex items-center gap-2">
             {socialLinks.length === 0 ? null : socialLinks.map(({ key, url, label, Icon }) => (
               <a
@@ -107,6 +109,7 @@ export default function Footer() {
 }
 
 function NewsletterForm() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -115,16 +118,16 @@ function NewsletterForm() {
     const v = email.trim();
     if (!v) return;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
-      toast.error('Digite um email válido');
+      toast.error(t('footer.invalidEmail'));
       return;
     }
     setLoading(true);
     try {
       const r = await axios.post(`${API}/subscribers`, { email: v });
-      toast.success(r.data?.message || 'Inscrição confirmada!');
+      toast.success(r.data?.message || t('footer.subscribeSuccess'));
       setEmail('');
     } catch (err) {
-      toast.error(err?.response?.data?.detail || 'Erro ao inscrever');
+      toast.error(err?.response?.data?.detail || t('footer.subscribeError'));
     } finally {
       setLoading(false);
     }
@@ -134,15 +137,15 @@ function NewsletterForm() {
     <form onSubmit={submit} className="space-y-2" data-testid="newsletter-form">
       <div className="flex items-center gap-2 text-sm text-white">
         <Mail className="w-4 h-4 text-[#D4A24C]" />
-        <span className="font-semibold">Receba ofertas exclusivas</span>
+        <span className="font-semibold">{t('footer.newsletter')}</span>
       </div>
-      <p className="text-xs text-[#6F7280]">Cadastre seu email e seja avisado das melhores promoções.</p>
+      <p className="text-xs text-[#6F7280]">{t('footer.subscribePrompt')}</p>
       <div className="flex gap-2 max-w-sm">
         <input
           type="email"
           value={email}
           onChange={e => setEmail(e.target.value)}
-          placeholder="seuemail@exemplo.com"
+          placeholder={t('footer.emailPlaceholder')}
           className="flex-1 px-3 py-2 rounded-lg bg-[#0B0D12] border border-[#1E2230] text-white text-sm placeholder:text-[#4F525B] focus:outline-none focus:border-[#D4A24C] transition-colors"
           data-testid="newsletter-email-input"
           required
@@ -154,7 +157,7 @@ function NewsletterForm() {
           data-testid="newsletter-submit-btn"
         >
           <Send className="w-3.5 h-3.5" />
-          {loading ? '...' : 'Inscrever'}
+          {loading ? '...' : t('footer.subscribe')}
         </button>
       </div>
     </form>

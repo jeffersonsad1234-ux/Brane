@@ -55,6 +55,7 @@ import { AdminDataProvider } from "./contexts/AdminDataContext";
 import BLivreAuthPage from "./pages/BLivreAuthPage";
 import BLivreMessagesPage from "./pages/BLivreMessagesPage";
 import { BLivreAuthProvider } from "./contexts/BLivreAuthContext";
+import { I18nProvider } from "./i18n/I18nContext";
 import BLivreSEO from "./components/BLivreSEO";
 import ErrorBoundary from "./components/ErrorBoundary";
 
@@ -376,13 +377,15 @@ function AppRouter() {
 
 function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <BrowserRouter>
-          <AppRouter />
-        </BrowserRouter>
-      </ThemeProvider>
-    </AuthProvider>
+    <I18nProvider>
+      <AuthProvider>
+        <ThemeProvider>
+          <BrowserRouter>
+            <AppRouter />
+          </BrowserRouter>
+        </ThemeProvider>
+      </AuthProvider>
+    </I18nProvider>
   );
 }
 

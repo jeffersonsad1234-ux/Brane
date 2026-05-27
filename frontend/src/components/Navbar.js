@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import AuthModal from './AuthModal';
+import { useTranslation } from '../i18n/I18nContext';
+import LanguageSelector from './LanguageSelector';
 import {
   Search, ShoppingCart, Bell, User, LogOut, ChevronDown, Menu, X,
   Wallet, Package, Settings, HelpCircle, Shield, Store, MessageCircle,
@@ -17,6 +19,7 @@ export const BRANE_LOGO_URL = '/logo-belivre.png';
 const API = process.env.REACT_APP_BACKEND_URL + '/api';
 
 export default function Navbar({ onSearch }) {
+  const { t } = useTranslation();
   const { user, logout, token } = useAuth();
   const navigate = useNavigate();
 
@@ -60,10 +63,10 @@ export default function Navbar({ onSearch }) {
   const canAnnounceProduct = user && (user.role === 'seller' || user.role === 'admin');
 
   const roleLabels = {
-    buyer: 'Comprador',
-    seller: 'Vendedor',
-    affiliate: 'Afiliado',
-    admin: 'Admin (CEO)'
+    buyer: t('nav.buyer'),
+    seller: t('nav.seller'),
+    affiliate: t('nav.affiliate'),
+    admin: t('nav.admin'),
   };
 
   const handleSearch = (e) => {
@@ -102,7 +105,7 @@ export default function Navbar({ onSearch }) {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#8C8F9A]" />
                 <input
                   type="text"
-                  placeholder="Buscar produtos, marcas e mais..."
+                  placeholder={t('nav.search')}
                   value={searchVal}
                   onChange={(e) => setSearchVal(e.target.value)}
                   className="brane-search"
@@ -114,23 +117,25 @@ export default function Navbar({ onSearch }) {
             <div className="flex items-center gap-1.5 ml-auto">
               {user ? (
                 <>
-                  <Link to="/support" className="brane-nav-icon-btn purple hidden sm:inline-flex" title="Mensagens" data-testid="nav-messages">
+                  <Link to="/support" className="brane-nav-icon-btn purple hidden sm:inline-flex" title={t('nav.messages')} data-testid="nav-messages">
                     <MessageSquare className="w-[20px] h-[20px]" />
                   </Link>
 
-                  <Link to="/cart" className="brane-nav-icon-btn" data-testid="cart-link" title="Carrinho">
+                  <Link to="/cart" className="brane-nav-icon-btn" data-testid="cart-link" title={t('nav.cart')}>
                     <ShoppingCart className="w-[20px] h-[20px]" />
                     {cartCount > 0 && <span className="badge">{cartCount}</span>}
                   </Link>
 
-                  <Link to="/market?favorites=1" className="brane-nav-icon-btn purple hidden sm:inline-flex" title="Favoritos" data-testid="nav-favorites">
+                  <Link to="/market?favorites=1" className="brane-nav-icon-btn purple hidden sm:inline-flex" title={t('nav.favorites')} data-testid="nav-favorites">
                     <Heart className="w-[20px] h-[20px]" />
                   </Link>
 
-                  <Link to="/notifications" className="brane-nav-icon-btn hidden sm:inline-flex" data-testid="notifications-link" title="Notificações">
+                  <Link to="/notifications" className="brane-nav-icon-btn hidden sm:inline-flex" data-testid="notifications-link" title={t('nav.notifications')}>
                     <Bell className="w-[20px] h-[20px]" />
                     {notifCount > 0 && <span className="badge red">{notifCount}</span>}
                   </Link>
+
+                  <LanguageSelector variant="navbar" />
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -179,21 +184,21 @@ export default function Navbar({ onSearch }) {
                       <div className="brane-dropdown-sep" />
 
                       <DropdownMenuItem onClick={() => navigate('/profile')} className="brane-dropdown-item focus:bg-transparent" data-testid="menu-profile">
-                        <User className="w-[18px] h-[18px] icon" /> <span>Meu Perfil</span>
+                        <User className="w-[18px] h-[18px] icon" /> <span>{t('nav.myProfile')}</span>
                       </DropdownMenuItem>
 
                       <DropdownMenuItem onClick={() => navigate('/orders')} className="brane-dropdown-item focus:bg-transparent" data-testid="menu-orders">
-                        <Package className="w-[18px] h-[18px] icon" /> <span>Meus Pedidos</span>
+                        <Package className="w-[18px] h-[18px] icon" /> <span>{t('nav.myOrders')}</span>
                       </DropdownMenuItem>
 
                       {user.role !== 'buyer' && (
                         <DropdownMenuItem onClick={() => navigate('/wallet')} className="brane-dropdown-item focus:bg-transparent" data-testid="menu-wallet">
-                          <Wallet className="w-[18px] h-[18px] icon" /> <span>Carteira</span>
+                          <Wallet className="w-[18px] h-[18px] icon" /> <span>{t('nav.wallet')}</span>
                         </DropdownMenuItem>
                       )}
 
                       <DropdownMenuItem onClick={() => navigate('/dashboard')} className="brane-dropdown-item focus:bg-transparent" data-testid="menu-dashboard">
-                        <Settings className="w-[18px] h-[18px] icon" /> <span>Painel</span>
+                        <Settings className="w-[18px] h-[18px] icon" /> <span>{t('nav.dashboard')}</span>
                       </DropdownMenuItem>
 
                       <div className="brane-dropdown-sep" />
@@ -201,44 +206,44 @@ export default function Navbar({ onSearch }) {
                       {user.role !== 'buyer' && (
                         <>
                           <DropdownMenuItem onClick={() => navigate('/stores/my')} className="brane-dropdown-item focus:bg-transparent" data-testid="menu-store">
-                            <Store className="w-[18px] h-[18px] icon" /> <span>Minha Loja</span>
+                            <Store className="w-[18px] h-[18px] icon" /> <span>{t('nav.myStore')}</span>
                           </DropdownMenuItem>
 
                           <DropdownMenuItem onClick={() => navigate('/dashboard')} className="brane-dropdown-item focus:bg-transparent" data-testid="menu-my-products">
-                            <Package className="w-[18px] h-[18px] icon" /> <span>Meus Produtos</span>
+                            <Package className="w-[18px] h-[18px] icon" /> <span>{t('nav.myProducts')}</span>
                           </DropdownMenuItem>
 
                           {canAnnounceProduct && (
                             <DropdownMenuItem onClick={() => navigate('/add-product')} className="brane-dropdown-item focus:bg-transparent" data-testid="menu-add-product">
-                              <PlusCircle className="w-[18px] h-[18px] icon" /> <span>Adicionar Produto</span>
+                              <PlusCircle className="w-[18px] h-[18px] icon" /> <span>{t('nav.addProduct')}</span>
                             </DropdownMenuItem>
                           )}
 
                           <DropdownMenuItem onClick={() => navigate('/promote')} className="brane-dropdown-item focus:bg-transparent" data-testid="menu-promote">
-                            <Crown className="w-[18px] h-[18px] icon" /> <span>Promover minha loja</span>
+                            <Crown className="w-[18px] h-[18px] icon" /> <span>{t('nav.promoteStore')}</span>
                           </DropdownMenuItem>
                         </>
                       )}
 
                       {user.role === 'admin' && (
                         <DropdownMenuItem onClick={() => navigate('/admin')} className="brane-dropdown-item focus:bg-transparent" data-testid="menu-admin">
-                          <Shield className="w-[18px] h-[18px] icon" /> <span>Painel Admin</span>
+                          <Shield className="w-[18px] h-[18px] icon" /> <span>{t('nav.adminPanel')}</span>
                         </DropdownMenuItem>
                       )}
 
                       <div className="brane-dropdown-sep" />
 
                       <DropdownMenuItem onClick={() => navigate('/support')} className="brane-dropdown-item focus:bg-transparent" data-testid="menu-support">
-                        <MessageCircle className="w-[18px] h-[18px] icon" /> <span>Falar com Suporte</span>
+                        <MessageCircle className="w-[18px] h-[18px] icon" /> <span>{t('nav.supportChat')}</span>
                       </DropdownMenuItem>
 
                       <DropdownMenuItem onClick={() => navigate('/pages/faq')} className="brane-dropdown-item focus:bg-transparent" data-testid="menu-help">
-                        <HelpCircle className="w-[18px] h-[18px] icon" /> <span>Central de Ajuda</span>
+                        <HelpCircle className="w-[18px] h-[18px] icon" /> <span>{t('nav.helpCenter')}</span>
                       </DropdownMenuItem>
 
                       <div className="px-2 pt-3">
                         <button onClick={logout} className="brane-dropdown-logout" data-testid="menu-logout">
-                          <LogOut className="w-[18px] h-[18px]" /> Sair da Conta
+                          <LogOut className="w-[18px] h-[18px]" /> {t('nav.logout')}
                         </button>
                       </div>
                     </DropdownMenuContent>
@@ -252,7 +257,7 @@ export default function Navbar({ onSearch }) {
                     data-testid="login-link"
                     className="text-sm text-[#A6A8B3] hover:text-[#D4A24C] transition font-medium hidden sm:inline-block"
                   >
-                    Entrar
+                    {t('nav.login')}
                   </button>
 
                   <button
@@ -261,8 +266,10 @@ export default function Navbar({ onSearch }) {
                     data-testid="signup-link"
                     className="brane-btn-primary"
                   >
-                    Cadastre-se
+                    {t('nav.signup')}
                   </button>
+
+                  <LanguageSelector variant="navbar" />
                 </div>
               )}
 
@@ -279,7 +286,7 @@ export default function Navbar({ onSearch }) {
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-[#8C8F9A]" />
                   <input
                     type="text"
-                    placeholder="Buscar produtos..."
+                    placeholder={t('nav.searchMobile')}
                     value={searchVal}
                     onChange={(e) => setSearchVal(e.target.value)}
                     className="brane-search"
@@ -289,15 +296,15 @@ export default function Navbar({ onSearch }) {
 
               <div className="flex flex-col gap-1 mt-3">
                 <Link to="/market" className="px-3 py-2.5 text-sm text-gray-200 hover:text-[#D4A24C] rounded-lg hover:bg-[#11131A]" onClick={() => setMobileOpen(false)}>
-                  Produtos
+                  {t('nav.products')}
                 </Link>
 
                 <Link to="/stores" className="px-3 py-2.5 text-sm text-gray-200 hover:text-[#D4A24C] rounded-lg hover:bg-[#11131A]" onClick={() => setMobileOpen(false)}>
-                  Lojas
+                  {t('nav.stores')}
                 </Link>
 
                 <Link to="/market" className="px-3 py-2.5 text-sm text-gray-200 hover:text-[#D4A24C] rounded-lg hover:bg-[#11131A]" onClick={() => setMobileOpen(false)}>
-                  Categorias
+                  {t('nav.categories')}
                 </Link>
 
                 {!user && (
@@ -307,7 +314,7 @@ export default function Navbar({ onSearch }) {
                       onClick={openAuth}
                       className="text-left px-3 py-2.5 text-sm text-gray-200 hover:text-[#D4A24C] rounded-lg hover:bg-[#11131A]"
                     >
-                      Entrar
+                      {t('nav.login')}
                     </button>
 
                     <button
@@ -315,14 +322,14 @@ export default function Navbar({ onSearch }) {
                       onClick={openAuth}
                       className="text-left px-3 py-2.5 text-sm text-[#D4A24C] rounded-lg hover:bg-[#11131A] font-bold"
                     >
-                      Cadastre-se
+                      {t('nav.signup')}
                     </button>
                   </>
                 )}
 
                 {user && user.role !== 'buyer' && (
                   <Link to="/dashboard" className="px-3 py-2.5 text-sm text-gray-200 hover:text-[#D4A24C] rounded-lg hover:bg-[#11131A]" onClick={() => setMobileOpen(false)}>
-                    Dashboard
+                    {t('nav.dashboard')}
                   </Link>
                 )}
               </div>
@@ -334,19 +341,19 @@ export default function Navbar({ onSearch }) {
       {user && (
         <div className="bg-[#080A0F] border-b border-[#14171F]">
           <div className="max-w-[1400px] mx-auto px-5 h-[52px] flex items-center justify-between gap-5">
-            <div className="flex items-center gap-6 text-[13px] overflow-x-auto scrollbar-hide">
-              <Link to="/market?sort=offers" className="theme-aware-nav-link transition font-medium whitespace-nowrap" data-testid="nav-offers">Ofertas</Link>
-              <Link to="/market" className="theme-aware-nav-link transition font-medium whitespace-nowrap" data-testid="nav-categories">Categorias</Link>
-              <Link to="/market?sort=bestsellers" className="theme-aware-nav-link transition font-medium whitespace-nowrap" data-testid="nav-bestsellers">Mais vendidos</Link>
-              <Link to="/market?sort=new" className="theme-aware-nav-link transition font-medium whitespace-nowrap" data-testid="nav-new">Novidades</Link>
-              <Link to="/stores" className="theme-aware-nav-link transition font-medium whitespace-nowrap" data-testid="nav-stores">Lojas</Link>
-            </div>
+              <div className="flex items-center gap-6 text-[13px] overflow-x-auto scrollbar-hide">
+                <Link to="/market?sort=offers" className="theme-aware-nav-link transition font-medium whitespace-nowrap" data-testid="nav-offers">{t('nav.offers')}</Link>
+                <Link to="/market" className="theme-aware-nav-link transition font-medium whitespace-nowrap" data-testid="nav-categories">{t('nav.categories')}</Link>
+                <Link to="/market?sort=bestsellers" className="theme-aware-nav-link transition font-medium whitespace-nowrap" data-testid="nav-bestsellers">{t('nav.bestSellers')}</Link>
+                <Link to="/market?sort=new" className="theme-aware-nav-link transition font-medium whitespace-nowrap" data-testid="nav-new">{t('nav.news')}</Link>
+                <Link to="/stores" className="theme-aware-nav-link transition font-medium whitespace-nowrap" data-testid="nav-stores">{t('nav.stores')}</Link>
+              </div>
 
-            <Link to="/add-product" data-testid="nav-announce-product" className={canAnnounceProduct ? '' : 'hidden'}>
-              <button className="brane-btn-primary" style={{ padding: '0.5rem 1.2rem', fontSize: '0.78rem' }}>
-                <PlusCircle className="w-4 h-4" /> Anunciar produto
-              </button>
-            </Link>
+              <Link to="/add-product" data-testid="nav-announce-product" className={canAnnounceProduct ? '' : 'hidden'}>
+                <button className="brane-btn-primary" style={{ padding: '0.5rem 1.2rem', fontSize: '0.78rem' }}>
+                  <PlusCircle className="w-4 h-4" /> {t('nav.advertise')}
+                </button>
+              </Link>
           </div>
         </div>
       )}
