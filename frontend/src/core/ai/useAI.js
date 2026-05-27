@@ -2,18 +2,9 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { aiRouter as defaultRouter } from "./router/AIRouter";
 import { aiMemory } from "./memory/AIMemory";
 import { getAgent, DEFAULT_AGENT } from "./agents/AgentRegistry";
-import { getAvailableProviders, getProvider } from "./providers/ProviderFactory";
+import { getProvider } from "./providers/ProviderFactory";
 import { intentEngine } from "./utils/IntentEngine";
 import { browserEngine } from "./browser/BrowserEngine";
-
-const POLL_INTERVAL = 3000;
-const DEFAULT_MODEL = "qwen2.5-coder:7b";
-
-function isCorsError(err) {
-  if (!err) return false;
-  const m = err.message || "";
-  return m.includes("CORS") || m.includes("Failed to fetch") || m.includes("NetworkError") || m.includes("TypeError");
-}
 
 export function useAI(routerInstance = null) {
   const router = routerInstance || defaultRouter;
@@ -24,21 +15,14 @@ export function useAI(routerInstance = null) {
   const [error, setError] = useState(null);
   const [currentAgent, setCurrentAgent] = useState(DEFAULT_AGENT);
   const [currentModel, setCurrentModel] = useState("");
-  const [currentProvider, setCurrentProvider] = useState("opencode");
-  const [sessions, setSessions] = useState([]);
-  const [providerStatus, setProviderStatus] = useState([]);
   const [executionStatus, setExecutionStatus] = useState(null);
-  const [ollamaOnline, setOllamaOnline] = useState(null);
   const abortRef = useRef(null);
   const activeStreamRef = useRef(null);
   const mountedRef = useRef(true);
-  const pollRef = useRef(null);
-  const currentProviderRef = useRef(currentProvider);
-  currentProviderRef.current = currentProvider;
 
   useEffect(() => {
     mountedRef.current = true;
-    return () => { mountedRef.current = false; if (pollRef.current) clearInterval(pollRef.current); };
+    return () => { mountedRef.current = false; };
   }, []);
 
   useEffect(() => {
@@ -52,30 +36,6 @@ export function useAI(routerInstance = null) {
       });
     } catch { }
   }, [router]);
-
-  useEffect(() => {
-    const checkOllama = async () => {
-      if (!mountedRef.current) return;
-      try {
-        const ollama = getProvider("ollama");
-        if (!ollama) { setOllamaOnline("offline"); return; }
-        const ok = await ollama.healthCheck();
-        if (!mountedRef.current) return;
-        setOllamaOnline(ok ? "online" : "offline");
-        if (ok) {
-          console.log("[Ollama] Conectado com sucesso");
-          const models = await ollama.listModels();
-          if (!mountedRef.current) return;
-          const firstModel = models.length > 0 ? models[0] : DEFAULT_MODEL;
-          if (firstModel) setCurrentModel(firstModel);
-        }
-      } catch { if (mountedRef.current) setOllamaOnline("offline"); }
-    };
-    setOllamaOnline("connecting");
-    checkOllama();
-    pollRef.current = setInterval(checkOllama, POLL_INTERVAL);
-    return () => { if (pollRef.current) clearInterval(pollRef.current); };
-  }, []);
 
   const stopGeneration = useCallback(() => {
     if (abortRef.current) { try { abortRef.current.abort(); } catch {} abortRef.current = null; }
@@ -96,52 +56,23 @@ export function useAI(routerInstance = null) {
     setMessages((prev) => [...prev, msg]);
   }, []);
 
-  const ollamaStream = useCallback(async (msg, model, controller) => {
-    const ollama = getProvider("ollama");
-    if (!ollama) throw new Error("Ollama provider não encontrado");
-    const modelName = model || ollama.defaultModel || "qwen2.5-coder:7b";
-    const stream = await ollama.streamMessage([
-      { role: "system", content: "Você é uma assistente local inteligente rodando via Ollama. Responda de forma direta, útil e completa em português brasileiro." },
-      { role: "user", content: msg },
-    ], { model: modelName, signal: controller?.signal });
-    return { stream, model: modelName, provider: "ollama" };
-  }, []);
-
-  const ollamaSend = useCallback(async (msg, model, controller) => {
-    const ollama = getProvider("ollama");
-    if (!ollama) throw new Error("Ollama provider não encontrado");
-    const modelName = model || ollama.defaultModel || "qwen2.5-coder:7b";
-    return await ollama.sendMessage([
-      { role: "system", content: "Você é uma assistente local inteligente rodando via Ollama. Responda de forma direta, útil e completa em português brasileiro." },
-      { role: "user", content: msg },
-    ], { model: modelName, signal: controller?.signal });
-  }, []);
-
   const detectAndRunSearch = useCallback(async (message) => {
     if (!message) return null;
     try {
       const intent = intentEngine ? intentEngine.classify(message) : null;
       const needsSearch = intent && ["news", "search", "browser"].includes(intent.id);
-      if (!needsSearch) {
-        console.log("[SEARCH] not needed — intent:", intent?.id);
-        return null;
-      }
+      if (!needsSearch) return null;
 
-      console.log("[SEARCH DETECTED] intent:", intent.id, intent.label);
-      setExecutionStatus({ type: "search", message: "🔍 Pesquisando na internet..." });
+      setExecutionStatus({ type: "search", message: "Pesquisando na internet..." });
 
-      console.log("[RUNNING WEB SEARCH] query:", message);
       const result = await browserEngine.search(message);
-
       if (!result || !result.results || result.results.length === 0) {
-        console.log("[SEARCH RESULTS] empty — no results found");
         setExecutionStatus({ type: "search-done", message: "Não encontrei resultados atuais." });
         setTimeout(() => { if (mountedRef.current) setExecutionStatus(null); }, 5000);
         return null;
       }
 
-      console.log("[SEARCH RESULTS]", result.results.length, "results found");
-      setExecutionStatus({ type: "search-done", message: "✓ Lendo fontes..." });
+      setExecutionStatus({ type: "search-done", message: "Lendo fontes..." });
 
       const items = result.results.slice(0, 5);
       let context = "Pesquisei na web e encontrei os seguintes resultados:\n\n";
@@ -161,45 +92,6 @@ export function useAI(routerInstance = null) {
     }
   }, []);
 
-  const sendMessage = useCallback(async (content, options = {}) => {
-    if (!mountedRef.current) return { content: "" };
-    setLoading(true); setError(null); setStreaming(false);
-    const msg = (content || "").trim();
-    if (!msg) { setLoading(false); return { content: "" }; }
-    const userMsg = { id: `msg_${Date.now()}`, role: "user", content: msg, timestamp: Date.now() };
-    setMessages((prev) => [...prev, userMsg]);
-    const agent = options.agent || currentAgent;
-    const model = options.model || currentModel;
-    const provider = options.provider || currentProvider;
-
-    try {
-      // Run web search first if query needs current information
-      const searchContext = await detectAndRunSearch(msg);
-      const finalMsg = searchContext || msg;
-
-      if (provider === "ollama") {
-        setExecutionStatus({ type: "composing", message: "Gerando resposta..." });
-        const text = await ollamaSend(finalMsg, model, null);
-        if (mountedRef.current) { setLoading(false); setExecutionStatus(null); if (text) addAssistantMessage(text, "ollama", model || "qwen2.5-coder:7b", agent); }
-        return { content: text || "", provider: "ollama", model: model || "qwen2.5-coder:7b" };
-      }
-      const result = await router.chat(finalMsg, { agent, model: model || undefined, provider, ...options });
-      if (mountedRef.current) { setLoading(false); setExecutionStatus(null); if (result && result.content) addAssistantMessage(result.content, result.provider, result.model, agent); }
-      return result || { content: "" };
-    } catch (err) {
-      if (!mountedRef.current) return { content: "" };
-      setLoading(false); setExecutionStatus(null);
-      if (provider === "ollama") {
-        const errorMsg = err ? err.message : "Erro ao conectar com Ollama Local";
-        const cors = isCorsError(err);
-        addAssistantMessage("**Ollama Local offline**\n\n" + (cors ? "CORS bloqueado. Execute: set OLLAMA_ORIGINS=* && ollama serve\nOu use http://localhost:3001 (proxy incluído)" : errorMsg), "ollama", model || "qwen2.5-coder:7b", agent);
-        return { content: "", error: errorMsg };
-      }
-      setError(err ? err.message : "Chat failed");
-      return { content: "", error: err ? err.message : "Chat failed" };
-    }
-  }, [router, currentAgent, currentModel, currentProvider, addAssistantMessage, ollamaSend, detectAndRunSearch]);
-
   const sendStreamMessage = useCallback(async (content, options = {}) => {
     if (!mountedRef.current) return { content: "" };
     const msg = (content || "").trim();
@@ -211,23 +103,13 @@ export function useAI(routerInstance = null) {
     setMessages((prev) => [...prev, userMsg]);
     const agent = options.agent || currentAgent;
     const model = options.model || currentModel;
-    const provider = options.provider || currentProvider;
-    let fullContent = ""; let resultProvider = ""; let resultModel = "";
+    let fullContent = ""; let resultProvider = "";
 
     try {
-      // Run web search first if query needs current information
       const searchContext = await detectAndRunSearch(msg);
       const finalMsg = searchContext || msg;
 
-      if (provider === "ollama") {
-        setExecutionStatus({ type: "composing", message: "Gerando resposta..." });
-        const text = await ollamaSend(finalMsg, model, controller) || "";
-        resultProvider = "ollama"; resultModel = model || "qwen2.5-coder:7b";
-        setStreaming(false); setCurrentStream(""); setLoading(false); setExecutionStatus(null);
-        if (text) addAssistantMessage(text, resultProvider, resultModel, agent);
-        return { content: text, provider: resultProvider };
-      }
-      const stream = router.chatStream(finalMsg, { agent, model: model || undefined, provider, signal: controller.signal, ...options });
+      const stream = router.chatStream(finalMsg, { agent, model: model || undefined, signal: controller.signal, ...options });
       activeStreamRef.current = stream;
       for await (const chunk of stream) {
         if (!mountedRef.current || controller.signal.aborted) break;
@@ -244,19 +126,10 @@ export function useAI(routerInstance = null) {
       activeStreamRef.current = null; abortRef.current = null;
       if (!mountedRef.current) return { content: "" };
       setStreaming(false); setCurrentStream(""); setLoading(false); setExecutionStatus(null);
-      if (provider === "ollama") {
-        const errorMsg = err ? err.message : "Erro ao conectar com Ollama Local";
-        const cors = isCorsError(err);
-        const isConnError = cors || err?.message?.includes("offline") || err?.message?.includes("ECONNREFUSED") || err?.message?.includes("CLOUDFLARE");
-        const prefix = isConnError ? "**Ollama Local offline**\n\n" : "**Ollama erro**\n\n";
-        const body = cors ? "CORS bloqueado. Execute: set OLLAMA_ORIGINS=* && ollama serve\nOu use http://localhost:3001 (proxy incluído)" : errorMsg;
-        addAssistantMessage(prefix + body, "ollama", model || "qwen2.5-coder:7b", agent);
-        return { content: "", error: errorMsg };
-      }
-      addAssistantMessage("**Erro no chat**\n\n" + (err ? err.message : "Erro desconhecido"), provider || "unknown", model, agent);
+      addAssistantMessage("**Erro no chat**\n\n" + (err ? err.message : "Erro desconhecido"), "unknown", model, agent);
       return { content: "", error: err ? err.message : "Stream failed" };
     } finally { activeStreamRef.current = null; abortRef.current = null; }
-  }, [router, currentAgent, currentModel, currentProvider, addAssistantMessage, ollamaStream, ollamaSend, detectAndRunSearch]);
+  }, [router, currentAgent, currentModel, addAssistantMessage, detectAndRunSearch]);
 
   const clearMessages = useCallback(async () => { setMessages([]); setCurrentStream(""); setError(null); try { await router.clearHistory(); } catch {} }, [router]);
 
@@ -268,7 +141,7 @@ export function useAI(routerInstance = null) {
         if (history[0] && history[0].agent) setCurrentAgent(history[0].agent);
         setMessages(history);
       }
-    } catch { /* ignore */ }
+    } catch { }
   }, [router]);
 
   const newSession = useCallback(() => {
@@ -278,9 +151,9 @@ export function useAI(routerInstance = null) {
 
   return {
     messages, loading, streaming, currentStream, error, executionStatus,
-    currentAgent, currentModel, currentProvider, sessions, providerStatus, ollamaOnline,
-    sendMessage, sendStreamMessage, clearMessages, loadSession, newSession,
-    setCurrentAgent, setCurrentModel, setCurrentProvider, stopGeneration, addAssistantMessage,
-    router, memory: aiMemory, getProviderStatus: providerStatus, getAgent,
+    currentAgent, currentModel,
+    sendStreamMessage, clearMessages, loadSession, newSession,
+    setCurrentAgent, setCurrentModel, stopGeneration, addAssistantMessage,
+    router, memory: aiMemory, getAgent,
   };
 }

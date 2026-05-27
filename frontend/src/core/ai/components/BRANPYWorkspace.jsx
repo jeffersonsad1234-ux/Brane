@@ -2,13 +2,10 @@ import React, { useState, useCallback } from "react";
 import AIChatPanel from "./AIChatPanel";
 import BrowserPanel from "./BrowserPanel";
 import OperatorPanel from "./OperatorPanel";
-import ProviderConfigPanel from "./ProviderConfigPanel";
-
 const DOCK_ITEMS = [
   { id: "chat", label: "Chat", icon: "💬", color: "#3b82f6" },
   { id: "browser", label: "Browser", icon: "🌐", color: "#22c55e" },
   { id: "operator", label: "Operator", icon: "⚙️", color: "#f97316" },
-  { id: "providers", label: "Providers", icon: "🔑", color: "#8b5cf6" },
 ];
 
 export default function BRANPYWorkspace({ onClose, fullScreen = true }) {
@@ -30,7 +27,6 @@ export default function BRANPYWorkspace({ onClose, fullScreen = true }) {
     { id: "cmd-chat", label: "Abrir Chat", icon: "💬", action: "panel", value: "chat" },
     { id: "cmd-browser", label: "Abrir Browser", icon: "🌐", action: "panel", value: "browser" },
     { id: "cmd-operator", label: "Abrir Operator", icon: "⚙️", action: "panel", value: "operator" },
-    { id: "cmd-providers", label: "Gerenciar Providers", icon: "🔑", action: "panel", value: "providers" },
     { id: "cmd-split", label: "Split View (Chat + Browser)", icon: "🔲", action: "split", value: "browser" },
     { id: "cmd-unsplit", label: "Fechar Split View", icon: "❌", action: "clear" },
   ];
@@ -44,7 +40,7 @@ export default function BRANPYWorkspace({ onClose, fullScreen = true }) {
       case "chat": return <AIChatPanel key="chat" fullScreen={false} />;
       case "browser": return <BrowserPanel key="browser" />;
       case "operator": return <OperatorPanel key="operator" />;
-      case "providers": return <ProviderConfigPanel key="providers" />;
+
       default: return <AIChatPanel key="chat" fullScreen={false} />;
     }
   };
