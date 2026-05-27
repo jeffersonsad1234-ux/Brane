@@ -124,16 +124,17 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY || "";
 const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
 app.post("/api/chat", async (req, res) => {
-  const { message, history } = req.body;
+  const { message, history, token } = req.body;
   if (!message) return res.status(400).json({ error: "message is required" });
-  if (!GROQ_API_KEY) return res.status(500).json({ error: "GROQ_API_KEY not configured on server" });
+  const groqKey = token || GROQ_API_KEY;
+  if (!groqKey) return res.status(500).json({ error: "GROQ_API_KEY não configurada no servidor. Configure via SetupWizard com sua chave Groq." });
 
   try {
     const groqResp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${GROQ_API_KEY}`,
+        Authorization: `Bearer ${groqKey}`,
       },
       body: JSON.stringify({
         model: GROQ_MODEL,
@@ -307,7 +308,6 @@ app.post("/api/whisper", async (req, res) => {
   }
 });
 
->>>>>>> a7ab2b2 (feat(ai): real AI tools with HuggingFace proxy, setup wizard, and working P0 tools)
 // ── Health check ──
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });

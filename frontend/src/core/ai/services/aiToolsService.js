@@ -1,19 +1,49 @@
 const AGENT_API = process.env.REACT_APP_AGENT_API || "http://localhost:3200";
 
+function friendlyError(err) {
+  const msg = err?.message || String(err || "");
+  if (msg.includes("token") || msg.includes("API key") || msg.includes("unauthorized") || msg.includes("401")) return "Token de API inválido. Configure um token válido do HuggingFace.";
+  if (msg.includes("loading") || msg.includes("queued") || msg.includes("Model is loading")) return "Modelo está carregando... Tente novamente em alguns segundos.";
+  if (msg.includes("timeout") || msg.includes("timed out")) return "A requisição excedeu o tempo limite. Tente novamente.";
+  if (msg.includes("network") || msg.includes("fetch") || msg.includes("Failed to fetch")) return "Erro de conexão com o servidor. Verifique se o agente está rodando.";
+  if (msg.includes("429") || msg.includes("rate limit")) return "Muitas requisições. Aguarde um momento e tente novamente.";
+  if (msg.includes("503") || msg.includes("busy")) return "Serviço temporariamente indisponível. Tente novamente.";
+  return msg.slice(0, 300);
+}
+
 async function hfRequest(model, inputs, token, parameters = {}) {
-  const resp = await fetch(`${AGENT_API}/api/huggingface`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ model, inputs, token, parameters }),
-  });
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
-  return data;
+  let retries = 0;
+  const maxRetries = 3;
+  while (retries < maxRetries) {
+    const resp = await fetch(`${AGENT_API}/api/huggingface`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model, inputs, token, parameters }),
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      if (data.error?.includes("loading") && retries < maxRetries - 1) {
+        await new Promise(r => setTimeout(r, 5000));
+        retries++;
+        continue;
+      }
+      throw new Error(friendlyError(data.error || `HTTP ${resp.status}`));
+    }
+    return data;
+  }
+  throw new Error("Modelo não disponível. Tente novamente mais tarde.");
 }
 
 export async function generateImage(prompt, token, options = {}) {
   const { model = "black-forest-labs/FLUX.1-dev", width = 1024, height = 1024 } = options;
   const data = await hfRequest(model, prompt, token, { width, height });
+  return data.data;
+}
+
+export async function generateVideo(prompt, token, options = {}) {
+  const { model = "ali-vilab/text-to-video-ms-1.7b", duration = 4 } = options;
+  const promptText = prompt + (duration > 4 ? ", slow motion, detailed" : "");
+  const data = await hfRequest(model, promptText, token, { num_frames: duration * 8 });
   return data.data;
 }
 
@@ -24,7 +54,7 @@ export async function transcribeAudio(audioBase64, token) {
     body: JSON.stringify({ audio: audioBase64, token }),
   });
   const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+  if (!resp.ok) throw new Error(friendlyError(data.error || `HTTP ${resp.status}`));
   return data;
 }
 
@@ -36,7 +66,7 @@ export async function textToSpeech(text, options = {}) {
     body: JSON.stringify({ text, voice, rate }),
   });
   const data = await resp.json();
-  if (!resp.ok) throw new Error(data.error || `HTTP ${resp.status}`);
+  if (!resp.ok) throw new Error(friendlyError(data.error || `HTTP ${resp.status}`));
   return data.data;
 }
 
@@ -53,11 +83,12 @@ export async function analyzeDocument(text, token) {
     body: JSON.stringify({
       message: `Analise o seguinte documento e forneça um resumo estruturado em português brasileiro:\n\n${text.slice(0, 10000)}`,
       history: [],
+      ...(token ? { token } : {}),
     }),
   });
   if (!resp.ok) {
     const err = await resp.json().catch(() => ({}));
-    throw new Error(err.error || `HTTP ${resp.status}`);
+    throw new Error(friendlyError(err.error || `HTTP ${resp.status}`));
   }
   let result = "";
   const reader = resp.body.getReader();
@@ -80,7 +111,7 @@ export async function analyzeDocument(text, token) {
       } catch {}
     }
   }
-  return result;
+  return result || "Nenhum resultado gerado.";
 }
 
 export async function translateText(text, targetLang, token) {

@@ -1,213 +1,190 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-
-const API_URL = process.env.REACT_APP_BACKEND_URL || "";
+import React, { useState, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useLocalStorage } from "../../hooks/useLocalStorage";
+import SetupWizard from "../../core/ai/components/SetupWizard";
+import { useApiKey } from "../../core/ai/hooks/useApiKey";
+import { generateVideo } from "../../core/ai/services/aiToolsService";
 
 export default function AIVideoGenerator() {
+  const { apiKey: hfToken, hasKey, setApiKey } = useApiKey("huggingface");
+  const [showWizard, setShowWizard] = useState(!hasKey);
   const [prompt, setPrompt] = useState("");
   const [duration, setDuration] = useState(3);
   const [generating, setGenerating] = useState(false);
-  const [videoUrl, setVideoUrl] = useState(null);
+  const [progress, setProgress] = useState("");
+  const [videoData, setVideoData] = useState(null);
   const [error, setError] = useState(null);
-  const [history, setHistory] = useState([]);
+  const [history, setHistory] = useLocalStorage("branpy-video-history", []);
+  const [toast, setToast] = useState({ visible: false, message: "" });
+
+  const showToast = useCallback((msg) => {
+    setToast({ visible: true, message: msg });
+    setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+  }, []);
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) {
-      setError("Please enter a prompt");
-      return;
-    }
-
+    if (!prompt.trim() || generating) return;
     setGenerating(true);
+    setProgress("Preparando geração de vídeo...");
+    setVideoData(null);
     setError(null);
-    setVideoUrl(null);
 
     try {
-      const response = await fetch(`${API_URL}/api/generate-video`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: prompt.trim(),
-          duration: duration
-        })
-      });
-
-      // Always try to parse JSON
-      let data;
-      const contentType = response.headers.get("content-type");
-      
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        // If not JSON, try to read as text
-        const text = await response.text();
-        throw new Error(text || "Invalid response from server");
-      }
-
-      // Check if generation was successful
-      if (data.success) {
-        setVideoUrl(data.video);
-        setHistory((prev) => [
-          {
-            id: Date.now(),
-            prompt: prompt.trim(),
-            video: data.video,
-            timestamp: new Date().toLocaleTimeString()
-          },
-          ...prev.slice(0, 9)
-        ]);
-      } else {
-        // Show user-friendly error message
-        setError(data.error || data.message || "Video generation failed");
-      }
+      setProgress("Enviando para HuggingFace...");
+      const data = await generateVideo(prompt.trim(), hfToken, { duration });
+      setProgress("Vídeo gerado!");
+      setVideoData(data);
+      setHistory((prev) => [{ id: `vid_${Date.now()}`, prompt: prompt.trim(), video: data, date: new Date().toISOString().slice(0, 10) }, ...prev]);
+      showToast("Vídeo gerado!");
     } catch (err) {
-      console.error("Video generation error:", err);
-      setError(err.message || "Failed to generate video. Please try again.");
-    } finally {
-      setGenerating(false);
+      setError(err.message || "Erro ao gerar vídeo.");
+      showToast(`Erro: ${err.message}`);
     }
+    setGenerating(false);
+    setProgress("");
   };
 
   const handleDownload = () => {
-    if (!videoUrl) return;
-    
-    const link = document.createElement('a');
-    link.href = videoUrl;
-    link.download = `brandpy-video-${Date.now()}.mp4`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (!videoData) return;
+    const a = document.createElement("a");
+    a.href = videoData; a.download = `branpy-video-${Date.now()}.mp4`; a.click();
   };
 
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-[#0a0a0f] via-[#0f0f1a] to-[#0a0a0f]">
-      {/* Header */}
-      <div className="px-8 py-6 border-b border-white/[0.06]">
-        <h1 className="text-2xl font-bold text-white/90">AI Video Generator</h1>
-        <p className="text-sm text-white/40 mt-1">Generate videos from text prompts</p>
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 overflow-y-auto p-8">
-        <div className="max-w-4xl mx-auto space-y-6">
-          {/* Prompt Input */}
-          <div className="space-y-2">
-            <label className="text-[10px] text-white/30 uppercase tracking-wider">Prompt</label>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="A astronaut riding a horse on Mars..."
-              className="w-full h-24 bg-white/[0.04] border border-white/[0.06] rounded-lg px-4 py-3 text-[12px] text-white/60 outline-none placeholder:text-white/15 focus:border-white/[0.15] resize-none"
-            />
+    <>
+      <SetupWizard service="huggingface" open={showWizard}
+        onComplete={(key) => { setApiKey(key); setShowWizard(false); }}
+        onClose={() => { if (hasKey) setShowWizard(false); }}
+      />
+      <div className="h-full w-full flex bg-[#0a0a0a] text-white/50 select-none overflow-hidden" style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}>
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="h-10 flex-shrink-0 flex items-center px-4 border-b border-white/[0.06] gap-3">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.12em]" style={{ color: "rgba(255,255,255,0.25)" }}>
+              AI Video Generator
+            </span>
+            {!hasKey && (
+              <button onClick={() => setShowWizard(true)} className="text-[9px] px-2 py-0.5 rounded-full" style={{ background: "rgba(99,102,241,0.15)", color: "#6366f1", border: "none", cursor: "pointer" }}>
+                Configurar HF Token
+              </button>
+            )}
+            <div className="flex-1" />
+            <span className="text-[8px] font-mono" style={{ color: "rgba(255,255,255,0.15)" }}>{history.length} vídeos</span>
           </div>
 
-          {/* Duration Slider */}
-          <div className="space-y-2">
-            <label className="text-[10px] text-white/30 uppercase tracking-wider">
-              Duration: {duration}s
-            </label>
-            <input
-              type="range"
-              min="2"
-              max="5"
-              value={duration}
-              onChange={(e) => setDuration(parseInt(e.target.value))}
-              className="w-full"
-            />
-          </div>
+          <div className="flex-1 overflow-y-auto p-4">
+            {!videoData && !error && history.length === 0 && !generating && (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center" style={{ color: "rgba(255,255,255,0.15)" }}>
+                  <div className="text-4xl mb-3">🎬</div>
+                  <p className="text-sm">Digite um prompt e gere seu primeiro vídeo</p>
+                </div>
+              </div>
+            )}
 
-          {/* Generate Button */}
-          <div className="flex gap-2">
-            <motion.button
-              whileTap={{ scale: 0.98 }}
-              onClick={handleGenerate}
-              disabled={generating}
-              className="flex-1 py-3 rounded-lg bg-gradient-to-r from-purple-500/80 to-pink-500/80 hover:from-purple-500 hover:to-pink-500 text-white text-[11px] font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {generating ? "Generating Video..." : "🎬 Generate Video"}
-            </motion.button>
+            {error && (
+              <div className="p-3 rounded-xl mb-4" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
+                <div className="flex items-start gap-2">
+                  <span className="text-red-400 text-sm">⚠</span>
+                  <div className="flex-1">
+                    <p className="text-[11px] font-medium" style={{ color: "rgba(239,68,68,0.8)" }}>Erro</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: "rgba(239,68,68,0.6)" }}>{error}</p>
+                  </div>
+                  <button onClick={() => setError(null)} className="text-[9px] px-2 py-1 rounded" style={{ background: "rgba(239,68,68,0.1)", color: "rgba(239,68,68,0.6)", border: "none", cursor: "pointer" }}>
+                    Tentar novamente
+                  </button>
+                </div>
+              </div>
+            )}
 
-            {videoUrl && (
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                onClick={handleDownload}
-                className="px-4 py-3 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-white/60 text-[11px] transition-all"
-              >
-                ⬇ Download
-              </motion.button>
+            {generating && (
+              <div className="flex flex-col items-center justify-center py-12">
+                <div className="relative mb-4">
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    className="w-12 h-12 rounded-full" style={{ border: "2px solid rgba(99,102,241,0.2)", borderTopColor: "#6366f1" }} />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs">🎬</span>
+                  </div>
+                </div>
+                <p className="text-[11px] font-medium mb-1" style={{ color: "rgba(255,255,255,0.5)" }}>{progress}</p>
+                <p className="text-[9px]" style={{ color: "rgba(255,255,255,0.2)" }}>Isso pode levar 30-90 segundos</p>
+                <div className="w-48 h-1 mt-4 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.05)" }}>
+                  <motion.div className="h-full rounded-full" animate={{ x: ["-100%", "200%"] }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                    style={{ width: "50%", background: "linear-gradient(90deg, transparent, #6366f1, transparent)" }} />
+                </div>
+              </div>
+            )}
+
+            {videoData && !generating && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
+                <div className="relative rounded-xl overflow-hidden border mb-3" style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                  <video controls src={videoData} className="w-full max-h-96 object-contain" style={{ background: "#000" }} />
+                </div>
+                <button onClick={handleDownload} className="text-[10px] px-3 py-1.5 rounded-lg" style={{ background: "rgba(99,102,241,0.1)", color: "#6366f1", border: "none", cursor: "pointer" }}>
+                  Download MP4
+                </button>
+              </motion.div>
+            )}
+
+            {history.length > 0 && (
+              <div className="mt-6">
+                <p className="text-[9px] font-semibold uppercase tracking-wider mb-3" style={{ color: "rgba(255,255,255,0.2)" }}>Vídeos anteriores</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {history.map((h) => (
+                    <div key={h.id} onClick={() => setVideoData(h.video)}
+                      className="p-2 rounded-lg cursor-pointer transition-all text-[10px]"
+                      style={{
+                        background: "rgba(255,255,255,0.02)",
+                        border: "1px solid rgba(255,255,255,0.05)",
+                        color: "rgba(255,255,255,0.3)",
+                      }}
+                    >
+                      <p className="truncate">{h.prompt}</p>
+                      <p className="text-[8px] mt-0.5" style={{ color: "rgba(255,255,255,0.15)" }}>{h.date}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Error */}
-          {error && (
-            <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 space-y-2">
-              <div className="flex items-start gap-2">
-                <span className="text-red-400 text-sm">⚠️</span>
-                <div className="flex-1">
-                  <p className="text-red-400 text-[11px] font-medium">Error</p>
-                  <p className="text-red-300/80 text-[10px] mt-1">{error}</p>
-                </div>
-              </div>
-              <div className="p-2 rounded bg-red-500/5 border border-red-500/10">
-                <p className="text-[9px] text-red-300/60">
-                  💡 Tip: Make sure HUGGINGFACE_API_KEY is configured in backend/.env
-                </p>
-              </div>
+          <div className="flex-shrink-0 p-4 border-t border-white/[0.06]">
+            <div className="flex items-center gap-3 mb-3">
+              <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.25)" }}>Duração: {duration}s</span>
+              <input type="range" min="2" max="5" value={duration} onChange={(e) => setDuration(Number(e.target.value))}
+                className="flex-1 h-1 rounded-full accent-[#6366f1]" style={{ background: "rgba(255,255,255,0.06)" }} />
             </div>
-          )}
-
-          {/* Loading */}
-          {generating && (
-            <div className="flex flex-col items-center justify-center gap-4 py-12">
-              <div className="relative">
-                <div className="w-16 h-16 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[10px] text-purple-400">🎬</span>
-                </div>
-              </div>
-              <div className="text-center space-y-1">
-                <p className="text-[11px] text-white/60 font-medium">Generating Video...</p>
-                <p className="text-[9px] text-white/30">This may take 30-90 seconds</p>
-              </div>
-              <div className="w-full max-w-xs h-1 bg-white/[0.05] rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse" style={{ width: "60%" }}></div>
-              </div>
+            <div className="flex gap-2">
+              <input value={prompt} onChange={(e) => setPrompt(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleGenerate()}
+                disabled={generating}
+                placeholder={hasKey ? "Descreva o vídeo que deseja gerar..." : "Configure o token HF primeiro..."}
+                className="flex-1 bg-transparent text-sm outline-none px-3 py-2 rounded-xl"
+                style={{ border: "1px solid rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.7)" }}
+              />
+              <motion.button whileTap={{ scale: 0.95 }} onClick={handleGenerate} disabled={!prompt.trim() || generating || !hasKey}
+                className="px-4 py-2 rounded-xl text-xs font-medium"
+                style={{
+                  background: prompt.trim() && !generating && hasKey ? "linear-gradient(135deg, #6366f1, #8b5cf6)" : "rgba(255,255,255,0.05)",
+                  color: prompt.trim() && !generating && hasKey ? "white" : "rgba(255,255,255,0.2)",
+                  border: "none", cursor: prompt.trim() && !generating && hasKey ? "pointer" : "not-allowed",
+                }}
+              >
+                {generating ? "Gerando..." : "Gerar Vídeo"}
+              </motion.button>
             </div>
-          )}
-
-          {/* Generated Video */}
-          {videoUrl && !generating && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="space-y-3"
-            >
-              <div className="text-[10px] text-white/40 uppercase tracking-wider">✅ Generated Video</div>
-              <div className="relative rounded-xl overflow-hidden border border-white/[0.1]">
-                <video controls src={videoUrl} className="w-full h-auto" />
-              </div>
-            </motion.div>
-          )}
-
-          {/* History */}
-          {history.length > 0 && (
-            <div className="space-y-3 mt-8">
-              <div className="text-[10px] text-white/40 uppercase tracking-wider">Recent Generations</div>
-              <div className="grid grid-cols-2 gap-3">
-                {history.map((item) => (
-                  <div
-                    key={item.id}
-                    onClick={() => setVideoUrl(item.video)}
-                    className="p-3 rounded-lg bg-white/[0.03] border border-white/[0.06] cursor-pointer hover:border-white/[0.15] transition-all"
-                  >
-                    <p className="text-[10px] text-white/60 line-clamp-2">{item.prompt}</p>
-                    <p className="text-[9px] text-white/30 mt-2">{item.timestamp}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          </div>
         </div>
       </div>
-    </div>
+
+      <AnimatePresence>
+        {toast.visible && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-4 py-2.5 rounded-xl border shadow-2xl"
+            style={{ background: "#141414", borderColor: "rgba(255,255,255,0.08)" }}
+          >
+            <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.6)" }}>{toast.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

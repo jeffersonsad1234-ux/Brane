@@ -71,7 +71,7 @@ export default function AIArtGenerator() {
       setGallery((prev) => [art, ...prev]);
       showToast("Imagem gerada!");
     } catch (err) {
-      showToast(`Erro: ${err.message}`);
+      showToast(err.message || "Erro ao gerar imagem.");
     }
     setGenerating(false);
     setProgress("");

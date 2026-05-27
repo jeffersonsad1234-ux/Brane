@@ -25,6 +25,13 @@ export default function SoundFXStudio() {
   const [selected, setSelected] = useState(null);
   const [playingId, setPlayingId] = useState(null);
   const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState("");
+  const [toast, setToast] = useState({ visible: false, message: "" });
+
+  const showToast = (msg) => {
+    setToast({ visible: true, message: msg });
+    setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2200);
+  };
 
   const filtered = useMemo(() => {
     return sounds.filter((s) => {
@@ -43,13 +50,15 @@ export default function SoundFXStudio() {
   const handleGenerate = async () => {
     if (!selected?.name || generating) return;
     setGenerating(true);
+    setError("");
     try {
       const audioData = await generateAudio(selected.name, hfToken, { duration: 4 });
       const newSound = { ...selected, id: `sfx_${Date.now()}`, duration: 4, audioData };
       setSounds((prev) => [newSound, ...prev]);
       setSelected(null);
+      showToast("Áudio gerado!");
     } catch (err) {
-      console.error("Generation error:", err);
+      setError(err.message || "Erro ao gerar áudio.");
     }
     setGenerating(false);
   };
@@ -87,6 +96,21 @@ export default function SoundFXStudio() {
         </div>
 
         <div className="flex-1 overflow-y-auto p-3">
+          {error && (
+            <div className="p-3 rounded-xl mb-4" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 text-sm">⚠</span>
+                <div className="flex-1">
+                  <p className="text-[11px] font-medium" style={{ color: "rgba(239,68,68,0.8)" }}>Erro</p>
+                  <p className="text-[10px] mt-0.5" style={{ color: "rgba(239,68,68,0.6)" }}>{error}</p>
+                </div>
+                <button onClick={() => setError("")} className="text-[9px] px-2 py-1 rounded" style={{ background: "rgba(239,68,68,0.1)", color: "rgba(239,68,68,0.6)", border: "none", cursor: "pointer" }}>
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
             {filtered.map((s) => (
               <div key={s.id} onClick={() => { setSelected(s); handlePlay(s.id); }}
@@ -121,6 +145,17 @@ export default function SoundFXStudio() {
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {toast.visible && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-4 py-2.5 rounded-xl border shadow-2xl"
+            style={{ background: "#141414", borderColor: "rgba(255,255,255,0.08)" }}
+          >
+            <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.6)" }}>{toast.message}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

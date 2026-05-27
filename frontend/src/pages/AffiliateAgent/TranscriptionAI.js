@@ -13,6 +13,7 @@ export default function TranscriptionAI() {
   const [status, setStatus] = useState("Idle");
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState(null);
+  const [error, setError] = useState("");
   const [history, setHistory] = useLocalStorage("branpy-transcription-history", []);
   const [selectedHistory, setSelectedHistory] = useState(null);
   const fileRef = useRef(null);
@@ -24,6 +25,7 @@ export default function TranscriptionAI() {
     setStatus("Processing");
     setProgress(10);
     setResult(null);
+    setError("");
 
     try {
       const reader = new FileReader();
@@ -45,12 +47,13 @@ export default function TranscriptionAI() {
           setStatus("Complete");
         } catch (err) {
           setStatus("Error");
-          setResult({ id: UID(), text: `Erro: ${err.message}`, language: "", date: new Date().toISOString().slice(0, 10), duration: "" });
+          setError(err.message || "Erro ao transcrever áudio.");
         }
       };
       reader.readAsDataURL(file);
     } catch (err) {
       setStatus("Error");
+      setError("Erro ao ler o arquivo. Tente novamente.");
     }
   };
 
@@ -103,6 +106,21 @@ export default function TranscriptionAI() {
               <p className="text-xs mb-1" style={{ color: "rgba(255,255,255,0.4)" }}>Clique para enviar áudio ou vídeo</p>
               <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.2)" }}>MP3, WAV, MP4, WebM</p>
             </div>
+
+            {error && (
+              <div className="p-3 rounded-xl" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
+                <div className="flex items-start gap-2">
+                  <span className="text-red-400 text-sm">⚠</span>
+                  <div className="flex-1">
+                    <p className="text-[11px] font-medium" style={{ color: "rgba(239,68,68,0.8)" }}>Erro</p>
+                    <p className="text-[10px] mt-0.5" style={{ color: "rgba(239,68,68,0.6)" }}>{error}</p>
+                  </div>
+                  <button onClick={() => fileRef.current?.click()} className="text-[9px] px-2 py-1 rounded" style={{ background: "rgba(239,68,68,0.1)", color: "rgba(239,68,68,0.6)", border: "none", cursor: "pointer" }}>
+                    Tentar novamente
+                  </button>
+                </div>
+              </div>
+            )}
 
             {progress > 0 && progress < 100 && (
               <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
