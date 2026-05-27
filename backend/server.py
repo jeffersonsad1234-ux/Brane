@@ -5418,9 +5418,19 @@ async def text_to_speech(req: TTSRequest):
         
         # Clean up
         os.remove(tmp_path)
+        
+        return {
+            "success": True,
+            "audio": f"data:audio/mp3;base64,{audio_base64}",
+            "text": req.text,
+            "voice": req.voice
+        }
+    except Exception as e:
+        logger.error(f"Error generating speech: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"TTS error: {str(e)}")
 
 
-# Video Generator (usando Replicate ou HuggingFace)
+# Video Generator (usando HuggingFace)
 class VideoGenerateRequest(BaseModel):
     prompt: str
     duration: Optional[int] = 3  # seconds
@@ -5428,55 +5438,95 @@ class VideoGenerateRequest(BaseModel):
 @api_router.post("/generate-video")
 async def generate_video(req: VideoGenerateRequest):
     """
-    Generate video using AI models
-    Options: 
-    1. Replicate (AnimateDiff, Stable Video Diffusion)
-    2. HuggingFace (AnimateDiff)
+    Generate video using AI models - Always returns valid JSON
     """
-    if not REPLICATE_API_KEY and not HUGGINGFACE_API_KEY:
-        raise HTTPException(
-            status_code=500, 
-            detail="Video generation requires REPLICATE_API_KEY or HUGGINGFACE_API_KEY"
-        )
-    
     try:
-        # Try HuggingFace first (free)
-        if HUGGINGFACE_API_KEY:
-            API_URL = "https://api-inference.huggingface.co/models/ByteDance/AnimateDiff-Lightning"
-            headers = {"Authorization": f"Bearer {HUGGINGFACE_API_KEY}"}
-            
-            payload = {
-                "inputs": req.prompt,
-                "parameters": {
-                    "num_frames": req.duration * 8,  # ~8 fps
-                }
-            }
-            
-            response = http_requests.post(API_URL, headers=headers, json=payload, timeout=120)
-            
-            if response.status_code == 200:
-                # Video bytes
-                video_bytes = response.content
-                video_base64 = base64.b64encode(video_bytes).decode('utf-8')
-                
-                return {
-                    "success": True,
-                    "video": f"data:video/mp4;base64,{video_base64}",
-                    "prompt": req.prompt,
-                    "provider": "huggingface"
-                }
+        logger.info(f"Video generation request: {req.prompt[:100]}")
         
-        # Fallback: return instruction for Replicate setup
-        return {
-            "success": False,
-            "message": "Video generation requires API setup. Using HuggingFace or Replicate.",
-            "instructions": "Add HUGGINGFACE_API_KEY or REPLICATE_API_KEY to backend/.env",
-            "prompt": req.prompt
-        }
+        # Check if we have any API key
+        if not HUGGINGFACE_API_KEY and not REPLICATE_API_KEY:
+            return JSONResponse(
+                status_code=200,
+                content={
+                    "success": False,
+                    "error": "Video generation requires HUGGINGFACE_API_KEY or REPLICATE_API_KEY in backend/.env",
+                    "message": "API key not configured. Please add to environment variables.",
+                    "prompt": req.prompt
+                }
+            )
+        
+        # Try HuggingFace AnimateDiff
+        if HUGGINGFACE_API_KEY:
+            try:
+                logger.info("Attempting HuggingFace video generation...")
+                API_URL = "https://api-inference.huggingface.co/models/ByteDance/AnimateDiff-Lightning"
+                headers = {"Authorization": f"Bearer {HUGGINGFACE_API_KEY}"}
+                
+                payload = {
+                    "inputs": req.prompt,
+                    "parameters": {
+                        "num_frames": min(req.duration * 8, 16),  # Max 16 frames for free tier
+                    }
+                }
+                
+                response = http_requests.post(
+                    API_URL, 
+                    headers=headers, 
+                    json=payload, 
+                    timeout=120
+                )
+                
+                logger.info(f"HuggingFace response status: {response.status_code}")
+                
+                if response.status_code == 200:
+                    # Video bytes
+                    video_bytes = response.content
+                    if len(video_bytes) > 0:
+                        video_base64 = base64.b64encode(video_bytes).decode('utf-8')
+                        logger.info(f"Video generated successfully, size: {len(video_bytes)} bytes")
+                        
+                        return JSONResponse(
+                            status_code=200,
+                            content={
+                                "success": True,
+                                "video": f"data:video/mp4;base64,{video_base64}",
+                                "prompt": req.prompt,
+                                "provider": "huggingface",
+                                "duration": req.duration
+                            }
+                        )
+                    else:
+                        logger.warning("HuggingFace returned empty video")
+                else:
+                    error_text = response.text[:200]
+                    logger.error(f"HuggingFace error: {response.status_code} - {error_text}")
+                    
+            except Exception as hf_error:
+                logger.error(f"HuggingFace video generation failed: {str(hf_error)}")
+        
+        # If we got here, generation failed
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": False,
+                "error": "Video generation failed. The model may be loading or unavailable.",
+                "message": "Please try again in a few moments. HuggingFace models can take time to load on first request.",
+                "prompt": req.prompt,
+                "suggestion": "Try a simpler prompt or wait 1-2 minutes and retry."
+            }
+        )
         
     except Exception as e:
-        logger.error(f"Error generating video: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Video generation error: {str(e)}")
+        logger.error(f"Video generation error: {str(e)}", exc_info=True)
+        return JSONResponse(
+            status_code=200,
+            content={
+                "success": False,
+                "error": str(e),
+                "message": "An error occurred during video generation",
+                "prompt": req.prompt
+            }
+        )
 
 # Presentation Builder (usando python-pptx)
 class PresentationRequest(BaseModel):

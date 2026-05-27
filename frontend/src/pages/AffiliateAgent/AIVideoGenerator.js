@@ -31,13 +31,19 @@ export default function AIVideoGenerator() {
         })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || "Failed to generate video");
+      // Always try to parse JSON
+      let data;
+      const contentType = response.headers.get("content-type");
+      
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        // If not JSON, try to read as text
+        const text = await response.text();
+        throw new Error(text || "Invalid response from server");
       }
 
-      const data = await response.json();
-      
+      // Check if generation was successful
       if (data.success) {
         setVideoUrl(data.video);
         setHistory((prev) => [
@@ -50,11 +56,12 @@ export default function AIVideoGenerator() {
           ...prev.slice(0, 9)
         ]);
       } else {
-        setError(data.message || "Video generation not available");
+        // Show user-friendly error message
+        setError(data.error || data.message || "Video generation failed");
       }
     } catch (err) {
-      setError(err.message);
       console.error("Video generation error:", err);
+      setError(err.message || "Failed to generate video. Please try again.");
     } finally {
       setGenerating(false);
     }
@@ -132,20 +139,38 @@ export default function AIVideoGenerator() {
 
           {/* Error */}
           {error && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-[10px]">
-              {error}
+            <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 space-y-2">
+              <div className="flex items-start gap-2">
+                <span className="text-red-400 text-sm">⚠️</span>
+                <div className="flex-1">
+                  <p className="text-red-400 text-[11px] font-medium">Error</p>
+                  <p className="text-red-300/80 text-[10px] mt-1">{error}</p>
+                </div>
+              </div>
+              <div className="p-2 rounded bg-red-500/5 border border-red-500/10">
+                <p className="text-[9px] text-red-300/60">
+                  💡 Tip: Make sure HUGGINGFACE_API_KEY is configured in backend/.env
+                </p>
+              </div>
             </div>
           )}
 
           {/* Loading */}
           {generating && (
             <div className="flex flex-col items-center justify-center gap-4 py-12">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                <div className="w-2 h-2 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+              <div className="relative">
+                <div className="w-16 h-16 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-[10px] text-purple-400">🎬</span>
+                </div>
               </div>
-              <p className="text-[10px] text-white/40">Generating video... This may take 30-60 seconds</p>
+              <div className="text-center space-y-1">
+                <p className="text-[11px] text-white/60 font-medium">Generating Video...</p>
+                <p className="text-[9px] text-white/30">This may take 30-90 seconds</p>
+              </div>
+              <div className="w-full max-w-xs h-1 bg-white/[0.05] rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 animate-pulse" style={{ width: "60%" }}></div>
+              </div>
             </div>
           )}
 
