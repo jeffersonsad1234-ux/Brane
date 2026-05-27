@@ -131,7 +131,7 @@ export class WorkflowEngine {
       case "CHAT": {
         const prompt = this._interpolate(node.config.prompt || "", nodeInput);
         const { aiRouter } = await import("../router/AIRouter");
-        const res = await aiRouter.chat(prompt, { providerPriority: ["branpy-demo"] });
+        const res = await aiRouter.chat(prompt);
         output = res.content;
         break;
       }

@@ -107,7 +107,7 @@ export class AgentCoordinator {
       agentContext.push({ role: "user", content: step.action === "synthesize" ? step.input : `Tarefa: ${step.input}\n\nContexto: ${parentTask.results.map((r) => r.content || "").filter(Boolean).join("\n\n")}` });
 
       const router = (await import("../router/AIRouter")).aiRouter;
-      const result = await router.chat(step.input, { agent, providerPriority: ["branpy-demo"] });
+      const result = await router.chat(step.input, { agent });
 
       agentContext.push({ role: "assistant", content: result.content });
       if (agentContext.length > this.maxHistoryPerAgent) {

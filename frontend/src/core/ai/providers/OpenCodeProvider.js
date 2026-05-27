@@ -1,7 +1,7 @@
 import { BaseProvider, ProviderError } from "./BaseProvider";
 
 const OPENCODE_DEFAULT_URL = "http://localhost:11434"; // Ollama-compatible local endpoint
-const DEFAULT_MODEL = "opencode/big-pickle";
+const DEFAULT_MODEL = "qwen2.5-coder:7b";
 
 export class OpenCodeProvider extends BaseProvider {
   constructor(config = {}) {

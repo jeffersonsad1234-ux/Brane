@@ -58,7 +58,6 @@ export class OllamaProvider extends BaseProvider {
     const body = buildPayload(model, messages, false, options);
     const url = `${this.baseUrl}/api/chat`;
 
-    console.log("[Ollama] sendMessage", { url, model });
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },

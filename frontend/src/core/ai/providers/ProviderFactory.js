@@ -1,33 +1,10 @@
-import { OpenCodeProvider } from "./OpenCodeProvider";
-import { OpenRouterProvider } from "./OpenRouterProvider";
-import { DeepSeekProvider } from "./DeepSeekProvider";
-import { QwenProvider } from "./QwenProvider";
-import { LlamaProvider } from "./LlamaProvider";
-import { LocalProvider } from "./LocalProvider";
-import { GroqProvider } from "./GroqProvider";
-import { GeminiProvider } from "./GeminiProvider";
-import { OpenAIProvider } from "./OpenAIProvider";
 import { OllamaProvider } from "./OllamaProvider";
-import { BRANPYLocalDemoProvider } from "./BRANPYLocalDemoProvider";
 
 const PROVIDER_REGISTRY = {
-  opencode: OpenCodeProvider,
-  openrouter: OpenRouterProvider,
-  groq: GroqProvider,
-  gemini: GeminiProvider,
-  openai: OpenAIProvider,
-  deepseek: DeepSeekProvider,
-  qwen: QwenProvider,
-  llama: LlamaProvider,
-  local: LocalProvider,
   ollama: OllamaProvider,
-  "branpy-demo": BRANPYLocalDemoProvider,
 };
 
-const PROVIDER_PRIORITY = [
-  "opencode", "openrouter", "groq", "gemini", "openai",
-  "deepseek", "qwen", "llama", "local", "ollama", "branpy-demo",
-];
+const PROVIDER_PRIORITY = ["ollama"];
 
 let providerInstances = {};
 
@@ -55,7 +32,7 @@ export function getAvailableProviders() {
     id,
     name: PROVIDER_REGISTRY[id]?.prototype?.constructor?.name || id,
     instance: getProvider(id),
-  })).filter((p) => p.id !== "branpy-demo" || true);
+  }));
 }
 
 export function getProviderPriority() {
