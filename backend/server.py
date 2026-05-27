@@ -5262,3 +5262,187 @@ port = int(os.environ.get("PORT", 8080))
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("server:app", host="0.0.0.0", port=port)
+
+
+
+# ==========================================
+# BRANDPY TOOLS - AI GENERATION ENDPOINTS
+# ==========================================
+
+HUGGINGFACE_API_KEY = os.environ.get("HUGGINGFACE_API_KEY", "")
+REPLICATE_API_KEY = os.environ.get("REPLICATE_API_KEY", "")
+
+# Image Generator
+class ImageGenerateRequest(BaseModel):
+    prompt: str
+    negative_prompt: Optional[str] = ""
+    width: Optional[int] = 1024
+    height: Optional[int] = 1024
+
+@api_router.post("/generate-image")
+async def generate_image(req: ImageGenerateRequest):
+    """
+    Generate image using HuggingFace Inference API (Stable Diffusion XL)
+    """
+    if not HUGGINGFACE_API_KEY:
+        raise HTTPException(status_code=500, detail="HUGGINGFACE_API_KEY not configured")
+    
+    try:
+        API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0"
+        headers = {"Authorization": f"Bearer {HUGGINGFACE_API_KEY}"}
+        
+        payload = {
+            "inputs": req.prompt,
+            "parameters": {
+                "negative_prompt": req.negative_prompt,
+                "width": req.width,
+                "height": req.height,
+                "num_inference_steps": 50
+            }
+        }
+        
+        response = http_requests.post(API_URL, headers=headers, json=payload, timeout=60)
+        
+        if response.status_code != 200:
+            logger.error(f"HuggingFace API error: {response.status_code} - {response.text}")
+            raise HTTPException(status_code=response.status_code, detail=f"Image generation failed: {response.text}")
+        
+        # Convert image bytes to base64
+        image_bytes = response.content
+        image_base64 = base64.b64encode(image_bytes).decode('utf-8')
+        
+        return {
+            "success": True,
+            "image": f"data:image/png;base64,{image_base64}",
+            "prompt": req.prompt
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generating image: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Image generation error: {str(e)}")
+
+# Music Generator
+class MusicGenerateRequest(BaseModel):
+    prompt: str
+    duration: Optional[int] = 8
+
+@api_router.post("/generate-music")
+async def generate_music(req: MusicGenerateRequest):
+    """
+    Generate music using MusicGen (simplified - can be integrated with Replicate later)
+    """
+    if not REPLICATE_API_KEY:
+        raise HTTPException(status_code=500, detail="REPLICATE_API_KEY not configured")
+    
+    try:
+        # Placeholder for Replicate MusicGen integration
+        # For now, return mock response with instructions
+        return {
+            "success": False,
+            "message": "Music generation requires Replicate API integration",
+            "instructions": "Add REPLICATE_API_KEY to backend/.env",
+            "prompt": req.prompt
+        }
+    except Exception as e:
+        logger.error(f"Error generating music: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Music generation error: {str(e)}")
+
+# Sound FX Generator
+class SoundFXRequest(BaseModel):
+    prompt: str
+    duration: Optional[float] = 5.0
+
+@api_router.post("/generate-soundfx")
+async def generate_soundfx(req: SoundFXRequest):
+    """
+    Generate sound effects using AudioCraft
+    """
+    try:
+        # Placeholder for AudioCraft integration
+        return {
+            "success": False,
+            "message": "Sound FX generation requires AudioCraft integration",
+            "prompt": req.prompt
+        }
+    except Exception as e:
+        logger.error(f"Error generating sound FX: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Sound FX generation error: {str(e)}")
+
+# Subtitle Generator (Whisper)
+@api_router.post("/generate-subtitles")
+async def generate_subtitles(file: UploadFile = File(...)):
+    """
+    Generate subtitles from video/audio using Whisper
+    """
+    if not REPLICATE_API_KEY:
+        raise HTTPException(status_code=500, detail="REPLICATE_API_KEY not configured")
+    
+    try:
+        # Placeholder for Whisper integration
+        return {
+            "success": False,
+            "message": "Subtitle generation requires Whisper API integration",
+            "filename": file.filename
+        }
+    except Exception as e:
+        logger.error(f"Error generating subtitles: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Subtitle generation error: {str(e)}")
+
+# Voice/TTS Generator
+class TTSRequest(BaseModel):
+    text: str
+    voice: Optional[str] = "en-US-AriaNeural"
+
+@api_router.post("/text-to-speech")
+async def text_to_speech(req: TTSRequest):
+    """
+    Convert text to speech using edge-tts (Microsoft Edge TTS - FREE)
+    """
+    try:
+        import edge_tts
+        import tempfile
+        
+        # Generate speech
+        communicate = edge_tts.Communicate(req.text, req.voice)
+        
+        # Save to temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+            tmp_path = tmp_file.name
+        
+        await communicate.save(tmp_path)
+        
+        # Read file and convert to base64
+        with open(tmp_path, "rb") as audio_file:
+            audio_bytes = audio_file.read()
+            audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
+        
+        # Clean up
+        os.remove(tmp_path)
+        
+        return {
+            "success": True,
+            "audio": f"data:audio/mp3;base64,{audio_base64}",
+            "text": req.text,
+            "voice": req.voice
+        }
+    except Exception as e:
+        logger.error(f"Error generating speech: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"TTS error: {str(e)}")
+
+# Document AI (PDF processing)
+@api_router.post("/document-ai")
+async def document_ai(file: UploadFile = File(...), action: str = "summarize"):
+    """
+    Process PDF documents - extract text, summarize, Q&A
+    """
+    try:
+        # Placeholder for PyPDF2 + AI integration
+        return {
+            "success": False,
+            "message": "Document AI requires PDF processing integration",
+            "filename": file.filename,
+            "action": action
+        }
+    except Exception as e:
+        logger.error(f"Error processing document: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Document AI error: {str(e)}")
