@@ -8,7 +8,7 @@ import json
 import uuid
 from datetime import datetime
 
-BASE_URL = "https://social-links-config.preview.emergentagent.com/api"
+BASE_URL = "https://chat-thinking-fix.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin@brane.com"
 ADMIN_PASSWORD = "Admin123!"
 

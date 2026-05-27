@@ -6,7 +6,7 @@ Edge case testing for payment methods
 import requests
 import json
 
-BASE_URL = "https://social-links-config.preview.emergentagent.com/api"
+BASE_URL = "https://chat-thinking-fix.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin@brane.com"
 ADMIN_PASSWORD = "Admin123!"
 

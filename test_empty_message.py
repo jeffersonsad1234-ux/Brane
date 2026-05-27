@@ -7,7 +7,7 @@ import requests
 import json
 import time
 
-BASE_URL = "https://social-links-config.preview.emergentagent.com/api"
+BASE_URL = "https://chat-thinking-fix.preview.emergentagent.com/api"
 
 def test_empty_message_validation():
     """Test empty message validation specifically"""

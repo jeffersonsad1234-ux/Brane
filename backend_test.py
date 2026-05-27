@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://social-links-config.preview.emergentagent.com/api"
+BASE_URL = "https://chat-thinking-fix.preview.emergentagent.com/api"
 ADMIN_EMAIL = "admin.test@brane.com"
 ADMIN_PASSWORD = "Admin123!"
 

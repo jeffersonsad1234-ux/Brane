@@ -6,7 +6,7 @@
 
 ### 1. Produtos - GET /api/products
 ```bash
-curl https://social-links-config.preview.emergentagent.com/api/products?limit=20
+curl https://chat-thinking-fix.preview.emergentagent.com/api/products?limit=20
 ```
 
 **✅ Resultado:**
@@ -26,7 +26,7 @@ curl https://social-links-config.preview.emergentagent.com/api/products?limit=20
 
 ### 2. Desapega - GET /api/desapega
 ```bash
-curl https://social-links-config.preview.emergentagent.com/api/desapega
+curl https://chat-thinking-fix.preview.emergentagent.com/api/desapega
 ```
 
 **✅ Resultado:**
@@ -37,7 +37,7 @@ curl https://social-links-config.preview.emergentagent.com/api/desapega
 
 ### 3. Lojas - GET /api/stores
 ```bash
-curl https://social-links-config.preview.emergentagent.com/api/stores
+curl https://chat-thinking-fix.preview.emergentagent.com/api/stores
 ```
 
 **✅ Resultado:**
@@ -49,7 +49,7 @@ curl https://social-links-config.preview.emergentagent.com/api/stores
 
 ### 4. Anúncios - GET /api/ads
 ```bash
-curl https://social-links-config.preview.emergentagent.com/api/ads
+curl https://chat-thinking-fix.preview.emergentagent.com/api/ads
 ```
 
 **✅ Resultado:**
