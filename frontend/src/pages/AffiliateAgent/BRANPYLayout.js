@@ -101,7 +101,7 @@ const APPS = [
   { id: "ai-vtuber", name: "AI VTuber", icon: "🎭", cat: "future", desc: "Virtual YouTuber AI" },
   { id: "ai-influencer", name: "AI Influencer", icon: "🌟", cat: "future", desc: "AI social influencer" },
   { id: "ai-employees", name: "AI Employees", icon: "👥", cat: "future", desc: "Autonomous AI workers" },
-  { id: "ai-video-gen", name: "AI Video Generator", icon: "🎞️", cat: "future", desc: "Text-to-video generation" },
+  { id: "ai-video-gen", name: "AI Video Generator", icon: "🎞️", cat: "media", route: "/affiliate-agent/ai-video-gen", desc: "Text-to-video generation" },
   { id: "ai-movie-gen", name: "AI Movie Generator", icon: "🍿", cat: "future", desc: "Full movie creation" },
   { id: "ai-world", name: "AI World Builder", icon: "🌍", cat: "future", desc: "Virtual world creation" },
   { id: "ai-character", name: "AI Character Creator", icon: "🧑‍🎤", cat: "future", desc: "3D character design" },

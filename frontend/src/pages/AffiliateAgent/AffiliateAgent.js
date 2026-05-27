@@ -8,6 +8,7 @@ import { isMediaWorkerEnabled, createUGCJob, getUGCJobStatus } from "../../servi
 import BRANPYLayout from "./BRANPYLayout";
 import AIChat from "./AIChat";
 import VoiceStudio from "./VoiceStudio";
+import AIVideoGenerator from "./AIVideoGenerator";
 import {
   VideoStudio, ImageStudio, SiteBuilder, BrandStudio,
   SocialPublisher, AutomationHub, AgentMarketplace, LeadsCRM,
@@ -1597,6 +1598,7 @@ export default function AffiliateAgentApp() {
       <Route path="/video-studio" element={<BRANPYLayout activeModule="video-studio"><VideoStudio /></BRANPYLayout>} />
       <Route path="/image-studio" element={<BRANPYLayout activeModule="image-studio"><ImageStudio /></BRANPYLayout>} />
       <Route path="/voice-studio" element={<BRANPYLayout activeModule="voice-studio"><VoiceStudio /></BRANPYLayout>} />
+      <Route path="/ai-video-gen" element={<BRANPYLayout activeModule="ai-video-gen"><AIVideoGenerator /></BRANPYLayout>} />
       <Route path="/site-builder" element={<BRANPYLayout activeModule="site-builder"><SiteBuilder /></BRANPYLayout>} />
       <Route path="/brand-studio" element={<BRANPYLayout activeModule="brand-studio"><BrandStudio /></BRANPYLayout>} />
       <Route path="/social-publisher" element={<BRANPYLayout activeModule="social-publisher"><SocialPublisher /></BRANPYLayout>} />
