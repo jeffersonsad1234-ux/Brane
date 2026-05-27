@@ -37,35 +37,68 @@ function WaveformBars({ active, color = "#22c55e" }) {
   );
 }
 
+const API_URL = process.env.REACT_APP_BACKEND_URL || "";
+
 export default function VoiceStudio() {
   const [tab, setTab] = useState("library");
   const [previewId, setPreviewId] = useState(null);
   const [ttsText, setTtsText] = useState("");
-  const [ttsVoice, setTtsVoice] = useState("James");
+  const [ttsVoice, setTtsVoice] = useState("en-US-AriaNeural");
   const [speed, setSpeed] = useState(1);
   const [pitch, setPitch] = useState(1);
   const [generating, setGenerating] = useState(false);
   const [items, setItems] = useLocalStorage("branpy-voicestudio-items", defaultItems);
+  const [audioUrl, setAudioUrl] = useState(null);
+  const [error, setError] = useState(null);
 
   const handlePreview = (id) => {
     setPreviewId(previewId === id ? null : id);
   };
 
-  const handleGenerate = () => {
-    if (!ttsText.trim()) return;
+  const handleGenerate = async () => {
+    if (!ttsText.trim()) {
+      setError("Please enter some text");
+      return;
+    }
+    
     setGenerating(true);
-    setTimeout(() => {
+    setError(null);
+    setAudioUrl(null);
+    
+    try {
+      const response = await fetch(`${API_URL}/api/text-to-speech`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: ttsText.trim(),
+          voice: ttsVoice
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Failed to generate speech");
+      }
+      
+      const data = await response.json();
+      setAudioUrl(data.audio);
+      
       const entry = {
         id: UID(),
         text: ttsText.trim(),
         voice: ttsVoice,
+        audio: data.audio,
         duration: +(ttsText.trim().split(" ").length * 0.25).toFixed(1),
         date: new Date().toISOString().slice(0, 10),
       };
       setItems((prev) => [entry, ...prev]);
       setTtsText("");
+    } catch (err) {
+      setError(err.message);
+      console.error("TTS error:", err);
+    } finally {
       setGenerating(false);
-    }, 2000);
+    }
   };
 
   return (
@@ -158,6 +191,33 @@ export default function VoiceStudio() {
                     )}
                   </motion.button>
                 </div>
+
+              {error && (
+                <div className="mt-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-[10px]">
+                  {error}
+                </div>
+              )}
+              
+              {audioUrl && !generating && (
+                <div className="mt-4 p-4 rounded-xl bg-white/[0.04] border border-white/[0.08] space-y-3">
+                  <div className="text-[10px] text-white/40 uppercase tracking-wider">✅ Generated Audio</div>
+                  <audio controls src={audioUrl} className="w-full" style={{ height: '32px' }} />
+                  <button
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = audioUrl;
+                      link.download = `brandpy-voice-${Date.now()}.mp3`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                    className="w-full px-4 py-2 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-white/60 text-[10px] transition-all"
+                  >
+                    ⬇ Download MP3
+                  </button>
+                </div>
+              )}
+
               </div>
 
               <div className="pt-4 border-t border-white/[0.06]">
