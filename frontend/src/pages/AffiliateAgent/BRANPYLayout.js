@@ -66,7 +66,7 @@ const APPS = [
   { id: "animation-studio", name: "Animation Studio", icon: "🌀", cat: "media", desc: "2D/3D animation" },
   { id: "streaming-studio", name: "Streaming Studio", icon: "📡", cat: "media", route: "/affiliate-agent/streaming-studio", desc: "Live streaming production" },
   { id: "podcast-studio", name: "Podcast Studio", icon: "🎙️", cat: "media", route: "/affiliate-agent/podcast-studio", desc: "Record & edit podcasts" },
-  { id: "voice-ai", name: "Voice Studio", icon: "🎤", cat: "media", route: "/affiliate-agent/voice-ai", desc: "AI voice generation & cloning" },
+  { id: "voice-studio", name: "Voice Studio", icon: "🎤", cat: "media", route: "/affiliate-agent/voice-studio", desc: "AI voice generation & cloning" },
   { id: "music-sounds", name: "Music Studio", icon: "🎵", cat: "media", route: "/affiliate-agent/music-sounds", desc: "Music production & editing" },
   { id: "sound-fx", name: "Sound FX Studio", icon: "🔊", cat: "media", route: "/affiliate-agent/sound-fx", desc: "Sound effects library & tools" },
   { id: "ai-dub", name: "AI Dub Studio", icon: "🌍", cat: "media", route: "/affiliate-agent/ai-dub", desc: "AI dubbing & localization" },
