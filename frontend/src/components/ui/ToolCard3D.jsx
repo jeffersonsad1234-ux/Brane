@@ -20,163 +20,141 @@ const TOOL_COLORS = {
   cloud: "#06b6d4", future: "#f59e0b",
 };
 
-const UNSPLASH_POOL = [
-  "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&q=80",
-  "https://images.unsplash.com/photo-1536240478700-b869070f7209?w=600&q=80",
-  "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&q=80",
-  "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80",
-  "https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&q=80",
-  "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&q=80",
-  "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80",
-  "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&q=80",
-  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80",
-  "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&q=80",
-  "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=600&q=80",
-  "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=80",
-  "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&q=80",
-  "https://images.unsplash.com/photo-1553729459-afe8f2e3a584?w=600&q=80",
-  "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&q=80",
-  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80",
-  "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80",
-  "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&q=80",
-  "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&q=80",
-  "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&q=80",
-  "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&q=80",
-  "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&q=80",
-  "https://images.unsplash.com/photo-1560472355-b422c19f6e7c?w=600&q=80",
-  "https://images.unsplash.com/photo-1504711434969-e33886168d5c?w=600&q=80",
-  "https://images.unsplash.com/photo-1559526324-4bd87da1d86a?w=600&q=80",
-  "https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&q=80",
-  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80",
-  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80",
-  "https://images.unsplash.com/photo-1522075469751-3a6694fb2f53?w=600&q=80",
-  "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80",
-  "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&q=80",
-  "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&q=80",
-  "https://images.unsplash.com/photo-1432889821006-3149403ab8c4?w=600&q=80",
-  "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&q=80",
-  "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&q=80",
-  "https://images.unsplash.com/photo-1558746818-05e20f3e1993?w=600&q=80",
-  "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80",
-  "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=600&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
-  "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=600&q=80",
-  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80",
-  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=80",
-  "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80",
-  "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80",
-  "https://images.unsplash.com/photo-1559526324-4bd87da1d86a?w=600&q=80",
-  "https://images.unsplash.com/photo-1560472355-b422c19f6e7c?w=600&q=80",
-  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80",
-  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80",
-  "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&q=80",
-  "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=600&q=80",
-  "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&q=80",
-  "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=600&q=80",
-  "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=80",
-  "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80",
-  "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80",
-  "https://images.unsplash.com/photo-1573495612937-f0b4e0e7d8c7?w=600&q=80",
-  "https://images.unsplash.com/photo-1507208773393-40d9fc670ac8?w=600&q=80",
-  "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&q=80",
-  "https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=600&q=80",
-  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80",
-  "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&q=80",
-  "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&q=80",
-  "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=600&q=80",
-  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80",
-  "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=600&q=80",
-  "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&q=80",
-  "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80",
-  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80",
-  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=80",
-  "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80",
-  "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80",
-  "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=600&q=80",
-  "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&q=80",
-  "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=600&q=80",
-  "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=600&q=80",
-  "https://images.unsplash.com/photo-1504711434969-e33886168d5c?w=600&q=80",
-  "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&q=80",
-  "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&q=80",
-  "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&q=80",
-  "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80",
-  "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80",
-  "https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&q=80",
-  "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80",
-  "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&q=80",
-  "https://images.unsplash.com/photo-1557804506-669a67965ba0?w=600&q=80",
-  "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=600&q=80",
-  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80",
-  "https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=600&q=80",
-  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80",
-  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=80",
-  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80",
-  "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?w=600&q=80",
-  "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80",
-  "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=600&q=80",
-  "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80",
-  "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80",
-  "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=600&q=80",
-  "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=600&q=80",
-  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80",
-  "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=600&q=80",
-  "https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=600&q=80",
-  "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80",
-  "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=600&q=80",
-  "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?w=600&q=80",
-  "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80",
-  "https://images.unsplash.com/photo-1522075469751-3a6694fb2f53?w=600&q=80",
-  "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&q=80",
-  "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=600&q=80",
-];
-
 function hashId(id) {
   let h = 0;
   for (let i = 0; i < id.length; i++) { h = ((h << 5) - h) + id.charCodeAt(i); h |= 0; }
   return Math.abs(h);
 }
 
-const TOOL_IMAGES = {
-  chat: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&q=80",
-  "video-studio": "https://images.unsplash.com/photo-1536240478700-b869070f7209?w=600&q=80",
-  "image-studio": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=600&q=80",
-  "photoshop-editor": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80",
-  "canva-editor": "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=600&q=80",
-  "logo-studio": "https://images.unsplash.com/photo-1626785774573-4b799315345d?w=600&q=80",
-  affiliate: "https://images.unsplash.com/photo-1556761175-b413da4baf72?w=600&q=80",
-  "seo-studio": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80",
-  copywriting: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&q=80",
-  "social-publisher": "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600&q=80",
-  "code-studio": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&q=80",
-  "automation-hub": "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=600&q=80",
-  "app-builder": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&q=80",
-  "site-builder": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80",
-  payments: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&q=80",
-  "leads-crm": "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&q=80",
-  "brand-studio": "https://images.unsplash.com/photo-1560472355-b422c19f6e7c?w=600&q=80",
-  "ai-art": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80",
-  "studio-3d": "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=600&q=80",
-  "movie-studio": "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&q=80",
-  "mockup-studio": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=600&q=80",
-  "code-generator": "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=600&q=80",
-  analytics: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80",
-  ecommerce: "https://images.unsplash.com/photo-1553729459-afe8f2e3a584?w=600&q=80",
-  "finance-hub": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&q=80",
-};
+/* ─── SVG Thumbnail Generator ───
+ * Generates a unique, premium-looking abstract art SVG for each tool.
+ * Deterministic: same tool ID always produces the same SVG.
+ * No external dependencies, no duplicates, instant loading. */
+function generateToolSvg(id, cat) {
+  const h = hashId(id + cat);
+  const color = TOOL_COLORS[cat] || "#6366f1";
+  const hex = color.replace("#", "");
+  const r = parseInt(hex.substring(0,2), 16);
+  const g = parseInt(hex.substring(2,4), 16);
+  const b = parseInt(hex.substring(4,6), 16);
+  const bgHue = (h % 24) * 15;
+  const comp = h % 8;
 
+  // Helper: generate deterministic positions
+  const px = (shift, min, range) => min + ((h >> shift) % range);
+  const op = (shift) => 0.06 + ((h >> shift) % 5) * 0.04;
+
+  let shapes = "";
+
+  // Composition types
+  if (comp === 0) {
+    // Radiant circles
+    for (let i = 0; i < 4; i++) {
+      const cx = px(i * 3, 30, 340);
+      const cy = px(i * 3 + 1, 30, 340);
+      const cr = 30 + ((h >> (i * 2)) % 80);
+      shapes += `<circle cx="${cx}" cy="${cy}" r="${cr}" fill="rgba(${r},${g},${b},${op(i * 2)})"/>`;
+    }
+  } else if (comp === 1) {
+    // Diagonal bars
+    for (let i = 0; i < 5; i++) {
+      const y = 10 + i * 85 + ((h >> (i * 2)) % 20);
+      const w = 60 + ((h >> (i * 2 + 1)) % 100);
+      shapes += `<rect x="${400 - w - ((h >> i) % 60)}" y="${y}" width="${w}" height="30" rx="15" fill="rgba(${r},${g},${b},${op(i * 3)})"/>`;
+    }
+  } else if (comp === 2) {
+    // Corner glow
+    shapes += `<circle cx="${px(0, 20, 160)}" cy="${px(1, 20, 160)}" r="${80 + (h % 60)}" fill="rgba(${r},${g},${b},0.08)"/>`;
+    shapes += `<circle cx="${px(2, 220, 160)}" cy="${px(3, 220, 160)}" r="${60 + ((h >> 4) % 50)}" fill="rgba(${r},${g},${b},0.1)"/>`;
+    shapes += `<circle cx="${px(4, 60, 100)}" cy="${px(5, 60, 100)}" r="${40 + ((h >> 8) % 40)}" fill="rgba(${r},${g},${b},0.06)"/>`;
+  } else if (comp === 3) {
+    // Grid dots
+    for (let x = 0; x < 8; x++) {
+      for (let y = 0; y < 8; y++) {
+        const dotR = ((h >> (x + y * 8)) % 2 === 0) ? 3 + ((h >> (x * 2)) % 4) : 1;
+        const dotOp = ((h >> (x + y * 3)) % 3 === 0) ? 0.15 : 0.05;
+        shapes += `<circle cx="${30 + x * 48}" cy="${30 + y * 48}" r="${dotR}" fill="rgba(${r},${g},${b},${dotOp})"/>`;
+      }
+    }
+  } else if (comp === 4) {
+    // Wave lines
+    for (let i = 0; i < 6; i++) {
+      const y = 20 + i * 65;
+      const w = 200 + ((h >> (i * 2)) % 160);
+      shapes += `<path d="M${400 - w},${y} Q${200},${y + 15 + ((h >> i) % 20)} ${w},${y}" stroke="rgba(${r},${g},${b},${op(i * 2)})" stroke-width="${4 + ((h >> (i * 3)) % 6)}" fill="none" stroke-linecap="round"/>`;
+    }
+  } else if (comp === 5) {
+    // Hex pattern
+    for (let row = 0; row < 5; row++) {
+      for (let col = 0; col < 5; col++) {
+        const cx = 50 + col * 80 + (row % 2) * 40;
+        const cy = 40 + row * 80;
+        const side = 8 + ((h >> (row + col)) % 12);
+        const pts = [];
+        for (let a = 0; a < 6; a++) {
+          const angle = (Math.PI / 3) * a - Math.PI / 6;
+          pts.push(`${cx + side * Math.cos(angle)},${cy + side * Math.sin(angle)}`);
+        }
+        const hexOp = ((h >> (row * 5 + col)) % 2 === 0) ? 0.12 : 0.04;
+        shapes += `<polygon points="${pts.join(" ")}" fill="none" stroke="rgba(${r},${g},${b},${hexOp})" stroke-width="1"/>`;
+      }
+    }
+  } else if (comp === 6) {
+    // Pulse rings
+    for (let i = 0; i < 5; i++) {
+      const cx = 100 + ((h >> (i * 2)) % 200);
+      const cy = 100 + ((h >> (i * 2 + 1)) % 200);
+      const ringR = 20 + i * 25 + ((h >> (i * 3)) % 15);
+      shapes += `<circle cx="${cx}" cy="${cy}" r="${ringR}" fill="none" stroke="rgba(${r},${g},${b},${0.08 + i * 0.02})" stroke-width="${3 + i}"/>`;
+    }
+  } else {
+    // Asymmetric composition
+    shapes += `<rect x="${px(0, 10, 200)}" y="${px(1, 10, 200)}" width="${px(2, 80, 180)}" height="${px(3, 80, 180)}" rx="${px(4, 10, 40)}" fill="rgba(${r},${g},${b},${op(1)})"/>`;
+    shapes += `<circle cx="${px(5, 180, 180)}" cy="${px(6, 180, 180)}" r="${px(7, 50, 100)}" fill="rgba(${r},${g},${b},${op(2)})"/>`;
+    shapes += `<circle cx="${px(8, 50, 100)}" cy="${px(9, 50, 100)}" r="${px(10, 20, 50)}" fill="rgba(${r},${g},${b},0.1)"/>`;
+  }
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+    <defs>
+      <linearGradient id="bg_${id}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="hsl(${bgHue},25%,5%)"/>
+        <stop offset="100%" stop-color="hsl(${bgHue},30%,2%)"/>
+      </linearGradient>
+      <radialGradient id="glow_${id}" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="rgba(${r},${g},${b},0.12)"/>
+        <stop offset="100%" stop-color="rgba(${r},${g},${b},0)"/>
+      </radialGradient>
+    </defs>
+    <rect width="400" height="400" fill="url(#bg_${id})"/>
+    <circle cx="200" cy="200" r="200" fill="url(#glow_${id})"/>
+    ${shapes}
+    <rect width="400" height="400" fill="url(#glow_${id})" opacity="0.3"/>
+  </svg>`;
+
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+/* Memoized SVG generation for all tools — computed once */
+const svgCache = {};
+
+function getOrGenerateSvg(id, cat) {
+  const key = `${id}::${cat}`;
+  if (!svgCache[key]) {
+    svgCache[key] = generateToolSvg(id, cat);
+  }
+  return svgCache[key];
+}
+
+/* ─── ToolCard3D ─── */
 export default function ToolCard3D({ app, index = 0, onClick, isFavorite, onToggleFavorite }) {
   const cardRef = useRef(null);
-  const [imgError, setImgError] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
   const [clicking, setClicking] = useState(false);
   const color = TOOL_COLORS[app.cat] || "#6366f1";
   const fallback = FALLBACK_GRADIENTS[app.cat] || FALLBACK_GRADIENTS.ai;
 
   const image = useMemo(() => {
-    return TOOL_IMAGES[app.id] || UNSPLASH_POOL[hashId(app.id) % UNSPLASH_POOL.length];
-  }, [app.id]);
+    return getOrGenerateSvg(app.id, app.cat);
+  }, [app.id, app.cat]);
 
   const handleClick = (e) => {
     setClicking(true);
@@ -223,27 +201,13 @@ export default function ToolCard3D({ app, index = 0, onClick, isFavorite, onTogg
             : "0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06)",
         }}
       >
-        {/* Background image */}
+        {/* Background image (generated SVG) */}
         <div className="absolute inset-0">
-          {!imgError && (
-            <img
-              src={image}
-              alt=""
-              loading="lazy"
-              onLoad={() => setImgLoaded(true)}
-              onError={() => setImgError(true)}
-              className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-              style={{ opacity: imgLoaded ? 1 : 0 }}
-            />
-          )}
-          {/* Always show fallback gradient until image loads or on error */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: imgError || !imgLoaded ? fallback : "none",
-              opacity: imgError || !imgLoaded ? 1 : 0,
-              transition: "opacity 0.6s",
-            }}
+          <img
+            src={image}
+            alt=""
+            loading="lazy"
+            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
           />
           {/* Dark overlay */}
           <div
