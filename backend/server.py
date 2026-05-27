@@ -5259,6 +5259,15 @@ app.include_router(api_router)
 
 port = int(os.environ.get("PORT", 8080))
 
+# Import BrandPy AI Tools router
+try:
+    from brandpy_ai_tools import tools_router
+    app.include_router(tools_router)
+    logger.info("✅ BrandPy AI Tools router loaded")
+except Exception as e:
+    logger.warning(f"⚠️ BrandPy AI Tools router not loaded: {str(e)}")
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("server:app", host="0.0.0.0", port=port)
