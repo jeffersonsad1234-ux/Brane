@@ -1,132 +1,135 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { analyzeDocument } from "../../core/ai/services/aiToolsService";
 
 const UID = () => Math.random().toString(36).slice(2, 9);
 
-const mockDocs = [
-  { id: UID(), title: "BRANPY Vision 2026", body: "Our mission is to democratize artificial intelligence for creators worldwide. The BRANPY ecosystem brings together cutting-edge tools for content generation, brand management, and creative automation. We believe in a future where anyone can produce professional-grade work without traditional barriers.", date: "2026-05-20" },
-  { id: UID(), title: "Market Analysis Q2", body: "The AI content creation market has grown 340% year-over-year. Key trends include multimodal generation, real-time collaboration, and edge deployment. BRANPY is positioned at the intersection of these trends with our modular architecture.", date: "2026-05-18" },
-  { id: UID(), title: "Product Roadmap", body: "Q3 priorities: launch mobile companion app, expand API surface area, introduce team workspaces. Q4: enterprise SSO, advanced analytics dashboard, and the BRANPY marketplace for third-party plugins.", date: "2026-05-15" },
-];
-
-const aiSnippets = [
-  "\n\nThe convergence of generative AI and creative workflows represents a paradigm shift in content production. By 2027, over 60% of digital content will incorporate AI-assisted creation at some stage.",
-  "\n\nKey success metrics include user retention, daily active creators, and ecosystem expansion. Early indicators suggest strong product-market fit across all verticals.",
-  "\n\nStrategic recommendations: invest in community building, reduce friction in cross-module workflows, and establish strategic partnerships with distribution platforms.",
-];
+async function readFileContent(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
+      reader.readAsArrayBuffer(file);
+    } else {
+      reader.readAsText(file);
+    }
+  });
+}
 
 export default function DocumentsAI() {
-  const [docs, setDocs] = useLocalStorage("branpy-docs", mockDocs);
-  const [currentId, setCurrentId] = useState(docs[0]?.id || null);
-  const [title, setTitle] = useState(docs[0]?.title || "");
-  const [body, setBody] = useState(docs[0]?.body || "");
+  const [docs, setDocs] = useLocalStorage("branpy-documents", []);
+  const [selected, setSelected] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [result, setResult] = useState("");
+  const fileRef = useRef(null);
 
-  const currentDoc = docs.find((d) => d.id === currentId);
-
-  const selectDoc = (id) => {
-    const doc = docs.find((d) => d.id === id);
-    if (doc) {
-      setCurrentId(doc.id);
-      setTitle(doc.title);
-      setBody(doc.body);
+  const handleFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const content = await readFileContent(file);
+      const doc = { id: UID(), name: file.name, size: file.size, type: file.type, content: typeof content === "string" ? content : "(PDF - análise via IA)", date: new Date().toISOString().slice(0, 10) };
+      setDocs((prev) => [doc, ...prev]);
+      setSelected(doc);
+      setAnalyzing(true);
+      setResult("");
+      const analysis = await analyzeDocument(typeof content === "string" ? content : `[PDF] ${file.name}`, "");
+      setResult(analysis);
+      setAnalyzing(false);
+    } catch (err) {
+      setResult(`Erro ao processar: ${err.message}`);
+      setAnalyzing(false);
     }
   };
 
-  const saveCurrent = () => {
-    if (!currentId) return;
-    setDocs((prev) => prev.map((d) => d.id === currentId ? { ...d, title, body, date: new Date().toISOString().slice(0, 10) } : d));
-  };
-
-  const newDocument = () => {
-    const doc = { id: UID(), title: "Untitled Document", body: "", date: new Date().toISOString().slice(0, 10) };
-    setDocs((prev) => [doc, ...prev]);
-    setCurrentId(doc.id);
-    setTitle(doc.title);
-    setBody(doc.body);
-  };
-
-  const deleteDocument = () => {
-    if (!currentId) return;
-    setDocs((prev) => prev.filter((d) => d.id !== currentId));
-    const remaining = docs.filter((d) => d.id !== currentId);
-    if (remaining.length > 0) {
-      selectDoc(remaining[0].id);
-    } else {
-      setCurrentId(null);
-      setTitle("");
-      setBody("");
+  const handleAnalyze = async () => {
+    if (!selected || analyzing) return;
+    setAnalyzing(true);
+    setResult("");
+    try {
+      const analysis = await analyzeDocument(selected.content, "");
+      setResult(analysis);
+    } catch (err) {
+      setResult(`Erro: ${err.message}`);
     }
-  };
-
-  const aiGenerate = () => {
-    const snippet = aiSnippets[Math.floor(Math.random() * aiSnippets.length)];
-    setBody((prev) => prev + snippet);
-    saveCurrent();
+    setAnalyzing(false);
   };
 
   return (
-    <div className="h-full w-full flex flex-col bg-[#0a0a0a] text-white/50 select-none overflow-hidden">
-      <div className="h-9 flex-shrink-0 flex items-center px-4 border-b border-white/[0.06]">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/20">Documents AI</span>
-        <div className="flex-1" />
-        <span className="text-[8px] text-white/10 font-mono">{docs.length} docs</span>
+    <div className="h-full w-full flex bg-[#0a0a0a] text-white/50 select-none overflow-hidden">
+      <div className="w-56 flex-shrink-0 border-r border-white/[0.06] overflow-y-auto p-3 hidden md:block">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-[9px] font-semibold uppercase tracking-wider" style={{ color: "rgba(255,255,255,0.2)" }}>Documentos</p>
+          <button onClick={() => fileRef.current?.click()} className="text-[9px] px-2 py-1 rounded" style={{ background: "rgba(99,102,241,0.1)", color: "#6366f1", border: "none", cursor: "pointer" }}>
+            + Novo
+          </button>
+        </div>
+        <input ref={fileRef} type="file" accept=".txt,.md,.pdf,.doc,.docx,.csv,.json" onChange={handleFile} className="hidden" />
+        {docs.map((d) => (
+          <div key={d.id} onClick={() => { setSelected(d); setResult(""); }}
+            className="p-2 rounded-lg mb-1 cursor-pointer transition-all text-[10px]"
+            style={{
+              background: selected?.id === d.id ? "rgba(99,102,241,0.08)" : "transparent",
+              border: `1px solid ${selected?.id === d.id ? "rgba(99,102,241,0.15)" : "transparent"}`,
+              color: selected?.id === d.id ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.25)",
+            }}
+          >
+            <p className="truncate">{d.name}</p>
+            <p className="text-[8px] mt-0.5" style={{ color: "rgba(255,255,255,0.15)" }}>{d.date}</p>
+          </div>
+        ))}
+        {docs.length === 0 && (
+          <p className="text-[10px] text-center" style={{ color: "rgba(255,255,255,0.15)" }}>Nenhum documento</p>
+        )}
       </div>
 
-      <div className="flex-1 flex min-h-0">
-        <div className="w-56 flex-shrink-0 border-r border-white/[0.06] flex flex-col overflow-y-auto">
-          <div className="p-3 border-b border-white/[0.06]">
-            <motion.button whileTap={{ scale: 0.97 }} onClick={newDocument} className="w-full py-2 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-[9px] text-white/30 hover:text-white/50 transition-all">
-              + New Document
-            </motion.button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-2 space-y-1">
-            <AnimatePresence initial={false}>
-              {docs.map((doc) => (
-                <motion.div key={doc.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, height: 0 }} onClick={() => selectDoc(doc.id)} className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all ${doc.id === currentId ? "bg-white/[0.06]" : "hover:bg-white/[0.03]"}`}>
-                  <div className="w-6 h-6 rounded-lg bg-white/[0.04] flex items-center justify-center text-xs flex-shrink-0">📄</div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-[10px] text-white/50 truncate">{doc.title}</div>
-                    <div className="text-[8px] text-white/15">{doc.date}</div>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="h-9 flex-shrink-0 flex items-center px-4 border-b border-white/[0.06]">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-white/20">Document AI</span>
+          <div className="flex-1" />
+          {selected && !analyzing && (
+            <button onClick={handleAnalyze} className="text-[9px] px-2.5 py-1 rounded" style={{ background: "rgba(99,102,241,0.1)", color: "#6366f1", border: "none", cursor: "pointer" }}>
+              Analisar com IA
+            </button>
+          )}
         </div>
 
-        <div className="flex-1 flex flex-col min-h-0">
-          {currentDoc ? (
-            <>
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                <input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  onBlur={saveCurrent}
-                  className="w-full bg-transparent text-lg font-semibold text-white/70 outline-none placeholder:text-white/10"
-                  placeholder="Document title"
-                />
-                <textarea
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  onBlur={saveCurrent}
-                  rows={16}
-                  className="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl px-4 py-3 text-[11px] text-white/50 outline-none resize-none placeholder:text-white/10 focus:border-white/[0.12] transition-colors leading-relaxed"
-                  placeholder="Start writing..."
-                />
+        <div className="flex-1 overflow-y-auto p-4">
+          {!selected && (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center" style={{ color: "rgba(255,255,255,0.15)" }}>
+                <div className="text-4xl mb-3">📄</div>
+                <p className="text-sm">Selecione ou importe um documento</p>
+                <button onClick={() => fileRef.current?.click()} className="mt-3 text-[10px] px-3 py-1.5 rounded-lg" style={{ background: "rgba(99,102,241,0.1)", color: "#6366f1", border: "none", cursor: "pointer" }}>
+                  Importar documento
+                </button>
               </div>
-              <div className="h-10 flex-shrink-0 border-t border-white/[0.06] flex items-center px-4 gap-2">
-                <motion.button whileTap={{ scale: 0.97 }} onClick={aiGenerate} className="px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400/80 text-[9px] font-semibold hover:bg-emerald-500/30 transition-all">
-                  AI Generate
-                </motion.button>
-                <div className="flex-1" />
-                <motion.button whileTap={{ scale: 0.97 }} onClick={deleteDocument} className="px-3 py-1.5 rounded-lg bg-red-500/15 border border-red-500/25 text-red-400/60 text-[9px] hover:bg-red-500/25 transition-all">
-                  Delete
-                </motion.button>
+            </div>
+          )}
+
+          {selected && (
+            <div className="space-y-4">
+              <div className="p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                <p className="text-xs font-medium mb-1" style={{ color: "rgba(255,255,255,0.6)" }}>{selected.name}</p>
+                <p className="text-[9px]" style={{ color: "rgba(255,255,255,0.2)" }}>{(selected.size / 1024).toFixed(1)} KB — {selected.date}</p>
               </div>
-            </>
-          ) : (
-            <div className="flex-1 flex items-center justify-center text-[10px] text-white/10">No document selected</div>
+
+              {analyzing && (
+                <div className="flex items-center gap-2 p-3 rounded-xl" style={{ background: "rgba(99,102,241,0.05)", border: "1px solid rgba(99,102,241,0.1)" }}>
+                  <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="w-3 h-3 rounded-full" style={{ border: "2px solid rgba(99,102,241,0.2)", borderTopColor: "#6366f1" }} />
+                  <span className="text-[10px]" style={{ color: "#6366f1" }}>Analisando documento...</span>
+                </div>
+              )}
+
+              {result && (
+                <div className="p-4 rounded-xl" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                  <p className="text-[9px] font-semibold uppercase tracking-wider mb-2" style={{ color: "rgba(255,255,255,0.2)" }}>Análise</p>
+                  <div className="text-xs leading-relaxed whitespace-pre-wrap" style={{ color: "rgba(255,255,255,0.7)" }}>{result}</div>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </div>

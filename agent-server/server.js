@@ -113,11 +113,201 @@ async function callAI(messages, options = {}) {
 }
 
 app.use(helmet({ contentSecurityPolicy: false }));
-app.use(cors({ origin: ["http://localhost:3000", "http://localhost:3001", "https://branded.page.br", "https://www.branded.page.br"], credentials: true }));
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: "10mb" }));
 app.use(morgan("dev"));
 app.use(rateLimit({ windowMs: 60 * 1000, max: 300 }));
 
+// ── BrandPy Chat (public, no auth) ──
+// Proxies to Groq API using GROQ_API_KEY from env. Never exposed to frontend.
+const GROQ_API_KEY = process.env.GROQ_API_KEY || "";
+const GROQ_MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+
+app.post("/api/chat", async (req, res) => {
+  const { message, history } = req.body;
+  if (!message) return res.status(400).json({ error: "message is required" });
+  if (!GROQ_API_KEY) return res.status(500).json({ error: "GROQ_API_KEY not configured on server" });
+
+  try {
+    const groqResp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [
+          { role: "system", content: "Você é um assistente inteligente e prestativo. Responda em português brasileiro de forma natural e completa." },
+          ...(history || []),
+          { role: "user", content: message },
+        ],
+        temperature: 0.7,
+        max_tokens: 4096,
+        stream: true,
+      }),
+    });
+
+    if (!groqResp.ok) {
+      const errText = await groqResp.text().catch(() => "");
+      return res.status(groqResp.status).json({ error: `Groq API ${groqResp.status}: ${errText.slice(0, 300)}` });
+    }
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
+
+    const reader = groqResp.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
+      for (const line of lines) {
+        const t = line.trim();
+        if (!t || !t.startsWith("data: ")) continue;
+        const jsonStr = t.slice(6);
+        if (jsonStr === "[DONE]") { res.write("data: [DONE]\n\n"); continue; }
+        try {
+          const chunk = JSON.parse(jsonStr);
+          const content = chunk.choices?.[0]?.delta?.content || "";
+          if (content) res.write(`data: ${JSON.stringify({ content })}\n\n`);
+        } catch { /* skip malformed chunk */ }
+      }
+    }
+    res.write("data: [DONE]\n\n");
+    res.end();
+  } catch (err) {
+    console.error("[BrandPy Chat] Error:", err.message);
+    if (!res.headersSent) return res.status(500).json({ error: err.message });
+    res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+    res.write("data: [DONE]\n\n");
+    res.end();
+  }
+});
+
+// ── HuggingFace Inference Proxy (public, no auth) ──
+// Generic proxy: frontend sends HF token, model, inputs. Backend forwards to HF Inference API.
+app.post("/api/huggingface", async (req, res) => {
+  const { model, inputs, parameters, token } = req.body;
+  if (!model) return res.status(400).json({ error: "model is required" });
+  if (!token) return res.status(400).json({ error: "HF token is required" });
+  if (!inputs) return res.status(400).json({ error: "inputs are required" });
+
+  const url = `https://api-inference.huggingface.co/models/${model}`;
+  const body = { inputs, ...(parameters ? { parameters } : {}) };
+
+  try {
+    const hfResp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(60000),
+    });
+
+    if (!hfResp.ok) {
+      const errText = await hfResp.text().catch(() => "");
+      return res.status(hfResp.status).json({ error: `HF API ${hfResp.status}: ${errText.slice(0, 300)}` });
+    }
+
+    const contentType = hfResp.headers.get("content-type") || "";
+
+    if (contentType.includes("image")) {
+      const buffer = await hfResp.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString("base64");
+      const mime = contentType.split(";")[0];
+      return res.json({ data: `data:${mime};base64,${base64}`, type: "image" });
+    }
+
+    if (contentType.includes("audio")) {
+      const buffer = await hfResp.arrayBuffer();
+      const base64 = Buffer.from(buffer).toString("base64");
+      return res.json({ data: `data:${contentType};base64,${base64}`, type: "audio" });
+    }
+
+    const text = await hfResp.text();
+    try {
+      const json = JSON.parse(text);
+      return res.json({ data: json, type: "json" });
+    } catch {
+      return res.json({ data: text, type: "text" });
+    }
+  } catch (err) {
+    console.error("[HuggingFace] Error:", err.message);
+    if (err.name === "AbortError") return res.status(504).json({ error: "HF API timeout" });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── TTS via edge-tts (public) ──
+app.post("/api/tts", async (req, res) => {
+  const { text, voice, rate } = req.body;
+  if (!text) return res.status(400).json({ error: "text is required" });
+
+  try {
+    const { execSync } = require("child_process");
+    const selectedVoice = voice || "pt-BR-FranciscaNeural";
+    const selectedRate = rate || "0%";
+    const tmpFile = path.join(__dirname, `tts_${Date.now()}.mp3`);
+
+    execSync(
+      `edge-tts --voice "${selectedVoice}" --rate "${selectedRate}" --text "${text.replace(/"/g, '\\"')}" --write-media "${tmpFile}"`,
+      { timeout: 30000 }
+    );
+
+    const audio = fs.readFileSync(tmpFile);
+    const base64 = audio.toString("base64");
+    try { fs.unlinkSync(tmpFile); } catch {}
+
+    res.json({ data: `data:audio/mp3;base64,${base64}`, type: "audio" });
+  } catch (err) {
+    console.error("[TTS] Error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Whisper Speech-to-Text via HF (public) ──
+app.post("/api/whisper", async (req, res) => {
+  const { audio, token } = req.body;
+  if (!audio) return res.status(400).json({ error: "audio is required" });
+  if (!token) return res.status(400).json({ error: "HF token is required" });
+
+  try {
+    const base64Data = audio.includes("base64,") ? audio.split("base64,")[1] : audio;
+    const audioBuffer = Buffer.from(base64Data, "base64");
+
+    const hfResp = await fetch("https://api-inference.huggingface.co/models/openai/whisper-large-v3", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "audio/mpeg",
+      },
+      body: audioBuffer,
+      signal: AbortSignal.timeout(60000),
+    });
+
+    if (!hfResp.ok) {
+      const errText = await hfResp.text().catch(() => "");
+      return res.status(hfResp.status).json({ error: `Whisper error: ${errText.slice(0, 300)}` });
+    }
+
+    const result = await hfResp.json();
+    res.json({ data: result.text || "", language: result.chunks?.[0]?.language || "pt", type: "text" });
+  } catch (err) {
+    console.error("[Whisper] Error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+>>>>>>> a7ab2b2 (feat(ai): real AI tools with HuggingFace proxy, setup wizard, and working P0 tools)
 // ── Health check ──
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
