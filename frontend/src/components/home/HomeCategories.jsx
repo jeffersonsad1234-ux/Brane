@@ -2,7 +2,7 @@ import { ChevronRight, Grid3X3, Sparkles } from 'lucide-react';
 
 export default function HomeCategories({ environments, category, selectCategory }) {
   return (
-    <section className="max-w-7xl mx-auto px-4 pt-4 bg-white">
+    <section className="max-w-[1400px] mx-auto px-4 pt-6 bg-white">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-base md:text-lg font-black text-[#111318] flex items-center gap-2">
           <Sparkles className="text-[#C4892F]" size={17} />

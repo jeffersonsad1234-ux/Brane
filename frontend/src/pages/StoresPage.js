@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import { Store, Search, PlusCircle } from 'lucide-react';
+import { Store, Search, PlusCircle, AlertTriangle } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import StoreCard from '../components/StoreCard';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,22 +13,67 @@ export default function StoresPage() {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios.get(`${API}/stores?limit=50`)
-      .then(res => setStores(res.data.stores))
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    axios.get(`${API}/stores?limit=50`, { timeout: 10000 })
+      .then(res => { if (!cancelled) setStores(Array.isArray(res.data?.stores) ? res.data.stores : []); })
+      .catch(err => { if (!cancelled) setError(err.message || 'Erro ao carregar lojas'); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
   }, []);
 
-  const filteredStores = stores.filter(s => 
-    !search || s.name.toLowerCase().includes(search.toLowerCase())
+  const filteredStores = (stores || []).filter(s => 
+    s && s.name && (!search || s.name.toLowerCase().includes(search.toLowerCase()))
   );
 
   if (loading) {
     return (
+      <div className="min-h-screen bg-gradient-to-b from-[#050608] to-[#0D0510]">
+        {/* Skeleton loading */}
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="text-center mb-10">
+            <div className="inline-flex mx-auto mb-4 w-32 h-6 rounded-full bg-[#D4A24C]/10 animate-pulse" />
+            <div className="w-64 h-10 mx-auto mb-3 rounded-lg bg-gray-800 animate-pulse" />
+            <div className="w-80 h-4 mx-auto rounded bg-gray-800 animate-pulse" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="bg-[#0E0F14] rounded-2xl overflow-hidden animate-pulse">
+                <div className="h-32 bg-gray-800" />
+                <div className="pt-12 px-6 pb-4">
+                  <div className="w-20 h-20 rounded-full bg-gray-800 mx-auto -mt-16 mb-4" />
+                  <div className="w-40 h-5 bg-gray-800 mx-auto mb-2 rounded" />
+                  <div className="w-60 h-4 bg-gray-800 mx-auto mb-4 rounded" />
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    <div className="aspect-square bg-gray-800 rounded-lg" />
+                    <div className="aspect-square bg-gray-800 rounded-lg" />
+                    <div className="aspect-square bg-gray-800 rounded-lg" />
+                    <div className="aspect-square bg-gray-800 rounded-lg" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
       <div className="min-h-screen bg-gradient-to-b from-[#050608] to-[#0D0510] flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-[#D4A24C] border-t-transparent rounded-full animate-spin" />
+        <div className="text-center max-w-md mx-auto px-4">
+          <AlertTriangle className="w-16 h-16 text-[#D4A24C] mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">Erro ao carregar</h2>
+          <p className="text-gray-400 mb-6">{error}</p>
+          <button onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-gradient-to-r from-[#D4A24C] to-[#B38B36] text-white font-semibold rounded-lg hover:from-[#E8C372] hover:to-[#D4A24C] transition-all"
+          >Tentar novamente</button>
+        </div>
       </div>
     );
   }

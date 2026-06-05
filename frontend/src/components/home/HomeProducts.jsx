@@ -13,7 +13,7 @@ export default function HomeProducts({
   const { t } = useTranslation();
 
   return (
-    <section ref={productsRef} className="max-w-7xl mx-auto px-4 pt-5 scroll-mt-20 bg-white">
+    <section ref={productsRef} className="max-w-[1400px] mx-auto px-4 pt-8 scroll-mt-20 bg-white">
       {loadingProducts && products.length === 0 ? (
         <div className="theme-product-grid">
           {Array.from({ length: 12 }, (_, i) => (

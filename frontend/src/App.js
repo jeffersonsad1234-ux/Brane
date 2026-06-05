@@ -141,10 +141,10 @@ function AppRouter() {
 
             <Route path="/fornecedores" element={<SuppliersPage />} />
 
-            <Route path="/products" element={<ProductsPage />} />
-            <Route path="/products/:id" element={<ProductDetailPage />} />
+            <Route path="/products" element={<ErrorBoundary><ProductsPage /></ErrorBoundary>} />
+            <Route path="/products/:id" element={<ErrorBoundary><ProductDetailPage /></ErrorBoundary>} />
 
-            <Route path="/stores" element={<StoresPage />} />
+            <Route path="/stores" element={<ErrorBoundary><StoresPage /></ErrorBoundary>} />
 
             <Route
               path="/stores/create"
@@ -155,7 +155,7 @@ function AppRouter() {
               }
             />
 
-            <Route path="/stores/:slug" element={<StoreDetailPage />} />
+            <Route path="/stores/:slug" element={<ErrorBoundary><StoreDetailPage /></ErrorBoundary>} />
 
             <Route
               path="/stores/:slug/chat"
