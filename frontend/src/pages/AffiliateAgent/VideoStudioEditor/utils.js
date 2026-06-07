@@ -646,33 +646,16 @@ export const MK = (n, s, d, type, o = {}) => ({ id: UID(), name: n, start: s, du
 export const INITIAL = {
   name: "Projeto", duration: 20, fps: 30, width: 1920, height: 1080,
   tracks: [
-    { id: "v1", name: "Vídeo 1", type: "video", visible: true, locked: false, clips: [
-      MK("Intro.mp4", 0, 5, "video", { t: "🎬" }),
-      MK("Produto.mov", 5, 7, "video", { t: "📦" }),
-      MK("Demo.mp4", 12, 6, "video", { t: "🎥" }),
-    ]},
+    { id: "v1", name: "Vídeo 1", type: "video", visible: true, locked: false, clips: [] },
     { id: "v2", name: "Vídeo 2", type: "video", visible: true, locked: false, clips: [] },
-    { id: "a1", name: "Áudio 1", type: "audio", visible: true, locked: false, clips: [
-      MK("Trilha.mp3", 0, 18, "audio", { t: "🎵" }),
-    ]},
-    { id: "a2", name: "Áudio 2", type: "audio", visible: true, locked: false, clips: [
-      MK("Voz.mp3", 2, 9, "audio", { t: "🎙️" }),
-    ]},
-    { id: "t1", name: "Textos", type: "text", visible: true, locked: false, clips: [
-      MK("Título", 1.5, 4, "text", { t: "T" }),
-    ]},
-    { id: "s1", name: "Stickers", type: "sticker", visible: true, locked: false, clips: [
-      MK("✨", 4, 3, "sticker", { t: "✨" }),
-    ]},
-    { id: "o1", name: "Overlays", type: "overlay", visible: true, locked: false, clips: [
-      MK("Blur", 7, 2.5, "overlay", { t: "🌫️" }),
-    ]},
+    { id: "a1", name: "Áudio 1", type: "audio", visible: true, locked: false, clips: [] },
+    { id: "a2", name: "Áudio 2", type: "audio", visible: true, locked: false, clips: [] },
+    { id: "t1", name: "Textos", type: "text", visible: true, locked: false, clips: [] },
+    { id: "s1", name: "Stickers", type: "sticker", visible: true, locked: false, clips: [] },
+    { id: "o1", name: "Overlays", type: "overlay", visible: true, locked: false, clips: [] },
     { id: "t2", name: "Captions", type: "text", visible: true, locked: false, clips: [] },
   ],
-  markers: [
-    { id: "mk1", time: 5, label: "Intro End", color: "#f59e0b" },
-    { id: "mk2", time: 12, label: "Demo Start", color: "#3b82f6" },
-  ],
+  markers: [],
 };
 
 export function clipColor(type) {

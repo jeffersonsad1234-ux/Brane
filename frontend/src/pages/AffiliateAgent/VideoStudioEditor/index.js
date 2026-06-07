@@ -325,9 +325,31 @@ export default function VideoStudioEditor() {
     const items = Array.from(files).map((f, i) => ({
       id: UID() + i, name: f.name,
       type: f.type.startsWith("video") ? "video" : f.type.startsWith("audio") ? "audio" : "image",
-      file: f, url: URL.createObjectURL(f), dur: 5 + (i % 3) * 2,
+      file: f, url: URL.createObjectURL(f), dur: Math.max(2, Math.min(10, 5 + (i % 3) * 2)),
     }));
     setImm((prev) => [...prev, ...items]);
+    setProj((prev) => {
+      const trackId = items[0]?.type === "audio" ? "a2" : "v2";
+      const track = prev.tracks.find((t) => t.id === trackId);
+      if (!track) return prev;
+      let maxEnd = prev.duration;
+      const newClips = items.map((item) => {
+        const c = {
+          id: UID(), name: item.name, start: maxEnd, duration: item.dur,
+          type: item.type, t: item.type === "video" ? "🎬" : item.type === "audio" ? "🎵" : "🖼️",
+          url: item.url, file: item.file,
+        };
+        maxEnd = Math.max(maxEnd, item.start + item.dur);
+        return c;
+      });
+      return {
+        ...prev,
+        duration: Math.max(prev.duration, maxEnd),
+        tracks: prev.tracks.map((t) =>
+          t.id === trackId ? { ...t, clips: [...t.clips, ...newClips].sort((a, b) => a.start - b.start) } : t
+        ),
+      };
+    });
   }, []);
 
   const handleMDrag = useCallback((e, item) => {
