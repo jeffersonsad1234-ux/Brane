@@ -1,0 +1,5282 @@
+[
+  {
+    "question": "Onde fica a Nova Zelandia?",
+    "alternatives": [
+      "Oceania",
+      "Asia",
+      "Africa",
+      "America"
+    ],
+    "correct": 0,
+    "explanation": "Nova Zelandia fica no sudoeste do Oceano Pacifico.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o SaaS?",
+    "alternatives": [
+      "Software como servico",
+      "Software como aplicativo",
+      "Sistema como servico",
+      "Servidor como servico"
+    ],
+    "correct": 0,
+    "explanation": "SaaS e um modelo de distribuicao de software pela internet.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Fernando Collor?",
+    "alternatives": [
+      "Primeiro presidente eleito em 1989",
+      "Ultimo imperador",
+      "Ditador",
+      "Rei"
+    ],
+    "correct": 0,
+    "explanation": "Collor foi o primeiro presidente eleito pelo voto popular.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual o pais mais seco do mundo?",
+    "alternatives": [
+      "Chile",
+      "Egito",
+      "Australia",
+      "Arabia Saudita"
+    ],
+    "correct": 0,
+    "explanation": "O deserto do Atacama no Chile e o lugar mais seco da Terra.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o pais com mais fusos horarios?",
+    "alternatives": [
+      "Franca",
+      "Russia",
+      "EUA",
+      "China"
+    ],
+    "correct": 0,
+    "explanation": "A Franca tem 12 fusos devido a territorios ultramarinos.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o maior oceano?",
+    "alternatives": [
+      "Pacifico",
+      "Atlantico",
+      "Indico",
+      "Artico"
+    ],
+    "correct": 0,
+    "explanation": "O Oceano Pacifico e o maior, cobrindo cerca de 30% da superficie terrestre.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o formato MP3?",
+    "alternatives": [
+      "Formato de compressao de audio",
+      "Formato de video",
+      "Formato de imagem",
+      "Formato de arquivo"
+    ],
+    "correct": 0,
+    "explanation": "MP3 e um padrao de compressao de audio digital.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a maior flor do mundo?",
+    "alternatives": [
+      "Rafflesia arnoldii",
+      "Girassol",
+      "Lirio d'agua",
+      "Orquidea"
+    ],
+    "correct": 0,
+    "explanation": "A Rafflesia arnoldii pode atingir ate 1 metro de diametro.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a energia solar?",
+    "alternatives": [
+      "Energia do sol",
+      "Energia do vento",
+      "Energia da agua",
+      "Energia nuclear"
+    ],
+    "correct": 0,
+    "explanation": "Energia solar e obtida da luz do sol.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e uma VPN?",
+    "alternatives": [
+      "Rede privada virtual",
+      "Virus de rede",
+      "Programa malicioso",
+      "Antivirus"
+    ],
+    "correct": 0,
+    "explanation": "VPN cria uma conexao criptografada e segura pela internet.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o overclock?",
+    "alternatives": [
+      "Aumentar velocidade do processador",
+      "Reduzir consumo de energia",
+      "Desligar componentes",
+      "Atualizar software"
+    ],
+    "correct": 0,
+    "explanation": "Overclock faz o processador rodar acima da velocidade padrao.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual o maior animal terrestre?",
+    "alternatives": [
+      "Elefante africano",
+      "Girafa",
+      "Rinoceronte",
+      "Hipopotamo"
+    ],
+    "correct": 0,
+    "explanation": "O elefante africano pode pesar ate 6.000 kg.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o maior oceano do mundo?",
+    "alternatives": [
+      "Pacifico",
+      "Atlantico",
+      "Indico",
+      "Artico"
+    ],
+    "correct": 0,
+    "explanation": "Pacifico e o maior oceano.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Quem foi Tancredo Neves?",
+    "alternatives": [
+      "Primeiro presidente civil pos-ditadura",
+      "Imperador",
+      "Ditador",
+      "Rei"
+    ],
+    "correct": 0,
+    "explanation": "Tancredo foi eleito em 1985 mas morreu antes de assumir.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o switch de rede?",
+    "alternatives": [
+      "Dispositivo que conecta dispositivos na LAN",
+      "Roteador",
+      "Modem",
+      "Hub"
+    ],
+    "correct": 0,
+    "explanation": "Switch conecta dispositivos em uma rede local.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o efeito estufa?",
+    "alternatives": [
+      "Aquecimento da atmosfera",
+      "Resfriamento global",
+      "Poluicao",
+      "Desmatamento"
+    ],
+    "correct": 0,
+    "explanation": "Efeito estufa retem calor na atmosfera terrestre.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e o mico-leao-dourado?",
+    "alternatives": [
+      "Primata brasileiro ameacado",
+      "Felino sul-americano",
+      "Roedor da Amazonia",
+      "Marsupial"
+    ],
+    "correct": 0,
+    "explanation": "O mico-leao-dourado e um primata brasileiro em perigo de extincao.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o maior pais do mundo em area?",
+    "alternatives": [
+      "Russia",
+      "Canada",
+      "China",
+      "EUA"
+    ],
+    "correct": 0,
+    "explanation": "A Russia tem 17,1 milhoes de km2.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o idioma mais falado do mundo?",
+    "alternatives": [
+      "Ingles",
+      "Mandarim",
+      "Espanhol",
+      "Hindi"
+    ],
+    "correct": 0,
+    "explanation": "O ingles e o idioma mais falado considerando falantes nativos e nao-nativos.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual a capital da Grecia?",
+    "alternatives": [
+      "Atenas",
+      "Salonica",
+      "Pireu",
+      "Patras"
+    ],
+    "correct": 0,
+    "explanation": "Atenas e a capital da Grecia.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica a Mesopotâmia?",
+    "alternatives": [
+      "Iraque",
+      "Egito",
+      "India",
+      "China"
+    ],
+    "correct": 0,
+    "explanation": "Mesopotamia fica entre os rios Tigre e Eufrates.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que foi a FEB?",
+    "alternatives": [
+      "Forca Expedicionaria Brasileira na 2 Guerra",
+      "Exercito brasileiro",
+      "Marinha",
+      "Aeronautica"
+    ],
+    "correct": 0,
+    "explanation": "FEB lutou na Italia durante a Segunda Guerra Mundial.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o HDR?",
+    "alternatives": [
+      "Alta faixa dinâmica de imagem",
+      "Alta definicao",
+      "Alta taxa de atualizacao",
+      "Alta resolucao"
+    ],
+    "correct": 0,
+    "explanation": "HDR melhora o contraste e as cores da imagem.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Onde fica o Cabo da Boa Esperanca?",
+    "alternatives": [
+      "Africa do Sul",
+      "Portugal",
+      "Espanha",
+      "Marrocos"
+    ],
+    "correct": 0,
+    "explanation": "Cabo da Boa Esperanca fica no sul da Africa.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o pais mais montanhoso?",
+    "alternatives": [
+      "Nepal",
+      "Butao",
+      "Suica",
+      "Peru"
+    ],
+    "correct": 0,
+    "explanation": "O Nepal abriga oito das 14 montanhas mais altas do mundo.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a lingua mais falada do mundo?",
+    "alternatives": [
+      "Mandarim",
+      "Ingles",
+      "Espanhol",
+      "Hindi"
+    ],
+    "correct": 0,
+    "explanation": "O mandarim e a lingua com mais falantes nativos no mundo.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Onde fica a Groenlândia?",
+    "alternatives": [
+      "America do Norte",
+      "Europa",
+      "Asia",
+      "Oceania"
+    ],
+    "correct": 0,
+    "explanation": "Groenlandia e um territorio autonomo da Dinamarca.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica o Himalaia?",
+    "alternatives": [
+      "Asia",
+      "Europa",
+      "America",
+      "Africa"
+    ],
+    "correct": 0,
+    "explanation": "Himalaia fica na Asia entre India e Tibet.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a blockchain?",
+    "alternatives": [
+      "Registro distribuido e imutavel",
+      "Criptomoeda",
+      "Banco de dados centralizado",
+      "Rede social"
+    ],
+    "correct": 0,
+    "explanation": "Blockchain e um livro-razão digital descentralizado.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o diamante?",
+    "alternatives": [
+      "Pedra preciosa de carbono",
+      "Minerio de ferro",
+      "Cristal de quartzo",
+      "Pedra vulcanica"
+    ],
+    "correct": 0,
+    "explanation": "O diamante e uma forma cristalina do carbono.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem foi Martin Luther King Jr.?",
+    "alternatives": [
+      "Lider dos direitos civis nos EUA",
+      "Presidente americano",
+      "Pastor alemao",
+      "Ativista ingles"
+    ],
+    "correct": 0,
+    "explanation": "Martin Luther King Jr. liderou o movimento pelos direitos civis.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o bezerro?",
+    "alternatives": [
+      "Filhote da vaca",
+      "Filhote do cavalo",
+      "Filhote do porco",
+      "Filhote da cabra"
+    ],
+    "correct": 0,
+    "explanation": "Bezerro e o nome dado ao filhote da vaca.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a maior metropole do mundo?",
+    "alternatives": [
+      "Toquio",
+      "Xangai",
+      "Jacarta",
+      "Seul"
+    ],
+    "correct": 0,
+    "explanation": "Toquio e a maior metropole do mundo.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que significa SSD?",
+    "alternatives": [
+      "Solid State Drive",
+      "Super Speed Disk",
+      "System Storage Device",
+      "Serial Data Drive"
+    ],
+    "correct": 0,
+    "explanation": "SSD e um dispositivo de armazenamento sem partes moveis.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Tiradentes?",
+    "alternatives": [
+      "Martir da Inconfidencia Mineira",
+      "Presidente do Brasil",
+      "Imperador",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Joaquim Jose da Silva Xavier, lider da Inconfidencia Mineira.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o kiwi?",
+    "alternatives": [
+      "Ave noturna da Nova Zelandia",
+      "Fruta tropical",
+      "Passaro cantor",
+      "Ave migratoria"
+    ],
+    "correct": 0,
+    "explanation": "O kiwi e uma ave noturna e incapaz de voar, nativa da Nova Zelandia.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a capital do Canada?",
+    "alternatives": [
+      "Ottawa",
+      "Toronto",
+      "Vancouver",
+      "Montreal"
+    ],
+    "correct": 0,
+    "explanation": "Ottawa e a capital do Canada.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Quem foi Isaac Newton?",
+    "alternatives": [
+      "Fisico e matematico ingles",
+      "Filosofo grego",
+      "Imperador romano",
+      "Pintor italiano"
+    ],
+    "correct": 0,
+    "explanation": "Newton formulou as leis da gravitacao e do movimento.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e a fisica?",
+    "alternatives": [
+      "Ciencia da natureza",
+      "Ciencia social",
+      "Arte",
+      "Filosofia"
+    ],
+    "correct": 0,
+    "explanation": "Fisica estuda as leis fundamentais da natureza.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual o estado mais populoso do Brasil?",
+    "alternatives": [
+      "Sao Paulo",
+      "Minas Gerais",
+      "Rio de Janeiro",
+      "Bahia"
+    ],
+    "correct": 0,
+    "explanation": "Sao Paulo e o estado mais populoso do Brasil.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a baleia-azul?",
+    "alternatives": [
+      "Maior animal do planeta",
+      "Peixe gigante",
+      "Mamifero marinho medio",
+      "Tubarao"
+    ],
+    "correct": 0,
+    "explanation": "A baleia-azul pode atingir 30 metros e 180 toneladas.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a maior cidade da Europa?",
+    "alternatives": [
+      "Istambul",
+      "Moscou",
+      "Londres",
+      "Paris"
+    ],
+    "correct": 0,
+    "explanation": "Istambul e a maior cidade da Europa.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a API?",
+    "alternatives": [
+      "Interface de programacao de aplicacoes",
+      "Aplicativo movel",
+      "Programa de computador",
+      "Arquivo de configuracao"
+    ],
+    "correct": 0,
+    "explanation": "API permite que diferentes softwares se comuniquem entre si.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a altura do Monte Everest?",
+    "alternatives": [
+      "8.848 metros",
+      "7.000 metros",
+      "9.500 metros",
+      "6.500 metros"
+    ],
+    "correct": 0,
+    "explanation": "O Monte Everest tem 8.848 metros de altitude.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a quimica?",
+    "alternatives": [
+      "Ciencia da materia",
+      "Ciencia da vida",
+      "Ciencia da terra",
+      "Ciencia do espaco"
+    ],
+    "correct": 0,
+    "explanation": "Quimica estuda a composicao e transformacao da materia.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Quem foi Leonardo da Vinci?",
+    "alternatives": [
+      "Polimata do Renascimento",
+      "Pintor unico",
+      "Cientista",
+      "Escultor"
+    ],
+    "correct": 0,
+    "explanation": "Da Vinci foi artista, cientista e inventor renascentista.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi a Revolta da Chibata?",
+    "alternatives": [
+      "Revolta de marinheiros contra castigos",
+      "Revolta escrava",
+      "Guerra civil",
+      "Revolucao"
+    ],
+    "correct": 0,
+    "explanation": "Revolta da Chibata foi em 1910 contra castigos fisicos na marinha.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual a linguagem de programacao mais usada?",
+    "alternatives": [
+      "JavaScript",
+      "Python",
+      "Java",
+      "C++"
+    ],
+    "correct": 0,
+    "explanation": "JavaScript e a linguagem mais popular para web.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Onde fica o Rio Amazonas?",
+    "alternatives": [
+      "America do Sul",
+      "Africa",
+      "Asia",
+      "Oceania"
+    ],
+    "correct": 0,
+    "explanation": "Amazonas nasce no Peru e desagua no Brasil.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Quem foi Alexandre o Grande?",
+    "alternatives": [
+      "Rei macedonio que conquistou a Persia",
+      "Imperador romano",
+      "Farao egipcio",
+      "Filosofo grego"
+    ],
+    "correct": 0,
+    "explanation": "Alexandre criou um dos maiores imperios do mundo antigo.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi o Golpe de 1964?",
+    "alternatives": [
+      "Golpe militar que instituiu a ditadura",
+      "Revolucao",
+      "Eleicao",
+      "Reforma"
+    ],
+    "correct": 0,
+    "explanation": "Golpe de 1964 depoe Joao Goulart e inicia ditadura.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual a montanha mais alta do Brasil?",
+    "alternatives": [
+      "Pico da Neblina",
+      "Pico do Jaragua",
+      "Pico da Bandeira",
+      "Monte Roraima"
+    ],
+    "correct": 0,
+    "explanation": "O Pico da Neblina tem 2.995 metros de altitude.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem foi Dom Pedro I?",
+    "alternatives": [
+      "Imperador do Brasil e rei de Portugal",
+      "Presidente brasileiro",
+      "Navegador portugues",
+      "Explorador espanhol"
+    ],
+    "correct": 0,
+    "explanation": "Dom Pedro I proclamou a independencia do Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi a Pracinha?",
+    "alternatives": [
+      "Soldado brasileiro na Segunda Guerra",
+      "Enfermeira",
+      "Piloto",
+      "Oficial"
+    ],
+    "correct": 0,
+    "explanation": "Pracinhas eram os soldados da FEB.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual o simbolo quimico do ouro?",
+    "alternatives": [
+      "Au",
+      "Ag",
+      "Fe",
+      "Cu"
+    ],
+    "correct": 0,
+    "explanation": "Au vem do latim aurum, que significa ouro.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual o pais com mais praias?",
+    "alternatives": [
+      "Australia",
+      "Brasil",
+      "Indonesia",
+      "Filipinas"
+    ],
+    "correct": 0,
+    "explanation": "A Australia tem mais de 10.000 praias.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a capital da Suica?",
+    "alternatives": [
+      "Berna",
+      "Zurique",
+      "Genebra",
+      "Basileia"
+    ],
+    "correct": 0,
+    "explanation": "Berna e a capital da Suica.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Em que ano terminou a Segunda Guerra Mundial?",
+    "alternatives": [
+      "1945",
+      "1944",
+      "1946",
+      "1943"
+    ],
+    "correct": 0,
+    "explanation": "A Segunda Guerra terminou em 1945 com a rendicao do Japao.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o cacau?",
+    "alternatives": [
+      "Fruto usado para fazer chocolate",
+      "Grao de cafe",
+      "Especiaria",
+      "Fruta tropical"
+    ],
+    "correct": 0,
+    "explanation": "O cacau e o fruto do cacaueiro, materia-prima do chocolate.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o Big Data?",
+    "alternatives": [
+      "Grandes volumes de dados",
+      "Banco de dados simples",
+      "Planilhas enormes",
+      "Arquivos comprimidos"
+    ],
+    "correct": 0,
+    "explanation": "Big Data refere-se ao processamento de conjuntos de dados massivos.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e a camada de ozonio?",
+    "alternatives": [
+      "Filtro de raios UV",
+      "Camada de nuvens",
+      "Poluicao",
+      "Gas toxico"
+    ],
+    "correct": 0,
+    "explanation": "Ozonio na estratosfera filtra radiacao UV.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que significa FPS em jogos?",
+    "alternatives": [
+      "Frames por segundo",
+      "First person shooter",
+      "Forca de pulo",
+      "Frequencia de play"
+    ],
+    "correct": 0,
+    "explanation": "FPS pode significar tanto frames por segundo quanto o genero de tiro.",
+    "category": "Games"
+  },
+  {
+    "question": "Qual o pais mais verde do mundo?",
+    "alternatives": [
+      "Costa Rica",
+      "Suecia",
+      "Finlandia",
+      "Noruega"
+    ],
+    "correct": 0,
+    "explanation": "A Costa Rica lidera em sustentabilidade e fontes renovaveis.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem foi o Duque de Caxias?",
+    "alternatives": [
+      "Patrao do Exercito Brasileiro",
+      "Imperador",
+      "Explorador",
+      "Rei"
+    ],
+    "correct": 0,
+    "explanation": "Caxias foi o maior militar do Brasil imperio.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi Mahatma Gandhi?",
+    "alternatives": [
+      "Lider pacifista indiano",
+      "Presidente da India",
+      "Rei ingles",
+      "Filosofo grego"
+    ],
+    "correct": 0,
+    "explanation": "Gandhi liderou a independencia da India com nao-violencia.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual a moeda oficial do Japao?",
+    "alternatives": [
+      "iene",
+      "dolar",
+      "euro",
+      "libra"
+    ],
+    "correct": 0,
+    "explanation": "O iene e a moeda oficial do Japao.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Onde fica o Mar das Ilhas Maldivas?",
+    "alternatives": [
+      "Oceano Indico",
+      "Pacifico",
+      "Atlantico",
+      "Mediterraneo"
+    ],
+    "correct": 0,
+    "explanation": "Maldivas ficam no Oceano Indico.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o maior lago do mundo?",
+    "alternatives": [
+      "Mar Caspio",
+      "Lago Superior",
+      "Lago Victoria",
+      "Lago Baikal"
+    ],
+    "correct": 0,
+    "explanation": "O Mar Caspio e o maior lago do mundo em area.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual animal e conhecido como o rei da selva?",
+    "alternatives": [
+      "Leao",
+      "Tigre",
+      "Elefante",
+      "Gorila"
+    ],
+    "correct": 0,
+    "explanation": "O leao e tradicionalmente chamado de rei da selva.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o urso-polar?",
+    "alternatives": [
+      "Maior urso do mundo",
+      "Urso pardo",
+      "Urso negro",
+      "Urso de oculos"
+    ],
+    "correct": 0,
+    "explanation": "O urso-polar e o maior urso, podendo pesar ate 700 kg.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que foi o AI-5?",
+    "alternatives": [
+      "Ato que endureceu a ditadura em 1968",
+      "Lei de independencia",
+      "Constituicao",
+      "Tratado de paz"
+    ],
+    "correct": 0,
+    "explanation": "AI-5 deu poderes ditatoriais ao regime militar.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi a Cabanagem?",
+    "alternatives": [
+      "Revolta popular no Para (1835)",
+      "Revolta escrava",
+      "Guerra civil",
+      "Revolucao"
+    ],
+    "correct": 0,
+    "explanation": "Cabanagem foi uma das mais sangrentas revoltas do Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi o impeachment de Collor?",
+    "alternatives": [
+      "Processo de cassacao do presidente em 1992",
+      "Revolucao",
+      "Golpe",
+      "Renuncia"
+    ],
+    "correct": 0,
+    "explanation": "Collor sofreu impeachment por corrupcao.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi o Milagre Economico?",
+    "alternatives": [
+      "Periodo de alto crescimento no Brasil",
+      "Desastre economico",
+      "Crise financeira",
+      "Grande depressao"
+    ],
+    "correct": 0,
+    "explanation": "Milagre economico foi entre 1968 e 1973.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual o pais com mais ilhas?",
+    "alternatives": [
+      "Suecia",
+      "Indonesia",
+      "Filipinas",
+      "Canada"
+    ],
+    "correct": 0,
+    "explanation": "A Suecia tem cerca de 267.000 ilhas.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o coral?",
+    "alternatives": [
+      "Animal marinho colonial",
+      "Planta marinha",
+      "Rocha submersa",
+      "Alga calcaria"
+    ],
+    "correct": 0,
+    "explanation": "Corais sao animais coloniais que secretam esqueleto calcario.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem foi Marechal Deodoro?",
+    "alternatives": [
+      "Proclamador da republica brasileira",
+      "Ultimo imperador",
+      "Primeiro presidente",
+      "Heroi de guerra"
+    ],
+    "correct": 0,
+    "explanation": "Deodoro proclamou a republica em 15 de novembro de 1889.",
+    "category": "Historia"
+  },
+  {
+    "question": "Onde fica o Mar de Java?",
+    "alternatives": [
+      "Indonesia",
+      "Filipinas",
+      "Tailandia",
+      "Vietna"
+    ],
+    "correct": 0,
+    "explanation": "Mar de Java fica entre as ilhas da Indonesia.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a astronomia?",
+    "alternatives": [
+      "Estudo dos astros",
+      "Estudo da Terra",
+      "Ciencia do clima",
+      "Fisica atomica"
+    ],
+    "correct": 0,
+    "explanation": "Astronomia estuda corpos celestes e o universo.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e o pão de acucar?",
+    "alternatives": [
+      "Morro iconico do Rio",
+      "Doce brasileiro",
+      "Planta ornamental",
+      "Bebida tipica"
+    ],
+    "correct": 0,
+    "explanation": "O Pao de Acucar e um dos cartoes-postais do Rio de Janeiro.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a rede cliente-servidor?",
+    "alternatives": [
+      "Modelo com servidor central e clientes",
+      "Rede ponto-a-ponto",
+      "Rede distribuida",
+      "Rede centralizada"
+    ],
+    "correct": 0,
+    "explanation": "Cliente-servidor tem um servidor central que atende clientes.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quantos dentes tem um tubarao-branco?",
+    "alternatives": [
+      "Cerca de 300",
+      "Cerca de 100",
+      "Cerca de 500",
+      "Cerca de 50"
+    ],
+    "correct": 0,
+    "explanation": "Tubaroes-brancos podem ter ate 300 dentes em varias fileiras.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a maior caverna do mundo?",
+    "alternatives": [
+      "Caverna Son Doong",
+      "Mammoth Cave",
+      "Caverna do Diabo",
+      "Gruta Azul"
+    ],
+    "correct": 0,
+    "explanation": "A caverna Son Doong no Vietna e a maior do mundo em volume.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o pais com mais lagos?",
+    "alternatives": [
+      "Canada",
+      "Finlandia",
+      "Russia",
+      "Suecia"
+    ],
+    "correct": 0,
+    "explanation": "O Canada tem mais de 2 milhoes de lagos.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem escreveu Dom Casmurro?",
+    "alternatives": [
+      "Machado de Assis",
+      "Jose de Alencar",
+      "Graciliano Ramos",
+      "Eca de Queiros"
+    ],
+    "correct": 0,
+    "explanation": "Dom Casmurro e obra de Machado de Assis.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Onde fica o Chade?",
+    "alternatives": [
+      "Africa Central",
+      "Africa do Sul",
+      "Norte da Africa",
+      "Africa Oriental"
+    ],
+    "correct": 0,
+    "explanation": "Chade fica na Africa Central.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Quem inventou a World Wide Web?",
+    "alternatives": [
+      "Tim Berners-Lee",
+      "Vint Cerf",
+      "Robert Kahn",
+      "Alan Turing"
+    ],
+    "correct": 0,
+    "explanation": "Tim Berners-Lee inventou a WWW em 1989.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quantos segundos tem uma hora?",
+    "alternatives": [
+      "3.600",
+      "60",
+      "1.000",
+      "360"
+    ],
+    "correct": 0,
+    "explanation": "Uma hora tem 60 minutos de 60 segundos = 3.600.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que foi o Estado Novo?",
+    "alternatives": [
+      "Ditadura de Vargas (1937-1945)",
+      "Nova republica",
+      "Monarquia",
+      "Democracia"
+    ],
+    "correct": 0,
+    "explanation": "Estado Novo foi o periodo ditatorial de Getulio Vargas.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi Oscar Niemeyer?",
+    "alternatives": [
+      "Maior arquiteto brasileiro",
+      "Imperador",
+      "Pintor",
+      "Escultor"
+    ],
+    "correct": 0,
+    "explanation": "Niemeyer projetou Brasilia e obras mundialmente famosas.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e a rede mesh?",
+    "alternatives": [
+      "Rede onde todos os nos se conectam",
+      "Rede estrela",
+      "Rede barramento",
+      "Rede anel"
+    ],
+    "correct": 0,
+    "explanation": "Rede mesh tem nos que se conectam diretamente entre si.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Joao Figueiredo?",
+    "alternatives": [
+      "Ultimo presidente da ditadura militar",
+      "Primeiro presidente",
+      "Imperador",
+      "Rei"
+    ],
+    "correct": 0,
+    "explanation": "Figueiredo governou de 1979 a 1985.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi a Guerra do Paraguai?",
+    "alternatives": [
+      "Maior conflito da America do Sul",
+      "Guerra mundial",
+      "Guerra civil",
+      "Revolucao"
+    ],
+    "correct": 0,
+    "explanation": "Guerra contra o Paraguai de 1864 a 1870.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi o primeiro presidente do Brasil?",
+    "alternatives": [
+      "Deodoro da Fonseca",
+      "Getulio Vargas",
+      "Dom Pedro I",
+      "Prudente de Morais"
+    ],
+    "correct": 0,
+    "explanation": "Deodoro da Fonseca foi o primeiro presidente do Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual o maior animal do mundo?",
+    "alternatives": [
+      "Baleia-azul",
+      "Elefante",
+      "Girafa",
+      "Tubarao-baleia"
+    ],
+    "correct": 0,
+    "explanation": "Baleia-azul pode atingir 30 metros.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Quem foi JK?",
+    "alternatives": [
+      "Presidente que construiu Brasilia",
+      "Imperador",
+      "Rei",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Juscelino Kubitschek, presidente de 1956 a 1961.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi Cleopatra?",
+    "alternatives": [
+      "Ultima rainha do Egito antigo",
+      "Deusa egipcia",
+      "Imperatriz romana",
+      "Farao homem"
+    ],
+    "correct": 0,
+    "explanation": "Cleopatra foi a ultima soberana do Egito ptolomaico.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi a Tropicália?",
+    "alternatives": [
+      "Movimento cultural dos anos 60",
+      "Festa popular",
+      "Religiao",
+      "Partido politico"
+    ],
+    "correct": 0,
+    "explanation": "Tropicália misturou musica, arte e politica.",
+    "category": "Historia"
+  },
+  {
+    "question": "Onde fica a Floresta Amazonica?",
+    "alternatives": [
+      "Brasil e paises vizinhos",
+      "Apenas Brasil",
+      "Africa",
+      "Asia"
+    ],
+    "correct": 0,
+    "explanation": "A Amazonia cobre 9 paises sul-americanos.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica o Mar Morto?",
+    "alternatives": [
+      "Israel/Jordania",
+      "Grecia",
+      "Italia",
+      "Turquia"
+    ],
+    "correct": 0,
+    "explanation": "O Mar Morto fica entre Israel e Jordania.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Quem foi Rui Barbosa?",
+    "alternatives": [
+      "Jurista e politico brasileiro",
+      "Imperador",
+      "Explorador",
+      "Pintor"
+    ],
+    "correct": 0,
+    "explanation": "Rui Barbosa foi um dos maiores oradores do Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi Marie Curie?",
+    "alternatives": [
+      "Cientista polonesa",
+      "Pintora",
+      "Escritora",
+      "Compositora"
+    ],
+    "correct": 0,
+    "explanation": "Marie Curie descobriu o radio e o polonio.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que foi o Modernismo brasileiro?",
+    "alternatives": [
+      "Movimento artistico-literario de 1922",
+      "Escola literaria",
+      "Estilo musical",
+      "Movimento politico"
+    ],
+    "correct": 0,
+    "explanation": "Modernismo renovou a arte e a literatura no Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi a Constituicao de 1988?",
+    "alternatives": [
+      "Constituicao cidada do Brasil",
+      "Lei da escravidao",
+      "Ato institucional",
+      "Tratado internacional"
+    ],
+    "correct": 0,
+    "explanation": "Constituicao de 1988 restaurou a democracia no Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual a maior ilha do mundo?",
+    "alternatives": [
+      "Groenlandia",
+      "Madagascar",
+      "Borneo",
+      "Nova Guine"
+    ],
+    "correct": 0,
+    "explanation": "A Groenlandia e a maior ilha do mundo com 2,1 milhoes km2.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o pais com mais fusos horarios?",
+    "alternatives": [
+      "Franca",
+      "Russia",
+      "EUA",
+      "China"
+    ],
+    "correct": 0,
+    "explanation": "A Franca tem 12 fusos horarios devido aos seus territorios ultramarinos.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e um drone?",
+    "alternatives": [
+      "Veiculo aereo nao tripulado",
+      "Camera voadora",
+      "Avião controlado",
+      "Satelite miniaturizado"
+    ],
+    "correct": 0,
+    "explanation": "Drone e um veiculo aereo que opera sem piloto humano a bordo.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual o pais mais populoso da Europa?",
+    "alternatives": [
+      "Russia",
+      "Alemanha",
+      "Franca",
+      "Reino Unido"
+    ],
+    "correct": 0,
+    "explanation": "A Russia e o pais mais populoso da Europa.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que foi o Bossa Nova?",
+    "alternatives": [
+      "Movimento musical brasileiro dos anos 50",
+      "Danca",
+      "Estilo literario",
+      "Pintura"
+    ],
+    "correct": 0,
+    "explanation": "Bossa Nova revolucionou a musica brasileira com Joao Gilberto.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual a capital do Egito?",
+    "alternatives": [
+      "Cairo",
+      "Alexandria",
+      "Luxor",
+      "Giza"
+    ],
+    "correct": 0,
+    "explanation": "Cairo e a capital do Egito.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual a capital da Africa do Sul?",
+    "alternatives": [
+      "Pretoria",
+      "Cidade do Cabo",
+      "Joanesburgo",
+      "Durban"
+    ],
+    "correct": 0,
+    "explanation": "Pretoria e a capital administrativa da Africa do Sul.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que foi a Guerra dos Farrapos?",
+    "alternatives": [
+      "Revolucao farroupilha no Rio Grande",
+      "Guerra civil",
+      "Independencia",
+      "Revolta escrava"
+    ],
+    "correct": 0,
+    "explanation": "Guerra dos Farrapos durou 10 anos (1835-1845).",
+    "category": "Historia"
+  },
+  {
+    "question": "Onde fica o Mar de Aral?",
+    "alternatives": [
+      "Asia Central",
+      "Europa",
+      "Africa",
+      "America"
+    ],
+    "correct": 0,
+    "explanation": "Mar de Aral fica entre Uzbequistao e Cazaquistao.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Quem foi Monteiro Lobato?",
+    "alternatives": [
+      "Escritor e editor brasileiro",
+      "Imperador",
+      "Explorador",
+      "Pintor"
+    ],
+    "correct": 0,
+    "explanation": "Lobato criou o Sitio do Picapau Amarelo.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi Heitor Villa-Lobos?",
+    "alternatives": [
+      "Maior compositor brasileiro",
+      "Imperador",
+      "Escritor",
+      "Pintor"
+    ],
+    "correct": 0,
+    "explanation": "Villa-Lobos e o mais famoso compositor erudito brasileiro.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e um pixel?",
+    "alternatives": [
+      "Menor unidade de uma imagem",
+      "Ponto de tinta",
+      "Cor primaria",
+      "Resolucao de video"
+    ],
+    "correct": 0,
+    "explanation": "Pixel e o menor ponto que forma uma imagem digital.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a capital da India?",
+    "alternatives": [
+      "Nova Delhi",
+      "Mumbai",
+      "Calcutá",
+      "Chenai"
+    ],
+    "correct": 0,
+    "explanation": "Nova Delhi e a capital da India.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Quem foi Olga Benario?",
+    "alternatives": [
+      "Comunista alema presa no Brasil",
+      "Rainha",
+      "Atriz",
+      "Escritora"
+    ],
+    "correct": 0,
+    "explanation": "Olga foi presa e entregue a Alemanha nazista.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi a construcao de Brasilia?",
+    "alternatives": [
+      "Nova capital federal inaugurada em 1960",
+      "Cidade historica",
+      "Forte militar",
+      "Porto comercial"
+    ],
+    "correct": 0,
+    "explanation": "Brasilia foi construida em 41 meses no governo JK.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e a erva-mate?",
+    "alternatives": [
+      "Planta usada para chimarrao",
+      "Erva medicinal",
+      "Tempero",
+      "Planta ornamental"
+    ],
+    "correct": 0,
+    "explanation": "A erva-mate e usada para preparar chimarrao e tere.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a aurora boreal?",
+    "alternatives": [
+      "Fenomeno luminoso nos polos",
+      "Tempestade de vento",
+      "Chuva de meteoros",
+      "Refracao da luz"
+    ],
+    "correct": 0,
+    "explanation": "Fenomeno luminoso causado por particulas solares na atmosfera polar.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que foi a Era Vargas?",
+    "alternatives": [
+      "Periodo de 15 anos de Getulio no poder",
+      "Monarquia",
+      "Republica antiga",
+      "Ditadura militar"
+    ],
+    "correct": 0,
+    "explanation": "Era Vargas foi de 1930 a 1945.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual o rio mais longo do Brasil?",
+    "alternatives": [
+      "Amazonas",
+      "Sao Francisco",
+      "Parana",
+      "Tocantins"
+    ],
+    "correct": 0,
+    "explanation": "Rio Amazonas e o mais longo do Brasil.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o Docker?",
+    "alternatives": [
+      "Plataforma de containers",
+      "Linguagem de programacao",
+      "Banco de dados",
+      "Framework web"
+    ],
+    "correct": 0,
+    "explanation": "Docker e a principal plataforma de gerenciamento de containers.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o HTTPS?",
+    "alternatives": [
+      "Protocolo seguro de transferencia",
+      "Pagina web",
+      "Servidor web",
+      "Linguagem web"
+    ],
+    "correct": 0,
+    "explanation": "HTTPS e a versao segura do HTTP com criptografia SSL/TLS.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Onde fica a Patagonia?",
+    "alternatives": [
+      "Argentina e Chile",
+      "Brasil",
+      "Uruguai",
+      "Paraguai"
+    ],
+    "correct": 0,
+    "explanation": "A Patagonia fica no extremo sul da America do Sul.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual a maior floresta do mundo?",
+    "alternatives": [
+      "Amazonia",
+      "Congo",
+      "Taiga",
+      "Daintree"
+    ],
+    "correct": 0,
+    "explanation": "A Floresta Amazonica e a maior floresta tropical do mundo.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e um firewall?",
+    "alternatives": [
+      "Sistema de seguranca de rede",
+      "Parede fisica",
+      "Filtro de energia",
+      "Programa de email"
+    ],
+    "correct": 0,
+    "explanation": "Firewall e um sistema que controla o trafego de rede.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e a bolsa de valores?",
+    "alternatives": [
+      "Mercado de acoes",
+      "Loja de departamentos",
+      "Banco central",
+      "Casa de cambio"
+    ],
+    "correct": 0,
+    "explanation": "Bolsa de valores e onde se negociam acoes de empresas.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual a capital da Russia?",
+    "alternatives": [
+      "Moscou",
+      "Sao Petersburgo",
+      "Vladivostok",
+      "Novosibirsk"
+    ],
+    "correct": 0,
+    "explanation": "Moscou e a capital da Russia.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o maior vulcao do mundo?",
+    "alternatives": [
+      "Mauna Loa",
+      "Monte Fuji",
+      "Vesuvio",
+      "Etna"
+    ],
+    "correct": 0,
+    "explanation": "O Mauna Loa no Hawaii e o maior vulcao ativo do mundo.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que foi a Ditadura Militar no Brasil?",
+    "alternatives": [
+      "Regime militar de 1964 a 1985",
+      "Governo democratico",
+      "Monarquia",
+      "Republica parlamentar"
+    ],
+    "correct": 0,
+    "explanation": "Regime militar governou o Brasil por 21 anos.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi Steve Jobs?",
+    "alternatives": [
+      "Cofundador da Apple",
+      "Criador do Google",
+      "CEO da Microsoft",
+      "Fundador da Amazon"
+    ],
+    "correct": 0,
+    "explanation": "Steve Jobs cofundou a Apple em 1976.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Quem foi Luiz Carlos Prestes?",
+    "alternatives": [
+      "Lider comunista brasileiro",
+      "Imperador",
+      "Presidente",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Prestes liderou a Coluna Prestes e o Partido Comunista.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual a formula de Einstein mais famosa?",
+    "alternatives": [
+      "E=mc2",
+      "F=ma",
+      "E=hf",
+      "PV=nRT"
+    ],
+    "correct": 0,
+    "explanation": "E=mc2 mostra a equivalencia entre massa e energia.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e o xadrez?",
+    "alternatives": [
+      "Jogo de tabuleiro milenar",
+      "Esporte radical",
+      "Jogo de cartas",
+      "Danca tradicional"
+    ],
+    "correct": 0,
+    "explanation": "O xadrez e um jogo de tabuleiro com origem na India do seculo VI.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a nuvem (cloud computing)?",
+    "alternatives": [
+      "Servicos sob demanda pela internet",
+      "Armazenamento local",
+      "Computador pessoal",
+      "Rede social"
+    ],
+    "correct": 0,
+    "explanation": "Cloud computing fornece recursos computacionais pela internet.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o IaaS?",
+    "alternatives": [
+      "Infraestrutura como servico",
+      "Internet como servico",
+      "Informacao como servico",
+      "Instalacao como servico"
+    ],
+    "correct": 0,
+    "explanation": "IaaS fornece infraestrutura de computacao pela internet.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a maior cidade da America Latina?",
+    "alternatives": [
+      "Sao Paulo",
+      "Cidade do Mexico",
+      "Buenos Aires",
+      "Rio de Janeiro"
+    ],
+    "correct": 0,
+    "explanation": "Sao Paulo e a maior cidade da America Latina em populacao.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a UNESCO?",
+    "alternatives": [
+      "Organizacao da ONU para educacao",
+      "Banco mundial",
+      "Fundo monetario",
+      "Organizacao de saude"
+    ],
+    "correct": 0,
+    "explanation": "UNESCO promove educacao, ciencia e cultura.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Quem foi Bento Goncalves?",
+    "alternatives": [
+      "Lider da Revolucao Farroupilha",
+      "Imperador",
+      "Presidente",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Bento Goncalves foi o principal lider farroupilha.",
+    "category": "Historia"
+  },
+  {
+    "question": "Onde fica o Deserto do Saara?",
+    "alternatives": [
+      "Norte da Africa",
+      "Australia",
+      "Asia",
+      "America do Sul"
+    ],
+    "correct": 0,
+    "explanation": "Saara cobre o norte da Africa.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o pais com mais fronteiras?",
+    "alternatives": [
+      "China",
+      "Russia",
+      "Brasil",
+      "India"
+    ],
+    "correct": 0,
+    "explanation": "A China faz fronteira com 14 paises.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o container?",
+    "alternatives": [
+      "Pacote leve com aplicacao e dependencias",
+      "Caixa de armazenamento",
+      "Servidor virtual",
+      "Maquina fisica"
+    ],
+    "correct": 0,
+    "explanation": "Container empacota aplicacao com suas dependencias para portabilidade.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e a Fossa das Marianas?",
+    "alternatives": [
+      "Ponto mais profundo do oceano",
+      "Montanha submarina",
+      "Vulcao extinto",
+      "Recife de coral"
+    ],
+    "correct": 0,
+    "explanation": "A Fossa das Marianas tem cerca de 11.000 metros de profundidade.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a resoluçao 4K?",
+    "alternatives": [
+      "3840 x 2160 pixels",
+      "1920 x 1080 pixels",
+      "7680 x 4320 pixels",
+      "1280 x 720 pixels"
+    ],
+    "correct": 0,
+    "explanation": "4K tem aproximadamente 3840 x 2160 pixels de resolucao.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual o pais com maior densidade populacional?",
+    "alternatives": [
+      "Monaco",
+      "Cingapura",
+      "Hong Kong",
+      "Barein"
+    ],
+    "correct": 0,
+    "explanation": "Monaco tem a maior densidade populacional do mundo.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o antivirus?",
+    "alternatives": [
+      "Programa que detecta malware",
+      "Firewall",
+      "Programa de email",
+      "Navegador seguro"
+    ],
+    "correct": 0,
+    "explanation": "Antivirus detecta e remove softwares maliciosos.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que foi a Anistia de 1979?",
+    "alternatives": [
+      "Lei que perdoou crimes politicos",
+      "Prisao em massa",
+      "Exilio",
+      "Guerra"
+    ],
+    "correct": 0,
+    "explanation": "Anistia permitiu volta de exilados e libertou presos politicos.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e a jiboia?",
+    "alternatives": [
+      "Cobra constritora nao venenosa",
+      "Cobra venenosa",
+      "Lagarto",
+      "Crocodilo"
+    ],
+    "correct": 0,
+    "explanation": "A jiboia e uma serpente que mata por constricao.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que foi o Teatro Municipal do Rio?",
+    "alternatives": [
+      "Teatro historico do Rio de Janeiro",
+      "Museu",
+      "Cinema",
+      "Galeria"
+    ],
+    "correct": 0,
+    "explanation": "Teatro Municipal do Rio e um dos mais importantes do Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o bicho-da-seda?",
+    "alternatives": [
+      "Lagarta que produz seda",
+      "Besouro",
+      "Aranha",
+      "Escorpiao"
+    ],
+    "correct": 0,
+    "explanation": "O bicho-da-seda e a lagarta do bicho-da-seda, que produz fibra de seda.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o maior lago do Brasil?",
+    "alternatives": [
+      "Lagoa dos Patos",
+      "Lago de Itaipu",
+      "Lago Paranoa",
+      "Lagoa Mirim"
+    ],
+    "correct": 0,
+    "explanation": "A Lagoa dos Patos no Rio Grande do Sul e a maior lagoa do Brasil.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que foram as Diretas Ja?",
+    "alternatives": [
+      "Movimento por eleicoes diretas em 1984",
+      "Campanha eleitoral",
+      "Reforma politica",
+      "Greve geral"
+    ],
+    "correct": 0,
+    "explanation": "Maior movimento popular do Brasil por democracia.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi a Revolucao Francesa?",
+    "alternatives": [
+      "Movimento por liberdade e igualdade",
+      "Guerra civil",
+      "Revolucao industrial",
+      "Golpe militar"
+    ],
+    "correct": 0,
+    "explanation": "Revolucao Francesa (1789) aboliu a monarquia absoluta.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi Zumbi dos Palmares?",
+    "alternatives": [
+      "Lider do Quilombo dos Palmares",
+      "Escravo fugitivo",
+      "Rei africano",
+      "Governador colonial"
+    ],
+    "correct": 0,
+    "explanation": "Zumbi foi o ultimo lider do maior quilombo do Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "Onde fica o Mar Adriatico?",
+    "alternatives": [
+      "Italia/Croacia",
+      "Grecia",
+      "Espanha",
+      "Turquia"
+    ],
+    "correct": 0,
+    "explanation": "Adriatico separa Italia da Peninsula Balcanica.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica o Arquipelago de Fernando de Noronha?",
+    "alternatives": [
+      "Nordeste do Brasil",
+      "Sudeste",
+      "Norte",
+      "Sul"
+    ],
+    "correct": 0,
+    "explanation": "Fernando de Noronha fica no litoral nordestino.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o sinal analogico?",
+    "alternatives": [
+      "Sinal continuo que varia no tempo",
+      "Sinal digital",
+      "Sinal binario",
+      "Sinal discreto"
+    ],
+    "correct": 0,
+    "explanation": "Sinal analogico e continuo e pode assumir infinitos valores.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Itamar Franco?",
+    "alternatives": [
+      "Presidente que implementou o Plano Real",
+      "Imperador",
+      "Rei",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Itamar Franco foi vice que assumiu apos impeachment de Collor.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quantas cores tem o arco-iris?",
+    "alternatives": [
+      "7",
+      "5",
+      "6",
+      "8"
+    ],
+    "correct": 0,
+    "explanation": "O arco-iris tem 7 cores: vermelho, laranja, amarelo, verde, azul, anil e violeta.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o ponto mais alto do Brasil?",
+    "alternatives": [
+      "Pico da Neblina",
+      "Pico da Bandeira",
+      "Monte Roraima",
+      "Pico do Jaragua"
+    ],
+    "correct": 0,
+    "explanation": "Pico da Neblina e o ponto mais alto do Brasil.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o pais mais populoso da Africa?",
+    "alternatives": [
+      "Nigeria",
+      "Etiopia",
+      "Egito",
+      "Africa do Sul"
+    ],
+    "correct": 0,
+    "explanation": "Nigeria e o pais mais populoso da Africa.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o HTTP?",
+    "alternatives": [
+      "Protocolo de transferencia de hipertexto",
+      "Linguagem web",
+      "Servidor web",
+      "Navegador"
+    ],
+    "correct": 0,
+    "explanation": "HTTP e o protocolo usado para transferir dados na web.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e open source?",
+    "alternatives": [
+      "Codigo aberto e modificavel",
+      "Software gratuito",
+      "Codigo fechado",
+      "Programa trial"
+    ],
+    "correct": 0,
+    "explanation": "Open source significa que o codigo fonte e aberto e pode ser modificado.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Castelo Branco?",
+    "alternatives": [
+      "Primeiro presidente da ditadura militar",
+      "Imperador",
+      "Heroi",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Castelo Branco governou de 1964 a 1967.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi a Lei Aurea?",
+    "alternatives": [
+      "Lei que aboliu a escravidao no Brasil",
+      "Lei da independencia",
+      "Constituicao",
+      "Tratado de paz"
+    ],
+    "correct": 0,
+    "explanation": "Lei Aurea foi assinada em 13 de maio de 1888.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi a Greve Geral de 1917?",
+    "alternatives": [
+      "Primeira grande greve operaria no Brasil",
+      "Feriado nacional",
+      "Revolucao",
+      "Guerra civil"
+    ],
+    "correct": 0,
+    "explanation": "Greve de 1917 parou Sao Paulo com reivindicacoes trabalhistas.",
+    "category": "Historia"
+  },
+  {
+    "question": "Onde fica o Grande Reef de Corais?",
+    "alternatives": [
+      "Australia",
+      "Brasil",
+      "Mexico",
+      "Tailandia"
+    ],
+    "correct": 0,
+    "explanation": "A Grande Barreira de Corais fica na costa australiana.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a Quinoa?",
+    "alternatives": [
+      "GRAO rico em proteinas",
+      "Cereal comum",
+      "Leguminosa",
+      "Raiz tuberosa"
+    ],
+    "correct": 0,
+    "explanation": "A quinoa e um grao altamente nutritivo e rico em proteinas.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o maior estado do Brasil?",
+    "alternatives": [
+      "Amazonas",
+      "Para",
+      "Mato Grosso",
+      "Minas Gerais"
+    ],
+    "correct": 0,
+    "explanation": "Amazonas e o maior estado brasileiro.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a fibra optica?",
+    "alternatives": [
+      "Cabo que transmite luz para dados",
+      "Cabo de cobre",
+      "Conexao sem fio",
+      "Satelite"
+    ],
+    "correct": 0,
+    "explanation": "Fibra optica transmite dados na velocidade da luz.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o fenomeno da bioluminescencia?",
+    "alternatives": [
+      "Emissao de luz por seres vivos",
+      "Reflexao da luz solar",
+      "Absorcao de luz",
+      "Difracao luminosa"
+    ],
+    "correct": 0,
+    "explanation": "Bioluminescencia e a producao de luz por organismos vivos.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Onde fica o Estreito de Magalhaes?",
+    "alternatives": [
+      "Sul do Chile",
+      "Argentina",
+      "Brasil",
+      "Uruguai"
+    ],
+    "correct": 0,
+    "explanation": "Estreito de Magalhaes fica no extremo sul do Chile.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que foi a Independencia do Brasil?",
+    "alternatives": [
+      "Separacao de Portugal em 1822",
+      "Guerra civil",
+      "Revolucao republicana",
+      "Tratado de paz"
+    ],
+    "correct": 0,
+    "explanation": "O Brasil tornou-se independente em 7 de setembro de 1822.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual a maior peninsula do mundo?",
+    "alternatives": [
+      "Arabica",
+      "Iberica",
+      "Italiana",
+      "Escandinava"
+    ],
+    "correct": 0,
+    "explanation": "A Peninsula Arabica e a maior do mundo.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a logica?",
+    "alternatives": [
+      "Estudo do raciocinio valido",
+      "Ciencia da natureza",
+      "Arte da guerra",
+      "Matematica pura"
+    ],
+    "correct": 0,
+    "explanation": "Logica estuda principios do raciocinio valido.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que foi a Coluna Prestes?",
+    "alternatives": [
+      "Marcha militar de 25.000 km pelo Brasil",
+      "Guerra civil",
+      "Revolucao",
+      "Independencia"
+    ],
+    "correct": 0,
+    "explanation": "Coluna Prestes percorreu o Brasil lutando contra o governo.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o Wi-Fi?",
+    "alternatives": [
+      "Tecnologia de rede sem fio",
+      "Internet movel",
+      "Bluetooth",
+      "Conexão fisica"
+    ],
+    "correct": 0,
+    "explanation": "Wi-Fi conecta dispositivos sem fio a uma rede local.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e um bug?",
+    "alternatives": [
+      "Erro em um programa",
+      "Virus de computador",
+      "Ataque hacker",
+      "Falha de hardware"
+    ],
+    "correct": 0,
+    "explanation": "Bug e um erro ou falha no codigo de um programa.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o ouro negro?",
+    "alternatives": [
+      "Petroleo",
+      "Carvão mineral",
+      "Diamante negro",
+      "Minerio de ferro"
+    ],
+    "correct": 0,
+    "explanation": "Petroleo e chamado de ouro negro por sua importancia economica.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o maior arquipelago do mundo?",
+    "alternatives": [
+      "Indonesia",
+      "Filipinas",
+      "Japao",
+      "Maldivas"
+    ],
+    "correct": 0,
+    "explanation": "Indonesia e o maior arquipelago do mundo.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica a Península da Coreia?",
+    "alternatives": [
+      "Asia Oriental",
+      "Europa",
+      "America",
+      "Africa"
+    ],
+    "correct": 0,
+    "explanation": "Coreia fica na Asia Oriental entre China e Japao.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o cooler?",
+    "alternatives": [
+      "Sistema de resfriamento",
+      "Ventilador comum",
+      "Ar-condicionado",
+      "Dissipador passivo"
+    ],
+    "correct": 0,
+    "explanation": "Cooler resfria componentes eletronicos para evitar superaquecimento.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Machado de Assis?",
+    "alternatives": [
+      "Maior escritor brasileiro",
+      "Imperador do Brasil",
+      "Pintor famoso",
+      "Compositor"
+    ],
+    "correct": 0,
+    "explanation": "Machado de Assis escreveu Dom Casmurro e Memorias Postumas.",
+    "category": "Historia"
+  },
+  {
+    "question": "Onde fica o Lago Baikal?",
+    "alternatives": [
+      "Russia",
+      "Mongolia",
+      "China",
+      "Cazaquistao"
+    ],
+    "correct": 0,
+    "explanation": "Lago Baikal fica na Siberia, Russia.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica o Rio Nilo?",
+    "alternatives": [
+      "Egito e Africa",
+      "Brasil",
+      "India",
+      "China"
+    ],
+    "correct": 0,
+    "explanation": "O Nilo atravessa varios paises africanos.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o maior parque nacional do Brasil?",
+    "alternatives": [
+      "Parque do Tumucumaque",
+      "Chapada Diamantina",
+      "Pantanal",
+      "Amazonia"
+    ],
+    "correct": 0,
+    "explanation": "Parque do Tumucumaque e o maior parque nacional do Brasil.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que foi a Revolucao de 1930?",
+    "alternatives": [
+      "Golpe que levou Getulio Vargas ao poder",
+      "Revolta militar",
+      "Guerra civil",
+      "Revolucao socialista"
+    ],
+    "correct": 0,
+    "explanation": "Revolucao de 1930 marcou o fim da Republica Velha.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi Caetano Veloso?",
+    "alternatives": [
+      "Cantor e compositor baiano",
+      "Imperador",
+      "Politico",
+      "Escritor"
+    ],
+    "correct": 0,
+    "explanation": "Caetano Veloso foi um dos lideres da Tropicália.",
+    "category": "Historia"
+  },
+  {
+    "question": "Onde fica o Deserto do Atacama?",
+    "alternatives": [
+      "Chile",
+      "Peru",
+      "Argentina",
+      "Bolivia"
+    ],
+    "correct": 0,
+    "explanation": "O Atacama fica no norte do Chile.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o 5G?",
+    "alternatives": [
+      "Quinta geracao de rede movel",
+      "Velocidade de internet",
+      "Wi-Fi avançado",
+      "Satelite de comunicacao"
+    ],
+    "correct": 0,
+    "explanation": "5G e a quinta geracao de tecnologia de rede movel.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o sistema solar?",
+    "alternatives": [
+      "Conjunto de planetas ao redor do Sol",
+      "Galaxia",
+      "Universo",
+      "Nebulosa"
+    ],
+    "correct": 0,
+    "explanation": "Sistema solar e formado pelo Sol e seus planetas.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e a tela touchscreen?",
+    "alternatives": [
+      "Tela sensivel ao toque",
+      "Monitor comum",
+      "Tela de projetor",
+      "Display de LED"
+    ],
+    "correct": 0,
+    "explanation": "Touchscreen permite interacao direta com o toque na tela.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a capital da Polonia?",
+    "alternatives": [
+      "Varsovia",
+      "Cracovia",
+      "Gdansk",
+      "Wroclaw"
+    ],
+    "correct": 0,
+    "explanation": "Varsovia e a capital da Polonia.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que foi o Imperio do Brasil?",
+    "alternatives": [
+      "Monarquia brasileira (1822-1889)",
+      "Republica",
+      "Colonia portuguesa",
+      "Reino africano"
+    ],
+    "correct": 0,
+    "explanation": "O Brasil foi um imperio sob Dom Pedro I e II.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o endereco IP?",
+    "alternatives": [
+      "Identificador unico de rede",
+      "Nome de dominio",
+      "URL",
+      "Protocolo de rede"
+    ],
+    "correct": 0,
+    "explanation": "IP e o endereco que identifica dispositivos em uma rede.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e a inteligencia artificial?",
+    "alternatives": [
+      "Maquinas que simulam inteligencia humana",
+      "Redes sociais",
+      "Computadores pessoais",
+      "Banco de dados"
+    ],
+    "correct": 0,
+    "explanation": "IA e o campo que desenvolve sistemas capazes de realizar tarefas inteligentes.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e um proxy?",
+    "alternatives": [
+      "Servidor intermediario de rede",
+      "Antivirus",
+      "Firewall",
+      "Roteador"
+    ],
+    "correct": 0,
+    "explanation": "Proxy atua como intermediario entre o usuario e a internet.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Onde fica o Chipre?",
+    "alternatives": [
+      "Mar Mediterraneo",
+      "Oceano Atlantico",
+      "Mar Negro",
+      "Mar Vermelho"
+    ],
+    "correct": 0,
+    "explanation": "Chipre e uma ilha no Mediterraneo Oriental.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o cinema?",
+    "alternatives": [
+      "Arte de fazer filmes",
+      "Fotografia",
+      "Teatro",
+      "Danca"
+    ],
+    "correct": 0,
+    "explanation": "Cinema e a arte de produzir filmes.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e criptografia?",
+    "alternatives": [
+      "Tecnica de codificar informacao",
+      "Malware",
+      "Antivirus",
+      "Rede social"
+    ],
+    "correct": 0,
+    "explanation": "Criptografia transforma dados em formato ilegivel sem chave.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a capital da Coreia do Sul?",
+    "alternatives": [
+      "Seul",
+      "Pusan",
+      "Incheon",
+      "Daegu"
+    ],
+    "correct": 0,
+    "explanation": "Seul e a capital da Coreia do Sul.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que foi o Renascimento?",
+    "alternatives": [
+      "Movimento cultural e artistico europeu",
+      "Revolucao religiosa",
+      "Descoberta maritima",
+      "Guerra santa"
+    ],
+    "correct": 0,
+    "explanation": "Renascimento reviveu valores da antiguidade classica.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi Pitagoras?",
+    "alternatives": [
+      "Matematico e filosofo grego",
+      "Imperador romano",
+      "Cientista alemao",
+      "Pintor italiano"
+    ],
+    "correct": 0,
+    "explanation": "Pitagoras criou o teorema de Pitagoras.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Onde fica o Canal do Panama?",
+    "alternatives": [
+      "America Central",
+      "America do Sul",
+      "Africa",
+      "Asia"
+    ],
+    "correct": 0,
+    "explanation": "Canal do Panama liga Atlantico ao Pacifico.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a internet das coisas (IoT)?",
+    "alternatives": [
+      "Dispositivos conectados a internet",
+      "Rede de computadores",
+      "Computacao em nuvem",
+      "Inteligencia artificial"
+    ],
+    "correct": 0,
+    "explanation": "IoT conecta objetos fisicos a internet para coleta e troca de dados.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual o maior lago do mundo?",
+    "alternatives": [
+      "Mar Caspio",
+      "Lago Superior",
+      "Lago Victoria",
+      "Lago Baikal"
+    ],
+    "correct": 0,
+    "explanation": "Mar Caspio e o maior lago em area.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Em que ano o homem pisou na Lua pela primeira vez?",
+    "alternatives": [
+      "1969",
+      "1968",
+      "1970",
+      "1967"
+    ],
+    "correct": 0,
+    "explanation": "Neil Armstrong pisou na Lua em 20 de julho de 1969.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Quem foi Tom Jobim?",
+    "alternatives": [
+      "Compositor e maestro brasileiro",
+      "Imperador",
+      "Escritor",
+      "Pintor"
+    ],
+    "correct": 0,
+    "explanation": "Tom Jobim foi um dos criadores da Bossa Nova.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o sinal digital?",
+    "alternatives": [
+      "Sinal discreto em valores binarios",
+      "Sinal continuo",
+      "Sinal analogico",
+      "Sinal de radio"
+    ],
+    "correct": 0,
+    "explanation": "Sinal digital usa valores discretos, geralmente 0 e 1.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o cacador de cotas?",
+    "alternatives": [
+      "Personagem folclore brasileiro",
+      "Ferramenta de pesca",
+      "Ave de rapina",
+      "Peixe carnivoro"
+    ],
+    "correct": 0,
+    "explanation": "O cacador de cotas e um personagem do folclore brasileiro.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Onde fica o Monte Everest?",
+    "alternatives": [
+      "Nepal/Tibet",
+      "India",
+      "Paquistao",
+      "Butao"
+    ],
+    "correct": 0,
+    "explanation": "O Everest fica na fronteira do Nepal com o Tibet.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual a maior ilha do Brasil?",
+    "alternatives": [
+      "Ilha do Marajo",
+      "Ilha de Santa Catarina",
+      "Ilha do Governador",
+      "Ilhabela"
+    ],
+    "correct": 0,
+    "explanation": "A Ilha do Marajo, no Para, e a maior ilha fluviomarinha do Brasil.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o modem?",
+    "alternatives": [
+      "Modulador/demodulador de sinal",
+      "Roteador",
+      "Switch",
+      "Hub de rede"
+    ],
+    "correct": 0,
+    "explanation": "Modem converte sinais digitais em analogicos e vice-versa.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual o pais com maior biodiversidade?",
+    "alternatives": [
+      "Brasil",
+      "Equador",
+      "Mexico",
+      "Colombia"
+    ],
+    "correct": 0,
+    "explanation": "O Brasil lidera em biodiversidade com milhares de especies.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem foi Joao Goulart?",
+    "alternatives": [
+      "Ultimo presidente antes da ditadura",
+      "Imperador",
+      "Heroi de guerra",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Jango foi deposto pelo golpe militar de 1964.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e um algoritmo?",
+    "alternatives": [
+      "Sequencia de passos para resolver problema",
+      "Programa de computador",
+      "Linguagem de programacao",
+      "Banco de dados"
+    ],
+    "correct": 0,
+    "explanation": "Algoritmo e uma sequencia finita de instrucoes para resolver um problema.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Onde fica o Mar do Norte?",
+    "alternatives": [
+      "Europa",
+      "America",
+      "Asia",
+      "Africa"
+    ],
+    "correct": 0,
+    "explanation": "Mar do Norte fica entre Reino Unido e Escandinavia.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual a menor ave do mundo?",
+    "alternatives": [
+      "Beija-flor abelha",
+      "Passaro-mosca",
+      "Canario",
+      "Pardal"
+    ],
+    "correct": 0,
+    "explanation": "O beija-flor abelha cubano mede apenas 5 cm.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a inercia?",
+    "alternatives": [
+      "Resistencia a mudanca de movimento",
+      "Força centripeta",
+      "Aceleracao",
+      "Velocidade"
+    ],
+    "correct": 0,
+    "explanation": "Inercia e a tendencia de manter o estado de movimento.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e a biologia?",
+    "alternatives": [
+      "Ciencia da vida",
+      "Ciencia da terra",
+      "Ciencia fisica",
+      "Ciencia social"
+    ],
+    "correct": 0,
+    "explanation": "Biologia estuda os seres vivos.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e o morcego-vampiro?",
+    "alternatives": [
+      "Unico mamifero que sangra",
+      "Morcego frugivoro",
+      "Morcego insetivoro",
+      "Morcego polinizador"
+    ],
+    "correct": 0,
+    "explanation": "O morcego-vampiro se alimenta de sangue de outros animais.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a topologia de rede?",
+    "alternatives": [
+      "Arranjo fisico ou logico da rede",
+      "Tipo de cabo",
+      "Protocolo de rede",
+      "Sistema operacional"
+    ],
+    "correct": 0,
+    "explanation": "Topologia descreve como os dispositivos estao conectados na rede.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Nikola Tesla?",
+    "alternatives": [
+      "Inventor e fisico",
+      "Pintor",
+      "Compositor",
+      "Escritor"
+    ],
+    "correct": 0,
+    "explanation": "Tesla inventou o motor de corrente alternada.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual o jogo com maior premio em esports?",
+    "alternatives": [
+      "The International (Dota 2)",
+      "League of Legends",
+      "CS:GO",
+      "Fortnite"
+    ],
+    "correct": 0,
+    "explanation": "O The International de Dota 2 tem os maiores premios do esports.",
+    "category": "Games"
+  },
+  {
+    "question": "O que foi a Eletrobras?",
+    "alternatives": [
+      "Maior empresa de energia eletrica",
+      "Banco",
+      "Montadora",
+      "Telecomunicacoes"
+    ],
+    "correct": 0,
+    "explanation": "Eletrobras foi criada em 1962.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e a tartaruga-de-couro?",
+    "alternatives": [
+      "Maior tartaruga marinha",
+      "Tartaruga de agua doce",
+      "Tartaruga terrestre",
+      "Especie extinta"
+    ],
+    "correct": 0,
+    "explanation": "A tartaruga-de-couro pode atingir ate 2 metros e 700 kg.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o trigo?",
+    "alternatives": [
+      "Cereal usado para fazer pao",
+      "Grao leguminoso",
+      "Raiz tuberosa",
+      "Fruta seca"
+    ],
+    "correct": 0,
+    "explanation": "O trigo e um cereal amplamente cultivado para producao de farinha.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Onde fica a Cordilheira dos Himalaias?",
+    "alternatives": [
+      "Asia",
+      "Europa",
+      "America do Sul",
+      "Africa"
+    ],
+    "correct": 0,
+    "explanation": "Himalaias ficam na Asia, entre India e China.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a latencia?",
+    "alternatives": [
+      "Atraso na transmissao de dados",
+      "Velocidade de conexao",
+      "Capacidade de rede",
+      "Qualidade do sinal"
+    ],
+    "correct": 0,
+    "explanation": "Latencia e o tempo que um pacote leva para ir e voltar.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o cacatua?",
+    "alternatives": [
+      "Papagaio com crista",
+      "Arara",
+      "Periquito",
+      "Calopsita"
+    ],
+    "correct": 0,
+    "explanation": "Cacatuas sao papagaios com uma crista de penas na cabeca.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o teorema de Pitagoras?",
+    "alternatives": [
+      "a2+b2=c2",
+      "E=mc2",
+      "F=ma",
+      "PV=nRT"
+    ],
+    "correct": 0,
+    "explanation": "Em um triangulo retangulo, o quadrado da hipotenusa...",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e o barramento USB?",
+    "alternatives": [
+      "Padrao de conexao universal",
+      "Fio de alimentacao",
+      "Cabo de rede",
+      "Conector de video"
+    ],
+    "correct": 0,
+    "explanation": "USB e um padrao de conexao para perifericos.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem descobriu a penicilina?",
+    "alternatives": [
+      "Alexander Fleming",
+      "Louis Pasteur",
+      "Robert Koch",
+      "Joseph Lister"
+    ],
+    "correct": 0,
+    "explanation": "Fleming descobriu a penicilina em 1928.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual a capital da Argentina?",
+    "alternatives": [
+      "Buenos Aires",
+      "Santiago",
+      "Lima",
+      "Montevideu"
+    ],
+    "correct": 0,
+    "explanation": "Buenos Aires e a capital da Argentina.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual a maior cidade da America do Sul?",
+    "alternatives": [
+      "Sao Paulo",
+      "Buenos Aires",
+      "Rio de Janeiro",
+      "Lima"
+    ],
+    "correct": 0,
+    "explanation": "Sao Paulo e a maior cidade da America do Sul.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a musica?",
+    "alternatives": [
+      "Arte de combinar sons",
+      "Ciencia do som",
+      "Danca",
+      "Pintura"
+    ],
+    "correct": 0,
+    "explanation": "Musica e a arte de organizar sons no tempo.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e a moeda Bitcoin?",
+    "alternatives": [
+      "Criptomoeda descentralizada",
+      "Moeda impressa",
+      "Cartao de credito",
+      "Acao de empresa"
+    ],
+    "correct": 0,
+    "explanation": "Bitcoin e uma criptomoeda criada em 2009 por Satoshi Nakamoto.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem criou o Mario?",
+    "alternatives": [
+      "Shigeru Miyamoto",
+      "Satoru Iwata",
+      "Bill Gates",
+      "Steve Jobs"
+    ],
+    "correct": 0,
+    "explanation": "Shigeru Miyamoto criou Mario, o mascote da Nintendo.",
+    "category": "Games"
+  },
+  {
+    "question": "O que foi a Republica Velha?",
+    "alternatives": [
+      "Primeira republica brasileira (1889-1930)",
+      "Monarquia",
+      "Ditadura",
+      "Imperio"
+    ],
+    "correct": 0,
+    "explanation": "Republica Velha foi o periodo da Primeira Republica.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual a maior cobra do mundo?",
+    "alternatives": [
+      "Anaconda verde",
+      "Sucuri",
+      "Piton reticulada",
+      "Jiboia"
+    ],
+    "correct": 0,
+    "explanation": "A anaconda verde e a mais pesada; a piton reticulada e a mais longa.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a economia?",
+    "alternatives": [
+      "Ciencia da escassez",
+      "Estudo da natureza",
+      "Ciencia social",
+      "Matematica"
+    ],
+    "correct": 0,
+    "explanation": "Economia estuda a alocacao de recursos escassos.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e a lagosta?",
+    "alternatives": [
+      "Crustaceo marinho",
+      "Peixe de escamas",
+      "Molusco",
+      "Anelideo"
+    ],
+    "correct": 0,
+    "explanation": "A lagosta e um crustaceo decapode de agua salgada.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quantos dedos tem um panda-gigante?",
+    "alternatives": [
+      "6",
+      "5",
+      "4",
+      "7"
+    ],
+    "correct": 0,
+    "explanation": "Pandas tem um sexto dedo (osso do pulso modificado) para segurar bambu.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a realidade virtual?",
+    "alternatives": [
+      "Ambiente simulado por computador",
+      "Inteligencia artificial",
+      "Video 3D",
+      "Jogo eletronico"
+    ],
+    "correct": 0,
+    "explanation": "RV cria ambientes virtuais imersivos com dispositivos especiais.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Fernando Henrique Cardoso?",
+    "alternatives": [
+      "Presidente do Brasil (1995-2002)",
+      "Imperador",
+      "Explorador",
+      "Rei"
+    ],
+    "correct": 0,
+    "explanation": "FHC foi presidente por dois mandatos.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual o pais mais populoso da Africa?",
+    "alternatives": [
+      "Nigeria",
+      "Etiopia",
+      "Egito",
+      "Africa do Sul"
+    ],
+    "correct": 0,
+    "explanation": "A Nigeria e o pais mais populoso da Africa.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que foi a Antropofagia cultural?",
+    "alternatives": [
+      "Movimento de deglutir culturas estrangeiras",
+      "Canibalismo",
+      "Ritual indigena",
+      "Pratica religiosa"
+    ],
+    "correct": 0,
+    "explanation": "Antropofagia propunha absorver culturas para criar algo novo.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e a tabela periodica?",
+    "alternatives": [
+      "Classificacao dos elementos",
+      "Lista de receitas",
+      "Calendario",
+      "Mapa mundi"
+    ],
+    "correct": 0,
+    "explanation": "Tabela periodica organiza os elementos quimicos.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual o maior sistema operacional?",
+    "alternatives": [
+      "Windows",
+      "Android",
+      "iOS",
+      "Linux"
+    ],
+    "correct": 0,
+    "explanation": "Android e o SO mais usado no mundo em dispositivos moveis.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o beija-flor?",
+    "alternatives": [
+      "Unica ave que voa para tras",
+      "Passaro cantor",
+      "Ave migratoria",
+      "Ave noturna"
+    ],
+    "correct": 0,
+    "explanation": "Beija-flores sao as unicas aves capazes de voar em todas as direcoes.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o rio mais extenso do mundo?",
+    "alternatives": [
+      "Amazonas",
+      "Nilo",
+      "Mississippi",
+      "Yangtze"
+    ],
+    "correct": 0,
+    "explanation": "O rio Amazonas e considerado o mais extenso com cerca de 7.000 km.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o DNS?",
+    "alternatives": [
+      "Sistema de nomes de dominio",
+      "Servidor web",
+      "Banco de dados",
+      "Rede social"
+    ],
+    "correct": 0,
+    "explanation": "DNS traduz nomes de dominio em enderecos IP.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual o metal mais caro do mundo?",
+    "alternatives": [
+      "Rodio",
+      "Ouro",
+      "Platina",
+      "Paladio"
+    ],
+    "correct": 0,
+    "explanation": "O rodio e o metal precioso mais caro, superando o ouro.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que foi a Petrobras?",
+    "alternatives": [
+      "Maior empresa estatal brasileira",
+      "Banco publico",
+      "Montadora",
+      "Mineiradora"
+    ],
+    "correct": 0,
+    "explanation": "Petrobras foi criada em 1953 no governo Vargas.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e um chatbot?",
+    "alternatives": [
+      "Programa que simula conversa",
+      "Robo fisico",
+      "Assistente virtual",
+      "Site de perguntas"
+    ],
+    "correct": 0,
+    "explanation": "Chatbot e um programa que conversa com usuarios por texto ou voz.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual o pais mais visitado?",
+    "alternatives": [
+      "Franca",
+      "Espanha",
+      "EUA",
+      "Italia"
+    ],
+    "correct": 0,
+    "explanation": "A Franca recebe o maior numero de turistas internacionais.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem foi Getulio Vargas?",
+    "alternatives": [
+      "Presidente do Brasil em duas eras",
+      "Imperador",
+      "Rei",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Vargas governou na Era Vargas e no Estado Novo.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e a moreia?",
+    "alternatives": [
+      "Peixe de corpo alongado",
+      "Cobra marinha",
+      "Enguia eletrica",
+      "Polvo"
+    ],
+    "correct": 0,
+    "explanation": "A moreia e um peixe de corpo serpentiforme que vive em recifes.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a impressao 3D?",
+    "alternatives": [
+      "Criacao de objetos por camadas",
+      "Impressao em papel especial",
+      "Escaneamento 3D",
+      "Fabricacao tradicional"
+    ],
+    "correct": 0,
+    "explanation": "Impressao 3D constroi objetos tridimensionais camada por camada.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e a nuvem hibrida?",
+    "alternatives": [
+      "Combinacao de nuvens publica e privada",
+      "Nuvem publica",
+      "Nuvem privada",
+      "Servidor local"
+    ],
+    "correct": 0,
+    "explanation": "Nuvem hibrida combina infraestruturas de nuvem publica e privada.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a capital da Suecia?",
+    "alternatives": [
+      "Estocolmo",
+      "Gotemburgo",
+      "Malmo",
+      "Uppsala"
+    ],
+    "correct": 0,
+    "explanation": "Estocolmo e a capital da Suecia.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o phishing?",
+    "alternatives": [
+      "Tentativa de obter dados pessoais",
+      "Ataque DDoS",
+      "Virus",
+      "Malware de rede"
+    ],
+    "correct": 0,
+    "explanation": "Phishing engana usuarios para obter informacoes confidenciais.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o pinguim-imperador?",
+    "alternatives": [
+      "Maior pinguim do mundo",
+      "Pinguim mais rapido",
+      "Pinguim tropical",
+      "Pinguim voador"
+    ],
+    "correct": 0,
+    "explanation": "O pinguim-imperador pode atingir 1,2 metro e 45 kg.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o console mais vendido?",
+    "alternatives": [
+      "PlayStation 2",
+      "Nintendo DS",
+      "Game Boy",
+      "PlayStation 4"
+    ],
+    "correct": 0,
+    "explanation": "O PS2 vendeu mais de 155 milhoes de unidades.",
+    "category": "Games"
+  },
+  {
+    "question": "O que e o salmão?",
+    "alternatives": [
+      "Peixe que migra para reproduzir",
+      "Peixe de agua doce",
+      "Peixe de agua salgada",
+      "Crustaceo"
+    ],
+    "correct": 0,
+    "explanation": "O salmao e um peixe anadromo que migra do mar para rios para procriar.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que foi a Semana de Arte Moderna?",
+    "alternatives": [
+      "Evento cultural de 1922 em Sao Paulo",
+      "Festa religiosa",
+      "Revolucao",
+      "Exposicao de pintura"
+    ],
+    "correct": 0,
+    "explanation": "Semana de 22 marcou o modernismo no Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e a realidade aumentada?",
+    "alternatives": [
+      "Elementos virtuais sobre o mundo real",
+      "Substituicao da realidade",
+      "Video em 3D",
+      "Simulacao computacional"
+    ],
+    "correct": 0,
+    "explanation": "RA sobrepoe elementos digitais ao ambiente real.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que foi o Cafe com Leite?",
+    "alternatives": [
+      "Acordo politico entre SP e MG",
+      "Bebida tipica",
+      "Produto agricola",
+      "Reuniao social"
+    ],
+    "correct": 0,
+    "explanation": "Politica do cafe com leite alternava presidentes de SP e MG.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o roteador?",
+    "alternatives": [
+      "Dispositivo que distribui internet",
+      "Modem",
+      "Switch de rede",
+      "Repetidor de sinal"
+    ],
+    "correct": 0,
+    "explanation": "Roteador encaminha pacotes entre redes de computadores.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem fundou a Microsoft?",
+    "alternatives": [
+      "Bill Gates",
+      "Steve Jobs",
+      "Mark Zuckerberg",
+      "Jeff Bezos"
+    ],
+    "correct": 0,
+    "explanation": "Bill Gates fundou a Microsoft em 1975 com Paul Allen.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a capital da Alemanha?",
+    "alternatives": [
+      "Berlim",
+      "Munique",
+      "Frankfurt",
+      "Hamburgo"
+    ],
+    "correct": 0,
+    "explanation": "Berlim e a capital da Alemanha.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que foi o Holocausto?",
+    "alternatives": [
+      "Genocidio de judeus na 2 Guerra",
+      "Guerra mundial",
+      "Desastre natural",
+      "Epidemia global"
+    ],
+    "correct": 0,
+    "explanation": "Holocausto foi o assassinato de 6 milhoes de judeus.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual a capital do Japao?",
+    "alternatives": [
+      "Toquio",
+      "Osaka",
+      "Quioto",
+      "Nagoya"
+    ],
+    "correct": 0,
+    "explanation": "Toquio e a capital do Japao.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o PaaS?",
+    "alternatives": [
+      "Plataforma como servico",
+      "Programa como servico",
+      "Processamento como servico",
+      "Protocolo como servico"
+    ],
+    "correct": 0,
+    "explanation": "PaaS fornece uma plataforma para desenvolvimento de aplicacoes.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o Big Ben?",
+    "alternatives": [
+      "Sino do relogio em Londres",
+      "Torre da Inglaterra",
+      "Palacio britanico",
+      "Museu de Londres"
+    ],
+    "correct": 0,
+    "explanation": "Big Ben e o nome do sino principal do relogio do Palacio de Westminster.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e um firewall de aplicacao?",
+    "alternatives": [
+      "Filtro especifico para aplicacoes",
+      "Antivirus",
+      "Proxy web",
+      "Rede privada"
+    ],
+    "correct": 0,
+    "explanation": "Firewall de aplicacao filtra trafego especifico de aplicacoes web.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a maior bacia hidrografica?",
+    "alternatives": [
+      "Amazonica",
+      "Congo",
+      "Mississippi",
+      "Parana"
+    ],
+    "correct": 0,
+    "explanation": "A bacia amazonica e a maior do mundo em area.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a depressao do Mar Morto?",
+    "alternatives": [
+      "Ponto mais baixo da Terra",
+      "Lago mais profundo",
+      "Vale submerso",
+      "Fossa oceânica"
+    ],
+    "correct": 0,
+    "explanation": "A superficie do Mar Morto esta a 430 metros abaixo do nivel do mar.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o formato JPEG?",
+    "alternatives": [
+      "Formato de compressao de imagem",
+      "Formato de video",
+      "Formato de audio",
+      "Formato de documento"
+    ],
+    "correct": 0,
+    "explanation": "JPEG e um formato de compressao de imagens.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que foi o Muro de Berlim?",
+    "alternatives": [
+      "Barreira que dividiu Berlim",
+      "Muro da China",
+      "Fortaleza medieval",
+      "Parede do Palacio"
+    ],
+    "correct": 0,
+    "explanation": "O Muro de Berlim dividiu a Alemanha em 1961-1989.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o tamandua-bandeira?",
+    "alternatives": [
+      "Maior tamandua das Americas",
+      "Primata",
+      "Roedor",
+      "Felino"
+    ],
+    "correct": 0,
+    "explanation": "O tamandua-bandeira pode atingir 2 metros de comprimento.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o arco-iris?",
+    "alternatives": [
+      "Fenomeno optico",
+      "Refracao da luz",
+      "Dispersao",
+      "Difracao"
+    ],
+    "correct": 0,
+    "explanation": "Arco-iris e a decomposicao da luz branca.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Quem foi Dom Pedro II?",
+    "alternatives": [
+      "Ultimo imperador do Brasil",
+      "Primeiro imperador",
+      "Presidente",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Dom Pedro II governou o Brasil por 49 anos.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quantos coracoes tem um polvo?",
+    "alternatives": [
+      "3",
+      "1",
+      "2",
+      "4"
+    ],
+    "correct": 0,
+    "explanation": "Polvos tem tres coracoes: dois para as branquias e um para o corpo.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o ano do primeiro computador?",
+    "alternatives": [
+      "1940",
+      "1920",
+      "1950",
+      "1960"
+    ],
+    "correct": 0,
+    "explanation": "O ENIAC, considerado o primeiro computador eletronico, foi criado em 1945.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e um compilador?",
+    "alternatives": [
+      "Traduz codigo fonte para maquina",
+      "Editor de texto",
+      "Navegador web",
+      "Banco de dados"
+    ],
+    "correct": 0,
+    "explanation": "Compilador traduz linguagem de programacao para codigo de maquina.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual o maior oceano?",
+    "alternatives": [
+      "Pacifico",
+      "Atlantico",
+      "Indico",
+      "Artico"
+    ],
+    "correct": 0,
+    "explanation": "O Pacifico e o maior e mais profundo oceano.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Quem criou o Linux?",
+    "alternatives": [
+      "Linus Torvalds",
+      "Richard Stallman",
+      "Bill Gates",
+      "Ken Thompson"
+    ],
+    "correct": 0,
+    "explanation": "Linus Torvalds criou o kernel Linux em 1991.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a capital da Hungria?",
+    "alternatives": [
+      "Budapeste",
+      "Viena",
+      "Praga",
+      "Bratislava"
+    ],
+    "correct": 0,
+    "explanation": "Budapeste e a capital da Hungria.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica a Islândia?",
+    "alternatives": [
+      "Norte da Europa",
+      "America do Norte",
+      "Asia",
+      "Oceania"
+    ],
+    "correct": 0,
+    "explanation": "Islândia e uma ilha no Atlântico Norte.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o maior deserto frio?",
+    "alternatives": [
+      "Antartida",
+      "Siberia",
+      "Groenlandia",
+      "Alasca"
+    ],
+    "correct": 0,
+    "explanation": "A Antartida e o maior deserto frio do mundo.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o menor pais do mundo?",
+    "alternatives": [
+      "Vaticano",
+      "Monaco",
+      "Nauru",
+      "San Marino"
+    ],
+    "correct": 0,
+    "explanation": "O Vaticano tem apenas 0,44 km2.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que significa URL?",
+    "alternatives": [
+      "Uniform Resource Locator",
+      "Universal Resource Link",
+      "Unified Remote Location",
+      "User Reference Language"
+    ],
+    "correct": 0,
+    "explanation": "URL e o endereco de um recurso na internet.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a maior cidade da Africa?",
+    "alternatives": [
+      "Lagos",
+      "Cairo",
+      "Joanesburgo",
+      "Nairobi"
+    ],
+    "correct": 0,
+    "explanation": "Lagos na Nigeria e a maior cidade africana.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica o Polo Norte?",
+    "alternatives": [
+      "Artico",
+      "Antartida",
+      "Groenlandia",
+      "Canada"
+    ],
+    "correct": 0,
+    "explanation": "Polo Norte fica no Oceano Artico.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual a capital do Brasil?",
+    "alternatives": [
+      "Brasilia",
+      "Rio de Janeiro",
+      "Sao Paulo",
+      "Salvador"
+    ],
+    "correct": 0,
+    "explanation": "Brasilia e a capital federal do Brasil.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual a capital da Noruega?",
+    "alternatives": [
+      "Oslo",
+      "Bergen",
+      "Trondheim",
+      "Stavanger"
+    ],
+    "correct": 0,
+    "explanation": "Oslo e a capital da Noruega.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o nome do protagonista de God of War?",
+    "alternatives": [
+      "Kratos",
+      "Zeus",
+      "Ares",
+      "Atreus"
+    ],
+    "correct": 0,
+    "explanation": "Kratos e o protagonista da serie God of War.",
+    "category": "Games"
+  },
+  {
+    "question": "Qual a capital da Australia?",
+    "alternatives": [
+      "Camberra",
+      "Sydney",
+      "Melbourne",
+      "Brisbane"
+    ],
+    "correct": 0,
+    "explanation": "Camberra e a capital da Australia.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o jogo mais vendido da historia?",
+    "alternatives": [
+      "Minecraft",
+      "GTA V",
+      "Tetris",
+      "Wii Sports"
+    ],
+    "correct": 0,
+    "explanation": "Minecraft ja vendeu mais de 300 milhoes de copias.",
+    "category": "Games"
+  },
+  {
+    "question": "O que e o Kubernetes?",
+    "alternatives": [
+      "Orquestrador de containers",
+      "Linguagem de programacao",
+      "Sistema operacional",
+      "Banco de dados"
+    ],
+    "correct": 0,
+    "explanation": "Kubernetes automatiza implantacao e gerenciamento de containers.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o Bluetooth?",
+    "alternatives": [
+      "Comunicacao sem fio de curto alcance",
+      "Rede Wi-Fi",
+      "Conexao de rede",
+      "Satelite"
+    ],
+    "correct": 0,
+    "explanation": "Bluetooth conecta dispositivos sem fio em curta distancia.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a capital da Finlandia?",
+    "alternatives": [
+      "Helsinque",
+      "Rovaniemi",
+      "Turku",
+      "Tampere"
+    ],
+    "correct": 0,
+    "explanation": "Helsinque e a capital da Finlandia.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o menor pais do mundo?",
+    "alternatives": [
+      "Vaticano",
+      "Monaco",
+      "Nauru",
+      "San Marino"
+    ],
+    "correct": 0,
+    "explanation": "Vaticano tem 0,44 km2.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual o pais mais ao sul do mundo?",
+    "alternatives": [
+      "Chile",
+      "Argentina",
+      "Nova Zelandia",
+      "Africa do Sul"
+    ],
+    "correct": 0,
+    "explanation": "O Chile e o pais mais ao sul do mundo.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a cebola?",
+    "alternatives": [
+      "Bulbo comestivel",
+      "Raiz tuberosa",
+      "Fruto",
+      "Semente"
+    ],
+    "correct": 0,
+    "explanation": "A cebola e um bulbo vegetal usado como alimento e tempero.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a escala Richter?",
+    "alternatives": [
+      "Mede magnitude de terremotos",
+      "Mede temperatura",
+      "Mede pressao",
+      "Mede velocidade"
+    ],
+    "correct": 0,
+    "explanation": "Escala Richter mede a magnitude de terremotos.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Onde fica o Deserto da Namibia?",
+    "alternatives": [
+      "Sudoeste da Africa",
+      "Australia",
+      "Asia",
+      "America"
+    ],
+    "correct": 0,
+    "explanation": "Deserto da Namibia fica no sudoeste africano.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o Deserto do Saara?",
+    "alternatives": [
+      "Maior deserto quente do mundo",
+      "Maior deserto frio",
+      "Segundo maior deserto",
+      "Deserto mais antigo"
+    ],
+    "correct": 0,
+    "explanation": "O Saara e o maior deserto quente do mundo, com 9,2 milhoes km2.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a velocidade do som?",
+    "alternatives": [
+      "343 m/s",
+      "300 m/s",
+      "500 m/s",
+      "1.000 m/s"
+    ],
+    "correct": 0,
+    "explanation": "O som viaja a 343 m/s no ar ao nivel do mar.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual a maior aranha do mundo?",
+    "alternatives": [
+      "Golias comedor de passaros",
+      "Viuva-negra",
+      "Armadeira",
+      "Tarantula comum"
+    ],
+    "correct": 0,
+    "explanation": "A aranha Golias pode ter envergadura de 30 cm.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem foi Joaquim Nabuco?",
+    "alternatives": [
+      "Abolicionista e diplomata brasileiro",
+      "Imperador",
+      "Explorador",
+      "Pintor"
+    ],
+    "correct": 0,
+    "explanation": "Nabuco lutou pela abolicao da escravatura no Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual a maior cachoeira do Brasil?",
+    "alternatives": [
+      "Cachoeira da Fumaca",
+      "Cataratas do Iguacu",
+      "Cachoeira do Caracol",
+      "Vale do Pati"
+    ],
+    "correct": 0,
+    "explanation": "A Cachoeira da Fumaca na Bahia tem 380 metros de queda.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e um Battle Royale?",
+    "alternatives": [
+      "Genero onde jogadores lutam ate restar um",
+      "RPG multiplayer",
+      "Jogo de cartas",
+      "Estrategia em tempo real"
+    ],
+    "correct": 0,
+    "explanation": "Battle Royale e um genero onde muitos jogadores competem ate restar um.",
+    "category": "Games"
+  },
+  {
+    "question": "O que foi a Nova Republica?",
+    "alternatives": [
+      "Periodo democratico pos-ditadura",
+      "Ditadura",
+      "Monarquia",
+      "Imperio"
+    ],
+    "correct": 0,
+    "explanation": "Nova Republica comeca com a Constituicao de 1988.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e um RPG?",
+    "alternatives": [
+      "Role-playing game",
+      "Real physics game",
+      "Rapid play game",
+      "Random puzzle game"
+    ],
+    "correct": 0,
+    "explanation": "RPG significa Role-Playing Game, onde jogadores assumem papeis.",
+    "category": "Games"
+  },
+  {
+    "question": "Quem descobriu a America?",
+    "alternatives": [
+      "Cristovao Colombo",
+      "Pedro Alvares Cabral",
+      "Vasco da Gama",
+      "Fernao de Magalhaes"
+    ],
+    "correct": 0,
+    "explanation": "Cristovao Colombo chegou a America em 1492.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e a serpente mais venenosa?",
+    "alternatives": [
+      "Taipan-do-interior",
+      "Cascavel",
+      "Naja",
+      "Vibora"
+    ],
+    "correct": 0,
+    "explanation": "A taipan-do-interior australiana tem o veneno mais potente.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a maior ave do mundo?",
+    "alternatives": [
+      "Avestruz",
+      "Ema",
+      "Casuar",
+      "Pavao"
+    ],
+    "correct": 0,
+    "explanation": "O avestruz pode atingir 2,7 metros e 150 kg.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a capital da Espanha?",
+    "alternatives": [
+      "Madri",
+      "Barcelona",
+      "Valencia",
+      "Sevilha"
+    ],
+    "correct": 0,
+    "explanation": "Madri e a capital da Espanha.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a gravidade?",
+    "alternatives": [
+      "Forca de atracao entre massas",
+      "Forca eletromagnetica",
+      "Forca nuclear",
+      "Forca de contato"
+    ],
+    "correct": 0,
+    "explanation": "Gravidade atrai corpos com massa.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Quantos continentes existem?",
+    "alternatives": [
+      "6",
+      "5",
+      "7",
+      "4"
+    ],
+    "correct": 0,
+    "explanation": "Seis continentes: Africa, America, Asia, Europa, Oceania, Antartida.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica o Pico da Neblina?",
+    "alternatives": [
+      "Brasil/Venezuela",
+      "Brasil/Colombia",
+      "Brasil/Peru",
+      "Brasil/Bolivia"
+    ],
+    "correct": 0,
+    "explanation": "Pico da Neblina fica na fronteira com a Venezuela.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Quem foi a Princesa Isabel?",
+    "alternatives": [
+      "Princesa que aboliu a escravatura",
+      "Rainha do Brasil",
+      "Imperatriz",
+      "Presidente"
+    ],
+    "correct": 0,
+    "explanation": "Isabel assinou a Lei Aurea em 1888, abolindo a escravidao.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual o pais com mais vulcoes?",
+    "alternatives": [
+      "Indonesia",
+      "Japao",
+      "EUA",
+      "Islandia"
+    ],
+    "correct": 0,
+    "explanation": "A Indonesia tem o maior numero de vulcoes ativos do mundo.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Onde fica o Monte Kilimanjaro?",
+    "alternatives": [
+      "Tanzania",
+      "Quenia",
+      "Uganda",
+      "Etiopia"
+    ],
+    "correct": 0,
+    "explanation": "Kilimanjaro fica na Tanzania, Africa.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a centopeia?",
+    "alternatives": [
+      "Artrópode com muitos pares de pernas",
+      "Inseto",
+      "Aracnideo",
+      "Molusco"
+    ],
+    "correct": 0,
+    "explanation": "Centopeias sao artrópodes com um par de pernas por segmento.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem foi Emilio Medici?",
+    "alternatives": [
+      "Presidente durante o Milagre Economico",
+      "Imperador",
+      "Rei",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Medici governou o Brasil de 1969 a 1974.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual o maior site de buscas?",
+    "alternatives": [
+      "Google",
+      "Bing",
+      "Yahoo",
+      "DuckDuckGo"
+    ],
+    "correct": 0,
+    "explanation": "O Google detem mais de 90% do mercado de buscas.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a formula da agua?",
+    "alternatives": [
+      "H2O",
+      "CO2",
+      "NaCl",
+      "O2"
+    ],
+    "correct": 0,
+    "explanation": "Agua e formada por dois atomos de hidrogenio e um de oxigenio.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e a placa mae?",
+    "alternatives": [
+      "Placa principal do computador",
+      "Placa de video",
+      "Placa de som",
+      "Placa de rede"
+    ],
+    "correct": 0,
+    "explanation": "A placa mae conecta todos os componentes do computador.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Tarsila do Amaral?",
+    "alternatives": [
+      "Pintora modernista brasileira",
+      "Imperatriz",
+      "Escritora",
+      "Compositora"
+    ],
+    "correct": 0,
+    "explanation": "Tarsila pintou Abaporu e Antropofagia.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o grilo?",
+    "alternatives": [
+      "Inseto que canta esfregando asas",
+      "Inseto voador",
+      "Aranha",
+      "Escorpiao"
+    ],
+    "correct": 0,
+    "explanation": "Grilos cantam ao esfregar as asas dianteiras.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem pintou a Mona Lisa?",
+    "alternatives": [
+      "Leonardo da Vinci",
+      "Michelangelo",
+      "Rafael",
+      "Donatello"
+    ],
+    "correct": 0,
+    "explanation": "A Mona Lisa foi pintada por Leonardo da Vinci.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual a capital do Peru?",
+    "alternatives": [
+      "Lima",
+      "Cusco",
+      "Arequipa",
+      "Trujillo"
+    ],
+    "correct": 0,
+    "explanation": "Lima e a capital do Peru.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual a montanha mais alta do mundo?",
+    "alternatives": [
+      "Monte Everest",
+      "K2",
+      "Kangchenjunga",
+      "Lhotse"
+    ],
+    "correct": 0,
+    "explanation": "Monte Everest tem 8.848 metros.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual o pais mais frio do mundo?",
+    "alternatives": [
+      "Canada",
+      "Russia",
+      "Islandia",
+      "Groenlandia"
+    ],
+    "correct": 0,
+    "explanation": "O Canada tem as temperaturas medias mais baixas entre os paises.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a capital da China?",
+    "alternatives": [
+      "Pequim",
+      "Xangai",
+      "Hong Kong",
+      "Taipé"
+    ],
+    "correct": 0,
+    "explanation": "Pequim e a capital da Republica Popular da China.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a largura de banda?",
+    "alternatives": [
+      "Capacidade maxima de transmissao",
+      "Comprimento do cabo",
+      "Velocidade do processador",
+      "Tamanho do arquivo"
+    ],
+    "correct": 0,
+    "explanation": "Largura de banda e a taxa maxima de transferencia de dados.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o machine learning?",
+    "alternatives": [
+      "Maquinas aprendendo com dados",
+      "Programacao tradicional",
+      "Inteligencia artificial geral",
+      "Processamento de linguagem"
+    ],
+    "correct": 0,
+    "explanation": "ML e um ramo da IA onde maquinas aprendem padroes a partir de dados.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Anita Garibaldi?",
+    "alternatives": [
+      "Heroina da Revolucao Farroupilha",
+      "Rainha italiana",
+      "Imperatriz",
+      "Exploradora"
+    ],
+    "correct": 0,
+    "explanation": "Anita Garibaldi foi companheira de Giuseppe Garibaldi.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o grid computing?",
+    "alternatives": [
+      "Recursos computacionais compartilhados",
+      "Rede eletrica",
+      "Grade de servidores",
+      "Cluster local"
+    ],
+    "correct": 0,
+    "explanation": "Grid computing compartilha recursos entre multiplas organizacoes.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que foi a Idade Media?",
+    "alternatives": [
+      "Periodo entre quedas de Roma e Constantinopla",
+      "Era antiga",
+      "Renascimento",
+      "Idade Moderna"
+    ],
+    "correct": 0,
+    "explanation": "Idade Media durou do seculo V ao XV.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o ransomware?",
+    "alternatives": [
+      "Malware que sequestra dados",
+      "Antivirus",
+      "Firewall",
+      "Programa legitimo"
+    ],
+    "correct": 0,
+    "explanation": "Ransomware criptografa dados e exige resgate para liberar.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Joao Candido?",
+    "alternatives": [
+      "Lider da Revolta da Chibata",
+      "Imperador",
+      "Heroi de guerra",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Joao Candido foi o lider da Revolta da Chibata.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o fenômeno El Nino?",
+    "alternatives": [
+      "Aquecimento do Pacifico",
+      "Corrente fria",
+      "Vento sul-americano",
+      "Mare alta"
+    ],
+    "correct": 0,
+    "explanation": "El Nino e o aquecimento anormal das aguas do Pacifico equatorial.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que foi o Imperio Romano?",
+    "alternatives": [
+      "Imperio da antiguidade centrado em Roma",
+      "Cidade grega",
+      "Reino persa",
+      "Civilizacao chinesa"
+    ],
+    "correct": 0,
+    "explanation": "Imperio Romano dominou o Mediterraneo por seculos.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi Carmen Miranda?",
+    "alternatives": [
+      "Cantora e atriz brasileira internacional",
+      "Imperatriz",
+      "Pintora",
+      "Escritora"
+    ],
+    "correct": 0,
+    "explanation": "Carmen Miranda foi estrela em Hollywood.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual a maior obra de arte do mundo?",
+    "alternatives": [
+      "Mona Lisa",
+      "A Noite Estrelada",
+      "O Grito",
+      "Guernica"
+    ],
+    "correct": 0,
+    "explanation": "Mona Lisa de Da Vinci e a obra mais famosa.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual a maior ilha do mundo?",
+    "alternatives": [
+      "Groenlandia",
+      "Madagascar",
+      "Borneo",
+      "Nova Guine"
+    ],
+    "correct": 0,
+    "explanation": "A Groenlandia e a maior ilha do mundo.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a memoria RAM?",
+    "alternatives": [
+      "Memoria de acesso aleatorio",
+      "Armazenamento permanente",
+      "Cache de processador",
+      "Disco rigido"
+    ],
+    "correct": 0,
+    "explanation": "RAM e a memoria temporaria usada pelo computador para processamento.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e a orquidea?",
+    "alternatives": [
+      "Familia de plantas ornamentais",
+      "Fruta tropical",
+      "Erva medicinal",
+      "Arvore frutifera"
+    ],
+    "correct": 0,
+    "explanation": "As orquideas sao plantas da familia Orchidaceae, muito ornamentais.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a capital da Belgica?",
+    "alternatives": [
+      "Bruxelas",
+      "Antuerpia",
+      "Gante",
+      "Bruges"
+    ],
+    "correct": 0,
+    "explanation": "Bruxelas e a capital da Belgica e da UE.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Quem foi William Shakespeare?",
+    "alternatives": [
+      "Dramaturgo ingles",
+      "Pintor italiano",
+      "Compositor alemao",
+      "Filosofo grego"
+    ],
+    "correct": 0,
+    "explanation": "Shakespeare escreveu Hamlet, Romeu e Julieta e muito mais.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e a cafeína?",
+    "alternatives": [
+      "Estimulante natural",
+      "Depressor do sistema nervoso",
+      "Analgesico",
+      "Anti-inflamatorio"
+    ],
+    "correct": 0,
+    "explanation": "A cafeina e um estimulante natural presente no cafe e cha.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a maior planicie do Brasil?",
+    "alternatives": [
+      "Pantanal",
+      "Amazonica",
+      "Costeira",
+      "Central"
+    ],
+    "correct": 0,
+    "explanation": "O Pantanal e a maior planicie inundavel do mundo.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o lagarto-teiu?",
+    "alternatives": [
+      "Maior lagarto brasileiro",
+      "Cobra",
+      "Jacare",
+      "Sapo"
+    ],
+    "correct": 0,
+    "explanation": "O teiu pode atingir ate 2 metros de comprimento.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem foi Juscelino Kubitschek?",
+    "alternatives": [
+      "Presidente que construiu Brasilia",
+      "Imperador",
+      "Explorador",
+      "Rei"
+    ],
+    "correct": 0,
+    "explanation": "JK foi presidente do Brasil de 1956 a 1961.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi o Tenentismo?",
+    "alternatives": [
+      "Movimento militar contra a republica velha",
+      "Revolta civil",
+      "Partido politico",
+      "Sindicalismo"
+    ],
+    "correct": 0,
+    "explanation": "Tenentismo foi um movimento de oficiais do exercito.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi Ulysses Guimaraes?",
+    "alternatives": [
+      "Politico conhecido como Sr. Diretas",
+      "Imperador",
+      "Presidente",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Ulysses liderou o movimento pelas Diretas Ja.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o ataque DDoS?",
+    "alternatives": [
+      "Ataque de negacao de servico distribuido",
+      "Virus de computador",
+      "Malware",
+      "Phishing"
+    ],
+    "correct": 0,
+    "explanation": "DDoS sobrecarrega um servidor com trafego para tira-lo do ar.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e a criptografia de ponta-a-ponta?",
+    "alternatives": [
+      "Dados criptografados do remetente ao destino",
+      "Criptografia basica",
+      "Criptografia de arquivos",
+      "Criptografia de rede"
+    ],
+    "correct": 0,
+    "explanation": "Dados sao criptografados e so podem ser lidos pelo destinatario.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que foi o Plano Real?",
+    "alternatives": [
+      "Plano que estabilizou a economia brasileira",
+      "Reforma agraria",
+      "Programa social",
+      "Politica externa"
+    ],
+    "correct": 0,
+    "explanation": "Plano Real de 1994 acabou com a hiperinflacao.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi o Quilombo dos Palmares?",
+    "alternatives": [
+      "Maior comunidade de escravos fugidos",
+      "Cidade colonial",
+      "Forte portugues",
+      "Aldeia indigena"
+    ],
+    "correct": 0,
+    "explanation": "Palmares foi o maior quilombo do Brasil colonial.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual o maior rio do mundo?",
+    "alternatives": [
+      "Amazonas",
+      "Nilo",
+      "Mississippi",
+      "Yangtze"
+    ],
+    "correct": 0,
+    "explanation": "O Amazonas e o maior rio em extensao e volume.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o pais mais extenso da America do Sul?",
+    "alternatives": [
+      "Brasil",
+      "Argentina",
+      "Peru",
+      "Colombia"
+    ],
+    "correct": 0,
+    "explanation": "O Brasil e o maior pais da America do Sul.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual a maior catarata do mundo?",
+    "alternatives": [
+      "Cataratas do Iguacu",
+      "Niagara",
+      "Victoria",
+      "Angel"
+    ],
+    "correct": 0,
+    "explanation": "O Salto Angel na Venezuela tem 979 metros de queda.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e a placa de video?",
+    "alternatives": [
+      "Processador grafico dedicado",
+      "Placa de som",
+      "Placa de rede",
+      "Fonte de alimentacao"
+    ],
+    "correct": 0,
+    "explanation": "Placa de video processa e renderiza graficos e imagens.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e a computacao distribuida?",
+    "alternatives": [
+      "Processamento em multiplos computadores",
+      "Computador unico",
+      "Mainframe",
+      "Supercomputador"
+    ],
+    "correct": 0,
+    "explanation": "Computacao distribuida usa varios computadores para uma tarefa.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Getulio Vargas?",
+    "alternatives": [
+      "Presidente do Brasil por 15 anos",
+      "Imperador brasileiro",
+      "Heroi de guerra",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Vargas foi o presidente que mais tempo governou o Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "Onde fica o Mar Mediterraneo?",
+    "alternatives": [
+      "Entre Europa,Africa,Asia",
+      "So Europa",
+      "So Africa",
+      "Oceano Atlantico"
+    ],
+    "correct": 0,
+    "explanation": "Mediterraneo separa Europa, Africa e Asia.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Quem foi Dandara?",
+    "alternatives": [
+      "Heroina do Quilombo dos Palmares",
+      "Rainha africana",
+      "Imperatriz",
+      "Exploradora"
+    ],
+    "correct": 0,
+    "explanation": "Dandara foi uma guerreira do Quilombo dos Palmares.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o processador?",
+    "alternatives": [
+      "Cerebro do computador",
+      "Memoria do computador",
+      "Disco rigido",
+      "Placa de video"
+    ],
+    "correct": 0,
+    "explanation": "O processador executa instrucoes e processa dados no computador.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o ornitorrinco?",
+    "alternatives": [
+      "Mamifero que bota ovos",
+      "Ave aquatico",
+      "Reptil semi-aquatico",
+      "Anfibio"
+    ],
+    "correct": 0,
+    "explanation": "O ornitorrinco e um dos poucos mamiferos oviparos.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a capital de Portugal?",
+    "alternatives": [
+      "Lisboa",
+      "Porto",
+      "Coimbra",
+      "Braga"
+    ],
+    "correct": 0,
+    "explanation": "Lisboa e a capital de Portugal.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o maior rio do Brasil?",
+    "alternatives": [
+      "Amazonas",
+      "Sao Francisco",
+      "Parana",
+      "Tocantins"
+    ],
+    "correct": 0,
+    "explanation": "O Amazonas e o maior rio do Brasil e do mundo.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a capital da Colombia?",
+    "alternatives": [
+      "Bogota",
+      "Medellin",
+      "Cali",
+      "Cartagena"
+    ],
+    "correct": 0,
+    "explanation": "Bogota e a capital da Colombia.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual a regiao mais populosa do Brasil?",
+    "alternatives": [
+      "Sudeste",
+      "Nordeste",
+      "Sul",
+      "Norte"
+    ],
+    "correct": 0,
+    "explanation": "A regiao Sudeste e a mais populosa do Brasil.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o caranguejo-ferradura?",
+    "alternatives": [
+      "Artrópode marinho ancestral",
+      "Crustaceo comum",
+      "Molusco",
+      "Peixe pre-historico"
+    ],
+    "correct": 0,
+    "explanation": "O caranguejo-ferradura existe ha mais de 450 milhoes de anos.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem foi Platão?",
+    "alternatives": [
+      "Filosofo grego",
+      "Imperador romano",
+      "Cientista",
+      "Matematico"
+    ],
+    "correct": 0,
+    "explanation": "Platao foi discipulo de Socrates e mestre de Aristoteles.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Quem foi Galileu Galilei?",
+    "alternatives": [
+      "Astronomo e fisico italiano",
+      "Pintor renascentista",
+      "Compositor alemao",
+      "Filosofo grego"
+    ],
+    "correct": 0,
+    "explanation": "Galileu e considerado o pai da ciencia moderna.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual a capital da Italia?",
+    "alternatives": [
+      "Roma",
+      "Milao",
+      "Napoles",
+      "Turim"
+    ],
+    "correct": 0,
+    "explanation": "Roma e a capital da Italia.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica o Estreito de Ormuz?",
+    "alternatives": [
+      "Golfo Persico",
+      "Mar Mediterraneo",
+      "Mar Negro",
+      "Mar Vermelho"
+    ],
+    "correct": 0,
+    "explanation": "Ormuz liga o Golfo Persico ao Golfo de Oma.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e um ano-luz?",
+    "alternatives": [
+      "Distancia que a luz percorre em um ano",
+      "Tempo de um ano",
+      "Velocidade da luz",
+      "Brilho de uma estrela"
+    ],
+    "correct": 0,
+    "explanation": "Unidade de distancia que representa o trajeto da luz em um ano.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e um certificado SSL?",
+    "alternatives": [
+      "Seguranca para sites HTTPS",
+      "Certificado de software",
+      "Licenca de uso",
+      "Atestado de qualidade"
+    ],
+    "correct": 0,
+    "explanation": "SSL criptografa a comunicacao entre navegador e servidor.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e a fonte de alimentacao?",
+    "alternatives": [
+      "Fornece energia ao computador",
+      "Bateria interna",
+      "Carregador portatil",
+      "Estabilizador"
+    ],
+    "correct": 0,
+    "explanation": "A fonte converte energia eletrica para os componentes do PC.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual a cidade mais populosa do Brasil?",
+    "alternatives": [
+      "Sao Paulo",
+      "Rio de Janeiro",
+      "Brasilia",
+      "Salvador"
+    ],
+    "correct": 0,
+    "explanation": "Sao Paulo e a cidade mais populosa do Brasil com cerca de 12 milhoes.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual o ponto mais baixo da America do Sul?",
+    "alternatives": [
+      "Laguna del Carbon",
+      "Mar Morto",
+      "Vale da Morte",
+      "Deserto de Atacama"
+    ],
+    "correct": 0,
+    "explanation": "Laguna del Carbon na Argentina e o ponto mais baixo.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o pais mais frio do mundo?",
+    "alternatives": [
+      "Canada",
+      "Russia",
+      "Islandia",
+      "Groenlandia"
+    ],
+    "correct": 0,
+    "explanation": "O Canada tem as menores temperaturas medias.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o DNA?",
+    "alternatives": [
+      "Material genetico",
+      "Proteina",
+      "Carboidrato",
+      "Lipideo"
+    ],
+    "correct": 0,
+    "explanation": "DNA contem a informacao genetica dos seres vivos.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e o ourico-cacheiro?",
+    "alternatives": [
+      "Mamifero coberto de espinhos",
+      "Roedor",
+      "Marsupial",
+      "Insetivoro"
+    ],
+    "correct": 0,
+    "explanation": "O ourico-cacheiro tem o corpo coberto por espinhos protetores.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a maior barreira de corais?",
+    "alternatives": [
+      "Grande Barreira de Corais",
+      "Barreira de Belize",
+      "Mar Vermelho",
+      "Caribe"
+    ],
+    "correct": 0,
+    "explanation": "A Grande Barreira de Corais na Australia tem 2.300 km de extensao.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Onde fica o Estreito de Gibraltar?",
+    "alternatives": [
+      "Europa/Africa",
+      "Asia/Europa",
+      "America",
+      "Oceania"
+    ],
+    "correct": 0,
+    "explanation": "Gibraltar separa a Europa da Africa.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e a computacao quantica?",
+    "alternatives": [
+      "Processamento usando bits quanticos",
+      "Computadores mais rapidos",
+      "Computacao em nuvem",
+      "Criptografia avancada"
+    ],
+    "correct": 0,
+    "explanation": "Computacao quantica usa qubits que podem estar em multiplos estados.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual o maior fabricante de chips?",
+    "alternatives": [
+      "TSMC",
+      "Intel",
+      "Samsung",
+      "Qualcomm"
+    ],
+    "correct": 0,
+    "explanation": "A TSMC de Taiwan e a maior fabricante de semicondutores do mundo.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual o menor pais do mundo?",
+    "alternatives": [
+      "Vaticano",
+      "Monaco",
+      "Nauru",
+      "San Marino"
+    ],
+    "correct": 0,
+    "explanation": "O Vaticano tem apenas 0,44 km2.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual a maior especie de tigre?",
+    "alternatives": [
+      "Tigre siberiano",
+      "Tigre de bengala",
+      "Tigre de sumatra",
+      "Tigre da malasia"
+    ],
+    "correct": 0,
+    "explanation": "O tigre siberiano e o maior felino do mundo.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Qual a primeira rede social?",
+    "alternatives": [
+      "Six Degrees",
+      "Facebook",
+      "Myspace",
+      "Orkut"
+    ],
+    "correct": 0,
+    "explanation": "Six Degrees, criada em 1997, e considerada a primeira rede social.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Quem foi Santos Dumont?",
+    "alternatives": [
+      "Pai da aviacao",
+      "Descobridor do Brasil",
+      "Imperador",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Santos Dumont foi o inventor do aviao com o 14-Bis.",
+    "category": "Historia"
+  },
+  {
+    "question": "Onde fica a Cidade do Cabo?",
+    "alternatives": [
+      "Africa do Sul",
+      "Egito",
+      "Marrocos",
+      "Quenia"
+    ],
+    "correct": 0,
+    "explanation": "Cidade do Cabo fica no extremo sul da Africa.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica a Peninsula Arabica?",
+    "alternatives": [
+      "Oriente Medio",
+      "Africa",
+      "Europa",
+      "Asia Central"
+    ],
+    "correct": 0,
+    "explanation": "Peninsula Arabica fica no Oriente Medio.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica o Havai?",
+    "alternatives": [
+      "Oceano Pacifico",
+      "Atlantico",
+      "Indico",
+      "Artico"
+    ],
+    "correct": 0,
+    "explanation": "Havai e um estado americano no Pacifico.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Onde fica o Mar de Barents?",
+    "alternatives": [
+      "Rusia/Noruega",
+      "Canada",
+      "Groenlandia",
+      "Islandia"
+    ],
+    "correct": 0,
+    "explanation": "Mar de Barents fica ao norte da Russia e Noruega.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o maior planeta do sistema solar?",
+    "alternatives": [
+      "Jupiter",
+      "Saturno",
+      "Netuno",
+      "Urano"
+    ],
+    "correct": 0,
+    "explanation": "Jupiter e o maior planeta do sistema solar.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Onde fica o Vale do Silicio?",
+    "alternatives": [
+      "California, EUA",
+      "Texas, EUA",
+      "Nova York, EUA",
+      "Massachusetts, EUA"
+    ],
+    "correct": 0,
+    "explanation": "Vale do Silicio fica na California.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Quem foi Roberto Carlos?",
+    "alternatives": [
+      "Rei da musica romantica brasileira",
+      "Imperador",
+      "Heroi nacional",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Roberto Carlos e um dos maiores cantores do Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi a Jovem Guarda?",
+    "alternatives": [
+      "Movimento musical dos anos 60",
+      "Revolucao",
+      "Partido politico",
+      "Grupo literario"
+    ],
+    "correct": 0,
+    "explanation": "Jovem Guarda foi o rock brasileiro dos anos 60.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e a fotossintese?",
+    "alternatives": [
+      "Processo de producao de energia das plantas",
+      "Respiração",
+      "Decomposicao",
+      "Fermentacao"
+    ],
+    "correct": 0,
+    "explanation": "Fotossintese converte luz em energia quimica.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Qual o pais com mais habitantes?",
+    "alternatives": [
+      "India",
+      "China",
+      "EUA",
+      "Indonesia"
+    ],
+    "correct": 0,
+    "explanation": "A India ultrapassou a China como pais mais populoso em 2023.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o flamingo?",
+    "alternatives": [
+      "Ave de pernas longas e rosada",
+      "Ave marinha",
+      "Passaro tropical",
+      "Ave de rapina"
+    ],
+    "correct": 0,
+    "explanation": "Flamingos sao aves que devem sua cor rosa a alimentacao.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Onde fica o Estreito de Bering?",
+    "alternatives": [
+      "Asia/America",
+      "Europa/Africa",
+      "Africa/Asia",
+      "America/Europa"
+    ],
+    "correct": 0,
+    "explanation": "Bering separa Asia (Russia) da America (Alasca).",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual o pais com mais premios Nobel?",
+    "alternatives": [
+      "EUA",
+      "Reino Unido",
+      "Alemanha",
+      "Franca"
+    ],
+    "correct": 0,
+    "explanation": "Os EUA tem o maior numero de premios Nobel.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Quem foi Luiz Inacio Lula da Silva?",
+    "alternatives": [
+      "Primeiro operario presidente do Brasil",
+      "Imperador",
+      "Heroi nacional",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Lula foi presidente do Brasil de 2003 a 2010.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que e o sal-gema?",
+    "alternatives": [
+      "Sal de origem mineral",
+      "Sal marinho",
+      "Sal refinado",
+      "Sal dietetico"
+    ],
+    "correct": 0,
+    "explanation": "O sal-gema e extraido de jazidas subterraneas.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "Quem foi Albert Einstein?",
+    "alternatives": [
+      "Fisico alemao",
+      "Quimico frances",
+      "Matematico ingles",
+      "Biologo italiano"
+    ],
+    "correct": 0,
+    "explanation": "Einstein criou a teoria da relatividade.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que e a democracia?",
+    "alternatives": [
+      "Governo do povo",
+      "Governo de um so",
+      "Governo de poucos",
+      "Anarquia"
+    ],
+    "correct": 0,
+    "explanation": "Democracia e o regime onde o poder emana do povo.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "O que foi a Acao Integralista?",
+    "alternatives": [
+      "Movimento de extrema-direita no Brasil",
+      "Partido comunista",
+      "Movimento operario",
+      "Revolta militar"
+    ],
+    "correct": 0,
+    "explanation": "AIB foi o partido de inspiracao fascista no Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que significa HTML?",
+    "alternatives": [
+      "HyperText Markup Language",
+      "High Tech Machine Learning",
+      "Home Tool Management Language",
+      "Hyper Transfer Mainframe Link"
+    ],
+    "correct": 0,
+    "explanation": "HTML e a linguagem de marcacao para paginas web.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o DevOps?",
+    "alternatives": [
+      "Integracao entre dev e operacoes",
+      "Ferramenta de desenvolvimento",
+      "Linguagem de programacao",
+      "Metodologia agil"
+    ],
+    "correct": 0,
+    "explanation": "DevOps combina desenvolvimento e operacoes para entregas rapidas.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que foi a Guerra Fria?",
+    "alternatives": [
+      "Conflito ideologico entre EUA e URSS",
+      "Guerra mundial",
+      "Guerra civil",
+      "Revolucao comunista"
+    ],
+    "correct": 0,
+    "explanation": "Guerra Fria foi a tensao entre capitalismo e comunismo.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que sao as Big Techs?",
+    "alternatives": [
+      "Grandes empresas de tecnologia",
+      "Computadores mainframe",
+      "Supercomputadores",
+      "Redes sociais"
+    ],
+    "correct": 0,
+    "explanation": "Big Techs sao as maiores empresas de tecnologia do mundo.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual o livro mais vendido do mundo?",
+    "alternatives": [
+      "Biblia",
+      "Dom Quixote",
+      "O Pequeno Principe",
+      "Harry Potter"
+    ],
+    "correct": 0,
+    "explanation": "A Biblia e o livro mais vendido de todos os tempos.",
+    "category": "Conhecimentos Gerais"
+  },
+  {
+    "question": "Quem foi Plinio Salgado?",
+    "alternatives": [
+      "Lider da Acao Integralista Brasileira",
+      "Imperador",
+      "Presidente",
+      "Explorador"
+    ],
+    "correct": 0,
+    "explanation": "Plinio liderou o movimento integralista no Brasil.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi a Balaiada?",
+    "alternatives": [
+      "Revolta popular no Maranhao",
+      "Guerra civil",
+      "Revolucao",
+      "Independencia"
+    ],
+    "correct": 0,
+    "explanation": "Balaiada foi uma revolta no Maranhao entre 1838 e 1841.",
+    "category": "Historia"
+  },
+  {
+    "question": "Quem foi Napoleon Bonaparte?",
+    "alternatives": [
+      "Lider militar e imperador frances",
+      "Rei da Inglaterra",
+      "Presidente dos EUA",
+      "Imperador do Brasil"
+    ],
+    "correct": 0,
+    "explanation": "Napoleao foi imperador da Franca e lider militar.",
+    "category": "Historia"
+  },
+  {
+    "question": "Onde fica o Cabo Horn?",
+    "alternatives": [
+      "Chile",
+      "Argentina",
+      "Brasil",
+      "Uruguai"
+    ],
+    "correct": 0,
+    "explanation": "Cabo Horn fica no extremo sul do Chile.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e um banco de dados relacional?",
+    "alternatives": [
+      "Dados organizados em tabelas",
+      "Arquivos de texto",
+      "Planilhas eletronicas",
+      "Documentos de word"
+    ],
+    "correct": 0,
+    "explanation": "Bancos relacionais armazenam dados em tabelas com relacoes.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Qual o primeiro smartphone?",
+    "alternatives": [
+      "IBM Simon",
+      "iPhone",
+      "Nokia N95",
+      "BlackBerry 850"
+    ],
+    "correct": 0,
+    "explanation": "O IBM Simon de 1992 e considerado o primeiro smartphone.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "Onde fica a Cordilheira dos Andes?",
+    "alternatives": [
+      "America do Sul",
+      "America do Norte",
+      "Europa",
+      "Asia"
+    ],
+    "correct": 0,
+    "explanation": "Os Andes percorrem a costa oeste da America do Sul.",
+    "category": "Geografia"
+  },
+  {
+    "question": "Qual a maior flor do Brasil?",
+    "alternatives": [
+      "Vitória-regia",
+      "Girassol",
+      "Orquidea",
+      "Bromelia"
+    ],
+    "correct": 0,
+    "explanation": "A Vitoria-regia e a maior flor aquatico do Brasil.",
+    "category": "Curiosidades"
+  },
+  {
+    "question": "O que e o PDF?",
+    "alternatives": [
+      "Portable Document Format",
+      "Formato de imagem",
+      "Documento de texto",
+      "Pagina web"
+    ],
+    "correct": 0,
+    "explanation": "PDF e um formato de documento portatil criado pela Adobe.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e o deep learning?",
+    "alternatives": [
+      "Redes neurais profundas",
+      "Aprendizado superficial",
+      "Machine learning basico",
+      "Banco de dados"
+    ],
+    "correct": 0,
+    "explanation": "Deep learning usa redes neurais com muitas camadas.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que e um framework?",
+    "alternatives": [
+      "Estrutura para desenvolvimento",
+      "Linguagem de programacao",
+      "Banco de dados",
+      "Sistema operacional"
+    ],
+    "correct": 0,
+    "explanation": "Framework e um conjunto de ferramentas para facilitar o desenvolvimento.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que foi a Inconfidencia Mineira?",
+    "alternatives": [
+      "Conspiracao pela independencia do Brasil",
+      "Guerra civil",
+      "Revolta escrava",
+      "Revolucao industrial"
+    ],
+    "correct": 0,
+    "explanation": "Movimento separatista em Minas Gerais em 1789.",
+    "category": "Historia"
+  },
+  {
+    "question": "Qual a capital da Franca?",
+    "alternatives": [
+      "Paris",
+      "Londres",
+      "Madri",
+      "Roma"
+    ],
+    "correct": 0,
+    "explanation": "Paris e a capital e maior cidade da Franca.",
+    "category": "Geografia"
+  },
+  {
+    "question": "O que e o formato MP4?",
+    "alternatives": [
+      "Formato de video digital",
+      "Formato de audio",
+      "Formato de imagem",
+      "Formato de texto"
+    ],
+    "correct": 0,
+    "explanation": "MP4 e um formato de container de video digital.",
+    "category": "Tecnologia"
+  },
+  {
+    "question": "O que foi o AI-5?",
+    "alternatives": [
+      "O mais duro ato do regime militar",
+      "Feriado",
+      "Partido",
+      "Constituicao"
+    ],
+    "correct": 0,
+    "explanation": "AI-5 de 1968 fechou o congresso e cassou direitos.",
+    "category": "Historia"
+  },
+  {
+    "question": "O que foi a Revolucao Industrial?",
+    "alternatives": [
+      "Periodo de grandes mudancas tecnologicas",
+      "Revolucao politica",
+      "Guerra mundial",
+      "Descoberta cientifica"
+    ],
+    "correct": 0,
+    "explanation": "Revolucao Industrial transformou a producao com maquinas.",
+    "category": "Historia"
+  }
+]
