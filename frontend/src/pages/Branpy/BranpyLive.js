@@ -148,7 +148,7 @@ function OperatorControls({ paused, onTogglePause, onRestart }) {
 const PHASE_DEF = {
   question_intro: { next: "countdown",  minTime: 0,     fallback: 8000  },
   countdown:      { next: "answer",     minTime: 10000, fallback: 12000 },
-  answer:         { next: "explanation", minTime: 2000,  fallback: 5000  },
+  answer:         { next: "explanation", minTime: 0,     fallback: 5000  },
   explanation:    { next: null,          minTime: 4000,  fallback: 8000  },
 };
 
