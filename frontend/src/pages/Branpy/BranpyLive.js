@@ -146,18 +146,17 @@ function OperatorControls({ paused, onTogglePause, onRestart }) {
 }
 
 const PHASE_DEF = {
-  question_intro: { next: "options",    minTime: 3000,  fallback: 8000  },
-  options:        { next: "countdown",  minTime: 4000,  fallback: 12000 },
-  countdown:      { next: "answer",     minTime: 12000, fallback: 15000 },
-  answer:         { next: "explanation", minTime: 3000,  fallback: 5000  },
-  explanation:    { next: null,          minTime: 8000,  fallback: 10000 },
+  question_intro: { next: "countdown",  minTime: 0,     fallback: 8000  },
+  countdown:      { next: "answer",     minTime: 10000, fallback: 12000 },
+  answer:         { next: "explanation", minTime: 2000,  fallback: 5000  },
+  explanation:    { next: null,          minTime: 4000,  fallback: 8000  },
 };
 
 export default function BranpyLive() {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [phase, setPhase] = useState("loading");
-  const [countdown, setCountdown] = useState(12);
+  const [countdown, setCountdown] = useState(10);
   const [viewers, setViewers] = useState(1234);
   const [loadingText, setLoadingText] = useState("Carregando...");
   const [paused, setPaused] = useState(false);
@@ -236,8 +235,6 @@ export default function BranpyLive() {
     let narItems = [];
     if (phase === "question_intro") {
       narItems = [{ text: q.question }];
-    } else if (phase === "options") {
-      narItems = q.alternatives.map((a, i) => ({ text: `${ALTERNATIVE_LABELS[i]}. ${a}`, delayAfter: 80 }));
     } else if (phase === "answer") {
       narItems = [{ text: q.alternatives[q.correct] }];
     } else if (phase === "explanation") {
@@ -296,16 +293,14 @@ export default function BranpyLive() {
       return;
     }
     if (phase === "countdown") {
-      setCountdown(12);
+      setCountdown(10);
       const start = Date.now();
       countdownRef.current = setInterval(() => {
         const elapsed = Date.now() - start;
-        const remaining = Math.max(0, 12 - Math.floor(elapsed / 1000));
+        const remaining = Math.max(0, 10 - Math.floor(elapsed / 1000));
         setCountdown(remaining);
         if (remaining <= 0) { clearInterval(countdownRef.current); countdownRef.current = null; }
       }, 200);
-    } else if (phase === "options") {
-      setCountdown(12);
     }
     return () => { if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; } };
   }, [phase, paused]);
@@ -455,17 +450,16 @@ export default function BranpyLive() {
   }
 
   const revealOrExplain = phase === "answer" || phase === "explanation";
-  const showAlternatives = phase === "options" || phase === "countdown" || revealOrExplain;
+  const showAlternatives = phase === "countdown" || revealOrExplain;
   const isQuestionTop = showAlternatives;
-  const showCountdown = phase === "options" || phase === "countdown";
+  const showCountdown = phase === "countdown";
 
   const mainBg = revealOrExplain
     ? `radial-gradient(ellipse at center, rgba(46,204,113,0.08) 0%, ${COLORS.bg} 70%)`
     : `radial-gradient(ellipse at center, rgba(138,44,255,0.06) 0%, ${COLORS.bg} 70%)`;
 
   const progressPct = phase === "question_intro" ? 0
-    : phase === "options" ? 15
-    : phase === "countdown" ? ((12 - countdown) / 12) * 75 + 15
+    : phase === "countdown" ? ((10 - countdown) / 10) * 100
     : 100;
 
   return (
