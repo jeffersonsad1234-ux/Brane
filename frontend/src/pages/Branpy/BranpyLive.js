@@ -152,12 +152,21 @@ export default function BranpyLive() {
   const [viewers, setViewers] = useState(1234);
   const [loadingText, setLoadingText] = useState("Carregando...");
   const [paused, setPaused] = useState(false);
-  const [questionPhase, setQuestionPhase] = useState("show");
+  const [subPhase, setSubPhase] = useState("show_question");
 
   const countdownRef = useRef(null);
   const revealRef = useRef(null);
   const viewerRef = useRef(null);
-  const showTimerRef = useRef(null);
+  const phaseTimerRef = useRef(null);
+
+  const clearAllTimers = useCallback(() => {
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    if (revealRef.current) clearTimeout(revealRef.current);
+    if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
+    countdownRef.current = null;
+    revealRef.current = null;
+    phaseTimerRef.current = null;
+  }, []);
 
   const loadQuestions = useCallback(async () => {
     try {
@@ -166,7 +175,7 @@ export default function BranpyLive() {
         setQuestions(data.questions);
         setCurrentIndex(0);
         setPhase("question");
-        setQuestionPhase("show");
+        setSubPhase("show_question");
         setCountdown(10);
       } else {
         setLoadingText("Nenhuma pergunta disponivel.");
@@ -187,20 +196,48 @@ export default function BranpyLive() {
     return () => clearInterval(viewerRef.current);
   }, []);
 
-  useEffect(() => {
-    if (phase !== "question" || paused) return;
-
-    if (questionPhase === "show") {
+  const advance = useCallback(() => {
+    const next = currentIndex + 1;
+    if (next >= questions.length) {
+      loadQuestions();
+    } else {
+      setCurrentIndex(next);
+      setPhase("question");
+      setSubPhase("show_question");
       setCountdown(10);
-      showTimerRef.current = setTimeout(() => {
-        setQuestionPhase("countdown");
-      }, 2000);
+    }
+  }, [currentIndex, questions.length, loadQuestions]);
+
+  const nextPhase = useCallback(() => {
+    if (paused) return;
+    if (phase === "reveal") return;
+
+    if (subPhase === "show_question") {
+      setSubPhase("alternatives");
+      setCountdown(10);
+    } else if (subPhase === "alternatives") {
+      setPhase("reveal");
+    }
+  }, [paused, phase, subPhase]);
+
+  useEffect(() => {
+    if (paused) {
+      clearAllTimers();
+      return;
+    }
+
+    if (phase === "loading" || phase === "reveal") return;
+
+    if (subPhase === "show_question") {
+      phaseTimerRef.current = setTimeout(() => {
+        nextPhase();
+      }, 3000);
       return () => {
-        if (showTimerRef.current) clearTimeout(showTimerRef.current);
+        if (phaseTimerRef.current) clearTimeout(phaseTimerRef.current);
       };
     }
 
-    if (questionPhase === "countdown") {
+    if (subPhase === "alternatives") {
       const startTime = Date.now();
       const duration = 10000;
 
@@ -210,8 +247,8 @@ export default function BranpyLive() {
         setCountdown(remaining);
         if (remaining <= 0) {
           clearInterval(countdownRef.current);
-          setPhase("reveal");
-          setQuestionPhase("show");
+          countdownRef.current = null;
+          nextPhase();
         }
       }, 100);
 
@@ -219,38 +256,32 @@ export default function BranpyLive() {
         if (countdownRef.current) clearInterval(countdownRef.current);
       };
     }
-  }, [phase, questionPhase, paused, currentIndex, questions.length]);
+  }, [phase, subPhase, paused, nextPhase, clearAllTimers]);
 
   useEffect(() => {
-    if (phase !== "reveal" || paused) return;
+    if (paused) {
+      clearAllTimers();
+      return;
+    }
+    if (phase !== "reveal") return;
 
     revealRef.current = setTimeout(() => {
-      const next = currentIndex + 1;
-      if (next >= questions.length) {
-        loadQuestions();
-      } else {
-        setCurrentIndex(next);
-        setPhase("question");
-        setQuestionPhase("show");
-        setCountdown(10);
-      }
+      advance();
     }, 5000);
 
     return () => {
       if (revealRef.current) clearTimeout(revealRef.current);
     };
-  }, [phase, currentIndex, questions.length, loadQuestions, paused]);
+  }, [phase, paused, advance, clearAllTimers]);
 
   const handleTogglePause = () => {
     setPaused((p) => !p);
   };
 
   const handleRestart = () => {
+    clearAllTimers();
     setPaused(false);
     setPhase("loading");
-    if (countdownRef.current) clearInterval(countdownRef.current);
-    if (revealRef.current) clearTimeout(revealRef.current);
-    if (showTimerRef.current) clearTimeout(showTimerRef.current);
     loadQuestions();
   };
 
@@ -287,17 +318,17 @@ export default function BranpyLive() {
     );
   }
 
+  const showAlternatives = subPhase === "alternatives" || phase === "reveal";
+  const isQuestionTop = subPhase === "alternatives";
+  const showCountdown = subPhase === "alternatives";
+
   const mainBg = phase === "reveal"
     ? `radial-gradient(ellipse at center, rgba(46,204,113,0.08) 0%, ${COLORS.bg} 70%)`
     : `radial-gradient(ellipse at center, rgba(138,44,255,0.06) 0%, ${COLORS.bg} 70%)`;
 
-  const progressPct = phase === "question"
-    ? questionPhase === "show"
-      ? 0
-      : ((10 - countdown) / 10) * 100
+  const progressPct = subPhase === "show_question" ? 0
+    : subPhase === "alternatives" ? ((10 - countdown) / 10) * 100
     : phase === "reveal" ? 100 : 0;
-
-  const isQuestionTop = phase === "question" && questionPhase === "countdown";
 
   return (
     <div
@@ -329,28 +360,17 @@ export default function BranpyLive() {
           to { opacity: 1; transform: translateY(0); }
         }
         .live-dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          background: #E74C3C;
-          display: inline-block;
-          margin-right: 6px;
+          width: 10px; height: 10px; border-radius: 50%;
+          background: #E74C3C; display: inline-block; margin-right: 6px;
           animation: pulse 1.5s infinite;
         }
-        .question-text {
-          animation: slideUp 0.5s ease-out;
-        }
-        .option-item {
-          animation: slideUp 0.5s ease-out;
-          animation-fill-mode: both;
-        }
+        .question-text { animation: slideUp 0.5s ease-out; }
+        .option-item { animation: slideUp 0.5s ease-out; animation-fill-mode: both; }
         .option-item:nth-child(1) { animation-delay: 0.1s; }
         .option-item:nth-child(2) { animation-delay: 0.2s; }
         .option-item:nth-child(3) { animation-delay: 0.3s; }
         .option-item:nth-child(4) { animation-delay: 0.4s; }
-        .question-move {
-          transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .question-move { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
       `}</style>
 
       {/* Operator controls */}
@@ -395,15 +415,17 @@ export default function BranpyLive() {
         </div>
       </div>
 
-      {/* Category badge */}
-      <div style={{
-        position: "fixed", top: 64, left: "50%", transform: "translateX(-50%)", zIndex: 100,
-        fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2,
-        color: COLORS.primary, background: `${COLORS.primary}15`,
-        padding: "4px 16px", borderRadius: 20, border: `1px solid ${COLORS.primary}30`,
-      }}>
-        {q.category || "Conhecimentos Gerais"}
-      </div>
+      {/* Category badge - only when alternatives are shown */}
+      {showAlternatives && (
+        <div style={{
+          position: "fixed", top: 64, left: "50%", transform: "translateX(-50%)", zIndex: 100,
+          fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: 2,
+          color: COLORS.primary, background: `${COLORS.primary}15`,
+          padding: "4px 16px", borderRadius: 20, border: `1px solid ${COLORS.primary}30`,
+        }}>
+          {q.category || "Conhecimentos Gerais"}
+        </div>
+      )}
 
       {/* Question + Alternatives */}
       <div className="question-move" style={{
@@ -415,81 +437,77 @@ export default function BranpyLive() {
         marginBottom: isQuestionTop ? 0 : "auto",
       }}>
         <div style={{
-          fontSize: 11, color: COLORS.muted, marginBottom: isQuestionTop ? 10 : 20,
-          letterSpacing: 2, textTransform: "uppercase",
+          fontSize: showAlternatives ? 11 : 0, color: COLORS.muted, marginBottom: showAlternatives ? 10 : 0,
+          letterSpacing: 2, textTransform: "uppercase", overflow: "hidden", height: showAlternatives ? "auto" : 0,
         }}>
           Pergunta {currentIndex + 1}
         </div>
 
         <div className="question-text" style={{
           fontSize: isQuestionTop
-            ? "clamp(18px, 2.5vw, 28px)"
-            : "clamp(24px, 5vw, 42px)",
+            ? "clamp(22px, 3vw, 32px)"
+            : "clamp(28px, 5.5vw, 48px)",
           fontWeight: 800, textAlign: "center", lineHeight: 1.3,
-          marginBottom: isQuestionTop ? 16 : 40,
+          marginBottom: showAlternatives ? 16 : 0,
           color: COLORS.text,
           textShadow: `0 2px 20px rgba(0,0,0,0.5)`,
-          maxWidth: isQuestionTop ? 600 : 700,
+          maxWidth: isQuestionTop ? 600 : 800,
           transition: "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
         }}>
           {q.question}
         </div>
 
-        {/* Alternatives */}
-        <div style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr",
-          gap: 14, width: "100%", maxWidth: 700,
-          opacity: isQuestionTop ? 0.7 : 1,
-          transition: "opacity 0.5s ease",
-          pointerEvents: "none",
-        }}>
-          {q.alternatives.map((alt, i) => {
-            const isCorrect = phase === "reveal" && i === q.correct;
-            const isWrong = phase === "reveal" && i !== q.correct;
-            return (
-              <div key={i} className="option-item"
-                style={{
-                  display: "flex", alignItems: "center", gap: 14,
-                  padding: "16px 20px",
-                  borderRadius: 14,
-                  border: `2px solid ${
-                    isCorrect ? COLORS.correct
-                    : isWrong ? "rgba(255,255,255,0.06)"
-                    : "rgba(255,255,255,0.15)"
-                  }`,
-                  background: isCorrect ? `${COLORS.correct}20`
-                    : isWrong ? "rgba(255,255,255,0.03)"
-                    : "rgba(255,255,255,0.06)",
-                  transition: "all 0.4s ease",
-                  animation: isCorrect ? "glow 1.5s infinite" : "none",
-                }}
-              >
-                <span style={{
-                  width: 42, height: 42, borderRadius: "50%",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontWeight: 800, fontSize: 18,
-                  background: isCorrect ? COLORS.correct
-                    : "rgba(138,44,255,0.3)",
-                  color: "#fff", flexShrink: 0,
-                  border: isCorrect ? "none" : "2px solid rgba(138,44,255,0.3)",
-                }}>
-                  {ALTERNATIVE_LABELS[i]}
-                </span>
-                <span style={{
-                  fontSize: "clamp(15px, 2.2vw, 20px)",
-                  fontWeight: isCorrect ? 700 : 500,
-                  color: isCorrect ? COLORS.correct
-                    : isWrong ? COLORS.muted
-                    : "#FFFFFF",
-                  lineHeight: 1.3,
-                  textShadow: "0 1px 4px rgba(0,0,0,0.6)",
-                }}>
-                  {alt}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        {/* Alternatives - hidden during show_question phase */}
+        {showAlternatives && (
+          <div style={{
+            display: "grid", gridTemplateColumns: "1fr 1fr",
+            gap: 14, width: "100%", maxWidth: 700,
+            animation: "slideUp 0.6s ease-out",
+          }}>
+            {q.alternatives.map((alt, i) => {
+              const isCorrect = phase === "reveal" && i === q.correct;
+              const isWrong = phase === "reveal" && i !== q.correct;
+              return (
+                <div key={i} className="option-item"
+                  style={{
+                    display: "flex", alignItems: "center", gap: 14,
+                    padding: "16px 20px", borderRadius: 14,
+                    border: `2px solid ${
+                      isCorrect ? COLORS.correct
+                      : isWrong ? "rgba(255,255,255,0.06)"
+                      : "rgba(255,255,255,0.15)"
+                    }`,
+                    background: isCorrect ? `${COLORS.correct}20`
+                      : isWrong ? "rgba(255,255,255,0.03)"
+                      : "rgba(255,255,255,0.06)",
+                    transition: "all 0.4s ease",
+                    animation: isCorrect ? "glow 1.5s infinite" : "none",
+                  }}
+                >
+                  <span style={{
+                    width: 42, height: 42, borderRadius: "50%",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontWeight: 800, fontSize: 18,
+                    background: isCorrect ? COLORS.correct : "rgba(138,44,255,0.3)",
+                    color: "#fff", flexShrink: 0,
+                    border: isCorrect ? "none" : "2px solid rgba(138,44,255,0.3)",
+                  }}>
+                    {ALTERNATIVE_LABELS[i]}
+                  </span>
+                  <span style={{
+                    fontSize: "clamp(16px, 2.4vw, 22px)",
+                    fontWeight: isCorrect ? 700 : 500,
+                    color: isCorrect ? COLORS.correct : isWrong ? COLORS.muted : "#FFFFFF",
+                    lineHeight: 1.3,
+                    textShadow: "0 1px 4px rgba(0,0,0,0.6)",
+                  }}>
+                    {alt}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Progress bar */}
@@ -525,10 +543,8 @@ export default function BranpyLive() {
         </span>
       </div>
 
-      {/* Countdown number (not full overlay) */}
-      {phase === "question" && questionPhase === "countdown" && (
-        <CountdownNumber number={countdown} visible={true} />
-      )}
+      {/* Countdown number */}
+      {showCountdown && <CountdownNumber number={countdown} visible={true} />}
 
       {/* Answer reveal overlay */}
       {phase === "reveal" && (

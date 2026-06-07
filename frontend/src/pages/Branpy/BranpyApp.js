@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useParams, Link } from "react-router-dom";
+import { Routes, Route, Navigate, useParams, Link, useLocation } from "react-router-dom";
 import BranpyFeed from "./BranpyFeed";
 import BranpyUpload from "./BranpyUpload";
 import BranpyProfile from "./BranpyProfile";
@@ -98,14 +98,16 @@ function BranpyBottomNav() {
 
 export default function BranpyApp() {
   const [searchQuery, setSearchQuery] = useState("");
+  const location = useLocation();
+  const isLive = location.pathname === "/branpy/live";
 
   if (searchQuery) {
     return <Navigate to={`/branpy/search?q=${encodeURIComponent(searchQuery)}`} />;
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#050608", color: "#fff", fontFamily: "system-ui,-apple-system,sans-serif", paddingTop: 52, paddingBottom: 64 }}>
-      <BranpyNav onSearch={setSearchQuery} />
+    <div style={{ minHeight: "100vh", background: "#050608", color: "#fff", fontFamily: "system-ui,-apple-system,sans-serif", paddingTop: isLive ? 0 : 52, paddingBottom: isLive ? 0 : 64 }}>
+      {!isLive && <BranpyNav onSearch={setSearchQuery} />}
       <Routes>
         <Route index element={<BranpyFeed />} />
         <Route path="upload" element={<BranpyUpload />} />
@@ -116,7 +118,7 @@ export default function BranpyApp() {
         <Route path="live" element={<BranpyLive />} />
         <Route path="admin" element={<BranpyAdmin />} />
       </Routes>
-      <BranpyBottomNav />
+      {!isLive && <BranpyBottomNav />}
     </div>
   );
 }

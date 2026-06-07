@@ -1,10 +1,15 @@
 import json, random
+from pathlib import Path
 
+OUT_DIR = Path(__file__).parent
 questions = []
 
 def add(cat, qs):
+    existing = {q["question"] for q in questions}
     for q, alt, corr, exp in qs:
-        questions.append({"question": q, "alternatives": alt, "correct": corr, "explanation": exp, "category": cat})
+        if q not in existing:
+            questions.append({"question": q, "alternatives": alt, "correct": corr, "explanation": exp, "category": cat})
+            existing.add(q)
 
 # ============ ALL 10 CATEGORIES ============
 
@@ -626,7 +631,17 @@ for cat in categories:
     print(f"  {cat}: {cat_counts.get(cat, 0)}")
 print(f"\nTotal: {len(questions)} questions")
 
+# Final dedup pass
+seen = set()
+deduped = []
+for q in questions:
+    if q["question"] not in seen:
+        deduped.append(q)
+        seen.add(q["question"])
+questions = deduped
+print(f"\nAfter dedup: {len(questions)} questions")
+
 random.shuffle(questions)
-with open("quiz_seed.json", "w", encoding="utf-8") as f:
+with open(OUT_DIR / "quiz_seed.json", "w", encoding="utf-8") as f:
     json.dump(questions, f, ensure_ascii=False, indent=2)
 print(f"Saved to quiz_seed.json")
