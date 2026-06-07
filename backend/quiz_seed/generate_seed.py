@@ -601,13 +601,54 @@ topics = {
     "Esportes": ["o futebol", "o basquete", "a Formula 1", "o tenis", "o volei", "a natacao", "o atletismo", "o boxe", "o MMA", "o ciclismo"],
 }
 needed = 600 - len(questions)
-alt_pools = [
-    ["Ciencia", "Historia", "Geografia", "Arte"],
-    ["Natureza", "Tecnologia", "Cultura", "Sociedade"],
-    ["Fenomeno natural", "Invencao humana", "Descoberta", "Teoria"],
-    ["Seculo XX", "Seculo XIX", "Seculo XVIII", "Antiguidade"],
-    ["No Brasil", "Na Europa", "Na Asia", "Na Africa"],
-]
+# Category-specific alternative pools (topically relevant to each category)
+cat_alt_pools = {
+    "Conhecimentos Gerais": [
+        ["Conceito cultural importante", "Detalhe historico menor", "Fato cientifico qualquer", "Dado geografico simples"],
+        ["Tema filosofico relevante", "Informacao tecnica especifica", "Crenca popular regional", "Fato historico incorreto"],
+        ["Assunto academico", "Tradicao cultural local", "Fenomeno natural incomum", "Descoberta cientifica antiga"],
+    ],
+    "Historia": [
+        ["Acontecimento historico marcante", "Evento natural aleatorio", "Fato geografico qualquer", "Inovacao tecnologica moderna"],
+        ["Periodo historico importante", "Descoberta cientifica recente", "Movimento artistico contemporaneo", "Pratica cultural regional"],
+        ["Revolucao politica relevante", "Fenomeno natural ciclico", "Tradicao religiosa antiga", "Invencao tecnologica atual"],
+    ],
+    "Geografia": [
+        ["Acidente geografico natural", "Construcao artificial moderna", "Fenomeno atmosferico local", "Especie animal urbana"],
+        ["Regiao geografica extensa", "Teoria cientifica especulativa", "Estilo arquitetonico antigo", "Pratica agricola moderna"],
+        ["Formacao rochosa unica", "Centro urbano populoso", "Curso d'agua artificial", "Vegetacao tipica europeia"],
+    ],
+    "Cinema": [
+        ["Producao cinematografica famosa", "Obra literaria classica", "Programa televisivo antigo", "Peca teatral medieval"],
+        ["Genero cinematografico popular", "Estilo musical tradicional", "Movimento artistico classico", "Festival cultural regional"],
+        ["Tecnica de filmagem inovadora", "Metodo de ensino tradicional", "Pratica fotografica basica", "Processo de impressao antigo"],
+    ],
+    "Tecnologia": [
+        ["Inovacao digital moderna", "Ferramenta analogica antiga", "Processo manual obsoleto", "Equipamento industrial pesado"],
+        ["Avanco tecnologico recente", "Tecnica artesanal tradicional", "Metodo de producao primitivo", "Pratica agricola centenaria"],
+        ["Dispositivo eletronico avancado", "Instrumento musical acustico", "Veiculo de tracao animal", "Utensilio domestico simples"],
+    ],
+    "Ciencia": [
+        ["Fenomeno natural estudado", "Crenca popular sem base", "Mito antigo sem fundamento", "Tradicao cultural regional"],
+        ["Descoberta cientifica comprovada", "Teoria da conspiracao popular", "Pratica religiosa tradicional", "Lenda folclorica antiga"],
+        ["Processo biologico natural", "Invencao tecnologica moderna", "Evento historico especifico", "Pratica artistica contemporanea"],
+    ],
+    "Animais": [
+        ["Especie animal fascinante", "Planta ornamental comum", "Rocha mineral qualquer", "Objeto inanimado qualquer"],
+        ["Mamifero de grande porte", "Ave domestica comum", "Peixe ornamental pequeno", "Inseto nocivo qualquer"],
+        ["Animal selvagem exotico", "Vegetal cultivado em casa", "Fungo encontrado em matas", "Bacteria de laboratorio"],
+    ],
+    "Curiosidades": [
+        ["Fato curioso interessante", "Teoria cientifica complexa", "Evento historico qualquer", "Dado matematico simples"],
+        ["Lugar famoso mundialmente", "Objeto cotidiano comum", "Pratica cultural local", "Fenomeno natural basico"],
+        ["Recorde mundial impressionante", "Receita culinaria tipica", "Ferramenta de trabalho antiga", "Brincadeira infantil popular"],
+    ],
+    "Esportes": [
+        ["Modalidade esportiva popular", "Pratica fisica sedentaria", "Atividade recreativa menor", "Jogo de tabuleiro comum"],
+        ["Esporte de equipe famoso", "Danca tradicional regional", "Arte marcial oriental", "Exercicio respiratorio basico"],
+        ["Competicao esportiva internacional", "Evento cultural local", "Festa religiosa antiga", "Celebracao familiar privada"],
+    ],
+}
 
 needed = 1000 - len(questions)
 print(f"Need {needed} more questions to reach 1000...")
@@ -616,7 +657,7 @@ while len(questions) < 1000:
     cat = random.choice(categories)
     t = random.choice(topics[cat])
     q_text = random.choice(auto_qs).format(t=t)
-    alts = random.choice(alt_pools)
+    alts = random.choice(cat_alt_pools[cat])
     corr = 0
     exp = f"{t} e um topico interessante na categoria {cat}."
     # Check for duplicate question
