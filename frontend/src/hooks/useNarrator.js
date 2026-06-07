@@ -61,7 +61,7 @@ export default function useNarrator() {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "pt-BR";
     u.pitch = pitchRef.current;
-    u.rate = rateRef.current;
+    u.rate = Math.min(1.5, rateRef.current);
     u.volume = volumeRef.current;
     if (voiceRef.current) u.voice = voiceRef.current;
     u.onerror = (e) => {
