@@ -154,10 +154,14 @@ export default function BranpyLive() {
   const [paused, setPaused] = useState(false);
   const [subPhase, setSubPhase] = useState("show_question");
 
+  const [adminVisible, setAdminVisible] = useState(false);
+
   const countdownRef = useRef(null);
   const revealRef = useRef(null);
   const viewerRef = useRef(null);
   const phaseTimerRef = useRef(null);
+  const remainingMsRef = useRef(10000);
+  const countdownStartRef = useRef(0);
 
   const clearAllTimers = useCallback(() => {
     if (countdownRef.current) clearInterval(countdownRef.current);
@@ -196,7 +200,19 @@ export default function BranpyLive() {
     return () => clearInterval(viewerRef.current);
   }, []);
 
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === "Q") {
+        e.preventDefault();
+        setAdminVisible((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
+
   const advance = useCallback(() => {
+    remainingMsRef.current = 10000;
     const next = currentIndex + 1;
     if (next >= questions.length) {
       loadQuestions();
@@ -213,6 +229,7 @@ export default function BranpyLive() {
     if (phase === "reveal") return;
 
     if (subPhase === "show_question") {
+      remainingMsRef.current = 10000;
       setSubPhase("alternatives");
       setCountdown(10);
     } else if (subPhase === "alternatives") {
@@ -238,16 +255,16 @@ export default function BranpyLive() {
     }
 
     if (subPhase === "alternatives") {
-      const startTime = Date.now();
-      const duration = 10000;
+      countdownStartRef.current = Date.now();
 
       countdownRef.current = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const remaining = Math.max(0, Math.ceil((duration - elapsed) / 1000));
+        const elapsed = Date.now() - countdownStartRef.current;
+        const remaining = Math.max(0, Math.ceil((remainingMsRef.current - elapsed) / 1000));
         setCountdown(remaining);
         if (remaining <= 0) {
           clearInterval(countdownRef.current);
           countdownRef.current = null;
+          remainingMsRef.current = 10000;
           nextPhase();
         }
       }, 100);
@@ -280,9 +297,79 @@ export default function BranpyLive() {
 
   const handleRestart = () => {
     clearAllTimers();
+    remainingMsRef.current = 10000;
     setPaused(false);
     setPhase("loading");
     loadQuestions();
+  };
+
+  const handleAdminPause = () => {
+    if (subPhase === "alternatives" && countdownStartRef.current > 0 && !paused) {
+      const elapsed = Date.now() - countdownStartRef.current;
+      remainingMsRef.current = Math.max(0, remainingMsRef.current - elapsed);
+    }
+    setPaused(true);
+    clearAllTimers();
+  };
+
+  const handleAdminContinue = () => {
+    setPaused(false);
+  };
+
+  const handleAdminNext = () => {
+    clearAllTimers();
+    remainingMsRef.current = 10000;
+    setPaused(false);
+    if (phase === "reveal") {
+      advance();
+    } else if (subPhase === "show_question") {
+      nextPhase();
+    } else if (subPhase === "alternatives") {
+      setPhase("reveal");
+    }
+  };
+
+  const AdminPanel = ({ paused }) => {
+    if (!adminVisible) return null;
+    return (
+      <div style={{
+        position: "fixed", top: 56, right: 16, zIndex: 9999,
+        display: "flex", flexDirection: "column", gap: 4,
+        background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)",
+        border: "1px solid rgba(138,44,255,0.3)",
+        borderRadius: 12, padding: 8, minWidth: 160,
+      }}>
+        <div style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4, textAlign: "center" }}>
+          Admin Quiz
+        </div>
+        {paused ? (
+          <button onClick={handleAdminContinue}
+            style={adminBtnStyle}>
+            ▶ Continuar
+          </button>
+        ) : (
+          <button onClick={handleAdminPause}
+            style={adminBtnStyle}>
+            ⏸ Pausar
+          </button>
+        )}
+        <button onClick={handleRestart}
+          style={adminBtnStyle}>
+          🔄 Reiniciar Quiz
+        </button>
+        <button onClick={handleAdminNext}
+          style={adminBtnStyle}>
+          ⏭ Próxima Pergunta
+        </button>
+      </div>
+    );
+  };
+
+  const adminBtnStyle = {
+    display: "block", width: "100", padding: "6px 10px",
+    background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 8, color: "#fff", fontSize: 12, cursor: "pointer",
+    textAlign: "left", fontWeight: 500,
   };
 
   if (phase === "loading") {
@@ -379,6 +466,8 @@ export default function BranpyLive() {
         onTogglePause={handleTogglePause}
         onRestart={handleRestart}
       />
+      {/* Admin panel (Ctrl+Shift+Q) */}
+      <AdminPanel paused={paused} />
 
       {/* Top bar */}
       <div style={{
