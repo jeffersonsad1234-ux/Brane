@@ -4869,6 +4869,7 @@ async def branpy_live(request: Request, count: int = 10):
         out.append({
             "question": q["question"],
             "alternatives": q["alternatives"],
+            "correct": q["correct"],
             "category": q.get("category", ""),
             "explanation": q.get("explanation", ""),
         })
