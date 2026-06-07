@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { getLiveQuiz } from "./BranpyAPI";
+import useNarrator from "../../hooks/useNarrator";
 
 const COLORS = {
   bg: "#050608",
@@ -163,6 +164,8 @@ export default function BranpyLive() {
   const remainingMsRef = useRef(10000);
   const countdownStartRef = useRef(0);
 
+  const narrator = useNarrator();
+
   const clearAllTimers = useCallback(() => {
     if (countdownRef.current) clearInterval(countdownRef.current);
     if (revealRef.current) clearTimeout(revealRef.current);
@@ -291,12 +294,56 @@ export default function BranpyLive() {
     };
   }, [phase, paused, advance, clearAllTimers]);
 
+  // ── Narration effects ────────────────────────────────────────
+  useEffect(() => {
+    if (paused || phase !== "question" || subPhase !== "show_question") return;
+    const q = questions[currentIndex];
+    if (!q) return;
+    narrator.speakSequence([
+      { text: "Pergunta.", delayAfter: 500 },
+      { text: q.question },
+    ]);
+  }, [phase, subPhase, currentIndex, paused]);
+
+  useEffect(() => {
+    if (paused || phase !== "question" || subPhase !== "alternatives") return;
+    const q = questions[currentIndex];
+    if (!q) return;
+    const alts = q.alternatives.map((a, i) => `${ALTERNATIVE_LABELS[i]}. ${a}`);
+    narrator.speakSequence([
+      { text: alts[0], delayAfter: 50 },
+      { text: alts[1], delayAfter: 50 },
+      { text: alts[2], delayAfter: 50 },
+      { text: alts[3] },
+    ]);
+  }, [phase, subPhase, currentIndex, paused]);
+
+  const revealNarratedRef = useRef(false);
+  useEffect(() => {
+    if (paused || phase !== "reveal") { revealNarratedRef.current = false; return; }
+    if (revealNarratedRef.current) return;
+    revealNarratedRef.current = true;
+    const q = questions[currentIndex];
+    if (!q) return;
+    const letter = ALTERNATIVE_LABELS[q.correct];
+    const answer = q.alternatives[q.correct];
+    narrator.speakSequence([
+      { text: "A resposta correta e", delayAfter: 500 },
+      { text: `${letter}. ${answer}`, delayAfter: 1500 },
+      { text: q.explanation || "" },
+    ]);
+  }, [phase, currentIndex, paused]);
+
   const handleTogglePause = () => {
-    setPaused((p) => !p);
+    setPaused((p) => {
+      if (!p) narrator.cancel();
+      return !p;
+    });
   };
 
   const handleRestart = () => {
     clearAllTimers();
+    narrator.cancel();
     remainingMsRef.current = 10000;
     setPaused(false);
     setPhase("loading");
@@ -304,6 +351,7 @@ export default function BranpyLive() {
   };
 
   const handleAdminPause = () => {
+    narrator.cancel();
     if (subPhase === "alternatives" && countdownStartRef.current > 0 && !paused) {
       const elapsed = Date.now() - countdownStartRef.current;
       remainingMsRef.current = Math.max(0, remainingMsRef.current - elapsed);
@@ -317,6 +365,7 @@ export default function BranpyLive() {
   };
 
   const handleAdminNext = () => {
+    narrator.cancel();
     clearAllTimers();
     remainingMsRef.current = 10000;
     setPaused(false);
@@ -337,36 +386,84 @@ export default function BranpyLive() {
         display: "flex", flexDirection: "column", gap: 4,
         background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)",
         border: "1px solid rgba(138,44,255,0.3)",
-        borderRadius: 12, padding: 8, minWidth: 160,
+        borderRadius: 12, padding: 8, minWidth: 180, maxHeight: "90vh", overflowY: "auto",
       }}>
         <div style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4, textAlign: "center" }}>
           Admin Quiz
         </div>
         {paused ? (
-          <button onClick={handleAdminContinue}
-            style={adminBtnStyle}>
-            ▶ Continuar
-          </button>
+          <button onClick={handleAdminContinue} style={adminBtnStyle}>▶ Continuar</button>
         ) : (
-          <button onClick={handleAdminPause}
-            style={adminBtnStyle}>
-            ⏸ Pausar
-          </button>
+          <button onClick={handleAdminPause} style={adminBtnStyle}>⏸ Pausar</button>
         )}
-        <button onClick={handleRestart}
-          style={adminBtnStyle}>
-          🔄 Reiniciar Quiz
-        </button>
-        <button onClick={handleAdminNext}
-          style={adminBtnStyle}>
-          ⏭ Próxima Pergunta
-        </button>
+        <button onClick={handleRestart} style={adminBtnStyle}>🔄 Reiniciar Quiz</button>
+        <button onClick={handleAdminNext} style={adminBtnStyle}>⏭ Próxima Pergunta</button>
+
+        <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "4px 0" }} />
+
+        <div style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2, textAlign: "center" }}>
+          Narradora
+        </div>
+
+        {!narrator.isSupported ? (
+          <div style={{ fontSize: 11, color: COLORS.wrong, textAlign: "center", padding: 4 }}>
+            Navegador nao suporta audio
+          </div>
+        ) : (
+          <>
+            <button onClick={() => {
+              if (narrator.enabled) { narrator.cancel(); narrator.setEnabled(false); }
+              else { narrator.setEnabled(true); narrator.testVoice(); }
+            }} style={{
+              ...adminBtnStyle,
+              color: narrator.enabled ? COLORS.correct : COLORS.wrong,
+            }}>
+              {narrator.enabled ? "🔊 Ativada" : "🔇 Desativada"}
+            </button>
+
+            <button onClick={narrator.testVoice} style={adminBtnStyle}>
+              🎤 Testar Voz
+            </button>
+
+            {narrator.isBlocked && (
+              <button onClick={() => {
+                narrator.setIsBlocked(false);
+                narrator.testVoice();
+              }} style={{ ...adminBtnStyle, color: "#FFA500", border: "1px solid rgba(255,165,0,0.3)" }}>
+                🔊 ATIVAR AUDIO
+              </button>
+            )}
+
+            {narrator.voices.length > 0 && (
+              <select value={narrator.voice?.name || ""} onChange={(e) => {
+                const v = narrator.voices.find((x) => x.name === e.target.value);
+                narrator.setVoice(v || null);
+              }}
+                style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11 }}
+              >
+                {narrator.voices.filter((v) => v.lang.startsWith("pt")).map((v) => (
+                  <option key={v.name} value={v.name}>{v.name.replace(/Microsoft|Online|Natural|\(Portuguese\)/g, "").trim() || v.name}</option>
+                ))}
+              </select>
+            )}
+
+            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Volume</div>
+            <input type="range" min="0" max="1" step="0.1" value={narrator.volume}
+              onChange={(e) => narrator.setVolume(parseFloat(e.target.value))}
+              style={{ width: "100%", accentColor: COLORS.primary }} />
+
+            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Velocidade</div>
+            <input type="range" min="0.5" max="2" step="0.1" value={narrator.rate}
+              onChange={(e) => narrator.setRate(parseFloat(e.target.value))}
+              style={{ width: "100%", accentColor: COLORS.primary }} />
+          </>
+        )}
       </div>
     );
   };
 
   const adminBtnStyle = {
-    display: "block", width: "100", padding: "6px 10px",
+    display: "block", width: "100%", padding: "6px 10px",
     background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
     borderRadius: 8, color: "#fff", fontSize: 12, cursor: "pointer",
     textAlign: "left", fontWeight: 500,
