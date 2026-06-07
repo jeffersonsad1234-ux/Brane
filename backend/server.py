@@ -4460,6 +4460,393 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
+# ==================== BRANPI (Short Video Platform) ====================
+class BranpyVideoCreate(BaseModel):
+    title: str = "Untitled"
+    description: str = ""
+    hashtags: list = []
+    category: str = "general"
+
+class BranpyCommentCreate(BaseModel):
+    content: str
+
+class BranpyProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    bio: Optional[str] = None
+    avatar: Optional[str] = None
+    banner: Optional[str] = None
+
+# Extract hashtags from text
+def extract_hashtags(text):
+    return list(set(re.findall(r'#(\w+)', text)))
+
+@api_router.post("/branpy/upload")
+async def branpy_upload(request: Request, video: UploadFile = File(...)):
+    user = await get_current_user(request)
+    data = await video.read()
+    if len(data) > 200 * 1024 * 1024:
+        raise HTTPException(400, "Video muito grande (max 200MB)")
+    path = f"branpy/videos/{user['user_id']}/{uuid.uuid4()}_{video.filename}"
+    result = await put_object_mongo(db, path, data, video.content_type or "video/mp4")
+    v_id = f"vid_{uuid.uuid4().hex[:12]}"
+    await db.branpy_videos.insert_one({
+        "video_id": v_id, "user_id": user["user_id"],
+        "title": "", "description": "", "hashtags": [], "category": "general",
+        "file_path": path, "thumbnail": None, "duration": 0,
+        "views_count": 0, "likes_count": 0, "comments_count": 0,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    return {"video_id": v_id, "url": f"/api/files/{path}"}
+
+@api_router.put("/branpy/video/{video_id}")
+async def branpy_update_video(video_id: str, data: BranpyVideoCreate, request: Request):
+    user = await get_current_user(request)
+    vid = await db.branpy_videos.find_one({"video_id": video_id})
+    if not vid: raise HTTPException(404, "Video nao encontrado")
+    if vid["user_id"] != user["user_id"] and user.get("role") != "admin":
+        raise HTTPException(403, "Sem permissao")
+    await db.branpy_videos.update_one({"video_id": video_id}, {"$set": {
+        "title": data.title, "description": data.description,
+        "hashtags": data.hashtags, "category": data.category
+    }})
+    # Update hashtag collection for search
+    for tag in data.hashtags:
+        tag_lower = tag.lower().strip()
+        if tag_lower:
+            await db.branpy_hashtags.update_one(
+                {"name": tag_lower},
+                {"$inc": {"count": 1}, "$setOnInsert": {"name": tag_lower, "created_at": datetime.now(timezone.utc).isoformat()}},
+                upsert=True
+            )
+    return {"ok": True}
+
+@api_router.get("/branpy/feed")
+async def branpy_feed(page: int = 1, limit: int = 10):
+    skip = (page - 1) * limit
+    total = await db.branpy_videos.count_documents({})
+    cursor = db.branpy_videos.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    videos = []
+    async for v in cursor:
+        u = await db.users.find_one({"user_id": v["user_id"]}, {"_id": 0, "password_hash": 0})
+        v["user"] = clean_user(u) if u else {"user_id": v["user_id"], "name": "Desconhecido"}
+        v["is_liked"] = False
+        videos.append(v)
+    return {"videos": videos, "total": total, "page": page, "has_more": skip + limit < total}
+
+@api_router.get("/branpy/trending")
+async def branpy_trending(page: int = 1, limit: int = 20):
+    skip = (page - 1) * limit
+    cursor = db.branpy_videos.find({}, {"_id": 0}).sort([("views_count", -1), ("likes_count", -1)]).skip(skip).limit(limit)
+    videos = []
+    async for v in cursor:
+        u = await db.users.find_one({"user_id": v["user_id"]}, {"_id": 0, "password_hash": 0})
+        v["user"] = clean_user(u) if u else {"user_id": v["user_id"], "name": "Desconhecido"}
+        v["is_liked"] = False
+        videos.append(v)
+    return {"videos": videos}
+
+@api_router.get("/branpy/video/{video_id}")
+async def branpy_get_video(video_id: str, request: Request = None):
+    v = await db.branpy_videos.find_one({"video_id": video_id}, {"_id": 0})
+    if not v: raise HTTPException(404, "Video nao encontrado")
+    u = await db.users.find_one({"user_id": v["user_id"]}, {"_id": 0, "password_hash": 0})
+    v["user"] = clean_user(u) if u else {"user_id": v["user_id"], "name": "Desconhecido"}
+    v["is_liked"] = False
+    v["is_followed"] = False
+    if request:
+        try:
+            cur = await get_current_user(request)
+            liked = await db.branpy_likes.find_one({"user_id": cur["user_id"], "video_id": video_id})
+            v["is_liked"] = liked is not None
+            followed = await db.branpy_followers.find_one({"follower_id": cur["user_id"], "following_id": v["user_id"]})
+            v["is_followed"] = followed is not None
+        except: pass
+    # Get comment count
+    v["comments_count"] = await db.branpy_comments.count_documents({"video_id": video_id})
+    return v
+
+@api_router.delete("/branpy/video/{video_id}")
+async def branpy_delete_video(video_id: str, request: Request):
+    user = await get_current_user(request)
+    vid = await db.branpy_videos.find_one({"video_id": video_id})
+    if not vid: raise HTTPException(404)
+    if vid["user_id"] != user["user_id"] and user.get("role") != "admin":
+        raise HTTPException(403)
+    await db.branpy_videos.delete_one({"video_id": video_id})
+    await db.branpy_likes.delete_many({"video_id": video_id})
+    await db.branpy_comments.delete_many({"video_id": video_id})
+    await db.branpy_views.delete_many({"video_id": video_id})
+    for tag in vid.get("hashtags", []):
+        await db.branpy_hashtags.update_one({"name": tag.lower()}, {"$inc": {"count": -1}})
+    return {"ok": True}
+
+@api_router.get("/branpy/user/{user_id}/videos")
+async def branpy_user_videos(user_id: str, page: int = 1, limit: int = 20):
+    skip = (page - 1) * limit
+    total = await db.branpy_videos.count_documents({"user_id": user_id})
+    cursor = db.branpy_videos.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    videos = []
+    async for v in cursor:
+        u = await db.users.find_one({"user_id": v["user_id"]}, {"_id": 0, "password_hash": 0})
+        v["user"] = clean_user(u) if u else {"user_id": v["user_id"], "name": "Desconhecido"}
+        v["is_liked"] = False
+        videos.append(v)
+    return {"videos": videos, "total": total}
+
+# ==================== LIKES ====================
+@api_router.post("/branpy/video/{video_id}/like")
+async def branpy_toggle_like(video_id: str, request: Request):
+    user = await get_current_user(request)
+    existing = await db.branpy_likes.find_one({"user_id": user["user_id"], "video_id": video_id})
+    if existing:
+        await db.branpy_likes.delete_one({"_id": existing["_id"]})
+        await db.branpy_videos.update_one({"video_id": video_id}, {"$inc": {"likes_count": -1}})
+        return {"liked": False, "likes_count": max(0, (await db.branpy_videos.find_one({"video_id": video_id})).get("likes_count", 0) - 1)}
+    else:
+        await db.branpy_likes.insert_one({"user_id": user["user_id"], "video_id": video_id, "created_at": datetime.now(timezone.utc).isoformat()})
+        await db.branpy_videos.update_one({"video_id": video_id}, {"$inc": {"likes_count": 1}})
+        v = await db.branpy_videos.find_one({"video_id": video_id})
+        return {"liked": True, "likes_count": v.get("likes_count", 1)}
+
+@api_router.get("/branpy/video/{video_id}/liked")
+async def branpy_check_liked(video_id: str, request: Request):
+    try:
+        user = await get_current_user(request)
+        liked = await db.branpy_likes.find_one({"user_id": user["user_id"], "video_id": video_id})
+        return {"liked": liked is not None}
+    except:
+        return {"liked": False}
+
+# ==================== COMMENTS ====================
+@api_router.get("/branpy/video/{video_id}/comments")
+async def branpy_get_comments(video_id: str, page: int = 1, limit: int = 30):
+    skip = (page - 1) * limit
+    total = await db.branpy_comments.count_documents({"video_id": video_id})
+    cursor = db.branpy_comments.find({"video_id": video_id}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    comments = []
+    async for c in cursor:
+        u = await db.users.find_one({"user_id": c["user_id"]}, {"_id": 0, "password_hash": 0})
+        c["user"] = clean_user(u) if u else {"user_id": c["user_id"], "name": "Desconhecido"}
+        comments.append(c)
+    return {"comments": comments, "total": total}
+
+@api_router.post("/branpy/video/{video_id}/comment")
+async def branpy_add_comment(video_id: str, data: BranpyCommentCreate, request: Request):
+    user = await get_current_user(request)
+    if not data.content.strip(): raise HTTPException(400, "Comentario vazio")
+    c_id = f"cmt_{uuid.uuid4().hex[:10]}"
+    await db.branpy_comments.insert_one({
+        "comment_id": c_id, "video_id": video_id, "user_id": user["user_id"],
+        "content": data.content[:500],
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    await db.branpy_videos.update_one({"video_id": video_id}, {"$inc": {"comments_count": 1}})
+    u = await db.users.find_one({"user_id": user["user_id"]}, {"_id": 0, "password_hash": 0})
+    return {"comment_id": c_id, "user": clean_user(u) if u else {"name": "Desconhecido"}, "content": data.content[:500]}
+
+@api_router.delete("/branpy/comment/{comment_id}")
+async def branpy_delete_comment(comment_id: str, request: Request):
+    user = await get_current_user(request)
+    cmt = await db.branpy_comments.find_one({"comment_id": comment_id})
+    if not cmt: raise HTTPException(404)
+    if cmt["user_id"] != user["user_id"] and user.get("role") != "admin":
+        raise HTTPException(403)
+    await db.branpy_comments.delete_one({"comment_id": comment_id})
+    await db.branpy_videos.update_one({"video_id": cmt["video_id"]}, {"$inc": {"comments_count": -1}})
+    return {"ok": True}
+
+# ==================== FOLLOWERS ====================
+@api_router.post("/branpy/user/{user_id}/follow")
+async def branpy_toggle_follow(user_id: str, request: Request):
+    user = await get_current_user(request)
+    if user["user_id"] == user_id: raise HTTPException(400, "Nao pode seguir si mesmo")
+    target = await db.users.find_one({"user_id": user_id})
+    if not target: raise HTTPException(404, "Usuario nao encontrado")
+    existing = await db.branpy_followers.find_one({"follower_id": user["user_id"], "following_id": user_id})
+    if existing:
+        await db.branpy_followers.delete_one({"_id": existing["_id"]})
+        return {"following": False}
+    else:
+        await db.branpy_followers.insert_one({
+            "follower_id": user["user_id"], "following_id": user_id,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        return {"following": True}
+
+@api_router.get("/branpy/user/{user_id}/followers")
+async def branpy_get_followers(user_id: str, page: int = 1, limit: int = 50):
+    skip = (page - 1) * limit
+    total = await db.branpy_followers.count_documents({"following_id": user_id})
+    cursor = db.branpy_followers.find({"following_id": user_id}).sort("created_at", -1).skip(skip).limit(limit)
+    users = []
+    async for f in cursor:
+        u = await db.users.find_one({"user_id": f["follower_id"]}, {"_id": 0, "password_hash": 0})
+        if u: users.append(clean_user(u))
+    return {"users": users, "total": total}
+
+@api_router.get("/branpy/user/{user_id}/following")
+async def branpy_get_following(user_id: str, page: int = 1, limit: int = 50):
+    skip = (page - 1) * limit
+    total = await db.branpy_followers.count_documents({"follower_id": user_id})
+    cursor = db.branpy_followers.find({"follower_id": user_id}).sort("created_at", -1).skip(skip).limit(limit)
+    users = []
+    async for f in cursor:
+        u = await db.users.find_one({"user_id": f["following_id"]}, {"_id": 0, "password_hash": 0})
+        if u: users.append(clean_user(u))
+    return {"users": users, "total": total}
+
+@api_router.get("/branpy/user/{user_id}/followed")
+async def branpy_check_followed(user_id: str, request: Request):
+    try:
+        user = await get_current_user(request)
+        f = await db.branpy_followers.find_one({"follower_id": user["user_id"], "following_id": user_id})
+        return {"following": f is not None}
+    except:
+        return {"following": False}
+
+# ==================== VIEWS ====================
+@api_router.post("/branpy/video/{video_id}/view")
+async def branpy_add_view(video_id: str, request: Request = None):
+    user_id = None
+    if request:
+        try:
+            user = await get_current_user(request)
+            user_id = user["user_id"]
+            existing = await db.branpy_views.find_one({"video_id": video_id, "user_id": user_id})
+            if existing: return {"ok": True}
+        except: pass
+    await db.branpy_views.insert_one({
+        "video_id": video_id, "user_id": user_id or "anonymous",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    await db.branpy_videos.update_one({"video_id": video_id}, {"$inc": {"views_count": 1}})
+    return {"ok": True}
+
+# ==================== SEARCH ====================
+@api_router.get("/branpy/search")
+async def branpy_search(q: str = "", type: str = "videos", page: int = 1, limit: int = 20):
+    skip = (page - 1) * limit
+    if type == "users":
+        regex = {"$regex": q, "$options": "i"}
+        cursor = db.users.find({"$or": [{"name": regex}, {"email": regex}]}, {"_id": 0, "password_hash": 0}).skip(skip).limit(limit)
+        users = [clean_user(u) async for u in cursor]
+        total = await db.users.count_documents({"$or": [{"name": regex}, {"email": regex}]})
+        return {"users": users, "total": total, "type": "users"}
+    elif type == "hashtags":
+        regex = {"$regex": q, "$options": "i"}
+        cursor = db.branpy_hashtags.find({"name": regex}, {"_id": 0}).sort("count", -1).skip(skip).limit(limit)
+        hashtags = [h async for h in cursor]
+        total = await db.branpy_hashtags.count_documents({"name": regex})
+        return {"hashtags": hashtags, "total": total, "type": "hashtags"}
+    else:
+        query = {}
+        if q:
+            query["$or"] = [
+                {"title": {"$regex": q, "$options": "i"}},
+                {"description": {"$regex": q, "$options": "i"}},
+                {"hashtags": {"$regex": q, "$options": "i"}}
+            ]
+        cursor = db.branpy_videos.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+        videos = []
+        async for v in cursor:
+            u = await db.users.find_one({"user_id": v["user_id"]}, {"_id": 0, "password_hash": 0})
+            v["user"] = clean_user(u) if u else {"user_id": v["user_id"], "name": "Desconhecido"}
+            v["is_liked"] = False
+            videos.append(v)
+        total = await db.branpy_videos.count_documents(query)
+        return {"videos": videos, "total": total, "type": "videos"}
+
+# ==================== HASHTAGS ====================
+@api_router.get("/branpy/hashtag/{name}")
+async def branpy_get_hashtag(name: str, page: int = 1, limit: int = 20):
+    skip = (page - 1) * limit
+    h = await db.branpy_hashtags.find_one({"name": name.lower()}, {"_id": 0})
+    if not h: raise HTTPException(404, "Hashtag nao encontrada")
+    cursor = db.branpy_videos.find({"hashtags": name.lower()}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    videos = []
+    async for v in cursor:
+        u = await db.users.find_one({"user_id": v["user_id"]}, {"_id": 0, "password_hash": 0})
+        v["user"] = clean_user(u) if u else {"user_id": v["user_id"], "name": "Desconhecido"}
+        v["is_liked"] = False
+        videos.append(v)
+    return {"hashtag": h, "videos": videos}
+
+# ==================== PROFILE ====================
+@api_router.get("/branpy/profile/{user_id}")
+async def branpy_get_profile(user_id: str, request: Request = None):
+    u = await db.users.find_one({"user_id": user_id}, {"_id": 0, "password_hash": 0})
+    if not u: raise HTTPException(404, "Usuario nao encontrado")
+    profile = clean_user(u)
+    profile["videos_count"] = await db.branpy_videos.count_documents({"user_id": user_id})
+    profile["followers_count"] = await db.branpy_followers.count_documents({"following_id": user_id})
+    profile["following_count"] = await db.branpy_followers.count_documents({"follower_id": user_id})
+    profile["total_views"] = 0
+    cursor = db.branpy_videos.find({"user_id": user_id}, {"_id": 0, "views_count": 1})
+    async for v in cursor:
+        profile["total_views"] += v.get("views_count", 0)
+    profile["is_followed"] = False
+    if request:
+        try:
+            cur = await get_current_user(request)
+            f = await db.branpy_followers.find_one({"follower_id": cur["user_id"], "following_id": user_id})
+            profile["is_followed"] = f is not None
+        except: pass
+    return profile
+
+@api_router.put("/branpy/profile")
+async def branpy_update_profile(data: BranpyProfileUpdate, request: Request):
+    user = await get_current_user(request)
+    update = {}
+    if data.name is not None: update["name"] = data.name
+    if data.bio is not None: update["bio"] = data.bio
+    if data.avatar is not None: update["avatar"] = data.avatar
+    if data.banner is not None: update["banner"] = data.banner
+    if update:
+        await db.users.update_one({"user_id": user["user_id"]}, {"$set": update})
+    return {"ok": True}
+
+# ==================== ADMIN ====================
+@api_router.get("/branpy/admin/stats")
+async def branpy_admin_stats(request: Request):
+    user = await get_current_user(request)
+    if user.get("role") != "admin": raise HTTPException(403)
+    return {
+        "total_videos": await db.branpy_videos.count_documents({}),
+        "total_users": len(await db.branpy_videos.distinct("user_id")),
+        "total_likes": await db.branpy_likes.count_documents({}),
+        "total_likes": await db.branpy_likes.count_documents({}),
+        "total_comments": await db.branpy_comments.count_documents({}),
+        "total_views": await db.branpy_views.count_documents({}),
+        "total_follows": await db.branpy_followers.count_documents({}),
+        "active_users_today": len(await db.branpy_views.distinct("user_id", {
+            "created_at": {"$gte": (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()}
+        }))
+    }
+
+@api_router.get("/branpy/admin/videos")
+async def branpy_admin_videos(request: Request, page: int = 1, limit: int = 50):
+    user = await get_current_user(request)
+    if user.get("role") != "admin": raise HTTPException(403)
+    skip = (page - 1) * limit
+    total = await db.branpy_videos.count_documents({})
+    cursor = db.branpy_videos.find({}, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    videos = []
+    async for v in cursor:
+        u = await db.users.find_one({"user_id": v["user_id"]}, {"_id": 0, "password_hash": 0})
+        v["user"] = clean_user(u) if u else {"user_id": v["user_id"], "name": "Desconhecido"}
+        videos.append(v)
+    return {"videos": videos, "total": total}
+
+@api_router.get("/branpy/admin/users")
+async def branpy_admin_users(request: Request, page: int = 1, limit: int = 50):
+    user = await get_current_user(request)
+    if user.get("role") != "admin": raise HTTPException(403)
+    skip = (page - 1) * limit
+    total = await db.users.count_documents({})
+    cursor = db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).skip(skip).limit(limit)
+    users = [clean_user(u) async for u in cursor]
+    return {"users": users, "total": total}
+
 app.include_router(api_router)
 
 @app.get("/api/social/profile")
@@ -4527,6 +4914,22 @@ async def startup():
             await db.social_messages.create_index([("post_id", 1), ("created_at", -1)])
             await db.social_messages.create_index([("receiver_id", 1)])
             await db.notifications.create_index([("user_id", 1), ("created_at", -1)])
+            # BRANPI indexes
+            try:
+                await db.branpy_videos.create_index([("video_id", 1)], unique=True)
+                await db.branpy_videos.create_index([("user_id", 1)])
+                await db.branpy_videos.create_index([("created_at", -1)])
+                await db.branpy_videos.create_index([("views_count", -1)])
+                await db.branpy_videos.create_index([("hashtags", 1)])
+                await db.branpy_likes.create_index([("user_id", 1), ("video_id", 1)])
+                await db.branpy_comments.create_index([("video_id", 1)])
+                await db.branpy_followers.create_index([("follower_id", 1)])
+                await db.branpy_followers.create_index([("following_id", 1)])
+                await db.branpy_views.create_index([("video_id", 1)])
+                await db.branpy_hashtags.create_index([("name", 1)], unique=True)
+                logger.info("BRANPI indexes ensured")
+            except Exception as e:
+                logger.error(f"BRANPI index creation failed: {e}")
             logger.info("Database indexes ensured")
         except Exception as e:
             logger.error(f"Index creation failed: {e}")

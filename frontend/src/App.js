@@ -58,6 +58,7 @@ import { BLivreAuthProvider } from "./contexts/BLivreAuthContext";
 import { I18nProvider } from "./i18n/I18nContext";
 import BLivreSEO from "./components/BLivreSEO";
 import ErrorBoundary from "./components/ErrorBoundary";
+import BranpyApp from "./pages/Branpy/BranpyApp";
 
 function BLivreLayout() {
   return (
@@ -125,7 +126,7 @@ function AppRouter() {
   }
 
   const isAdmin = path.startsWith("/admin");
-  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane") || path.startsWith("/brane-studio") || path.startsWith("/brane-agent") || path.startsWith("/agente") || path.startsWith("/shopping") || path.startsWith("/notanews") || path.startsWith("/affiliate-agent");
+  const isSocial = path.startsWith("/social") || path.startsWith("/blivre") || path.startsWith("/market/blivre") || path.startsWith("/virtualshoppingbrane") || path.startsWith("/brane-studio") || path.startsWith("/brane-agent") || path.startsWith("/agente") || path.startsWith("/shopping") || path.startsWith("/notanews") || path.startsWith("/affiliate-agent") || path.startsWith("/branpy");
 
   return (
     <>
@@ -211,6 +212,7 @@ function AppRouter() {
             <Route path="/agente" element={<BraneAgent />} />
             <Route path="/notanews/*" element={<Notanews />} />
             <Route path="/affiliate-agent/*" element={<AffiliateAgentApp />} />
+            <Route path="/branpy/*" element={<BranpyApp />} />
             <Route path="/loja/:categoria" element={<PublicStoreFront />} />
 
             <Route
