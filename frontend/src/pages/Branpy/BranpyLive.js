@@ -145,17 +145,18 @@ function OperatorControls({ paused, onTogglePause, onRestart }) {
   );
 }
 
-const SCREEN_CONFIG = {
-  show_question: { minDuration: 3000, next: "alternatives" },
-  alternatives:  { minDuration: 12000, next: "reveal" },
-  reveal:        { minDuration: 3000, next: "explanation" },
-  explanation:   { minDuration: 8000, next: null },
+const PHASE_DEF = {
+  question_intro: { next: "options",    minTime: 3000,  fallback: 8000  },
+  options:        { next: "countdown",  minTime: 4000,  fallback: 12000 },
+  countdown:      { next: "answer",     minTime: 12000, fallback: 15000 },
+  answer:         { next: "explanation", minTime: 3000,  fallback: 5000  },
+  explanation:    { next: null,          minTime: 8000,  fallback: 10000 },
 };
 
 export default function BranpyLive() {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [screen, setScreen] = useState("loading");
+  const [phase, setPhase] = useState("loading");
   const [countdown, setCountdown] = useState(12);
   const [viewers, setViewers] = useState(1234);
   const [loadingText, setLoadingText] = useState("Carregando...");
@@ -165,16 +166,15 @@ export default function BranpyLive() {
 
   const countdownRef = useRef(null);
   const viewerRef = useRef(null);
-  const countdownStartRef = useRef(0);
-  const syncRef = useRef({ timerDone: false, narDone: false, advancing: false, timerId: null });
+  const syncRef = useRef({ minDone: false, narDone: false, advancing: false, timerId: null, fallbackId: null });
 
   const narrator = useNarrator();
 
   const clearAllTimers = useCallback(() => {
-    if (countdownRef.current) clearInterval(countdownRef.current);
-    if (syncRef.current.timerId) clearTimeout(syncRef.current.timerId);
-    countdownRef.current = null;
-    syncRef.current.timerId = null;
+    const s = syncRef.current;
+    if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
+    if (s.timerId) { clearTimeout(s.timerId); s.timerId = null; }
+    if (s.fallbackId) { clearTimeout(s.fallbackId); s.fallbackId = null; }
   }, []);
 
   const loadQuestions = useCallback(async () => {
@@ -183,7 +183,7 @@ export default function BranpyLive() {
       if (data.questions && data.questions.length > 0) {
         setQuestions(data.questions);
         setCurrentIndex(0);
-        setScreen("show_question");
+        setPhase("question_intro");
       } else {
         setLoadingText("Nenhuma pergunta disponivel.");
       }
@@ -192,153 +192,142 @@ export default function BranpyLive() {
     }
   }, []);
 
-  useEffect(() => {
-    loadQuestions();
-  }, [loadQuestions]);
+  useEffect(() => { loadQuestions(); }, [loadQuestions]);
 
   useEffect(() => {
-    viewerRef.current = setInterval(() => {
-      setViewers(randomViewers());
-    }, 8000);
+    viewerRef.current = setInterval(() => setViewers(randomViewers()), 8000);
     return () => clearInterval(viewerRef.current);
   }, []);
 
   useEffect(() => {
     const handler = (e) => {
-      if (e.ctrlKey && e.shiftKey && e.key === "Q") {
-        e.preventDefault();
-        setAdminVisible((v) => !v);
-      }
+      if (e.ctrlKey && e.shiftKey && e.key === "Q") { e.preventDefault(); setAdminVisible((v) => !v); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  const goToNextScreen = useCallback(() => {
-    const cfg = SCREEN_CONFIG[screen];
-    if (!cfg || !cfg.next) {
+  const advancePhase = useCallback(() => {
+    const def = PHASE_DEF[phase];
+    if (!def || !def.next) {
       const nextIdx = currentIndex + 1;
-      if (nextIdx >= questions.length) {
-        loadQuestions();
-      } else {
-        setCurrentIndex(nextIdx);
-        setScreen("show_question");
-      }
+      if (nextIdx >= questions.length) { loadQuestions(); }
+      else { setCurrentIndex(nextIdx); setPhase("question_intro"); }
     } else {
-      setScreen(cfg.next);
+      setPhase(def.next);
     }
-  }, [screen, currentIndex, questions.length, loadQuestions]);
+  }, [phase, currentIndex, questions.length, loadQuestions]);
 
-  // ── Synchronized screen timer + narration ────────────────────
+  // ── Synchronized phase driver (timer + narration + fallback) ──
   useEffect(() => {
-    if (paused || screen === "loading") return;
+    if (paused || phase === "loading") return;
     const q = questions[currentIndex];
     if (!q) return;
+    const def = PHASE_DEF[phase];
+    if (!def) return;
 
-    const cfg = SCREEN_CONFIG[screen];
-    if (!cfg) return;
+    console.log(`${phase.toUpperCase()} START`);
 
     const sync = syncRef.current;
-    sync.timerDone = false;
+    sync.minDone = false;
     sync.narDone = false;
     sync.advancing = false;
 
     let narItems = [];
-    if (screen === "show_question") {
+    if (phase === "question_intro") {
       narItems = [{ text: q.question }];
-    } else if (screen === "alternatives") {
+    } else if (phase === "options") {
       narItems = q.alternatives.map((a, i) => ({ text: `${ALTERNATIVE_LABELS[i]}. ${a}`, delayAfter: 80 }));
-    } else if (screen === "reveal") {
+    } else if (phase === "answer") {
       narItems = [{ text: q.alternatives[q.correct] }];
-    } else if (screen === "explanation") {
+    } else if (phase === "explanation") {
       if (q.explanation) narItems = [{ text: q.explanation }];
     }
 
     const tryAdvance = () => {
       if (sync.advancing) return;
-      if (!sync.timerDone || !sync.narDone) return;
+      if (phase === "countdown") {
+        if (!sync.minDone) return;
+      } else {
+        if (!sync.minDone || !sync.narDone) return;
+      }
       sync.advancing = true;
-      sync.timerId = setTimeout(goToNextScreen, 200);
+      console.log(`${phase.toUpperCase()} COMPLETE`);
+      advancePhase();
     };
 
-    sync.timerId = setTimeout(() => {
-      sync.timerDone = true;
-      tryAdvance();
-    }, cfg.minDuration);
+    // Fallback — ensures the quiz never stalls if onend or timer misfire
+    sync.fallbackId = setTimeout(() => {
+      if (!sync.advancing) {
+        sync.minDone = true;
+        sync.narDone = true;
+        console.log(`${phase.toUpperCase()} FALLBACK`);
+        tryAdvance();
+      }
+    }, def.fallback);
 
+    // Minimum phase timer (for countdown this IS the full countdown duration)
+    sync.timerId = setTimeout(() => {
+      sync.minDone = true;
+      tryAdvance();
+    }, def.minTime);
+
+    // Narration (countdown has none — narDone is irrelevant for it)
     if (narItems.length > 0) {
       narrator.speakSequence(narItems, () => {
-        sync.narDone = true;
-        tryAdvance();
+        if (!sync.narDone) { sync.narDone = true; tryAdvance(); }
       });
-    } else {
+    } else if (phase !== "countdown") {
       sync.narDone = true;
       tryAdvance();
     }
 
     return () => {
-      if (sync.timerId) clearTimeout(sync.timerId);
+      if (sync.timerId) { clearTimeout(sync.timerId); sync.timerId = null; }
+      if (sync.fallbackId) { clearTimeout(sync.fallbackId); sync.fallbackId = null; }
       narrator.cancel();
     };
-  }, [screen, currentIndex, paused, goToNextScreen]);
+  }, [phase, currentIndex, paused, advancePhase]);
 
-  // ── Countdown visual (purely cosmetic, runs during alternatives) ──
+  // ── Countdown visual ticker (only during countdown phase) ─────
   useEffect(() => {
-    if (paused || screen !== "alternatives") {
+    if (paused) {
       if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
       return;
     }
-    setCountdown(12);
-    countdownStartRef.current = Date.now();
-    countdownRef.current = setInterval(() => {
-      const elapsed = Date.now() - countdownStartRef.current;
-      const remaining = Math.max(0, 12 - Math.floor(elapsed / 1000));
-      setCountdown(remaining);
-      if (remaining <= 0) {
-        clearInterval(countdownRef.current);
-        countdownRef.current = null;
-      }
-    }, 200);
-    return () => {
-      if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; }
-    };
-  }, [screen, paused]);
+    if (phase === "countdown") {
+      setCountdown(12);
+      const start = Date.now();
+      countdownRef.current = setInterval(() => {
+        const elapsed = Date.now() - start;
+        const remaining = Math.max(0, 12 - Math.floor(elapsed / 1000));
+        setCountdown(remaining);
+        if (remaining <= 0) { clearInterval(countdownRef.current); countdownRef.current = null; }
+      }, 200);
+    } else if (phase === "options") {
+      setCountdown(12);
+    }
+    return () => { if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; } };
+  }, [phase, paused]);
 
   const handleTogglePause = () => {
-    setPaused((p) => {
-      if (!p) narrator.cancel();
-      return !p;
-    });
+    setPaused((p) => { if (!p) narrator.cancel(); return !p; });
   };
 
   const handleRestart = () => {
-    clearAllTimers();
-    narrator.cancel();
-    setPaused(false);
-    setScreen("loading");
-    loadQuestions();
+    clearAllTimers(); narrator.cancel(); setPaused(false); setPhase("loading"); loadQuestions();
   };
 
   const handleAdminPause = () => {
-    narrator.cancel();
-    setPaused(true);
-    clearAllTimers();
+    narrator.cancel(); setPaused(true); clearAllTimers();
   };
 
-  const handleAdminContinue = () => {
-    setPaused(false);
-  };
+  const handleAdminContinue = () => { setPaused(false); };
 
   const handleAdminNext = () => {
-    narrator.cancel();
-    clearAllTimers();
-    setPaused(false);
-    const cfg = SCREEN_CONFIG[screen];
-    if (cfg && cfg.next) {
-      setScreen(cfg.next);
-    } else {
-      handleRestart();
-    }
+    narrator.cancel(); clearAllTimers(); setPaused(false);
+    const def = PHASE_DEF[phase];
+    if (def && def.next) { setPhase(def.next); } else { handleRestart(); }
   };
 
   const AdminPanel = ({ paused }) => {
@@ -432,7 +421,7 @@ export default function BranpyLive() {
     textAlign: "left", fontWeight: 500,
   };
 
-  if (screen === "loading") {
+  if (phase === "loading") {
     return (
       <div
         style={{
@@ -465,16 +454,18 @@ export default function BranpyLive() {
     );
   }
 
-  const showAlternatives = screen === "alternatives" || screen === "reveal" || screen === "explanation";
-  const isQuestionTop = screen === "alternatives" || screen === "reveal" || screen === "explanation";
-  const showCountdown = screen === "alternatives";
+  const revealOrExplain = phase === "answer" || phase === "explanation";
+  const showAlternatives = phase === "options" || phase === "countdown" || revealOrExplain;
+  const isQuestionTop = showAlternatives;
+  const showCountdown = phase === "options" || phase === "countdown";
 
-  const mainBg = (screen === "reveal" || screen === "explanation")
+  const mainBg = revealOrExplain
     ? `radial-gradient(ellipse at center, rgba(46,204,113,0.08) 0%, ${COLORS.bg} 70%)`
     : `radial-gradient(ellipse at center, rgba(138,44,255,0.06) 0%, ${COLORS.bg} 70%)`;
 
-  const progressPct = screen === "show_question" ? 0
-    : screen === "alternatives" ? ((12 - countdown) / 12) * 100
+  const progressPct = phase === "question_intro" ? 0
+    : phase === "options" ? 15
+    : phase === "countdown" ? ((12 - countdown) / 12) * 75 + 15
     : 100;
 
   return (
@@ -614,8 +605,8 @@ export default function BranpyLive() {
             animation: "slideUp 0.6s ease-out",
           }}>
             {q.alternatives.map((alt, i) => {
-              const isCorrect = (screen === "reveal" || screen === "explanation") && i === q.correct;
-              const isWrong = (screen === "reveal" || screen === "explanation") && i !== q.correct;
+              const isCorrect = revealOrExplain && i === q.correct;
+              const isWrong = revealOrExplain && i !== q.correct;
               return (
                 <div key={i} className="option-item"
                   style={{
@@ -671,7 +662,7 @@ export default function BranpyLive() {
         }}>
           <div style={{
             width: `${progressPct}%`, height: "100%",
-            background: (screen === "reveal" || screen === "explanation")
+            background: revealOrExplain
               ? `linear-gradient(90deg, ${COLORS.correct}, #1a9e56)`
               : `linear-gradient(90deg, ${COLORS.primary}, ${COLORS.accent})`,
             borderRadius: 2,
@@ -696,7 +687,7 @@ export default function BranpyLive() {
       {showCountdown && <CountdownNumber number={countdown} visible={true} />}
 
       {/* Answer reveal overlay (also during explanation) */}
-      {(screen === "reveal" || screen === "explanation") && (
+      {revealOrExplain && (
         <AnswerReveal
           question={q}
           correct={q.correct}
