@@ -29,6 +29,8 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
   const [sv, setSv] = useState(true);
   const [showFps, setShowFps] = useState(false);
   const [showRes, setShowRes] = useState(false);
+  const [undoWip, setUndoWip] = useState(false);
+  const [redoWip, setRedoWip] = useState(false);
   const ref = useRef(null);
   useEffect(() => { if (ed) ref.current?.focus(); }, [ed]);
   useEffect(() => { if (!sv) { const t = setTimeout(() => setSv(true), 600); return () => clearTimeout(t); } }, [sv]);
@@ -95,8 +97,12 @@ function TopBar({ proj, setProj, ct, dur, onImp, onExp, onMem, workspace, setWor
         <span style={{ color: sv ? "rgba(16,185,129,0.65)" : "rgba(251,191,36,0.75)" }}>{sv ? "Saved" : "Saving..."}</span>
       </div>
       <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.06)", margin: "0 4px" }} />
-      <Bi d={I.undo} sz={12} tip="Undo" />
-      <Bi d={I.redo} sz={12} tip="Redo" />
+      <Tp text={undoWip ? "✓ Em desenvolvimento" : "Undo"} ch={<button onClick={() => { setUndoWip(true); setTimeout(() => setUndoWip(false), 1500); }}
+        style={{ padding: 4, borderRadius: 3, border: "none", cursor: "pointer", background: "none", color: "rgba(255,255,255,0.32)", display: "flex", fontFamily: "inherit" }}
+        className="cs-hover-soft"><S d={I.undo} sz={12} /></button>} />
+      <Tp text={redoWip ? "✓ Em desenvolvimento" : "Redo"} ch={<button onClick={() => { setRedoWip(true); setTimeout(() => setRedoWip(false), 1500); }}
+        style={{ padding: 4, borderRadius: 3, border: "none", cursor: "pointer", background: "none", color: "rgba(255,255,255,0.32)", display: "flex", fontFamily: "inherit" }}
+        className="cs-hover-soft"><S d={I.redo} sz={12} /></button>} />
 
       <div style={{ width: 1, height: 18, background: "rgba(255,255,255,0.06)", margin: "0 4px" }} />
       {WORKSPACES.map((ws) => (
@@ -313,18 +319,7 @@ export default function VideoStudioEditor() {
     try { localStorage.removeItem("branpy_project"); } catch {}
   }, []);
 
-  useEffect(() => {
-    if (playing) {
-      piRef.current = setInterval(() => {
-        setCt((t) => {
-          const n = t + 1 / proj.fps;
-          if (n >= proj.duration) { setPlaying(false); return 0; }
-          return n;
-        });
-      }, 1000 / proj.fps);
-    }
-    return () => clearInterval(piRef.current);
-  }, [playing, proj.duration, proj.fps]);
+  // Playback is handled by PreviewPanel via requestAnimationFrame
 
   const handleImp = useCallback((files) => {
     const items = Array.from(files).map((f, i) => ({

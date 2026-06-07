@@ -56,6 +56,8 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
   const videoRef = useRef(null);
   const audioRefs = useRef({});
   const rafRef = useRef(null);
+  const ctRef = useRef(ct);
+  const playingRef = useRef(playing);
   const lastTimeRef = useRef(0);
   const [pz, setPz] = useState(80);
   const [grid, setGrid] = useState(false);
@@ -65,6 +67,10 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
   const [showQual, setShowQual] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [error, setError] = useState(null);
+  const [videoUrl, setVideoUrl] = useState(null);
+
+  ctRef.current = ct;
+  playingRef.current = playing;
 
   const ar = ASPECTS.find((a) => a.id === aspect)?.ratio || 16 / 9;
   const previewW = Math.min(480, window.innerWidth * 0.28);
@@ -80,50 +86,36 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
     } catch {}
   };
 
+  // Update video URL when current clip changes
+  useEffect(() => {
+    if (currentClip?.url && (currentClip.type === "video" || currentClip.file?.type?.startsWith("video"))) {
+      setVideoUrl(currentClip.url);
+    } else {
+      setVideoUrl(null);
+    }
+  }, [currentClip?.id, currentClip?.url]);
+
+  // Sync video currentTime to ct
   useEffect(() => {
     const v = videoRef.current;
     if (!v || !currentClip) return;
     const off = ct - currentClip.start;
-    if (Math.abs(v.currentTime - off) > 0.15) {
+    if (Math.abs(v.currentTime - off) > 0.2) {
       v.currentTime = Math.max(0, Math.min(off, currentClip.duration));
     }
-  }, [ct, currentClip]);
+  }, [ct, currentClip?.id]);
 
+  // Handle play/pause via requestAnimationFrame (single loop)
   useEffect(() => {
-    Object.values(audioRefs.current).forEach((a) => { try { if (a) a.volume = vol / 100; } catch {} });
-  }, [vol]);
-
-  useEffect(() => {
-    setError(null);
     if (!playing) {
-      Object.values(audioRefs.current).forEach((a) => { try { a?.pause(); } catch {} });
-      Object.values(audioRefs.current).forEach((a) => { try { if (a) a.currentTime = 0; } catch {} });
       if (videoRef.current) { try { videoRef.current.pause(); } catch {} }
+      Object.values(audioRefs.current).forEach((a) => { try { a?.pause(); } catch {} });
+      cancelAnimationFrame(rafRef.current);
       return;
     }
-    const clip = currentClip;
-    if (clip?.url) {
-      const isVid = clip.type === "video" || clip.file?.type?.startsWith("video");
-      const isAud = clip.type === "audio" || clip.file?.type?.startsWith("audio");
-      const off = ct - clip.start;
-      if (isVid && videoRef.current) {
-        videoRef.current.volume = vol / 100;
-        videoRef.current.currentTime = Math.max(0, Math.min(off, clip.duration));
-        videoRef.current.play().catch(() => setError("Video playback failed"));
-      }
-      if (isAud) {
-        const aEl = audioRefs.current[clip.id];
-        if (aEl) {
-          aEl.volume = vol / 100;
-          aEl.currentTime = Math.max(0, Math.min(off, clip.duration));
-          aEl.play().catch(() => setError("Audio playback failed"));
-        }
-      }
-    }
-    let raf = true;
     lastTimeRef.current = performance.now();
     const tick = (now) => {
-      if (!raf) return;
+      if (!playingRef.current) return;
       const dt = (now - lastTimeRef.current) / 1000;
       lastTimeRef.current = now;
       setCt((t) => {
@@ -134,14 +126,36 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
-    return () => { raf = false; cancelAnimationFrame(rafRef.current); };
-  }, [playing, currentClip, ct, setCt, setPlaying, proj.duration, vol]);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [playing, proj.duration]);
+
+  // Play video when playing and has a video clip
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v || !currentClip) return;
+    const isVid = currentClip.type === "video" || currentClip.file?.type?.startsWith("video");
+    if (!isVid) return;
+    if (!playing) {
+      v.pause();
+    } else {
+      v.volume = vol / 100;
+      const off = ct - currentClip.start;
+      if (Math.abs(v.currentTime - off) > 0.2) {
+        v.currentTime = Math.max(0, Math.min(off, currentClip.duration));
+      }
+      v.play().catch(() => setError("Video playback failed"));
+    }
+  }, [playing, currentClip?.id, ct]);
+
+  useEffect(() => {
+    Object.values(audioRefs.current).forEach((a) => { try { if (a) a.volume = vol / 100; } catch {} });
+  }, [vol]);
 
   const hasMedia = currentClip?.url;
 
   return (
     <div ref={ref} style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, minWidth: 0, background: "#080808" }}>
-      {/* Hidden audio elements for all clips */}
+      {/* Hidden audio elements */}
       {proj.tracks.flatMap((t) => t.clips.filter((c) => (c.url || c.src) && (c.type === "audio" || c.file?.type?.startsWith("audio")))).map((c) => (
         <audio key={c.id} ref={(el) => { if (el) audioRefs.current[c.id] = el; }}
           src={c.src || c.url} preload="auto" loop={false}
@@ -149,12 +163,10 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
         />
       ))}
       {/* Hidden video element for video clips */}
-      {currentClip?.url && (currentClip.type === "video" || currentClip.file?.type?.startsWith("video")) && (
-        <video ref={videoRef} src={currentClip.url} preload="auto"
-          style={{ display: "none" }}
-          onError={() => setError("Video failed to load")}
-        />
-      )}
+      <video ref={videoRef} src={videoUrl} preload="auto"
+        style={{ display: "none" }}
+        onError={() => setError("Video failed to load")}
+      />
 
       <div style={{
         flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
@@ -193,7 +205,7 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
                   onError={() => setError("Image failed to load")}
                 />
               ) : currentClip.type === "video" || currentClip.file?.type?.startsWith("video") ? (
-                <video
+                <video ref={videoRef}
                   style={{
                     width: "100%", height: "100%", objectFit: "contain",
                     ...clipStyle(currentClip.effects),

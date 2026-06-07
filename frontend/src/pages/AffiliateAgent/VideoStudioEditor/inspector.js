@@ -492,17 +492,23 @@ export default function Inspector({ clip, open, onToggle, proj, setProj }) {
         {tab === "ai" && (
           <Section label="AI Tools">
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {AI_TOOLS.slice(0, 8).map((ai) => (
-                <button key={ai.id} style={{
-                  display: "flex", alignItems: "center", gap: 6, padding: "4px 6px", borderRadius: 3,
-                  border: "none", cursor: "pointer", background: "rgba(255,255,255,0.03)",
-                  color: "rgba(255,255,255,0.45)", fontSize: 11, fontFamily: "inherit",
-                  textAlign: "left", width: "100%",
-                }} className="cs-hover-soft">
-                  <span style={{ fontSize: 12 }}>{ai.icon}</span>
-                  <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ai.name}</span>
-                </button>
-              ))}
+              {AI_TOOLS.slice(0, 8).map((ai) => {
+                const [aiStatus, setAiStatus] = React.useState(null);
+                return (
+                  <button key={ai.id} onClick={() => { setAiStatus("wip"); setTimeout(() => setAiStatus(null), 1500); }}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 6, padding: "4px 6px", borderRadius: 3,
+                      border: "none", cursor: "pointer",
+                      background: aiStatus === "wip" ? "rgba(16,185,129,0.08)" : "rgba(255,255,255,0.03)",
+                      color: aiStatus === "wip" ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.45)",
+                      fontSize: 11, fontFamily: "inherit",
+                      textAlign: "left", width: "100%",
+                    }} className="cs-hover-soft">
+                    <span style={{ fontSize: 12 }}>{ai.icon}</span>
+                    <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{aiStatus === "wip" ? "✓ Em desenvolvimento" : ai.name}</span>
+                  </button>
+                );
+              })}
             </div>
           </Section>
         )}
@@ -510,56 +516,70 @@ export default function Inspector({ clip, open, onToggle, proj, setProj }) {
         {tab === "captions" && (
           <Section label="Captions">
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {[{ lang: "Auto Detect", icon: "🌐" }, { lang: "PT-BR", icon: "🇧🇷" }, { lang: "EN", icon: "🇺🇸" }].map((c) => (
-              <button key={c.lang} style={{
-                display: "flex", alignItems: "center", gap: 6, padding: "4px 6px", borderRadius: 3,
-                border: "none", cursor: "pointer", background: "rgba(255,255,255,0.03)",
-                color: "rgba(255,255,255,0.45)", fontSize: 11, fontFamily: "inherit",
-                  textAlign: "left", width: "100%",
-                }} className="cs-hover-soft">
-                  <span style={{ fontSize: 12 }}>{c.icon}</span>
-                  <span>{c.lang}</span>
-                </button>
-              ))}
+              {[{ lang: "Auto Detect", icon: "🌐" }, { lang: "PT-BR", icon: "🇧🇷" }, { lang: "EN", icon: "🇺🇸" }].map((c) => {
+                const [cs, setCs] = React.useState(null);
+                return (
+                  <button key={c.lang} onClick={() => { setCs("wip"); setTimeout(() => setCs(null), 1500); }}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 6, padding: "4px 6px", borderRadius: 3,
+                      border: "none", cursor: "pointer",
+                      background: cs === "wip" ? "rgba(16,185,129,0.08)" : "rgba(255,255,255,0.03)",
+                      color: cs === "wip" ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.45)",
+                      fontSize: 11, fontFamily: "inherit",
+                      textAlign: "left", width: "100%",
+                    }} className="cs-hover-soft">
+                    <span style={{ fontSize: 12 }}>{c.icon}</span>
+                    <span>{cs === "wip" ? "✓ Em desenvolvimento" : c.lang}</span>
+                  </button>
+                );
+              })}
             </div>
-            <button style={{
-              width: "100%", fontSize: 11, padding: "4px 6px", borderRadius: 3, marginTop: 4,
-              border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-              background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)", fontFamily: "inherit",
-            }} className="cs-hover-soft">Generate Captions</button>
+            <button onClick={() => { setAnimStatus("cap"); setTimeout(() => setAnimStatus(null), 1500); }}
+              style={{
+                width: "100%", fontSize: 11, padding: "4px 6px", borderRadius: 3, marginTop: 4,
+                border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                background: animStatus === "cap" ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.03)",
+                color: animStatus === "cap" ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.45)",
+                fontFamily: "inherit",
+              }} className="cs-hover-soft">{animStatus === "cap" ? "✓ Em desenvolvimento" : "Generate Captions"}</button>
           </Section>
         )}
 
         {tab === "speed" && (
           <>
             <Section label="Speed">
-              <SliderRow label="Speed" value={1} min={0.1} max={8} step={0.1} />
+              <SliderRow label="Speed" value={clip.speed ?? 1} min={0.1} max={8} step={0.1} onChange={(e) => updateClipProp(clip, proj, setProj, { speed: +e.target.value })} />
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 2, marginTop: 4 }}>
                 {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 4].map((s) => (
-                  <button key={s} style={{
-                    fontSize: 11, padding: "3px 4px", borderRadius: 3,
-                    border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                    background: s === 1 ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.03)",
-                    color: s === 1 ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.38)",
-                    fontFamily: "inherit",
-                  }} className={s !== 1 ? "cs-hover-soft" : ""}>{s}x</button>
+                  <button key={s} onClick={() => updateClipProp(clip, proj, setProj, { speed: s })}
+                    style={{
+                      fontSize: 11, padding: "3px 4px", borderRadius: 3,
+                      border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                      background: (clip.speed || 1) === s ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.03)",
+                      color: (clip.speed || 1) === s ? "rgba(59,130,246,0.6)" : "rgba(255,255,255,0.38)",
+                      fontFamily: "inherit",
+                    }} className={(clip.speed || 1) !== s ? "cs-hover-soft" : ""}>{s}x</button>
                 ))}
               </div>
             </Section>
             <Section label="Time Remap">
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 3 }}>
-                <button style={{
-                  fontSize: 11, padding: "4px 6px", borderRadius: 3,
-                  border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                  background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
-                  fontFamily: "inherit",
-                }} className="cs-hover-soft">Reverse</button>
-                <button style={{
-                  fontSize: 11, padding: "4px 6px", borderRadius: 3,
-                  border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
-                  background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
-                  fontFamily: "inherit",
-                }} className="cs-hover-soft">Freeze Frame</button>
+                <button onClick={() => { setAnimStatus("wip"); setTimeout(() => setAnimStatus(null), 1500); }}
+                  style={{
+                    fontSize: 11, padding: "4px 6px", borderRadius: 3,
+                    border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                    background: animStatus === "wip" ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.03)",
+                    color: animStatus === "wip" ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.45)",
+                    fontFamily: "inherit",
+                  }} className="cs-hover-soft">{animStatus === "wip" ? "✓ Em desenvolvimento" : "Reverse"}</button>
+                <button onClick={() => { setAnimStatus("wip2"); setTimeout(() => setAnimStatus(null), 1500); }}
+                  style={{
+                    fontSize: 11, padding: "4px 6px", borderRadius: 3,
+                    border: "1px solid rgba(255,255,255,0.04)", cursor: "pointer",
+                    background: animStatus === "wip2" ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.03)",
+                    color: animStatus === "wip2" ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.45)",
+                    fontFamily: "inherit",
+                  }} className="cs-hover-soft">{animStatus === "wip2" ? "✓ Em desenvolvimento" : "Freeze Frame"}</button>
               </div>
             </Section>
           </>

@@ -1012,17 +1012,21 @@ export function AIPanel() {
             fontSize: 11, color: proc === ai.id ? "rgba(16,185,129,0.5)" : "rgba(59,130,246,0.4)",
             flexShrink: 0,
           }}>
-            {proc === ai.id ? <span style={{ animation: "spin 0.8s linear infinite" }}>⏳</span> : ai.icon}
+            {proc === ai.id ? <span>✓</span> : ai.icon}
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{
-              fontSize: 14, color: "rgba(255,255,255,0.68)", fontWeight: 500,
+              fontSize: 14, color: proc === ai.id ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.68)",
+              fontWeight: 500,
               overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}>
-              {ai.name}
+              {proc === ai.id ? "Recurso em desenvolvimento" : ai.name}
             </div>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginTop: 1 }}>
-              {proc === ai.id ? "Processing..." : ai.desc}
+            <div style={{
+              fontSize: 12, color: proc === ai.id ? "rgba(16,185,129,0.5)" : "rgba(255,255,255,0.45)",
+              marginTop: 1,
+            }}>
+              {proc === ai.id ? "Em breve disponível" : ai.desc}
             </div>
           </div>
         </button>
@@ -1215,6 +1219,7 @@ export function CaptionsPanel({ onClickItem }) {
 
 export function BrandPanel({ onClickItem }) {
   const [hvr, setHvr] = useState(null);
+  const [editStatus, setEditStatus] = useState(null);
   return (
     <div style={{ padding: "8px" }}>
       <div style={{
@@ -1275,12 +1280,14 @@ export function BrandPanel({ onClickItem }) {
           </div>
         ))}
       </div>
-      <button style={{
-        width: "100%", fontSize: 11, padding: "5px 8px", borderRadius: 4,
-        border: "1px solid rgba(255,255,255,0.05)", cursor: "pointer",
-        background: "rgba(255,255,255,0.03)", color: "rgba(255,255,255,0.45)",
-        fontFamily: "inherit",
-      }} className="cs-hover-soft">Edit Brand Kit</button>
+      <button onClick={() => { setEditStatus("wip"); setTimeout(() => setEditStatus(null), 1500); }}
+        style={{
+          width: "100%", fontSize: 11, padding: "5px 8px", borderRadius: 4,
+          border: "1px solid rgba(255,255,255,0.05)", cursor: "pointer",
+          background: editStatus === "wip" ? "rgba(16,185,129,0.1)" : "rgba(255,255,255,0.03)",
+          color: editStatus === "wip" ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.45)",
+          fontFamily: "inherit",
+        }} className="cs-hover-soft">{editStatus === "wip" ? "✓ Em desenvolvimento" : "Edit Brand Kit"}</button>
     </div>
   );
 }

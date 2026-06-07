@@ -9,6 +9,8 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
   const [drag, setDrag] = useState(null);
   const [trim, setTrim] = useState(null);
   const [showSpeed, setShowSpeed] = useState(false);
+  const [rippleWip, setRippleWip] = useState(false);
+  const [markerWip, setMarkerWip] = useState(false);
   const pps = PPS_BASE * (zoom / 100);
   const totalW = Math.max(proj.duration * pps + 400, 2000);
 
@@ -263,10 +265,13 @@ export default function Timeline({ proj, setProj, ct, setCt, zoom, setZoom, play
           >Del</button>
         } />
         <div style={{ width: 1, height: 14, background: "rgba(255,255,255,0.06)", margin: "0 2px" }} />
-        <Tp text="Ripple Edit" ch={<button style={{ padding: "2px 7px", fontSize: 13, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.38)", background: "transparent", fontFamily: "inherit", fontWeight: 500 }} className="cs-tl-btn">Ripple</button>} />
+        <Tp text="Ripple Edit" ch={<button onClick={() => { setRippleWip(true); setTimeout(() => setRippleWip(false), 1500); }} style={{ padding: "2px 7px", fontSize: 13, borderRadius: 3, border: "none", cursor: "pointer", color: rippleWip ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.38)", background: rippleWip ? "rgba(16,185,129,0.08)" : "transparent", fontFamily: "inherit", fontWeight: 500 }} className="cs-tl-btn">{rippleWip ? "✓ Em desenvolvimento" : "Ripple"}</button>} />
         <Tp text="Snap" ch={<button style={{ padding: 3, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(59,130,246,0.6)", background: "rgba(59,130,246,0.08)", display: "flex" }}><S d={I.snap} sz={11} /></button>} />
         <div style={{ flex: 1 }} />
-        <Tp text="Add Marker (M)" ch={<button style={{ padding: 3, borderRadius: 3, border: "none", cursor: "pointer", color: "rgba(255,255,255,0.38)", background: "transparent", display: "flex" }} className="cs-tl-btn"><S d={I.mrk} sz={11} /></button>} />
+        <Tp text="Add Marker (M)" ch={<button onClick={() => {
+          setProj((prev) => ({ ...prev, markers: [...(prev.markers || []), { id: UID(), time: Math.floor(ct), color: "#f59e0b" }] }));
+          setMarkerWip(true); setTimeout(() => setMarkerWip(false), 1500);
+        }} style={{ padding: 3, borderRadius: 3, border: "none", cursor: "pointer", color: markerWip ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.38)", background: "transparent", display: "flex" }} className="cs-tl-btn"><S d={I.mrk} sz={11} /></button>} />
         <div style={{
           display: "flex", alignItems: "center", gap: 3,
           background: "rgba(255,255,255,0.03)", borderRadius: 4,
