@@ -321,10 +321,18 @@ export default function VideoStudioEditor() {
 
   // Playback is handled by PreviewPanel via requestAnimationFrame
 
+  function detectFileType(f) {
+    const name = f.name.toLowerCase();
+    if (f.type.startsWith("video") || /\.(mp4|mov|avi|mkv|webm|m4v|3gp|wmv|flv)$/i.test(name)) return "video";
+    if (f.type.startsWith("audio") || /\.(mp3|wav|m4a|ogg|flac|aac|wma)$/i.test(name)) return "audio";
+    if (f.type.startsWith("image") || /\.(jpg|jpeg|png|gif|webp|svg|bmp)$/i.test(name)) return "image";
+    return "video";
+  }
+
   const handleImp = useCallback((files) => {
     const items = Array.from(files).map((f, i) => ({
       id: UID() + i, name: f.name,
-      type: f.type.startsWith("video") ? "video" : f.type.startsWith("audio") ? "audio" : "image",
+      type: detectFileType(f),
       file: f, url: URL.createObjectURL(f), dur: Math.max(2, Math.min(10, 5 + (i % 3) * 2)),
     }));
     setImm((prev) => [...prev, ...items]);
@@ -339,7 +347,7 @@ export default function VideoStudioEditor() {
           type: item.type, t: item.type === "video" ? "🎬" : item.type === "audio" ? "🎵" : "🖼️",
           url: item.url, file: item.file,
         };
-        maxEnd = Math.max(maxEnd, item.start + item.dur);
+        maxEnd = c.start + c.duration;
         return c;
       });
       return {

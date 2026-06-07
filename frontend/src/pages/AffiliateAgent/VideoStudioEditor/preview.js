@@ -43,6 +43,7 @@ function findClipAtTime(tracks, time) {
   for (const track of tracks) {
     if (!track.visible) continue;
     for (const clip of track.clips) {
+      if (isNaN(clip.start) || isNaN(clip.duration)) continue;
       if (time >= clip.start && time < clip.start + clip.duration) {
         return clip;
       }
@@ -112,7 +113,7 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
     }
   }, [playing, currentClip?.id, vol]);
 
-  // Handle playback: video clips use timeupdate; others use RAF
+  // Handle playback: video clips poll currentTime via RAF; others advance ct by dt
   useEffect(() => {
     if (!playing) {
       if (videoRef.current) { try { videoRef.current.pause(); } catch {} }
@@ -122,36 +123,33 @@ export default function PreviewPanel({ playing, setPlaying, ct, setCt, proj, vol
     }
 
     const isVid = currentClip && (currentClip.type === "video" || currentClip.file?.type?.startsWith("video"));
+    const v = videoRef.current;
 
-    if (isVid) {
-      const v = videoRef.current;
-      if (!v) { return; }
+    if (isVid && v) {
       const cs = currentClip.start;
       const cd = currentClip.duration;
-      const onTimeUpdate = () => {
+      const tick = () => {
         if (!playingRef.current) return;
-        if (v.ended) { setPlaying(false); return; }
+        if (v.ended || v.currentTime >= cd) { setPlaying(false); return; }
         setCt(cs + v.currentTime);
+        rafRef.current = requestAnimationFrame(tick);
       };
-      v.addEventListener('timeupdate', onTimeUpdate);
-      return () => {
-        v.removeEventListener('timeupdate', onTimeUpdate);
-      };
-    }
-
-    lastTimeRef.current = performance.now();
-    const tick = (now) => {
-      if (!playingRef.current) return;
-      const dt = (now - lastTimeRef.current) / 1000;
-      lastTimeRef.current = now;
-      setCt((t) => {
-        const n = t + dt;
-        if (n >= proj.duration) { setPlaying(false); return 0; }
-        return n;
-      });
       rafRef.current = requestAnimationFrame(tick);
-    };
-    rafRef.current = requestAnimationFrame(tick);
+    } else {
+      lastTimeRef.current = performance.now();
+      const tick = (now) => {
+        if (!playingRef.current) return;
+        const dt = (now - lastTimeRef.current) / 1000;
+        lastTimeRef.current = now;
+        setCt((t) => {
+          const n = t + dt;
+          if (n >= proj.duration) { setPlaying(false); return 0; }
+          return n;
+        });
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    }
     return () => cancelAnimationFrame(rafRef.current);
   }, [playing, currentClip?.id, proj.duration]);
 
