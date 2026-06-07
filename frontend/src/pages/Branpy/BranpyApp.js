@@ -6,6 +6,7 @@ import BranpyTrending from "./BranpyTrending";
 import BranpySearch from "./BranpySearch";
 import BranpyVideoDetail from "./BranpyVideoDetail";
 import BranpyAdmin from "./BranpyAdmin";
+import BranpyLive from "./BranpyLive";
 import { useAuth } from "../../contexts/AuthContext";
 import { useState, useRef, useEffect } from "react";
 
@@ -42,6 +43,7 @@ function BranpyNav({ onSearch }) {
         <Link to="/branpy/upload" style={{ background: "linear-gradient(135deg,#8A2CFF,#5B1BA6)", color: "#fff", border: "none", borderRadius: 20, padding: "6px 16px", fontSize: 12, fontWeight: 600, cursor: "pointer", textDecoration: "none" }}>
           + Upload
         </Link>
+        <Link to="/branpy/live" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: 13 }}>🎯</Link>
         <Link to="/branpy/trending" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: 13 }}>🔥</Link>
         <div style={{ position: "relative" }}>
           <div onClick={() => setMenu(!menu)} style={{ width: 30, height: 30, borderRadius: "50%", background: user?.picture ? `url(${user.picture}) center/cover` : "linear-gradient(135deg,#8A2CFF,#5B1BA6)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 600 }}>
@@ -53,7 +55,8 @@ function BranpyNav({ onSearch }) {
                 <>
                   <Link to={`/branpy/profile/${user.user_id}`} onClick={() => setMenu(false)} style={{ display: "block", padding: "8px 12px", color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 13, borderRadius: 6 }}>Meu Perfil</Link>
                   <Link to="/branpy/search" onClick={() => setMenu(false)} style={{ display: "block", padding: "8px 12px", color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 13, borderRadius: 6 }}>Buscar</Link>
-                  {user.role === "admin" && <Link to="/branpy/admin" onClick={() => setMenu(false)} style={{ display: "block", padding: "8px 12px", color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 13, borderRadius: 6 }}>Admin</Link>}
+                  <Link to="/branpy/live" onClick={() => setMenu(false)} style={{ display: "block", padding: "8px 12px", color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 13, borderRadius: 6 }}>Quiz ao Vivo</Link>
+                {user.role === "admin" && <Link to="/branpy/admin" onClick={() => setMenu(false)} style={{ display: "block", padding: "8px 12px", color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 13, borderRadius: 6 }}>Admin</Link>}
                   <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", margin: "4px 0" }} />
                   <div onClick={() => { logout(); setMenu(false); }} style={{ padding: "8px 12px", color: "rgba(255,80,80,0.8)", cursor: "pointer", fontSize: 13, borderRadius: 6 }}>Sair</div>
                 </>
@@ -110,6 +113,7 @@ export default function BranpyApp() {
         <Route path="trending" element={<BranpyTrending />} />
         <Route path="search" element={<BranpySearch />} />
         <Route path="video/:id" element={<BranpyVideoDetail />} />
+        <Route path="live" element={<BranpyLive />} />
         <Route path="admin" element={<BranpyAdmin />} />
       </Routes>
       <BranpyBottomNav />

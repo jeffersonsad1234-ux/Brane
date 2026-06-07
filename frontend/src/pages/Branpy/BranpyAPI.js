@@ -113,6 +113,11 @@ export async function updateProfile(data) {
   return res.data;
 }
 
+export async function getLiveQuiz(count = 10) {
+  const res = await axios.get(`${API}/branpy/live?count=${count}`, { headers: getHeaders() });
+  return res.data;
+}
+
 export async function getAdminStats() {
   const res = await axios.get(`${API}/branpy/admin/stats`, { headers: getHeaders() });
   return res.data;

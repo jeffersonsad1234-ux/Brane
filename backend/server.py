@@ -4847,6 +4847,33 @@ async def branpy_admin_users(request: Request, page: int = 1, limit: int = 50):
     users = [clean_user(u) async for u in cursor]
     return {"users": users, "total": total}
 
+# ── Branpy Live Quiz ────────────────────────────────────────
+QUIZ_SEED_PATH = ROOT_DIR / "quiz_seed" / "quiz_seed.json"
+_quiz_pool = []
+try:
+    if QUIZ_SEED_PATH.exists():
+        with open(QUIZ_SEED_PATH, encoding="utf-8") as f:
+            _quiz_pool = json.load(f)
+except Exception as e:
+    logging.warning(f"Could not load quiz seed: {e}")
+
+@api_router.get("/branpy/live")
+async def branpy_live(request: Request, count: int = 10):
+    from random import sample
+    if not _quiz_pool:
+        return {"questions": [], "total": 0}
+    k = min(count, len(_quiz_pool))
+    selected = sample(_quiz_pool, k)
+    out = []
+    for q in selected:
+        out.append({
+            "question": q["question"],
+            "alternatives": q["alternatives"],
+            "category": q.get("category", ""),
+            "explanation": q.get("explanation", ""),
+        })
+    return {"questions": out, "total": len(_quiz_pool)}
+
 app.include_router(api_router)
 
 @app.get("/api/social/profile")
