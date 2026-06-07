@@ -26,14 +26,16 @@ function formatViewers(n) {
   return String(n);
 }
 
-function CountdownOverlay({ number }) {
+function CountdownNumber({ number, visible }) {
+  if (!visible) return null;
   return (
     <div
       style={{
-        position: "fixed", inset: 0, zIndex: 200,
+        position: "fixed", top: "50%", left: "50%",
+        transform: "translate(-50%, -50%)",
+        zIndex: 150,
         display: "flex", alignItems: "center", justifyContent: "center",
-        backgroundColor: "rgba(5,6,8,0.85)",
-        backdropFilter: "blur(4px)",
+        pointerEvents: "none",
       }}
     >
       <div
@@ -59,8 +61,7 @@ function AnswerReveal({ question, correct, explanation }) {
         position: "fixed", inset: 0, zIndex: 150,
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
         backgroundColor: "rgba(5,6,8,0.92)",
-        backdropFilter: "blur(6px)",
-        padding: 40,
+        backdropFilter: "blur(6px)", padding: 40,
       }}
     >
       <div
@@ -105,6 +106,44 @@ function AnswerReveal({ question, correct, explanation }) {
   );
 }
 
+function OperatorControls({ paused, onTogglePause, onRestart }) {
+  const [visible, setVisible] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setVisible(true)}
+      onMouseLeave={() => setVisible(false)}
+      style={{
+        position: "fixed", top: 56, right: 16, zIndex: 999,
+        display: "flex", gap: 6, opacity: visible ? 1 : 0,
+        transition: "opacity 0.2s ease",
+      }}
+    >
+      <button
+        onClick={onTogglePause}
+        title={paused ? "▶ Iniciar" : "⏸ Pausar"}
+        style={{
+          width: 32, height: 32, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.15)",
+          background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 14, cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}
+      >
+        {paused ? "▶" : "⏸"}
+      </button>
+      <button
+        onClick={onRestart}
+        title="🔄 Reiniciar"
+        style={{
+          width: 32, height: 32, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.15)",
+          background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 14, cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}
+      >
+        🔄
+      </button>
+    </div>
+  );
+}
+
 export default function BranpyLive() {
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -112,10 +151,13 @@ export default function BranpyLive() {
   const [countdown, setCountdown] = useState(10);
   const [viewers, setViewers] = useState(1234);
   const [loadingText, setLoadingText] = useState("Carregando...");
-  const intervalRef = useRef(null);
+  const [paused, setPaused] = useState(false);
+  const [questionPhase, setQuestionPhase] = useState("show");
+
   const countdownRef = useRef(null);
   const revealRef = useRef(null);
   const viewerRef = useRef(null);
+  const showTimerRef = useRef(null);
 
   const loadQuestions = useCallback(async () => {
     try {
@@ -124,6 +166,7 @@ export default function BranpyLive() {
         setQuestions(data.questions);
         setCurrentIndex(0);
         setPhase("question");
+        setQuestionPhase("show");
         setCountdown(10);
       } else {
         setLoadingText("Nenhuma pergunta disponivel.");
@@ -145,31 +188,41 @@ export default function BranpyLive() {
   }, []);
 
   useEffect(() => {
-    if (phase !== "question") return;
+    if (phase !== "question" || paused) return;
 
-    setCountdown(10);
+    if (questionPhase === "show") {
+      setCountdown(10);
+      showTimerRef.current = setTimeout(() => {
+        setQuestionPhase("countdown");
+      }, 2000);
+      return () => {
+        if (showTimerRef.current) clearTimeout(showTimerRef.current);
+      };
+    }
 
-    const startTime = Date.now();
-    const duration = 10000;
+    if (questionPhase === "countdown") {
+      const startTime = Date.now();
+      const duration = 10000;
 
-    countdownRef.current = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, Math.ceil((duration - elapsed) / 1000));
-      setCountdown(remaining);
+      countdownRef.current = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, Math.ceil((duration - elapsed) / 1000));
+        setCountdown(remaining);
+        if (remaining <= 0) {
+          clearInterval(countdownRef.current);
+          setPhase("reveal");
+          setQuestionPhase("show");
+        }
+      }, 100);
 
-      if (remaining <= 0) {
-        clearInterval(countdownRef.current);
-        setPhase("reveal");
-      }
-    }, 100);
-
-    return () => {
-      if (countdownRef.current) clearInterval(countdownRef.current);
-    };
-  }, [phase, currentIndex, questions.length]);
+      return () => {
+        if (countdownRef.current) clearInterval(countdownRef.current);
+      };
+    }
+  }, [phase, questionPhase, paused, currentIndex, questions.length]);
 
   useEffect(() => {
-    if (phase !== "reveal") return;
+    if (phase !== "reveal" || paused) return;
 
     revealRef.current = setTimeout(() => {
       const next = currentIndex + 1;
@@ -178,13 +231,28 @@ export default function BranpyLive() {
       } else {
         setCurrentIndex(next);
         setPhase("question");
+        setQuestionPhase("show");
+        setCountdown(10);
       }
     }, 5000);
 
     return () => {
       if (revealRef.current) clearTimeout(revealRef.current);
     };
-  }, [phase, currentIndex, questions.length, loadQuestions]);
+  }, [phase, currentIndex, questions.length, loadQuestions, paused]);
+
+  const handleTogglePause = () => {
+    setPaused((p) => !p);
+  };
+
+  const handleRestart = () => {
+    setPaused(false);
+    setPhase("loading");
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    if (revealRef.current) clearTimeout(revealRef.current);
+    if (showTimerRef.current) clearTimeout(showTimerRef.current);
+    loadQuestions();
+  };
 
   if (phase === "loading") {
     return (
@@ -224,8 +292,12 @@ export default function BranpyLive() {
     : `radial-gradient(ellipse at center, rgba(138,44,255,0.06) 0%, ${COLORS.bg} 70%)`;
 
   const progressPct = phase === "question"
-    ? ((10 - countdown) / 10) * 100
+    ? questionPhase === "show"
+      ? 0
+      : ((10 - countdown) / 10) * 100
     : phase === "reveal" ? 100 : 0;
+
+  const isQuestionTop = phase === "question" && questionPhase === "countdown";
 
   return (
     <div
@@ -239,7 +311,7 @@ export default function BranpyLive() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: isQuestionTop ? "flex-start" : "center",
         transition: "background 0.6s ease",
       }}
     >
@@ -252,17 +324,9 @@ export default function BranpyLive() {
           0%, 100% { box-shadow: 0 0 20px ${COLORS.primary}40; }
           50% { box-shadow: 0 0 40px ${COLORS.primary}80; }
         }
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
         @keyframes slideUp {
           from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes shimmer {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
         }
         .live-dot {
           width: 10px;
@@ -284,7 +348,17 @@ export default function BranpyLive() {
         .option-item:nth-child(2) { animation-delay: 0.2s; }
         .option-item:nth-child(3) { animation-delay: 0.3s; }
         .option-item:nth-child(4) { animation-delay: 0.4s; }
+        .question-move {
+          transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
       `}</style>
+
+      {/* Operator controls */}
+      <OperatorControls
+        paused={paused}
+        onTogglePause={handleTogglePause}
+        onRestart={handleRestart}
+      />
 
       {/* Top bar */}
       <div style={{
@@ -298,6 +372,15 @@ export default function BranpyLive() {
           <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: 1 }}>
             QUIZ AO VIVO
           </span>
+          {paused && (
+            <span style={{
+              fontSize: 10, fontWeight: 700, color: "#E74C3C",
+              background: "rgba(231,76,60,0.15)", padding: "2px 8px",
+              borderRadius: 10, textTransform: "uppercase", letterSpacing: 1,
+            }}>
+              PAUSADO
+            </span>
+          )}
         </div>
         <div style={{
           display: "flex", alignItems: "center", gap: 6,
@@ -322,25 +405,32 @@ export default function BranpyLive() {
         {q.category || "Conhecimentos Gerais"}
       </div>
 
-      {/* Question */}
-      <div style={{
+      {/* Question + Alternatives */}
+      <div className="question-move" style={{
         display: "flex", flexDirection: "column", alignItems: "center",
-        justifyContent: "center", padding: "40px 20px", maxWidth: 800,
-        width: "100%", position: "relative", zIndex: 10,
+        padding: isQuestionTop ? "80px 20px 20px" : "40px 20px",
+        maxWidth: 900, width: "100%",
+        position: "relative", zIndex: 10,
+        marginTop: isQuestionTop ? 0 : "auto",
+        marginBottom: isQuestionTop ? 0 : "auto",
       }}>
         <div style={{
-          fontSize: 11, color: COLORS.muted, marginBottom: 20,
+          fontSize: 11, color: COLORS.muted, marginBottom: isQuestionTop ? 10 : 20,
           letterSpacing: 2, textTransform: "uppercase",
         }}>
           Pergunta {currentIndex + 1}
         </div>
 
         <div className="question-text" style={{
-          fontSize: "clamp(24px, 5vw, 42px)",
+          fontSize: isQuestionTop
+            ? "clamp(18px, 2.5vw, 28px)"
+            : "clamp(24px, 5vw, 42px)",
           fontWeight: 800, textAlign: "center", lineHeight: 1.3,
-          marginBottom: 40, color: COLORS.text,
+          marginBottom: isQuestionTop ? 16 : 40,
+          color: COLORS.text,
           textShadow: `0 2px 20px rgba(0,0,0,0.5)`,
-          maxWidth: 700,
+          maxWidth: isQuestionTop ? 600 : 700,
+          transition: "all 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
         }}>
           {q.question}
         </div>
@@ -348,7 +438,10 @@ export default function BranpyLive() {
         {/* Alternatives */}
         <div style={{
           display: "grid", gridTemplateColumns: "1fr 1fr",
-          gap: 12, width: "100%", maxWidth: 640,
+          gap: 14, width: "100%", maxWidth: 700,
+          opacity: isQuestionTop ? 0.7 : 1,
+          transition: "opacity 0.5s ease",
+          pointerEvents: "none",
         }}>
           {q.alternatives.map((alt, i) => {
             const isCorrect = phase === "reveal" && i === q.correct;
@@ -356,38 +449,40 @@ export default function BranpyLive() {
             return (
               <div key={i} className="option-item"
                 style={{
-                  display: "flex", alignItems: "center", gap: 12,
-                  padding: "14px 18px",
+                  display: "flex", alignItems: "center", gap: 14,
+                  padding: "16px 20px",
                   borderRadius: 14,
                   border: `2px solid ${
                     isCorrect ? COLORS.correct
                     : isWrong ? "rgba(255,255,255,0.06)"
-                    : "rgba(255,255,255,0.1)"
+                    : "rgba(255,255,255,0.15)"
                   }`,
-                  background: isCorrect ? `${COLORS.correct}18`
+                  background: isCorrect ? `${COLORS.correct}20`
                     : isWrong ? "rgba(255,255,255,0.03)"
-                    : "rgba(255,255,255,0.04)",
+                    : "rgba(255,255,255,0.06)",
                   transition: "all 0.4s ease",
                   animation: isCorrect ? "glow 1.5s infinite" : "none",
                 }}
               >
                 <span style={{
-                  width: 36, height: 36, borderRadius: "50%",
+                  width: 42, height: 42, borderRadius: "50%",
                   display: "flex", alignItems: "center", justifyContent: "center",
-                  fontWeight: 800, fontSize: 15,
+                  fontWeight: 800, fontSize: 18,
                   background: isCorrect ? COLORS.correct
-                    : "rgba(255,255,255,0.08)",
+                    : "rgba(138,44,255,0.3)",
                   color: "#fff", flexShrink: 0,
+                  border: isCorrect ? "none" : "2px solid rgba(138,44,255,0.3)",
                 }}>
                   {ALTERNATIVE_LABELS[i]}
                 </span>
                 <span style={{
-                  fontSize: "clamp(13px, 2vw, 18px)",
-                  fontWeight: isCorrect ? 700 : 400,
+                  fontSize: "clamp(15px, 2.2vw, 20px)",
+                  fontWeight: isCorrect ? 700 : 500,
                   color: isCorrect ? COLORS.correct
                     : isWrong ? COLORS.muted
-                    : "rgba(255,255,255,0.85)",
+                    : "#FFFFFF",
                   lineHeight: 1.3,
+                  textShadow: "0 1px 4px rgba(0,0,0,0.6)",
                 }}>
                   {alt}
                 </span>
@@ -430,8 +525,10 @@ export default function BranpyLive() {
         </span>
       </div>
 
-      {/* Countdown overlay */}
-      {phase === "question" && <CountdownOverlay number={countdown} />}
+      {/* Countdown number (not full overlay) */}
+      {phase === "question" && questionPhase === "countdown" && (
+        <CountdownNumber number={countdown} visible={true} />
+      )}
 
       {/* Answer reveal overlay */}
       {phase === "reveal" && (
