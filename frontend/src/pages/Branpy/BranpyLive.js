@@ -17,6 +17,20 @@ const COLORS = {
 
 const ALTERNATIVE_LABELS = ["A", "B", "C", "D"];
 
+export function shuffleQuestion(question) {
+  if (!question.alternatives || question.alternatives.length < 2) return question;
+  const indices = question.alternatives.map((_, i) => i);
+  for (let i = indices.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [indices[i], indices[j]] = [indices[j], indices[i]];
+  }
+  return {
+    ...question,
+    alternatives: indices.map((i) => question.alternatives[i]),
+    correct: indices.indexOf(question.correct),
+  };
+}
+
 function randomViewers() {
   const base = [500, 1000, 2000, 5000, 8000, 12000];
   const chosen = base[Math.floor(Math.random() * base.length)];
@@ -189,7 +203,8 @@ export default function BranpyLive() {
     try {
       const data = await getLiveQuiz(50);
       if (data.questions && data.questions.length > 0) {
-        setQuestions(data.questions);
+        const shuffled = data.questions.map(shuffleQuestion);
+        setQuestions(shuffled);
         setCurrentIndex(0);
         setPhase("question_intro");
       } else {
@@ -251,6 +266,11 @@ export default function BranpyLive() {
     let narItems = [];
     if (phase === "question_intro") {
       narItems = [{ text: q.question }];
+    } else if (phase === "countdown") {
+      narItems = q.alternatives.map((alt, i) => ({
+        text: `${ALTERNATIVE_LABELS[i]}: ${alt}`,
+        delayAfter: 800,
+      }));
     } else if (phase === "answer") {
       narItems = [{ text: q.alternatives[q.correct] }];
     } else if (phase === "explanation") {
@@ -511,17 +531,31 @@ export default function BranpyLive() {
               </button>
             )}
 
-            <select value={narrator.voice?.name || ""} onChange={(e) => {
-              const v = narrator.voices.find((x) => x.name === e.target.value);
-              narrator.setVoice(v || null);
-            }}
-              style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11 }}
-            >
-              <option value="" disabled>Selecione uma voz</option>
-              {narrator.voices.map((v) => (
-                <option key={v.name} value={v.name}>{v.name.replace(/Microsoft|Online|Natural|\(Portuguese\)|\(Português\)/g, "").trim() || v.name}</option>
-              ))}
-            </select>
+            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+              <select value={narrator.voice?.name || ""} onChange={(e) => {
+                const v = narrator.voices.find((x) => x.name === e.target.value);
+                narrator.setVoice(v || null);
+              }}
+                style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11, flex: 1 }}
+              >
+                <option value="" disabled>Selecione uma voz</option>
+                {narrator.voices.map((v) => (
+                  <option key={v.name} value={v.name}>{v.name.replace(/Microsoft|Online|Natural|\(Portuguese\)|\(Português\)/g, "").trim() || v.name}</option>
+                ))}
+              </select>
+              <button onClick={narrator.refreshVoices} title="Atualizar vozes"
+                style={{
+                  width: 30, height: 30, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.06)", color: "#fff", fontSize: 14,
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >
+                🔄
+              </button>
+            </div>
+            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 1 }}>
+              {narrator.allVoiceCount} vozes detectadas ({narrator.voices.length} pt)
+            </div>
 
             <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Volume</div>
             <input type="range" min="0" max="1" step="0.1" value={narrator.volume}

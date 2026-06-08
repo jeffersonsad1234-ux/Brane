@@ -178,6 +178,7 @@ export default function useNarrator() {
   const [pitch, setPitch] = useState(1.2);
   const [voice, setVoice] = useState(null);
   const [voices, setVoices] = useState([]);
+  const [allVoiceCount, setAllVoiceCount] = useState(0);
   const [isSupported, setIsSupported] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
 
@@ -195,15 +196,12 @@ export default function useNarrator() {
   useEffect(() => { voiceRef.current = voice; }, [voice]);
 
   const pickVoice = useCallback((all) => {
-    // Only Portuguese voices
     const pt = all.filter((v) => v.lang.startsWith("pt"));
-    // Try saved voice first
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const match = pt.find((v) => v.name === saved);
       if (match) return match;
     }
-    // Fallback: feminine pt-BR
     return (
       pt.find((v) => v.lang.startsWith("pt-BR") && /female|maria|luciana|helena|isabella/i.test(v.name)) ||
       pt.find((v) => v.lang.startsWith("pt-BR")) ||
@@ -212,32 +210,64 @@ export default function useNarrator() {
     );
   }, []);
 
+  const loadVoices = useCallback(() => {
+    if (!("speechSynthesis" in window)) return;
+    const all = window.speechSynthesis.getVoices();
+    setAllVoiceCount(all.length);
+    const pt = all.filter((v) => v.lang.startsWith("pt"));
+    setVoices(pt);
+    console.log(`[useNarrator] ${all.length} vozes totais, ${pt.length} portuguesas`);
+    if (!voiceRef.current) {
+      const picked = pickVoice(all);
+      if (picked) setVoice(picked);
+    }
+  }, [pickVoice]);
+
+  // Initial load + event listener + polling fallback for Electron
   useEffect(() => {
     const supported = "speechSynthesis" in window;
     setIsSupported(supported);
     if (!supported) return;
 
-    let loadTimer = null;
+    const pollMax = 50;    // ~5 seconds at 100ms
+    let pollCount = 0;
+    let pollTimer = null;
 
-    const loadVoices = () => {
-      if (loadTimer) clearTimeout(loadTimer);
-      loadTimer = setTimeout(() => {
-        const all = window.speechSynthesis.getVoices();
-        if (all.length === 0) return;
-        const pt = all.filter((v) => v.lang.startsWith("pt"));
-        setVoices(pt);
-        // Only auto-pick if no voice is selected yet
-        if (!voiceRef.current) {
-          const picked = pickVoice(all);
-          if (picked) setVoice(picked);
-        }
-      }, 100);
+    const tryLoad = () => {
+      const all = window.speechSynthesis.getVoices();
+      if (all.length > 0 || pollCount >= pollMax) {
+        loadVoices();
+        return;
+      }
+      pollCount++;
+      pollTimer = setTimeout(tryLoad, 100);
     };
 
-    loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-    return () => { window.speechSynthesis.onvoiceschanged = null; if (loadTimer) clearTimeout(loadTimer); };
-  }, [pickVoice]);
+    // Immediate attempt
+    tryLoad();
+
+    // Event-driven (works in Chrome, sometimes in Electron)
+    window.speechSynthesis.onvoiceschanged = () => {
+      pollCount = pollMax; // stop polling once event fires
+      loadVoices();
+    };
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+      if (pollTimer) clearTimeout(pollTimer);
+    };
+  }, [loadVoices]);
+
+  const refreshVoices = useCallback(() => {
+    if (!("speechSynthesis" in window)) return;
+    // Force the browser to repopulate the voice list
+    window.speechSynthesis.cancel();
+    const all = window.speechSynthesis.getVoices();
+    setAllVoiceCount(all.length);
+    const pt = all.filter((v) => v.lang.startsWith("pt"));
+    setVoices(pt);
+    console.log(`[useNarrator] Refresh: ${all.length} vozes totais, ${pt.length} portuguesas`);
+  }, []);
 
   const handleSetVoice = useCallback((v) => {
     setVoice(v);
@@ -311,12 +341,14 @@ export default function useNarrator() {
     pitch, setPitch,
     voice, setVoice: handleSetVoice,
     voices,
+    allVoiceCount,
     isSupported,
     isBlocked, setIsBlocked,
     cancel,
     speak,
     speakSequence,
     testVoice,
+    refreshVoices,
     normalizeSpeechText,
   };
 }
