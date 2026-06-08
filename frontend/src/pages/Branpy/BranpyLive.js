@@ -162,6 +162,7 @@ export default function BranpyLive() {
   const [viewers, setViewers] = useState(1234);
   const [loadingText, setLoadingText] = useState("Carregando...");
   const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
 
   const [adminVisible, setAdminVisible] = useState(false);
   const [bgVariant, setBgVariant] = useState(() => localStorage.getItem("brane_bg") || "neon");
@@ -174,6 +175,8 @@ export default function BranpyLive() {
   const music = useBackgroundMusic();
   const [giftText, setGiftText] = useState("");
   const [announcing, setAnnouncing] = useState(false);
+
+  useEffect(() => { pausedRef.current = paused; }, [paused]);
 
   const clearAllTimers = useCallback(() => {
     const s = syncRef.current;
@@ -206,6 +209,7 @@ export default function BranpyLive() {
 
   useEffect(() => {
     const handler = (e) => {
+      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "q") { e.preventDefault(); setAdminVisible((v) => !v); }
     };
     window.addEventListener("keydown", handler);
@@ -218,6 +222,7 @@ export default function BranpyLive() {
   }, []);
 
   const advancePhase = useCallback(() => {
+    if (pausedRef.current) return;
     const def = PHASE_DEF[phase];
     if (!def || !def.next) {
       const nextIdx = currentIndex + 1;
@@ -353,8 +358,106 @@ export default function BranpyLive() {
     if (def && def.next) { setPhase(def.next); } else { handleRestart(); }
   };
 
-  const AdminPanel = () => {
+  const adminBtnStyle = {
+    display: "block", width: "100%", padding: "6px 10px",
+    background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 8, color: "#fff", fontSize: 12, cursor: "pointer",
+    textAlign: "left", fontWeight: 500,
+  };
+
+  if (phase === "loading") {
     return (
+      <div
+        style={{
+          width: "100vw", height: "100vh",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: COLORS.bg, color: COLORS.muted,
+          fontFamily: "system-ui, -apple-system, sans-serif",
+          fontSize: 18,
+        }}
+      >
+        {loadingText}
+      </div>
+    );
+  }
+
+  const q = questions[currentIndex];
+  if (!q) {
+    return (
+      <div
+        style={{
+          width: "100vw", height: "100vh",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          background: COLORS.bg, color: COLORS.muted,
+          fontFamily: "system-ui, -apple-system, sans-serif",
+          fontSize: 18,
+        }}
+      >
+        Nenhuma pergunta.
+      </div>
+    );
+  }
+
+  const revealOrExplain = phase === "answer" || phase === "explanation";
+  const showAlternatives = phase === "countdown" || revealOrExplain;
+  const isQuestionTop = showAlternatives;
+  const showCountdown = phase === "countdown";
+
+  const progressPct = phase === "question_intro" ? 0
+    : phase === "countdown" ? ((10 - countdown) / 10) * 100
+    : 100;
+
+  return (
+    <div
+      style={{
+        width: "100vw", height: "100vh",
+        background: "transparent",
+        color: COLORS.text,
+        fontFamily: "system-ui, -apple-system, sans-serif",
+        overflow: "hidden",
+        position: "relative", zIndex: 10,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: isQuestionTop ? "flex-start" : "center",
+        transition: "background 0.6s ease",
+      }}
+    >
+      <AnimatedBackground variant={bgVariant} />
+      <style>{`
+        @keyframes pulse {
+          0% { transform: scale(1.2); opacity: 0.5; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 20px ${COLORS.primary}40; }
+          50% { box-shadow: 0 0 40px ${COLORS.primary}80; }
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .live-dot {
+          width: 10px; height: 10px; border-radius: 50%;
+          background: #E74C3C; display: inline-block; margin-right: 6px;
+          animation: pulse 1.5s infinite;
+        }
+        .question-text { animation: slideUp 0.5s ease-out; }
+        .option-item { animation: slideUp 0.5s ease-out; animation-fill-mode: both; }
+        .option-item:nth-child(1) { animation-delay: 0.1s; }
+        .option-item:nth-child(2) { animation-delay: 0.2s; }
+        .option-item:nth-child(3) { animation-delay: 0.3s; }
+        .option-item:nth-child(4) { animation-delay: 0.4s; }
+        .question-move { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+      `}</style>
+
+      {/* Operator controls */}
+      <OperatorControls
+        paused={paused}
+        onTogglePause={handleTogglePause}
+        onRestart={handleRestart}
+      />
+      {/* Admin panel (Ctrl+Shift+Q) */}
       <div style={{
         position: "fixed", top: 56, right: 16, zIndex: 9999,
         display: adminVisible ? "flex" : "none", flexDirection: "column", gap: 4,
@@ -496,110 +599,6 @@ export default function BranpyLive() {
           {announcing ? "🔊 Falando..." : "📢 FALAR AGORA"}
         </button>
       </div>
-    );
-  };
-
-  const adminBtnStyle = {
-    display: "block", width: "100%", padding: "6px 10px",
-    background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-    borderRadius: 8, color: "#fff", fontSize: 12, cursor: "pointer",
-    textAlign: "left", fontWeight: 500,
-  };
-
-  if (phase === "loading") {
-    return (
-      <div
-        style={{
-          width: "100vw", height: "100vh",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          background: COLORS.bg, color: COLORS.muted,
-          fontFamily: "system-ui, -apple-system, sans-serif",
-          fontSize: 18,
-        }}
-      >
-        {loadingText}
-      </div>
-    );
-  }
-
-  const q = questions[currentIndex];
-  if (!q) {
-    return (
-      <div
-        style={{
-          width: "100vw", height: "100vh",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          background: COLORS.bg, color: COLORS.muted,
-          fontFamily: "system-ui, -apple-system, sans-serif",
-          fontSize: 18,
-        }}
-      >
-        Nenhuma pergunta.
-      </div>
-    );
-  }
-
-  const revealOrExplain = phase === "answer" || phase === "explanation";
-  const showAlternatives = phase === "countdown" || revealOrExplain;
-  const isQuestionTop = showAlternatives;
-  const showCountdown = phase === "countdown";
-
-  const progressPct = phase === "question_intro" ? 0
-    : phase === "countdown" ? ((10 - countdown) / 10) * 100
-    : 100;
-
-  return (
-    <div
-      style={{
-        width: "100vw", height: "100vh",
-        background: "transparent",
-        color: COLORS.text,
-        fontFamily: "system-ui, -apple-system, sans-serif",
-        overflow: "hidden",
-        position: "relative", zIndex: 10,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: isQuestionTop ? "flex-start" : "center",
-        transition: "background 0.6s ease",
-      }}
-    >
-      <AnimatedBackground variant={bgVariant} />
-      <style>{`
-        @keyframes pulse {
-          0% { transform: scale(1.2); opacity: 0.5; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 20px ${COLORS.primary}40; }
-          50% { box-shadow: 0 0 40px ${COLORS.primary}80; }
-        }
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .live-dot {
-          width: 10px; height: 10px; border-radius: 50%;
-          background: #E74C3C; display: inline-block; margin-right: 6px;
-          animation: pulse 1.5s infinite;
-        }
-        .question-text { animation: slideUp 0.5s ease-out; }
-        .option-item { animation: slideUp 0.5s ease-out; animation-fill-mode: both; }
-        .option-item:nth-child(1) { animation-delay: 0.1s; }
-        .option-item:nth-child(2) { animation-delay: 0.2s; }
-        .option-item:nth-child(3) { animation-delay: 0.3s; }
-        .option-item:nth-child(4) { animation-delay: 0.4s; }
-        .question-move { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
-      `}</style>
-
-      {/* Operator controls */}
-      <OperatorControls
-        paused={paused}
-        onTogglePause={handleTogglePause}
-        onRestart={handleRestart}
-      />
-      {/* Admin panel (Ctrl+Shift+Q) */}
-      <AdminPanel />
 
       {/* Top bar */}
       <div style={{
