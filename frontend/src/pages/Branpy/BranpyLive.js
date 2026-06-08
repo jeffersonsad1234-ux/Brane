@@ -484,10 +484,6 @@ export default function BranpyLive() {
   const isQuestionTop = showAlternatives;
   const showCountdown = phase === "countdown";
 
-  const mainBg = revealOrExplain
-    ? `radial-gradient(ellipse at center, rgba(46,204,113,0.08) 0%, ${COLORS.bg} 70%)`
-    : `radial-gradient(ellipse at center, rgba(138,44,255,0.06) 0%, ${COLORS.bg} 70%)`;
-
   const progressPct = phase === "question_intro" ? 0
     : phase === "countdown" ? ((10 - countdown) / 10) * 100
     : 100;
@@ -496,7 +492,7 @@ export default function BranpyLive() {
     <div
       style={{
         width: "100vw", height: "100vh",
-        background: mainBg,
+        background: "transparent",
         color: COLORS.text,
         fontFamily: "system-ui, -apple-system, sans-serif",
         overflow: "hidden",
