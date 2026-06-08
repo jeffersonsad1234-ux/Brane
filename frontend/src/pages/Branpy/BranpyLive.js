@@ -17,18 +17,29 @@ const COLORS = {
 
 const ALTERNATIVE_LABELS = ["A", "B", "C", "D"];
 
-export function shuffleQuestion(question) {
+export function shuffleQuestion(question, debug = false) {
   if (!question.alternatives || question.alternatives.length < 2) return question;
+  const originalCorrect = question.correct;
   const indices = question.alternatives.map((_, i) => i);
   for (let i = indices.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [indices[i], indices[j]] = [indices[j], indices[i]];
   }
-  return {
+  const shuffled = {
     ...question,
     alternatives: indices.map((i) => question.alternatives[i]),
-    correct: indices.indexOf(question.correct),
+    correct: indices.indexOf(originalCorrect),
   };
+  if (debug) {
+    console.log(`[Shuffle] ${"=".repeat(50)}`);
+    console.log(`[Shuffle] Pergunta: "${question.question}"`);
+    console.log(`[Shuffle] Alternativas ORIGINAIS:`, question.alternatives);
+    console.log(`[Shuffle] Correct ORIGINAL: ${originalCorrect} (${ALTERNATIVE_LABELS[originalCorrect] || "?"})`);
+    console.log(`[Shuffle] Alternativas EMBARALHADAS:`, shuffled.alternatives);
+    console.log(`[Shuffle] Correct FINAL: ${shuffled.correct} (${ALTERNATIVE_LABELS[shuffled.correct] || "?"})`);
+    console.log(`[Shuffle] ${"=".repeat(50)}`);
+  }
+  return shuffled;
 }
 
 function randomViewers() {
@@ -203,7 +214,8 @@ export default function BranpyLive() {
     try {
       const data = await getLiveQuiz(50);
       if (data.questions && data.questions.length > 0) {
-        const shuffled = data.questions.map(shuffleQuestion);
+        const shuffled = data.questions.map((q) => shuffleQuestion(q, true));
+        console.log(`[Quiz] ${shuffled.length} questoes carregadas e embaralhadas`);
         setQuestions(shuffled);
         setCurrentIndex(0);
         setPhase("question_intro");
@@ -419,6 +431,11 @@ export default function BranpyLive() {
   }
 
   const revealOrExplain = phase === "answer" || phase === "explanation";
+
+  // Log current question with correct answer position
+  console.log(`[Quiz Display] Pergunta #${currentIndex + 1}: "${q.question}"`);
+  console.log(`[Quiz Display] Alternativas:`, q.alternatives);
+  console.log(`[Quiz Display] Correct index: ${q.correct} (letra ${ALTERNATIVE_LABELS[q.correct] || "?"})`);
   const showAlternatives = phase === "countdown" || revealOrExplain;
   const isQuestionTop = showAlternatives;
   const showCountdown = phase === "countdown";
@@ -554,8 +571,33 @@ export default function BranpyLive() {
               </button>
             </div>
             <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 1 }}>
-              {narrator.allVoiceCount} vozes detectadas ({narrator.voices.length} pt)
+              {narrator.allVoiceCount} vozes detectadas ({narrator.voices.length} em português)
             </div>
+
+            <details style={{ marginTop: 2 }}>
+              <summary style={{ fontSize: 10, color: COLORS.primary, fontWeight: 600, cursor: "pointer", padding: "2px 0" }}>
+                📋 Diagnóstico de Vozes ({narrator.allVoiceCount})
+              </summary>
+              <div style={{ maxHeight: 200, overflowY: "auto", marginTop: 4, fontSize: 10, color: COLORS.muted, lineHeight: 1.6 }}>
+                {narrator.allVoices.length === 0 ? (
+                  <div style={{ color: "#FFA500" }}>Nenhuma voz detectada. speechSynthesis pode estar bloqueado.</div>
+                ) : (
+                  narrator.allVoices.map((v, i) => (
+                    <div key={i} style={{
+                      padding: "3px 4px", borderBottom: "1px solid rgba(255,255,255,0.04)",
+                      display: "flex", justifyContent: "space-between",
+                    }}>
+                      <span style={{ color: "#fff", fontWeight: v.lang.startsWith("pt") ? 600 : 400 }}>
+                        {v.name}
+                      </span>
+                      <span>
+                        {v.lang} {v.default ? "(default)" : ""}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </details>
 
             <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Volume</div>
             <input type="range" min="0" max="1" step="0.1" value={narrator.volume}

@@ -178,6 +178,7 @@ export default function useNarrator() {
   const [pitch, setPitch] = useState(1.2);
   const [voice, setVoice] = useState(null);
   const [voices, setVoices] = useState([]);
+  const [allVoices, setAllVoices] = useState([]);
   const [allVoiceCount, setAllVoiceCount] = useState(0);
   const [isSupported, setIsSupported] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
@@ -213,10 +214,20 @@ export default function useNarrator() {
   const loadVoices = useCallback(() => {
     if (!("speechSynthesis" in window)) return;
     const all = window.speechSynthesis.getVoices();
+    setAllVoices(all);
     setAllVoiceCount(all.length);
+    console.log(`[useNarrator] ${"=".repeat(40)}`);
+    console.log(`[useNarrator] Total de vozes encontradas: ${all.length}`);
+    all.forEach((v, i) => {
+      console.log(`[useNarrator] Voz #${i + 1}: nome="${v.name}" lang="${v.lang}" default=${v.default}`);
+    });
+    console.log(`[useNarrator] ${"=".repeat(40)}`);
+    if (all.length === 0) {
+      console.warn("[useNarrator] NENHUMA voz encontrada! speechSynthesis pode estar bloqueado.");
+    }
     const pt = all.filter((v) => v.lang.startsWith("pt"));
     setVoices(pt);
-    console.log(`[useNarrator] ${all.length} vozes totais, ${pt.length} portuguesas`);
+    console.log(`[useNarrator] Vozes em portugues: ${pt.length}`);
     if (!voiceRef.current) {
       const picked = pickVoice(all);
       if (picked) setVoice(picked);
@@ -260,13 +271,22 @@ export default function useNarrator() {
 
   const refreshVoices = useCallback(() => {
     if (!("speechSynthesis" in window)) return;
-    // Force the browser to repopulate the voice list
     window.speechSynthesis.cancel();
     const all = window.speechSynthesis.getVoices();
+    setAllVoices(all);
     setAllVoiceCount(all.length);
+    console.log(`[useNarrator] ${"=".repeat(40)}`);
+    console.log(`[useNarrator] REFRESH - Total de vozes: ${all.length}`);
+    all.forEach((v, i) => {
+      console.log(`[useNarrator] REFRESH Voz #${i + 1}: nome="${v.name}" lang="${v.lang}" default=${v.default}`);
+    });
+    console.log(`[useNarrator] ${"=".repeat(40)}`);
+    if (all.length === 0) {
+      console.warn("[useNarrator] REFRESH - NENHUMA voz encontrada!");
+    }
     const pt = all.filter((v) => v.lang.startsWith("pt"));
     setVoices(pt);
-    console.log(`[useNarrator] Refresh: ${all.length} vozes totais, ${pt.length} portuguesas`);
+    console.log(`[useNarrator] REFRESH - Vozes em portugues: ${pt.length}`);
   }, []);
 
   const handleSetVoice = useCallback((v) => {
@@ -341,6 +361,7 @@ export default function useNarrator() {
     pitch, setPitch,
     voice, setVoice: handleSetVoice,
     voices,
+    allVoices,
     allVoiceCount,
     isSupported,
     isBlocked, setIsBlocked,
