@@ -548,116 +548,76 @@ export default function BranpyLive() {
               </button>
             )}
 
-            {/* Engine / Provider selector */}
-            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Provedor de Voz</div>
-            <select value={narrator.engine} onChange={(e) => narrator.setEngine(e.target.value)}
-              style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11 }}
-            >
-              <option value="" disabled>Selecione</option>
-              {narrator.ENGINES.map((e) => (
-                <option key={e.id} value={e.id}>{e.label}</option>
-              ))}
-            </select>
-
-            {/* Edge TTS availability indicator */}
-            {narrator.engine === "edge-tts" && !narrator.edgeTtsAvailable && (
-              <div style={{ fontSize: 10, color: "#FFA500", marginTop: 2, lineHeight: 1.4 }}>
-                ⚠ Edge TTS requer o aplicativo Electron para funcionar.
-                No navegador, apenas Windows Speech está disponível.
-              </div>
-            )}
-
             {/* Voice selector */}
             <div style={{ display: "flex", gap: 4, alignItems: "center", marginTop: 2 }}>
               <select value={narrator.voice?.name || ""} onChange={(e) => {
-                const pool = narrator.engine === "edge-tts" ? narrator.edgeVoices : narrator.voices;
-                const v = pool.find((x) => x.name === e.target.value);
+                const v = narrator.voices.find((x) => x.name === e.target.value);
                 narrator.setVoice(v || null);
               }}
                 style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11, flex: 1 }}
               >
                 <option value="" disabled>Selecione uma voz</option>
-                {(narrator.engine === "edge-tts" ? narrator.edgeVoices : narrator.voices).map((v) => (
+                {narrator.voices.map((v) => (
                   <option key={v.name} value={v.name}>
-                    {narrator.engine === "edge-tts" ? v.display : v.name.replace(/Microsoft|Online|Natural|\(Portuguese\)|\(Português\)/g, "").trim() || v.name}
+                    {v.name.replace(/Microsoft|Online|Natural|\(Portuguese\)|\(Português\)/g, "").trim() || v.name}
                   </option>
                 ))}
               </select>
-              {narrator.engine === "webspeech" && (
-                <button onClick={narrator.refreshVoices} title="Atualizar vozes"
-                  style={{
-                    width: 30, height: 30, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
-                    background: "rgba(255,255,255,0.06)", color: "#fff", fontSize: 14,
-                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                  }}
-                >
-                  🔄
-                </button>
-              )}
+              <button onClick={narrator.refreshVoices} title="Recarregar vozes"
+                style={{
+                  width: 30, height: 30, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.06)", color: "#fff", fontSize: 14,
+                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >
+                🔄
+              </button>
             </div>
 
-            {narrator.engine === "edge-tts" && (
-              <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 1 }}>
-                {narrator.edgeTtsAvailable ? "✅ " : "⚪ "}
-                {narrator.edgeVoices.length} vozes neurais Microsoft (pt-BR)
-                {narrator.edgeTtsAvailable ? "" : " — só no Electron"}
-              </div>
-            )}
-
-            {narrator.engine === "edge-tts" && narrator.edgeTtsAvailable && (
-              <button onClick={async () => {
-                const status = await narrator.testEdgeConnection();
-                alert("Edge TTS: " + status);
-              }} style={{ ...adminBtnStyle, marginTop: 2, fontSize: 10, color: COLORS.accent }}>
-                🔌 Testar Conexão Edge TTS
-              </button>
-            )}
-
-            {narrator.engine === "edge-tts" && narrator.voice && (
-              <div style={{
-                fontSize: 10, marginTop: 2, padding: "3px 6px", borderRadius: 6,
-                background: narrator.edgeTtsAvailable ? "rgba(46,204,113,0.1)" : "rgba(255,165,0,0.1)",
-                border: `1px solid ${narrator.edgeTtsAvailable ? "rgba(46,204,113,0.3)" : "rgba(255,165,0,0.3)"}`,
-                color: narrator.edgeTtsAvailable ? COLORS.correct : "#FFA500",
-                fontWeight: 600, textAlign: "center",
-              }}>
-                {narrator.edgeTtsAvailable ? "✅ Edge TTS ativo" : "⚠ Edge TTS indisponivel"}
-                {" — Voz: " + narrator.voice.display}
-              </div>
-            )}
-
-            {narrator.engine === "webspeech" && (
-              <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 1 }}>
-                {narrator.allVoiceCount} vozes detectadas ({narrator.voices.length} em português)
-              </div>
-            )}
-
-            {narrator.engine === "webspeech" && (
-              <details style={{ marginTop: 2 }}>
-                <summary style={{ fontSize: 10, color: COLORS.primary, fontWeight: 600, cursor: "pointer", padding: "2px 0" }}>
-                  📋 Diagnóstico de Vozes ({narrator.allVoiceCount})
-                </summary>
-                <div style={{ maxHeight: 200, overflowY: "auto", marginTop: 4, fontSize: 10, color: COLORS.muted, lineHeight: 1.6 }}>
-                  {narrator.allVoices.length === 0 ? (
-                    <div style={{ color: "#FFA500" }}>Nenhuma voz detectada. speechSynthesis pode estar bloqueado.</div>
-                  ) : (
-                    narrator.allVoices.map((v, i) => (
-                      <div key={i} style={{
-                        padding: "3px 4px", borderBottom: "1px solid rgba(255,255,255,0.04)",
-                        display: "flex", justifyContent: "space-between",
-                      }}>
-                        <span style={{ color: "#fff", fontWeight: v.lang.startsWith("pt") ? 600 : 400 }}>
-                          {v.name}
-                        </span>
-                        <span>
-                          {v.lang} {v.default ? "(default)" : ""}
-                        </span>
-                      </div>
-                    ))
-                  )}
+            {/* Voice preset indicator */}
+            {narrator.voice && (() => {
+              const activePreset = narrator.VOICE_PRESETS.find((p) => p.match.test(narrator.voice.name));
+              if (!activePreset) return null;
+              return (
+                <div style={{
+                  fontSize: 10, marginTop: 1, padding: "3px 6px", borderRadius: 6,
+                  background: "rgba(46,204,113,0.1)",
+                  border: "1px solid rgba(46,204,113,0.3)",
+                  color: COLORS.correct, fontWeight: 600, textAlign: "center",
+                }}>
+                  ✅ Preset "{activePreset.name}" ativo (velocidade {activePreset.rate}x, tom {activePreset.pitch})
                 </div>
-              </details>
-            )}
+              );
+            })()}
+
+            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 1 }}>
+              {narrator.allVoiceCount} vozes detectadas ({narrator.voices.length} em português)
+            </div>
+
+            <details style={{ marginTop: 2 }}>
+              <summary style={{ fontSize: 10, color: COLORS.primary, fontWeight: 600, cursor: "pointer", padding: "2px 0" }}>
+                📋 Diagnóstico de Vozes ({narrator.allVoiceCount})
+              </summary>
+              <div style={{ maxHeight: 200, overflowY: "auto", marginTop: 4, fontSize: 10, color: COLORS.muted, lineHeight: 1.6 }}>
+                {narrator.allVoices.length === 0 ? (
+                  <div style={{ color: "#FFA500" }}>Nenhuma voz detectada. speechSynthesis pode estar bloqueado.</div>
+                ) : (
+                  narrator.allVoices.map((v, i) => (
+                    <div key={i} style={{
+                      padding: "3px 4px", borderBottom: "1px solid rgba(255,255,255,0.04)",
+                      display: "flex", justifyContent: "space-between",
+                    }}>
+                      <span style={{ color: "#fff", fontWeight: v.lang.startsWith("pt") ? 600 : 400 }}>
+                        {v.name}
+                      </span>
+                      <span>
+                        {v.lang} {v.default ? "(default)" : ""}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </details>
 
             <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Volume</div>
             <input type="range" min="0" max="1" step="0.1" value={narrator.volume}
@@ -667,6 +627,11 @@ export default function BranpyLive() {
             <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Velocidade</div>
             <input type="range" min="0.5" max="1.5" step="0.1" value={narrator.rate}
               onChange={(e) => narrator.setRate(parseFloat(e.target.value))}
+              style={{ width: "100%", accentColor: COLORS.primary }} />
+
+            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Tom</div>
+            <input type="range" min="0.5" max="2" step="0.1" value={narrator.pitch}
+              onChange={(e) => narrator.setPitch(parseFloat(e.target.value))}
               style={{ width: "100%", accentColor: COLORS.primary }} />
           </>
         )}
