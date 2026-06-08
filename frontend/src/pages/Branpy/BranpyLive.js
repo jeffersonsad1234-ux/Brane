@@ -206,7 +206,7 @@ export default function BranpyLive() {
 
   useEffect(() => {
     const handler = (e) => {
-      if (e.ctrlKey && e.shiftKey && e.key === "Q") { e.preventDefault(); setAdminVisible((v) => !v); }
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "q") { e.preventDefault(); setAdminVisible((v) => !v); }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
@@ -353,12 +353,11 @@ export default function BranpyLive() {
     if (def && def.next) { setPhase(def.next); } else { handleRestart(); }
   };
 
-  const AdminPanel = ({ paused }) => {
-    if (!adminVisible) return null;
+  const AdminPanel = () => {
     return (
       <div style={{
         position: "fixed", top: 56, right: 16, zIndex: 9999,
-        display: "flex", flexDirection: "column", gap: 4,
+        display: adminVisible ? "flex" : "none", flexDirection: "column", gap: 4,
         background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)",
         border: "1px solid rgba(138,44,255,0.3)",
         borderRadius: 12, padding: 8, minWidth: 180, maxHeight: "90vh", overflowY: "auto",
@@ -600,7 +599,7 @@ export default function BranpyLive() {
         onRestart={handleRestart}
       />
       {/* Admin panel (Ctrl+Shift+Q) */}
-      <AdminPanel paused={paused} />
+      <AdminPanel />
 
       {/* Top bar */}
       <div style={{
