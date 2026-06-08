@@ -519,7 +519,7 @@ export default function BranpyLive() {
           Narradora
         </div>
 
-        {!narrator.isSupported && narrator.engine === "webspeech" ? (
+        {!narrator.isSupported ? (
           <div style={{ fontSize: 11, color: COLORS.wrong, textAlign: "center", padding: 4 }}>
             Navegador nao suporta audio
           </div>
@@ -548,7 +548,7 @@ export default function BranpyLive() {
               </button>
             )}
 
-            {/* Engine selector */}
+            {/* Engine / Provider selector */}
             <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Provedor de Voz</div>
             <select value={narrator.engine} onChange={(e) => narrator.setEngine(e.target.value)}
               style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11 }}
@@ -558,6 +558,14 @@ export default function BranpyLive() {
                 <option key={e.id} value={e.id}>{e.label}</option>
               ))}
             </select>
+
+            {/* Edge TTS availability indicator */}
+            {narrator.engine === "edge-tts" && !narrator.edgeTtsAvailable && (
+              <div style={{ fontSize: 10, color: "#FFA500", marginTop: 2, lineHeight: 1.4 }}>
+                ⚠ Edge TTS requer o aplicativo Electron para funcionar.
+                No navegador, apenas Windows Speech está disponível.
+              </div>
+            )}
 
             {/* Voice selector */}
             <div style={{ display: "flex", gap: 4, alignItems: "center", marginTop: 2 }}>
@@ -571,7 +579,9 @@ export default function BranpyLive() {
                 <option value="" disabled>Selecione uma voz</option>
                 {(narrator.engine === "edge-tts" ? narrator.edgeVoices : narrator.voices).map((v) => (
                   <option key={v.name} value={v.name}>
-                    {v.name.replace(/Microsoft Server Speech Text to Speech Voice \(pt-BR,\s*|Microsoft Server Speech Text to Speech Voice \(|\)$/g, "").trim() || v.name}
+                    {narrator.engine === "edge-tts"
+                      ? v.name.replace(/^Microsoft Server Speech Text to Speech Voice \(pt-BR,\s*|\)$/g, "")
+                      : v.name.replace(/Microsoft|Online|Natural|\(Portuguese\)|\(Português\)/g, "").trim() || v.name}
                   </option>
                 ))}
               </select>
@@ -587,6 +597,14 @@ export default function BranpyLive() {
                 </button>
               )}
             </div>
+
+            {narrator.engine === "edge-tts" && (
+              <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 1 }}>
+                {narrator.edgeTtsAvailable ? "✅ " : "⚪ "}
+                {narrator.edgeVoices.length} vozes neurais Microsoft (pt-BR)
+                {narrator.edgeTtsAvailable ? "" : " — só no Electron"}
+              </div>
+            )}
 
             {narrator.engine === "webspeech" && (
               <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 1 }}>

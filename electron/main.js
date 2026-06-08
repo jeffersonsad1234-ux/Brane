@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
-const { synthesize, EDGE_VOICES } = require("./tts-edge");
+const { synthesize } = require("./tts-edge");
 
 const isDev = process.env.NODE_ENV === "development" || process.argv.includes("--dev");
 let mainWindow = null;
@@ -29,15 +29,23 @@ function createWindow() {
 
 // ── IPC Handlers ──
 
-ipcMain.handle("tts:edge:voices", () => {
-  return EDGE_VOICES.filter((v) => v.lang.startsWith("pt"));
-});
-
 ipcMain.handle("tts:edge:speak", async (_event, text, voiceName, rate, pitch) => {
   try {
     const audioBuffer = await synthesize(text, voiceName, rate || 0, pitch || 0);
-    // Return as base64 string for transfer via IPC
     return { ok: true, data: audioBuffer.toString("base64") };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+});
+
+ipcMain.handle("tts:edge:test", async () => {
+  try {
+    const audioBuffer = await synthesize(
+      "Teste de voz.",
+      "Microsoft Server Speech Text to Speech Voice (pt-BR, Francisca)",
+      0, 0
+    );
+    return { ok: true, size: audioBuffer.length };
   } catch (err) {
     return { ok: false, error: err.message };
   }

@@ -176,6 +176,15 @@ const ENGINES = [
   { id: "edge-tts",  label: "Edge TTS (Microsoft Neural)" },
 ];
 
+const EDGE_VOICES_PT = [
+  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Francisca)",  lang: "pt-BR", gender: "Female", engine: "edge-tts" },
+  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Antonio)",   lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
+  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Thalita)",   lang: "pt-BR", gender: "Female", engine: "edge-tts" },
+  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Fabio)",     lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
+  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Maria)",     lang: "pt-BR", gender: "Female", engine: "edge-tts" },
+  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Daniel)",    lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
+];
+
 function base64ToBlob(b64, mimeType) {
   const byteChars = atob(b64);
   const bytes = new Uint8Array(byteChars.length);
@@ -193,7 +202,8 @@ export default function useNarrator() {
   const [engine, setEngine] = useState("webspeech");
   const [voice, setVoice] = useState(null);
   const [voices, setVoices] = useState([]);
-  const [edgeVoices, setEdgeVoices] = useState([]);
+  const [edgeVoices] = useState(EDGE_VOICES_PT);
+  const [edgeTtsAvailable, setEdgeTtsAvailable] = useState(false);
   const audioRef = useRef(null);
   const [allVoices, setAllVoices] = useState([]);
   const [allVoiceCount, setAllVoiceCount] = useState(0);
@@ -280,17 +290,10 @@ export default function useNarrator() {
       loadVoices();
     };
 
-    // Load Edge TTS voices if available
-    (async () => {
-      if (!window.electron?.tts?.edge) return;
-      try {
-        const ev = await window.electron.tts.edge.getVoices();
-        setEdgeVoices(ev);
-        console.log(`[useNarrator] Edge TTS vozes: ${ev.length}`, ev.map(v => v.name));
-      } catch (e) {
-        console.warn("[useNarrator] Edge TTS nao disponivel:", e);
-      }
-    })();
+    // Detect Edge TTS availability
+    const av = !!(window.electron?.tts?.edge?.speak && window.electron?.tts?.edge?.voices);
+    setEdgeTtsAvailable(av);
+    console.log(`[useNarrator] Edge TTS disponivel: ${av}, ${EDGE_VOICES_PT.length} vozes pt-BR`);
 
     return () => {
       window.speechSynthesis.onvoiceschanged = null;
@@ -317,7 +320,7 @@ export default function useNarrator() {
         localStorage.setItem(STORAGE_KEY, picked.name);
       }
     }
-  }, [engine, edgeVoices, voices, pickVoice]);
+  }, [engine, edgeVoices.length, voices, pickVoice]);
 
   const refreshVoices = useCallback(() => {
     if (!("speechSynthesis" in window)) return;
@@ -364,10 +367,10 @@ export default function useNarrator() {
     const normalized = normalizeSpeechText(text);
 
     if (engine === "edge-tts" && voiceRef.current?.engine === "edge-tts") {
-      // Edge TTS path
+      // Edge TTS path (requires Electron)
       const v = voiceRef.current;
-      if (!window.electron?.tts?.edge) {
-        console.warn("[useNarrator] Edge TTS nao disponivel");
+      if (!window.electron?.tts?.edge?.speak) {
+        console.warn("[useNarrator] Edge TTS nao disponivel (fora do Electron)");
         if (onEnd) onEnd();
         return;
       }
@@ -465,6 +468,7 @@ export default function useNarrator() {
     voice, setVoice: handleSetVoice,
     voices,
     edgeVoices,
+    edgeTtsAvailable,
     allVoices,
     allVoiceCount,
     isSupported,
