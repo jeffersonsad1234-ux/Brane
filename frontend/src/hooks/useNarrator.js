@@ -115,19 +115,58 @@ const ACCENT_MAP = {
   "simbolo": "símbolo",
   "ambito": "âmbito",
   "indole": "índole",
+  "antartica": "Antártica",
+  "antartida": "Antártida",
+  "egipcio": "egípcio",
+  "fotossintese": "fotossíntese",
+  "varios": "vários",
+  "varias": "várias",
+  "dinossauro": "dinossauro",
+  "nucleo": "núcleo",
+  "atmosfera": "atmosfera",
+  "ecossistema": "ecossistema",
+  "biodiversidade": "biodiversidade",
 };
 
 function normalizeSpeechText(text) {
   if (!text) return text;
-  let result = text;
-  // Replace known unaccented words with accented versions (case-insensitive)
+  let s = text;
+
+  // 1. Apply word accent map (case-preserving)
   for (const [key, val] of Object.entries(ACCENT_MAP)) {
     const regex = new RegExp(`\\b${key}\\b`, "gi");
-    if (regex.test(result)) {
-      result = result.replace(regex, val);
-    }
+    s = s.replace(regex, (match) => {
+      if (match.length > 0 && match[0] === match[0].toUpperCase()) {
+        return val.charAt(0).toUpperCase() + val.slice(1);
+      }
+      return val;
+    });
   }
-  return result;
+
+  // 2. Correct "e" (verb "is") when followed by article, pronoun or demonstrative
+  s = s.replace(
+    /\b[Ee]\s+(o|a|os|as|um|uma|no|na|do|da|num|numa|pelo|pela|seu|sua|seus|suas|este|esta|estes|estas|esse|essa|esses|essas|aquele|aquela|aqueles|aquelas|isso|isto|aquilo|muito|mais|menos|tambem|sempre|nunca|um dos|uma das)\b/gi,
+    (match) => "é " + match.split(/\s+/).slice(1).join(" ")
+  );
+
+  // 3. Correct "e" after question words
+  s = s.replace(/\b(O que|Qual|Quem|Onde|Como|Quando|Por que)\s+e\b/gi, "$1 é");
+
+  // 4. Correct "E" at start of sentence
+  s = s.replace(/^E\s+/i, "É ");
+
+  // 5. Correct "a" → "à" before feminine nouns (known patterns)
+  s = s.replace(/\bA\s+(a|as)\b/gi, (match) => {
+    const words = match.split(/\s+/);
+    return "à " + words.slice(1).join(" ");
+  });
+
+  // 6. Add period at end if missing (ends with letter, number or quote)
+  if (s.length > 0 && /[a-zA-Z0-9\u00C0-\u024F"']$/.test(s)) {
+    s += ".";
+  }
+
+  return s;
 }
 
 const STORAGE_KEY = "brane_narrator_voice";
