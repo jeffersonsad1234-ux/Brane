@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { getLiveQuiz } from "./BranpyAPI";
 import useNarrator from "../../hooks/useNarrator";
+import AnimatedBackground from "./AnimatedBackground";
 
 const COLORS = {
   bg: "#050608",
@@ -162,6 +163,7 @@ export default function BranpyLive() {
   const [paused, setPaused] = useState(false);
 
   const [adminVisible, setAdminVisible] = useState(false);
+  const [bgVariant, setBgVariant] = useState(() => localStorage.getItem("brane_bg") || "neon");
 
   const countdownRef = useRef(null);
   const viewerRef = useRef(null);
@@ -414,6 +416,25 @@ export default function BranpyLive() {
               style={{ width: "100%", accentColor: COLORS.primary }} />
           </>
         )}
+
+        <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "4px 0" }} />
+
+        <div style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2, textAlign: "center" }}>
+          Fundo
+        </div>
+        <select value={bgVariant} onChange={(e) => {
+          const v = e.target.value;
+          setBgVariant(v);
+          localStorage.setItem("brane_bg", v);
+        }}
+          style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11 }}
+        >
+          <option value="neon">Neon</option>
+          <option value="espaco">Espaço</option>
+          <option value="cidade">Cidade</option>
+          <option value="estudio">Estúdio</option>
+          <option value="particulas">Partículas</option>
+        </select>
       </div>
     );
   };
@@ -487,6 +508,7 @@ export default function BranpyLive() {
         transition: "background 0.6s ease",
       }}
     >
+      <AnimatedBackground variant={bgVariant} />
       <style>{`
         @keyframes pulse {
           0% { transform: scale(1.2); opacity: 0.5; }
