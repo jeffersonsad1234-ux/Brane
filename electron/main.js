@@ -40,11 +40,7 @@ ipcMain.handle("tts:edge:speak", async (_event, text, voiceName, rate, pitch) =>
 
 ipcMain.handle("tts:edge:test", async () => {
   try {
-    const audioBuffer = await synthesize(
-      "Teste de voz.",
-      "Microsoft Server Speech Text to Speech Voice (pt-BR, Francisca)",
-      0, 0
-    );
+    const audioBuffer = await synthesize("Teste de voz.", "pt-BR-FranciscaNeural", 0, 0);
     return { ok: true, size: audioBuffer.length };
   } catch (err) {
     return { ok: false, error: err.message };

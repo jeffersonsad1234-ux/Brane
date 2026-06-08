@@ -5,16 +5,17 @@ const TRUSTED_HOST = "speech.platform.bing.com";
 const TOKEN_URL = "https://edge.microsoft.com/translate/auth";
 
 const EDGE_VOICES = [
-  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Francisca)",  lang: "pt-BR", gender: "Female", engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Antonio)",   lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Maria)",     lang: "pt-BR", gender: "Female", engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Daniel)",    lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (en-US, Aria)",      lang: "en-US", gender: "Female", engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (en-US, Guy)",       lang: "en-US", gender: "Male",   engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (en-US, Jenny)",     lang: "en-US", gender: "Female", engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (en-US, Sara)",      lang: "en-US", gender: "Female", engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (es-ES, Helena)",    lang: "es-ES", gender: "Female", engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (fr-FR, Denise)",    lang: "fr-FR", gender: "Female", engine: "edge-tts" },
+  { name: "pt-BR-FranciscaNeural", display: "Francisca",  lang: "pt-BR", gender: "Female", engine: "edge-tts" },
+  { name: "pt-BR-AntonioNeural",   display: "Antonio",    lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
+  { name: "pt-BR-ThalitaNeural",   display: "Thalita",    lang: "pt-BR", gender: "Female", engine: "edge-tts" },
+  { name: "pt-BR-FabioNeural",     display: "Fabio",      lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
+  { name: "pt-BR-MariaNeural",     display: "Maria",      lang: "pt-BR", gender: "Female", engine: "edge-tts" },
+  { name: "pt-BR-DanielNeural",    display: "Daniel",     lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
+  { name: "en-US-AriaNeural",      display: "Aria",       lang: "en-US", gender: "Female", engine: "edge-tts" },
+  { name: "en-US-GuyNeural",       display: "Guy",        lang: "en-US", gender: "Male",   engine: "edge-tts" },
+  { name: "en-US-JennyNeural",     display: "Jenny",      lang: "en-US", gender: "Female", engine: "edge-tts" },
+  { name: "es-ES-HelenaNeural",    display: "Helena",     lang: "es-ES", gender: "Female", engine: "edge-tts" },
+  { name: "fr-FR-DeniseNeural",    display: "Denise",     lang: "fr-FR", gender: "Female", engine: "edge-tts" },
 ];
 
 function escapeXml(s) {

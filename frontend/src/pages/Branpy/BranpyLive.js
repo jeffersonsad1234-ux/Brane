@@ -579,9 +579,7 @@ export default function BranpyLive() {
                 <option value="" disabled>Selecione uma voz</option>
                 {(narrator.engine === "edge-tts" ? narrator.edgeVoices : narrator.voices).map((v) => (
                   <option key={v.name} value={v.name}>
-                    {narrator.engine === "edge-tts"
-                      ? v.name.replace(/^Microsoft Server Speech Text to Speech Voice \(pt-BR,\s*|\)$/g, "")
-                      : v.name.replace(/Microsoft|Online|Natural|\(Portuguese\)|\(Português\)/g, "").trim() || v.name}
+                    {narrator.engine === "edge-tts" ? v.display : v.name.replace(/Microsoft|Online|Natural|\(Portuguese\)|\(Português\)/g, "").trim() || v.name}
                   </option>
                 ))}
               </select>
@@ -603,6 +601,28 @@ export default function BranpyLive() {
                 {narrator.edgeTtsAvailable ? "✅ " : "⚪ "}
                 {narrator.edgeVoices.length} vozes neurais Microsoft (pt-BR)
                 {narrator.edgeTtsAvailable ? "" : " — só no Electron"}
+              </div>
+            )}
+
+            {narrator.engine === "edge-tts" && narrator.edgeTtsAvailable && (
+              <button onClick={async () => {
+                const status = await narrator.testEdgeConnection();
+                alert("Edge TTS: " + status);
+              }} style={{ ...adminBtnStyle, marginTop: 2, fontSize: 10, color: COLORS.accent }}>
+                🔌 Testar Conexão Edge TTS
+              </button>
+            )}
+
+            {narrator.engine === "edge-tts" && narrator.voice && (
+              <div style={{
+                fontSize: 10, marginTop: 2, padding: "3px 6px", borderRadius: 6,
+                background: narrator.edgeTtsAvailable ? "rgba(46,204,113,0.1)" : "rgba(255,165,0,0.1)",
+                border: `1px solid ${narrator.edgeTtsAvailable ? "rgba(46,204,113,0.3)" : "rgba(255,165,0,0.3)"}`,
+                color: narrator.edgeTtsAvailable ? COLORS.correct : "#FFA500",
+                fontWeight: 600, textAlign: "center",
+              }}>
+                {narrator.edgeTtsAvailable ? "✅ Edge TTS ativo" : "⚠ Edge TTS indisponivel"}
+                {" — Voz: " + narrator.voice.display}
               </div>
             )}
 

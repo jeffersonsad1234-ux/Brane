@@ -177,12 +177,12 @@ const ENGINES = [
 ];
 
 const EDGE_VOICES_PT = [
-  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Francisca)",  lang: "pt-BR", gender: "Female", engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Antonio)",   lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Thalita)",   lang: "pt-BR", gender: "Female", engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Fabio)",     lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Maria)",     lang: "pt-BR", gender: "Female", engine: "edge-tts" },
-  { name: "Microsoft Server Speech Text to Speech Voice (pt-BR, Daniel)",    lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
+  { name: "pt-BR-FranciscaNeural", display: "Francisca",  lang: "pt-BR", gender: "Female", engine: "edge-tts" },
+  { name: "pt-BR-AntonioNeural",   display: "Antonio",    lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
+  { name: "pt-BR-ThalitaNeural",   display: "Thalita",    lang: "pt-BR", gender: "Female", engine: "edge-tts" },
+  { name: "pt-BR-FabioNeural",     display: "Fabio",      lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
+  { name: "pt-BR-MariaNeural",     display: "Maria",      lang: "pt-BR", gender: "Female", engine: "edge-tts" },
+  { name: "pt-BR-DanielNeural",    display: "Daniel",     lang: "pt-BR", gender: "Male",   engine: "edge-tts" },
 ];
 
 function base64ToBlob(b64, mimeType) {
@@ -453,6 +453,16 @@ export default function useNarrator() {
     next();
   }, [speak]);
 
+  const testEdgeConnection = useCallback(async () => {
+    if (!window.electron?.tts?.edge?.test) return "Edge TTS indisponivel (fora do Electron)";
+    try {
+      const result = await window.electron.tts.edge.test();
+      return result.ok ? `Conectado (${result.size} bytes)` : "Falha: " + result.error;
+    } catch (e) {
+      return "Erro: " + e.message;
+    }
+  }, []);
+
   const testVoice = useCallback(() => {
     cancel();
     const text = "Ola. Esta e a voz da narradora do quiz. Vamos aprender juntos.";
@@ -477,6 +487,7 @@ export default function useNarrator() {
     speak,
     speakSequence,
     testVoice,
+    testEdgeConnection,
     refreshVoices,
     ENGINES,
     normalizeSpeechText,
