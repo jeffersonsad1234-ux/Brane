@@ -173,10 +173,10 @@ function OperatorControls({ paused, onTogglePause, onRestart }) {
 }
 
 const PHASE_DEF = {
-  question_intro: { next: "countdown",  minTime: 0,     fallback: 8000  },
+  question_intro: { next: "countdown",  fallback: 15000 },
   countdown:      { next: "answer",     minTime: 10000, fallback: 12000 },
-  answer:         { next: "explanation", minTime: 0,     fallback: 5000  },
-  explanation:    { next: null,          minTime: 4000,  fallback: 8000  },
+  answer:         { next: "explanation", fallback: 10000 },
+  explanation:    { next: null,          fallback: 15000 },
 };
 
 export default function BranpyLive() {
@@ -278,37 +278,35 @@ export default function BranpyLive() {
     let narItems = [];
     if (phase === "question_intro") {
       narItems = [{ text: q.question }];
-    } else if (phase === "countdown") {
-      narItems = q.alternatives.map((alt, i) => ({
-        text: `${ALTERNATIVE_LABELS[i]}: ${alt}`,
-        delayAfter: 800,
-      }));
     } else if (phase === "answer") {
       narItems = [{ text: q.alternatives[q.correct] }];
     } else if (phase === "explanation") {
       if (q.explanation) narItems = [{ text: q.explanation }];
     }
+    // countdown: no narration — only visual alternatives + timer
 
     const tryAdvance = () => {
       if (sync.advancing) return;
       if (phase === "countdown") {
         if (!sync.minDone) return;
       } else {
-        if (!sync.minDone || !sync.narDone) return;
+        // question_intro, answer, explanation: advance quando narracao terminar
+        if (!sync.narDone) return;
       }
-      // Never advance while speech is active
       if (window.speechSynthesis && window.speechSynthesis.speaking) return;
       sync.advancing = true;
       console.log(`${phase.toUpperCase()} COMPLETE`);
       advancePhase();
     };
 
-    // Fallback — ensures the quiz never stalls if onend or timer misfire
+    // Fallback — safety net se narracao ou timer nunca dispararem
     sync.fallbackId = setTimeout(() => {
       if (!sync.advancing) {
-        sync.minDone = true;
-        sync.narDone = true;
-        // Only advance if speech already finished (don't cut words)
+        if (phase === "countdown") {
+          sync.minDone = true;
+        } else {
+          sync.narDone = true;
+        }
         if (!(window.speechSynthesis && window.speechSynthesis.speaking)) {
           console.log(`${phase.toUpperCase()} FALLBACK`);
           tryAdvance();
@@ -316,11 +314,13 @@ export default function BranpyLive() {
       }
     }, def.fallback);
 
-    // Minimum phase timer (for countdown this IS the full countdown duration)
-    sync.timerId = setTimeout(() => {
-      sync.minDone = true;
-      tryAdvance();
-    }, def.minTime);
+    // Countdown timer (only used for countdown phase)
+    if (def.minTime != null) {
+      sync.timerId = setTimeout(() => {
+        sync.minDone = true;
+        tryAdvance();
+      }, def.minTime);
+    }
 
     // Narration (countdown has none — narDone is irrelevant for it)
     if (narItems.length > 0) {
