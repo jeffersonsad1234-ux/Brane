@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { getLiveQuiz } from "./BranpyAPI";
 import useNarrator from "../../hooks/useNarrator";
+import useBackgroundMusic from "../../hooks/useBackgroundMusic";
 import AnimatedBackground from "./AnimatedBackground";
 
 const COLORS = {
@@ -170,6 +171,9 @@ export default function BranpyLive() {
   const syncRef = useRef({ minDone: false, narDone: false, advancing: false, timerId: null, fallbackId: null });
 
   const narrator = useNarrator();
+  const music = useBackgroundMusic();
+  const [giftText, setGiftText] = useState("");
+  const [announcing, setAnnouncing] = useState(false);
 
   const clearAllTimers = useCallback(() => {
     const s = syncRef.current;
@@ -317,6 +321,18 @@ export default function BranpyLive() {
     return () => { if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; } };
   }, [phase, paused]);
 
+  const handleGiftAnnounce = () => {
+    if (!giftText.trim() || announcing) return;
+    narrator.cancel();
+    clearAllTimers();
+    setPaused(true);
+    setAnnouncing(true);
+    narrator.speak(giftText.trim(), () => {
+      setAnnouncing(false);
+      setPaused(false);
+    });
+  };
+
   const handleTogglePause = () => {
     setPaused((p) => { if (!p) narrator.cancel(); return !p; });
   };
@@ -435,6 +451,51 @@ export default function BranpyLive() {
           <option value="estudio">Estúdio</option>
           <option value="particulas">Partículas</option>
         </select>
+
+        <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "4px 0" }} />
+
+        <div style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2, textAlign: "center" }}>
+          🎵 Música de Fundo
+        </div>
+        <select value={music.currentTrack} onChange={(e) => music.selectTrack(e.target.value)}
+          style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11 }}
+        >
+          <option value="">Nenhuma</option>
+          {music.tracks.map((t) => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+        <div style={{ display: "flex", gap: 4, marginTop: 2 }}>
+          <button onClick={() => music.toggle(music.currentTrack)} style={{ ...adminBtnStyle, flex: 1, textAlign: "center" }}>
+            {music.isPlaying ? "⏸ Pausar" : "▶ Tocar"}
+          </button>
+        </div>
+        <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Volume</div>
+        <input type="range" min="0" max="1" step="0.05" value={music.volume}
+          onChange={(e) => music.setVolume(parseFloat(e.target.value))}
+          style={{ width: "100%", accentColor: COLORS.primary }} />
+
+        <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "4px 0" }} />
+
+        <div style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2, textAlign: "center" }}>
+          🎁 Mensagem ao vivo
+        </div>
+        <input type="text" value={giftText} onChange={(e) => setGiftText(e.target.value)}
+          placeholder="Obrigado Tatiana pela rosa."
+          style={{
+            ...adminBtnStyle, width: "100%", boxSizing: "border-box", fontSize: 11,
+            background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)",
+          }}
+        />
+        <button onClick={handleGiftAnnounce} disabled={announcing || !giftText.trim()}
+          style={{
+            ...adminBtnStyle, textAlign: "center", marginTop: 2,
+            opacity: (announcing || !giftText.trim()) ? 0.5 : 1,
+            color: COLORS.accent, border: `1px solid ${COLORS.accent}40`,
+          }}
+        >
+          {announcing ? "🔊 Falando..." : "📢 FALAR AGORA"}
+        </button>
       </div>
     );
   };
