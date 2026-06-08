@@ -20,7 +20,8 @@
     "electron:start": "electron ."
   },
   "dependencies": {
-    "date-fns": "^3.6.0"
+    "date-fns": "^3.6.0",
+    "ws": "^8.21.0"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

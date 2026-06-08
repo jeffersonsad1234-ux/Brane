@@ -171,13 +171,30 @@ function normalizeSpeechText(text) {
 
 const STORAGE_KEY = "brane_narrator_voice";
 
+const ENGINES = [
+  { id: "webspeech", label: "Windows Speech (SAPI)" },
+  { id: "edge-tts",  label: "Edge TTS (Microsoft Neural)" },
+];
+
+function base64ToBlob(b64, mimeType) {
+  const byteChars = atob(b64);
+  const bytes = new Uint8Array(byteChars.length);
+  for (let i = 0; i < byteChars.length; i++) {
+    bytes[i] = byteChars.charCodeAt(i);
+  }
+  return new Blob([bytes], { type: mimeType });
+}
+
 export default function useNarrator() {
   const [enabled, setEnabled] = useState(true);
   const [volume, setVolume] = useState(1.0);
   const [rate, setRate] = useState(1.0);
   const [pitch, setPitch] = useState(1.2);
+  const [engine, setEngine] = useState("webspeech");
   const [voice, setVoice] = useState(null);
   const [voices, setVoices] = useState([]);
+  const [edgeVoices, setEdgeVoices] = useState([]);
+  const audioRef = useRef(null);
   const [allVoices, setAllVoices] = useState([]);
   const [allVoiceCount, setAllVoiceCount] = useState(0);
   const [isSupported, setIsSupported] = useState(false);
@@ -263,11 +280,44 @@ export default function useNarrator() {
       loadVoices();
     };
 
+    // Load Edge TTS voices if available
+    (async () => {
+      if (!window.electron?.tts?.edge) return;
+      try {
+        const ev = await window.electron.tts.edge.getVoices();
+        setEdgeVoices(ev);
+        console.log(`[useNarrator] Edge TTS vozes: ${ev.length}`, ev.map(v => v.name));
+      } catch (e) {
+        console.warn("[useNarrator] Edge TTS nao disponivel:", e);
+      }
+    })();
+
     return () => {
       window.speechSynthesis.onvoiceschanged = null;
       if (pollTimer) clearTimeout(pollTimer);
     };
   }, [loadVoices]);
+
+  // Restore saved engine on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("brane_tts_engine");
+    if (saved) setEngine(saved);
+  }, []);
+
+  // Save engine and auto-select voice when engine changes
+  useEffect(() => {
+    localStorage.setItem("brane_tts_engine", engine);
+    if (engine === "edge-tts" && edgeVoices.length > 0) {
+      setVoice(edgeVoices[0]);
+      localStorage.setItem(STORAGE_KEY, edgeVoices[0].name);
+    } else if (engine === "webspeech" && voices.length > 0) {
+      const picked = pickVoice(window.speechSynthesis.getVoices());
+      if (picked) {
+        setVoice(picked);
+        localStorage.setItem(STORAGE_KEY, picked.name);
+      }
+    }
+  }, [engine, edgeVoices, voices, pickVoice]);
 
   const refreshVoices = useCallback(() => {
     if (!("speechSynthesis" in window)) return;
@@ -302,12 +352,64 @@ export default function useNarrator() {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
     }
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
   }, []);
 
   const speak = useCallback((text, onEnd) => {
     if (!text) return;
-    if (!enabledRef.current || !("speechSynthesis" in window)) return;
+    if (!enabledRef.current) return;
     const normalized = normalizeSpeechText(text);
+
+    if (engine === "edge-tts" && voiceRef.current?.engine === "edge-tts") {
+      // Edge TTS path
+      const v = voiceRef.current;
+      if (!window.electron?.tts?.edge) {
+        console.warn("[useNarrator] Edge TTS nao disponivel");
+        if (onEnd) onEnd();
+        return;
+      }
+      window.electron.tts.edge
+        .speak(normalized, v.name, Math.round((rateRef.current - 1) * 100), Math.round((pitchRef.current - 1) * 100))
+        .then((result) => {
+          if (!result.ok) {
+            console.error("[useNarrator] Edge TTS erro:", result.error);
+            if (onEnd) onEnd();
+            return;
+          }
+          const blob = base64ToBlob(result.data, "audio/mpeg");
+          const url = URL.createObjectURL(blob);
+          const audio = new Audio(url);
+          audioRef.current = audio;
+          audio.onended = () => {
+            audioRef.current = null;
+            URL.revokeObjectURL(url);
+            if (onEnd) onEnd();
+          };
+          audio.onerror = () => {
+            audioRef.current = null;
+            URL.revokeObjectURL(url);
+            console.error("[useNarrator] Edge TTS reproducao erro");
+            if (onEnd) onEnd();
+          };
+          audio.play().catch((e) => {
+            audioRef.current = null;
+            URL.revokeObjectURL(url);
+            console.error("[useNarrator] Edge TTS play erro:", e);
+            if (onEnd) onEnd();
+          });
+        })
+        .catch((e) => {
+          console.error("[useNarrator] Edge TTS speak erro:", e);
+          if (onEnd) onEnd();
+        });
+      return;
+    }
+
+    // Web Speech API path
+    if (!("speechSynthesis" in window)) return;
     const u = new SpeechSynthesisUtterance(normalized);
     u.lang = "pt-BR";
     u.pitch = pitchRef.current;
@@ -316,7 +418,6 @@ export default function useNarrator() {
     if (voiceRef.current) {
       u.voice = voiceRef.current;
     } else {
-      // Ensure a pt voice is used even if voice is null
       const pt = window.speechSynthesis.getVoices().filter((v) => v.lang.startsWith("pt"));
       if (pt.length > 0) u.voice = pt[0];
     }
@@ -325,7 +426,7 @@ export default function useNarrator() {
     };
     if (onEnd) u.onend = onEnd;
     window.speechSynthesis.speak(u);
-  }, []);
+  }, [engine]);
 
   const speakSequence = useCallback((items, onEnd) => {
     const filtered = items.filter((item) => item.text);
@@ -351,7 +452,8 @@ export default function useNarrator() {
 
   const testVoice = useCallback(() => {
     cancel();
-    speak("Ola. Esta e a voz da narradora do quiz. Vamos aprender juntos.");
+    const text = "Ola. Esta e a voz da narradora do quiz. Vamos aprender juntos.";
+    speak(text, () => {});
   }, [cancel, speak]);
 
   return {
@@ -359,8 +461,10 @@ export default function useNarrator() {
     volume, setVolume,
     rate, setRate,
     pitch, setPitch,
+    engine, setEngine,
     voice, setVoice: handleSetVoice,
     voices,
+    edgeVoices,
     allVoices,
     allVoiceCount,
     isSupported,
@@ -370,6 +474,7 @@ export default function useNarrator() {
     speakSequence,
     testVoice,
     refreshVoices,
+    ENGINES,
     normalizeSpeechText,
   };
 }

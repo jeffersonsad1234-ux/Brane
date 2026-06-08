@@ -519,7 +519,7 @@ export default function BranpyLive() {
           Narradora
         </div>
 
-        {!narrator.isSupported ? (
+        {!narrator.isSupported && narrator.engine === "webspeech" ? (
           <div style={{ fontSize: 11, color: COLORS.wrong, textAlign: "center", padding: 4 }}>
             Navegador nao suporta audio
           </div>
@@ -548,56 +548,78 @@ export default function BranpyLive() {
               </button>
             )}
 
-            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            {/* Engine selector */}
+            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Provedor de Voz</div>
+            <select value={narrator.engine} onChange={(e) => narrator.setEngine(e.target.value)}
+              style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11 }}
+            >
+              <option value="" disabled>Selecione</option>
+              {narrator.ENGINES.map((e) => (
+                <option key={e.id} value={e.id}>{e.label}</option>
+              ))}
+            </select>
+
+            {/* Voice selector */}
+            <div style={{ display: "flex", gap: 4, alignItems: "center", marginTop: 2 }}>
               <select value={narrator.voice?.name || ""} onChange={(e) => {
-                const v = narrator.voices.find((x) => x.name === e.target.value);
+                const pool = narrator.engine === "edge-tts" ? narrator.edgeVoices : narrator.voices;
+                const v = pool.find((x) => x.name === e.target.value);
                 narrator.setVoice(v || null);
               }}
                 style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11, flex: 1 }}
               >
                 <option value="" disabled>Selecione uma voz</option>
-                {narrator.voices.map((v) => (
-                  <option key={v.name} value={v.name}>{v.name.replace(/Microsoft|Online|Natural|\(Portuguese\)|\(Português\)/g, "").trim() || v.name}</option>
+                {(narrator.engine === "edge-tts" ? narrator.edgeVoices : narrator.voices).map((v) => (
+                  <option key={v.name} value={v.name}>
+                    {v.name.replace(/Microsoft Server Speech Text to Speech Voice \(pt-BR,\s*|Microsoft Server Speech Text to Speech Voice \(|\)$/g, "").trim() || v.name}
+                  </option>
                 ))}
               </select>
-              <button onClick={narrator.refreshVoices} title="Atualizar vozes"
-                style={{
-                  width: 30, height: 30, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.06)", color: "#fff", fontSize: 14,
-                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                }}
-              >
-                🔄
-              </button>
-            </div>
-            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 1 }}>
-              {narrator.allVoiceCount} vozes detectadas ({narrator.voices.length} em português)
+              {narrator.engine === "webspeech" && (
+                <button onClick={narrator.refreshVoices} title="Atualizar vozes"
+                  style={{
+                    width: 30, height: 30, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
+                    background: "rgba(255,255,255,0.06)", color: "#fff", fontSize: 14,
+                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                  }}
+                >
+                  🔄
+                </button>
+              )}
             </div>
 
-            <details style={{ marginTop: 2 }}>
-              <summary style={{ fontSize: 10, color: COLORS.primary, fontWeight: 600, cursor: "pointer", padding: "2px 0" }}>
-                📋 Diagnóstico de Vozes ({narrator.allVoiceCount})
-              </summary>
-              <div style={{ maxHeight: 200, overflowY: "auto", marginTop: 4, fontSize: 10, color: COLORS.muted, lineHeight: 1.6 }}>
-                {narrator.allVoices.length === 0 ? (
-                  <div style={{ color: "#FFA500" }}>Nenhuma voz detectada. speechSynthesis pode estar bloqueado.</div>
-                ) : (
-                  narrator.allVoices.map((v, i) => (
-                    <div key={i} style={{
-                      padding: "3px 4px", borderBottom: "1px solid rgba(255,255,255,0.04)",
-                      display: "flex", justifyContent: "space-between",
-                    }}>
-                      <span style={{ color: "#fff", fontWeight: v.lang.startsWith("pt") ? 600 : 400 }}>
-                        {v.name}
-                      </span>
-                      <span>
-                        {v.lang} {v.default ? "(default)" : ""}
-                      </span>
-                    </div>
-                  ))
-                )}
+            {narrator.engine === "webspeech" && (
+              <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 1 }}>
+                {narrator.allVoiceCount} vozes detectadas ({narrator.voices.length} em português)
               </div>
-            </details>
+            )}
+
+            {narrator.engine === "webspeech" && (
+              <details style={{ marginTop: 2 }}>
+                <summary style={{ fontSize: 10, color: COLORS.primary, fontWeight: 600, cursor: "pointer", padding: "2px 0" }}>
+                  📋 Diagnóstico de Vozes ({narrator.allVoiceCount})
+                </summary>
+                <div style={{ maxHeight: 200, overflowY: "auto", marginTop: 4, fontSize: 10, color: COLORS.muted, lineHeight: 1.6 }}>
+                  {narrator.allVoices.length === 0 ? (
+                    <div style={{ color: "#FFA500" }}>Nenhuma voz detectada. speechSynthesis pode estar bloqueado.</div>
+                  ) : (
+                    narrator.allVoices.map((v, i) => (
+                      <div key={i} style={{
+                        padding: "3px 4px", borderBottom: "1px solid rgba(255,255,255,0.04)",
+                        display: "flex", justifyContent: "space-between",
+                      }}>
+                        <span style={{ color: "#fff", fontWeight: v.lang.startsWith("pt") ? 600 : 400 }}>
+                          {v.name}
+                        </span>
+                        <span>
+                          {v.lang} {v.default ? "(default)" : ""}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </details>
+            )}
 
             <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Volume</div>
             <input type="range" min="0" max="1" step="0.1" value={narrator.volume}
