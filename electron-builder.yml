@@ -1,0 +1,29 @@
+appId: com.branpy.quiz
+productName: Branpy Quiz
+copyright: Copyright (c) 2026
+
+directories:
+  output: release
+  buildResources: electron
+
+files:
+  - electron/**/*
+  - frontend/build/**/*
+  - "!electron/icon.png"
+  - "!electron/icon.ico"
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: electron/icon.ico
+  sign: false
+  signAndEditExecutable: false
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  installerIcon: electron/icon.ico
+  uninstallerIcon: electron/icon.ico
+  installerHeaderIcon: electron/icon.ico

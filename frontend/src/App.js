@@ -1,5 +1,8 @@
 import "./App.css";
-import { BrowserRouter, Routes, Route, useLocation, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter as BrowserRouterOriginal, HashRouter, Routes, Route, useLocation, Navigate, Outlet } from "react-router-dom";
+
+const isElectron = window.electron?.isElectron;
+const Router = isElectron ? HashRouter : BrowserRouterOriginal;
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import AuthCallback from "./components/AuthCallback";
@@ -137,7 +140,7 @@ function AppRouter() {
 
         <main className="min-h-screen">
           <Routes>
-            <Route path="/" element={<Navigate to="/market" replace />} />
+            <Route path="/" element={isElectron ? <Navigate to="/branpy/live" replace /> : <Navigate to="/market" replace />} />
             <Route path="/market" element={<HomePage />} />
 
             <Route path="/fornecedores" element={<SuppliersPage />} />
@@ -382,9 +385,9 @@ function App() {
     <I18nProvider>
       <AuthProvider>
         <ThemeProvider>
-          <BrowserRouter>
+          <Router>
             <AppRouter />
-          </BrowserRouter>
+          </Router>
         </ThemeProvider>
       </AuthProvider>
     </I18nProvider>
