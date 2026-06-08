@@ -391,18 +391,17 @@ export default function BranpyLive() {
               </button>
             )}
 
-            {narrator.voices.length > 0 && (
-              <select value={narrator.voice?.name || ""} onChange={(e) => {
-                const v = narrator.voices.find((x) => x.name === e.target.value);
-                narrator.setVoice(v || null);
-              }}
-                style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11 }}
-              >
-                {narrator.voices.filter((v) => v.lang.startsWith("pt")).map((v) => (
-                  <option key={v.name} value={v.name}>{v.name.replace(/Microsoft|Online|Natural|\(Portuguese\)/g, "").trim() || v.name}</option>
-                ))}
-              </select>
-            )}
+            <select value={narrator.voice?.name || ""} onChange={(e) => {
+              const v = narrator.voices.find((x) => x.name === e.target.value);
+              narrator.setVoice(v || null);
+            }}
+              style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11 }}
+            >
+              <option value="" disabled>Selecione uma voz</option>
+              {narrator.voices.map((v) => (
+                <option key={v.name} value={v.name}>{v.name.replace(/Microsoft|Online|Natural|\(Portuguese\)|\(Português\)/g, "").trim() || v.name}</option>
+              ))}
+            </select>
 
             <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Volume</div>
             <input type="range" min="0" max="1" step="0.1" value={narrator.volume}
