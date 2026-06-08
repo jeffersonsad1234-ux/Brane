@@ -496,7 +496,7 @@ export default function BranpyLive() {
         color: COLORS.text,
         fontFamily: "system-ui, -apple-system, sans-serif",
         overflow: "hidden",
-        position: "relative",
+        position: "relative", zIndex: 10,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
