@@ -206,6 +206,11 @@ export default function BranpyLive() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
+  // Cancel narration on unmount only (not on phase change)
+  useEffect(() => {
+    return () => narrator.cancel();
+  }, []);
+
   const advancePhase = useCallback(() => {
     const def = PHASE_DEF[phase];
     if (!def || !def.next) {
@@ -248,6 +253,8 @@ export default function BranpyLive() {
       } else {
         if (!sync.minDone || !sync.narDone) return;
       }
+      // Never advance while speech is active
+      if (window.speechSynthesis && window.speechSynthesis.speaking) return;
       sync.advancing = true;
       console.log(`${phase.toUpperCase()} COMPLETE`);
       advancePhase();
@@ -258,8 +265,11 @@ export default function BranpyLive() {
       if (!sync.advancing) {
         sync.minDone = true;
         sync.narDone = true;
-        console.log(`${phase.toUpperCase()} FALLBACK`);
-        tryAdvance();
+        // Only advance if speech already finished (don't cut words)
+        if (!(window.speechSynthesis && window.speechSynthesis.speaking)) {
+          console.log(`${phase.toUpperCase()} FALLBACK`);
+          tryAdvance();
+        }
       }
     }, def.fallback);
 
@@ -272,7 +282,8 @@ export default function BranpyLive() {
     // Narration (countdown has none — narDone is irrelevant for it)
     if (narItems.length > 0) {
       narrator.speakSequence(narItems, () => {
-        if (!sync.narDone) { sync.narDone = true; tryAdvance(); }
+        sync.narDone = true;
+        tryAdvance();
       });
     } else if (phase !== "countdown") {
       sync.narDone = true;
@@ -282,7 +293,6 @@ export default function BranpyLive() {
     return () => {
       if (sync.timerId) { clearTimeout(sync.timerId); sync.timerId = null; }
       if (sync.fallbackId) { clearTimeout(sync.fallbackId); sync.fallbackId = null; }
-      narrator.cancel();
     };
   }, [phase, currentIndex, paused, advancePhase]);
 

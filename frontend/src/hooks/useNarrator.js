@@ -57,7 +57,6 @@ export default function useNarrator() {
   const speak = useCallback((text, onEnd) => {
     if (!text) return;
     if (!enabledRef.current || !("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.lang = "pt-BR";
     u.pitch = pitchRef.current;
@@ -71,10 +70,12 @@ export default function useNarrator() {
     window.speechSynthesis.speak(u);
   }, []);
 
-  const speakSequence = useCallback((items) => {
-    cancel();
+  const speakSequence = useCallback((items, onEnd) => {
     const filtered = items.filter((item) => item.text);
-    if (!enabledRef.current || filtered.length === 0) return;
+    if (!enabledRef.current || filtered.length === 0) {
+      if (onEnd) onEnd();
+      return;
+    }
     let i = 0;
     const next = () => {
       if (!enabledRef.current || i >= filtered.length) return;
@@ -83,15 +84,18 @@ export default function useNarrator() {
       speak(text, () => {
         if (i < filtered.length) {
           timeoutRef.current = setTimeout(next, delayAfter);
+        } else if (onEnd) {
+          onEnd();
         }
       });
     };
     next();
-  }, [cancel, speak]);
+  }, [speak]);
 
   const testVoice = useCallback(() => {
+    cancel();
     speak("Ola. Esta e a voz da narradora do quiz. Vamos aprender juntos.");
-  }, [speak]);
+  }, [cancel, speak]);
 
   return {
     enabled, setEnabled,
