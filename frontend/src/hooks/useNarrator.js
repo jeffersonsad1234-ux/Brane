@@ -354,6 +354,7 @@ export default function useNarrator() {
         setActivationStatus("error");
         return;
       }
+      window.speechSynthesis.cancel();
       const all = window.speechSynthesis.getVoices();
       setAllVoices(all);
       setAllVoiceCount(all.length);
@@ -363,9 +364,13 @@ export default function useNarrator() {
         const picked = pickVoice(all);
         if (picked) { setVoice(picked); applyPreset(picked); }
       }
-      const u = new SpeechSynthesisUtterance("ok");
-      u.volume = 0; u.rate = 1;
+      // Speak a real utterance with volume > 0 to unlock speechSynthesis on Android
+      const u = new SpeechSynthesisUtterance("áudio");
+      u.volume = 1; u.rate = 1; u.lang = "pt-BR";
+      if (voiceRef.current) u.voice = voiceRef.current;
       window.speechSynthesis.speak(u);
+      // Cancel immediately so it doesn't play audible sound
+      setTimeout(() => { try { window.speechSynthesis.cancel(); } catch (e) {} }, 50);
       setIsBlocked(false);
       setActivationStatus("activated");
     } catch (err) {

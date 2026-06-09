@@ -206,14 +206,19 @@ export default function BranpyLive() {
 
   useEffect(() => { pausedRef.current = paused; }, [paused]);
 
-  const handleActivateAudio = useCallback(() => {
-    narrator.activate();
-    music.activate();
-    loadQuestions();
-  }, [narrator, music, loadQuestions]);
+  const handleActivateAudio = async () => {
+    try {
+      narrator.activate();
+      music.activate();
+      await loadQuestions();
+    } catch (err) {
+      console.error("[BranpyLive] activate error:", err);
+      setLoadingText("Erro ao iniciar.");
+    }
+  };
 
   const handleGearTouchStart = useCallback(() => {
-    pressTimerRef.current = setTimeout(() => { setAdminVisible(true); }, 3000);
+    pressTimerRef.current = setTimeout(() => { setAdminVisible((v) => !v); }, 3000);
   }, []);
 
   const handleGearTouchEnd = useCallback(() => {
@@ -224,7 +229,7 @@ export default function BranpyLive() {
     logoTapCountRef.current += 1;
     if (logoTapCountRef.current >= 5) {
       logoTapCountRef.current = 0;
-      setAdminVisible(true);
+      setAdminVisible((v) => !v);
       return;
     }
     if (logoTapTimerRef.current) clearTimeout(logoTapTimerRef.current);
