@@ -195,6 +195,9 @@ export default function BranpyLive() {
   const countdownRef = useRef(null);
   const viewerRef = useRef(null);
   const syncRef = useRef({ minDone: false, narDone: false, advancing: false, timerId: null, fallbackId: null });
+  const pressTimerRef = useRef(null);
+  const logoTapCountRef = useRef(0);
+  const logoTapTimerRef = useRef(null);
 
   const narrator = useNarrator();
   const music = useBackgroundMusic();
@@ -202,6 +205,31 @@ export default function BranpyLive() {
   const [announcing, setAnnouncing] = useState(false);
 
   useEffect(() => { pausedRef.current = paused; }, [paused]);
+
+  const handleActivateAudio = useCallback(() => {
+    narrator.activate();
+    music.activate();
+    loadQuestions();
+  }, [narrator, music, loadQuestions]);
+
+  const handleGearTouchStart = useCallback(() => {
+    pressTimerRef.current = setTimeout(() => { setAdminVisible(true); }, 3000);
+  }, []);
+
+  const handleGearTouchEnd = useCallback(() => {
+    if (pressTimerRef.current) { clearTimeout(pressTimerRef.current); pressTimerRef.current = null; }
+  }, []);
+
+  const handleLogoTap = useCallback(() => {
+    logoTapCountRef.current += 1;
+    if (logoTapCountRef.current >= 5) {
+      logoTapCountRef.current = 0;
+      setAdminVisible(true);
+      return;
+    }
+    if (logoTapTimerRef.current) clearTimeout(logoTapTimerRef.current);
+    logoTapTimerRef.current = setTimeout(() => { logoTapCountRef.current = 0; }, 2000);
+  }, []);
 
   const clearAllTimers = useCallback(() => {
     const s = syncRef.current;
@@ -226,8 +254,6 @@ export default function BranpyLive() {
       setLoadingText("Erro ao carregar quiz.");
     }
   }, []);
-
-  useEffect(() => { loadQuestions(); }, [loadQuestions]);
 
   useEffect(() => {
     viewerRef.current = setInterval(() => setViewers(randomViewers()), 8000);
@@ -391,24 +417,63 @@ export default function BranpyLive() {
   };
 
   const adminBtnStyle = {
-    display: "block", width: "100%", padding: "6px 10px",
+    display: "block", width: "100%", padding: "10px 14px",
     background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-    borderRadius: 8, color: "#fff", fontSize: 12, cursor: "pointer",
-    textAlign: "left", fontWeight: 500,
+    borderRadius: 8, color: "#fff", fontSize: 13, cursor: "pointer",
+    textAlign: "left", fontWeight: 500, minHeight: 44,
+    WebkitTapHighlightColor: "transparent",
   };
 
   if (phase === "loading") {
-    return (
-      <div
-        style={{
+    // Audio activation overlay (shown before user taps the button)
+    if (narrator.activationStatus === "idle") {
+      return (
+        <div style={{
           width: "100vw", height: "100vh",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          background: COLORS.bg, color: COLORS.muted,
+          display: "flex", flexDirection: "column",
+          alignItems: "center", justifyContent: "center",
+          background: COLORS.bg, color: COLORS.text,
           fontFamily: "system-ui, -apple-system, sans-serif",
-          fontSize: 18,
-        }}
-      >
-        {loadingText}
+          padding: 40, boxSizing: "border-box",
+        }}>
+          <div style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>
+            QUIZ BRANE
+          </div>
+          <div style={{ fontSize: 14, color: COLORS.muted, marginBottom: 40, textAlign: "center" }}>
+            Toque no botão para ativar o áudio
+          </div>
+          <button onClick={handleActivateAudio}
+            style={{
+              padding: "20px 48px", borderRadius: 16, border: "none",
+              background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
+              color: "#fff", fontSize: 20, fontWeight: 700, cursor: "pointer",
+              boxShadow: `0 0 40px ${COLORS.primary}40`,
+              WebkitTapHighlightColor: "transparent",
+            }}
+          >
+            ATIVAR ÁUDIO E INICIAR ▶
+          </button>
+        </div>
+      );
+    }
+
+    // Loading screen after audio activated (while questions load)
+    return (
+      <div style={{
+        width: "100vw", height: "100vh",
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        background: COLORS.bg, color: COLORS.muted,
+        fontFamily: "system-ui, -apple-system, sans-serif",
+        fontSize: 18, gap: 12,
+      }}>
+        <div>{loadingText}</div>
+        <div style={{ fontSize: 13, color: COLORS.correct }}>✓ Áudio ativado</div>
+        <div style={{ fontSize: 13, color: narrator.allVoiceCount > 0 ? COLORS.correct : "#FFA500" }}>
+          {narrator.allVoiceCount > 0
+            ? `✓ Voz detectada (${narrator.allVoiceCount} vozes)`
+            : "✗ Voz não disponível (usando padrão)"}
+        </div>
       </div>
     );
   }
@@ -500,7 +565,8 @@ export default function BranpyLive() {
         display: adminVisible ? "flex" : "none", flexDirection: "column", gap: 4,
         background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)",
         border: "1px solid rgba(138,44,255,0.3)",
-        borderRadius: 12, padding: 8, minWidth: 180, maxHeight: "90vh", overflowY: "auto",
+        borderRadius: 12, padding: 8, minWidth: 220, maxHeight: "85vh", overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
       }}>
         <div style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4, textAlign: "center" }}>
           Admin Quiz
@@ -554,7 +620,7 @@ export default function BranpyLive() {
                 const v = narrator.voices.find((x) => x.name === e.target.value);
                 narrator.setVoice(v || null);
               }}
-                style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11, flex: 1 }}
+                style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "8px 10px", fontSize: 12, flex: 1, minHeight: 44 }}
               >
                 <option value="" disabled>Selecione uma voz</option>
                 {narrator.voices.map((v) => (
@@ -565,9 +631,10 @@ export default function BranpyLive() {
               </select>
               <button onClick={narrator.refreshVoices} title="Recarregar vozes"
                 style={{
-                  width: 30, height: 30, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.06)", color: "#fff", fontSize: 14,
+                  width: 44, height: 44, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
+                  background: "rgba(255,255,255,0.06)", color: "#fff", fontSize: 16,
                   cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                  WebkitTapHighlightColor: "transparent", flexShrink: 0,
                 }}
               >
                 🔄
@@ -629,12 +696,12 @@ export default function BranpyLive() {
               {narrator.SPEED_OPTIONS.map((opt) => (
                 <button key={opt.id} onClick={() => narrator.setSpeedMode(opt.id)}
                   style={{
-                    flex: 1, padding: "6px 4px", borderRadius: 8, fontSize: 10,
-                    fontWeight: narrator.speedMode === opt.id ? 700 : 400,
+                    flex: 1, padding: "10px 4px", borderRadius: 8, fontSize: 11,
+                    fontWeight: narrator.speedMode === opt.id ? 700 : 400, minHeight: 44,
                     border: `1px solid ${narrator.speedMode === opt.id ? COLORS.primary : "rgba(255,255,255,0.1)"}`,
                     background: narrator.speedMode === opt.id ? `${COLORS.primary}30` : "rgba(255,255,255,0.06)",
                     color: narrator.speedMode === opt.id ? COLORS.primary : "#fff",
-                    cursor: "pointer", textAlign: "center",
+                    cursor: "pointer", textAlign: "center", WebkitTapHighlightColor: "transparent",
                   }}
                 >
                   {opt.label}
@@ -659,7 +726,7 @@ export default function BranpyLive() {
           setBgVariant(v);
           localStorage.setItem("brane_bg", v);
         }}
-          style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11 }}
+          style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "8px 10px", fontSize: 12, minHeight: 44 }}
         >
           <option value="neon">Neon</option>
           <option value="espaco">Espaço</option>
@@ -674,7 +741,7 @@ export default function BranpyLive() {
           🎵 Música de Fundo
         </div>
         <select value={music.currentTrack} onChange={(e) => music.selectTrack(e.target.value)}
-          style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11, width: "100%" }}
+          style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "8px 10px", fontSize: 12, width: "100%", minHeight: 44 }}
         >
           <option value="">Nenhuma</option>
           {music.categories.map((cat) => (
@@ -739,7 +806,10 @@ export default function BranpyLive() {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span className="live-dot" />
-          <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: 1 }}>
+          <span
+            onClick={handleLogoTap}
+            style={{ fontSize: 16, fontWeight: 800, letterSpacing: 1, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}
+          >
             QUIZ AO VIVO
           </span>
           {paused && (
@@ -752,16 +822,28 @@ export default function BranpyLive() {
             </span>
           )}
         </div>
-        <div style={{
-          display: "flex", alignItems: "center", gap: 6,
-          background: "rgba(255,255,255,0.06)", borderRadius: 20,
-          padding: "6px 14px", fontSize: 13, color: COLORS.muted,
-        }}>
-          <span>👁</span>
-          <span style={{ fontWeight: 700, color: COLORS.text, minWidth: 40, textAlign: "right" }}>
-            {formatViewers(viewers)}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 6,
+            background: "rgba(255,255,255,0.06)", borderRadius: 20,
+            padding: "6px 14px", fontSize: 13, color: COLORS.muted,
+          }}>
+            <span>👁</span>
+            <span style={{ fontWeight: 700, color: COLORS.text, minWidth: 40, textAlign: "right" }}>
+              {formatViewers(viewers)}
+            </span>
+            <span style={{ fontSize: 11 }}>assistindo</span>
+          </div>
+          {/* Admin access gear icon (long press 3s on tablet, also works on desktop) */}
+          <span
+            onPointerDown={handleGearTouchStart}
+            onPointerUp={handleGearTouchEnd}
+            onPointerLeave={handleGearTouchEnd}
+            style={{ fontSize: 18, cursor: "pointer", opacity: 0.4, WebkitTapHighlightColor: "transparent", userSelect: "none" }}
+            title="Segure 3s para abrir admin"
+          >
+            ⚙️
           </span>
-          <span style={{ fontSize: 11 }}>assistindo</span>
         </div>
       </div>
 

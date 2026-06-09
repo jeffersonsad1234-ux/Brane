@@ -421,6 +421,14 @@ export default function useBackgroundMusic() {
   const trackRef = useRef("");
   const volRef = useRef(volume);
 
+  const activate = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      ctx.resume();
+      setTimeout(() => ctx.close(), 100);
+    } catch (err) { console.error("[BGMusic] activate error:", err); }
+  }, []);
+
   const stop = useCallback(() => {
     nodesRef.current.forEach((n) => {
       try { n.stop(); } catch (e) { /* already stopped */ }
@@ -500,7 +508,7 @@ export default function useBackgroundMusic() {
   }, [stop]);
 
   return {
-    currentTrack, isPlaying, volume, setVolume,
+    currentTrack, isPlaying, volume, setVolume, activate,
     play, stop, toggle, selectTrack, nextTrack, randomTrack,
     tracks: ALL_TRACKS, categories: CATEGORIES,
   };

@@ -209,6 +209,7 @@ export default function useNarrator() {
   const [isSupported, setIsSupported] = useState(false);
   const [speedMode, setSpeedModeState] = useState("rapida");
   const [isBlocked, setIsBlocked] = useState(false);
+  const [activationStatus, setActivationStatus] = useState("idle");
 
   const enabledRef = useRef(enabled);
   const volumeRef = useRef(volume);
@@ -345,6 +346,34 @@ export default function useNarrator() {
     }
   }, [applyPreset]);
 
+  const activate = useCallback(() => {
+    if (activationStatus !== "idle") return;
+    setActivationStatus("activating");
+    try {
+      if (!("speechSynthesis" in window)) {
+        setActivationStatus("error");
+        return;
+      }
+      const all = window.speechSynthesis.getVoices();
+      setAllVoices(all);
+      setAllVoiceCount(all.length);
+      const pt = all.filter((v) => v.lang.startsWith("pt"));
+      setVoices(pt);
+      if (!voiceRef.current) {
+        const picked = pickVoice(all);
+        if (picked) { setVoice(picked); applyPreset(picked); }
+      }
+      const u = new SpeechSynthesisUtterance("ok");
+      u.volume = 0; u.rate = 1;
+      window.speechSynthesis.speak(u);
+      setIsBlocked(false);
+      setActivationStatus("activated");
+    } catch (err) {
+      console.error("[Narrator] activate error:", err);
+      setActivationStatus("error");
+    }
+  }, [activationStatus, pickVoice, applyPreset]);
+
   const cancel = useCallback(() => {
     try {
       if (timeoutRef.current) {
@@ -464,6 +493,7 @@ export default function useNarrator() {
     allVoiceCount,
     isSupported,
     isBlocked, setIsBlocked,
+    activationStatus, activate,
     cancel,
     speak,
     speakSequence,
