@@ -53,11 +53,18 @@ const ABBREVIATION_MAP = {
   "PC": "pê cê",
   "OBS": "ó bê ésse",
   "TikTok": "tique toque",
+  "YouTube": "iutúbi",
 };
 
+const SPEED_OPTIONS = [
+  { id: "lenta", label: "Lenta", rate: 0.78 },
+  { id: "normal", label: "Normal", rate: 0.95 },
+  { id: "rapida", label: "Rápida", rate: 1.08 },
+];
+
 const VOICE_PRESETS = [
-  { name: "Maria Natural", match: /maria/i, rate: 0.90, pitch: 1.04 },
-  { name: "Daniel Natural", match: /daniel/i, rate: 0.95, pitch: 0.98 },
+  { name: "Maria Natural", match: /maria/i, speedMode: "rapida", rate: 1.08, pitch: 1.03 },
+  { name: "Daniel Natural", match: /daniel/i, speedMode: "normal", rate: 0.95, pitch: 0.98 },
 ];
 
 const MAX_CHARS = 280;
@@ -133,6 +140,7 @@ export default function useNarrator() {
   const [allVoices, setAllVoices] = useState([]);
   const [allVoiceCount, setAllVoiceCount] = useState(0);
   const [isSupported, setIsSupported] = useState(false);
+  const [speedMode, setSpeedModeState] = useState("rapida");
   const [isBlocked, setIsBlocked] = useState(false);
 
   const enabledRef = useRef(enabled);
@@ -219,11 +227,24 @@ export default function useNarrator() {
     };
   }, [loadVoices]);
 
+  const setSpeedMode = useCallback((id) => {
+    try {
+      const opt = SPEED_OPTIONS.find((o) => o.id === id);
+      if (opt) {
+        setSpeedModeState(id);
+        setRate(opt.rate);
+      }
+    } catch (err) {
+      console.error("[Narrator] setSpeedMode error:", err);
+    }
+  }, []);
+
   const applyPreset = useCallback((v) => {
     if (!v) return;
     try {
       for (const preset of VOICE_PRESETS) {
         if (preset.match.test(v.name)) {
+          setSpeedModeState(preset.speedMode);
           setRate(preset.rate);
           setPitch(preset.pitch);
           console.log("[Narrator] Preset aplicado:", preset.name, "rate:", preset.rate, "pitch:", preset.pitch);
@@ -367,6 +388,7 @@ export default function useNarrator() {
   return {
     enabled, setEnabled,
     volume, setVolume,
+    speedMode, setSpeedMode,
     rate, setRate,
     pitch, setPitch,
     voice, setVoice: handleSetVoice,
@@ -381,6 +403,7 @@ export default function useNarrator() {
     testVoice,
     refreshVoices,
     VOICE_PRESETS,
+    SPEED_OPTIONS,
     normalizePortugueseSpeech,
   };
 }

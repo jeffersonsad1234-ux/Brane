@@ -585,7 +585,7 @@ export default function BranpyLive() {
                   border: "1px solid rgba(46,204,113,0.3)",
                   color: COLORS.correct, fontWeight: 600, textAlign: "center",
                 }}>
-                  ✅ Preset "{activePreset.name}" ativo (velocidade {activePreset.rate}x, tom {activePreset.pitch})
+                  ✅ Preset "{activePreset.name}" ativo ({narrator.speedMode}, tom {activePreset.pitch})
                 </div>
               );
             })()}
@@ -624,10 +624,23 @@ export default function BranpyLive() {
               onChange={(e) => narrator.setVolume(parseFloat(e.target.value))}
               style={{ width: "100%", accentColor: COLORS.primary }} />
 
-            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Velocidade</div>
-            <input type="range" min="0.5" max="1.5" step="0.1" value={narrator.rate}
-              onChange={(e) => narrator.setRate(parseFloat(e.target.value))}
-              style={{ width: "100%", accentColor: COLORS.primary }} />
+            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Velocidade da voz</div>
+            <div style={{ display: "flex", gap: 4 }}>
+              {narrator.SPEED_OPTIONS.map((opt) => (
+                <button key={opt.id} onClick={() => narrator.setSpeedMode(opt.id)}
+                  style={{
+                    flex: 1, padding: "6px 4px", borderRadius: 8, fontSize: 10,
+                    fontWeight: narrator.speedMode === opt.id ? 700 : 400,
+                    border: `1px solid ${narrator.speedMode === opt.id ? COLORS.primary : "rgba(255,255,255,0.1)"}`,
+                    background: narrator.speedMode === opt.id ? `${COLORS.primary}30` : "rgba(255,255,255,0.06)",
+                    color: narrator.speedMode === opt.id ? COLORS.primary : "#fff",
+                    cursor: "pointer", textAlign: "center",
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
 
             <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Tom</div>
             <input type="range" min="0.5" max="2" step="0.1" value={narrator.pitch}
