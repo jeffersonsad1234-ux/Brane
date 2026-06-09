@@ -217,9 +217,17 @@ export default function BranpyLive() {
     }
   };
 
-  const handleGearTouchStart = useCallback(() => {
-    pressTimerRef.current = setTimeout(() => { setAdminVisible((v) => !v); }, 3000);
+  const toggleAdmin = useCallback(() => {
+    setAdminVisible((v) => !v);
   }, []);
+
+  const handleGearClick = useCallback(() => {
+    toggleAdmin();
+  }, [toggleAdmin]);
+
+  const handleGearTouchStart = useCallback(() => {
+    pressTimerRef.current = setTimeout(() => { toggleAdmin(); }, 2000);
+  }, [toggleAdmin]);
 
   const handleGearTouchEnd = useCallback(() => {
     if (pressTimerRef.current) { clearTimeout(pressTimerRef.current); pressTimerRef.current = null; }
@@ -229,12 +237,12 @@ export default function BranpyLive() {
     logoTapCountRef.current += 1;
     if (logoTapCountRef.current >= 5) {
       logoTapCountRef.current = 0;
-      setAdminVisible((v) => !v);
+      toggleAdmin();
       return;
     }
     if (logoTapTimerRef.current) clearTimeout(logoTapTimerRef.current);
     logoTapTimerRef.current = setTimeout(() => { logoTapCountRef.current = 0; }, 2000);
-  }, []);
+  }, [toggleAdmin]);
 
   const clearAllTimers = useCallback(() => {
     const s = syncRef.current;
@@ -528,6 +536,7 @@ export default function BranpyLive() {
         alignItems: "center",
         justifyContent: isQuestionTop ? "flex-start" : "center",
         transition: "background 0.6s ease",
+        userSelect: "none", WebkitUserSelect: "none", WebkitTouchCallout: "none",
       }}
     >
       <AnimatedBackground variant={bgVariant} />
@@ -564,17 +573,29 @@ export default function BranpyLive() {
         onTogglePause={handleTogglePause}
         onRestart={handleRestart}
       />
-      {/* Admin panel (Ctrl+Shift+Q) */}
+      {/* Admin panel — full-height overlay for mobile/tablet (Ctrl+Shift+Q on PC) */}
       <div style={{
-        position: "fixed", top: 56, right: 16, zIndex: 9999,
-        display: adminVisible ? "flex" : "none", flexDirection: "column", gap: 4,
-        background: "rgba(0,0,0,0.85)", backdropFilter: "blur(8px)",
-        border: "1px solid rgba(138,44,255,0.3)",
-        borderRadius: 12, padding: 8, minWidth: 220, maxHeight: "85vh", overflowY: "auto",
-        WebkitOverflowScrolling: "touch",
+        position: "fixed", top: 0, right: 0, width: "min(420px, 92vw)", height: "100vh",
+        zIndex: 999999, display: adminVisible ? "flex" : "none", flexDirection: "column",
+        background: "rgba(0,0,0,0.92)", backdropFilter: "blur(8px)",
+        borderLeft: "1px solid rgba(138,44,255,0.3)",
+        padding: "12px 10px 20px", overflowY: "auto", WebkitOverflowScrolling: "touch",
+        userSelect: "none", WebkitUserSelect: "none",
       }}>
-        <div style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4, textAlign: "center" }}>
-          Admin Quiz
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>
+            Admin Quiz
+          </div>
+          <button onClick={() => setAdminVisible(false)}
+            style={{
+              width: 44, height: 44, borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)",
+              background: "rgba(255,255,255,0.08)", color: "#fff", fontSize: 20,
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+              WebkitTapHighlightColor: "transparent", flexShrink: 0,
+            }}
+          >
+            ✕
+          </button>
         </div>
         {paused ? (
           <button onClick={handleAdminContinue} style={adminBtnStyle}>▶ Continuar</button>
@@ -839,13 +860,14 @@ export default function BranpyLive() {
             </span>
             <span style={{ fontSize: 11 }}>assistindo</span>
           </div>
-          {/* Admin access gear icon (long press 3s on tablet, also works on desktop) */}
+          {/* Admin access gear icon — tap opens, hold 2s also opens */}
           <span
+            onClick={handleGearClick}
             onPointerDown={handleGearTouchStart}
             onPointerUp={handleGearTouchEnd}
             onPointerLeave={handleGearTouchEnd}
-            style={{ fontSize: 18, cursor: "pointer", opacity: 0.4, WebkitTapHighlightColor: "transparent", userSelect: "none" }}
-            title="Segure 3s para abrir admin"
+            style={{ fontSize: 18, cursor: "pointer", opacity: 0.5, WebkitTapHighlightColor: "transparent", userSelect: "none", touchAction: "manipulation" }}
+            title="Admin"
           >
             ⚙️
           </span>
