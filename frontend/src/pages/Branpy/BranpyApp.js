@@ -7,6 +7,7 @@ import BranpySearch from "./BranpySearch";
 import BranpyVideoDetail from "./BranpyVideoDetail";
 import BranpyAdmin from "./BranpyAdmin";
 import BranpyLive from "./BranpyLive";
+import BranpyLiveAdmin from "./BranpyLiveAdmin";
 import { useAuth } from "../../contexts/AuthContext";
 import { useState, useRef, useEffect } from "react";
 
@@ -99,7 +100,7 @@ function BranpyBottomNav() {
 export default function BranpyApp() {
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
-  const isLive = location.pathname === "/branpy/live";
+  const isLive = location.pathname === "/branpy/live" || location.pathname === "/branpy/live/admin";
 
   if (searchQuery) {
     return <Navigate to={`/branpy/search?q=${encodeURIComponent(searchQuery)}`} />;
@@ -115,6 +116,7 @@ export default function BranpyApp() {
         <Route path="trending" element={<BranpyTrending />} />
         <Route path="search" element={<BranpySearch />} />
         <Route path="video/:id" element={<BranpyVideoDetail />} />
+        <Route path="live/admin" element={<BranpyLiveAdmin />} />
         <Route path="live" element={<BranpyLive />} />
         <Route path="admin" element={<BranpyAdmin />} />
       </Routes>

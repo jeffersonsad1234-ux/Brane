@@ -71,6 +71,7 @@
     "start": "cross-env PORT=3001 craco start",
     "start:agent": "cross-env PORT=3001 craco start",
     "start:tts": "python ../backend/tts_server.py",
+    "start:ws": "node ws-server.js",
     "dev": "concurrently -k -n frontend,tts,proxy -c cyan,green,yellow \"npm start\" \"npm run start:tts\" \"npm run ollama-proxy\"",
     "build": "cross-env CI=false DISABLE_ESLINT_PLUGIN=true SKIP_PREFLIGHT_CHECK=true craco build",
     "test": "craco test",

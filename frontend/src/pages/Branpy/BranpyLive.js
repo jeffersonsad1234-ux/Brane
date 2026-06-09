@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { getLiveQuiz } from "./BranpyAPI";
 import useNarrator from "../../hooks/useNarrator";
 import useBackgroundMusic from "../../hooks/useBackgroundMusic";
+import useLiveSync from "../../hooks/useLiveSync";
 import AnimatedBackground from "./AnimatedBackground";
 
 const COLORS = {
@@ -134,44 +135,6 @@ function AnswerReveal({ question, correct, explanation }) {
   );
 }
 
-function OperatorControls({ paused, onTogglePause, onRestart }) {
-  const [visible, setVisible] = useState(false);
-  return (
-    <div
-      onMouseEnter={() => setVisible(true)}
-      onMouseLeave={() => setVisible(false)}
-      style={{
-        position: "fixed", top: 56, right: 16, zIndex: 999,
-        display: "flex", gap: 6, opacity: visible ? 1 : 0,
-        transition: "opacity 0.2s ease",
-      }}
-    >
-      <button
-        onClick={onTogglePause}
-        title={paused ? "▶ Iniciar" : "⏸ Pausar"}
-        style={{
-          width: 32, height: 32, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.15)",
-          background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 14, cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}
-      >
-        {paused ? "▶" : "⏸"}
-      </button>
-      <button
-        onClick={onRestart}
-        title="🔄 Reiniciar"
-        style={{
-          width: 32, height: 32, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.15)",
-          background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 14, cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-        }}
-      >
-        🔄
-      </button>
-    </div>
-  );
-}
-
 const PHASE_DEF = {
   question_intro: { next: "countdown",  fallback: 15000 },
   countdown:      { next: "answer",     minTime: 10000, fallback: 12000 },
@@ -189,20 +152,16 @@ export default function BranpyLive() {
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
 
-  const [adminVisible, setAdminVisible] = useState(false);
   const [bgVariant, setBgVariant] = useState(() => localStorage.getItem("brane_bg") || "neon");
 
   const countdownRef = useRef(null);
   const viewerRef = useRef(null);
   const syncRef = useRef({ minDone: false, narDone: false, advancing: false, timerId: null, fallbackId: null });
-  const pressTimerRef = useRef(null);
-  const logoTapCountRef = useRef(0);
-  const logoTapTimerRef = useRef(null);
+  const [announcing, setAnnouncing] = useState(false);
 
   const narrator = useNarrator();
   const music = useBackgroundMusic();
-  const [giftText, setGiftText] = useState("");
-  const [announcing, setAnnouncing] = useState(false);
+  const liveSync = useLiveSync("live");
 
   useEffect(() => { pausedRef.current = paused; }, [paused]);
 
@@ -216,33 +175,6 @@ export default function BranpyLive() {
       setLoadingText("Erro ao iniciar.");
     }
   };
-
-  const toggleAdmin = useCallback(() => {
-    setAdminVisible((v) => !v);
-  }, []);
-
-  const handleGearClick = useCallback(() => {
-    toggleAdmin();
-  }, [toggleAdmin]);
-
-  const handleGearTouchStart = useCallback(() => {
-    pressTimerRef.current = setTimeout(() => { toggleAdmin(); }, 2000);
-  }, [toggleAdmin]);
-
-  const handleGearTouchEnd = useCallback(() => {
-    if (pressTimerRef.current) { clearTimeout(pressTimerRef.current); pressTimerRef.current = null; }
-  }, []);
-
-  const handleLogoTap = useCallback(() => {
-    logoTapCountRef.current += 1;
-    if (logoTapCountRef.current >= 5) {
-      logoTapCountRef.current = 0;
-      toggleAdmin();
-      return;
-    }
-    if (logoTapTimerRef.current) clearTimeout(logoTapTimerRef.current);
-    logoTapTimerRef.current = setTimeout(() => { logoTapCountRef.current = 0; }, 2000);
-  }, [toggleAdmin]);
 
   const clearAllTimers = useCallback(() => {
     const s = syncRef.current;
@@ -271,15 +203,6 @@ export default function BranpyLive() {
   useEffect(() => {
     viewerRef.current = setInterval(() => setViewers(randomViewers()), 8000);
     return () => clearInterval(viewerRef.current);
-  }, []);
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.tagName === "SELECT") return;
-      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "q") { e.preventDefault(); setAdminVisible((v) => !v); }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
   }, []);
 
   // Cancel narration on unmount only (not on phase change)
@@ -397,18 +320,6 @@ export default function BranpyLive() {
     return () => { if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; } };
   }, [phase, paused]);
 
-  const handleGiftAnnounce = () => {
-    if (!giftText.trim() || announcing) return;
-    narrator.cancel();
-    clearAllTimers();
-    setPaused(true);
-    setAnnouncing(true);
-    narrator.speak(giftText.trim(), () => {
-      setAnnouncing(false);
-      setPaused(false);
-    });
-  };
-
   const handleTogglePause = () => {
     setPaused((p) => { if (!p) narrator.cancel(); return !p; });
   };
@@ -417,25 +328,112 @@ export default function BranpyLive() {
     clearAllTimers(); narrator.cancel(); setPaused(false); setPhase("loading"); loadQuestions();
   };
 
-  const handleAdminPause = () => {
+  const handleRemotePause = useCallback(() => {
     narrator.cancel(); setPaused(true); clearAllTimers();
-  };
+  }, [narrator, clearAllTimers]);
 
-  const handleAdminContinue = () => { setPaused(false); };
+  const handleRemoteContinue = useCallback(() => { setPaused(false); }, []);
 
-  const handleAdminNext = () => {
+  const handleRemoteNext = useCallback(() => {
     narrator.cancel(); clearAllTimers(); setPaused(false);
     const def = PHASE_DEF[phase];
     if (def && def.next) { setPhase(def.next); } else { handleRestart(); }
-  };
+  }, [narrator, clearAllTimers, phase, handleRestart]);
 
-  const adminBtnStyle = {
-    display: "block", width: "100%", padding: "10px 14px",
-    background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-    borderRadius: 8, color: "#fff", fontSize: 13, cursor: "pointer",
-    textAlign: "left", fontWeight: 500, minHeight: 44,
-    WebkitTapHighlightColor: "transparent",
-  };
+  const handleRemoteSpeak = useCallback((text) => {
+    if (!text.trim() || announcing) return;
+    narrator.cancel();
+    clearAllTimers();
+    setPaused(true);
+    setAnnouncing(true);
+    narrator.speak(text.trim(), () => {
+      setAnnouncing(false);
+      setPaused(false);
+    });
+  }, [narrator, clearAllTimers, announcing]);
+
+  // ── WebSocket command listener ──
+  useEffect(() => {
+    liveSync.on("command", (msg) => {
+      switch (msg.command) {
+        case "pause": handleRemotePause(); break;
+        case "resume": handleRemoteContinue(); break;
+        case "restart": handleRestart(); break;
+        case "nextQuestion": handleRemoteNext(); break;
+        case "setVoice":
+          if (msg.voiceName) {
+            const v = narrator.voices.find((x) => x.name === msg.voiceName);
+            if (v) narrator.setVoice(v);
+          }
+          break;
+        case "setVolume":
+          if (msg.volume != null) narrator.setVolume(parseFloat(msg.volume));
+          break;
+        case "setMusicVolume":
+          if (msg.volume != null) music.setVolume(parseFloat(msg.volume));
+          break;
+        case "setRate":
+          if (msg.rate != null) narrator.setRate(parseFloat(msg.rate));
+          break;
+        case "setPitch":
+          if (msg.pitch != null) narrator.setPitch(parseFloat(msg.pitch));
+          break;
+        case "setBackground":
+          if (msg.variant) { setBgVariant(msg.variant); localStorage.setItem("brane_bg", msg.variant); }
+          break;
+        case "setMusic":
+          if (msg.track != null) music.selectTrack(msg.track || "");
+          break;
+        case "playMusic":
+          if (msg.track) music.selectTrack(msg.track);
+          else if (music.currentTrack) music.play(music.currentTrack);
+          break;
+        case "pauseMusic": music.stop(); break;
+        case "nextMusic": music.nextTrack(); break;
+        case "randomMusic": music.randomTrack(); break;
+        case "speakMessage":
+          if (msg.text) handleRemoteSpeak(msg.text);
+          break;
+        case "setSpeedMode":
+          if (msg.mode) narrator.setSpeedMode(msg.mode);
+          break;
+        default: break;
+      }
+    });
+    return () => { liveSync.off("command"); };
+  }, [liveSync, handleRemotePause, handleRemoteContinue, handleRestart,
+      handleRemoteNext, narrator, music, handleRemoteSpeak]);
+
+  // ── Send voices to admin ──
+  useEffect(() => {
+    if (narrator.activationStatus === "activated" && narrator.allVoices.length > 0) {
+      liveSync.sendVoices(narrator.allVoices.map((v) => ({ name: v.name, lang: v.lang })));
+    }
+  }, [narrator.activationStatus, narrator.allVoices, liveSync]);
+
+  // ── Send status to admin ──
+  useEffect(() => {
+    if (narrator.activationStatus === "activated") {
+      liveSync.sendStatus({
+        phase,
+        currentIndex,
+        paused: pausedRef.current,
+        bgVariant,
+        currentTrack: music.currentTrack,
+        isPlaying: music.isPlaying,
+        narratorEnabled: narrator.enabled,
+        announcing,
+        voiceName: narrator.voice?.name || "",
+        volume: narrator.volume,
+        speedMode: narrator.speedMode,
+        pitch: narrator.pitch,
+        musicVolume: music.volume,
+      });
+    }
+  }, [narrator.activationStatus, phase, currentIndex, paused, bgVariant,
+      music.currentTrack, music.isPlaying, music.volume,
+      narrator.enabled, narrator.voice, narrator.volume, narrator.speedMode, narrator.pitch,
+      announcing, liveSync]);
 
   if (phase === "loading") {
     // Audio activation overlay (shown before user taps the button)
@@ -567,262 +565,6 @@ export default function BranpyLive() {
         .question-move { transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
       `}</style>
 
-      {/* Operator controls */}
-      <OperatorControls
-        paused={paused}
-        onTogglePause={handleTogglePause}
-        onRestart={handleRestart}
-      />
-      {/* Admin panel — full-height overlay for mobile/tablet (Ctrl+Shift+Q on PC) */}
-      <div style={{
-        position: "fixed", top: 0, right: 0, width: "min(420px, 92vw)", height: "100vh",
-        zIndex: 999999, display: adminVisible ? "flex" : "none", flexDirection: "column",
-        background: "rgba(0,0,0,0.92)", backdropFilter: "blur(8px)",
-        borderLeft: "1px solid rgba(138,44,255,0.3)",
-        padding: "12px 10px 20px", overflowY: "auto", WebkitOverflowScrolling: "touch",
-        userSelect: "none", WebkitUserSelect: "none",
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-          <div style={{ fontSize: 12, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1 }}>
-            Admin Quiz
-          </div>
-          <button onClick={() => setAdminVisible(false)}
-            style={{
-              width: 44, height: 44, borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)",
-              background: "rgba(255,255,255,0.08)", color: "#fff", fontSize: 20,
-              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-              WebkitTapHighlightColor: "transparent", flexShrink: 0,
-            }}
-          >
-            ✕
-          </button>
-        </div>
-        {paused ? (
-          <button onClick={handleAdminContinue} style={adminBtnStyle}>▶ Continuar</button>
-        ) : (
-          <button onClick={handleAdminPause} style={adminBtnStyle}>⏸ Pausar</button>
-        )}
-        <button onClick={handleRestart} style={adminBtnStyle}>🔄 Reiniciar Quiz</button>
-        <button onClick={handleAdminNext} style={adminBtnStyle}>⏭ Próxima Pergunta</button>
-
-        <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "4px 0" }} />
-
-        <div style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2, textAlign: "center" }}>
-          Narradora
-        </div>
-
-        {!narrator.isSupported ? (
-          <div style={{ fontSize: 11, color: COLORS.wrong, textAlign: "center", padding: 4 }}>
-            Navegador nao suporta audio
-          </div>
-        ) : (
-          <>
-            <button onClick={() => {
-              if (narrator.enabled) { narrator.cancel(); narrator.setEnabled(false); }
-              else { narrator.setEnabled(true); narrator.testVoice(); }
-            }} style={{
-              ...adminBtnStyle,
-              color: narrator.enabled ? COLORS.correct : COLORS.wrong,
-            }}>
-              {narrator.enabled ? "🔊 Ativada" : "🔇 Desativada"}
-            </button>
-
-            <button onClick={narrator.testVoice} style={adminBtnStyle}>
-              🎤 Testar Voz
-            </button>
-
-            {narrator.isBlocked && (
-              <button onClick={() => {
-                narrator.setIsBlocked(false);
-                narrator.testVoice();
-              }} style={{ ...adminBtnStyle, color: "#FFA500", border: "1px solid rgba(255,165,0,0.3)" }}>
-                🔊 ATIVAR AUDIO
-              </button>
-            )}
-
-            {/* Voice selector */}
-            <div style={{ display: "flex", gap: 4, alignItems: "center", marginTop: 2 }}>
-              <select value={narrator.voice?.name || ""} onChange={(e) => {
-                const v = narrator.voices.find((x) => x.name === e.target.value);
-                narrator.setVoice(v || null);
-              }}
-                style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "8px 10px", fontSize: 12, flex: 1, minHeight: 44 }}
-              >
-                <option value="" disabled>Selecione uma voz</option>
-                {narrator.voices.map((v) => (
-                  <option key={v.name} value={v.name}>
-                    {v.name.replace(/Microsoft|Online|Natural|\(Portuguese\)|\(Português\)/g, "").trim() || v.name}
-                  </option>
-                ))}
-              </select>
-              <button onClick={narrator.refreshVoices} title="Recarregar vozes"
-                style={{
-                  width: 44, height: 44, borderRadius: 8, border: "1px solid rgba(255,255,255,0.1)",
-                  background: "rgba(255,255,255,0.06)", color: "#fff", fontSize: 16,
-                  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                  WebkitTapHighlightColor: "transparent", flexShrink: 0,
-                }}
-              >
-                🔄
-              </button>
-            </div>
-
-            {/* Voice preset indicator */}
-            {narrator.voice && (() => {
-              const activePreset = narrator.VOICE_PRESETS.find((p) => p.match.test(narrator.voice.name));
-              if (!activePreset) return null;
-              return (
-                <div style={{
-                  fontSize: 10, marginTop: 1, padding: "3px 6px", borderRadius: 6,
-                  background: "rgba(46,204,113,0.1)",
-                  border: "1px solid rgba(46,204,113,0.3)",
-                  color: COLORS.correct, fontWeight: 600, textAlign: "center",
-                }}>
-                  ✅ Preset "{activePreset.name}" ativo ({narrator.speedMode}, tom {activePreset.pitch})
-                </div>
-              );
-            })()}
-
-            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 1 }}>
-              {narrator.allVoiceCount} vozes detectadas ({narrator.voices.length} em português)
-            </div>
-
-            <details style={{ marginTop: 2 }}>
-              <summary style={{ fontSize: 10, color: COLORS.primary, fontWeight: 600, cursor: "pointer", padding: "2px 0" }}>
-                📋 Diagnóstico de Vozes ({narrator.allVoiceCount})
-              </summary>
-              <div style={{ maxHeight: 200, overflowY: "auto", marginTop: 4, fontSize: 10, color: COLORS.muted, lineHeight: 1.6 }}>
-                {narrator.allVoices.length === 0 ? (
-                  <div style={{ color: "#FFA500" }}>Nenhuma voz detectada. speechSynthesis pode estar bloqueado.</div>
-                ) : (
-                  narrator.allVoices.map((v, i) => (
-                    <div key={i} style={{
-                      padding: "3px 4px", borderBottom: "1px solid rgba(255,255,255,0.04)",
-                      display: "flex", justifyContent: "space-between",
-                    }}>
-                      <span style={{ color: "#fff", fontWeight: v.lang.startsWith("pt") ? 600 : 400 }}>
-                        {v.name}
-                      </span>
-                      <span>
-                        {v.lang} {v.default ? "(default)" : ""}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-            </details>
-
-            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Volume</div>
-            <input type="range" min="0" max="1" step="0.1" value={narrator.volume}
-              onChange={(e) => narrator.setVolume(parseFloat(e.target.value))}
-              style={{ width: "100%", accentColor: COLORS.primary }} />
-
-            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Velocidade da voz</div>
-            <div style={{ display: "flex", gap: 4 }}>
-              {narrator.SPEED_OPTIONS.map((opt) => (
-                <button key={opt.id} onClick={() => narrator.setSpeedMode(opt.id)}
-                  style={{
-                    flex: 1, padding: "10px 4px", borderRadius: 8, fontSize: 11,
-                    fontWeight: narrator.speedMode === opt.id ? 700 : 400, minHeight: 44,
-                    border: `1px solid ${narrator.speedMode === opt.id ? COLORS.primary : "rgba(255,255,255,0.1)"}`,
-                    background: narrator.speedMode === opt.id ? `${COLORS.primary}30` : "rgba(255,255,255,0.06)",
-                    color: narrator.speedMode === opt.id ? COLORS.primary : "#fff",
-                    cursor: "pointer", textAlign: "center", WebkitTapHighlightColor: "transparent",
-                  }}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Tom</div>
-            <input type="range" min="0.5" max="2" step="0.1" value={narrator.pitch}
-              onChange={(e) => narrator.setPitch(parseFloat(e.target.value))}
-              style={{ width: "100%", accentColor: COLORS.primary }} />
-          </>
-        )}
-
-        <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "4px 0" }} />
-
-        <div style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2, textAlign: "center" }}>
-          Fundo
-        </div>
-        <select value={bgVariant} onChange={(e) => {
-          const v = e.target.value;
-          setBgVariant(v);
-          localStorage.setItem("brane_bg", v);
-        }}
-          style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "8px 10px", fontSize: 12, minHeight: 44 }}
-        >
-          <option value="neon">Neon</option>
-          <option value="espaco">Espaço</option>
-          <option value="cidade">Cidade</option>
-          <option value="estudio">Estúdio</option>
-          <option value="particulas">Partículas</option>
-        </select>
-
-        <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "4px 0" }} />
-
-        <div style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2, textAlign: "center" }}>
-          🎵 Música de Fundo
-        </div>
-        <select value={music.currentTrack} onChange={(e) => music.selectTrack(e.target.value)}
-          style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "8px 10px", fontSize: 12, width: "100%", minHeight: 44 }}
-        >
-          <option value="">Nenhuma</option>
-          {music.categories.map((cat) => (
-            <optgroup key={cat.name} label={cat.name}>
-              {cat.tracks.map((t) => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
-        <div style={{ display: "flex", gap: 4, marginTop: 2 }}>
-          <button onClick={() => music.toggle(music.currentTrack)} style={{ ...adminBtnStyle, flex: 1, textAlign: "center" }}>
-            {music.isPlaying ? "⏸ Pausar" : "▶ Tocar"}
-          </button>
-          <button onClick={music.nextTrack} disabled={!music.currentTrack}
-            style={{ ...adminBtnStyle, flex: 1, textAlign: "center", opacity: music.currentTrack ? 1 : 0.4 }}>
-            ⏭ Próxima
-          </button>
-          <button onClick={music.randomTrack} disabled={!music.currentTrack}
-            style={{ ...adminBtnStyle, flex: 1, textAlign: "center", opacity: music.currentTrack ? 1 : 0.4 }}>
-            🔀 Aleatória
-          </button>
-          <button onClick={() => music.selectTrack("")} disabled={!music.currentTrack}
-            style={{ ...adminBtnStyle, flex: 1, textAlign: "center", opacity: music.currentTrack ? 1 : 0.4 }}>
-            ✕ Nenhuma
-          </button>
-        </div>
-        <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Volume</div>
-        <input type="range" min="0" max="1" step="0.05" value={music.volume}
-          onChange={(e) => music.setVolume(parseFloat(e.target.value))}
-          style={{ width: "100%", accentColor: COLORS.primary }} />
-
-        <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "4px 0" }} />
-
-        <div style={{ fontSize: 10, color: COLORS.primary, fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, marginBottom: 2, textAlign: "center" }}>
-          🎁 Mensagem ao vivo
-        </div>
-        <input type="text" value={giftText} onChange={(e) => setGiftText(e.target.value)}
-          placeholder="Obrigado Tatiana pela rosa."
-          style={{
-            ...adminBtnStyle, width: "100%", boxSizing: "border-box", fontSize: 11,
-            background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)",
-          }}
-        />
-        <button onClick={handleGiftAnnounce} disabled={announcing || !giftText.trim()}
-          style={{
-            ...adminBtnStyle, textAlign: "center", marginTop: 2,
-            opacity: (announcing || !giftText.trim()) ? 0.5 : 1,
-            color: COLORS.accent, border: `1px solid ${COLORS.accent}40`,
-          }}
-        >
-          {announcing ? "🔊 Falando..." : "📢 FALAR AGORA"}
-        </button>
-      </div>
-
       {/* Top bar */}
       <div style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
@@ -832,10 +574,7 @@ export default function BranpyLive() {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span className="live-dot" />
-          <span
-            onClick={handleLogoTap}
-            style={{ fontSize: 16, fontWeight: 800, letterSpacing: 1, cursor: "pointer", WebkitTapHighlightColor: "transparent" }}
-          >
+          <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: 1 }}>
             QUIZ AO VIVO
           </span>
           {paused && (
@@ -848,29 +587,16 @@ export default function BranpyLive() {
             </span>
           )}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <div style={{
-            display: "flex", alignItems: "center", gap: 6,
-            background: "rgba(255,255,255,0.06)", borderRadius: 20,
-            padding: "6px 14px", fontSize: 13, color: COLORS.muted,
-          }}>
-            <span>👁</span>
-            <span style={{ fontWeight: 700, color: COLORS.text, minWidth: 40, textAlign: "right" }}>
-              {formatViewers(viewers)}
-            </span>
-            <span style={{ fontSize: 11 }}>assistindo</span>
-          </div>
-          {/* Admin access gear icon — tap opens, hold 2s also opens */}
-          <span
-            onClick={handleGearClick}
-            onPointerDown={handleGearTouchStart}
-            onPointerUp={handleGearTouchEnd}
-            onPointerLeave={handleGearTouchEnd}
-            style={{ fontSize: 18, cursor: "pointer", opacity: 0.5, WebkitTapHighlightColor: "transparent", userSelect: "none", touchAction: "manipulation" }}
-            title="Admin"
-          >
-            ⚙️
+        <div style={{
+          display: "flex", alignItems: "center", gap: 6,
+          background: "rgba(255,255,255,0.06)", borderRadius: 20,
+          padding: "6px 14px", fontSize: 13, color: COLORS.muted,
+        }}>
+          <span>👁</span>
+          <span style={{ fontWeight: 700, color: COLORS.text, minWidth: 40, textAlign: "right" }}>
+            {formatViewers(viewers)}
           </span>
+          <span style={{ fontSize: 11 }}>assistindo</span>
         </div>
       </div>
 
