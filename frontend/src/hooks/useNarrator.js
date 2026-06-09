@@ -16,8 +16,8 @@ const ACCENT_MAP = {
   "oportunidade": "oportunidade", "finalidade": "finalidade", "influencia": "influência",
   "consequencia": "consequência", "experiencia": "experiência", "diferenca": "diferença",
   "presenca": "presença", "ausencia": "ausência", "importancia": "importância",
-  "relevancia": "relevância", "distancia": "distância", "sustentavel": "sustentável",
-  "notavel": "notável", "notavelmente": "notavelmente", "incrivel": "incrível",
+  "relevancia": "relevância", "distancia": "distância",
+  "sustentavel": "sustentável", "notavel": "notável", "incrivel": "incrível",
   "possivel": "possível", "impossivel": "impossível", "visivel": "visível",
   "viavel": "viável", "automatico": "automático", "pratico": "prático",
   "unico": "único", "cientifico": "científico", "economico": "econômico",
@@ -30,7 +30,6 @@ const ACCENT_MAP = {
   "matematica": "matemática", "robotica": "robótica", "mecanica": "mecânica",
   "eletronica": "eletrônica", "logica": "lógica", "formula": "fórmula",
   "particula": "partícula", "molecula": "molécula", "celula": "célula",
-  "diferente": "diferente", "semelhante": "semelhante", "proximo": "próximo",
   "indigena": "indígena", "musica": "música", "ingles": "inglês",
   "frances": "francês", "portugues": "português", "japones": "japonês",
   "caracteristica": "característica", "analise": "análise", "sintese": "síntese",
@@ -42,70 +41,84 @@ const ACCENT_MAP = {
   "fotossintese": "fotossíntese", "varios": "vários", "varias": "várias",
   "dinossauro": "dinossauro", "nucleo": "núcleo", "atmosfera": "atmosfera",
   "ecossistema": "ecossistema", "biodiversidade": "biodiversidade",
+  "imperio": "império", "politica": "política", "media": "média",
+  "Idade Media": "Idade Média",
+};
+
+const ABBREVIATION_MAP = {
+  "IA": "inteligência artificial",
+  "DNS": "dê ene ésse",
+  "PDF": "pê dê efe",
+  "RPG": "érre pê gê",
+  "PC": "pê cê",
+  "OBS": "ó bê ésse",
+  "TikTok": "tique toque",
 };
 
 const VOICE_PRESETS = [
-  { name: "Maria Natural", match: /maria/i, rate: 0.92, pitch: 1.05 },
+  { name: "Maria Natural", match: /maria/i, rate: 0.90, pitch: 1.04 },
   { name: "Daniel Natural", match: /daniel/i, rate: 0.95, pitch: 0.98 },
 ];
 
-function prepareNaturalSpeech(text) {
+const MAX_CHARS = 280;
+
+function normalizePortugueseSpeech(text) {
   if (!text) return text;
   let s = text;
 
-  // Remove URLs
   s = s.replace(/https?:\/\/\S+/g, "");
-
-  // Remove problematic symbols but keep basic punctuation
   s = s.replace(/[*_~`#^|\\{}[\]<>]/g, "");
-
-  // Collapse multiple spaces
   s = s.replace(/\s+/g, " ");
-
-  // Collapse repetitive punctuation (!!! → ., ??? → ?)
   s = s.replace(/!{2,}/g, ".");
   s = s.replace(/\?{2,}/g, "?");
   s = s.replace(/\.{3,}/g, ".");
-
-  // Ensure space after punctuation if missing
   s = s.replace(/([.!?])([A-Za-z\u00C0-\u024F])/g, "$1 $2");
-
-  // Insert natural pause comma before "mas", "porém", "contudo", "portanto", "então"
   s = s.replace(/\b(mas|porem|contudo|portanto|entao|assim)\b/gi, ", $1");
 
-  // Apply accent map
+  for (const [key, val] of Object.entries(ABBREVIATION_MAP)) {
+    const regex = new RegExp(`\\b${key}\\b`, "g");
+    s = s.replace(regex, val);
+  }
+
   for (const [key, val] of Object.entries(ACCENT_MAP)) {
     const regex = new RegExp(`\\b${key}\\b`, "gi");
     s = s.replace(regex, (match) =>
-      match.length > 0 && match[0] === match[0].toUpperCase()
+      match[0] === match[0].toUpperCase()
         ? val.charAt(0).toUpperCase() + val.slice(1)
         : val
     );
   }
 
-  // "e" → "é" (verb) before article/pronoun
   s = s.replace(
     /\b[Ee]\s+(o|a|os|as|um|uma|no|na|do|da|num|numa|pelo|pela|seu|sua|seus|suas|este|esta|estes|estas|esse|essa|esses|essas|aquele|aquela|aqueles|aquelas|isso|isto|aquilo|muito|mais|menos|tambem|sempre|nunca|um dos|uma das)\b/gi,
     (match) => "é " + match.split(/\s+/).slice(1).join(" ")
   );
   s = s.replace(/\b(O que|Qual|Quem|Onde|Como|Quando|Por que)\s+e\b/gi, "$1 é");
   s = s.replace(/^E\s+/i, "É ");
+  s = s.replace(/\b[Aa]\s+(a|as)\b/gi, (match) => "à " + match.split(/\s+/).slice(1).join(" "));
 
-  // "a" → "à" before feminine nouns
-  s = s.replace(/\bA\s+(a|as)\b/gi, (match) => {
-    const words = match.split(/\s+/);
-    return "à " + words.slice(1).join(" ");
-  });
-
-  // Remove leading/trailing whitespace
   s = s.trim();
-
-  // Ensure ends with period if it's a sentence
   if (s.length > 0 && /[a-zA-Z0-9\u00C0-\u024F"']$/.test(s)) {
     s += ".";
   }
-
   return s;
+}
+
+function splitLongText(text) {
+  if (text.length <= MAX_CHARS) return [text];
+  const parts = [];
+  const sentences = text.match(/[^.!?]*[.!?]+/g) || [text];
+  let current = "";
+  for (const sentence of sentences) {
+    if ((current + sentence).length > MAX_CHARS && current) {
+      parts.push(current.trim());
+      current = sentence;
+    } else {
+      current += sentence;
+    }
+  }
+  if (current.trim()) parts.push(current.trim());
+  return parts.length > 0 ? parts : [text];
 }
 
 const STORAGE_KEY = "brane_narrator_voice";
@@ -151,46 +164,43 @@ export default function useNarrator() {
   }, []);
 
   const loadVoices = useCallback(() => {
-    if (!("speechSynthesis" in window)) return;
-    const all = window.speechSynthesis.getVoices();
-    setAllVoices(all);
-    setAllVoiceCount(all.length);
-    console.log(`[useNarrator] ${"=".repeat(40)}`);
-    console.log(`[useNarrator] Total de vozes encontradas: ${all.length}`);
-    all.forEach((v, i) => {
-      console.log(`[useNarrator] Voz #${i + 1}: nome="${v.name}" lang="${v.lang}" default=${v.default}`);
-    });
-    console.log(`[useNarrator] ${"=".repeat(40)}`);
-    if (all.length === 0) {
-      console.warn("[useNarrator] NENHUMA voz encontrada! speechSynthesis pode estar bloqueado.");
-    }
-    const pt = all.filter((v) => v.lang.startsWith("pt"));
-    setVoices(pt);
-    console.log(`[useNarrator] Vozes em portugues: ${pt.length}`);
-    if (!voiceRef.current) {
-      const picked = pickVoice(all);
-      if (picked) {
-        setVoice(picked);
-        applyPreset(picked);
+    try {
+      if (!("speechSynthesis" in window)) return;
+      const all = window.speechSynthesis.getVoices();
+      setAllVoices(all);
+      setAllVoiceCount(all.length);
+      const pt = all.filter((v) => v.lang.startsWith("pt"));
+      setVoices(pt);
+      if (!voiceRef.current) {
+        const picked = pickVoice(all);
+        if (picked) {
+          setVoice(picked);
+          applyPreset(picked);
+        }
       }
+    } catch (err) {
+      console.error("[Narrator] loadVoices error:", err);
     }
   }, [pickVoice]);
 
-  // Initial load + event listener + polling fallback
   useEffect(() => {
     const supported = "speechSynthesis" in window;
     setIsSupported(supported);
     if (!supported) return;
 
-    const pollMax = 50;
     let pollCount = 0;
     let pollTimer = null;
+    const pollMax = 50;
 
     const tryLoad = () => {
-      const all = window.speechSynthesis.getVoices();
-      if (all.length > 0 || pollCount >= pollMax) {
-        loadVoices();
-        return;
+      try {
+        const all = window.speechSynthesis.getVoices();
+        if (all.length > 0 || pollCount >= pollMax) {
+          loadVoices();
+          return;
+        }
+      } catch (err) {
+        console.error("[Narrator] poll error:", err);
       }
       pollCount++;
       pollTimer = setTimeout(tryLoad, 100);
@@ -211,102 +221,147 @@ export default function useNarrator() {
 
   const applyPreset = useCallback((v) => {
     if (!v) return;
-    for (const preset of VOICE_PRESETS) {
-      if (preset.match.test(v.name)) {
-        setRate(preset.rate);
-        setPitch(preset.pitch);
-        console.log(`[useNarrator] Aplicado preset "${preset.name}": rate=${preset.rate}, pitch=${preset.pitch}`);
-        return;
+    try {
+      for (const preset of VOICE_PRESETS) {
+        if (preset.match.test(v.name)) {
+          setRate(preset.rate);
+          setPitch(preset.pitch);
+          console.log("[Narrator] Preset aplicado:", preset.name, "rate:", preset.rate, "pitch:", preset.pitch);
+          return;
+        }
       }
+    } catch (err) {
+      console.error("[Narrator] applyPreset error:", err);
     }
   }, []);
 
   const refreshVoices = useCallback(() => {
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const all = window.speechSynthesis.getVoices();
-    setAllVoices(all);
-    setAllVoiceCount(all.length);
-    console.log(`[useNarrator] ${"=".repeat(40)}`);
-    console.log(`[useNarrator] RECARREGAR - Total de vozes: ${all.length}`);
-    all.forEach((v, i) => {
-      console.log(`[useNarrator] RECARREGAR Voz #${i + 1}: nome="${v.name}" lang="${v.lang}" default=${v.default}`);
-    });
-    console.log(`[useNarrator] ${"=".repeat(40)}`);
-    if (all.length === 0) {
-      console.warn("[useNarrator] RECARREGAR - NENHUMA voz encontrada!");
+    try {
+      if (!("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      const all = window.speechSynthesis.getVoices();
+      setAllVoices(all);
+      setAllVoiceCount(all.length);
+      const pt = all.filter((v) => v.lang.startsWith("pt"));
+      setVoices(pt);
+    } catch (err) {
+      console.error("[Narrator] refreshVoices error:", err);
     }
-    const pt = all.filter((v) => v.lang.startsWith("pt"));
-    setVoices(pt);
-    console.log(`[useNarrator] RECARREGAR - Vozes em portugues: ${pt.length}`);
   }, []);
 
   const handleSetVoice = useCallback((v) => {
     setVoice(v);
     if (v) {
-      localStorage.setItem(STORAGE_KEY, v.name);
+      try { localStorage.setItem(STORAGE_KEY, v.name); } catch (err) { console.error("[Narrator] save voice error:", err); }
       applyPreset(v);
     }
   }, [applyPreset]);
 
   const cancel = useCallback(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
+    try {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    } catch (err) {
+      console.error("[Narrator] cancel error:", err);
     }
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
+  }, []);
+
+  const speakSingle = useCallback((text, onEnd) => {
+    try {
+      if (!("speechSynthesis" in window)) {
+        if (onEnd) setTimeout(onEnd, 0);
+        return;
+      }
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "pt-BR";
+      u.pitch = pitchRef.current;
+      u.rate = Math.min(1.5, rateRef.current);
+      u.volume = volumeRef.current;
+      if (voiceRef.current) u.voice = voiceRef.current;
+      u.onerror = (e) => {
+        console.error("[Narrator] utterance error:", e.error);
+        if (e.error !== "canceled" && e.error !== "interrupted") setIsBlocked(true);
+        if (onEnd) onEnd();
+      };
+      if (onEnd) u.onend = onEnd;
+      window.speechSynthesis.speak(u);
+    } catch (err) {
+      console.error("[Narrator] speakSingle error:", err);
+      if (onEnd) setTimeout(onEnd, 0);
     }
   }, []);
 
   const speak = useCallback((text, onEnd) => {
-    if (!text) return;
-    if (!enabledRef.current || !("speechSynthesis" in window)) return;
-    const normalized = prepareNaturalSpeech(text);
-    const u = new SpeechSynthesisUtterance(normalized);
-    u.lang = "pt-BR";
-    u.pitch = pitchRef.current;
-    u.rate = Math.min(1.5, rateRef.current);
-    u.volume = volumeRef.current;
-    if (voiceRef.current) {
-      u.voice = voiceRef.current;
-    } else {
-      const pt = window.speechSynthesis.getVoices().filter((v) => v.lang.startsWith("pt"));
-      if (pt.length > 0) u.voice = pt[0];
+    try {
+      if (!text) {
+        if (onEnd) setTimeout(onEnd, 0);
+        return;
+      }
+      if (!enabledRef.current || !("speechSynthesis" in window)) {
+        if (onEnd) setTimeout(onEnd, 0);
+        return;
+      }
+      const normalized = normalizePortugueseSpeech(text);
+      const parts = splitLongText(normalized);
+
+      if (parts.length === 1) {
+        speakSingle(parts[0], onEnd);
+      } else {
+        let i = 0;
+        const next = () => {
+          if (!enabledRef.current || i >= parts.length) {
+            if (onEnd) onEnd();
+            return;
+          }
+          speakSingle(parts[i], i < parts.length - 1 ? next : onEnd);
+          i++;
+        };
+        next();
+      }
+    } catch (err) {
+      console.error("[Narrator] speak error:", err);
+      if (onEnd) setTimeout(onEnd, 0);
     }
-    u.onerror = (e) => {
-      if (e.error !== "canceled") setIsBlocked(true);
-    };
-    if (onEnd) u.onend = onEnd;
-    window.speechSynthesis.speak(u);
-  }, []);
+  }, [speakSingle]);
 
   const speakSequence = useCallback((items, onEnd) => {
-    const filtered = items.filter((item) => item.text);
-    if (!enabledRef.current || filtered.length === 0) {
-      if (onEnd) onEnd();
-      return;
-    }
-    let i = 0;
-    const next = () => {
-      if (!enabledRef.current || i >= filtered.length) return;
-      const { text, delayAfter = 0 } = filtered[i];
-      i++;
-      speak(text, () => {
-        if (i < filtered.length) {
-          timeoutRef.current = setTimeout(next, delayAfter);
-        } else if (onEnd) {
-          onEnd();
+    try {
+      const filtered = items.filter((item) => item.text);
+      if (!enabledRef.current || filtered.length === 0) {
+        if (onEnd) setTimeout(onEnd, 0);
+        return;
+      }
+      let i = 0;
+      const next = () => {
+        if (!enabledRef.current || i >= filtered.length) {
+          if (onEnd) onEnd();
+          return;
         }
-      });
-    };
-    next();
+        const { text, delayAfter = 300 } = filtered[i];
+        i++;
+        speak(text, () => {
+          if (i < filtered.length) {
+            timeoutRef.current = setTimeout(next, delayAfter);
+          } else if (onEnd) {
+            onEnd();
+          }
+        });
+      };
+      next();
+    } catch (err) {
+      console.error("[Narrator] speakSequence error:", err);
+      if (onEnd) setTimeout(onEnd, 0);
+    }
   }, [speak]);
 
   const testVoice = useCallback(() => {
     cancel();
-    const text = "Ola. Esta e a voz da narradora do quiz. Vamos aprender juntos.";
-    speak(text, () => {});
+    speak("Olá. Esta é a voz da narradora do quiz. Vamos aprender juntos.", () => {});
   }, [cancel, speak]);
 
   return {
@@ -326,6 +381,6 @@ export default function useNarrator() {
     testVoice,
     refreshVoices,
     VOICE_PRESETS,
-    prepareNaturalSpeech,
+    normalizePortugueseSpeech,
   };
 }
