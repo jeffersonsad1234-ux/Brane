@@ -91,6 +91,19 @@ const ACCENT_MAP = {
   "missoes": "missões", "expressoes": "expressões",
 };
 
+const PHONETIC_MAP = {
+  "finalizacao": "finalização",
+  "finalizações": "finalizações",
+  "console": "cônsol",
+  "controle": "controle",
+  "software": "softuér",
+  "hardware": "rárduér",
+  "online": "onlaine",
+  "site": "sáite",
+  "app": "ápi",
+  "email": "iméil",
+};
+
 const ABBREVIATION_MAP = {
   "IA": "inteligência artificial",
   "DNS": "dê ene ésse",
@@ -128,6 +141,12 @@ function normalizePortugueseSpeech(text) {
   s = s.replace(/([.!?])([A-Za-z\u00C0-\u024F])/g, "$1 $2");
   s = s.replace(/\b(mas|porem|contudo|portanto|entao|assim)\b/gi, ", $1");
 
+  // Phonetic map for commonly mispronounced words
+  for (const [key, val] of Object.entries(PHONETIC_MAP)) {
+    const regex = new RegExp(`\\b${key}\\b`, "gi");
+    s = s.replace(regex, val);
+  }
+
   for (const [key, val] of Object.entries(ABBREVIATION_MAP)) {
     const regex = new RegExp(`\\b${key}\\b`, "g");
     s = s.replace(regex, val);
@@ -154,6 +173,8 @@ function normalizePortugueseSpeech(text) {
   if (s.length > 0 && /[a-zA-Z0-9\u00C0-\u024F"']$/.test(s)) {
     s += ".";
   }
+  console.log("[normalizeSpeech] ORIGINAL:", text);
+  console.log("[normalizeSpeech] NORMALIZADO:", s);
   return s;
 }
 

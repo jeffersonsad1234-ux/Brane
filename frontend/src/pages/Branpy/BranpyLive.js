@@ -674,16 +674,32 @@ export default function BranpyLive() {
           🎵 Música de Fundo
         </div>
         <select value={music.currentTrack} onChange={(e) => music.selectTrack(e.target.value)}
-          style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11 }}
+          style={{ ...adminBtnStyle, cursor: "pointer", appearance: "auto", padding: "4px 6px", fontSize: 11, width: "100%" }}
         >
           <option value="">Nenhuma</option>
-          {music.tracks.map((t) => (
-            <option key={t} value={t}>{t}</option>
+          {music.categories.map((cat) => (
+            <optgroup key={cat.name} label={cat.name}>
+              {cat.tracks.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </optgroup>
           ))}
         </select>
         <div style={{ display: "flex", gap: 4, marginTop: 2 }}>
           <button onClick={() => music.toggle(music.currentTrack)} style={{ ...adminBtnStyle, flex: 1, textAlign: "center" }}>
             {music.isPlaying ? "⏸ Pausar" : "▶ Tocar"}
+          </button>
+          <button onClick={music.nextTrack} disabled={!music.currentTrack}
+            style={{ ...adminBtnStyle, flex: 1, textAlign: "center", opacity: music.currentTrack ? 1 : 0.4 }}>
+            ⏭ Próxima
+          </button>
+          <button onClick={music.randomTrack} disabled={!music.currentTrack}
+            style={{ ...adminBtnStyle, flex: 1, textAlign: "center", opacity: music.currentTrack ? 1 : 0.4 }}>
+            🔀 Aleatória
+          </button>
+          <button onClick={() => music.selectTrack("")} disabled={!music.currentTrack}
+            style={{ ...adminBtnStyle, flex: 1, textAlign: "center", opacity: music.currentTrack ? 1 : 0.4 }}>
+            ✕ Nenhuma
           </button>
         </div>
         <div style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>Volume</div>
