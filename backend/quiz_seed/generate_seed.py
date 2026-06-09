@@ -1,8 +1,125 @@
-import json, random
+import json, random, re
 from pathlib import Path
 
 OUT_DIR = Path(__file__).parent
 questions = []
+
+# ── Accent map (same as fix_accentuation.py) ──
+ACCENT_MAP = {
+  "nao": "não", "entao": "então", "estao": "estão", "tem": "têm",
+  "civilizacao": "civilização", "organizacao": "organização",
+  "transformacao": "transformação", "informacao": "informação",
+  "educacao": "educação", "atencao": "atenção", "criacao": "criação",
+  "revolucao": "revolução", "evolucao": "evolução", "producao": "produção",
+  "comunicacao": "comunicação", "exploracao": "exploração",
+  "geracao": "geração", "nacao": "nação", "gravacao": "gravação",
+  "tambem": "também", "alem": "além",
+  "matematica": "matemática", "fisica": "física", "quimica": "química",
+  "geografia": "geografia", "filosofia": "filosofia", "biologia": "biologia",
+  "astronomia": "astronomia", "tecnologia": "tecnologia",
+  "robotica": "robótica", "mecanica": "mecânica", "eletronica": "eletrônica",
+  "logica": "lógica", "musica": "música",
+  "caracteristica": "característica", "analise": "análise",
+  "sintese": "síntese", "hipotese": "hipótese",
+  "metodo": "método", "genero": "gênero", "numero": "número",
+  "serie": "série", "especie": "espécie", "nivel": "nível",
+  "simbolo": "símbolo", "ambito": "âmbito",
+  "egipcio": "egípcio", "egipcia": "egípcia", "egipcios": "egípcios",
+  "dinossauro": "dinossauro", "dinossauros": "dinossauros",
+  "nucleo": "núcleo", "particula": "partícula", "molecula": "molécula",
+  "celula": "célula", "atmosfera": "atmosfera",
+  "tecnica": "técnica", "tecnico": "técnico",
+  "publica": "pública", "publico": "público",
+  "critica": "crítica", "critico": "crítico",
+  "unica": "única", "unico": "único", "ultima": "última", "ultimo": "último",
+  "pratica": "prática", "pratico": "prático",
+  "dinamica": "dinâmica", "dinamico": "dinâmico",
+  "periodo": "período", "seculo": "século", "seculos": "séculos",
+  "inicio": "início", "medio": "médio", "proprio": "próprio",
+  "propria": "própria", "proximo": "próximo", "proxima": "próxima",
+  "indigena": "indígena", "indigenas": "indígenas",
+  "ingles": "inglês", "frances": "francês", "portugues": "português",
+  "japones": "japonês", "holandes": "holandês",
+  "fotossintese": "fotossíntese",
+  "biodiversidade": "biodiversidade",
+  "ecossistema": "ecossistema", "ecossistemas": "ecossistemas",
+  "voce": "você",
+  "Canada": "Canadá", "Japao": "Japão", "Grecia": "Grécia",
+  "Italia": "Itália", "Mexico": "México",
+  "Africa": "África", "Asia": "Ásia", "America": "América",
+  "Europa": "Europa", "Oceania": "Oceania",
+  "Antartica": "Antártica", "Australia": "Austrália",
+  "Escocia": "Escócia", "Franca": "França",
+  "India": "Índia", "Inglaterra": "Inglaterra",
+  "Russia": "Rússia", "Suecia": "Suécia", "Suica": "Suíça",
+  "Turquia": "Turquia", "Ucrania": "Ucrânia",
+  "Brasilia": "Brasília",
+  "Imperio": "Império", "imperio": "império",
+  "Politica": "Política", "politica": "política",
+  "Idade Media": "Idade Média", "idade media": "idade média",
+  "Revolucao Industrial": "Revolução Industrial",
+  "Revolucao Francesa": "Revolução Francesa",
+  "Mausoleu": "Mausoléu", "Tumulo": "Túmulo",
+  "Piramide": "Pirâmide", "Palacio": "Palácio",
+  "tres": "três", "Tres": "Três",
+  "fenomeno": "fenômeno", "fenomenos": "fenômenos",
+  "indice": "índice", "codigo": "código",
+  "gramatica": "gramática", "ortografia": "ortografia",
+  "semantica": "semântica", "fonetica": "fonética",
+  "dicionario": "dicionário", "vocabulario": "vocabulário",
+  "enciclopedia": "enciclopédia", "biblioteca": "biblioteca",
+  "Heroi": "Herói", "heroi": "herói",
+  "Misterios": "Mistérios", "Historia": "História",
+  "Ciencia": "Ciência", "Culinaria": "Culinária",
+  "herois": "heróis", "papeis": "papéis", "aneis": "anéis",
+  "automatico": "automático", "automatica": "automática",
+  "acido": "ácido", "basico": "básico",
+  "solido": "sólido", "liquido": "líquido", "gasoso": "gasoso",
+  "rapido": "rápido", "rapida": "rápida",
+  "variavel": "variável", "variaveis": "variáveis",
+  "aleatorio": "aleatório", "aleatoria": "aleatória",
+  "contemporaneo": "contemporâneo", "contemporanea": "contemporânea",
+  "temporario": "temporário", "temporaria": "temporária",
+  "intermediario": "intermediário", "intermediaria": "intermediária",
+  "secundario": "secundário", "secundaria": "secundária",
+  "provisorio": "provisório", "provisoria": "provisória",
+  "avancado": "avançado", "avancada": "avançada",
+  "primeiro": "primeiro", "ultimo": "último",
+  "espaco": "espaço", "poco": "poço",
+  "atomo": "átomo", "eletron": "elétron", "proton": "próton",
+  "neutron": "nêutron", "foton": "fóton",
+  "genetica": "genética", "evolucao": "evolução",
+  "botanica": "botânica", "zoologia": "zoologia",
+  "bioquimica": "bioquímica", "biofisica": "biofísica",
+  "biotecnologia": "biotecnologia",
+  "sociologia": "sociologia", "psicologia": "psicologia",
+  "antropologia": "antropologia", "arqueologia": "arqueologia",
+  "paleontologia": "paleontologia",
+  "meteorologia": "meteorologia",
+  "Amazonia": "Amazônia", "Sertao": "Sertão",
+  "Siberia": "Sibéria", "Groenlandia": "Groenlândia",
+  "Mediterraneo": "Mediterrâneo",
+  "Atlantico": "Atlântico", "Pacifico": "Pacífico",
+  "Artico": "Ártico", "Indico": "Índico",
+  "Republica": "República",
+  "presidente": "presidente",
+  "capitao": "capitão",
+  "missoes": "missões",
+  "expressoes": "expressões",
+}
+sorted_keys = sorted(ACCENT_MAP.keys(), key=lambda k: (-len(k), k))
+ACCENT_REGEX = re.compile(r'\b(' + '|'.join(re.escape(k) for k in sorted_keys) + r')\b')
+
+def fix_text(text):
+    if not text: return text
+    return ACCENT_REGEX.sub(lambda m: ACCENT_MAP[m.group(1)], text)
+
+def fix_question(q):
+    if "question" in q: q["question"] = fix_text(q["question"])
+    if "alternatives" in q: q["alternatives"] = [fix_text(a) for a in q["alternatives"]]
+    if "explanation" in q: q["explanation"] = fix_text(q["explanation"])
+    if "category" in q: q["category"] = fix_text(q["category"])
+    return q
 
 def add(cat, qs):
     existing = {q["question"] for q in questions}
@@ -683,6 +800,8 @@ questions = deduped
 print(f"\nAfter dedup: {len(questions)} questions")
 
 random.shuffle(questions)
+# Apply accent fix to all questions
+questions = [fix_question(q) for q in questions]
 with open(OUT_DIR / "quiz_seed.json", "w", encoding="utf-8") as f:
     json.dump(questions, f, ensure_ascii=False, indent=2)
 print(f"Saved to quiz_seed.json")
