@@ -64,7 +64,7 @@ const SPEED_OPTIONS = [
 
 const VOICE_PRESETS = [
   { name: "Maria Natural", match: /maria/i, speedMode: "rapida", rate: 1.08, pitch: 1.03 },
-  { name: "Daniel Natural", match: /daniel/i, speedMode: "normal", rate: 0.95, pitch: 0.98 },
+  { name: "Daniel Natural", match: /daniel/i, speedMode: "rapida", rate: 1.05, pitch: 0.98 },
 ];
 
 const MAX_CHARS = 280;
