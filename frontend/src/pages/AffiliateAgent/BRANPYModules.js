@@ -37,6 +37,7 @@ import PhotoshopEditor from "./PhotoshopEditor";
 import EnhancedCalendar from "./EnhancedCalendar";
 import CodeStudio from "./CodeStudio";
 import StreamingStudioView from "./StreamingStudioView";
+import LiveStudio from "./LiveStudio";
 import TeamChatView from "./TeamChatView";
 import NotesView from "./NotesView";
 import TasksView from "./TasksView";
@@ -89,6 +90,7 @@ export function CanvaEditorFn() { return <CanvaEditor />; }
 export function PhotoshopEditorFn() { return <PhotoshopEditor />; }
 export function CalendarViewFn() { return <EnhancedCalendar />; }
 export function CodeStudioFn() { return <CodeStudio />; }
+export function LiveStudioFn() { return <LiveStudio />; }
 export function StreamingStudioViewFn() { return <StreamingStudioView />; }
 export function TeamChatViewFn() { return <TeamChatView />; }
 export function NotesViewFn() { return <NotesView />; }

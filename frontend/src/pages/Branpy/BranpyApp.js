@@ -5,9 +5,7 @@ import BranpyProfile from "./BranpyProfile";
 import BranpyTrending from "./BranpyTrending";
 import BranpySearch from "./BranpySearch";
 import BranpyVideoDetail from "./BranpyVideoDetail";
-import BranpyAdmin from "./BranpyAdmin";
 import BranpyLive from "./BranpyLive";
-import BranpyLiveAdmin from "./BranpyLiveAdmin";
 import { useAuth } from "../../contexts/AuthContext";
 import { useState, useRef, useEffect } from "react";
 
@@ -57,7 +55,7 @@ function BranpyNav({ onSearch }) {
                   <Link to={`/branpy/profile/${user.user_id}`} onClick={() => setMenu(false)} style={{ display: "block", padding: "8px 12px", color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 13, borderRadius: 6 }}>Meu Perfil</Link>
                   <Link to="/branpy/search" onClick={() => setMenu(false)} style={{ display: "block", padding: "8px 12px", color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 13, borderRadius: 6 }}>Buscar</Link>
                   <Link to="/branpy/live" onClick={() => setMenu(false)} style={{ display: "block", padding: "8px 12px", color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 13, borderRadius: 6 }}>Quiz ao Vivo</Link>
-                {user.role === "admin" && <Link to="/branpy/admin" onClick={() => setMenu(false)} style={{ display: "block", padding: "8px 12px", color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 13, borderRadius: 6 }}>Admin</Link>}
+                {user.role === "admin" && <Link to="/branpy/live/admin" onClick={() => setMenu(false)} style={{ display: "block", padding: "8px 12px", color: "rgba(255,255,255,0.85)", textDecoration: "none", fontSize: 13, borderRadius: 6 }}>Admin</Link>}
                   <div style={{ borderTop: "1px solid rgba(255,255,255,0.06)", margin: "4px 0" }} />
                   <div onClick={() => { logout(); setMenu(false); }} style={{ padding: "8px 12px", color: "rgba(255,80,80,0.8)", cursor: "pointer", fontSize: 13, borderRadius: 6 }}>Sair</div>
                 </>
@@ -97,6 +95,14 @@ function BranpyBottomNav() {
   );
 }
 
+function AdminRedirect() {
+  useEffect(() => {
+    const hostname = window.location.hostname;
+    window.location.href = `http://${hostname}:8000/admin`;
+  }, []);
+  return null;
+}
+
 export default function BranpyApp() {
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
@@ -116,9 +122,9 @@ export default function BranpyApp() {
         <Route path="trending" element={<BranpyTrending />} />
         <Route path="search" element={<BranpySearch />} />
         <Route path="video/:id" element={<BranpyVideoDetail />} />
-        <Route path="live/admin" element={<BranpyLiveAdmin />} />
+        <Route path="live/admin" element={<AdminRedirect />} />
         <Route path="live" element={<BranpyLive />} />
-        <Route path="admin" element={<BranpyAdmin />} />
+        <Route path="admin" element={<AdminRedirect />} />
       </Routes>
       {!isLive && <BranpyBottomNav />}
     </div>

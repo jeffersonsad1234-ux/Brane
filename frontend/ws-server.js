@@ -45,6 +45,17 @@ server.on("connection", (ws) => {
         }
         return;
       }
+
+      if (msg.type === "SET_QUIZ_LIBRARY") {
+        console.log("[WS] Admin -> Live SET_QUIZ_LIBRARY:", JSON.stringify(msg).slice(0, 200));
+        if (liveClient && liveClient.readyState === 1) {
+          liveClient.send(JSON.stringify(msg));
+          console.log("[WS] SET_QUIZ_LIBRARY enviado ao live");
+        } else {
+          console.log("[WS] ERRO: liveClient indisponivel ao encaminhar SET_QUIZ_LIBRARY");
+        }
+        return;
+      }
     } catch (err) {
       console.error("[WS] Erro:", err.message);
     }

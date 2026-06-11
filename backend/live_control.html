@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Live Control</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+body{background:#050608;color:#fff;font-family:system-ui,-apple-system,sans-serif;padding:16px;max-width:600px;margin:0 auto;min-height:100vh}
+h1{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:1;margin-bottom:4px}
+.sub{font-size:11px;color:rgba(255,255,255,.5);margin-bottom:12px}
+.card{padding:10px 12px;border-radius:10px;margin-bottom:12px}
+.online{background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.3)}
+.offline{background:rgba(231,76,60,.1);border:1px solid rgba(231,76,60,.3)}
+.status-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px}
+.dot-on{background:#2ecc71;box-shadow:0 0 6px #2ecc71}
+.dot-off{background:#e74c3c;box-shadow:0 0 6px #e74c3c}
+.section-title{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.btn{display:block;width:100%;padding:10px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:13px;cursor:pointer;text-align:left;font-weight:500;min-height:44px;-webkit-tap-highlight-color:transparent;font-family:inherit}
+.btn:hover{background:rgba(255,255,255,.1)}
+.btn-grid{display:grid;gap:4px}
+.btn-2{grid-template-columns:1fr 1fr}
+.btn-3{grid-template-columns:1fr 1fr 1fr}
+.btn-4{grid-template-columns:1fr 1fr 1fr 1fr}
+.btn-5{grid-template-columns:1fr 1fr 1fr 1fr 1fr}
+select.btn{appearance:auto;font-size:12px}
+input[type=text].btn{background:rgba(255,255,255,.04)} 
+input[type=range]{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:rgba(255,255,255,.15);border-radius:2px;outline:none;margin:1px 0 10px 0;accent-color:#8A2CFF}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#8A2CFF;cursor:pointer;border:2px solid rgba(255,255,255,.3)}
+.speed-btn{flex:1;padding:8px 4px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#fff;font-size:10px;cursor:pointer;font-family:inherit;text-align:center;min-height:36px;font-weight:500}
+.speed-btn.active{border-color:#8A2CFF;background:rgba(138,44,255,.2)}
+.category-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;max-height:320px;overflow-y:auto;padding-right:4px}
+.category-grid::-webkit-scrollbar{width:4px}
+.category-grid::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+.cat-card{padding:10px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);cursor:pointer;transition:all .15s}
+.cat-card:hover,.cat-card.selected{background:rgba(138,44,255,.15);border-color:#8A2CFF}
+.cat-card .icon{font-size:20px;margin-bottom:2px}
+.cat-card .name{font-size:12px;font-weight:600}
+.cat-card .desc{font-size:9px;color:rgba(255,255,255,.45);margin-top:2px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.mode-grid{display:flex;gap:4px;margin-bottom:12px}
+.mode-btn{flex:1;padding:10px 6px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;text-align:center;min-height:44px;font-weight:500;line-height:1.2}
+.mode-btn .sub{font-size:9px;margin-top:2px}
+.mode-btn.active{border-color:#00e5ff;background:rgba(0,229,255,.15)}
+.start-btn{padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#8A2CFF,#5B1BA6);color:#fff;font-size:15px;font-weight:700;cursor:pointer;width:100%;font-family:inherit;margin-bottom:12px;letter-spacing:.5px}
+.start-btn:disabled{opacity:.4;cursor:not-allowed}
+.start-btn:hover:not(:disabled){opacity:.9}
+.badge{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:8px 10px;border-radius:8px;background:rgba(138,44,255,.08);border:1px solid rgba(138,44,255,.19)}
+.badge-text{font-size:12px;color:rgba(255,255,255,.7)}
+.badge-text strong{color:#fff}
+.badge-btn{padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;font-size:10px;cursor:pointer;font-family:inherit}
+.banner{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;padding:4px 8px;background:rgba(0,255,0,.27);color:#fff;border-radius:4px;text-align:center;margin-bottom:8px}
+.phase-bar{padding:8px 10px;border-radius:8px;background:rgba(138,44,255,.1);border:1px solid rgba(138,44,255,.2);font-size:11px;color:rgba(255,255,255,.7);text-align:center;margin-bottom:12px}
+.phase-bar strong{color:#8A2CFF}
+.paused{color:#FFA500;margin-left:8px}
+.offline-msg{padding:20px;text-align:center;font-size:13px;color:rgba(255,255,255,.5);border:1px dashed rgba(255,255,255,.1);border-radius:12px;margin-bottom:12px}
+.action-btn{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#fff;font-size:12px;cursor:pointer;font-family:inherit;text-align:center;min-height:44px;font-weight:500}
+.msg-row{display:flex;gap:4px;margin-bottom:12px}
+.msg-row input{flex:1}
+.msg-row button{flex:none;width:80px}
+.mt-4{margin-top:4px}
+.mb-8{margin-bottom:8px}
+.mb-12{margin-bottom:12px}
+details summary{font-size:11px;color:#8A2CFF;font-weight:600;cursor:pointer;padding:4px 0;margin-bottom:4px}
+details .body{padding:8px 0}
+.label{font-size:10px;color:rgba(255,255,255,.5);margin-bottom:2px}
+.footer{text-align:center;padding:16px 0;font-size:9px;color:rgba(255,255,255,.2)}
+@media(max-width:400px){.category-grid{grid-template-columns:1fr}.mode-grid{flex-wrap:wrap}.mode-btn{min-width:45%}.btn-4,.btn-5{grid-template-columns:1fr 1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="banner">LIVE CONTROL — HTML STANDALONE</div>
+<h1>Controle Remoto</h1>
+<div class="sub">Controle o quiz ao vivo pelo PC.</div>
+
+<div id="statusBar" class="card offline">
+  <div style="display:flex;gap:8px;align-items:center">
+    <span id="statusDot" class="status-dot dot-off"></span>
+    <div>
+      <div id="statusLabel" style="font-weight:700;font-size:13px">Tablet: Offline</div>
+      <div id="statusDetail" style="font-size:11px;color:rgba(255,255,255,.5)">Aguardando conexão do tablet...</div>
+    </div>
+  </div>
+</div>
+
+<div id="categorySection">
+  <div class="section-title">Categoria</div>
+  <div class="category-grid" id="categoryGrid"></div>
+
+  <div class="section-title">Perguntas</div>
+  <div class="mode-grid" id="modeGrid"></div>
+
+  <button id="startBtn" class="start-btn" disabled>Iniciar Quiz</button>
+</div>
+
+<div id="quizSection" style="display:none">
+  <div class="badge">
+    <div class="badge-text">Quiz ativo: <strong id="activeCategory">—</strong> <span id="activeMode" style="color:rgba(255,255,255,.5)"></span></div>
+    <button id="changeCategoryBtn" class="badge-btn">Trocar</button>
+  </div>
+
+  <div class="btn-grid btn-2 mb-8">
+    <button class="action-btn" onclick="sendCmd('pause')" style="color:#FFA500">Pausar</button>
+    <button class="action-btn" onclick="sendCmd('resume')" style="color:#2ecc71">Continuar</button>
+    <button class="action-btn" onclick="sendCmd('restart')" style="color:#e74c3c">Reiniciar</button>
+    <button class="action-btn" onclick="sendCmd('nextQuestion')" style="color:#00e5ff">Proxima</button>
+  </div>
+
+  <div id="phaseBar" class="phase-bar" style="display:none">Fase: <strong id="phaseText">—</strong></div>
+</div>
+
+<div class="section-title">Fundo</div>
+<select id="bgSelect" class="btn mb-8" onchange="sendCmd('setBackground',{variant:this.value})">
+  <option value="neon">Neon</option>
+  <option value="espaco">Espaço</option>
+  <option value="cidade">Cidade</option>
+  <option value="cidade_noturna">Cidade Noturna</option>
+  <option value="estudio">Estúdio</option>
+  <option value="particulas">Partículas</option>
+  <option value="natureza">Natureza</option>
+  <option value="tecnologia">Tecnologia</option>
+  <option value="sala_gamer">Sala Gamer</option>
+  <option value="biblioteca">Biblioteca</option>
+  <option value="futurista">Futurista</option>
+</select>
+
+<div class="section-title">Musica</div>
+<div class="btn-grid btn-3 mb-8">
+  <button class="btn" style="text-align:center;font-size:12px" onclick="toggleMusic()" id="musicBtn">Tocar</button>
+  <button class="btn" style="text-align:center;font-size:12px" onclick="sendCmd('nextMusic')">Proxima</button>
+  <button class="btn" style="text-align:center;font-size:12px" onclick="sendCmd('randomMusic')">Aleatoria</button>
+</div>
+<div id="currentTrack" style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:8px">Nenhuma faixa</div>
+
+<div class="section-title">Modo de Voz</div>
+<div class="btn-grid btn-5 mb-8">
+  <button class="speed-btn active" data-voicemode="padrao" onclick="setVoiceMode('padrao')">Padrão</button>
+  <button class="speed-btn" data-voicemode="mulher" onclick="setVoiceMode('mulher')">Mulher</button>
+  <button class="speed-btn" data-voicemode="homem" onclick="setVoiceMode('homem')">Homem</button>
+  <button class="speed-btn" data-voicemode="aleatorio" onclick="setVoiceMode('aleatorio')">Aleatório</button>
+  <button class="speed-btn" data-voicemode="alternado" onclick="setVoiceMode('alternado')">Alternado</button>
+</div>
+<div id="voiceInfo" style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px;line-height:1.4">Nenhuma voz detectada</div>
+
+<details open>
+  <summary>Ajustes de voz</summary>
+  <div class="body">
+    <div class="label">Volume da narradora</div>
+    <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1" oninput="sendCmd('setVolume',{volume:parseFloat(this.value)})">
+
+    <div class="label">Velocidade</div>
+    <div style="display:flex;gap:4px;margin-bottom:10px">
+      <button class="speed-btn active" data-speed="normal" onclick="setSpeed('normal')">Normal</button>
+      <button class="speed-btn" data-speed="rapida" onclick="setSpeed('rapida')">Rapida</button>
+      <button class="speed-btn" data-speed="muito_rapida" onclick="setSpeed('muito_rapida')">Muito Rapida</button>
+      <button class="speed-btn" data-speed="turbo" onclick="setSpeed('turbo')">Turbo</button>
+      <button class="speed-btn" data-speed="extrema" onclick="setSpeed('extrema')">Extrema</button>
+    </div>
+
+    <div class="label">Tom</div>
+    <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1.2" oninput="sendCmd('setPitch',{pitch:parseFloat(this.value)})">
+
+    <div class="label">Volume da musica</div>
+    <input type="range" id="musicVolumeSlider" min="0" max="1" step="0.05" value="0.3" oninput="sendCmd('setMusicVolume',{volume:parseFloat(this.value)})">
+  </div>
+</details>
+
+<div class="section-title">Mensagem ao vivo</div>
+<div class="msg-row">
+  <input type="text" id="messageInput" class="btn" placeholder="Obrigado pela rosa." style="font-size:12px">
+  <button class="btn" style="text-align:center;color:#00e5ff;font-size:11px" onclick="speakMessage()">Falar</button>
+</div>
+
+<div class="footer">WebSocket: <span id="wsStatus">desconectado</span></div>
+
+<script>
+// ===== CONFIG =====
+const HOST = window.location.hostname;
+const WS_URL = `ws://${HOST}:3002`;
+const API = `http://${HOST}:8000/api`;
+
+// ===== CATEGORIES (from quizLibrary/categories.js) =====
+const CATEGORIES = [
+  {id:"ingles",name:"Ingl\u00eas",icon:"🇬🇧",backend:"Ingl\u00eas",desc:"Vocabulario, gramatica e expressoes"},
+  {id:"corpo_humano",name:"Corpo Humano",icon:"🧬",backend:"Corpo Humano",desc:"Anatomia, fisiologia e curiosidades"},
+  {id:"tecnologia",name:"Tecnologia",icon:"💻",backend:"Tecnologia",desc:"Inovacao, gadgets, programacao"},
+  {id:"curiosidades",name:"Curiosidades",icon:"💡",backend:"Curiosidades",desc:"Fatos surpreendentes do dia a dia"},
+  {id:"misterios",name:"Mist\u00e9rios",icon:"🔮",backend:"Mist\u00e9rios",desc:"Misterios e fatos incriveis"},
+  {id:"cinema",name:"Cinema e S\u00e9ries",icon:"🎬",backend:"Cinema",desc:"Filmes, series e entretenimento"},
+  {id:"games",name:"Games",icon:"🎮",backend:"Games",desc:"Video games, classicos, e-sports"},
+  {id:"historia",name:"Hist\u00f3ria",icon:"🏛️",backend:"Hist\u00f3ria",desc:"Eventos historicos e civilizacoes"},
+  {id:"geografia",name:"Geografia",icon:"🌍",backend:"Geografia",desc:"Paises, capitais, clima"},
+  {id:"ciencia",name:"Ci\u00eancia",icon:"🔬",backend:"Ci\u00eancia",desc:"Descobertas cientificas"},
+  {id:"espaco",name:"Espa\u00e7o",icon:"🚀",backend:"Espa\u00e7o",desc:"Astronomia e exploracao espacial"},
+  {id:"animais",name:"Animais",icon:"🐾",backend:"Animais",desc:"Reino animal e fauna"},
+  {id:"piadas",name:"Piadas e Charadas",icon:"😄",backend:"Piadas e Charadas",desc:"Humor e desafios mentais"},
+  {id:"futebol",name:"Futebol",icon:"⚽",backend:"Esportes",desc:"Clubes, selecoes e copas"},
+  {id:"musica",name:"M\u00fasica",icon:"🎵",backend:"M\u00fasica",desc:"Generos, artistas e teoria musical"},
+  {id:"conhecimentos_gerais",name:"Conhecimentos Gerais",icon:"📚",backend:"Conhecimentos Gerais",desc:"Cultura e atualidades"},
+  {id:"matematica",name:"Matem\u00e1tica",icon:"🔢",backend:"Matem\u00e1tica",desc:"Numeros e raciocinio logico"},
+  {id:"portugues",name:"Portugu\u00eas",icon:"📝",backend:"Portugu\u00eas",desc:"Gramatica e interpretacao"},
+  {id:"empreendedorismo",name:"Empreendedorismo",icon:"💼",backend:"Empreendedorismo",desc:"Negocios e startups"},
+  {id:"ia",name:"Intelig\u00eancia Artificial",icon:"🤖",backend:"Intelig\u00eancia Artificial",desc:"ML, automacao e futuro"},
+];
+
+const MODES = [
+  {id:"infinito",label:"Infinito",desc:"Perguntas sem fim",limit:10},
+  {id:"500",label:"500",desc:"Maratona",limit:500},
+  {id:"1000",label:"1000",desc:"Desafio",limit:1000},
+  {id:"2000",label:"2000",desc:"Ultramaratona",limit:2000},
+];
+
+// ===== STATE =====
+let ws = null;
+let selectedCategory = null;
+let selectedMode = MODES[0];
+let quizActive = false;
+let quizCategoryName = "";
+let quizMode = "";
+
+// ===== WEBSOCKET =====
+function connectWS() {
+  if (ws) try{ws.close()}catch(e){}
+  ws = new WebSocket(WS_URL);
+  ws.onopen = () => {
+    console.log("[WS] Conectado");
+    document.getElementById("wsStatus").textContent = "conectado";
+    ws.send(JSON.stringify({type:"identify",role:"admin"}));
+  };
+  ws.onclose = () => {
+    console.log("[WS] Desconectado");
+    document.getElementById("wsStatus").textContent = "desconectado";
+    document.getElementById("statusDot").className = "status-dot dot-off";
+    document.getElementById("statusLabel").textContent = "Tablet: Offline";
+    document.getElementById("statusDetail").textContent = "Aguardando conexao do tablet...";
+    document.getElementById("statusBar").className = "card offline";
+    setTimeout(connectWS, 3000);
+  };
+  ws.onerror = (e) => { console.log("[WS] Erro"); };
+  ws.onmessage = (e) => {
+    try {
+      const msg = JSON.parse(e.data);
+      handleMessage(msg);
+    } catch(err) { console.error("[WS] Parse error", err); }
+  };
+}
+
+function handleMessage(msg) {
+  if (msg.type === "liveConnected") {
+    if (msg.connected) {
+      document.getElementById("statusDot").className = "status-dot dot-on";
+      document.getElementById("statusLabel").textContent = "Tablet: Online";
+      document.getElementById("statusDetail").textContent = "Vozes disponiveis";
+      document.getElementById("statusBar").className = "card online";
+      document.getElementById("startBtn").disabled = !selectedCategory;
+    } else {
+      document.getElementById("statusDot").className = "status-dot dot-off";
+      document.getElementById("statusLabel").textContent = "Tablet: Offline";
+      document.getElementById("statusDetail").textContent = "Aguardando conexao do tablet...";
+      document.getElementById("statusBar").className = "card offline";
+      document.getElementById("startBtn").disabled = true;
+    }
+  }
+  if (msg.type === "voices" && msg.voices) {
+    const total = msg.voices.length;
+    document.getElementById("statusDetail").textContent = `Vozes detectadas: ${total}`;
+    const br = msg.voices.filter(v => v.lang && v.lang.startsWith("pt"));
+    const listHtml = msg.voices.map(v => `<span style="display:inline-block;background:rgba(255,255,255,.06);padding:1px 4px;border-radius:3px;margin:1px">${v.name} <span style="color:rgba(255,255,255,.3);font-size:9px">${v.lang || '?'}</span></span>`).join(' ');
+    document.getElementById("voiceInfo").innerHTML = `<strong style="color:${total > 1 ? '#2ecc71' : '#FFA500'}">${total} voz${total !== 1 ? 'es' : ''} detectada${total !== 1 ? 's' : ''}</strong>${br.length > 0 ? ` (${br.length} PT-BR)` : ''}<br><span style="font-size:9px;line-height:1.6">${listHtml}</span>`;
+  }
+  if (msg.type === "status") {
+    updateStatus(msg);
+  }
+  if (msg.type === "audioState") {
+    if (msg.active) {
+      document.getElementById("statusDetail").textContent = "Audio ativo no tablet";
+    }
+  }
+}
+
+function updateStatus(s) {
+  if (s.voiceName) {
+    // voice info
+  }
+  if (s.volume != null) {
+    document.getElementById("volumeSlider").value = s.volume;
+  }
+  if (s.pitch != null) {
+    document.getElementById("pitchSlider").value = s.pitch;
+  }
+  if (s.musicVolume != null) {
+    document.getElementById("musicVolumeSlider").value = s.musicVolume;
+  }
+  if (s.speedMode) {
+    document.querySelectorAll(".speed-btn").forEach(b => b.classList.remove("active"));
+    const active = document.querySelector(`.speed-btn[data-speed="${s.speedMode}"]`);
+    if (active) active.classList.add("active");
+  }
+  if (s.voiceMode) {
+    document.querySelectorAll("[data-voicemode]").forEach(b => b.classList.remove("active"));
+    const vm = document.querySelector(`[data-voicemode="${s.voiceMode}"]`);
+    if (vm) vm.classList.add("active");
+  }
+  if (s.voiceName) {
+    document.getElementById("voiceInfo").innerHTML = `<strong>Voz atual:</strong> ${s.voiceName}`;
+  }
+  if (s.bgVariant) {
+    document.getElementById("bgSelect").value = s.bgVariant;
+  }
+  if (s.isPlaying !== undefined) {
+    document.getElementById("musicBtn").textContent = s.isPlaying ? "Parar" : "Tocar";
+  }
+  if (s.currentTrack) {
+    document.getElementById("currentTrack").textContent = s.currentTrack;
+  }
+  if (s.phase) {
+    document.getElementById("phaseBar").style.display = "block";
+    let txt = `Fase: <strong>${s.phase}</strong>`;
+    if (s.currentIndex != null) txt += ` | Pergunta: <strong>#${s.currentIndex + 1}</strong>`;
+    if (s.paused) txt += `<span class="paused"> PAUSADO</span>`;
+    document.getElementById("phaseText").innerHTML = txt;
+  }
+}
+
+// ===== COMMANDS =====
+function sendCmd(cmd, extra) {
+  if (!ws || ws.readyState !== 1) return;
+  ws.send(JSON.stringify({type:"command",command:cmd,...extra}));
+}
+
+function setSpeed(mode) {
+  document.querySelectorAll(".speed-btn").forEach(b => b.classList.remove("active"));
+  document.querySelector(`.speed-btn[data-speed="${mode}"]`).classList.add("active");
+  sendCmd("setSpeedMode",{mode});
+}
+
+function toggleMusic() {
+  const btn = document.getElementById("musicBtn");
+  if (btn.textContent === "Parar") {
+    sendCmd("pauseMusic");
+  } else {
+    sendCmd("playMusic");
+  }
+}
+
+let voiceMode = "padrao";
+function setVoiceMode(mode) {
+  voiceMode = mode;
+  document.querySelectorAll("[data-voicemode]").forEach(b => b.classList.remove("active"));
+  document.querySelector(`[data-voicemode="${mode}"]`).classList.add("active");
+  sendCmd("setVoiceMode",{mode});
+}
+
+function speakMessage() {
+  const el = document.getElementById("messageInput");
+  const text = el.value.trim();
+  if (!text) return;
+  sendCmd("speakMessage",{text});
+  el.value = "";
+}
+
+// ===== CATEGORIES UI =====
+function renderCategories() {
+  const grid = document.getElementById("categoryGrid");
+  grid.innerHTML = "";
+  CATEGORIES.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "cat-card";
+    div.innerHTML = `<div class="icon">${c.icon}</div><div class="name">${c.name}</div><div class="desc">${c.desc}</div>`;
+    div.onclick = () => selectCategory(c);
+    grid.appendChild(div);
+  });
+}
+
+function selectCategory(cat) {
+  selectedCategory = cat;
+  document.querySelectorAll(".cat-card").forEach(el => el.classList.remove("selected"));
+  event.target.closest(".cat-card").classList.add("selected");
+  document.getElementById("startBtn").disabled = false;
+}
+
+// ===== MODES UI =====
+function renderModes() {
+  const grid = document.getElementById("modeGrid");
+  grid.innerHTML = "";
+  MODES.forEach(m => {
+    const div = document.createElement("div");
+    div.className = "mode-btn";
+    div.innerHTML = `${m.label}<div class="sub">${m.desc}</div>`;
+    div.onclick = () => {
+      selectedMode = m;
+      document.querySelectorAll(".mode-btn").forEach(el => el.classList.remove("active"));
+      div.classList.add("active");
+    };
+    if (m.id === "infinito") div.classList.add("active");
+    grid.appendChild(div);
+  });
+}
+
+// ===== START QUIZ =====
+document.getElementById("startBtn").onclick = function() {
+  if (!selectedCategory || !ws || ws.readyState !== 1) return;
+  const payload = {
+    type: "SET_QUIZ_LIBRARY",
+    categoryId: selectedCategory.backend,
+    categoryName: selectedCategory.name,
+    mode: selectedMode.id,
+    questionLimit: selectedMode.limit,
+    timestamp: Date.now()
+  };
+  console.log("[ADMIN] SET_QUIZ_LIBRARY", payload);
+  ws.send(JSON.stringify(payload));
+  quizActive = true;
+  quizCategoryName = selectedCategory.name;
+  quizMode = selectedMode.id;
+  document.getElementById("categorySection").style.display = "none";
+  document.getElementById("quizSection").style.display = "block";
+  document.getElementById("activeCategory").textContent = quizCategoryName;
+  document.getElementById("activeMode").textContent = `(${quizMode === "infinito" ? "Infinito" : quizMode})`;
+};
+
+document.getElementById("changeCategoryBtn").onclick = function() {
+  quizActive = false;
+  document.getElementById("quizSection").style.display = "none";
+  document.getElementById("categorySection").style.display = "block";
+};
+
+// ===== KEYBOARD SHORTCUT =====
+document.getElementById("messageInput").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") speakMessage();
+});
+
+// ===== INIT =====
+renderCategories();
+renderModes();
+connectWS();
+</script>
+</body>
+</html>

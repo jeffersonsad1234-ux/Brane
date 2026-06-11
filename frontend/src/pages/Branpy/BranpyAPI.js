@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API = (process.env.REACT_APP_BACKEND_URL || "https://brane-production-3c87.up.railway.app").trim() + "/api";
+const BACKEND_HOST = window.location.hostname;
+const API = (process.env.REACT_APP_BACKEND_URL || `http://${BACKEND_HOST}:8000`).trim() + "/api";
 
 function getHeaders() {
   const token = localStorage.getItem('brane_token');
@@ -113,22 +114,11 @@ export async function updateProfile(data) {
   return res.data;
 }
 
-export async function getLiveQuiz(count = 10) {
-  const res = await axios.get(`${API}/branpy/live?count=${count}`, { headers: getHeaders() });
+export async function getLiveQuiz(count = 10, category) {
+  let url = `${API}/branpy/live?count=${count}`;
+  if (category) url += `&category=${encodeURIComponent(category)}`;
+  const res = await axios.get(url, { headers: getHeaders() });
   return res.data;
 }
 
-export async function getAdminStats() {
-  const res = await axios.get(`${API}/branpy/admin/stats`, { headers: getHeaders() });
-  return res.data;
-}
 
-export async function getAdminVideos(page = 1, limit = 50) {
-  const res = await axios.get(`${API}/branpy/admin/videos?page=${page}&limit=${limit}`, { headers: getHeaders() });
-  return res.data;
-}
-
-export async function getAdminUsers(page = 1, limit = 50) {
-  const res = await axios.get(`${API}/branpy/admin/users?page=${page}&limit=${limit}`, { headers: getHeaders() });
-  return res.data;
-}

@@ -1,5 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Request, Response
-from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse, HTMLResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -4858,12 +4858,18 @@ except Exception as e:
     logging.warning(f"Could not load quiz seed: {e}")
 
 @api_router.get("/branpy/live")
-async def branpy_live(request: Request, count: int = 10):
+async def branpy_live(request: Request, count: int = 10, category: str = ""):
     from random import sample
     if not _quiz_pool:
         return {"questions": [], "total": 0}
-    k = min(count, len(_quiz_pool))
-    selected = sample(_quiz_pool, k)
+    pool = _quiz_pool
+    if category:
+        cat = category.strip().lower()
+        pool = [q for q in pool if q.get("category", "").strip().lower() == cat]
+        if not pool:
+            return {"questions": [], "total": len(_quiz_pool), "category_total": 0}
+    k = min(count, len(pool))
+    selected = sample(pool, k)
     out = []
     for q in selected:
         out.append({
@@ -4873,7 +4879,17 @@ async def branpy_live(request: Request, count: int = 10):
             "category": q.get("category", ""),
             "explanation": q.get("explanation", ""),
         })
-    return {"questions": out, "total": len(_quiz_pool)}
+    return {"questions": out, "total": len(_quiz_pool), "category_total": len(pool)}
+
+# Serve the standalone HTML admin control panel
+LIVE_CONTROL_PATH = ROOT_DIR / "live_control.html"
+
+@app.get("/admin", response_class=HTMLResponse)
+@app.get("/branpy/live/admin", response_class=HTMLResponse)
+async def serve_live_control():
+    if LIVE_CONTROL_PATH.exists():
+        return HTMLResponse(LIVE_CONTROL_PATH.read_text(encoding="utf-8"))
+    return HTMLResponse("<h1>live_control.html not found</h1>", status_code=404)
 
 app.include_router(api_router)
 

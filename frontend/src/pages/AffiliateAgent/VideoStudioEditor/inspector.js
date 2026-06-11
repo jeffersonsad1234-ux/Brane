@@ -81,6 +81,8 @@ export default function Inspector({ clip, open, onToggle, proj, setProj }) {
   const [cutStart, setCutStart] = useState(clip ? clip.start : 0);
   const [cutEnd, setCutEnd] = useState(clip ? clip.start + clip.duration : 0);
   const [animStatus, setAnimStatus] = useState(null);
+  const [aiWipId, setAiWipId] = useState(null);
+  const [captionWipLang, setCaptionWipLang] = useState(null);
 
   useEffect(() => {
     if (clip) {
@@ -493,19 +495,19 @@ export default function Inspector({ clip, open, onToggle, proj, setProj }) {
           <Section label="AI Tools">
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {AI_TOOLS.slice(0, 8).map((ai) => {
-                const [aiStatus, setAiStatus] = React.useState(null);
+                const isWip = aiWipId === ai.id;
                 return (
-                  <button key={ai.id} onClick={() => { setAiStatus("wip"); setTimeout(() => setAiStatus(null), 1500); }}
+                  <button key={ai.id} onClick={() => { setAiWipId(ai.id); setTimeout(() => setAiWipId(null), 1500); }}
                     style={{
                       display: "flex", alignItems: "center", gap: 6, padding: "4px 6px", borderRadius: 3,
                       border: "none", cursor: "pointer",
-                      background: aiStatus === "wip" ? "rgba(16,185,129,0.08)" : "rgba(255,255,255,0.03)",
-                      color: aiStatus === "wip" ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.45)",
+                      background: isWip ? "rgba(16,185,129,0.08)" : "rgba(255,255,255,0.03)",
+                      color: isWip ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.45)",
                       fontSize: 11, fontFamily: "inherit",
                       textAlign: "left", width: "100%",
                     }} className="cs-hover-soft">
                     <span style={{ fontSize: 12 }}>{ai.icon}</span>
-                    <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{aiStatus === "wip" ? "✓ Em desenvolvimento" : ai.name}</span>
+                    <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{isWip ? "✓ Em desenvolvimento" : ai.name}</span>
                   </button>
                 );
               })}
@@ -517,19 +519,19 @@ export default function Inspector({ clip, open, onToggle, proj, setProj }) {
           <Section label="Captions">
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {[{ lang: "Auto Detect", icon: "🌐" }, { lang: "PT-BR", icon: "🇧🇷" }, { lang: "EN", icon: "🇺🇸" }].map((c) => {
-                const [cs, setCs] = React.useState(null);
+                const isWip = captionWipLang === c.lang;
                 return (
-                  <button key={c.lang} onClick={() => { setCs("wip"); setTimeout(() => setCs(null), 1500); }}
+                  <button key={c.lang} onClick={() => { setCaptionWipLang(c.lang); setTimeout(() => setCaptionWipLang(null), 1500); }}
                     style={{
                       display: "flex", alignItems: "center", gap: 6, padding: "4px 6px", borderRadius: 3,
                       border: "none", cursor: "pointer",
-                      background: cs === "wip" ? "rgba(16,185,129,0.08)" : "rgba(255,255,255,0.03)",
-                      color: cs === "wip" ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.45)",
+                      background: isWip ? "rgba(16,185,129,0.08)" : "rgba(255,255,255,0.03)",
+                      color: isWip ? "rgba(16,185,129,0.6)" : "rgba(255,255,255,0.45)",
                       fontSize: 11, fontFamily: "inherit",
                       textAlign: "left", width: "100%",
                     }} className="cs-hover-soft">
                     <span style={{ fontSize: 12 }}>{c.icon}</span>
-                    <span>{cs === "wip" ? "✓ Em desenvolvimento" : c.lang}</span>
+                    <span>{isWip ? "✓ Em desenvolvimento" : c.lang}</span>
                   </button>
                 );
               })}

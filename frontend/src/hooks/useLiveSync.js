@@ -1,4 +1,4 @@
-import { useRef, useCallback, useState, useEffect } from "react";
+import { useRef, useCallback, useState, useEffect, useMemo } from "react";
 
 const WS_PORT = 3002;
 const WS_URL = `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:${WS_PORT}`;
@@ -45,7 +45,7 @@ export default function useLiveSync(role) {
     };
 
     ws.onerror = (err) => {
-      console.error("[LiveSync] Erro WebSocket:", err.message);
+      console.error("[LiveSync] Erro WebSocket:", err.message || "Conexão recusada");
     };
 
     wsRef.current = ws;
@@ -98,7 +98,7 @@ export default function useLiveSync(role) {
     return () => disconnect();
   }, [connect, disconnect]);
 
-  return {
+  return useMemo(() => ({
     connected,
     connect,
     disconnect,
@@ -109,5 +109,5 @@ export default function useLiveSync(role) {
     sendAudioState,
     on,
     off,
-  };
+  }), [connected, connect, disconnect, send, sendCommand, sendStatus, sendVoices, sendAudioState, on, off]);
 }

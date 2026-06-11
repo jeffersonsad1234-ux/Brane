@@ -18,6 +18,30 @@ const COLORS = {
 
 const ALTERNATIVE_LABELS = ["A", "B", "C", "D"];
 
+const GENERIC_EXPLANATIONS = [
+  "Esse é um tema relevante que merece atenção e estudo",
+];
+
+const ENCOURAGEMENTS = [
+  "Muito bem!",
+  "Excelente!",
+  "Você está indo muito bem!",
+  "Acertou!",
+  "Vamos para a próxima!",
+  "Boa resposta!",
+];
+
+function getRandomEncouragement() {
+  return ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)];
+}
+
+function isGenericExplanation(text) {
+  if (!text) return true;
+  const trimmed = text.trim().toLowerCase();
+  if (trimmed.length < 10) return true;
+  return GENERIC_EXPLANATIONS.some((g) => g.toLowerCase() === trimmed);
+}
+
 export function shuffleQuestion(question, debug = false) {
   if (!question.alternatives || question.alternatives.length < 2) return question;
   const originalCorrect = question.correct;
@@ -158,6 +182,7 @@ export default function BranpyLive() {
   const viewerRef = useRef(null);
   const syncRef = useRef({ minDone: false, narDone: false, advancing: false, timerId: null, fallbackId: null });
   const [announcing, setAnnouncing] = useState(false);
+  const [activeQuizCategory, setActiveQuizCategory] = useState(null);
 
   const narrator = useNarrator();
   const music = useBackgroundMusic();
@@ -169,7 +194,9 @@ export default function BranpyLive() {
     try {
       narrator.activate();
       music.activate();
-      await loadQuestions();
+      const cfg = quizConfigRef.current;
+      console.log("[LIVE] Ativando audio, quizConfig:", cfg);
+      await loadQuestions(cfg.category, cfg.count);
     } catch (err) {
       console.error("[BranpyLive] activate error:", err);
       setLoadingText("Erro ao iniciar.");
@@ -183,20 +210,27 @@ export default function BranpyLive() {
     if (s.fallbackId) { clearTimeout(s.fallbackId); s.fallbackId = null; }
   }, []);
 
-  const loadQuestions = useCallback(async () => {
+  const quizConfigRef = useRef({ category: null, count: null, shouldLoop: true });
+
+  const loadQuestions = useCallback(async (category, count) => {
     try {
-      const data = await getLiveQuiz(50);
+      const limit = count || 50;
+      console.log(`[LIVE] loadQuestions: limit=${limit}, category=${category || "(todas)"}`);
+      const data = await getLiveQuiz(limit, category);
+      console.log(`[LIVE] API retornou ${data.questions?.length || 0} questoes, category_total=${data.category_total || "?"}`);
       if (data.questions && data.questions.length > 0) {
         const shuffled = data.questions.map((q) => shuffleQuestion(q, true));
-        console.log(`[Quiz] ${shuffled.length} questoes carregadas e embaralhadas`);
         setQuestions(shuffled);
         setCurrentIndex(0);
         setPhase("question_intro");
       } else {
-        setLoadingText("Nenhuma pergunta disponivel.");
+        const catName = category || "todas";
+        setLoadingText(`Erro ao carregar categoria: ${catName} (0 perguntas)`);
       }
-    } catch {
-      setLoadingText("Erro ao carregar quiz.");
+    } catch (err) {
+      console.error("[LIVE] loadQuestions error:", err);
+      const catName = category || "todas";
+      setLoadingText(`Erro ao carregar categoria: ${catName}`);
     }
   }, []);
 
@@ -215,8 +249,15 @@ export default function BranpyLive() {
     const def = PHASE_DEF[phase];
     if (!def || !def.next) {
       const nextIdx = currentIndex + 1;
-      if (nextIdx >= questions.length) { loadQuestions(); }
-      else { setCurrentIndex(nextIdx); setPhase("question_intro"); }
+      if (nextIdx >= questions.length) {
+        const cfg = quizConfigRef.current;
+        if (cfg.shouldLoop) {
+          loadQuestions(cfg.category, cfg.count);
+        } else {
+          setPhase("loading");
+          setLoadingText("Quiz concluído!");
+        }
+      } else { setCurrentIndex(nextIdx); setPhase("question_intro"); }
     } else {
       setPhase(def.next);
     }
@@ -243,7 +284,11 @@ export default function BranpyLive() {
     } else if (phase === "answer") {
       narItems = [{ text: q.alternatives[q.correct] }];
     } else if (phase === "explanation") {
-      if (q.explanation) narItems = [{ text: q.explanation }];
+      if (q.explanation && !isGenericExplanation(q.explanation)) {
+        narItems = [{ text: q.explanation }];
+      } else {
+        narItems = [{ text: getRandomEncouragement() }];
+      }
     }
     // countdown: no narration — only visual alternatives + timer
 
@@ -325,7 +370,9 @@ export default function BranpyLive() {
   };
 
   const handleRestart = () => {
-    clearAllTimers(); narrator.cancel(); setPaused(false); setPhase("loading"); loadQuestions();
+    clearAllTimers(); narrator.cancel(); setPaused(false); setPhase("loading");
+    const cfg = quizConfigRef.current;
+    loadQuestions(cfg.category, cfg.count);
   };
 
   const handleRemotePause = useCallback(() => {
@@ -397,12 +444,38 @@ export default function BranpyLive() {
         case "setSpeedMode":
           if (msg.mode) narrator.setSpeedMode(msg.mode);
           break;
+        case "setVoiceMode":
+          if (msg.mode) narrator.setVoiceMode(msg.mode);
+          break;
         default: break;
       }
     });
     return () => { liveSync.off("command"); };
   }, [liveSync, handleRemotePause, handleRemoteContinue, handleRestart,
       handleRemoteNext, narrator, music, handleRemoteSpeak]);
+
+  // ── Quiz Library: SET_QUIZ_LIBRARY handler ──
+  useEffect(() => {
+    liveSync.on("SET_QUIZ_LIBRARY", (msg) => {
+      console.log("[LIVE] Recebido SET_QUIZ_LIBRARY", msg);
+      if (!msg.categoryId && !msg.categoryName) return;
+      const queryCategory = msg.categoryId || msg.categoryName;
+      const displayCategory = msg.categoryName || msg.categoryId;
+      const count = msg.questionLimit > 0 ? msg.questionLimit : null;
+      quizConfigRef.current = {
+        category: queryCategory,
+        count,
+        shouldLoop: !count,
+      };
+      setActiveQuizCategory(displayCategory);
+      clearAllTimers();
+      narrator.cancel();
+      setPaused(false);
+      setPhase("loading");
+      loadQuestions(queryCategory, count);
+    });
+    return () => { liveSync.off("SET_QUIZ_LIBRARY"); };
+  }, [liveSync, clearAllTimers, narrator, loadQuestions]);
 
   // ── Send voices to admin ──
   useEffect(() => {
@@ -424,16 +497,18 @@ export default function BranpyLive() {
         narratorEnabled: narrator.enabled,
         announcing,
         voiceName: narrator.voice?.name || "",
+        voiceMode: narrator.voiceMode || "padrao",
         volume: narrator.volume,
         speedMode: narrator.speedMode,
         pitch: narrator.pitch,
         musicVolume: music.volume,
+        activeQuizCategory,
       });
     }
   }, [narrator.activationStatus, phase, currentIndex, paused, bgVariant,
       music.currentTrack, music.isPlaying, music.volume,
       narrator.enabled, narrator.voice, narrator.volume, narrator.speedMode, narrator.pitch,
-      announcing, liveSync]);
+      narrator.voiceMode, announcing, liveSync, activeQuizCategory]);
 
   if (phase === "loading") {
     // Audio activation overlay (shown before user taps the button)
@@ -577,6 +652,15 @@ export default function BranpyLive() {
           <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: 1 }}>
             QUIZ AO VIVO
           </span>
+          {activeQuizCategory && (
+            <span style={{
+              fontSize: 11, fontWeight: 600, color: COLORS.accent,
+              background: `${COLORS.accent}15`, padding: "3px 10px",
+              borderRadius: 12, marginLeft: 4,
+            }}>
+              {activeQuizCategory}
+            </span>
+          )}
           {paused && (
             <span style={{
               fontSize: 10, fontWeight: 700, color: "#E74C3C",

@@ -37,6 +37,26 @@ const CATEGORIES = [
     name: "Quiz Clássico",
     tracks: ["Gincana", "Desafio Final", "Sabedoria", "Campeao"],
   },
+  {
+    name: "Natureza",
+    tracks: ["Floresta Encantada", "Rio Serena", "Vento nas Arvores", "Cachoeira Azul"],
+  },
+  {
+    name: "Animada",
+    tracks: ["Festa Divertida", "Energia Pura", "Batida Contagiante", "Ritmo Acelerado"],
+  },
+  {
+    name: "Eletronica",
+    tracks: ["Onda Digital", "Pulso Sintetico", "Neblina Eletrica", "Frequencia Azul"],
+  },
+  {
+    name: "Orquestral",
+    tracks: ["Abertura Triunfal", "Marcha Heroica", "Vozes do Coro", "Final Epico"],
+  },
+  {
+    name: "Jazz",
+    tracks: ["Sax Suave", "Bossa Noturna", "Piano no Cafe", "Acorde Relaxante"],
+  },
 ];
 
 const ALL_TRACKS = CATEGORIES.flatMap((c) => c.tracks);
@@ -404,6 +424,184 @@ function startTrack(ctx, masterGain, type) {
       break;
     }
 
+    // ── Natureza ──
+    case "Floresta Encantada": {
+      const n1 = addFilt(600, "lowpass");
+      addOsc(G3, "sine", 0.02); addOsc(D4, "sine", 0.015); addOsc(G4, "sine", 0.01);
+      addLFO(masterGain.gain, 0.06, 0.12);
+      scheduleArp([G3, D4, G4, B3, D4, A3, E4, G4], now + 1, 0.25, 0.2, 0.015, "sine");
+      nodes.push(n1);
+      break;
+    }
+    case "Rio Serena": {
+      const n2 = addFilt(500, "lowpass");
+      addOsc(A3, "sine", 0.022); addOsc(E4, "sine", 0.018); addOsc(A4, "sine", 0.012);
+      addLFO(masterGain.gain, 0.05, 0.1);
+      scheduleArp([A3, E4, A4, C4, E4, G4], now + 1, 0.3, 0.25, 0.012, "sine");
+      nodes.push(n2);
+      break;
+    }
+    case "Vento nas Arvores": {
+      const n3 = addFilt(450, "lowpass");
+      addOsc(D4, "sine", 0.02); addOsc(G4, "sine", 0.015); addOsc(B4, "sine", 0.01);
+      addLFO(masterGain.gain, 0.04, 0.15);
+      scheduleArp([D4, G4, B4, D5, B4, G4], now + 1, 0.28, 0.22, 0.015, "triangle");
+      nodes.push(n3);
+      break;
+    }
+    case "Cachoeira Azul": {
+      const n4 = addFilt(550, "lowpass");
+      addOsc(E4, "sine", 0.02); addOsc(B3, "sine", 0.018); addOsc(E4, "sine", 0.015);
+      addLFO(masterGain.gain, 0.07, 0.18);
+      scheduleArp([E4, B3, G3, A3, B3, E4], now + 1, 0.2, 0.15, 0.018, "sine");
+      nodes.push(n4);
+      break;
+    }
+
+    // ── Animada ──
+    case "Festa Divertida": {
+      const a1 = addFilt(1200);
+      addOsc(C4, "triangle", 0.035); addOsc(E4, "triangle", 0.028);
+      addLFO(masterGain.gain, 0.3, 0.25);
+      scheduleArp([C4, E4, G4, C5, G4, E4, D4, F4, A4, D5], now + 0.5, 0.06, 0.03, 0.035, "triangle");
+      nodes.push(a1);
+      break;
+    }
+    case "Energia Pura": {
+      const a2 = addFilt(1400);
+      addOsc(F4, "sawtooth", 0.03); addOsc(A4, "sawtooth", 0.025);
+      addLFO(masterGain.gain, 0.35, 0.3);
+      for (let i = 0; i < 200; i++) {
+        const t = now + i * 0.1;
+        scheduleNote([440, 550, 660, 880][i % 4], t, 0.05, 0.03, "square");
+      }
+      nodes.push(a2);
+      break;
+    }
+    case "Batida Contagiante": {
+      const a3 = addFilt(1300);
+      addOsc(G4, "triangle", 0.03); addOsc(B4, "triangle", 0.025);
+      addLFO(masterGain.gain, 0.3, 0.28);
+      scheduleArp([G4, B4, D5, G5, D5, B4, A4, C5], now + 0.5, 0.05, 0.025, 0.04, "triangle");
+      nodes.push(a3);
+      break;
+    }
+    case "Ritmo Acelerado": {
+      const a4 = addFilt(1500);
+      addOsc(A4, "sawtooth", 0.028); addOsc(C5, "sawtooth", 0.022);
+      addLFO(masterGain.gain, 0.4, 0.3);
+      for (let i = 0; i < 200; i++) {
+        const t = now + i * 0.08;
+        scheduleNote([440, 660, 880, 660][i % 4], t, 0.04, 0.025, "square");
+      }
+      nodes.push(a4);
+      break;
+    }
+
+    // ── Eletronica ──
+    case "Onda Digital": {
+      const e1 = addFilt(1000);
+      addOsc(110, "sawtooth", 0.02);
+      for (let i = 0; i < 300; i++) {
+        const t = now + i * 0.12;
+        scheduleNote(440 + Math.sin(i * 0.5) * 110, t, 0.06, 0.025, "square");
+      }
+      nodes.push(e1);
+      break;
+    }
+    case "Pulso Sintetico": {
+      const e2 = addFilt(900);
+      addOsc(165, "square", 0.015);
+      addLFO(masterGain.gain, 0.2, 0.2);
+      for (let i = 0; i < 300; i++) {
+        const t = now + i * 0.15;
+        scheduleNote(330 * (1 + (i % 6) * 0.3), t, 0.05, 0.02, "square");
+      }
+      nodes.push(e2);
+      break;
+    }
+    case "Neblina Eletrica": {
+      const e3 = addFilt(850);
+      for (let i = 0; i < 300; i++) {
+        const t = now + i * 0.18;
+        scheduleNote(220 * (1 + Math.sin(i * 0.3) * 0.5), t, 0.08, 0.02, "sawtooth");
+      }
+      nodes.push(e3);
+      break;
+    }
+    case "Frequencia Azul": {
+      const e4 = addFilt(1100);
+      addLFO(e4.frequency, 0.06, 200);
+      for (let i = 0; i < 300; i++) {
+        const t = now + i * 0.14;
+        scheduleNote(550 + Math.sin(i * 0.4) * 165, t, 0.07, 0.025, "square");
+      }
+      nodes.push(e4);
+      break;
+    }
+
+    // ── Orquestral ──
+    case "Abertura Triunfal": {
+      const o1 = addFilt(800, "lowpass");
+      addOsc(C4, "sawtooth", 0.025); addOsc(E4, "sawtooth", 0.02); addOsc(G4, "sawtooth", 0.015);
+      for (let i = 0; i < 200; i++) o1.frequency.setValueAtTime(400 + i * 3, now + i * 0.4);
+      scheduleArp([C4, E4, G4, C5, E5, C5, G4, E4], now + 0.5, 0.12, 0.06, 0.025, "triangle");
+      nodes.push(o1);
+      break;
+    }
+    case "Marcha Heroica": {
+      const o2 = addFilt(700, "lowpass");
+      addOsc(F4, "sawtooth", 0.025); addOsc(A4, "sawtooth", 0.02);
+      for (let i = 0; i < 200; i++) o2.frequency.setValueAtTime(350 + i * 4, now + i * 0.35);
+      scheduleArp([F4, A4, C5, F5, C5, A4, G4, Bb4], now + 0.5, 0.15, 0.08, 0.02, "triangle");
+      nodes.push(o2);
+      break;
+    }
+    case "Vozes do Coro": {
+      const o3 = addFilt(650, "lowpass");
+      addOsc(G4, "sine", 0.025); addOsc(B4, "sine", 0.02); addOsc(D5, "sine", 0.015);
+      addLFO(masterGain.gain, 0.2, 0.15);
+      scheduleChord([G4, B4, D5, G5], now + 0.5, 2, 0.02, "sine");
+      scheduleChord([A4, C5, E5, A5], now + 3, 2, 0.02, "sine");
+      scheduleChord([F4, A4, C5, F5], now + 5.5, 2, 0.02, "sine");
+      nodes.push(o3);
+      break;
+    }
+    case "Final Epico": {
+      const o4 = addFilt(900, "lowpass");
+      addOsc(C4, "sawtooth", 0.03); addOsc(E4, "sawtooth", 0.025); addOsc(G4, "sawtooth", 0.02);
+      for (let i = 0; i < 200; i++) o4.frequency.setValueAtTime(500 + Math.sin(i * 0.15) * 200, now + i * 0.5);
+      scheduleArp([C4, E4, G4, C5, E5, C5, G4, E4, F4, A4], now + 0.5, 0.1, 0.05, 0.03, "triangle");
+      nodes.push(o4);
+      break;
+    }
+
+    // ── Jazz ──
+    case "Sax Suave": {
+      addOsc(D4, "sine", 0.022); addOsc(F4, "sine", 0.018); addOsc(A4, "sine", 0.012);
+      addLFO(masterGain.gain, 0.08, 0.1);
+      scheduleArp([D4, A4, F4, D5, A4, F4], now + 1, 0.35, 0.3, 0.015, "sine");
+      break;
+    }
+    case "Bossa Noturna": {
+      addOsc(E4, "sine", 0.02); addOsc(G4, "sine", 0.015); addOsc(B4, "sine", 0.01);
+      addLFO(masterGain.gain, 0.06, 0.12);
+      scheduleArp([E4, B4, G4, E5, B4, G4, D4, A4], now + 1, 0.3, 0.25, 0.012, "sine");
+      break;
+    }
+    case "Piano no Cafe": {
+      addOsc(F4, "sine", 0.02); addOsc(A4, "sine", 0.015); addOsc(C5, "sine", 0.01);
+      addLFO(masterGain.gain, 0.07, 0.1);
+      scheduleArp([F4, A4, C5, A4, F4, G4, Bb4, C5], now + 1, 0.25, 0.2, 0.015, "sine");
+      break;
+    }
+    case "Acorde Relaxante": {
+      addOsc(G4, "sine", 0.022); addOsc(B4, "sine", 0.015); addOsc(D5, "sine", 0.01);
+      addLFO(masterGain.gain, 0.05, 0.08);
+      scheduleArp([G4, B4, D5, G5, D5, B4], now + 1, 0.4, 0.35, 0.012, "sine");
+      break;
+    }
+
     default: break;
   }
 
@@ -421,23 +619,31 @@ export default function useBackgroundMusic() {
   const trackRef = useRef("");
   const volRef = useRef(volume);
 
+  const ensureContext = useCallback(() => {
+    if (!ctxRef.current || ctxRef.current.state === "closed") {
+      ctxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (ctxRef.current.state === "suspended") {
+      ctxRef.current.resume();
+    }
+    return ctxRef.current;
+  }, []);
+
   const activate = useCallback(() => {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      ctx.resume();
-      setTimeout(() => ctx.close(), 100);
+      const ctx = ensureContext();
+      if (ctx.state === "suspended") ctx.resume();
     } catch (err) { console.error("[BGMusic] activate error:", err); }
-  }, []);
+  }, [ensureContext]);
 
   const stop = useCallback(() => {
     nodesRef.current.forEach((n) => {
       try { n.stop(); } catch (e) { /* already stopped */ }
     });
     nodesRef.current = [];
-    if (ctxRef.current && ctxRef.current.state !== "closed") {
-      try { ctxRef.current.close(); } catch (e) { /* ignore */ }
+    if (masterGainRef.current) {
+      try { masterGainRef.current.disconnect(); } catch (e) {}
     }
-    ctxRef.current = null;
     masterGainRef.current = null;
     setIsPlaying(false);
   }, []);
@@ -445,8 +651,7 @@ export default function useBackgroundMusic() {
   const play = useCallback((track) => {
     if (!track) { stop(); return; }
     stop();
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    ctxRef.current = ctx;
+    const ctx = ensureContext();
     const master = ctx.createGain();
     master.gain.value = volRef.current;
     master.connect(ctx.destination);
@@ -456,7 +661,7 @@ export default function useBackgroundMusic() {
     trackRef.current = track;
     setCurrentTrack(track);
     setIsPlaying(true);
-  }, [stop]);
+  }, [stop, ensureContext]);
 
   const toggle = useCallback((track) => {
     if (isPlaying && trackRef.current === track) {

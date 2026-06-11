@@ -17,7 +17,7 @@ import {
   MusicHub, AIAvatars, Projects, IntegrationsPage,
   PlansPage, TeamPage, SettingsPage, SupportPage,
   CanvaEditorFn, PhotoshopEditorFn, CalendarViewFn,
-  CodeStudioFn, StreamingStudioViewFn, TeamChatViewFn,
+  CodeStudioFn,   LiveStudioFn, StreamingStudioViewFn, TeamChatViewFn,
   NotesViewFn, TasksViewFn, CloudDriveViewFn, FinanceHubViewFn,
   LeadsCenterFn, ReportsViewFn, InvoiceCenterFn, SchedulePostsFn,
   SpreadsheetAIFn, PresentationBuilderFn, LogoStudioFn, MockupStudioFn,
@@ -1625,6 +1625,7 @@ export default function AffiliateAgentApp() {
       <Route path="/photoshop-editor" element={<BRANPYLayout activeModule="photoshop-editor"><PhotoshopEditorFn /></BRANPYLayout>} />
       <Route path="/calendar" element={<BRANPYLayout activeModule="calendar"><CalendarViewFn /></BRANPYLayout>} />
       <Route path="/code-studio" element={<BRANPYLayout activeModule="code-studio"><CodeStudioFn /></BRANPYLayout>} />
+      <Route path="/live-studio" element={<BRANPYLayout activeModule="live-studio"><LiveStudioFn /></BRANPYLayout>} />
       <Route path="/streaming-studio" element={<BRANPYLayout activeModule="streaming-studio"><StreamingStudioViewFn /></BRANPYLayout>} />
       <Route path="/team-chat" element={<BRANPYLayout activeModule="team-chat"><TeamChatViewFn /></BRANPYLayout>} />
       <Route path="/notes" element={<BRANPYLayout activeModule="notes"><NotesViewFn /></BRANPYLayout>} />

@@ -64,6 +64,7 @@ const APPS = [
   { id: "video-studio", name: "Video Studio", icon: "🎬", cat: "media", route: "/affiliate-agent/video-studio", desc: "Professional video editor" },
   { id: "movie-studio", name: "Movie Studio", icon: "🎥", cat: "media", desc: "Cinematic movie creation" },
   { id: "animation-studio", name: "Animation Studio", icon: "🌀", cat: "media", desc: "2D/3D animation" },
+  { id: "live-studio", name: "Live Studio", icon: "🎬", cat: "media", route: "/affiliate-agent/live-studio", desc: "Live quiz control & broadcast studio" },
   { id: "streaming-studio", name: "Streaming Studio", icon: "📡", cat: "media", route: "/affiliate-agent/streaming-studio", desc: "Live streaming production" },
   { id: "podcast-studio", name: "Podcast Studio", icon: "🎙️", cat: "media", route: "/affiliate-agent/podcast-studio", desc: "Record & edit podcasts" },
   { id: "voice-studio", name: "Voice Studio", icon: "🎤", cat: "media", route: "/affiliate-agent/voice-studio", desc: "AI voice generation & cloning" },

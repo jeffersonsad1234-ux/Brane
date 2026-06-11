@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+const BACKEND_HOST = window.location.hostname;
+const API = `${(process.env.REACT_APP_BACKEND_URL || `http://${BACKEND_HOST}:8000`).replace(/\/+$/, '')}/api`;
 const ThemeContext = createContext(null);
 
 const DEFAULTS = {

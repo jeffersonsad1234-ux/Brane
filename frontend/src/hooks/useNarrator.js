@@ -116,14 +116,16 @@ const ABBREVIATION_MAP = {
 };
 
 const SPEED_OPTIONS = [
-  { id: "lenta", label: "Lenta", rate: 0.78 },
   { id: "normal", label: "Normal", rate: 0.95 },
-  { id: "rapida", label: "Rápida", rate: 1.08 },
+  { id: "rapida", label: "Rápida", rate: 1.3 },
+  { id: "muito_rapida", label: "Muito Rápida", rate: 2.0 },
+  { id: "turbo", label: "Turbo", rate: 3.5 },
+  { id: "extrema", label: "Extrema", rate: 5.0 },
 ];
 
 const VOICE_PRESETS = [
-  { name: "Maria Natural", match: /maria/i, speedMode: "rapida", rate: 1.08, pitch: 1.03 },
-  { name: "Daniel Natural", match: /daniel/i, speedMode: "rapida", rate: 1.05, pitch: 0.98 },
+  { name: "Maria Natural", match: /maria/i, speedMode: "rapida", rate: 1.3, pitch: 1.03 },
+  { name: "Daniel Natural", match: /daniel/i, speedMode: "rapida", rate: 1.3, pitch: 0.98 },
 ];
 
 const MAX_CHARS = 280;
@@ -197,6 +199,14 @@ function splitLongText(text) {
 
 const STORAGE_KEY = "brane_narrator_voice";
 
+const VOICE_MODES = [
+  { id: "padrao", label: "Padr\u00e3o", desc: "Voz preferida automatica" },
+  { id: "mulher", label: "Mulher", desc: "Voz feminina" },
+  { id: "homem", label: "Homem", desc: "Voz masculina" },
+  { id: "aleatorio", label: "Aleat\u00f3rio", desc: "Voz aleatoria a cada fala" },
+  { id: "alternado", label: "Alternado", desc: "Alterna entre vozes disponiveis" },
+];
+
 export default function useNarrator() {
   const [enabled, setEnabled] = useState(true);
   const [volume, setVolume] = useState(1.0);
@@ -206,6 +216,7 @@ export default function useNarrator() {
   const [voices, setVoices] = useState([]);
   const [allVoices, setAllVoices] = useState([]);
   const [allVoiceCount, setAllVoiceCount] = useState(0);
+  const [voiceMode, setVoiceModeState] = useState("padrao");
   const [isSupported, setIsSupported] = useState(false);
   const [speedMode, setSpeedModeState] = useState("rapida");
   const [isBlocked, setIsBlocked] = useState(false);
@@ -216,21 +227,58 @@ export default function useNarrator() {
   const rateRef = useRef(rate);
   const pitchRef = useRef(pitch);
   const voiceRef = useRef(voice);
+  const voiceModeRef = useRef(voiceMode);
   const timeoutRef = useRef(null);
+  const altIndexRef = useRef(0);
 
   useEffect(() => { enabledRef.current = enabled; }, [enabled]);
   useEffect(() => { volumeRef.current = volume; }, [volume]);
   useEffect(() => { rateRef.current = rate; }, [rate]);
   useEffect(() => { pitchRef.current = pitch; }, [pitch]);
   useEffect(() => { voiceRef.current = voice; }, [voice]);
+  useEffect(() => { voiceModeRef.current = voiceMode; }, [voiceMode]);
 
-  const pickVoice = useCallback((all) => {
-    const pt = all.filter((v) => v.lang.startsWith("pt"));
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const match = pt.find((v) => v.name === saved);
-      if (match) return match;
+  const pickVoiceByMode = useCallback((all, mode, currentVoice) => {
+    if (!all || all.length === 0) return null;
+    const pt = all.filter((v) => v.lang && v.lang.startsWith("pt"));
+    const anyVoice = all;
+    switch (mode) {
+      case "homem": {
+        const men = (pt.length > 0 ? pt : anyVoice).filter((v) => /male|daniel|paulo|rodrigo|marcos|felipe|ricardo|eduardo|homem/i.test(v.name));
+        if (men.length > 0) return men[Math.floor(Math.random() * men.length)];
+        const fallbackMen = (pt.length > 0 ? pt : anyVoice).filter((v) => !/female|maria|luciana|helena|isabella|woman/i.test(v.name));
+        if (fallbackMen.length > 0) return fallbackMen[Math.floor(Math.random() * fallbackMen.length)];
+        return pt.length > 0 ? pt[0] : anyVoice[0];
+      }
+      case "mulher": {
+        const women = (pt.length > 0 ? pt : anyVoice).filter((v) => /female|maria|luciana|helena|isabella|julia|ana|woman|menina/i.test(v.name));
+        if (women.length > 0) return women[Math.floor(Math.random() * women.length)];
+        const fallbackWomen = (pt.length > 0 ? pt : anyVoice).filter((v) => !/male|daniel|paulo|rodrigo|homem/i.test(v.name));
+        if (fallbackWomen.length > 0) return fallbackWomen[Math.floor(Math.random() * fallbackWomen.length)];
+        return pt.length > 0 ? pt[0] : anyVoice[0];
+      }
+      case "aleatorio": {
+        return all[Math.floor(Math.random() * all.length)];
+      }
+      case "alternado": {
+        const available = all.length > 0 ? all : (pt.length > 0 ? pt : anyVoice);
+        if (available.length === 0) return null;
+        altIndexRef.current = (altIndexRef.current + 1) % available.length;
+        return available[altIndexRef.current];
+      }
+      default: {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const match = (pt.length > 0 ? pt : anyVoice).find((v) => v.name === saved);
+          if (match) return match;
+        }
+        return pickDefaultVoice(all);
+      }
     }
+  }, []);
+
+  const pickDefaultVoice = useCallback((all) => {
+    const pt = all.filter((v) => v.lang && v.lang.startsWith("pt"));
     return (
       pt.find((v) => v.lang.startsWith("pt-BR") && /female|maria|luciana|helena|isabella/i.test(v.name)) ||
       pt.find((v) => v.lang.startsWith("pt-BR")) ||
@@ -245,10 +293,10 @@ export default function useNarrator() {
       const all = window.speechSynthesis.getVoices();
       setAllVoices(all);
       setAllVoiceCount(all.length);
-      const pt = all.filter((v) => v.lang.startsWith("pt"));
+      const pt = all.filter((v) => v.lang && v.lang.startsWith("pt"));
       setVoices(pt);
       if (!voiceRef.current) {
-        const picked = pickVoice(all);
+        const picked = pickVoiceByMode(all, voiceModeRef.current || "padrao", null);
         if (picked) {
           setVoice(picked);
           applyPreset(picked);
@@ -257,7 +305,7 @@ export default function useNarrator() {
     } catch (err) {
       console.error("[Narrator] loadVoices error:", err);
     }
-  }, [pickVoice]);
+  }, [pickVoiceByMode]);
 
   useEffect(() => {
     const supported = "speechSynthesis" in window;
@@ -324,6 +372,15 @@ export default function useNarrator() {
     }
   }, []);
 
+  const setVoiceMode = useCallback((mode) => {
+    setVoiceModeState(mode);
+    try { localStorage.setItem("brane_voice_mode", mode); } catch (e) {}
+    if (allVoices.length > 0) {
+      const picked = pickVoiceByMode(allVoices, mode, voiceRef.current);
+      if (picked) handleSetVoice(picked);
+    }
+  }, [allVoices, pickVoiceByMode]);
+
   const refreshVoices = useCallback(() => {
     try {
       if (!("speechSynthesis" in window)) return;
@@ -331,7 +388,7 @@ export default function useNarrator() {
       const all = window.speechSynthesis.getVoices();
       setAllVoices(all);
       setAllVoiceCount(all.length);
-      const pt = all.filter((v) => v.lang.startsWith("pt"));
+      const pt = all.filter((v) => v.lang && v.lang.startsWith("pt"));
       setVoices(pt);
     } catch (err) {
       console.error("[Narrator] refreshVoices error:", err);
@@ -358,18 +415,19 @@ export default function useNarrator() {
       const all = window.speechSynthesis.getVoices();
       setAllVoices(all);
       setAllVoiceCount(all.length);
-      const pt = all.filter((v) => v.lang.startsWith("pt"));
+      const pt = all.filter((v) => v.lang && v.lang.startsWith("pt"));
       setVoices(pt);
+      const savedMode = localStorage.getItem("brane_voice_mode") || "padrao";
+      setVoiceModeState(savedMode);
+      voiceModeRef.current = savedMode;
       if (!voiceRef.current) {
-        const picked = pickVoice(all);
+        const picked = pickVoiceByMode(all, savedMode, null);
         if (picked) { setVoice(picked); applyPreset(picked); }
       }
-      // Speak a real utterance with volume > 0 to unlock speechSynthesis on Android
       const u = new SpeechSynthesisUtterance("áudio");
       u.volume = 1; u.rate = 1; u.lang = "pt-BR";
       if (voiceRef.current) u.voice = voiceRef.current;
       window.speechSynthesis.speak(u);
-      // Cancel immediately so it doesn't play audible sound
       setTimeout(() => { try { window.speechSynthesis.cancel(); } catch (e) {} }, 50);
       setIsBlocked(false);
       setActivationStatus("activated");
@@ -377,7 +435,7 @@ export default function useNarrator() {
       console.error("[Narrator] activate error:", err);
       setActivationStatus("error");
     }
-  }, [activationStatus, pickVoice, applyPreset]);
+  }, [activationStatus, pickVoiceByMode, applyPreset]);
 
   const cancel = useCallback(() => {
     try {
@@ -402,9 +460,28 @@ export default function useNarrator() {
       const u = new SpeechSynthesisUtterance(text);
       u.lang = "pt-BR";
       u.pitch = pitchRef.current;
-      u.rate = Math.min(1.5, rateRef.current);
+      u.rate = rateRef.current;
       u.volume = volumeRef.current;
-      if (voiceRef.current) u.voice = voiceRef.current;
+      const mode = voiceModeRef.current;
+      if (mode === "aleatorio" || mode === "alternado") {
+        const all = window.speechSynthesis.getVoices();
+        if (all.length > 0) {
+          const picked = pickVoiceByMode(all, mode, voiceRef.current);
+          if (picked) {
+            u.voice = picked;
+            if (mode === "aleatorio") {
+              setVoice(picked);
+              voiceRef.current = picked;
+            }
+          } else if (voiceRef.current) {
+            u.voice = voiceRef.current;
+          }
+        } else if (voiceRef.current) {
+          u.voice = voiceRef.current;
+        }
+      } else if (voiceRef.current) {
+        u.voice = voiceRef.current;
+      }
       u.onerror = (e) => {
         console.error("[Narrator] utterance error:", e.error);
         if (e.error !== "canceled" && e.error !== "interrupted") setIsBlocked(true);
@@ -416,7 +493,7 @@ export default function useNarrator() {
       console.error("[Narrator] speakSingle error:", err);
       if (onEnd) setTimeout(onEnd, 0);
     }
-  }, []);
+  }, [pickVoiceByMode]);
 
   const speak = useCallback((text, onEnd) => {
     try {
@@ -493,6 +570,7 @@ export default function useNarrator() {
     rate, setRate,
     pitch, setPitch,
     voice, setVoice: handleSetVoice,
+    voiceMode, setVoiceMode,
     voices,
     allVoices,
     allVoiceCount,
@@ -506,6 +584,7 @@ export default function useNarrator() {
     refreshVoices,
     VOICE_PRESETS,
     SPEED_OPTIONS,
+    VOICE_MODES,
     normalizePortugueseSpeech,
   };
 }
