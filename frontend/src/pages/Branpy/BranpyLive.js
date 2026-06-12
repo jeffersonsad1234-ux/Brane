@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { getLiveQuiz } from "./BranpyAPI";
 import useNarrator from "../../hooks/useNarrator";
+import useTtsPlayer from "../../hooks/useTtsPlayer";
 import useBackgroundMusic from "../../hooks/useBackgroundMusic";
 import useLiveSync from "../../hooks/useLiveSync";
 import AnimatedBackground from "./AnimatedBackground";
@@ -183,11 +184,13 @@ export default function BranpyLive() {
   const syncRef = useRef({ minDone: false, narDone: false, advancing: false, timerId: null, fallbackId: null });
   const [announcing, setAnnouncing] = useState(false);
   const [activeQuizCategory, setActiveQuizCategory] = useState(null);
-
   const narrator = useNarrator();
-  const music = useBackgroundMusic();
-  const liveSync = useLiveSync("live");
 
+  const ttsPlayer = useTtsPlayer();
+
+  const music = useBackgroundMusic();
+
+  const liveSync = useLiveSync("live");
   useEffect(() => { pausedRef.current = paused; }, [paused]);
 
   const handleActivateAudio = async () => {
@@ -292,21 +295,22 @@ export default function BranpyLive() {
     }
     // countdown: no narration — only visual alternatives + timer
 
+    const isTts = ttsPlayer.ttsEnabled;
+
     const tryAdvance = () => {
       if (sync.advancing) return;
       if (phase === "countdown") {
         if (!sync.minDone) return;
       } else {
-        // question_intro, answer, explanation: advance quando narracao terminar
         if (!sync.narDone) return;
       }
-      if (window.speechSynthesis && window.speechSynthesis.speaking) return;
+      if (!isTts && window.speechSynthesis && window.speechSynthesis.speaking) return;
       sync.advancing = true;
       console.log(`${phase.toUpperCase()} COMPLETE`);
       advancePhase();
     };
 
-    // Fallback — safety net se narracao ou timer nunca dispararem
+    // Fallback safety net
     sync.fallbackId = setTimeout(() => {
       if (!sync.advancing) {
         if (phase === "countdown") {
@@ -314,7 +318,7 @@ export default function BranpyLive() {
         } else {
           sync.narDone = true;
         }
-        if (!(window.speechSynthesis && window.speechSynthesis.speaking)) {
+        if (isTts || !(window.speechSynthesis && window.speechSynthesis.speaking)) {
           console.log(`${phase.toUpperCase()} FALLBACK`);
           tryAdvance();
         }
@@ -329,12 +333,14 @@ export default function BranpyLive() {
       }, def.minTime);
     }
 
-    // Narration (countdown has none — narDone is irrelevant for it)
+    // Narration (countdown has none)
     if (narItems.length > 0) {
-      narrator.speakSequence(narItems, () => {
-        sync.narDone = true;
-        tryAdvance();
-      });
+      const onNarEnd = () => { sync.narDone = true; tryAdvance(); };
+      if (isTts) {
+        ttsPlayer.speakSequence(narItems, onNarEnd);
+      } else {
+        narrator.speakSequence(narItems, onNarEnd);
+      }
     } else if (phase !== "countdown") {
       sync.narDone = true;
       tryAdvance();
@@ -365,39 +371,46 @@ export default function BranpyLive() {
     return () => { if (countdownRef.current) { clearInterval(countdownRef.current); countdownRef.current = null; } };
   }, [phase, paused]);
 
+  const cancelAll = useCallback(() => {
+    narrator.cancel();
+    ttsPlayer.cancel();
+  }, [narrator, ttsPlayer]);
+
   const handleTogglePause = () => {
-    setPaused((p) => { if (!p) narrator.cancel(); return !p; });
+    setPaused((p) => { if (!p) cancelAll(); return !p; });
   };
 
   const handleRestart = () => {
-    clearAllTimers(); narrator.cancel(); setPaused(false); setPhase("loading");
+    clearAllTimers(); cancelAll(); setPaused(false); setPhase("loading");
     const cfg = quizConfigRef.current;
     loadQuestions(cfg.category, cfg.count);
   };
 
   const handleRemotePause = useCallback(() => {
-    narrator.cancel(); setPaused(true); clearAllTimers();
-  }, [narrator, clearAllTimers]);
+    cancelAll(); setPaused(true); clearAllTimers();
+  }, [cancelAll, clearAllTimers]);
 
   const handleRemoteContinue = useCallback(() => { setPaused(false); }, []);
 
   const handleRemoteNext = useCallback(() => {
-    narrator.cancel(); clearAllTimers(); setPaused(false);
+    cancelAll(); clearAllTimers(); setPaused(false);
     const def = PHASE_DEF[phase];
     if (def && def.next) { setPhase(def.next); } else { handleRestart(); }
-  }, [narrator, clearAllTimers, phase, handleRestart]);
+  }, [cancelAll, clearAllTimers, phase, handleRestart]);
 
   const handleRemoteSpeak = useCallback((text) => {
     if (!text.trim() || announcing) return;
-    narrator.cancel();
+    cancelAll();
     clearAllTimers();
     setPaused(true);
     setAnnouncing(true);
-    narrator.speak(text.trim(), () => {
-      setAnnouncing(false);
-      setPaused(false);
-    });
-  }, [narrator, clearAllTimers, announcing]);
+    const done = () => { setAnnouncing(false); setPaused(false); };
+    if (ttsPlayer.ttsEnabled) {
+      ttsPlayer.speak(text.trim(), done);
+    } else {
+      narrator.speak(text.trim(), done);
+    }
+  }, [cancelAll, clearAllTimers, announcing, ttsPlayer, narrator]);
 
   // ── WebSocket command listener ──
   useEffect(() => {
@@ -447,12 +460,21 @@ export default function BranpyLive() {
         case "setVoiceMode":
           if (msg.mode) narrator.setVoiceMode(msg.mode);
           break;
+        case "setTtsVoice":
+          if (msg.voiceId) { ttsPlayer.changeVoice(msg.voiceId); ttsPlayer.setTtsEnabled(true); }
+          break;
+        case "enableTts":
+          ttsPlayer.setTtsEnabled(true);
+          break;
+        case "disableTts":
+          ttsPlayer.setTtsEnabled(false);
+          break;
         default: break;
       }
     });
     return () => { liveSync.off("command"); };
   }, [liveSync, handleRemotePause, handleRemoteContinue, handleRestart,
-      handleRemoteNext, narrator, music, handleRemoteSpeak]);
+      handleRemoteNext, narrator, music, handleRemoteSpeak, ttsPlayer]);
 
   // ── Quiz Library: SET_QUIZ_LIBRARY handler ──
   useEffect(() => {
@@ -503,12 +525,14 @@ export default function BranpyLive() {
         pitch: narrator.pitch,
         musicVolume: music.volume,
         activeQuizCategory,
+        ttsEnabled: ttsPlayer.ttsEnabled,
+        ttsVoiceId: ttsPlayer.voiceId,
       });
     }
   }, [narrator.activationStatus, phase, currentIndex, paused, bgVariant,
       music.currentTrack, music.isPlaying, music.volume,
       narrator.enabled, narrator.voice, narrator.volume, narrator.speedMode, narrator.pitch,
-      narrator.voiceMode, announcing, liveSync, activeQuizCategory]);
+      narrator.voiceMode, announcing, liveSync, activeQuizCategory, ttsPlayer.ttsEnabled, ttsPlayer.voiceId]);
 
   if (phase === "loading") {
     // Audio activation overlay (shown before user taps the button)

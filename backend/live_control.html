@@ -132,14 +132,12 @@ details .body{padding:8px 0}
 </div>
 <div id="currentTrack" style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:8px">Nenhuma faixa</div>
 
-<div class="section-title">Modo de Voz</div>
-<div class="btn-grid btn-5 mb-8">
-  <button class="speed-btn active" data-voicemode="padrao" onclick="setVoiceMode('padrao')">Padrão</button>
-  <button class="speed-btn" data-voicemode="mulher" onclick="setVoiceMode('mulher')">Mulher</button>
-  <button class="speed-btn" data-voicemode="homem" onclick="setVoiceMode('homem')">Homem</button>
-  <button class="speed-btn" data-voicemode="aleatorio" onclick="setVoiceMode('aleatorio')">Aleatório</button>
-  <button class="speed-btn" data-voicemode="alternado" onclick="setVoiceMode('alternado')">Alternado</button>
+<div class="section-title">Personagem de Voz (TTS)</div>
+<div style="display:flex;gap:4px;margin-bottom:8px">
+  <button id="ttsToggleOn" class="speed-btn active" onclick="setTtsEnabled(true)" style="color:#2ecc71">TTS On</button>
+  <button id="ttsToggleOff" class="speed-btn" onclick="setTtsEnabled(false)" style="color:#e74c3c">TTS Off</button>
 </div>
+<div id="ttsVoiceGrid" class="btn-grid btn-2 mb-8"></div>
 <div id="voiceInfo" style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px;line-height:1.4">Nenhuma voz detectada</div>
 
 <details open>
@@ -210,6 +208,20 @@ const MODES = [
   {id:"2000",label:"2000",desc:"Ultramaratona",limit:2000},
 ];
 
+// ===== TTS VOICE CHARACTERS =====
+const TTS_VOICES = [
+  {id:"mulher_jovem",label:"Mulher Jovem",icon:"👩"},
+  {id:"homem_jovem",label:"Homem Jovem",icon:"👨"},
+  {id:"homem_adulto",label:"Homem Adulto",icon:"🧑"},
+  {id:"senhora",label:"Senhora",icon:"👵"},
+  {id:"senhor_idoso",label:"Senhor / Idoso",icon:"👴"},
+  {id:"animada_quiz",label:"Voz Animada",icon:"🎉"},
+  {id:"seria_historia",label:"Voz S\u00e9ria",icon:"📖"},
+  {id:"infantil_charadas",label:"Voz Infantil",icon:"🧒"},
+];
+let currentTtsVoice = null;
+let ttsEnabled = true;
+
 // ===== STATE =====
 let ws = null;
 let selectedCategory = null;
@@ -250,7 +262,7 @@ function handleMessage(msg) {
     if (msg.connected) {
       document.getElementById("statusDot").className = "status-dot dot-on";
       document.getElementById("statusLabel").textContent = "Tablet: Online";
-      document.getElementById("statusDetail").textContent = "Vozes disponiveis";
+      document.getElementById("statusDetail").textContent = "TTS ativo - 8 vozes dispon\u00edveis";
       document.getElementById("statusBar").className = "card online";
       document.getElementById("startBtn").disabled = !selectedCategory;
     } else {
@@ -301,6 +313,15 @@ function updateStatus(s) {
     const vm = document.querySelector(`[data-voicemode="${s.voiceMode}"]`);
     if (vm) vm.classList.add("active");
   }
+  if (s.ttsEnabled !== undefined) {
+    document.getElementById("ttsToggleOn").classList.toggle("active", s.ttsEnabled);
+    document.getElementById("ttsToggleOff").classList.toggle("active", !s.ttsEnabled);
+  }
+  if (s.ttsVoiceId) {
+    document.querySelectorAll("[data-ttsvoice]").forEach(b => b.classList.remove("active"));
+    const active = document.querySelector(`[data-ttsvoice="${s.ttsVoiceId}"]`);
+    if (active) active.classList.add("active");
+  }
   if (s.voiceName) {
     document.getElementById("voiceInfo").innerHTML = `<strong>Voz atual:</strong> ${s.voiceName}`;
   }
@@ -349,6 +370,37 @@ function setVoiceMode(mode) {
   document.querySelectorAll("[data-voicemode]").forEach(b => b.classList.remove("active"));
   document.querySelector(`[data-voicemode="${mode}"]`).classList.add("active");
   sendCmd("setVoiceMode",{mode});
+}
+
+function setTtsEnabled(enabled) {
+  ttsEnabled = enabled;
+  document.getElementById("ttsToggleOn").classList.toggle("active", enabled);
+  document.getElementById("ttsToggleOff").classList.toggle("active", !enabled);
+  sendCmd(enabled ? "enableTts" : "disableTts");
+}
+
+function setTtsVoice(id) {
+  currentTtsVoice = id;
+  document.querySelectorAll("[data-ttsvoice]").forEach(b => b.classList.remove("active"));
+  const btn = document.querySelector(`[data-ttsvoice="${id}"]`);
+  if (btn) btn.classList.add("active");
+  sendCmd("setTtsVoice",{voiceId:id});
+  // When selecting a TTS voice, auto-enable TTS
+  if (!ttsEnabled) setTtsEnabled(true);
+}
+
+function renderTtsVoices() {
+  const grid = document.getElementById("ttsVoiceGrid");
+  grid.innerHTML = "";
+  TTS_VOICES.forEach(v => {
+    const btn = document.createElement("button");
+    btn.className = "action-btn";
+    btn.style.cssText = "text-align:center;font-size:11px;padding:8px 4px;min-height:auto";
+    btn.dataset.ttsvoice = v.id;
+    btn.innerHTML = `<div style="font-size:16px">${v.icon}</div><div style="font-size:10px;margin-top:2px">${v.label}</div>`;
+    btn.onclick = () => setTtsVoice(v.id);
+    grid.appendChild(btn);
+  });
 }
 
 function speakMessage() {
@@ -433,6 +485,9 @@ document.getElementById("messageInput").addEventListener("keydown", function(e) 
 // ===== INIT =====
 renderCategories();
 renderModes();
+renderTtsVoices();
+// Default: TTS on
+setTtsEnabled(true);
 connectWS();
 </script>
 </body>

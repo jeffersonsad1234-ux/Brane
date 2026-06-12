@@ -17,6 +17,7 @@ import asyncio
 import resend
 import re
 import openai
+import edge_tts
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -4846,6 +4847,27 @@ async def branpy_admin_users(request: Request, page: int = 1, limit: int = 50):
     cursor = db.users.find({}, {"_id": 0, "password_hash": 0}).sort("created_at", -1).skip(skip).limit(limit)
     users = [clean_user(u) async for u in cursor]
     return {"users": users, "total": total}
+
+# ── TTS Voice Characters ─────────────────────────────────────
+# Maps 8 character types to existing TTS voices + pitch/rate modulation
+TTS_CHARACTERS = {
+    "mulher_jovem":     {"voice": "pt-BR-FranciscaNeural",        "pitch": "+0Hz",  "rate": "+0%",   "name": "Mulher Jovem"},
+    "homem_jovem":      {"voice": "pt-BR-AntonioNeural",          "pitch": "+0Hz",  "rate": "+0%",   "name": "Homem Jovem"},
+    "homem_adulto":     {"voice": "pt-BR-AntonioNeural",          "pitch": "-8Hz",  "rate": "-5%",   "name": "Homem Adulto"},
+    "senhora":          {"voice": "pt-BR-ThalitaMultilingualNeural","pitch": "+0Hz", "rate": "+0%",   "name": "Senhora"},
+    "senhor_idoso":     {"voice": "pt-BR-AntonioNeural",          "pitch": "-18Hz", "rate": "-12%",  "name": "Senhor / Idoso (Narrador)"},
+    "animada_quiz":     {"voice": "pt-BR-FranciscaNeural",        "pitch": "+12Hz", "rate": "+18%",  "name": "Voz Animada de Quiz"},
+    "seria_historia":   {"voice": "pt-BR-ThalitaMultilingualNeural","pitch": "-8Hz","rate": "-10%",  "name": "Voz Séria para História"},
+    "infantil_charadas": {"voice": "pt-BR-FranciscaNeural",       "pitch": "+22Hz", "rate": "+22%",  "name": "Voz Infantil / Leve (Charadas)"},
+}
+
+@api_router.get("/tts/characters")
+async def tts_list_characters():
+    """Return available TTS voice characters."""
+    return {
+        "characters": {k: v for k, v in TTS_CHARACTERS.items()},
+        "default": "mulher_jovem",
+    }
 
 # ── Branpy Live Quiz ────────────────────────────────────────
 QUIZ_SEED_PATH = ROOT_DIR / "quiz_seed" / "quiz_seed.json"

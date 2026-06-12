@@ -58,3 +58,14 @@ credentials.json
 .credentials
 
 agent-server/.env
+
+# --- Test / log outputs ---
+*.out.txt
+*.err.txt
+*_out.txt
+*_err.txt
+test_*
+validate_*
+simulate_*
+backend/quiz_seed/*.bak
+backend/quiz_seed/backup_*
