@@ -38,6 +38,10 @@ export default function useLiveSync(role) {
     };
 
     ws.onclose = () => {
+      // Only act if this socket is still the active reference.
+      // Prevents a stale close from a previous connection (e.g. Strict Mode
+      // or rapid reconnect) from corrupting the active WebSocket.
+      if (wsRef.current !== ws) return;
       console.log("[LiveSync] Desconectado, reconectando em 3s...");
       setConnected(false);
       wsRef.current = null;

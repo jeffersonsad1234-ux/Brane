@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 
 const API_BASE = (process.env.REACT_APP_BACKEND_URL || `http://${window.location.hostname}:8000`).trim();
 
@@ -61,7 +61,8 @@ export default function useTtsPlayer() {
       audio.pause();
       audio.src = "";
     };
-  }, [revokeCurrent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const playUrl = useCallback((url) => {
     const audio = audioRef.current;
@@ -99,7 +100,6 @@ export default function useTtsPlayer() {
         }),
       });
       if (!r.ok) throw new Error(`TTS API error: ${r.status}`);
-      // The endpoint returns the audio file directly — get the blob URL
       const blob = await r.blob();
       return URL.createObjectURL(blob);
     } catch (err) {
@@ -118,7 +118,6 @@ export default function useTtsPlayer() {
       if (onEnd) setTimeout(onEnd, 100);
       return;
     }
-    // Queue if already speaking
     if (speakingRef.current) {
       queueRef.current.push(url);
       if (!onEndRef.current) onEndRef.current = onEnd;
@@ -171,7 +170,7 @@ export default function useTtsPlayer() {
     if (!val) cancel();
   }, [cancel]);
 
-  return {
+  return useMemo(() => ({
     ttsEnabled: enabled,
     setTtsEnabled,
     voiceId,
@@ -181,5 +180,5 @@ export default function useTtsPlayer() {
     speak,
     speakSequence,
     cancel,
-  };
+  }), [enabled, voiceId, ready, speak, speakSequence, cancel, changeVoice, setTtsEnabled]);
 }

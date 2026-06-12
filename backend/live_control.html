@@ -208,17 +208,13 @@ const MODES = [
   {id:"2000",label:"2000",desc:"Ultramaratona",limit:2000},
 ];
 
-// ===== TTS VOICE CHARACTERS =====
-const TTS_VOICES = [
-  {id:"mulher_jovem",label:"Mulher Jovem",icon:"👩"},
-  {id:"homem_jovem",label:"Homem Jovem",icon:"👨"},
-  {id:"homem_adulto",label:"Homem Adulto",icon:"🧑"},
-  {id:"senhora",label:"Senhora",icon:"👵"},
-  {id:"senhor_idoso",label:"Senhor / Idoso",icon:"👴"},
-  {id:"animada_quiz",label:"Voz Animada",icon:"🎉"},
-  {id:"seria_historia",label:"Voz S\u00e9ria",icon:"📖"},
-  {id:"infantil_charadas",label:"Voz Infantil",icon:"🧒"},
-];
+// ===== TTS VOICE CHARACTERS (fetched from API + emoji overlay) =====
+const TTS_VOICE_ICONS = {
+  mulher_jovem: "👩", homem_jovem: "👨", homem_adulto: "🧑",
+  senhora: "👵", senhor_idoso: "👴", animada_quiz: "🎉",
+  seria_historia: "📖", infantil_charadas: "🧒",
+};
+let TTS_VOICES = [];
 let currentTtsVoice = null;
 let ttsEnabled = true;
 
@@ -265,6 +261,8 @@ function handleMessage(msg) {
       document.getElementById("statusDetail").textContent = "TTS ativo - 8 vozes dispon\u00edveis";
       document.getElementById("statusBar").className = "card online";
       document.getElementById("startBtn").disabled = !selectedCategory;
+      // Re-fetch TTS characters in case they weren't loaded yet
+      if (TTS_VOICES.length === 0) loadTtsCharacters();
     } else {
       document.getElementById("statusDot").className = "status-dot dot-off";
       document.getElementById("statusLabel").textContent = "Tablet: Offline";
@@ -291,9 +289,6 @@ function handleMessage(msg) {
 }
 
 function updateStatus(s) {
-  if (s.voiceName) {
-    // voice info
-  }
   if (s.volume != null) {
     document.getElementById("volumeSlider").value = s.volume;
   }
@@ -322,7 +317,11 @@ function updateStatus(s) {
     const active = document.querySelector(`[data-ttsvoice="${s.ttsVoiceId}"]`);
     if (active) active.classList.add("active");
   }
-  if (s.voiceName) {
+  if (s.ttsEnabled && s.ttsVoiceId) {
+    const found = TTS_VOICES.find(v => v.id === s.ttsVoiceId);
+    const label = found ? (found.name || found.label) : s.ttsVoiceId;
+    document.getElementById("voiceInfo").innerHTML = `<strong>Voz TTS:</strong> ${label}`;
+  } else if (s.voiceName) {
     document.getElementById("voiceInfo").innerHTML = `<strong>Voz atual:</strong> ${s.voiceName}`;
   }
   if (s.bgVariant) {
@@ -391,16 +390,46 @@ function setTtsVoice(id) {
 
 function renderTtsVoices() {
   const grid = document.getElementById("ttsVoiceGrid");
+  if (!grid) return;
   grid.innerHTML = "";
   TTS_VOICES.forEach(v => {
     const btn = document.createElement("button");
     btn.className = "action-btn";
     btn.style.cssText = "text-align:center;font-size:11px;padding:8px 4px;min-height:auto";
     btn.dataset.ttsvoice = v.id;
-    btn.innerHTML = `<div style="font-size:16px">${v.icon}</div><div style="font-size:10px;margin-top:2px">${v.label}</div>`;
+    const icon = TTS_VOICE_ICONS[v.id] || "🎤";
+    btn.innerHTML = `<div style="font-size:16px">${icon}</div><div style="font-size:10px;margin-top:2px">${v.name || v.label}</div>`;
     btn.onclick = () => setTtsVoice(v.id);
     grid.appendChild(btn);
   });
+}
+
+async function loadTtsCharacters() {
+  try {
+    const r = await fetch(API + "/tts/characters");
+    if (r.ok) {
+      const data = await r.json();
+      const chars = data.characters;
+      TTS_VOICES = Object.entries(chars).map(([id, ch]) => ({
+        id, name: ch.name, label: ch.name,
+      }));
+    }
+  } catch (e) {
+    // fallback to hardcoded below
+  }
+  if (TTS_VOICES.length === 0) {
+    TTS_VOICES = [
+      {id:"mulher_jovem",name:"Mulher Jovem"},
+      {id:"homem_jovem",name:"Homem Jovem"},
+      {id:"homem_adulto",name:"Homem Adulto"},
+      {id:"senhora",name:"Senhora"},
+      {id:"senhor_idoso",name:"Senhor / Idoso"},
+      {id:"animada_quiz",name:"Voz Animada de Quiz"},
+      {id:"seria_historia",name:"Voz S\u00e9ria para Hist\u00f3ria"},
+      {id:"infantil_charadas",name:"Voz Infantil"},
+    ];
+  }
+  renderTtsVoices();
 }
 
 function speakMessage() {
@@ -485,10 +514,10 @@ document.getElementById("messageInput").addEventListener("keydown", function(e) 
 // ===== INIT =====
 renderCategories();
 renderModes();
-renderTtsVoices();
 // Default: TTS on
 setTtsEnabled(true);
 connectWS();
+loadTtsCharacters();
 </script>
 </body>
 </html>

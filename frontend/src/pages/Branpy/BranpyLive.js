@@ -414,6 +414,23 @@ export default function BranpyLive() {
 
   // ── WebSocket command listener ──
   useEffect(() => {
+    liveSync.on("adminConnected", () => {
+      // Admin (re)connected — resend current state
+      if (narrator.activationStatus === "activated") {
+        if (narrator.allVoices.length > 0) {
+          liveSync.sendVoices(narrator.allVoices.map((v) => ({ name: v.name, lang: v.lang })));
+        }
+        liveSync.sendStatus({
+          phase, currentIndex, paused: pausedRef.current, bgVariant,
+          currentTrack: music.currentTrack, isPlaying: music.isPlaying,
+          narratorEnabled: narrator.enabled, announcing,
+          voiceName: narrator.voice?.name || "", voiceMode: narrator.voiceMode || "padrao",
+          volume: narrator.volume, speedMode: narrator.speedMode, pitch: narrator.pitch,
+          musicVolume: music.volume, activeQuizCategory,
+          ttsEnabled: ttsPlayer.ttsEnabled, ttsVoiceId: ttsPlayer.voiceId,
+        });
+      }
+    });
     liveSync.on("command", (msg) => {
       switch (msg.command) {
         case "pause": handleRemotePause(); break;
@@ -472,9 +489,10 @@ export default function BranpyLive() {
         default: break;
       }
     });
-    return () => { liveSync.off("command"); };
+    return () => { liveSync.off("command"); liveSync.off("adminConnected"); };
   }, [liveSync, handleRemotePause, handleRemoteContinue, handleRestart,
-      handleRemoteNext, narrator, music, handleRemoteSpeak, ttsPlayer]);
+      handleRemoteNext, narrator, music, handleRemoteSpeak, ttsPlayer,
+      phase, currentIndex, bgVariant, announcing, activeQuizCategory]);
 
   // ── Quiz Library: SET_QUIZ_LIBRARY handler ──
   useEffect(() => {

@@ -63,16 +63,23 @@ server.on("connection", (ws) => {
 
   ws.on("close", () => {
     if (role === "live") {
-      liveClient = null;
-      console.log("[WS] Live desconectado");
-      if (adminClient && adminClient.readyState === 1) {
-        adminClient.send(JSON.stringify({ type: "liveConnected", connected: false }));
+      // Only clear liveClient if this socket IS the current liveClient.
+      // Prevents a stale close from a previous connection (e.g. Strict Mode
+      // double-mount or rapid reconnect) from erasing a newly connected client.
+      if (liveClient === ws) {
+        liveClient = null;
+        console.log("[WS] Live desconectado");
+        if (adminClient && adminClient.readyState === 1) {
+          adminClient.send(JSON.stringify({ type: "liveConnected", connected: false }));
+        }
       }
     } else if (role === "admin") {
-      adminClient = null;
-      console.log("[WS] Admin desconectado");
-      if (liveClient && liveClient.readyState === 1) {
-        liveClient.send(JSON.stringify({ type: "adminConnected", connected: false }));
+      if (adminClient === ws) {
+        adminClient = null;
+        console.log("[WS] Admin desconectado");
+        if (liveClient && liveClient.readyState === 1) {
+          liveClient.send(JSON.stringify({ type: "adminConnected", connected: false }));
+        }
       }
     }
   });
