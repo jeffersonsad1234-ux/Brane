@@ -130,6 +130,9 @@ details .body{padding:8px 0}
   <button class="btn" style="text-align:center;font-size:12px" onclick="sendCmd('nextMusic')">Proxima</button>
   <button class="btn" style="text-align:center;font-size:12px" onclick="sendCmd('randomMusic')">Aleatoria</button>
 </div>
+<select id="trackSelect" class="btn mb-8" onchange="selectTrack(this.value)">
+  <option value="">-- Faixa: selecione --</option>
+</select>
 <div id="currentTrack" style="font-size:11px;color:rgba(255,255,255,.5);margin-bottom:8px">Nenhuma faixa</div>
 
 <div class="section-title">Personagem de Voz (TTS)</div>
@@ -138,7 +141,8 @@ details .body{padding:8px 0}
   <button id="ttsToggleOff" class="speed-btn" onclick="setTtsEnabled(false)" style="color:#e74c3c">TTS Off</button>
 </div>
 <div id="ttsVoiceGrid" class="btn-grid btn-2 mb-8"></div>
-<div id="voiceInfo" style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px;line-height:1.4">Nenhuma voz detectada</div>
+<button class="btn" style="text-align:center;font-size:11px;margin-bottom:8px" onclick="testVoice()">&#9654; Testar Voz Atual</button>
+<div id="voiceInfo" style="font-size:10px;color:rgba(255,255,255,.4);margin-bottom:8px;line-height:1.4">Nenhuma voz TTS carregada</div>
 
 <details open>
   <summary>Ajustes de voz</summary>
@@ -206,6 +210,24 @@ const MODES = [
   {id:"500",label:"500",desc:"Maratona",limit:500},
   {id:"1000",label:"1000",desc:"Desafio",limit:1000},
   {id:"2000",label:"2000",desc:"Ultramaratona",limit:2000},
+];
+
+// ===== MUSIC CATEGORIES (same as useBackgroundMusic.js) =====
+const MUSIC_CATEGORIES = [
+  {name:"Relaxante",tracks:["Ondas Suaves","Brisa Leve","Paz Interior","Luar Serena"]},
+  {name:"Educativa",tracks:["Foco nos Estudos","Mente Atenta","Aprendizado","Concentracao"]},
+  {name:"Tecnologia",tracks:["Codigo Binario","Sistema Ativo","Processamento","Chip Quântico"]},
+  {name:"Mistério",tracks:["Sombras Profundas","Enigma Oculto","Segredo Antigo","Nevoeiro"]},
+  {name:"Motivacional",tracks:["Vencer Desafios","Nova Conquista","Superacao","Fogo Interior"]},
+  {name:"Financeira",tracks:["Mercado Estavel","Investimento Seguro","Crescimento","Carteira Diversa"]},
+  {name:"Futurista",tracks:["Nova Era","Cidade Neon","Viagem Estelar","Realidade Virtual"]},
+  {name:"Lo-fi",tracks:["Chuva Suave","Café e Livro","Tarde Tranquila","Noite Urbana"]},
+  {name:"Quiz Clássico",tracks:["Gincana","Desafio Final","Sabedoria","Campeao"]},
+  {name:"Natureza",tracks:["Floresta Encantada","Rio Serena","Vento nas Arvores","Cachoeira Azul"]},
+  {name:"Animada",tracks:["Festa Divertida","Energia Pura","Batida Contagiante","Ritmo Acelerado"]},
+  {name:"Eletronica",tracks:["Onda Digital","Pulso Sintetico","Neblina Eletrica","Frequencia Azul"]},
+  {name:"Orquestral",tracks:["Abertura Triunfal","Marcha Heroica","Vozes do Coro","Final Epico"]},
+  {name:"Jazz",tracks:["Sax Suave","Bossa Noturna","Piano no Cafe","Acorde Relaxante"]},
 ];
 
 // ===== TTS VOICE CHARACTERS (fetched from API + emoji overlay) =====
@@ -332,6 +354,7 @@ function updateStatus(s) {
   }
   if (s.currentTrack) {
     document.getElementById("currentTrack").textContent = s.currentTrack;
+    document.getElementById("trackSelect").value = s.currentTrack;
   }
   if (s.phase) {
     document.getElementById("phaseBar").style.display = "block";
@@ -352,6 +375,30 @@ function setSpeed(mode) {
   document.querySelectorAll(".speed-btn").forEach(b => b.classList.remove("active"));
   document.querySelector(`.speed-btn[data-speed="${mode}"]`).classList.add("active");
   sendCmd("setSpeedMode",{mode});
+}
+
+function renderTrackSelect() {
+  const sel = document.getElementById("trackSelect");
+  if (!sel) return;
+  sel.innerHTML = '<option value="">-- Faixa: selecione --</option>';
+  MUSIC_CATEGORIES.forEach(cat => {
+    const grp = document.createElement("optgroup");
+    grp.label = cat.name;
+    cat.tracks.forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t;
+      opt.textContent = t;
+      grp.appendChild(opt);
+    });
+    sel.appendChild(grp);
+  });
+}
+
+function selectTrack(track) {
+  if (!track) return;
+  document.getElementById("currentTrack").textContent = track;
+  sendCmd("setMusic",{track});
+  document.getElementById("musicBtn").textContent = "Tocar";
 }
 
 function toggleMusic() {
@@ -376,6 +423,14 @@ function setTtsEnabled(enabled) {
   document.getElementById("ttsToggleOn").classList.toggle("active", enabled);
   document.getElementById("ttsToggleOff").classList.toggle("active", !enabled);
   sendCmd(enabled ? "enableTts" : "disableTts");
+}
+
+function testVoice() {
+  if (!currentTtsVoice) { currentTtsVoice = "mulher_jovem"; }
+  const found = TTS_VOICES.find(v => v.id === currentTtsVoice);
+  const name = found ? (found.name || found.label) : currentTtsVoice;
+  sendCmd("speakMessage",{text:"Olá! Esta é a voz de " + name + ". Como estou soando?"});
+  document.getElementById("voiceInfo").innerHTML = '<strong>Testando:</strong> ' + name;
 }
 
 function setTtsVoice(id) {
@@ -405,6 +460,7 @@ function renderTtsVoices() {
 }
 
 async function loadTtsCharacters() {
+  let loadError = null;
   try {
     const r = await fetch(API + "/tts/characters");
     if (r.ok) {
@@ -413,9 +469,11 @@ async function loadTtsCharacters() {
       TTS_VOICES = Object.entries(chars).map(([id, ch]) => ({
         id, name: ch.name, label: ch.name,
       }));
+    } else {
+      loadError = "API retornou status " + r.status;
     }
   } catch (e) {
-    // fallback to hardcoded below
+    loadError = e.message || "Erro de conexão";
   }
   if (TTS_VOICES.length === 0) {
     TTS_VOICES = [
@@ -428,6 +486,9 @@ async function loadTtsCharacters() {
       {id:"seria_historia",name:"Voz S\u00e9ria para Hist\u00f3ria"},
       {id:"infantil_charadas",name:"Voz Infantil"},
     ];
+    document.getElementById("voiceInfo").innerHTML = TTS_VOICES.length + " vozes (fallback)" + (loadError ? ' <span style="color:#e74c3c">Erro: ' + loadError + '</span>' : '');
+  } else {
+    document.getElementById("voiceInfo").innerHTML = TTS_VOICES.length + " vozes TTS carregadas";
   }
   renderTtsVoices();
 }
@@ -514,6 +575,7 @@ document.getElementById("messageInput").addEventListener("keydown", function(e) 
 // ===== INIT =====
 renderCategories();
 renderModes();
+renderTrackSelect();
 // Default: TTS on
 setTtsEnabled(true);
 connectWS();

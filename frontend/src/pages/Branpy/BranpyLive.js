@@ -420,16 +420,16 @@ export default function BranpyLive() {
         if (narrator.allVoices.length > 0) {
           liveSync.sendVoices(narrator.allVoices.map((v) => ({ name: v.name, lang: v.lang })));
         }
-        liveSync.sendStatus({
-          phase, currentIndex, paused: pausedRef.current, bgVariant,
-          currentTrack: music.currentTrack, isPlaying: music.isPlaying,
-          narratorEnabled: narrator.enabled, announcing,
-          voiceName: narrator.voice?.name || "", voiceMode: narrator.voiceMode || "padrao",
-          volume: narrator.volume, speedMode: narrator.speedMode, pitch: narrator.pitch,
-          musicVolume: music.volume, activeQuizCategory,
-          ttsEnabled: ttsPlayer.ttsEnabled, ttsVoiceId: ttsPlayer.voiceId,
-        });
       }
+      liveSync.sendStatus({
+        phase, currentIndex, paused: pausedRef.current, bgVariant,
+        currentTrack: music.currentTrack, isPlaying: music.isPlaying,
+        narratorEnabled: narrator.enabled, announcing,
+        voiceName: narrator.voice?.name || "", voiceMode: narrator.voiceMode || "padrao",
+        volume: narrator.volume, speedMode: narrator.speedMode, pitch: narrator.pitch,
+        musicVolume: music.volume, activeQuizCategory,
+        ttsEnabled: ttsPlayer.ttsEnabled, ttsVoiceId: ttsPlayer.voiceId,
+      });
     });
     liveSync.on("command", (msg) => {
       switch (msg.command) {
@@ -464,6 +464,7 @@ export default function BranpyLive() {
         case "playMusic":
           if (msg.track) music.selectTrack(msg.track);
           else if (music.currentTrack) music.play(music.currentTrack);
+          else music.randomTrack();
           break;
         case "pauseMusic": music.stop(); break;
         case "nextMusic": music.nextTrack(); break;
