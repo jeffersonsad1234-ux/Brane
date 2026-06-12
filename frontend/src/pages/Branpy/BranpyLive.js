@@ -227,6 +227,25 @@ export default function BranpyLive() {
         setQuestions(shuffled);
         setCurrentIndex(0);
         setPhase("question_intro");
+        // Pre-generate TTS audio for all questions (async, non-blocking)
+        const pregenItems = [];
+        shuffled.forEach((q, idx) => {
+          pregenItems.push({ id: `q${idx}_intro`, text: q.question });
+          pregenItems.push({ id: `q${idx}_ans`, text: q.alternatives[q.correct] });
+          if (q.explanation && !isGenericExplanation(q.explanation)) {
+            pregenItems.push({ id: `q${idx}_expl`, text: q.explanation });
+          }
+        });
+        ttsPlayer.pregenItems(pregenItems).then(results => {
+          const failed = results.filter(r => r.error);
+          if (failed.length === results.length) {
+            console.warn("[TTS] All pregen failed");
+          } else if (failed.length > 0) {
+            console.warn(`[TTS] ${failed.length}/${results.length} pregen failed`);
+          } else {
+            console.log(`[TTS] Pre-generated ${results.length} audio files`);
+          }
+        });
       } else {
         const catName = category || "todas";
         setLoadingText(`Erro ao carregar categoria: ${catName} (0 perguntas)`);
@@ -236,7 +255,7 @@ export default function BranpyLive() {
       const catName = category || "todas";
       setLoadingText(`Erro ao carregar categoria: ${catName}`);
     }
-  }, []);
+  }, [ttsPlayer]);
 
   useEffect(() => {
     viewerRef.current = setInterval(() => setViewers(randomViewers()), 8000);

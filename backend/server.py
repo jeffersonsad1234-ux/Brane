@@ -5017,8 +5017,9 @@ def teste():
 
 # ==================== TTS ENDPOINT ====================
 # Standalone TTS via edge-tts (no MongoDB dependency)
-import tempfile, shutil, subprocess, json, time as tts_time
+import tempfile, shutil, subprocess, json, time as tts_time, hashlib
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 TTS_VOICES = [
     "pt-BR-FranciscaNeural", "pt-BR-ThalitaNeural", "pt-BR-AntonioNeural",
@@ -5030,6 +5031,8 @@ TTS_VOICES = [
 ]
 TTS_TEMP = Path(tempfile.gettempdir()) / "brane-tts"
 TTS_TEMP.mkdir(exist_ok=True)
+TTS_CACHE_DIR = Path(__file__).parent / "tts-cache"
+TTS_CACHE_DIR.mkdir(exist_ok=True)
 TTS_START = tts_time.time()
 
 class TTSBody(BaseModel):
@@ -5038,20 +5041,37 @@ class TTSBody(BaseModel):
     rate: str = "+0%"
     pitch: str = "+0Hz"
 
-@app.post("/api/tts", response_class=FileResponse)
-async def tts_generate(body: TTSBody):
-    if not body.text or len(body.text.strip()) < 2:
-        raise HTTPException(400, "Texto muito curto")
-    text = body.text.strip()[:5000]
-    voice = body.voice if body.voice in TTS_VOICES else "pt-BR-FranciscaNeural"
+class TTSGenBody(BaseModel):
+    text: str
+    voice: str = "pt-BR-FranciscaNeural"
+    rate: str = "+0%"
+    pitch: str = "+0Hz"
+
+class TTSBatchItem(BaseModel):
+    id: str
+    text: str
+    voice: str = "pt-BR-FranciscaNeural"
+    rate: str = "+0%"
+    pitch: str = "+0Hz"
+
+class TTSBatchBody(BaseModel):
+    items: list[TTSBatchItem]
+
+async def _generate_tts_to(text: str, voice: str, rate: str, pitch: str, output: Path) -> tuple[str, str, int]:
+    """Generate TTS audio, save directly to `output` (.mp3 or .wav).
+    Returns (mime_type, codec, duration_sec). Raises on failure."""
+    if not text or len(text.strip()) < 2:
+        raise ValueError("Texto muito curto")
+    text_sanitized = text.strip()[:5000]
+    voice = voice if voice in TTS_VOICES else "pt-BR-FranciscaNeural"
     voices_to_try = [voice] + [v for v in TTS_VOICES if v != voice]
-    import edge_tts
-    for attempt, v in enumerate(voices_to_try[:5]):
+    tempdir = TTS_TEMP
+    for v in voices_to_try[:5]:
         uid = f"tts_{uuid.uuid4().hex[:10]}"
-        mp3 = TTS_TEMP / f"{uid}.mp3"
-        wav = TTS_TEMP / f"{uid}.wav"
+        mp3 = tempdir / f"{uid}.mp3"
+        wav = tempdir / f"{uid}.wav"
         try:
-            tts = edge_tts.Communicate(text=text, voice=v, rate=body.rate, pitch=body.pitch)
+            tts = edge_tts.Communicate(text=text_sanitized, voice=v, rate=rate, pitch=pitch)
             await tts.save(str(mp3))
             if not mp3.exists() or mp3.stat().st_size < 200:
                 raise ValueError("Audio muito pequeno")
@@ -5073,22 +5093,116 @@ async def tts_generate(body: TTSBody):
             except: pass
             kb = round(final.stat().st_size / 1024, 1)
             logger.info(f"[TTS] OK: {v} | {kb}KB | {dur}s | {codec}")
-            resp = FileResponse(str(final), media_type=mtype, filename=f"tts_{uid}.{final.suffix[1:]}",
-                headers={"X-TTS-Voice":v,"X-TTS-Duration":str(dur),"X-TTS-Size":str(kb),"X-TTS-Codec":codec,"X-TTS-SampleRate":"24000"})
-            async def clean(paths=[mp3,wav]):
-                await asyncio.sleep(5)
-                for p in paths:
-                    try: p.unlink()
-                    except: pass
-            asyncio.create_task(clean())
-            return resp
+            shutil.copy2(str(final), str(output))
+            for p in [mp3, wav]:
+                try: p.unlink()
+                except: pass
+            return mtype, codec, dur
         except Exception as e:
             logger.error(f"[TTS] {v}: {e}")
             for p in [mp3,wav]:
                 try: p.unlink()
                 except: pass
             continue
-    return JSONResponse(502, {"error": f"TTS falhou apos varias tentativas"})
+    raise RuntimeError("TTS falhou apos varias tentativas")
+
+@app.post("/api/tts", response_class=FileResponse)
+async def tts_generate(body: TTSBody):
+    try:
+        out = TTS_TEMP / f"tts_{uuid.uuid4().hex[:10]}.wav"
+        mtype, codec, dur = await _generate_tts_to(body.text, body.voice, body.rate, body.pitch, out)
+        async def clean():
+            await asyncio.sleep(5)
+            try: out.unlink()
+            except: pass
+        asyncio.create_task(clean())
+        return FileResponse(str(out), media_type=mtype, filename=out.name,
+            headers={"X-TTS-Duration": str(dur), "X-TTS-Codec": codec})
+    except Exception as e:
+        raise HTTPException(502, str(e))
+
+# ── Cached TTS: generate + serve from /tts-cache ──
+SERVER_HOST_CACHE_VAR = None
+
+@app.post("/api/tts/generate")
+async def tts_generate_cached(body: TTSGenBody, request: Request):
+    """Generate TTS audio, cache to /tts-cache, return audio URL.
+    Tablet only needs to do: new Audio(audioUrl).play()
+    """
+    global SERVER_HOST_CACHE_VAR
+    if not body.text or len(body.text.strip()) < 2:
+        raise HTTPException(400, "Texto muito curto")
+    text = body.text.strip()[:5000]
+    voice = body.voice if body.voice in TTS_VOICES else "pt-BR-FranciscaNeural"
+    content_hash = hashlib.md5((text + voice + body.rate + body.pitch).encode()).hexdigest()[:16]
+    wav_path = TTS_CACHE_DIR / f"{content_hash}.wav"
+    mp3_path = TTS_CACHE_DIR / f"{content_hash}.mp3"
+
+    if wav_path.exists():
+        cached_path = wav_path
+    elif mp3_path.exists():
+        cached_path = mp3_path
+    else:
+        out = TTS_CACHE_DIR / f"{content_hash}.wav"
+        try:
+            await _generate_tts_to(text, voice, body.rate, body.pitch, out)
+            cached_path = out
+        except Exception as e:
+            # fallback: try mp3 if wav generation fails
+            out = TTS_CACHE_DIR / f"{content_hash}.mp3"
+            await _generate_tts_to(text, voice, body.rate, body.pitch, out)
+            cached_path = out
+
+    suffix = cached_path.suffix
+    host = request.headers.get("host", "localhost:8000")
+    proto = request.headers.get("x-forwarded-proto", "http")
+    base_url = f"{proto}://{host}"
+    SERVER_HOST_CACHE_VAR = base_url
+    audio_url = f"{base_url}/tts-cache/{content_hash}{suffix}"
+    return {"audioUrl": audio_url}
+
+@app.post("/api/tts/pregen")
+async def tts_pregen(body: TTSBatchBody, request: Request):
+    """Pre-generate TTS audio for multiple items at once.
+    Returns { items: [{id, audioUrl, error?}] }.
+    """
+    host = request.headers.get("host", "localhost:8000")
+    proto = request.headers.get("x-forwarded-proto", "http")
+    base_url = f"{proto}://{host}"
+
+    async def gen_item(item: TTSBatchItem) -> dict:
+        if not item.text or len(item.text.strip()) < 2:
+            return {"id": item.id, "audioUrl": None, "error": "Texto muito curto"}
+        text = item.text.strip()[:5000]
+        voice = item.voice if item.voice in TTS_VOICES else "pt-BR-FranciscaNeural"
+        ch = hashlib.md5((text + voice + item.rate + item.pitch).encode()).hexdigest()[:16]
+        wav_p = TTS_CACHE_DIR / f"{ch}.wav"
+        mp3_p = TTS_CACHE_DIR / f"{ch}.mp3"
+        if wav_p.exists():
+            return {"id": item.id, "audioUrl": f"{base_url}/tts-cache/{ch}.wav"}
+        if mp3_p.exists():
+            return {"id": item.id, "audioUrl": f"{base_url}/tts-cache/{ch}.mp3"}
+        out = TTS_CACHE_DIR / f"{ch}.wav"
+        try:
+            await _generate_tts_to(text, voice, item.rate, item.pitch, out)
+            return {"id": item.id, "audioUrl": f"{base_url}/tts-cache/{ch}.wav"}
+        except Exception as e:
+            out = TTS_CACHE_DIR / f"{ch}.mp3"
+            try:
+                await _generate_tts_to(text, voice, item.rate, item.pitch, out)
+                return {"id": item.id, "audioUrl": f"{base_url}/tts-cache/{ch}.mp3"}
+            except Exception as e2:
+                logger.error(f"[TTS] pregen {item.id}: {e2}")
+                return {"id": item.id, "audioUrl": None, "error": str(e2)[:200]}
+
+    results = await asyncio.gather(*[gen_item(i) for i in body.items])
+    return {"items": results}
+
+# Mount static serving for /tts-cache
+try:
+    app.mount("/tts-cache", StaticFiles(directory=str(TTS_CACHE_DIR)), name="tts-cache")
+except Exception as e:
+    logger.warning(f"[TTS] Could not mount /tts-cache static: {e}")
 
 # ==================== Product Import via Playwright ====================
 
