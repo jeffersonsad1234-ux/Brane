@@ -67,5 +67,6 @@ agent-server/.env
 test_*
 validate_*
 simulate_*
+backend/tts-cache/
 backend/quiz_seed/*.bak
 backend/quiz_seed/backup_*

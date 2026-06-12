@@ -5056,6 +5056,9 @@ async def story_detail(category: str, story_id: str):
         scene["imageUrl"] = f"{base_url}/scene-{img_num}.jpg"
     return story
 
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 # Mount story-images as static
 try:
     app.mount("/story-images", StaticFiles(directory=str(STORY_IMAGES_DIR)), name="story-images")
@@ -5065,8 +5068,6 @@ except Exception as e:
 # ==================== TTS ENDPOINT ====================
 # Standalone TTS via edge-tts (no MongoDB dependency)
 import tempfile, shutil, subprocess, json, time as tts_time, hashlib
-from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
 TTS_VOICES = [
     "pt-BR-FranciscaNeural", "pt-BR-ThalitaNeural", "pt-BR-AntonioNeural",
