@@ -5044,13 +5044,14 @@ async def story_list(category: str):
     return {"category": category, "stories": story_list}
 
 @app.get("/api/stories/{category}/{story_id}")
-async def story_detail(category: str, story_id: str):
+async def story_detail(category: str, story_id: str, request: Request):
     story_file = STORY_DATA_DIR / category / f"{story_id}.json"
     if not story_file.exists():
         raise HTTPException(404, "Historia nao encontrada")
     story = json.loads(story_file.read_text(encoding="utf-8"))
-    # Ensure image URLs are absolute
-    base_url = f"/story-images/{category}/{story_id}"
+    host = request.headers.get("host", "localhost:8000")
+    proto = request.headers.get("x-forwarded-proto", "http")
+    base_url = f"{proto}://{host}/story-images/{category}/{story_id}"
     for scene in story.get("scenes", []):
         img_num = scene.get("id", 1)
         scene["imageUrl"] = f"{base_url}/scene-{img_num}.jpg"
