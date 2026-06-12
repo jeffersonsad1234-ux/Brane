@@ -612,6 +612,7 @@ export default function useBackgroundMusic() {
   const [currentTrack, setCurrentTrack] = useState(() => localStorage.getItem("brane_music") || "");
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolumeState] = useState(() => parseFloat(localStorage.getItem("brane_music_vol") || "0.3"));
+  const [lastError, setLastError] = useState(null);
 
   const ctxRef = useRef(null);
   const masterGainRef = useRef(null);
@@ -651,16 +652,24 @@ export default function useBackgroundMusic() {
   const play = useCallback((track) => {
     if (!track) { stop(); return; }
     stop();
-    const ctx = ensureContext();
-    const master = ctx.createGain();
-    master.gain.value = volRef.current;
-    master.connect(ctx.destination);
-    masterGainRef.current = master;
-    const n = startTrack(ctx, master, track);
-    nodesRef.current = n;
-    trackRef.current = track;
-    setCurrentTrack(track);
-    setIsPlaying(true);
+    setLastError(null);
+    try {
+      const ctx = ensureContext();
+      if (ctx.state === "suspended") ctx.resume();
+      const master = ctx.createGain();
+      master.gain.value = volRef.current;
+      master.connect(ctx.destination);
+      masterGainRef.current = master;
+      const n = startTrack(ctx, master, track);
+      nodesRef.current = n;
+      trackRef.current = track;
+      setCurrentTrack(track);
+      setIsPlaying(true);
+    } catch (err) {
+      console.error("[BGMusic] play error:", err.message);
+      setLastError(err.message);
+      setIsPlaying(false);
+    }
   }, [stop, ensureContext]);
 
   const toggle = useCallback((track) => {
@@ -716,5 +725,6 @@ export default function useBackgroundMusic() {
     currentTrack, isPlaying, volume, setVolume, activate,
     play, stop, toggle, selectTrack, nextTrack, randomTrack,
     tracks: ALL_TRACKS, categories: CATEGORIES,
+    lastError,
   };
 }

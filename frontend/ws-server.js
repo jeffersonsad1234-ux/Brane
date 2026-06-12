@@ -20,6 +20,7 @@ server.on("connection", (ws) => {
           console.log("[WS] Live conectado");
           if (adminClient && adminClient.readyState === 1) {
             adminClient.send(JSON.stringify({ type: "liveConnected", connected: true }));
+            liveClient.send(JSON.stringify({ type: "adminConnected", connected: true }));
           }
         } else if (role === "admin") {
           adminClient = ws;

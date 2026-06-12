@@ -18,6 +18,7 @@ export default function useTtsPlayer() {
   const [enabled, setEnabled] = useState(() => localStorage.getItem("brane_tts_enabled") !== "false");
   const [voiceId, setVoiceId] = useState(() => localStorage.getItem("brane_tts_voice") || "mulher_jovem");
   const [ready, setReady] = useState(false);
+  const [lastError, setLastError] = useState(null);
   const audioRef = useRef(null);
   const queueRef = useRef([]);
   const onEndRef = useRef(null);
@@ -101,9 +102,11 @@ export default function useTtsPlayer() {
       });
       if (!r.ok) throw new Error(`TTS API error: ${r.status}`);
       const blob = await r.blob();
+      setLastError(null);
       return URL.createObjectURL(blob);
     } catch (err) {
-      console.error("[TTS] generate error:", err);
+      console.error("[TTS] generate error:", err.message);
+      setLastError(err.message);
       return null;
     }
   }, [voiceId, characterForId]);
@@ -180,5 +183,6 @@ export default function useTtsPlayer() {
     speak,
     speakSequence,
     cancel,
-  }), [enabled, voiceId, ready, speak, speakSequence, cancel, changeVoice, setTtsEnabled]);
+    lastError,
+  }), [enabled, voiceId, ready, speak, speakSequence, cancel, changeVoice, setTtsEnabled, lastError]);
 }

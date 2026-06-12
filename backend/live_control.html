@@ -54,6 +54,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;heigh
 .paused{color:#FFA500;margin-left:8px}
 .offline-msg{padding:20px;text-align:center;font-size:13px;color:rgba(255,255,255,.5);border:1px dashed rgba(255,255,255,.1);border-radius:12px;margin-bottom:12px}
 .action-btn{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#fff;font-size:12px;cursor:pointer;font-family:inherit;text-align:center;min-height:44px;font-weight:500}
+.action-btn.active{border-color:#8A2CFF;background:rgba(138,44,255,.2);box-shadow:0 0 8px rgba(138,44,255,.3)}
 .msg-row{display:flex;gap:4px;margin-bottom:12px}
 .msg-row input{flex:1}
 .msg-row button{flex:none;width:80px}
@@ -308,6 +309,14 @@ function handleMessage(msg) {
       document.getElementById("statusDetail").textContent = "Audio ativo no tablet";
     }
   }
+  if (msg.type === "ttsError") {
+    document.getElementById("voiceInfo").innerHTML = '<span style="color:#e74c3c">Erro TTS: ' + msg.message + '</span>';
+    document.getElementById("statusDetail").textContent = "Erro TTS: " + msg.message;
+  }
+  if (msg.type === "musicError") {
+    document.getElementById("currentTrack").innerHTML = '<span style="color:#e74c3c">Erro: ' + msg.message + '</span>';
+    document.getElementById("statusDetail").textContent = "Erro Musica: " + msg.message;
+  }
 }
 
 function updateStatus(s) {
@@ -335,6 +344,7 @@ function updateStatus(s) {
     document.getElementById("ttsToggleOff").classList.toggle("active", !s.ttsEnabled);
   }
   if (s.ttsVoiceId) {
+    currentTtsVoice = s.ttsVoiceId;
     document.querySelectorAll("[data-ttsvoice]").forEach(b => b.classList.remove("active"));
     const active = document.querySelector(`[data-ttsvoice="${s.ttsVoiceId}"]`);
     if (active) active.classList.add("active");
@@ -342,7 +352,9 @@ function updateStatus(s) {
   if (s.ttsEnabled && s.ttsVoiceId) {
     const found = TTS_VOICES.find(v => v.id === s.ttsVoiceId);
     const label = found ? (found.name || found.label) : s.ttsVoiceId;
-    document.getElementById("voiceInfo").innerHTML = `<strong>Voz TTS:</strong> ${label}`;
+    document.getElementById("voiceInfo").innerHTML = `<strong>Voz TTS:</strong> ${label} <span style="color:#2ecc71;font-size:9px">(ativa)</span>`;
+  } else if (s.ttsEnabled && !s.ttsVoiceId) {
+    document.getElementById("voiceInfo").innerHTML = '<span style="color:#FFA500">TTS ligado, aguardando personagem...</span>';
   } else if (s.voiceName) {
     document.getElementById("voiceInfo").innerHTML = `<strong>Voz atual:</strong> ${s.voiceName}`;
   }

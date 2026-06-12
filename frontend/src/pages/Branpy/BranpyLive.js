@@ -527,31 +527,42 @@ export default function BranpyLive() {
 
   // ── Send status to admin ──
   useEffect(() => {
-    if (narrator.activationStatus === "activated") {
-      liveSync.sendStatus({
-        phase,
-        currentIndex,
-        paused: pausedRef.current,
-        bgVariant,
-        currentTrack: music.currentTrack,
-        isPlaying: music.isPlaying,
-        narratorEnabled: narrator.enabled,
-        announcing,
-        voiceName: narrator.voice?.name || "",
-        voiceMode: narrator.voiceMode || "padrao",
-        volume: narrator.volume,
-        speedMode: narrator.speedMode,
-        pitch: narrator.pitch,
-        musicVolume: music.volume,
-        activeQuizCategory,
-        ttsEnabled: ttsPlayer.ttsEnabled,
-        ttsVoiceId: ttsPlayer.voiceId,
-      });
-    }
-  }, [narrator.activationStatus, phase, currentIndex, paused, bgVariant,
+    liveSync.sendStatus({
+      phase,
+      currentIndex,
+      paused: pausedRef.current,
+      bgVariant,
+      currentTrack: music.currentTrack,
+      isPlaying: music.isPlaying,
+      narratorEnabled: narrator.enabled,
+      announcing,
+      voiceName: narrator.voice?.name || "",
+      voiceMode: narrator.voiceMode || "padrao",
+      volume: narrator.volume,
+      speedMode: narrator.speedMode,
+      pitch: narrator.pitch,
+      musicVolume: music.volume,
+      activeQuizCategory,
+      ttsEnabled: ttsPlayer.ttsEnabled,
+      ttsVoiceId: ttsPlayer.voiceId,
+    });
+  }, [phase, currentIndex, paused, bgVariant,
       music.currentTrack, music.isPlaying, music.volume,
       narrator.enabled, narrator.voice, narrator.volume, narrator.speedMode, narrator.pitch,
       narrator.voiceMode, announcing, liveSync, activeQuizCategory, ttsPlayer.ttsEnabled, ttsPlayer.voiceId]);
+
+  // ── Forward TTS/music errors to admin ──
+  useEffect(() => {
+    if (ttsPlayer.lastError) {
+      liveSync.send({ type: "ttsError", message: ttsPlayer.lastError });
+    }
+  }, [ttsPlayer.lastError, liveSync]);
+
+  useEffect(() => {
+    if (music.lastError) {
+      liveSync.send({ type: "musicError", message: music.lastError, track: music.currentTrack });
+    }
+  }, [music.lastError, music.currentTrack, liveSync]);
 
   if (phase === "loading") {
     // Audio activation overlay (shown before user taps the button)
