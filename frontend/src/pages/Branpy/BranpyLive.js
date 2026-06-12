@@ -565,6 +565,13 @@ export default function BranpyLive() {
     }
   }, [music.lastError, music.currentTrack, liveSync]);
 
+  // ── Send ttsUnlocked status to admin ──
+  useEffect(() => {
+    if (ttsPlayer.unlocked) {
+      liveSync.send({ type: "ttsUnlocked", unlocked: true });
+    }
+  }, [ttsPlayer.unlocked, liveSync]);
+
   if (phase === "loading") {
     // Audio activation overlay (shown before user taps the button)
     if (narrator.activationStatus === "idle") {
@@ -599,6 +606,7 @@ export default function BranpyLive() {
     }
 
     // Loading screen after audio activated (while questions load)
+    const testResultColor = ttsPlayer.testError ? COLORS.wrong : COLORS.correct;
     return (
       <div style={{
         width: "100vw", height: "100vh",
@@ -606,7 +614,7 @@ export default function BranpyLive() {
         alignItems: "center", justifyContent: "center",
         background: COLORS.bg, color: COLORS.muted,
         fontFamily: "system-ui, -apple-system, sans-serif",
-        fontSize: 18, gap: 12,
+        fontSize: 18, gap: 12, padding: 32, boxSizing: "border-box", textAlign: "center",
       }}>
         <div>{loadingText}</div>
         <div style={{ fontSize: 13, color: COLORS.correct }}>✓ Áudio ativado</div>
@@ -615,6 +623,31 @@ export default function BranpyLive() {
             ? `✓ Voz detectada (${narrator.allVoiceCount} vozes)`
             : "✗ Voz não disponível (usando padrão)"}
         </div>
+        {ttsPlayer.testError && (
+          <div style={{ fontSize: 11, color: COLORS.wrong, maxWidth: "80%", lineHeight: 1.4, marginTop: 8 }}>
+            ✗ Erro TTS: {ttsPlayer.testError}
+          </div>
+        )}
+        {ttsPlayer.unlocked && (
+          <div style={{ fontSize: 14, color: COLORS.correct, fontWeight: 700, marginTop: 12 }}>
+            ✓ TTS liberado!
+          </div>
+        )}
+        {!ttsPlayer.unlocked && !ttsPlayer.testing && (
+          <button onClick={() => ttsPlayer.testLocally()}
+            style={{
+              marginTop: 20, padding: "16px 36px", borderRadius: 14, border: "2px solid " + COLORS.accent,
+              background: "transparent", color: COLORS.accent, fontSize: 17, fontWeight: 700,
+              cursor: "pointer", fontFamily: "inherit",
+              WebkitTapHighlightColor: "transparent",
+            }}
+          >
+            TESTAR VOZ NO TABLET
+          </button>
+        )}
+        {ttsPlayer.testing && (
+          <div style={{ fontSize: 13, color: "#FFA500", marginTop: 12 }}>⏳ Gerando áudio...</div>
+        )}
       </div>
     );
   }

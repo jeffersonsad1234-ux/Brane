@@ -19,7 +19,11 @@ export default function useTtsPlayer() {
   const [voiceId, setVoiceId] = useState(() => localStorage.getItem("brane_tts_voice") || "mulher_jovem");
   const [ready, setReady] = useState(false);
   const [lastError, setLastError] = useState(null);
+  const [unlocked, setUnlocked] = useState(() => localStorage.getItem("brane_tts_unlocked") === "true");
+  const [testing, setTesting] = useState(false);
+  const [testError, setTestError] = useState(null);
   const audioRef = useRef(null);
+  const audioCtxRef = useRef(null);
   const queueRef = useRef([]);
   const onEndRef = useRef(null);
   const speakingRef = useRef(false);
@@ -61,24 +65,36 @@ export default function useTtsPlayer() {
       revokeCurrent();
       audio.pause();
       audio.src = "";
+      if (audioCtxRef.current) {
+        try { audioCtxRef.current.close(); } catch (e) { /* ignore */ }
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Silent WAV base64 for audio unlock (1 sample, 22 bytes)
+  // Silent WAV for Audio element unlock
   const SILENT_WAV = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
 
   const unlock = useCallback(() => {
+    // 1. Unlock Audio element (HTMLAudioElement)
     const audio = audioRef.current;
-    if (!audio) return;
-    try {
-      audio.src = SILENT_WAV;
-      audio.play().then(() => {
-        audio.pause();
-        audio.src = "";
-        audio.load();
-      }).catch(() => {});
-    } catch (e) { /* ignore */ }
+    if (audio) {
+      try {
+        audio.src = SILENT_WAV;
+        audio.play().then(() => {
+          audio.pause();
+          audio.src = "";
+          audio.load();
+        }).catch(() => {});
+      } catch (e) { /* ignore */ }
+    }
+    // 2. Create/resume AudioContext (Web Audio API)
+    if (!audioCtxRef.current || audioCtxRef.current.state === "closed") {
+      audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioCtxRef.current.state === "suspended") {
+      audioCtxRef.current.resume();
+    }
   }, []);
 
   const playUrl = useCallback((url) => {
@@ -104,29 +120,106 @@ export default function useTtsPlayer() {
     return VOICE_CHARACTERS.find(c => c.id === id) || VOICE_CHARACTERS[0];
   }, []);
 
-  const generate = useCallback(async (text, cId) => {
+  const generateBlob = useCallback(async (text, cId) => {
     const char = characterForId(cId || voiceId);
+    setLastError(null);
+    const r = await fetch(`${API_BASE}/api/tts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, voice: char.voice, pitch: char.pitch, rate: char.rate }),
+    });
+    if (!r.ok) throw new Error(`TTS API error ${r.status} ${r.statusText}`);
+    const blob = await r.blob();
+    if (blob.size < 200) throw new Error("Áudio muito pequeno (" + blob.size + " bytes)");
+    return blob;
+  }, [voiceId, characterForId]);
+
+  const generate = useCallback(async (text, cId) => {
     try {
-      const r = await fetch(`${API_BASE}/api/tts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text,
-          voice: char.voice,
-          pitch: char.pitch,
-          rate: char.rate,
-        }),
-      });
-      if (!r.ok) throw new Error(`TTS API error: ${r.status}`);
-      const blob = await r.blob();
-      setLastError(null);
-      return URL.createObjectURL(blob);
+      const blob = await generateBlob(text, cId);
+      const url = URL.createObjectURL(blob);
+      return url;
     } catch (err) {
       console.error("[TTS] generate error:", err.message);
       setLastError(err.message);
       return null;
     }
-  }, [voiceId, characterForId]);
+  }, [generateBlob]);
+
+  const testLocally = useCallback(async () => {
+    setTesting(true);
+    setTestError(null);
+    const text = "Teste de voz. Áudio funcionando.";
+
+    try {
+      // Fetch audio blob
+      const blob = await generateBlob(text);
+      const errs = [];
+
+      // Attempt 1: HTMLAudioElement
+      try {
+        const url = URL.createObjectURL(blob);
+        await new Promise((resolve, reject) => {
+          const a = audioRef.current;
+          if (!a) { reject(new Error("audioRef null")); return; }
+          a.onended = () => { resolve(); };
+          a.onerror = () => { reject(new Error("audio.onerror disparado")); };
+          a.src = url;
+          const p = a.play();
+          if (p !== undefined) p.catch((e) => reject(new Error("play(): " + e.message)));
+        }).finally(() => {
+          if (currentBlobUrlRef.current) {
+            try { URL.revokeObjectURL(currentBlobUrlRef.current); } catch (e) { /* ignore */ }
+            currentBlobUrlRef.current = null;
+          }
+        });
+        setUnlocked(true);
+        localStorage.setItem("brane_tts_unlocked", "true");
+        setTesting(false);
+        return "ok:html";
+      } catch (e1) {
+        errs.push("HTMLAudio: " + e1.message);
+        console.error("[TTS] Método 1 falhou:", e1.message);
+      }
+
+      // Attempt 2: Web Audio API
+      try {
+        let ctx = audioCtxRef.current;
+        if (!ctx || ctx.state === "closed") {
+          ctx = new (window.AudioContext || window.webkitAudioContext)();
+          audioCtxRef.current = ctx;
+        }
+        if (ctx.state === "suspended") await ctx.resume();
+        const arrayBuffer = await blob.arrayBuffer();
+        const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(ctx.destination);
+        source.start(0);
+        await new Promise((resolve) => { source.onended = resolve; });
+        setUnlocked(true);
+        localStorage.setItem("brane_tts_unlocked", "true");
+        setTesting(false);
+        return "ok:webaudio";
+      } catch (e2) {
+        errs.push("WebAudio: " + e2.message);
+        console.error("[TTS] Método 2 falhou:", e2.message);
+      }
+
+      // Both failed
+      const fullMsg = errs.join(" | ");
+      setTestError(fullMsg);
+      setLastError(fullMsg);
+      setTesting(false);
+      return "err:" + fullMsg;
+    } catch (err) {
+      const msg = err.message || String(err);
+      setTestError("fetch: " + msg);
+      setLastError("fetch: " + msg);
+      setTesting(false);
+      return "err:" + msg;
+    }
+  }, [generateBlob]);
 
   const speak = useCallback(async (text, onEnd) => {
     if (!enabled || !text || !audioRef.current) {
@@ -174,6 +267,7 @@ export default function useTtsPlayer() {
       audio.pause();
       audio.src = "";
     }
+    // Stop Web Audio sources if any
     queueRef.current = [];
     speakingRef.current = false;
     onEndRef.current = null;
@@ -202,5 +296,9 @@ export default function useTtsPlayer() {
     cancel,
     unlock,
     lastError,
-  }), [enabled, voiceId, ready, speak, speakSequence, cancel, unlock, changeVoice, setTtsEnabled, lastError]);
+    unlocked,
+    testing,
+    testError,
+    testLocally,
+  }), [enabled, voiceId, ready, speak, speakSequence, cancel, unlock, changeVoice, setTtsEnabled, lastError, unlocked, testing, testError, testLocally]);
 }
