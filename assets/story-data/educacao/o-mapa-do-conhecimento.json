@@ -1,0 +1,78 @@
+{
+  "id": "o-mapa-do-conhecimento",
+  "title": "O Mapa do Conhecimento",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 279,
+  "outro": "mestre olhou para microscopio com orgulho. laboratorio continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Mapa do Conhecimento",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Mestre chegou em laboratorio com uma pergunta que ninguem tinha respondido ainda. microscopio estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "O Mapa do Conhecimento, cena 1: Mestre chegou em laboratorio com uma pergunta que ninguem tinha respondido ainda. microscopio estava no centro do mister",
+      "durationSec": 31,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em microscopio. mestre passou horas em laboratorio estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "O Mapa do Conhecimento, cena 2: A primeira pista estava em microscopio. mestre passou horas em laboratorio estudando cada detalhe. O conhecimento antigo",
+      "durationSec": 26,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: mestre preparou microscopio cuidadosamente. laboratorio se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "O Mapa do Conhecimento, cena 3: O experimento: mestre preparou microscopio cuidadosamente. laboratorio se encheu de equipamentos e expectativa. Se a teo",
+      "durationSec": 37,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. mestre mal acreditava no que microscopio revelava. laboratorio se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "O Mapa do Conhecimento, cena 4: Os resultados eram surpreendentes. mestre mal acreditava no que microscopio revelava. laboratorio se tornou o centro de ",
+      "durationSec": 41,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. mestre enfrentou laboratorio com novas duvidas. microscopio mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "O Mapa do Conhecimento, cena 5: Mas o conhecimento nunca vem facil. mestre enfrentou laboratorio com novas duvidas. microscopio mostrava um padrao que d",
+      "durationSec": 34,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: mestre convidou outros estudiosos para laboratorio. Juntos decifraram microscopio. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "O Mapa do Conhecimento, cena 6: A colaboracao: mestre convidou outros estudiosos para laboratorio. Juntos decifraram microscopio. O saber compartilhado ",
+      "durationSec": 45,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que microscopio revelou poderia mudar vidas. mestre liderou o projeto em laboratorio para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "O Mapa do Conhecimento, cena 7: A aplicacao pratica: o que microscopio revelou poderia mudar vidas. mestre liderou o projeto em laboratorio para transfo",
+      "durationSec": 33,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: mestre registrou tudo em microscopio deixando laboratorio como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "O Mapa do Conhecimento, cena 8: O legado: mestre registrou tudo em microscopio deixando laboratorio como um centro de aprendizado para futuras geracoes.",
+      "durationSec": 32,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

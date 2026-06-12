@@ -1,0 +1,78 @@
+{
+  "id": "o-processo-de-industrializacao",
+  "title": "O Processo de Industrializacao",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 252,
+  "outro": "o imigrante fechou carta historica com cuidado. praca historica continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Processo de Industrializacao",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1945. o imigrante testemunhava um momento que mudaria o curso da historia. carta historica estava prestes a desempenhar um papel crucial em praca historica.",
+      "imagePrompt": "O Processo de Industrializacao, cena 1: O ano era 1945. o imigrante testemunhava um momento que mudaria o curso da historia. carta historica estava prestes a de",
+      "durationSec": 36,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em praca historica. o imigrante observava carta historica com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "O Processo de Industrializacao, cena 2: A tensao crescia em praca historica. o imigrante observava carta historica com atencao sabendo que cada detalhe importav",
+      "durationSec": 27,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. o imigrante mediou as discussoes em praca historica. carta historica representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "O Processo de Industrializacao, cena 3: O conflito de ideias era palpavel. o imigrante mediou as discussoes em praca historica. carta historica representava mai",
+      "durationSec": 30,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: o imigrante participou do momento em que carta historica foi utilizado em praca historica. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "O Processo de Industrializacao, cena 4: O marco historico: o imigrante participou do momento em que carta historica foi utilizado em praca historica. O que ante",
+      "durationSec": 29,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. o imigrante lutou contra as adversidades em praca historica. carta historica era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "O Processo de Industrializacao, cena 5: Os desafios surgiam a cada esquina. o imigrante lutou contra as adversidades em praca historica. carta historica era a l",
+      "durationSec": 34,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. praca historica nunca mais seria o mesmo depois daquele dia. o imigrante guardou carta historica como reliquia de um tempo de mudancas.",
+      "imagePrompt": "O Processo de Industrializacao, cena 6: A transformacao aconteceu. praca historica nunca mais seria o mesmo depois daquele dia. o imigrante guardou carta histor",
+      "durationSec": 28,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. o imigrante ajudou a documentar o que aconteceu em praca historica. carta historica se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "O Processo de Industrializacao, cena 7: O legado comecou a ser construido. o imigrante ajudou a documentar o que aconteceu em praca historica. carta historica s",
+      "durationSec": 34,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. o imigrante contemplou praca historica transformado. carta historica estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "O Processo de Industrializacao, cena 8: Os frutos do passado. o imigrante contemplou praca historica transformado. carta historica estava agora em exposicao con",
+      "durationSec": 34,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

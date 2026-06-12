@@ -1,0 +1,78 @@
+{
+  "id": "a-nevoa-carmesim",
+  "title": "A Névoa Carmesim",
+  "category": "terror",
+  "sceneCount": 8,
+  "totalDurationSec": 258,
+  "outro": "Quando Dona Célia finalmente escapou de floresta densa, levou consigo apenas chave enferrujada e a certeza de que algumas portas nunca deveriam ser abertas.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Névoa Carmesim",
+    "style": "fotográfico realista, iluminação cinematográfica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A noite caía sobre floresta densa quando Dona Célia sentiu um arrepio repentino. O vento uivava entre as frestas, carregando um som que parecia vir de muito longe — ou de muito perto.",
+      "imagePrompt": "A Névoa Carmesim, cena 1: A noite caía sobre floresta densa quando Dona Célia sentiu um arrepio repentino. O vento uivava entre as frestas, carreg",
+      "durationSec": 31,
+      "musicSuggestion": "sombrio",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Dona Célia acendeu a lanterna, mas a luz parecia engolida pela escuridão. floresta densa estava mais frio do que deveria. Pegadas na poeira indicavam que alguém — ou algo — tinha passado por ali recentemente.",
+      "imagePrompt": "A Névoa Carmesim, cena 2: Dona Célia acendeu a lanterna, mas a luz parecia engolida pela escuridão. floresta densa estava mais frio do que deveria",
+      "durationSec": 27,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Um rangido veio do andar de cima. Dona Célia prendeu a respiração. chave enferrujada estava exatamente onde não deveria estar. Como tinha chegado até ali?",
+      "imagePrompt": "A Névoa Carmesim, cena 3: Um rangido veio do andar de cima. Dona Célia prendeu a respiração. chave enferrujada estava exatamente onde não deveria ",
+      "durationSec": 45,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O ar ficou denso, pesado. Dona Célia sentiu uma presença observando de floresta densa. Não estava sozinho. O chave enferrujada começou a vibrar lentamente, emitindo um som grave e hipnótico.",
+      "imagePrompt": "A Névoa Carmesim, cena 4: O ar ficou denso, pesado. Dona Célia sentiu uma presença observando de floresta densa. Não estava sozinho. O chave enfer",
+      "durationSec": 38,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As paredes pareciam se mover. Dona Célia esfregou os olhos, mas a ilusão persistia. chave enferrujada refletia uma imagem que não correspondia ao ambiente — uma figura encapuzada atrás de si.",
+      "imagePrompt": "A Névoa Carmesim, cena 5: As paredes pareciam se mover. Dona Célia esfregou os olhos, mas a ilusão persistia. chave enferrujada refletia uma image",
+      "durationSec": 33,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O som de passos se aproximou. Dona Célia se encolheu em floresta densa, tentando controlar a respiração. chave enferrujada caiu no chão, ecoando como um grito na escuridão total.",
+      "imagePrompt": "A Névoa Carmesim, cena 6: O som de passos se aproximou. Dona Célia se encolheu em floresta densa, tentando controlar a respiração. chave enferruja",
+      "durationSec": 26,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Uma voz sussurrou seu nome. Dona Célia se virou bruscamente. floresta densa estava vazio, mas chave enferrujada tinha mudado de posição. O ar gelado tocava sua nuca.",
+      "imagePrompt": "A Névoa Carmesim, cena 7: Uma voz sussurrou seu nome. Dona Célia se virou bruscamente. floresta densa estava vazio, mas chave enferrujada tinha mu",
+      "durationSec": 30,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O relógio parou. Dona Célia percebeu que o tempo não passava em floresta densa. chave enferrujada mostrava uma cena que nunca tinha acontecido — ou que ainda ia acontecer.",
+      "imagePrompt": "A Névoa Carmesim, cena 8: O relógio parou. Dona Célia percebeu que o tempo não passava em floresta densa. chave enferrujada mostrava uma cena que ",
+      "durationSec": 28,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    }
+  ]
+}

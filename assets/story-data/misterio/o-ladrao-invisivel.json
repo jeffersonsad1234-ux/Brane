@@ -1,0 +1,78 @@
+{
+  "id": "o-ladrao-invisivel",
+  "title": "O Ladrao Invisivel",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 260,
+  "outro": "o investigador resolveu mais um caso. lupa de aumento foi devolvido ao seu lugar. mansion antiga podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Ladrao Invisivel",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando lupa de aumento foi descoberto em mansion antiga. o investigador foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Ladrao Invisivel, cena 1: O caso comecou quando lupa de aumento foi descoberto em mansion antiga. o investigador foi chamado para investigar. Nada",
+      "durationSec": 41,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O investigador examinou mansion antiga em busca de pistas. lupa de aumento forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Ladrao Invisivel, cena 2: O investigador examinou mansion antiga em busca de pistas. lupa de aumento forneceu a primeira pista real. Mas ela levav",
+      "durationSec": 27,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. o investigador verificou cada detalhe em mansion antiga. lupa de aumento contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Ladrao Invisivel, cena 3: O suspeito principal tinha um alibi solido. o investigador verificou cada detalhe em mansion antiga. lupa de aumento con",
+      "durationSec": 36,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: o investigador descobriu que lupa de aumento tinha sido plantado. mansion antiga nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Ladrao Invisivel, cena 4: Uma reviravolta inesperada: o investigador descobriu que lupa de aumento tinha sido plantado. mansion antiga nao era a c",
+      "durationSec": 32,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. o investigador conectou lupa de aumento com um caso antigo em mansion antiga. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Ladrao Invisivel, cena 5: As pecas comecaram a se encaixar. o investigador conectou lupa de aumento com um caso antigo em mansion antiga. A soluca",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: o investigador reuniu todos os suspeitos em mansion antiga. lupa de aumento foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Ladrao Invisivel, cena 6: O confronto final: o investigador reuniu todos os suspeitos em mansion antiga. lupa de aumento foi revelado como a prova",
+      "durationSec": 28,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. o investigador fechou lupa de aumento sabendo que a justica tinha sido feita. mansion antiga guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Ladrao Invisivel, cena 7: A confissao trouxe alivio mas tambem tristeza. o investigador fechou lupa de aumento sabendo que a justica tinha sido fe",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. o investigador guardou lupa de aumento como recordacao. mansion antiga voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Ladrao Invisivel, cena 8: O caso foi arquivado. o investigador guardou lupa de aumento como recordacao. mansion antiga voltou a rotina mas algo ti",
+      "durationSec": 21,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

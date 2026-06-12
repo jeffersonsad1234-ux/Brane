@@ -1,0 +1,78 @@
+{
+  "id": "a-carta-anonima",
+  "title": "A Carta Anonima",
+  "category": "suspense",
+  "sceneCount": 8,
+  "totalDurationSec": 251,
+  "outro": "o bancario guardou fotografia antiga como lembranca do caso. biblioteca publica continuaria existindo mas seus segredos finalmente tinham sido revelados.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Carta Anonima",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O bancario encontrou fotografia antiga em biblioteca publica. A descoberta parecia inocente mas algo naquela cena nao se encaixava. Cada detalhe fora cuidadosamente arranjado.",
+      "imagePrompt": "A Carta Anonima, cena 1: O bancario encontrou fotografia antiga em biblioteca publica. A descoberta parecia inocente mas algo naquela cena nao se",
+      "durationSec": 33,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As pecas comecaram a se conectar. o bancario revisou as anotacoes mais uma vez. biblioteca publica guardava mais segredos do que aparentava. fotografia antiga era a chave.",
+      "imagePrompt": "A Carta Anonima, cena 2: As pecas comecaram a se conectar. o bancario revisou as anotacoes mais uma vez. biblioteca publica guardava mais segredo",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Alguem estava seguindo o bancario. As sombras em biblioteca publica escondiam movimentos furtivos. fotografia antiga desapareceu misteriosamente confirmando suas suspeitas.",
+      "imagePrompt": "A Carta Anonima, cena 3: Alguem estava seguindo o bancario. As sombras em biblioteca publica escondiam movimentos furtivos. fotografia antiga des",
+      "durationSec": 28,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O encontro foi marcado em biblioteca publica. o bancario chegou cedo mas o desconhecido ja estava la. fotografia antiga foi entregue em silencio junto com um aviso.",
+      "imagePrompt": "A Carta Anonima, cena 4: O encontro foi marcado em biblioteca publica. o bancario chegou cedo mas o desconhecido ja estava la. fotografia antiga ",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A verdade comecou a emergir. o bancario decifrou o codigo escondido em fotografia antiga. biblioteca publica nao era o que parecia. Cada resposta levava a mais perguntas.",
+      "imagePrompt": "A Carta Anonima, cena 5: A verdade comecou a emergir. o bancario decifrou o codigo escondido em fotografia antiga. biblioteca publica nao era o q",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto era inevitavel. o bancario enfrentou o suspeito em biblioteca publica. fotografia antiga foi usado como prova mas a situacao estava longe de ser resolvida.",
+      "imagePrompt": "A Carta Anonima, cena 6: O confronto era inevitavel. o bancario enfrentou o suspeito em biblioteca publica. fotografia antiga foi usado como prov",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A reviravolta: fotografia antiga nao era o que o bancario pensava. biblioteca publica continha a peca final do quebra-cabeca. O verdadeiro culpado estava mais perto do que imaginava.",
+      "imagePrompt": "A Carta Anonima, cena 7: A reviravolta: fotografia antiga nao era o que o bancario pensava. biblioteca publica continha a peca final do quebra-ca",
+      "durationSec": 21,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O desfecho se aproximava. o bancario reuniu todas as evidencias em biblioteca publica. fotografia antiga selaria o destino de todos os envolvidos. A verdade finalmente viria a tona.",
+      "imagePrompt": "A Carta Anonima, cena 8: O desfecho se aproximava. o bancario reuniu todas as evidencias em biblioteca publica. fotografia antiga selaria o desti",
+      "durationSec": 21,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

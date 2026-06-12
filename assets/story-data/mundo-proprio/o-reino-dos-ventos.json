@@ -1,0 +1,78 @@
+{
+  "id": "o-reino-dos-ventos",
+  "title": "O Reino dos Ventos",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 282,
+  "outro": "Kiran navegou para o horizonte com pergaminho selado como guia. cidade flutuante desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Reino dos Ventos",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Kiran pisou em cidade flutuante pela primeira vez. O cenario era tao surreal que parecia um sonho. pergaminho selado foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "O Reino dos Ventos, cena 1: Kiran pisou em cidade flutuante pela primeira vez. O cenario era tao surreal que parecia um sonho. pergaminho selado foi",
+      "durationSec": 42,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de cidade flutuante observavam Kiran com curiosidade. pergaminho selado despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "O Reino dos Ventos, cena 2: Os habitantes de cidade flutuante observavam Kiran com curiosidade. pergaminho selado despertava um interesse que ia ale",
+      "durationSec": 37,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. Kiran precisou decifrar pergaminho selado para navegar por cidade flutuante. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "O Reino dos Ventos, cena 3: O mapa estava incompleto. Kiran precisou decifrar pergaminho selado para navegar por cidade flutuante. Cada passo revela",
+      "durationSec": 38,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: cidade flutuante estava ameacado por uma forca que ninguem compreendia totalmente. Kiran consultou os anciaos que apontaram para pergaminho selado como a solucao.",
+      "imagePrompt": "O Reino dos Ventos, cena 4: A crise: cidade flutuante estava ameacado por uma forca que ninguem compreendia totalmente. Kiran consultou os anciaos q",
+      "durationSec": 35,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. Kiran uniu os povos de cidade flutuante em torno de pergaminho selado. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "O Reino dos Ventos, cena 5: A alianca foi formada. Kiran uniu os povos de cidade flutuante em torno de pergaminho selado. A diversidade era a maior ",
+      "durationSec": 42,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de pergaminho selado foi finalmente revelado. Kiran descobriu que cidade flutuante era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "O Reino dos Ventos, cena 6: O segredo de pergaminho selado foi finalmente revelado. Kiran descobriu que cidade flutuante era apenas uma pequena part",
+      "durationSec": 26,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: cidade flutuante se encheu de luz e musica. Kiran foi honrado como heroi. pergaminho selado se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "O Reino dos Ventos, cena 7: A celebracao: cidade flutuante se encheu de luz e musica. Kiran foi honrado como heroi. pergaminho selado se tornou um s",
+      "durationSec": 28,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: Kiran prometeu voltar para cidade flutuante. pergaminho selado serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "O Reino dos Ventos, cena 8: A despedida: Kiran prometeu voltar para cidade flutuante. pergaminho selado serviria como ponte entre mundos. A aventura",
+      "durationSec": 34,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

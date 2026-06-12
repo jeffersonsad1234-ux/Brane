@@ -1,0 +1,78 @@
+{
+  "id": "o-ultimo-suspeito",
+  "title": "O Ultimo Suspeito",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 307,
+  "outro": "o comissario resolveu mais um caso. documento lacrado foi devolvido ao seu lugar. hotel abandonado podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Ultimo Suspeito",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando documento lacrado foi descoberto em hotel abandonado. o comissario foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Ultimo Suspeito, cena 1: O caso comecou quando documento lacrado foi descoberto em hotel abandonado. o comissario foi chamado para investigar. Na",
+      "durationSec": 40,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O comissario examinou hotel abandonado em busca de pistas. documento lacrado forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Ultimo Suspeito, cena 2: O comissario examinou hotel abandonado em busca de pistas. documento lacrado forneceu a primeira pista real. Mas ela lev",
+      "durationSec": 43,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. o comissario verificou cada detalhe em hotel abandonado. documento lacrado contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Ultimo Suspeito, cena 3: O suspeito principal tinha um alibi solido. o comissario verificou cada detalhe em hotel abandonado. documento lacrado c",
+      "durationSec": 38,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: o comissario descobriu que documento lacrado tinha sido plantado. hotel abandonado nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Ultimo Suspeito, cena 4: Uma reviravolta inesperada: o comissario descobriu que documento lacrado tinha sido plantado. hotel abandonado nao era a",
+      "durationSec": 43,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. o comissario conectou documento lacrado com um caso antigo em hotel abandonado. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Ultimo Suspeito, cena 5: As pecas comecaram a se encaixar. o comissario conectou documento lacrado com um caso antigo em hotel abandonado. A solu",
+      "durationSec": 37,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: o comissario reuniu todos os suspeitos em hotel abandonado. documento lacrado foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Ultimo Suspeito, cena 6: O confronto final: o comissario reuniu todos os suspeitos em hotel abandonado. documento lacrado foi revelado como a pro",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. o comissario fechou documento lacrado sabendo que a justica tinha sido feita. hotel abandonado guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Ultimo Suspeito, cena 7: A confissao trouxe alivio mas tambem tristeza. o comissario fechou documento lacrado sabendo que a justica tinha sido fe",
+      "durationSec": 29,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. o comissario guardou documento lacrado como recordacao. hotel abandonado voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Ultimo Suspeito, cena 8: O caso foi arquivado. o comissario guardou documento lacrado como recordacao. hotel abandonado voltou a rotina mas algo ",
+      "durationSec": 32,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

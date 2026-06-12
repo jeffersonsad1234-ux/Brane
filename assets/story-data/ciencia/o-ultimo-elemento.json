@@ -1,0 +1,78 @@
+{
+  "id": "o-ultimo-elemento",
+  "title": "O Ultimo Elemento",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 261,
+  "outro": "a fisica desligou telescopio espacial ao final do expediente. instituto de neurociencia continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Ultimo Elemento",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A fisica ajustou telescopio espacial pela ultima vez. instituto de neurociencia estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "O Ultimo Elemento, cena 1: A fisica ajustou telescopio espacial pela ultima vez. instituto de neurociencia estava silencioso cheio de expectativa. ",
+      "durationSec": 43,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. a fisica analisou cada ponto em instituto de neurociencia. telescopio espacial registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "O Ultimo Elemento, cena 2: Os dados comecaram a chegar. a fisica analisou cada ponto em instituto de neurociencia. telescopio espacial registrava a",
+      "durationSec": 35,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. a fisica verificou os resultados multiplas vezes em instituto de neurociencia. telescopio espacial havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "O Ultimo Elemento, cena 3: O padrao era inconfundivel. a fisica verificou os resultados multiplas vezes em instituto de neurociencia. telescopio es",
+      "durationSec": 25,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. a fisica apresentou as evidencias em instituto de neurociencia. telescopio espacial provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "O Ultimo Elemento, cena 4: A comunidade cientifica foi notificada. a fisica apresentou as evidencias em instituto de neurociencia. telescopio espac",
+      "durationSec": 30,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. a fisica defendeu seu trabalho em instituto de neurociencia usando telescopio espacial para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "O Ultimo Elemento, cena 5: A controversia: nem todos aceitavam os resultados. a fisica defendeu seu trabalho em instituto de neurociencia usando te",
+      "durationSec": 33,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. a fisica recebeu os parabens em instituto de neurociencia. telescopio espacial seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "O Ultimo Elemento, cena 6: A confirmacao chegou de outros laboratorios. a fisica recebeu os parabens em instituto de neurociencia. telescopio espac",
+      "durationSec": 43,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? a fisica liderou as discussoes em instituto de neurociencia explorando as possibilidades que telescopio espacial abria.",
+      "imagePrompt": "O Ultimo Elemento, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? a fisica liderou as discussoes em instituto de ne",
+      "durationSec": 32,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: a fisica escreveu o estudo final em instituto de neurociencia. telescopio espacial mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "O Ultimo Elemento, cena 8: O impacto: a fisica escreveu o estudo final em instituto de neurociencia. telescopio espacial mudaria o ensino de cienci",
+      "durationSec": 20,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

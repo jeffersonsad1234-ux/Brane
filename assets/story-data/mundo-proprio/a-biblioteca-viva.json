@@ -1,0 +1,78 @@
+{
+  "id": "a-biblioteca-viva",
+  "title": "A Biblioteca Viva",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 277,
+  "outro": "Orion navegou para o horizonte com pergaminho selado como guia. mercado subterrâneo desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Biblioteca Viva",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Orion pisou em mercado subterrâneo pela primeira vez. O cenario era tao surreal que parecia um sonho. pergaminho selado foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "A Biblioteca Viva, cena 1: Orion pisou em mercado subterrâneo pela primeira vez. O cenario era tao surreal que parecia um sonho. pergaminho selado ",
+      "durationSec": 38,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de mercado subterrâneo observavam Orion com curiosidade. pergaminho selado despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "A Biblioteca Viva, cena 2: Os habitantes de mercado subterrâneo observavam Orion com curiosidade. pergaminho selado despertava um interesse que ia ",
+      "durationSec": 37,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. Orion precisou decifrar pergaminho selado para navegar por mercado subterrâneo. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "A Biblioteca Viva, cena 3: O mapa estava incompleto. Orion precisou decifrar pergaminho selado para navegar por mercado subterrâneo. Cada passo rev",
+      "durationSec": 40,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: mercado subterrâneo estava ameacado por uma forca que ninguem compreendia totalmente. Orion consultou os anciaos que apontaram para pergaminho selado como a solucao.",
+      "imagePrompt": "A Biblioteca Viva, cena 4: A crise: mercado subterrâneo estava ameacado por uma forca que ninguem compreendia totalmente. Orion consultou os anciao",
+      "durationSec": 38,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. Orion uniu os povos de mercado subterrâneo em torno de pergaminho selado. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "A Biblioteca Viva, cena 5: A alianca foi formada. Orion uniu os povos de mercado subterrâneo em torno de pergaminho selado. A diversidade era a mai",
+      "durationSec": 45,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de pergaminho selado foi finalmente revelado. Orion descobriu que mercado subterrâneo era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "A Biblioteca Viva, cena 6: O segredo de pergaminho selado foi finalmente revelado. Orion descobriu que mercado subterrâneo era apenas uma pequena p",
+      "durationSec": 30,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: mercado subterrâneo se encheu de luz e musica. Orion foi honrado como heroi. pergaminho selado se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "A Biblioteca Viva, cena 7: A celebracao: mercado subterrâneo se encheu de luz e musica. Orion foi honrado como heroi. pergaminho selado se tornou u",
+      "durationSec": 24,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: Orion prometeu voltar para mercado subterrâneo. pergaminho selado serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "A Biblioteca Viva, cena 8: A despedida: Orion prometeu voltar para mercado subterrâneo. pergaminho selado serviria como ponte entre mundos. A avent",
+      "durationSec": 25,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

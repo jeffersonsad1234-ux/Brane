@@ -1,0 +1,78 @@
+{
+  "id": "a-ultima-floresta",
+  "title": "A Ultima Floresta",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 284,
+  "outro": "Kiran navegou para o horizonte com instrumento musical antigo como guia. mercado subterrâneo desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Ultima Floresta",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Kiran pisou em mercado subterrâneo pela primeira vez. O cenario era tao surreal que parecia um sonho. instrumento musical antigo foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "A Ultima Floresta, cena 1: Kiran pisou em mercado subterrâneo pela primeira vez. O cenario era tao surreal que parecia um sonho. instrumento musica",
+      "durationSec": 37,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de mercado subterrâneo observavam Kiran com curiosidade. instrumento musical antigo despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "A Ultima Floresta, cena 2: Os habitantes de mercado subterrâneo observavam Kiran com curiosidade. instrumento musical antigo despertava um interess",
+      "durationSec": 35,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. Kiran precisou decifrar instrumento musical antigo para navegar por mercado subterrâneo. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "A Ultima Floresta, cena 3: O mapa estava incompleto. Kiran precisou decifrar instrumento musical antigo para navegar por mercado subterrâneo. Cada ",
+      "durationSec": 41,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: mercado subterrâneo estava ameacado por uma forca que ninguem compreendia totalmente. Kiran consultou os anciaos que apontaram para instrumento musical antigo como a solucao.",
+      "imagePrompt": "A Ultima Floresta, cena 4: A crise: mercado subterrâneo estava ameacado por uma forca que ninguem compreendia totalmente. Kiran consultou os anciao",
+      "durationSec": 41,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. Kiran uniu os povos de mercado subterrâneo em torno de instrumento musical antigo. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "A Ultima Floresta, cena 5: A alianca foi formada. Kiran uniu os povos de mercado subterrâneo em torno de instrumento musical antigo. A diversidade ",
+      "durationSec": 44,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de instrumento musical antigo foi finalmente revelado. Kiran descobriu que mercado subterrâneo era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "A Ultima Floresta, cena 6: O segredo de instrumento musical antigo foi finalmente revelado. Kiran descobriu que mercado subterrâneo era apenas uma ",
+      "durationSec": 28,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: mercado subterrâneo se encheu de luz e musica. Kiran foi honrado como heroi. instrumento musical antigo se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "A Ultima Floresta, cena 7: A celebracao: mercado subterrâneo se encheu de luz e musica. Kiran foi honrado como heroi. instrumento musical antigo se",
+      "durationSec": 27,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: Kiran prometeu voltar para mercado subterrâneo. instrumento musical antigo serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "A Ultima Floresta, cena 8: A despedida: Kiran prometeu voltar para mercado subterrâneo. instrumento musical antigo serviria como ponte entre mundos",
+      "durationSec": 31,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

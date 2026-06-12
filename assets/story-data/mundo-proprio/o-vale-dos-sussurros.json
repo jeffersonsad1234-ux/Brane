@@ -1,0 +1,78 @@
+{
+  "id": "o-vale-dos-sussurros",
+  "title": "O Vale dos Sussurros",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 266,
+  "outro": "o cartografo navegou para o horizonte com ampulheta cosmica como guia. cidade flutuante desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Vale dos Sussurros",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O cartografo pisou em cidade flutuante pela primeira vez. O cenario era tao surreal que parecia um sonho. ampulheta cosmica foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "O Vale dos Sussurros, cena 1: O cartografo pisou em cidade flutuante pela primeira vez. O cenario era tao surreal que parecia um sonho. ampulheta cosm",
+      "durationSec": 43,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de cidade flutuante observavam o cartografo com curiosidade. ampulheta cosmica despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "O Vale dos Sussurros, cena 2: Os habitantes de cidade flutuante observavam o cartografo com curiosidade. ampulheta cosmica despertava um interesse que",
+      "durationSec": 37,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. o cartografo precisou decifrar ampulheta cosmica para navegar por cidade flutuante. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "O Vale dos Sussurros, cena 3: O mapa estava incompleto. o cartografo precisou decifrar ampulheta cosmica para navegar por cidade flutuante. Cada passo",
+      "durationSec": 38,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: cidade flutuante estava ameacado por uma forca que ninguem compreendia totalmente. o cartografo consultou os anciaos que apontaram para ampulheta cosmica como a solucao.",
+      "imagePrompt": "O Vale dos Sussurros, cena 4: A crise: cidade flutuante estava ameacado por uma forca que ninguem compreendia totalmente. o cartografo consultou os an",
+      "durationSec": 40,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. o cartografo uniu os povos de cidade flutuante em torno de ampulheta cosmica. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "O Vale dos Sussurros, cena 5: A alianca foi formada. o cartografo uniu os povos de cidade flutuante em torno de ampulheta cosmica. A diversidade era a",
+      "durationSec": 37,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de ampulheta cosmica foi finalmente revelado. o cartografo descobriu que cidade flutuante era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "O Vale dos Sussurros, cena 6: O segredo de ampulheta cosmica foi finalmente revelado. o cartografo descobriu que cidade flutuante era apenas uma peque",
+      "durationSec": 25,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: cidade flutuante se encheu de luz e musica. o cartografo foi honrado como heroi. ampulheta cosmica se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "O Vale dos Sussurros, cena 7: A celebracao: cidade flutuante se encheu de luz e musica. o cartografo foi honrado como heroi. ampulheta cosmica se torn",
+      "durationSec": 26,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: o cartografo prometeu voltar para cidade flutuante. ampulheta cosmica serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "O Vale dos Sussurros, cena 8: A despedida: o cartografo prometeu voltar para cidade flutuante. ampulheta cosmica serviria como ponte entre mundos. A a",
+      "durationSec": 20,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

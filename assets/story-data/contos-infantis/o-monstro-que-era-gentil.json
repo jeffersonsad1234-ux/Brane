@@ -1,0 +1,78 @@
+{
+  "id": "o-monstro-que-era-gentil",
+  "title": "O Monstro que Era Gentil",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 249,
+  "outro": "E assim Pipoca aprendeu em jardim secreto que a maior magica esta dentro de nos. globo de luz era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Monstro que Era Gentil",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em jardim secreto vivia Pipoca. globo de luz era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "O Monstro que Era Gentil, cena 1: Era uma vez em jardim secreto vivia Pipoca. globo de luz era seu bem mais precioso mas algo estava diferente hoje. Uma a",
+      "durationSec": 34,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Pipoca acordou com um problema: globo de luz nao funcionava mais. Em jardim secreto todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "O Monstro que Era Gentil, cena 2: Pipoca acordou com um problema: globo de luz nao funcionava mais. Em jardim secreto todos se reuniram para ajudar. Cada ",
+      "durationSec": 31,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. Pipoca encontrou jardim secreto de um jeito que nunca tinha visto. globo de luz brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "O Monstro que Era Gentil, cena 3: O caminho era cheio de surpresas. Pipoca encontrou jardim secreto de um jeito que nunca tinha visto. globo de luz brilha",
+      "durationSec": 26,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em jardim secreto Pipoca conheceu alguem que precisava de ajuda. globo de luz poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "O Monstro que Era Gentil, cena 4: Um novo amigo apareceu. Em jardim secreto Pipoca conheceu alguem que precisava de ajuda. globo de luz poderia ser a chav",
+      "durationSec": 39,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: Pipoca aprendeu que jardim secreto era mais especial por seus habitantes do que por suas belezas. globo de luz nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "O Monstro que Era Gentil, cena 5: A licao: Pipoca aprendeu que jardim secreto era mais especial por seus habitantes do que por suas belezas. globo de luz ",
+      "durationSec": 37,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas Pipoca nao desistiu. Em jardim secreto todos trabalharam juntos. globo de luz finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "O Monstro que Era Gentil, cena 6: O desafio parecia grande demais mas Pipoca nao desistiu. Em jardim secreto todos trabalharam juntos. globo de luz finalm",
+      "durationSec": 41,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em jardim secreto. Pipoca dancou com todos os amigos. globo de luz agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "O Monstro que Era Gentil, cena 7: A comemoracao foi em jardim secreto. Pipoca dancou com todos os amigos. globo de luz agora brilhava mais forte do que nu",
+      "durationSec": 20,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Pipoca se despediu de jardim secreto com um abraco coletivo. globo de luz estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "O Monstro que Era Gentil, cena 8: Pipoca se despediu de jardim secreto com um abraco coletivo. globo de luz estava guardado no coracao nao nas maos. E viv",
+      "durationSec": 21,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

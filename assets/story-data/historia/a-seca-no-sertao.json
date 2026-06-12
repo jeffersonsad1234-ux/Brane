@@ -1,0 +1,78 @@
+{
+  "id": "a-seca-no-sertao",
+  "title": "A Seca no Sertao",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 264,
+  "outro": "o imigrante fechou moeda antiga com cuidado. fazenda colonial continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Seca no Sertao",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1822. o imigrante testemunhava um momento que mudaria o curso da historia. moeda antiga estava prestes a desempenhar um papel crucial em fazenda colonial.",
+      "imagePrompt": "A Seca no Sertao, cena 1: O ano era 1822. o imigrante testemunhava um momento que mudaria o curso da historia. moeda antiga estava prestes a desem",
+      "durationSec": 32,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em fazenda colonial. o imigrante observava moeda antiga com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Seca no Sertao, cena 2: A tensao crescia em fazenda colonial. o imigrante observava moeda antiga com atencao sabendo que cada detalhe importava.",
+      "durationSec": 37,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. o imigrante mediou as discussoes em fazenda colonial. moeda antiga representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Seca no Sertao, cena 3: O conflito de ideias era palpavel. o imigrante mediou as discussoes em fazenda colonial. moeda antiga representava mais ",
+      "durationSec": 45,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: o imigrante participou do momento em que moeda antiga foi utilizado em fazenda colonial. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Seca no Sertao, cena 4: O marco historico: o imigrante participou do momento em que moeda antiga foi utilizado em fazenda colonial. O que antes ",
+      "durationSec": 32,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. o imigrante lutou contra as adversidades em fazenda colonial. moeda antiga era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Seca no Sertao, cena 5: Os desafios surgiam a cada esquina. o imigrante lutou contra as adversidades em fazenda colonial. moeda antiga era a lem",
+      "durationSec": 32,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. fazenda colonial nunca mais seria o mesmo depois daquele dia. o imigrante guardou moeda antiga como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Seca no Sertao, cena 6: A transformacao aconteceu. fazenda colonial nunca mais seria o mesmo depois daquele dia. o imigrante guardou moeda antig",
+      "durationSec": 35,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. o imigrante ajudou a documentar o que aconteceu em fazenda colonial. moeda antiga se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Seca no Sertao, cena 7: O legado comecou a ser construido. o imigrante ajudou a documentar o que aconteceu em fazenda colonial. moeda antiga se ",
+      "durationSec": 31,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. o imigrante contemplou fazenda colonial transformado. moeda antiga estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Seca no Sertao, cena 8: Os frutos do passado. o imigrante contemplou fazenda colonial transformado. moeda antiga estava agora em exposicao conta",
+      "durationSec": 20,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

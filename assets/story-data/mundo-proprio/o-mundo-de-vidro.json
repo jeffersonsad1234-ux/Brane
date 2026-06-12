@@ -1,0 +1,78 @@
+{
+  "id": "o-mundo-de-vidro",
+  "title": "O Mundo de Vidro",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 256,
+  "outro": "a visionaria navegou para o horizonte com mapa estelar como guia. templo suspenso desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Mundo de Vidro",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A visionaria pisou em templo suspenso pela primeira vez. O cenario era tao surreal que parecia um sonho. mapa estelar foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "O Mundo de Vidro, cena 1: A visionaria pisou em templo suspenso pela primeira vez. O cenario era tao surreal que parecia um sonho. mapa estelar fo",
+      "durationSec": 31,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de templo suspenso observavam a visionaria com curiosidade. mapa estelar despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "O Mundo de Vidro, cena 2: Os habitantes de templo suspenso observavam a visionaria com curiosidade. mapa estelar despertava um interesse que ia al",
+      "durationSec": 44,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. a visionaria precisou decifrar mapa estelar para navegar por templo suspenso. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "O Mundo de Vidro, cena 3: O mapa estava incompleto. a visionaria precisou decifrar mapa estelar para navegar por templo suspenso. Cada passo revel",
+      "durationSec": 26,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: templo suspenso estava ameacado por uma forca que ninguem compreendia totalmente. a visionaria consultou os anciaos que apontaram para mapa estelar como a solucao.",
+      "imagePrompt": "O Mundo de Vidro, cena 4: A crise: templo suspenso estava ameacado por uma forca que ninguem compreendia totalmente. a visionaria consultou os anc",
+      "durationSec": 28,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. a visionaria uniu os povos de templo suspenso em torno de mapa estelar. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "O Mundo de Vidro, cena 5: A alianca foi formada. a visionaria uniu os povos de templo suspenso em torno de mapa estelar. A diversidade era a maior",
+      "durationSec": 45,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de mapa estelar foi finalmente revelado. a visionaria descobriu que templo suspenso era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "O Mundo de Vidro, cena 6: O segredo de mapa estelar foi finalmente revelado. a visionaria descobriu que templo suspenso era apenas uma pequena par",
+      "durationSec": 25,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: templo suspenso se encheu de luz e musica. a visionaria foi honrado como heroi. mapa estelar se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "O Mundo de Vidro, cena 7: A celebracao: templo suspenso se encheu de luz e musica. a visionaria foi honrado como heroi. mapa estelar se tornou um ",
+      "durationSec": 23,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: a visionaria prometeu voltar para templo suspenso. mapa estelar serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "O Mundo de Vidro, cena 8: A despedida: a visionaria prometeu voltar para templo suspenso. mapa estelar serviria como ponte entre mundos. A aventur",
+      "durationSec": 34,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

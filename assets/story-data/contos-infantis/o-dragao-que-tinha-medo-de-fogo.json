@@ -1,0 +1,78 @@
+{
+  "id": "o-dragao-que-tinha-medo-de-fogo",
+  "title": "O Dragao que Tinha Medo de Fogo",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 284,
+  "outro": "E assim a fada aprendeu em castelo colorido que a maior magica esta dentro de nos. ampulheta de sonhos era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Dragao que Tinha Medo de Fogo",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em castelo colorido vivia a fada. ampulheta de sonhos era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "O Dragao que Tinha Medo de Fogo, cena 1: Era uma vez em castelo colorido vivia a fada. ampulheta de sonhos era seu bem mais precioso mas algo estava diferente ho",
+      "durationSec": 34,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A fada acordou com um problema: ampulheta de sonhos nao funcionava mais. Em castelo colorido todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "O Dragao que Tinha Medo de Fogo, cena 2: A fada acordou com um problema: ampulheta de sonhos nao funcionava mais. Em castelo colorido todos se reuniram para ajud",
+      "durationSec": 40,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. a fada encontrou castelo colorido de um jeito que nunca tinha visto. ampulheta de sonhos brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "O Dragao que Tinha Medo de Fogo, cena 3: O caminho era cheio de surpresas. a fada encontrou castelo colorido de um jeito que nunca tinha visto. ampulheta de sonh",
+      "durationSec": 29,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em castelo colorido a fada conheceu alguem que precisava de ajuda. ampulheta de sonhos poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "O Dragao que Tinha Medo de Fogo, cena 4: Um novo amigo apareceu. Em castelo colorido a fada conheceu alguem que precisava de ajuda. ampulheta de sonhos poderia s",
+      "durationSec": 45,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: a fada aprendeu que castelo colorido era mais especial por seus habitantes do que por suas belezas. ampulheta de sonhos nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "O Dragao que Tinha Medo de Fogo, cena 5: A licao: a fada aprendeu que castelo colorido era mais especial por seus habitantes do que por suas belezas. ampulheta d",
+      "durationSec": 39,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas a fada nao desistiu. Em castelo colorido todos trabalharam juntos. ampulheta de sonhos finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "O Dragao que Tinha Medo de Fogo, cena 6: O desafio parecia grande demais mas a fada nao desistiu. Em castelo colorido todos trabalharam juntos. ampulheta de sonh",
+      "durationSec": 42,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em castelo colorido. a fada dancou com todos os amigos. ampulheta de sonhos agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "O Dragao que Tinha Medo de Fogo, cena 7: A comemoracao foi em castelo colorido. a fada dancou com todos os amigos. ampulheta de sonhos agora brilhava mais forte ",
+      "durationSec": 34,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A fada se despediu de castelo colorido com um abraco coletivo. ampulheta de sonhos estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "O Dragao que Tinha Medo de Fogo, cena 8: A fada se despediu de castelo colorido com um abraco coletivo. ampulheta de sonhos estava guardado no coracao nao nas ma",
+      "durationSec": 21,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

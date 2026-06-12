@@ -1,0 +1,78 @@
+{
+  "id": "o-treno-do-papai-noel",
+  "title": "O Treno do Papai Noel",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 269,
+  "outro": "E assim Luna aprendeu em ceu estrelado que a maior magica esta dentro de nos. varinha magica era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Treno do Papai Noel",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em ceu estrelado vivia Luna. varinha magica era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "O Treno do Papai Noel, cena 1: Era uma vez em ceu estrelado vivia Luna. varinha magica era seu bem mais precioso mas algo estava diferente hoje. Uma av",
+      "durationSec": 40,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Luna acordou com um problema: varinha magica nao funcionava mais. Em ceu estrelado todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "O Treno do Papai Noel, cena 2: Luna acordou com um problema: varinha magica nao funcionava mais. Em ceu estrelado todos se reuniram para ajudar. Cada a",
+      "durationSec": 38,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. Luna encontrou ceu estrelado de um jeito que nunca tinha visto. varinha magica brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "O Treno do Papai Noel, cena 3: O caminho era cheio de surpresas. Luna encontrou ceu estrelado de um jeito que nunca tinha visto. varinha magica brilhav",
+      "durationSec": 36,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em ceu estrelado Luna conheceu alguem que precisava de ajuda. varinha magica poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "O Treno do Papai Noel, cena 4: Um novo amigo apareceu. Em ceu estrelado Luna conheceu alguem que precisava de ajuda. varinha magica poderia ser a chave",
+      "durationSec": 34,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: Luna aprendeu que ceu estrelado era mais especial por seus habitantes do que por suas belezas. varinha magica nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "O Treno do Papai Noel, cena 5: A licao: Luna aprendeu que ceu estrelado era mais especial por seus habitantes do que por suas belezas. varinha magica n",
+      "durationSec": 34,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas Luna nao desistiu. Em ceu estrelado todos trabalharam juntos. varinha magica finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "O Treno do Papai Noel, cena 6: O desafio parecia grande demais mas Luna nao desistiu. Em ceu estrelado todos trabalharam juntos. varinha magica finalme",
+      "durationSec": 30,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em ceu estrelado. Luna dancou com todos os amigos. varinha magica agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "O Treno do Papai Noel, cena 7: A comemoracao foi em ceu estrelado. Luna dancou com todos os amigos. varinha magica agora brilhava mais forte do que nun",
+      "durationSec": 29,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Luna se despediu de ceu estrelado com um abraco coletivo. varinha magica estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "O Treno do Papai Noel, cena 8: Luna se despediu de ceu estrelado com um abraco coletivo. varinha magica estava guardado no coracao nao nas maos. E vive",
+      "durationSec": 28,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

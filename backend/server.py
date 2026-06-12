@@ -5015,6 +5015,53 @@ async def shutdown_db_client():
 def teste():
     return {"ok": True}
 
+# ==================== STORIES ENDPOINT ====================
+STORY_DATA_DIR = Path(__file__).resolve().parent.parent / "assets" / "story-data"
+STORY_IMAGES_DIR = Path(__file__).resolve().parent.parent / "assets" / "story-images"
+
+@app.get("/api/stories/categories")
+async def story_categories():
+    cat_file = STORY_DATA_DIR / "categories.json"
+    if not cat_file.exists():
+        return {"categories": []}
+    return json.loads(cat_file.read_text(encoding="utf-8"))
+
+@app.get("/api/stories/{category}")
+async def story_list(category: str):
+    cat_dir = STORY_DATA_DIR / category
+    if not cat_dir.exists():
+        raise HTTPException(404, "Categoria nao encontrada")
+    story_list = []
+    for f in sorted(cat_dir.glob("*.json")):
+        story = json.loads(f.read_text(encoding="utf-8"))
+        story_list.append({
+            "id": story["id"],
+            "title": story["title"],
+            "category": story["category"],
+            "sceneCount": story["sceneCount"],
+            "totalDurationSec": story["totalDurationSec"],
+        })
+    return {"category": category, "stories": story_list}
+
+@app.get("/api/stories/{category}/{story_id}")
+async def story_detail(category: str, story_id: str):
+    story_file = STORY_DATA_DIR / category / f"{story_id}.json"
+    if not story_file.exists():
+        raise HTTPException(404, "Historia nao encontrada")
+    story = json.loads(story_file.read_text(encoding="utf-8"))
+    # Ensure image URLs are absolute
+    base_url = f"/story-images/{category}/{story_id}"
+    for scene in story.get("scenes", []):
+        img_num = scene.get("id", 1)
+        scene["imageUrl"] = f"{base_url}/scene-{img_num}.jpg"
+    return story
+
+# Mount story-images as static
+try:
+    app.mount("/story-images", StaticFiles(directory=str(STORY_IMAGES_DIR)), name="story-images")
+except Exception as e:
+    logger.warning(f"[STORIES] Could not mount /story-images static: {e}")
+
 # ==================== TTS ENDPOINT ====================
 # Standalone TTS via edge-tts (no MongoDB dependency)
 import tempfile, shutil, subprocess, json, time as tts_time, hashlib

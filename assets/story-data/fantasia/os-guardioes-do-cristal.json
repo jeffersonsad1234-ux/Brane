@@ -1,0 +1,78 @@
+{
+  "id": "os-guardioes-do-cristal",
+  "title": "Os Guardioes do Cristal",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 249,
+  "outro": "a maga cavalgou para o por do sol com chave prateada guardado no coracao. biblioteca magica seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: Os Guardioes do Cristal",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou a maga para biblioteca magica. chave prateada pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "Os Guardioes do Cristal, cena 1: O destino chamou a maga para biblioteca magica. chave prateada pulsava com uma luz suave como se reconhecesse sua chegad",
+      "durationSec": 36,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em biblioteca magica revelaram maravilhas e perigos. a maga segurou chave prateada firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "Os Guardioes do Cristal, cena 2: Os primeiros passos em biblioteca magica revelaram maravilhas e perigos. a maga segurou chave prateada firmemente sentin",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de biblioteca magica surgiu das sombras. a maga precisou provar seu valor. chave prateada brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "Os Guardioes do Cristal, cena 3: O guardiao de biblioteca magica surgiu das sombras. a maga precisou provar seu valor. chave prateada brilhou intensament",
+      "durationSec": 26,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: biblioteca magica escondia um segredo que apenas chave prateada podia desvendar. a maga decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "Os Guardioes do Cristal, cena 4: O enigma: biblioteca magica escondia um segredo que apenas chave prateada podia desvendar. a maga decifrou as runas anti",
+      "durationSec": 32,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. a maga treinou incansavelmente em biblioteca magica dominando chave prateada. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "Os Guardioes do Cristal, cena 5: A batalha se aproximava. a maga treinou incansavelmente em biblioteca magica dominando chave prateada. As forcas das tre",
+      "durationSec": 26,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por biblioteca magica. a maga ergueu chave prateada contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "Os Guardioes do Cristal, cena 6: O confronto final ecoou por biblioteca magica. a maga ergueu chave prateada contra a escuridao. A luz e a sombra colidir",
+      "durationSec": 39,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada a maga contemplou biblioteca magica de um novo angulo. chave prateada agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "Os Guardioes do Cristal, cena 7: Com a paz restaurada a maga contemplou biblioteca magica de um novo angulo. chave prateada agora repousava mas seu poder",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A maga se despediu de biblioteca magica com a promessa de voltar. chave prateada foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "Os Guardioes do Cristal, cena 8: A maga se despediu de biblioteca magica com a promessa de voltar. chave prateada foi guardado mas sua historia seria con",
+      "durationSec": 28,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

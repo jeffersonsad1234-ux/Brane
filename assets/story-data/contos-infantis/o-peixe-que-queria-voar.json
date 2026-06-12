@@ -1,0 +1,78 @@
+{
+  "id": "o-peixe-que-queria-voar",
+  "title": "O Peixe que Queria Voar",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 264,
+  "outro": "E assim Luna aprendeu em montanha do arco-iris que a maior magica esta dentro de nos. chapeu colorido era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Peixe que Queria Voar",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em montanha do arco-iris vivia Luna. chapeu colorido era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "O Peixe que Queria Voar, cena 1: Era uma vez em montanha do arco-iris vivia Luna. chapeu colorido era seu bem mais precioso mas algo estava diferente hoj",
+      "durationSec": 40,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Luna acordou com um problema: chapeu colorido nao funcionava mais. Em montanha do arco-iris todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "O Peixe que Queria Voar, cena 2: Luna acordou com um problema: chapeu colorido nao funcionava mais. Em montanha do arco-iris todos se reuniram para ajuda",
+      "durationSec": 26,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. Luna encontrou montanha do arco-iris de um jeito que nunca tinha visto. chapeu colorido brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "O Peixe que Queria Voar, cena 3: O caminho era cheio de surpresas. Luna encontrou montanha do arco-iris de um jeito que nunca tinha visto. chapeu colorid",
+      "durationSec": 33,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em montanha do arco-iris Luna conheceu alguem que precisava de ajuda. chapeu colorido poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "O Peixe que Queria Voar, cena 4: Um novo amigo apareceu. Em montanha do arco-iris Luna conheceu alguem que precisava de ajuda. chapeu colorido poderia se",
+      "durationSec": 38,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: Luna aprendeu que montanha do arco-iris era mais especial por seus habitantes do que por suas belezas. chapeu colorido nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "O Peixe que Queria Voar, cena 5: A licao: Luna aprendeu que montanha do arco-iris era mais especial por seus habitantes do que por suas belezas. chapeu c",
+      "durationSec": 27,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas Luna nao desistiu. Em montanha do arco-iris todos trabalharam juntos. chapeu colorido finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "O Peixe que Queria Voar, cena 6: O desafio parecia grande demais mas Luna nao desistiu. Em montanha do arco-iris todos trabalharam juntos. chapeu colorid",
+      "durationSec": 40,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em montanha do arco-iris. Luna dancou com todos os amigos. chapeu colorido agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "O Peixe que Queria Voar, cena 7: A comemoracao foi em montanha do arco-iris. Luna dancou com todos os amigos. chapeu colorido agora brilhava mais forte d",
+      "durationSec": 31,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Luna se despediu de montanha do arco-iris com um abraco coletivo. chapeu colorido estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "O Peixe que Queria Voar, cena 8: Luna se despediu de montanha do arco-iris com um abraco coletivo. chapeu colorido estava guardado no coracao nao nas mao",
+      "durationSec": 29,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

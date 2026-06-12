@@ -1,0 +1,78 @@
+{
+  "id": "o-santuario-das-aguas",
+  "title": "O Santuario das Aguas",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 268,
+  "outro": "o cartografo navegou para o horizonte com instrumento musical antigo como guia. templo suspenso desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Santuario das Aguas",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O cartografo pisou em templo suspenso pela primeira vez. O cenario era tao surreal que parecia um sonho. instrumento musical antigo foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "O Santuario das Aguas, cena 1: O cartografo pisou em templo suspenso pela primeira vez. O cenario era tao surreal que parecia um sonho. instrumento mus",
+      "durationSec": 37,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de templo suspenso observavam o cartografo com curiosidade. instrumento musical antigo despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "O Santuario das Aguas, cena 2: Os habitantes de templo suspenso observavam o cartografo com curiosidade. instrumento musical antigo despertava um inter",
+      "durationSec": 33,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. o cartografo precisou decifrar instrumento musical antigo para navegar por templo suspenso. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "O Santuario das Aguas, cena 3: O mapa estava incompleto. o cartografo precisou decifrar instrumento musical antigo para navegar por templo suspenso. Ca",
+      "durationSec": 37,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: templo suspenso estava ameacado por uma forca que ninguem compreendia totalmente. o cartografo consultou os anciaos que apontaram para instrumento musical antigo como a solucao.",
+      "imagePrompt": "O Santuario das Aguas, cena 4: A crise: templo suspenso estava ameacado por uma forca que ninguem compreendia totalmente. o cartografo consultou os anc",
+      "durationSec": 35,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. o cartografo uniu os povos de templo suspenso em torno de instrumento musical antigo. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "O Santuario das Aguas, cena 5: A alianca foi formada. o cartografo uniu os povos de templo suspenso em torno de instrumento musical antigo. A diversida",
+      "durationSec": 34,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de instrumento musical antigo foi finalmente revelado. o cartografo descobriu que templo suspenso era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "O Santuario das Aguas, cena 6: O segredo de instrumento musical antigo foi finalmente revelado. o cartografo descobriu que templo suspenso era apenas u",
+      "durationSec": 39,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: templo suspenso se encheu de luz e musica. o cartografo foi honrado como heroi. instrumento musical antigo se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "O Santuario das Aguas, cena 7: A celebracao: templo suspenso se encheu de luz e musica. o cartografo foi honrado como heroi. instrumento musical antigo",
+      "durationSec": 24,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: o cartografo prometeu voltar para templo suspenso. instrumento musical antigo serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "O Santuario das Aguas, cena 8: A despedida: o cartografo prometeu voltar para templo suspenso. instrumento musical antigo serviria como ponte entre mun",
+      "durationSec": 29,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "a-morte-do-colecionador",
+  "title": "A Morte do Colecionador",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 270,
+  "outro": "a perita resolveu mais um caso. chave mestra foi devolvido ao seu lugar. museu podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Morte do Colecionador",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando chave mestra foi descoberto em museu. a perita foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "A Morte do Colecionador, cena 1: O caso comecou quando chave mestra foi descoberto em museu. a perita foi chamado para investigar. Nada era o que parecia",
+      "durationSec": 42,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A perita examinou museu em busca de pistas. chave mestra forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "A Morte do Colecionador, cena 2: A perita examinou museu em busca de pistas. chave mestra forneceu a primeira pista real. Mas ela levava a mais perguntas",
+      "durationSec": 29,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. a perita verificou cada detalhe em museu. chave mestra contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "A Morte do Colecionador, cena 3: O suspeito principal tinha um alibi solido. a perita verificou cada detalhe em museu. chave mestra contradizia o depoime",
+      "durationSec": 44,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: a perita descobriu que chave mestra tinha sido plantado. museu nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "A Morte do Colecionador, cena 4: Uma reviravolta inesperada: a perita descobriu que chave mestra tinha sido plantado. museu nao era a cena do crime origi",
+      "durationSec": 27,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. a perita conectou chave mestra com um caso antigo em museu. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "A Morte do Colecionador, cena 5: As pecas comecaram a se encaixar. a perita conectou chave mestra com um caso antigo em museu. A solucao estava escondida",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: a perita reuniu todos os suspeitos em museu. chave mestra foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "A Morte do Colecionador, cena 6: O confronto final: a perita reuniu todos os suspeitos em museu. chave mestra foi revelado como a prova definitiva. O cul",
+      "durationSec": 42,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. a perita fechou chave mestra sabendo que a justica tinha sido feita. museu guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "A Morte do Colecionador, cena 7: A confissao trouxe alivio mas tambem tristeza. a perita fechou chave mestra sabendo que a justica tinha sido feita. muse",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. a perita guardou chave mestra como recordacao. museu voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "A Morte do Colecionador, cena 8: O caso foi arquivado. a perita guardou chave mestra como recordacao. museu voltou a rotina mas algo tinha mudado para se",
+      "durationSec": 22,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

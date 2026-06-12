@@ -1,0 +1,78 @@
+{
+  "id": "a-revolucao-dos-escravos",
+  "title": "A Revolucao dos Escravos",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 292,
+  "outro": "a lider comunitaria fechou instrumento colonial com cuidado. vila operaria continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Revolucao dos Escravos",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1930. a lider comunitaria testemunhava um momento que mudaria o curso da historia. instrumento colonial estava prestes a desempenhar um papel crucial em vila operaria.",
+      "imagePrompt": "A Revolucao dos Escravos, cena 1: O ano era 1930. a lider comunitaria testemunhava um momento que mudaria o curso da historia. instrumento colonial estava",
+      "durationSec": 42,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em vila operaria. a lider comunitaria observava instrumento colonial com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Revolucao dos Escravos, cena 2: A tensao crescia em vila operaria. a lider comunitaria observava instrumento colonial com atencao sabendo que cada detal",
+      "durationSec": 33,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. a lider comunitaria mediou as discussoes em vila operaria. instrumento colonial representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Revolucao dos Escravos, cena 3: O conflito de ideias era palpavel. a lider comunitaria mediou as discussoes em vila operaria. instrumento colonial repre",
+      "durationSec": 39,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: a lider comunitaria participou do momento em que instrumento colonial foi utilizado em vila operaria. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Revolucao dos Escravos, cena 4: O marco historico: a lider comunitaria participou do momento em que instrumento colonial foi utilizado em vila operaria.",
+      "durationSec": 36,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. a lider comunitaria lutou contra as adversidades em vila operaria. instrumento colonial era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Revolucao dos Escravos, cena 5: Os desafios surgiam a cada esquina. a lider comunitaria lutou contra as adversidades em vila operaria. instrumento colon",
+      "durationSec": 43,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. vila operaria nunca mais seria o mesmo depois daquele dia. a lider comunitaria guardou instrumento colonial como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Revolucao dos Escravos, cena 6: A transformacao aconteceu. vila operaria nunca mais seria o mesmo depois daquele dia. a lider comunitaria guardou instru",
+      "durationSec": 41,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. a lider comunitaria ajudou a documentar o que aconteceu em vila operaria. instrumento colonial se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Revolucao dos Escravos, cena 7: O legado comecou a ser construido. a lider comunitaria ajudou a documentar o que aconteceu em vila operaria. instrumento",
+      "durationSec": 33,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. a lider comunitaria contemplou vila operaria transformado. instrumento colonial estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Revolucao dos Escravos, cena 8: Os frutos do passado. a lider comunitaria contemplou vila operaria transformado. instrumento colonial estava agora em ex",
+      "durationSec": 25,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

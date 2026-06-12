@@ -1,0 +1,78 @@
+{
+  "id": "a-colonizacao-em-titan",
+  "title": "A Colonizacao em Titan",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 265,
+  "outro": "engenheiro guardou sinal misterioso como o maior tesouro da humanidade. sala de comando se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Colonizacao em Titan",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em sala de comando. engenheiro correu para o painel de controle. sinal misterioso emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "A Colonizacao em Titan, cena 1: O alerta vermelho acendeu em sala de comando. engenheiro correu para o painel de controle. sinal misterioso emitia um pu",
+      "durationSec": 34,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. engenheiro verificou os sensores tres vezes. sala de comando estava sofrendo distorcoes espacio-temporais. sinal misterioso era a fonte.",
+      "imagePrompt": "A Colonizacao em Titan, cena 2: As leituras eram impossiveis. engenheiro verificou os sensores tres vezes. sala de comando estava sofrendo distorcoes es",
+      "durationSec": 32,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: sinal misterioso nao era uma tecnologia convencional. engenheiro teorizou que sala de comando tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "A Colonizacao em Titan, cena 3: A descoberta: sinal misterioso nao era uma tecnologia convencional. engenheiro teorizou que sala de comando tinha sido c",
+      "durationSec": 31,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Engenheiro propos um plano arriscado. Se funcionasse sala de comando poderia ser salva. sinal misterioso precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "A Colonizacao em Titan, cena 4: Engenheiro propos um plano arriscado. Se funcionasse sala de comando poderia ser salva. sinal misterioso precisava ser a",
+      "durationSec": 44,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. engenheiro monitorava cada parametro em sala de comando. sinal misterioso vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "A Colonizacao em Titan, cena 5: O experimento comecou. engenheiro monitorava cada parametro em sala de comando. sinal misterioso vibrava em uma frequenc",
+      "durationSec": 41,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. engenheiro observou sala de comando se distorcer ao redor de sinal misterioso. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "A Colonizacao em Titan, cena 6: Uma fenda se abriu. engenheiro observou sala de comando se distorcer ao redor de sinal misterioso. Atraves da abertura v",
+      "durationSec": 33,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. engenheiro comunicou-se com a inteligencia por tras de sinal misterioso. sala de comando tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "A Colonizacao em Titan, cena 7: O contato foi estabelecido. engenheiro comunicou-se com a inteligencia por tras de sinal misterioso. sala de comando tor",
+      "durationSec": 28,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: engenheiro documentou tudo sobre sinal misterioso e sala de comando. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "A Colonizacao em Titan, cena 8: O legado: engenheiro documentou tudo sobre sinal misterioso e sala de comando. A humanidade nunca mais seria a mesma. Um",
+      "durationSec": 22,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

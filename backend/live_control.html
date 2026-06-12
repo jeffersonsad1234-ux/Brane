@@ -72,19 +72,26 @@ details .body{padding:8px 0}
 
 <div class="banner">LIVE CONTROL — HTML STANDALONE</div>
 <h1>Controle Remoto</h1>
-<div class="sub">Controle o quiz ao vivo pelo PC.</div>
+<div class="sub">Controle o quiz ou hist&oacute;rias ao vivo pelo PC.</div>
 
 <div id="statusBar" class="card offline">
   <div style="display:flex;gap:8px;align-items:center">
     <span id="statusDot" class="status-dot dot-off"></span>
     <div>
       <div id="statusLabel" style="font-weight:700;font-size:13px">Tablet: Offline</div>
-      <div id="statusDetail" style="font-size:11px;color:rgba(255,255,255,.5)">Aguardando conexão do tablet...</div>
+      <div id="statusDetail" style="font-size:11px;color:rgba(255,255,255,.5)">Aguardando conex&atilde;o do tablet...</div>
     </div>
   </div>
 </div>
 
-<div id="categorySection">
+<div class="section-title">Modo</div>
+<div class="mode-grid" id="modeSwitch">
+  <button class="mode-btn active" data-mode="quiz" onclick="switchMode('quiz')">Quiz<div class="sub">Perguntas e respostas</div></button>
+  <button class="mode-btn" data-mode="story" onclick="switchMode('story')">Hist&oacute;ria Cinem&aacute;tica<div class="sub">Narra&ccedil;&atilde;o com imagens</div></button>
+</div>
+
+<!-- QUIZ MODE -->
+<div id="quizModeSection">
   <div class="section-title">Categoria</div>
   <div class="category-grid" id="categoryGrid"></div>
 
@@ -96,7 +103,7 @@ details .body{padding:8px 0}
 
 <div id="quizSection" style="display:none">
   <div class="badge">
-    <div class="badge-text">Quiz ativo: <strong id="activeCategory">—</strong> <span id="activeMode" style="color:rgba(255,255,255,.5)"></span></div>
+    <div class="badge-text">Quiz ativo: <strong id="activeCategory">&mdash;</strong> <span id="activeMode" style="color:rgba(255,255,255,.5)"></span></div>
     <button id="changeCategoryBtn" class="badge-btn">Trocar</button>
   </div>
 
@@ -107,7 +114,36 @@ details .body{padding:8px 0}
     <button class="action-btn" onclick="sendCmd('nextQuestion')" style="color:#00e5ff">Proxima</button>
   </div>
 
-  <div id="phaseBar" class="phase-bar" style="display:none">Fase: <strong id="phaseText">—</strong></div>
+  <div id="phaseBar" class="phase-bar" style="display:none">Fase: <strong id="phaseText">&mdash;</strong></div>
+</div>
+
+<!-- STORY MODE -->
+<div id="storyModeSection" style="display:none">
+  <div class="section-title">Categoria de Hist&oacute;ria</div>
+  <div class="category-grid" id="storyCategoryGrid"></div>
+
+  <div class="section-title">Hist&oacute;ria</div>
+  <div id="storyListSection" style="display:none">
+    <div style="max-height:200px;overflow-y:auto;margin-bottom:8px" id="storyListContainer"></div>
+    <button id="startStoryBtn" class="start-btn" disabled>Iniciar Hist&oacute;ria</button>
+  </div>
+
+  <div id="storyPlayingSection" style="display:none">
+    <div class="badge">
+      <div class="badge-text">Hist&oacute;ria: <strong id="activeStoryTitle">&mdash;</strong></div>
+    </div>
+    <div id="storySceneInfo" class="phase-bar" style="font-size:10px">Cena: <strong id="activeSceneNum">0</strong>/<span id="totalScenes">0</span></div>
+    <div style="width:100%;height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-bottom:8px">
+      <div id="storyProgress" style="width:0%;height:100%;background:linear-gradient(90deg,#8A2CFF,#00e5ff);border-radius:2px;transition:width .3s"></div>
+    </div>
+    <div class="btn-grid btn-2 mb-8">
+      <button class="action-btn" onclick="sendCmd('pauseStory')" style="color:#FFA500" id="pauseStoryBtn">Pausar</button>
+      <button class="action-btn" onclick="sendCmd('resumeStory')" style="color:#2ecc71;display:none" id="resumeStoryBtn">Continuar</button>
+      <button class="action-btn" onclick="sendCmd('nextScene')" style="color:#00e5ff">Proxima Cena</button>
+      <button class="action-btn" onclick="sendCmd('nextStory')" style="color:#e74c3c">Proxima Historia</button>
+    </div>
+    <button class="btn" style="text-align:center;font-size:11px;margin-bottom:8px" onclick="backToStoryList()">Trocar Historia</button>
+  </div>
 </div>
 
 <div class="section-title">Fundo</div>
@@ -322,6 +358,10 @@ function handleMessage(msg) {
     document.getElementById("ttsUnlockedBadge").style.display = "block";
     document.getElementById("statusDetail").textContent = "TTS liberado no tablet";
   }
+  if (msg.type === "storyStatus") {
+    updateStoryStatus(msg);
+    document.getElementById("statusDetail").textContent = "Historia: " + (msg.storyTitle || "") + " - Cena " + (msg.storyScene || 0) + "/" + (msg.totalScenes || 0);
+  }
 }
 
 function updateStatus(s) {
@@ -383,6 +423,7 @@ function updateStatus(s) {
     if (s.paused) txt += `<span class="paused"> PAUSADO</span>`;
     document.getElementById("phaseText").innerHTML = txt;
   }
+  if (s.storyScene != null) updateStoryStatus(s);
 }
 
 // ===== COMMANDS =====
@@ -520,6 +561,147 @@ function speakMessage() {
   sendCmd("speakMessage",{text});
   el.value = "";
 }
+
+// ===== MODE SWITCH =====
+let currentMode = "quiz";
+let storyCategories = [];
+let storyCategorySelected = null;
+let storyList = [];
+let storySelected = null;
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll("#modeSwitch .mode-btn").forEach(b => b.classList.remove("active"));
+  document.querySelector(`#modeSwitch .mode-btn[data-mode="${mode}"]`).classList.add("active");
+  document.getElementById("quizModeSection").style.display = mode === "quiz" ? "block" : "none";
+  document.getElementById("quizSection").style.display = mode === "quiz" && quizActive ? "block" : "none";
+  document.getElementById("storyModeSection").style.display = mode === "story" ? "block" : "none";
+  if (mode === "story") loadStoryCategories();
+}
+
+// ===== STORY MODE =====
+async function loadStoryCategories() {
+  try {
+    const r = await fetch(API + "/stories/categories");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    storyCategories = await r.json();
+    // API returns object with categories
+    const cats = storyCategories.categories || storyCategories;
+    renderStoryCategories(cats);
+  } catch (e) {
+    console.error("Story categories error:", e);
+    document.getElementById("storyCategoryGrid").innerHTML = '<div style="font-size:11px;color:#e74c3c">Erro ao carregar categorias</div>';
+  }
+}
+
+function renderStoryCategories(cats) {
+  const grid = document.getElementById("storyCategoryGrid");
+  grid.innerHTML = "";
+  cats.forEach(c => {
+    const div = document.createElement("div");
+    div.className = "cat-card";
+    div.innerHTML = `<div class="name">${c.name}</div><div class="desc">${c.storyCount || 0} hist&oacute;rias</div>`;
+    div.onclick = () => selectStoryCategory(c);
+    grid.appendChild(div);
+  });
+}
+
+async function selectStoryCategory(cat) {
+  storyCategorySelected = cat;
+  document.querySelectorAll("#storyCategoryGrid .cat-card").forEach(el => el.classList.remove("selected"));
+  event.target.closest(".cat-card").classList.add("selected");
+  document.getElementById("storyListSection").style.display = "block";
+  document.getElementById("startStoryBtn").disabled = true;
+  document.getElementById("storyListContainer").innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,.5)">Carregando...</div>';
+  try {
+    const r = await fetch(API + "/stories/" + cat.id);
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const data = await r.json();
+    storyList = data.stories || [];
+    renderStoryList();
+  } catch (e) {
+    document.getElementById("storyListContainer").innerHTML = '<div style="font-size:11px;color:#e74c3c">Erro: ' + e.message + '</div>';
+  }
+}
+
+function renderStoryList() {
+  const container = document.getElementById("storyListContainer");
+  container.innerHTML = "";
+  if (storyList.length === 0) {
+    container.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,.5)">Nenhuma hist&oacute;ria encontrada</div>';
+    return;
+  }
+  storyList.forEach(s => {
+    const div = document.createElement("div");
+    div.style.cssText = "padding:8px 10px;border-radius:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);cursor:pointer;margin-bottom:4px;font-size:12px;transition:all .15s";
+    div.onmouseover = () => { div.style.background = "rgba(138,44,255,.15)"; };
+    div.onmouseout = () => { div.style.background = "rgba(255,255,255,.04)"; };
+    div.onclick = () => {
+      storySelected = s;
+      document.querySelectorAll("#storyListContainer > div").forEach(el => el.style.borderColor = "rgba(255,255,255,.08)");
+      div.style.borderColor = "#8A2CFF";
+      div.style.background = "rgba(138,44,255,.2)";
+      document.getElementById("startStoryBtn").disabled = false;
+    };
+    const mins = Math.round(s.totalDurationSec / 60);
+    div.innerHTML = `<strong>${s.title}</strong> <span style="color:rgba(255,255,255,.4);font-size:10px">${s.sceneCount} cenas, ~${mins}min</span>`;
+    container.appendChild(div);
+  });
+}
+
+// ===== START STORY =====
+document.getElementById("startStoryBtn").onclick = function() {
+  if (!storySelected || !ws || ws.readyState !== 1) return;
+  const payload = {
+    type: "START_STORY",
+    categoryId: storyCategorySelected.id,
+    storyId: storySelected.id,
+    timestamp: Date.now()
+  };
+  ws.send(JSON.stringify(payload));
+  showStoryPlaying(storySelected);
+};
+
+function showStoryPlaying(story) {
+  document.getElementById("storyListSection").style.display = "none";
+  document.getElementById("storyPlayingSection").style.display = "block";
+  document.getElementById("activeStoryTitle").textContent = story.title;
+  document.getElementById("totalScenes").textContent = story.sceneCount;
+  document.getElementById("activeSceneNum").textContent = "1";
+  document.getElementById("storyProgress").style.width = "0%";
+  document.getElementById("pauseStoryBtn").style.display = "block";
+  document.getElementById("resumeStoryBtn").style.display = "none";
+}
+
+function backToStoryList() {
+  document.getElementById("storyPlayingSection").style.display = "none";
+  document.getElementById("storyListSection").style.display = "block";
+  sendCmd("stopStory");
+}
+
+// Handle story status updates from tablet
+function updateStoryStatus(s) {
+  if (s.storyScene != null) {
+    document.getElementById("activeSceneNum").textContent = s.storyScene;
+  }
+  if (s.totalScenes != null) {
+    document.getElementById("totalScenes").textContent = s.totalScenes;
+  }
+  if (s.storyScene != null && s.totalScenes) {
+    const pct = (s.storyScene / s.totalScenes) * 100;
+    document.getElementById("storyProgress").style.width = Math.min(100, pct) + "%";
+  }
+  if (s.storyPaused !== undefined) {
+    document.getElementById("pauseStoryBtn").style.display = s.storyPaused ? "none" : "block";
+    document.getElementById("resumeStoryBtn").style.display = s.storyPaused ? "block" : "none";
+  }
+  if (s.storyTitle) {
+    document.getElementById("activeStoryTitle").textContent = s.storyTitle;
+  }
+}
+
+// ===== STORY STATUS from WS =====
+// (handler added in handleMessage)
 
 // ===== CATEGORIES UI =====
 function renderCategories() {

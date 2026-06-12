@@ -1,0 +1,78 @@
+{
+  "id": "a-ligacao-misteriosa",
+  "title": "A Ligacao Misteriosa",
+  "category": "suspense",
+  "sceneCount": 8,
+  "totalDurationSec": 270,
+  "outro": "a advogada guardou carta lacrada como lembranca do caso. galeria de arte continuaria existindo mas seus segredos finalmente tinham sido revelados.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Ligacao Misteriosa",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A advogada encontrou carta lacrada em galeria de arte. A descoberta parecia inocente mas algo naquela cena nao se encaixava. Cada detalhe fora cuidadosamente arranjado.",
+      "imagePrompt": "A Ligacao Misteriosa, cena 1: A advogada encontrou carta lacrada em galeria de arte. A descoberta parecia inocente mas algo naquela cena nao se encaix",
+      "durationSec": 38,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As pecas comecaram a se conectar. a advogada revisou as anotacoes mais uma vez. galeria de arte guardava mais segredos do que aparentava. carta lacrada era a chave.",
+      "imagePrompt": "A Ligacao Misteriosa, cena 2: As pecas comecaram a se conectar. a advogada revisou as anotacoes mais uma vez. galeria de arte guardava mais segredos d",
+      "durationSec": 40,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Alguem estava seguindo a advogada. As sombras em galeria de arte escondiam movimentos furtivos. carta lacrada desapareceu misteriosamente confirmando suas suspeitas.",
+      "imagePrompt": "A Ligacao Misteriosa, cena 3: Alguem estava seguindo a advogada. As sombras em galeria de arte escondiam movimentos furtivos. carta lacrada desaparece",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O encontro foi marcado em galeria de arte. a advogada chegou cedo mas o desconhecido ja estava la. carta lacrada foi entregue em silencio junto com um aviso.",
+      "imagePrompt": "A Ligacao Misteriosa, cena 4: O encontro foi marcado em galeria de arte. a advogada chegou cedo mas o desconhecido ja estava la. carta lacrada foi ent",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A verdade comecou a emergir. a advogada decifrou o codigo escondido em carta lacrada. galeria de arte nao era o que parecia. Cada resposta levava a mais perguntas.",
+      "imagePrompt": "A Ligacao Misteriosa, cena 5: A verdade comecou a emergir. a advogada decifrou o codigo escondido em carta lacrada. galeria de arte nao era o que pare",
+      "durationSec": 28,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto era inevitavel. a advogada enfrentou o suspeito em galeria de arte. carta lacrada foi usado como prova mas a situacao estava longe de ser resolvida.",
+      "imagePrompt": "A Ligacao Misteriosa, cena 6: O confronto era inevitavel. a advogada enfrentou o suspeito em galeria de arte. carta lacrada foi usado como prova mas a",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A reviravolta: carta lacrada nao era o que a advogada pensava. galeria de arte continha a peca final do quebra-cabeca. O verdadeiro culpado estava mais perto do que imaginava.",
+      "imagePrompt": "A Ligacao Misteriosa, cena 7: A reviravolta: carta lacrada nao era o que a advogada pensava. galeria de arte continha a peca final do quebra-cabeca. O",
+      "durationSec": 24,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O desfecho se aproximava. a advogada reuniu todas as evidencias em galeria de arte. carta lacrada selaria o destino de todos os envolvidos. A verdade finalmente viria a tona.",
+      "imagePrompt": "A Ligacao Misteriosa, cena 8: O desfecho se aproximava. a advogada reuniu todas as evidencias em galeria de arte. carta lacrada selaria o destino de t",
+      "durationSec": 32,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "a-maquina-do-tempo",
+  "title": "A Maquina do Tempo",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 280,
+  "outro": "Dra. Mendes desligou supercomputador ao final do expediente. observatorio astronomico continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Maquina do Tempo",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Dra. Mendes ajustou supercomputador pela ultima vez. observatorio astronomico estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "A Maquina do Tempo, cena 1: Dra. Mendes ajustou supercomputador pela ultima vez. observatorio astronomico estava silencioso cheio de expectativa. Se",
+      "durationSec": 42,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. Dra. Mendes analisou cada ponto em observatorio astronomico. supercomputador registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "A Maquina do Tempo, cena 2: Os dados comecaram a chegar. Dra. Mendes analisou cada ponto em observatorio astronomico. supercomputador registrava alg",
+      "durationSec": 41,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. Dra. Mendes verificou os resultados multiplas vezes em observatorio astronomico. supercomputador havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "A Maquina do Tempo, cena 3: O padrao era inconfundivel. Dra. Mendes verificou os resultados multiplas vezes em observatorio astronomico. supercomput",
+      "durationSec": 45,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. Dra. Mendes apresentou as evidencias em observatorio astronomico. supercomputador provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "A Maquina do Tempo, cena 4: A comunidade cientifica foi notificada. Dra. Mendes apresentou as evidencias em observatorio astronomico. supercomputado",
+      "durationSec": 26,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. Dra. Mendes defendeu seu trabalho em observatorio astronomico usando supercomputador para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "A Maquina do Tempo, cena 5: A controversia: nem todos aceitavam os resultados. Dra. Mendes defendeu seu trabalho em observatorio astronomico usando ",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. Dra. Mendes recebeu os parabens em observatorio astronomico. supercomputador seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "A Maquina do Tempo, cena 6: A confirmacao chegou de outros laboratorios. Dra. Mendes recebeu os parabens em observatorio astronomico. supercomputado",
+      "durationSec": 34,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? Dra. Mendes liderou as discussoes em observatorio astronomico explorando as possibilidades que supercomputador abria.",
+      "imagePrompt": "A Maquina do Tempo, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? Dra. Mendes liderou as discussoes em observatorio",
+      "durationSec": 32,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: Dra. Mendes escreveu o estudo final em observatorio astronomico. supercomputador mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "A Maquina do Tempo, cena 8: O impacto: Dra. Mendes escreveu o estudo final em observatorio astronomico. supercomputador mudaria o ensino de ciencias",
+      "durationSec": 29,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

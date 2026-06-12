@@ -1,0 +1,78 @@
+{
+  "id": "o-hospede-do-sotao",
+  "title": "O Hóspede do Sótão",
+  "category": "terror",
+  "sceneCount": 8,
+  "totalDurationSec": 270,
+  "outro": "Quando a criança finalmente escapou de sótão empoeirado, levou consigo apenas chave enferrujada e a certeza de que algumas portas nunca deveriam ser abertas.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Hóspede do Sótão",
+    "style": "fotográfico realista, iluminação cinematográfica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A noite caía sobre sótão empoeirado quando a criança sentiu um arrepio repentino. O vento uivava entre as frestas, carregando um som que parecia vir de muito longe — ou de muito perto.",
+      "imagePrompt": "O Hóspede do Sótão, cena 1: A noite caía sobre sótão empoeirado quando a criança sentiu um arrepio repentino. O vento uivava entre as frestas, carre",
+      "durationSec": 45,
+      "musicSuggestion": "sombrio",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A criança acendeu a lanterna, mas a luz parecia engolida pela escuridão. sótão empoeirado estava mais frio do que deveria. Pegadas na poeira indicavam que alguém — ou algo — tinha passado por ali recentemente.",
+      "imagePrompt": "O Hóspede do Sótão, cena 2: A criança acendeu a lanterna, mas a luz parecia engolida pela escuridão. sótão empoeirado estava mais frio do que deveri",
+      "durationSec": 27,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Um rangido veio do andar de cima. a criança prendeu a respiração. chave enferrujada estava exatamente onde não deveria estar. Como tinha chegado até ali?",
+      "imagePrompt": "O Hóspede do Sótão, cena 3: Um rangido veio do andar de cima. a criança prendeu a respiração. chave enferrujada estava exatamente onde não deveria e",
+      "durationSec": 42,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O ar ficou denso, pesado. a criança sentiu uma presença observando de sótão empoeirado. Não estava sozinho. O chave enferrujada começou a vibrar lentamente, emitindo um som grave e hipnótico.",
+      "imagePrompt": "O Hóspede do Sótão, cena 4: O ar ficou denso, pesado. a criança sentiu uma presença observando de sótão empoeirado. Não estava sozinho. O chave enfe",
+      "durationSec": 29,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As paredes pareciam se mover. a criança esfregou os olhos, mas a ilusão persistia. chave enferrujada refletia uma imagem que não correspondia ao ambiente — uma figura encapuzada atrás de si.",
+      "imagePrompt": "O Hóspede do Sótão, cena 5: As paredes pareciam se mover. a criança esfregou os olhos, mas a ilusão persistia. chave enferrujada refletia uma imagem",
+      "durationSec": 29,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O som de passos se aproximou. a criança se encolheu em sótão empoeirado, tentando controlar a respiração. chave enferrujada caiu no chão, ecoando como um grito na escuridão total.",
+      "imagePrompt": "O Hóspede do Sótão, cena 6: O som de passos se aproximou. a criança se encolheu em sótão empoeirado, tentando controlar a respiração. chave enferruj",
+      "durationSec": 40,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Uma voz sussurrou seu nome. a criança se virou bruscamente. sótão empoeirado estava vazio, mas chave enferrujada tinha mudado de posição. O ar gelado tocava sua nuca.",
+      "imagePrompt": "O Hóspede do Sótão, cena 7: Uma voz sussurrou seu nome. a criança se virou bruscamente. sótão empoeirado estava vazio, mas chave enferrujada tinha m",
+      "durationSec": 25,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O relógio parou. a criança percebeu que o tempo não passava em sótão empoeirado. chave enferrujada mostrava uma cena que nunca tinha acontecido — ou que ainda ia acontecer.",
+      "imagePrompt": "O Hóspede do Sótão, cena 8: O relógio parou. a criança percebeu que o tempo não passava em sótão empoeirado. chave enferrujada mostrava uma cena que",
+      "durationSec": 33,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    }
+  ]
+}

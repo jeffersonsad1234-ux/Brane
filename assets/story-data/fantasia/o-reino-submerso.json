@@ -1,0 +1,78 @@
+{
+  "id": "o-reino-submerso",
+  "title": "O Reino Submerso",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 263,
+  "outro": "Lyra cavalgou para o por do sol com grimorio antigo guardado no coracao. castelo antigo seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Reino Submerso",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou Lyra para castelo antigo. grimorio antigo pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "O Reino Submerso, cena 1: O destino chamou Lyra para castelo antigo. grimorio antigo pulsava com uma luz suave como se reconhecesse sua chegada. U",
+      "durationSec": 39,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em castelo antigo revelaram maravilhas e perigos. Lyra segurou grimorio antigo firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "O Reino Submerso, cena 2: Os primeiros passos em castelo antigo revelaram maravilhas e perigos. Lyra segurou grimorio antigo firmemente sentindo s",
+      "durationSec": 44,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de castelo antigo surgiu das sombras. Lyra precisou provar seu valor. grimorio antigo brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "O Reino Submerso, cena 3: O guardiao de castelo antigo surgiu das sombras. Lyra precisou provar seu valor. grimorio antigo brilhou intensamente re",
+      "durationSec": 26,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: castelo antigo escondia um segredo que apenas grimorio antigo podia desvendar. Lyra decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "O Reino Submerso, cena 4: O enigma: castelo antigo escondia um segredo que apenas grimorio antigo podia desvendar. Lyra decifrou as runas antigas ",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. Lyra treinou incansavelmente em castelo antigo dominando grimorio antigo. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "O Reino Submerso, cena 5: A batalha se aproximava. Lyra treinou incansavelmente em castelo antigo dominando grimorio antigo. As forcas das trevas ",
+      "durationSec": 35,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por castelo antigo. Lyra ergueu grimorio antigo contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "O Reino Submerso, cena 6: O confronto final ecoou por castelo antigo. Lyra ergueu grimorio antigo contra a escuridao. A luz e a sombra colidiram e",
+      "durationSec": 29,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada Lyra contemplou castelo antigo de um novo angulo. grimorio antigo agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "O Reino Submerso, cena 7: Com a paz restaurada Lyra contemplou castelo antigo de um novo angulo. grimorio antigo agora repousava mas seu poder con",
+      "durationSec": 27,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Lyra se despediu de castelo antigo com a promessa de voltar. grimorio antigo foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "O Reino Submerso, cena 8: Lyra se despediu de castelo antigo com a promessa de voltar. grimorio antigo foi guardado mas sua historia seria contada",
+      "durationSec": 32,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

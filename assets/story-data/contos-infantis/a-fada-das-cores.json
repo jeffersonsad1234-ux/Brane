@@ -1,0 +1,78 @@
+{
+  "id": "a-fada-das-cores",
+  "title": "A Fada das Cores",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 264,
+  "outro": "E assim o ursinho aprendeu em fundo do mar que a maior magica esta dentro de nos. sapatinho brilhante era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Fada das Cores",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em fundo do mar vivia o ursinho. sapatinho brilhante era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "A Fada das Cores, cena 1: Era uma vez em fundo do mar vivia o ursinho. sapatinho brilhante era seu bem mais precioso mas algo estava diferente hoj",
+      "durationSec": 31,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O ursinho acordou com um problema: sapatinho brilhante nao funcionava mais. Em fundo do mar todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "A Fada das Cores, cena 2: O ursinho acordou com um problema: sapatinho brilhante nao funcionava mais. Em fundo do mar todos se reuniram para ajuda",
+      "durationSec": 27,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. o ursinho encontrou fundo do mar de um jeito que nunca tinha visto. sapatinho brilhante brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "A Fada das Cores, cena 3: O caminho era cheio de surpresas. o ursinho encontrou fundo do mar de um jeito que nunca tinha visto. sapatinho brilhant",
+      "durationSec": 31,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em fundo do mar o ursinho conheceu alguem que precisava de ajuda. sapatinho brilhante poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "A Fada das Cores, cena 4: Um novo amigo apareceu. Em fundo do mar o ursinho conheceu alguem que precisava de ajuda. sapatinho brilhante poderia se",
+      "durationSec": 29,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: o ursinho aprendeu que fundo do mar era mais especial por seus habitantes do que por suas belezas. sapatinho brilhante nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "A Fada das Cores, cena 5: A licao: o ursinho aprendeu que fundo do mar era mais especial por seus habitantes do que por suas belezas. sapatinho br",
+      "durationSec": 43,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas o ursinho nao desistiu. Em fundo do mar todos trabalharam juntos. sapatinho brilhante finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "A Fada das Cores, cena 6: O desafio parecia grande demais mas o ursinho nao desistiu. Em fundo do mar todos trabalharam juntos. sapatinho brilhant",
+      "durationSec": 45,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em fundo do mar. o ursinho dancou com todos os amigos. sapatinho brilhante agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "A Fada das Cores, cena 7: A comemoracao foi em fundo do mar. o ursinho dancou com todos os amigos. sapatinho brilhante agora brilhava mais forte d",
+      "durationSec": 24,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O ursinho se despediu de fundo do mar com um abraco coletivo. sapatinho brilhante estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "A Fada das Cores, cena 8: O ursinho se despediu de fundo do mar com um abraco coletivo. sapatinho brilhante estava guardado no coracao nao nas mao",
+      "durationSec": 34,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

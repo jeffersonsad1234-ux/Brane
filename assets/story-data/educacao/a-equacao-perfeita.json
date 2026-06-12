@@ -1,0 +1,78 @@
+{
+  "id": "a-equacao-perfeita",
+  "title": "A Equacao Perfeita",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 254,
+  "outro": "cientista olhou para telescopio com orgulho. laboratorio continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Equacao Perfeita",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Cientista chegou em laboratorio com uma pergunta que ninguem tinha respondido ainda. telescopio estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "A Equacao Perfeita, cena 1: Cientista chegou em laboratorio com uma pergunta que ninguem tinha respondido ainda. telescopio estava no centro do mist",
+      "durationSec": 45,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em telescopio. cientista passou horas em laboratorio estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "A Equacao Perfeita, cena 2: A primeira pista estava em telescopio. cientista passou horas em laboratorio estudando cada detalhe. O conhecimento anti",
+      "durationSec": 28,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: cientista preparou telescopio cuidadosamente. laboratorio se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "A Equacao Perfeita, cena 3: O experimento: cientista preparou telescopio cuidadosamente. laboratorio se encheu de equipamentos e expectativa. Se a t",
+      "durationSec": 39,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. cientista mal acreditava no que telescopio revelava. laboratorio se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "A Equacao Perfeita, cena 4: Os resultados eram surpreendentes. cientista mal acreditava no que telescopio revelava. laboratorio se tornou o centro d",
+      "durationSec": 39,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. cientista enfrentou laboratorio com novas duvidas. telescopio mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "A Equacao Perfeita, cena 5: Mas o conhecimento nunca vem facil. cientista enfrentou laboratorio com novas duvidas. telescopio mostrava um padrao que",
+      "durationSec": 35,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: cientista convidou outros estudiosos para laboratorio. Juntos decifraram telescopio. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "A Equacao Perfeita, cena 6: A colaboracao: cientista convidou outros estudiosos para laboratorio. Juntos decifraram telescopio. O saber compartilhad",
+      "durationSec": 27,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que telescopio revelou poderia mudar vidas. cientista liderou o projeto em laboratorio para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "A Equacao Perfeita, cena 7: A aplicacao pratica: o que telescopio revelou poderia mudar vidas. cientista liderou o projeto em laboratorio para trans",
+      "durationSec": 21,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: cientista registrou tudo em telescopio deixando laboratorio como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "A Equacao Perfeita, cena 8: O legado: cientista registrou tudo em telescopio deixando laboratorio como um centro de aprendizado para futuras geracoe",
+      "durationSec": 20,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

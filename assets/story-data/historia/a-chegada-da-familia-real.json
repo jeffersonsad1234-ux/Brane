@@ -1,0 +1,78 @@
+{
+  "id": "a-chegada-da-familia-real",
+  "title": "A Chegada da Familia Real",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 287,
+  "outro": "o viajante do tempo fechou bandeira da epoca com cuidado. sertao nordestino continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Chegada da Familia Real",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1822. o viajante do tempo testemunhava um momento que mudaria o curso da historia. bandeira da epoca estava prestes a desempenhar um papel crucial em sertao nordestino.",
+      "imagePrompt": "A Chegada da Familia Real, cena 1: O ano era 1822. o viajante do tempo testemunhava um momento que mudaria o curso da historia. bandeira da epoca estava pr",
+      "durationSec": 41,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em sertao nordestino. o viajante do tempo observava bandeira da epoca com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Chegada da Familia Real, cena 2: A tensao crescia em sertao nordestino. o viajante do tempo observava bandeira da epoca com atencao sabendo que cada deta",
+      "durationSec": 42,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. o viajante do tempo mediou as discussoes em sertao nordestino. bandeira da epoca representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Chegada da Familia Real, cena 3: O conflito de ideias era palpavel. o viajante do tempo mediou as discussoes em sertao nordestino. bandeira da epoca repr",
+      "durationSec": 42,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: o viajante do tempo participou do momento em que bandeira da epoca foi utilizado em sertao nordestino. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Chegada da Familia Real, cena 4: O marco historico: o viajante do tempo participou do momento em que bandeira da epoca foi utilizado em sertao nordestino",
+      "durationSec": 40,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. o viajante do tempo lutou contra as adversidades em sertao nordestino. bandeira da epoca era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Chegada da Familia Real, cena 5: Os desafios surgiam a cada esquina. o viajante do tempo lutou contra as adversidades em sertao nordestino. bandeira da e",
+      "durationSec": 33,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. sertao nordestino nunca mais seria o mesmo depois daquele dia. o viajante do tempo guardou bandeira da epoca como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Chegada da Familia Real, cena 6: A transformacao aconteceu. sertao nordestino nunca mais seria o mesmo depois daquele dia. o viajante do tempo guardou ba",
+      "durationSec": 34,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. o viajante do tempo ajudou a documentar o que aconteceu em sertao nordestino. bandeira da epoca se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Chegada da Familia Real, cena 7: O legado comecou a ser construido. o viajante do tempo ajudou a documentar o que aconteceu em sertao nordestino. bandeir",
+      "durationSec": 31,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. o viajante do tempo contemplou sertao nordestino transformado. bandeira da epoca estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Chegada da Familia Real, cena 8: Os frutos do passado. o viajante do tempo contemplou sertao nordestino transformado. bandeira da epoca estava agora em e",
+      "durationSec": 24,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

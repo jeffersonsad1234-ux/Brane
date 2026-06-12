@@ -1,0 +1,78 @@
+{
+  "id": "o-desaparecimento-no-hotel",
+  "title": "O Desaparecimento no Hotel",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 285,
+  "outro": "o advogado resolveu mais um caso. gravacao misteriosa foi devolvido ao seu lugar. delegacia podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Desaparecimento no Hotel",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando gravacao misteriosa foi descoberto em delegacia. o advogado foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Desaparecimento no Hotel, cena 1: O caso comecou quando gravacao misteriosa foi descoberto em delegacia. o advogado foi chamado para investigar. Nada era ",
+      "durationSec": 38,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O advogado examinou delegacia em busca de pistas. gravacao misteriosa forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Desaparecimento no Hotel, cena 2: O advogado examinou delegacia em busca de pistas. gravacao misteriosa forneceu a primeira pista real. Mas ela levava a m",
+      "durationSec": 43,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. o advogado verificou cada detalhe em delegacia. gravacao misteriosa contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Desaparecimento no Hotel, cena 3: O suspeito principal tinha um alibi solido. o advogado verificou cada detalhe em delegacia. gravacao misteriosa contradi",
+      "durationSec": 32,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: o advogado descobriu que gravacao misteriosa tinha sido plantado. delegacia nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Desaparecimento no Hotel, cena 4: Uma reviravolta inesperada: o advogado descobriu que gravacao misteriosa tinha sido plantado. delegacia nao era a cena d",
+      "durationSec": 38,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. o advogado conectou gravacao misteriosa com um caso antigo em delegacia. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Desaparecimento no Hotel, cena 5: As pecas comecaram a se encaixar. o advogado conectou gravacao misteriosa com um caso antigo em delegacia. A solucao est",
+      "durationSec": 42,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: o advogado reuniu todos os suspeitos em delegacia. gravacao misteriosa foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Desaparecimento no Hotel, cena 6: O confronto final: o advogado reuniu todos os suspeitos em delegacia. gravacao misteriosa foi revelado como a prova defi",
+      "durationSec": 44,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. o advogado fechou gravacao misteriosa sabendo que a justica tinha sido feita. delegacia guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Desaparecimento no Hotel, cena 7: A confissao trouxe alivio mas tambem tristeza. o advogado fechou gravacao misteriosa sabendo que a justica tinha sido fe",
+      "durationSec": 20,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. o advogado guardou gravacao misteriosa como recordacao. delegacia voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Desaparecimento no Hotel, cena 8: O caso foi arquivado. o advogado guardou gravacao misteriosa como recordacao. delegacia voltou a rotina mas algo tinha m",
+      "durationSec": 28,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

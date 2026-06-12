@@ -1,0 +1,78 @@
+{
+  "id": "o-experimento-cronos",
+  "title": "O Experimento Cronos",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 282,
+  "outro": "comandante guardou scanner neural como o maior tesouro da humanidade. base lunar se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Experimento Cronos",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em base lunar. comandante correu para o painel de controle. scanner neural emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "O Experimento Cronos, cena 1: O alerta vermelho acendeu em base lunar. comandante correu para o painel de controle. scanner neural emitia um pulso rit",
+      "durationSec": 45,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. comandante verificou os sensores tres vezes. base lunar estava sofrendo distorcoes espacio-temporais. scanner neural era a fonte.",
+      "imagePrompt": "O Experimento Cronos, cena 2: As leituras eram impossiveis. comandante verificou os sensores tres vezes. base lunar estava sofrendo distorcoes espacio",
+      "durationSec": 29,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: scanner neural nao era uma tecnologia convencional. comandante teorizou que base lunar tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "O Experimento Cronos, cena 3: A descoberta: scanner neural nao era uma tecnologia convencional. comandante teorizou que base lunar tinha sido construi",
+      "durationSec": 41,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Comandante propos um plano arriscado. Se funcionasse base lunar poderia ser salva. scanner neural precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "O Experimento Cronos, cena 4: Comandante propos um plano arriscado. Se funcionasse base lunar poderia ser salva. scanner neural precisava ser ativado ",
+      "durationSec": 39,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. comandante monitorava cada parametro em base lunar. scanner neural vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "O Experimento Cronos, cena 5: O experimento comecou. comandante monitorava cada parametro em base lunar. scanner neural vibrava em uma frequencia que ",
+      "durationSec": 33,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. comandante observou base lunar se distorcer ao redor de scanner neural. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "O Experimento Cronos, cena 6: Uma fenda se abriu. comandante observou base lunar se distorcer ao redor de scanner neural. Atraves da abertura vislumbr",
+      "durationSec": 31,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. comandante comunicou-se com a inteligencia por tras de scanner neural. base lunar tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "O Experimento Cronos, cena 7: O contato foi estabelecido. comandante comunicou-se com a inteligencia por tras de scanner neural. base lunar tornou-se ",
+      "durationSec": 30,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: comandante documentou tudo sobre scanner neural e base lunar. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "O Experimento Cronos, cena 8: O legado: comandante documentou tudo sobre scanner neural e base lunar. A humanidade nunca mais seria a mesma. Uma nova ",
+      "durationSec": 34,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

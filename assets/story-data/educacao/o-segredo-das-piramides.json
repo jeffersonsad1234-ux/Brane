@@ -1,0 +1,78 @@
+{
+  "id": "o-segredo-das-piramides",
+  "title": "O Segredo das Piramides",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 286,
+  "outro": "aprendiz olhou para microscopio com orgulho. observatorio continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Segredo das Piramides",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Aprendiz chegou em observatorio com uma pergunta que ninguem tinha respondido ainda. microscopio estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "O Segredo das Piramides, cena 1: Aprendiz chegou em observatorio com uma pergunta que ninguem tinha respondido ainda. microscopio estava no centro do mis",
+      "durationSec": 36,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em microscopio. aprendiz passou horas em observatorio estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "O Segredo das Piramides, cena 2: A primeira pista estava em microscopio. aprendiz passou horas em observatorio estudando cada detalhe. O conhecimento ant",
+      "durationSec": 41,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: aprendiz preparou microscopio cuidadosamente. observatorio se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "O Segredo das Piramides, cena 3: O experimento: aprendiz preparou microscopio cuidadosamente. observatorio se encheu de equipamentos e expectativa. Se a ",
+      "durationSec": 44,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. aprendiz mal acreditava no que microscopio revelava. observatorio se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "O Segredo das Piramides, cena 4: Os resultados eram surpreendentes. aprendiz mal acreditava no que microscopio revelava. observatorio se tornou o centro ",
+      "durationSec": 41,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. aprendiz enfrentou observatorio com novas duvidas. microscopio mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "O Segredo das Piramides, cena 5: Mas o conhecimento nunca vem facil. aprendiz enfrentou observatorio com novas duvidas. microscopio mostrava um padrao qu",
+      "durationSec": 31,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: aprendiz convidou outros estudiosos para observatorio. Juntos decifraram microscopio. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "O Segredo das Piramides, cena 6: A colaboracao: aprendiz convidou outros estudiosos para observatorio. Juntos decifraram microscopio. O saber compartilha",
+      "durationSec": 37,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que microscopio revelou poderia mudar vidas. aprendiz liderou o projeto em observatorio para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "O Segredo das Piramides, cena 7: A aplicacao pratica: o que microscopio revelou poderia mudar vidas. aprendiz liderou o projeto em observatorio para tran",
+      "durationSec": 21,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: aprendiz registrou tudo em microscopio deixando observatorio como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "O Segredo das Piramides, cena 8: O legado: aprendiz registrou tudo em microscopio deixando observatorio como um centro de aprendizado para futuras geraco",
+      "durationSec": 35,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "o-dragao-adormecido",
+  "title": "O Dragao Adormecido",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 251,
+  "outro": "a rainha cavalgou para o por do sol com amuleto mystico guardado no coracao. reino submerso seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Dragao Adormecido",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou a rainha para reino submerso. amuleto mystico pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "O Dragao Adormecido, cena 1: O destino chamou a rainha para reino submerso. amuleto mystico pulsava com uma luz suave como se reconhecesse sua chegad",
+      "durationSec": 35,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em reino submerso revelaram maravilhas e perigos. a rainha segurou amuleto mystico firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "O Dragao Adormecido, cena 2: Os primeiros passos em reino submerso revelaram maravilhas e perigos. a rainha segurou amuleto mystico firmemente sentin",
+      "durationSec": 33,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de reino submerso surgiu das sombras. a rainha precisou provar seu valor. amuleto mystico brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "O Dragao Adormecido, cena 3: O guardiao de reino submerso surgiu das sombras. a rainha precisou provar seu valor. amuleto mystico brilhou intensament",
+      "durationSec": 33,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: reino submerso escondia um segredo que apenas amuleto mystico podia desvendar. a rainha decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "O Dragao Adormecido, cena 4: O enigma: reino submerso escondia um segredo que apenas amuleto mystico podia desvendar. a rainha decifrou as runas anti",
+      "durationSec": 39,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. a rainha treinou incansavelmente em reino submerso dominando amuleto mystico. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "O Dragao Adormecido, cena 5: A batalha se aproximava. a rainha treinou incansavelmente em reino submerso dominando amuleto mystico. As forcas das tre",
+      "durationSec": 29,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por reino submerso. a rainha ergueu amuleto mystico contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "O Dragao Adormecido, cena 6: O confronto final ecoou por reino submerso. a rainha ergueu amuleto mystico contra a escuridao. A luz e a sombra colidir",
+      "durationSec": 26,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada a rainha contemplou reino submerso de um novo angulo. amuleto mystico agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "O Dragao Adormecido, cena 7: Com a paz restaurada a rainha contemplou reino submerso de um novo angulo. amuleto mystico agora repousava mas seu poder",
+      "durationSec": 27,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A rainha se despediu de reino submerso com a promessa de voltar. amuleto mystico foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "O Dragao Adormecido, cena 8: A rainha se despediu de reino submerso com a promessa de voltar. amuleto mystico foi guardado mas sua historia seria con",
+      "durationSec": 29,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

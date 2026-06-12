@@ -1,0 +1,78 @@
+{
+  "id": "a-cancao-das-estrelas",
+  "title": "A Cancao das Estrelas",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 267,
+  "outro": "a maga cavalgou para o por do sol com calice dourado guardado no coracao. montanha sagrada seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Cancao das Estrelas",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou a maga para montanha sagrada. calice dourado pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "A Cancao das Estrelas, cena 1: O destino chamou a maga para montanha sagrada. calice dourado pulsava com uma luz suave como se reconhecesse sua chegada",
+      "durationSec": 40,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em montanha sagrada revelaram maravilhas e perigos. a maga segurou calice dourado firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "A Cancao das Estrelas, cena 2: Os primeiros passos em montanha sagrada revelaram maravilhas e perigos. a maga segurou calice dourado firmemente sentind",
+      "durationSec": 34,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de montanha sagrada surgiu das sombras. a maga precisou provar seu valor. calice dourado brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "A Cancao das Estrelas, cena 3: O guardiao de montanha sagrada surgiu das sombras. a maga precisou provar seu valor. calice dourado brilhou intensamente",
+      "durationSec": 34,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: montanha sagrada escondia um segredo que apenas calice dourado podia desvendar. a maga decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "A Cancao das Estrelas, cena 4: O enigma: montanha sagrada escondia um segredo que apenas calice dourado podia desvendar. a maga decifrou as runas antig",
+      "durationSec": 33,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. a maga treinou incansavelmente em montanha sagrada dominando calice dourado. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "A Cancao das Estrelas, cena 5: A batalha se aproximava. a maga treinou incansavelmente em montanha sagrada dominando calice dourado. As forcas das trev",
+      "durationSec": 40,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por montanha sagrada. a maga ergueu calice dourado contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "A Cancao das Estrelas, cena 6: O confronto final ecoou por montanha sagrada. a maga ergueu calice dourado contra a escuridao. A luz e a sombra colidira",
+      "durationSec": 28,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada a maga contemplou montanha sagrada de um novo angulo. calice dourado agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "A Cancao das Estrelas, cena 7: Com a paz restaurada a maga contemplou montanha sagrada de um novo angulo. calice dourado agora repousava mas seu poder ",
+      "durationSec": 24,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A maga se despediu de montanha sagrada com a promessa de voltar. calice dourado foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "A Cancao das Estrelas, cena 8: A maga se despediu de montanha sagrada com a promessa de voltar. calice dourado foi guardado mas sua historia seria cont",
+      "durationSec": 34,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

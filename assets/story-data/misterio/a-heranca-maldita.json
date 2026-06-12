@@ -1,0 +1,78 @@
+{
+  "id": "a-heranca-maldita",
+  "title": "A Heranca Maldita",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 265,
+  "outro": "o investigador resolveu mais um caso. mapa da cidade foi devolvido ao seu lugar. biblioteca podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Heranca Maldita",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando mapa da cidade foi descoberto em biblioteca. o investigador foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "A Heranca Maldita, cena 1: O caso comecou quando mapa da cidade foi descoberto em biblioteca. o investigador foi chamado para investigar. Nada era ",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O investigador examinou biblioteca em busca de pistas. mapa da cidade forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "A Heranca Maldita, cena 2: O investigador examinou biblioteca em busca de pistas. mapa da cidade forneceu a primeira pista real. Mas ela levava a m",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. o investigador verificou cada detalhe em biblioteca. mapa da cidade contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "A Heranca Maldita, cena 3: O suspeito principal tinha um alibi solido. o investigador verificou cada detalhe em biblioteca. mapa da cidade contradi",
+      "durationSec": 28,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: o investigador descobriu que mapa da cidade tinha sido plantado. biblioteca nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "A Heranca Maldita, cena 4: Uma reviravolta inesperada: o investigador descobriu que mapa da cidade tinha sido plantado. biblioteca nao era a cena d",
+      "durationSec": 27,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. o investigador conectou mapa da cidade com um caso antigo em biblioteca. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "A Heranca Maldita, cena 5: As pecas comecaram a se encaixar. o investigador conectou mapa da cidade com um caso antigo em biblioteca. A solucao est",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: o investigador reuniu todos os suspeitos em biblioteca. mapa da cidade foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "A Heranca Maldita, cena 6: O confronto final: o investigador reuniu todos os suspeitos em biblioteca. mapa da cidade foi revelado como a prova defi",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. o investigador fechou mapa da cidade sabendo que a justica tinha sido feita. biblioteca guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "A Heranca Maldita, cena 7: A confissao trouxe alivio mas tambem tristeza. o investigador fechou mapa da cidade sabendo que a justica tinha sido fei",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. o investigador guardou mapa da cidade como recordacao. biblioteca voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "A Heranca Maldita, cena 8: O caso foi arquivado. o investigador guardou mapa da cidade como recordacao. biblioteca voltou a rotina mas algo tinha m",
+      "durationSec": 33,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

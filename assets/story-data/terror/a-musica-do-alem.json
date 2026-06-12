@@ -1,0 +1,78 @@
+{
+  "id": "a-musica-do-alem",
+  "title": "A Musica do Alem",
+  "category": "terror",
+  "sceneCount": 8,
+  "totalDurationSec": 251,
+  "outro": "Quando a medica finalmente escapou de igreja antiga levou consigo apenas manuscrito amarelado e a certeza de que algumas portas nunca deveriam ser abertas.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Musica do Alem",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A noite caia sobre igreja antiga quando a medica sentiu um arrepio repentino. O vento uivava entre as frestas, carregando um som que parecia vir de muito longe ou de muito perto.",
+      "imagePrompt": "A Musica do Alem, cena 1: A noite caia sobre igreja antiga quando a medica sentiu um arrepio repentino. O vento uivava entre as frestas, carregand",
+      "durationSec": 33,
+      "musicSuggestion": "sombrio",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A medica acendeu a lanterna mas a luz parecia engolida pela escuridao. igreja antiga estava mais frio do que deveria. Pegadas na poeira indicavam que alguem tinha passado por ali recentemente.",
+      "imagePrompt": "A Musica do Alem, cena 2: A medica acendeu a lanterna mas a luz parecia engolida pela escuridao. igreja antiga estava mais frio do que deveria. Pe",
+      "durationSec": 26,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Um rangido veio do andar de cima. a medica prendeu a respiracao. manuscrito amarelado estava exatamente onde nao deveria estar. Como tinha chegado ate ali?",
+      "imagePrompt": "A Musica do Alem, cena 3: Um rangido veio do andar de cima. a medica prendeu a respiracao. manuscrito amarelado estava exatamente onde nao deveria",
+      "durationSec": 37,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O ar ficou denso pesado. a medica sentiu uma presenca observando de igreja antiga. Nao estava sozinho. O manuscrito amarelado comecou a vibrar lentamente emitindo um som grave e hipnotico.",
+      "imagePrompt": "A Musica do Alem, cena 4: O ar ficou denso pesado. a medica sentiu uma presenca observando de igreja antiga. Nao estava sozinho. O manuscrito amar",
+      "durationSec": 35,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As paredes pareciam se mover. a medica esfregou os olhos mas a ilusao persistia. manuscrito amarelado refletia uma imagem que nao correspondia ao ambiente uma figura encapuzada atras de si.",
+      "imagePrompt": "A Musica do Alem, cena 5: As paredes pareciam se mover. a medica esfregou os olhos mas a ilusao persistia. manuscrito amarelado refletia uma image",
+      "durationSec": 28,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O som de passos se aproximou. a medica se encolheu em igreja antiga tentando controlar a respiracao. manuscrito amarelado caiu no chao ecoando como um grito na escuridao total.",
+      "imagePrompt": "A Musica do Alem, cena 6: O som de passos se aproximou. a medica se encolheu em igreja antiga tentando controlar a respiracao. manuscrito amarelad",
+      "durationSec": 32,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Uma voz sussurrou seu nome. a medica se virou bruscamente. igreja antiga estava vazio mas manuscrito amarelado tinha mudado de posicao. O ar gelado tocava sua nuca.",
+      "imagePrompt": "A Musica do Alem, cena 7: Uma voz sussurrou seu nome. a medica se virou bruscamente. igreja antiga estava vazio mas manuscrito amarelado tinha mud",
+      "durationSec": 26,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O relogio parou. a medica percebeu que o tempo nao passava em igreja antiga. manuscrito amarelado mostrava uma cena que nunca tinha acontecido ou que ainda ia acontecer.",
+      "imagePrompt": "A Musica do Alem, cena 8: O relogio parou. a medica percebeu que o tempo nao passava em igreja antiga. manuscrito amarelado mostrava uma cena que ",
+      "durationSec": 34,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    }
+  ]
+}

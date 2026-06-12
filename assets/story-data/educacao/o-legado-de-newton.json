@@ -1,0 +1,78 @@
+{
+  "id": "o-legado-de-newton",
+  "title": "O Legado de Newton",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 239,
+  "outro": "mestre olhou para livro antigo com orgulho. biblioteca continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Legado de Newton",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Mestre chegou em biblioteca com uma pergunta que ninguem tinha respondido ainda. livro antigo estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "O Legado de Newton, cena 1: Mestre chegou em biblioteca com uma pergunta que ninguem tinha respondido ainda. livro antigo estava no centro do mister",
+      "durationSec": 32,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em livro antigo. mestre passou horas em biblioteca estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "O Legado de Newton, cena 2: A primeira pista estava em livro antigo. mestre passou horas em biblioteca estudando cada detalhe. O conhecimento antigo",
+      "durationSec": 29,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: mestre preparou livro antigo cuidadosamente. biblioteca se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "O Legado de Newton, cena 3: O experimento: mestre preparou livro antigo cuidadosamente. biblioteca se encheu de equipamentos e expectativa. Se a teo",
+      "durationSec": 35,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. mestre mal acreditava no que livro antigo revelava. biblioteca se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "O Legado de Newton, cena 4: Os resultados eram surpreendentes. mestre mal acreditava no que livro antigo revelava. biblioteca se tornou o centro de ",
+      "durationSec": 28,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. mestre enfrentou biblioteca com novas duvidas. livro antigo mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "O Legado de Newton, cena 5: Mas o conhecimento nunca vem facil. mestre enfrentou biblioteca com novas duvidas. livro antigo mostrava um padrao que d",
+      "durationSec": 32,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: mestre convidou outros estudiosos para biblioteca. Juntos decifraram livro antigo. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "O Legado de Newton, cena 6: A colaboracao: mestre convidou outros estudiosos para biblioteca. Juntos decifraram livro antigo. O saber compartilhado ",
+      "durationSec": 34,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que livro antigo revelou poderia mudar vidas. mestre liderou o projeto em biblioteca para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "O Legado de Newton, cena 7: A aplicacao pratica: o que livro antigo revelou poderia mudar vidas. mestre liderou o projeto em biblioteca para transfo",
+      "durationSec": 25,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: mestre registrou tudo em livro antigo deixando biblioteca como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "O Legado de Newton, cena 8: O legado: mestre registrou tudo em livro antigo deixando biblioteca como um centro de aprendizado para futuras geracoes.",
+      "durationSec": 24,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

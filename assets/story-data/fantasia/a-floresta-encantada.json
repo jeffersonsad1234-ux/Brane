@@ -1,0 +1,78 @@
+{
+  "id": "a-floresta-encantada",
+  "title": "A Floresta Encantada",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 273,
+  "outro": "Kael cavalgou para o por do sol com amuleto mystico guardado no coracao. floresta encantada seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Floresta Encantada",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou Kael para floresta encantada. amuleto mystico pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "A Floresta Encantada, cena 1: O destino chamou Kael para floresta encantada. amuleto mystico pulsava com uma luz suave como se reconhecesse sua chegad",
+      "durationSec": 34,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em floresta encantada revelaram maravilhas e perigos. Kael segurou amuleto mystico firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "A Floresta Encantada, cena 2: Os primeiros passos em floresta encantada revelaram maravilhas e perigos. Kael segurou amuleto mystico firmemente sentin",
+      "durationSec": 43,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de floresta encantada surgiu das sombras. Kael precisou provar seu valor. amuleto mystico brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "A Floresta Encantada, cena 3: O guardiao de floresta encantada surgiu das sombras. Kael precisou provar seu valor. amuleto mystico brilhou intensament",
+      "durationSec": 43,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: floresta encantada escondia um segredo que apenas amuleto mystico podia desvendar. Kael decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "A Floresta Encantada, cena 4: O enigma: floresta encantada escondia um segredo que apenas amuleto mystico podia desvendar. Kael decifrou as runas anti",
+      "durationSec": 43,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. Kael treinou incansavelmente em floresta encantada dominando amuleto mystico. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "A Floresta Encantada, cena 5: A batalha se aproximava. Kael treinou incansavelmente em floresta encantada dominando amuleto mystico. As forcas das tre",
+      "durationSec": 28,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por floresta encantada. Kael ergueu amuleto mystico contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "A Floresta Encantada, cena 6: O confronto final ecoou por floresta encantada. Kael ergueu amuleto mystico contra a escuridao. A luz e a sombra colidir",
+      "durationSec": 28,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada Kael contemplou floresta encantada de um novo angulo. amuleto mystico agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "A Floresta Encantada, cena 7: Com a paz restaurada Kael contemplou floresta encantada de um novo angulo. amuleto mystico agora repousava mas seu poder",
+      "durationSec": 23,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Kael se despediu de floresta encantada com a promessa de voltar. amuleto mystico foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "A Floresta Encantada, cena 8: Kael se despediu de floresta encantada com a promessa de voltar. amuleto mystico foi guardado mas sua historia seria con",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

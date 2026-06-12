@@ -1,0 +1,52 @@
+[
+  {
+    "id": "terror",
+    "name": "Terror",
+    "storyCount": 20
+  },
+  {
+    "id": "suspense",
+    "name": "Suspense",
+    "storyCount": 20
+  },
+  {
+    "id": "misterio",
+    "name": "Misterio",
+    "storyCount": 20
+  },
+  {
+    "id": "ficcao-cientifica",
+    "name": "Ficcao Cientifica",
+    "storyCount": 20
+  },
+  {
+    "id": "educacao",
+    "name": "Educacao",
+    "storyCount": 20
+  },
+  {
+    "id": "fantasia",
+    "name": "Fantasia",
+    "storyCount": 20
+  },
+  {
+    "id": "mundo-proprio",
+    "name": "Mundo Proprio",
+    "storyCount": 20
+  },
+  {
+    "id": "historia",
+    "name": "Historia",
+    "storyCount": 20
+  },
+  {
+    "id": "ciencia",
+    "name": "Ciencia",
+    "storyCount": 20
+  },
+  {
+    "id": "contos-infantis",
+    "name": "Contos Infantis",
+    "storyCount": 20
+  }
+]

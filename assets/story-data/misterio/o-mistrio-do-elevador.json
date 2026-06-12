@@ -1,0 +1,78 @@
+{
+  "id": "o-mistrio-do-elevador",
+  "title": "O Mistério do Elevador",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 286,
+  "outro": "o advogado resolveu mais um caso. relatorio policial foi devolvido ao seu lugar. mansion antiga podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Mistério do Elevador",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando relatorio policial foi descoberto em mansion antiga. o advogado foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Mistério do Elevador, cena 1: O caso comecou quando relatorio policial foi descoberto em mansion antiga. o advogado foi chamado para investigar. Nada ",
+      "durationSec": 41,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O advogado examinou mansion antiga em busca de pistas. relatorio policial forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Mistério do Elevador, cena 2: O advogado examinou mansion antiga em busca de pistas. relatorio policial forneceu a primeira pista real. Mas ela levava",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. o advogado verificou cada detalhe em mansion antiga. relatorio policial contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Mistério do Elevador, cena 3: O suspeito principal tinha um alibi solido. o advogado verificou cada detalhe em mansion antiga. relatorio policial cont",
+      "durationSec": 42,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: o advogado descobriu que relatorio policial tinha sido plantado. mansion antiga nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Mistério do Elevador, cena 4: Uma reviravolta inesperada: o advogado descobriu que relatorio policial tinha sido plantado. mansion antiga nao era a ce",
+      "durationSec": 29,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. o advogado conectou relatorio policial com um caso antigo em mansion antiga. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Mistério do Elevador, cena 5: As pecas comecaram a se encaixar. o advogado conectou relatorio policial com um caso antigo em mansion antiga. A solucao",
+      "durationSec": 44,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: o advogado reuniu todos os suspeitos em mansion antiga. relatorio policial foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Mistério do Elevador, cena 6: O confronto final: o advogado reuniu todos os suspeitos em mansion antiga. relatorio policial foi revelado como a prova ",
+      "durationSec": 27,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. o advogado fechou relatorio policial sabendo que a justica tinha sido feita. mansion antiga guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Mistério do Elevador, cena 7: A confissao trouxe alivio mas tambem tristeza. o advogado fechou relatorio policial sabendo que a justica tinha sido fei",
+      "durationSec": 29,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. o advogado guardou relatorio policial como recordacao. mansion antiga voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Mistério do Elevador, cena 8: O caso foi arquivado. o advogado guardou relatorio policial como recordacao. mansion antiga voltou a rotina mas algo tin",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "o-imperio-das-nuvens",
+  "title": "O Imperio das Nuvens",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 282,
+  "outro": "o explorador navegou para o horizonte com cristal de memoria como guia. oceano de nuvens desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Imperio das Nuvens",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O explorador pisou em oceano de nuvens pela primeira vez. O cenario era tao surreal que parecia um sonho. cristal de memoria foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "O Imperio das Nuvens, cena 1: O explorador pisou em oceano de nuvens pela primeira vez. O cenario era tao surreal que parecia um sonho. cristal de mem",
+      "durationSec": 37,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de oceano de nuvens observavam o explorador com curiosidade. cristal de memoria despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "O Imperio das Nuvens, cena 2: Os habitantes de oceano de nuvens observavam o explorador com curiosidade. cristal de memoria despertava um interesse qu",
+      "durationSec": 33,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. o explorador precisou decifrar cristal de memoria para navegar por oceano de nuvens. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "O Imperio das Nuvens, cena 3: O mapa estava incompleto. o explorador precisou decifrar cristal de memoria para navegar por oceano de nuvens. Cada pass",
+      "durationSec": 38,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: oceano de nuvens estava ameacado por uma forca que ninguem compreendia totalmente. o explorador consultou os anciaos que apontaram para cristal de memoria como a solucao.",
+      "imagePrompt": "O Imperio das Nuvens, cena 4: A crise: oceano de nuvens estava ameacado por uma forca que ninguem compreendia totalmente. o explorador consultou os an",
+      "durationSec": 37,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. o explorador uniu os povos de oceano de nuvens em torno de cristal de memoria. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "O Imperio das Nuvens, cena 5: A alianca foi formada. o explorador uniu os povos de oceano de nuvens em torno de cristal de memoria. A diversidade era ",
+      "durationSec": 39,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de cristal de memoria foi finalmente revelado. o explorador descobriu que oceano de nuvens era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "O Imperio das Nuvens, cena 6: O segredo de cristal de memoria foi finalmente revelado. o explorador descobriu que oceano de nuvens era apenas uma pequ",
+      "durationSec": 45,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: oceano de nuvens se encheu de luz e musica. o explorador foi honrado como heroi. cristal de memoria se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "O Imperio das Nuvens, cena 7: A celebracao: oceano de nuvens se encheu de luz e musica. o explorador foi honrado como heroi. cristal de memoria se tor",
+      "durationSec": 33,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: o explorador prometeu voltar para oceano de nuvens. cristal de memoria serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "O Imperio das Nuvens, cena 8: A despedida: o explorador prometeu voltar para oceano de nuvens. cristal de memoria serviria como ponte entre mundos. A ",
+      "durationSec": 20,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

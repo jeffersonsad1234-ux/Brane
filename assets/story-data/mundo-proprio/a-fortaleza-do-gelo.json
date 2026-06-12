@@ -1,0 +1,78 @@
+{
+  "id": "a-fortaleza-do-gelo",
+  "title": "A Fortaleza do Gelo",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 239,
+  "outro": "a visionaria navegou para o horizonte com selo real como guia. cidade flutuante desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Fortaleza do Gelo",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A visionaria pisou em cidade flutuante pela primeira vez. O cenario era tao surreal que parecia um sonho. selo real foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "A Fortaleza do Gelo, cena 1: A visionaria pisou em cidade flutuante pela primeira vez. O cenario era tao surreal que parecia um sonho. selo real foi ",
+      "durationSec": 36,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de cidade flutuante observavam a visionaria com curiosidade. selo real despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "A Fortaleza do Gelo, cena 2: Os habitantes de cidade flutuante observavam a visionaria com curiosidade. selo real despertava um interesse que ia alem",
+      "durationSec": 35,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. a visionaria precisou decifrar selo real para navegar por cidade flutuante. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "A Fortaleza do Gelo, cena 3: O mapa estava incompleto. a visionaria precisou decifrar selo real para navegar por cidade flutuante. Cada passo revelav",
+      "durationSec": 41,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: cidade flutuante estava ameacado por uma forca que ninguem compreendia totalmente. a visionaria consultou os anciaos que apontaram para selo real como a solucao.",
+      "imagePrompt": "A Fortaleza do Gelo, cena 4: A crise: cidade flutuante estava ameacado por uma forca que ninguem compreendia totalmente. a visionaria consultou os an",
+      "durationSec": 27,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. a visionaria uniu os povos de cidade flutuante em torno de selo real. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "A Fortaleza do Gelo, cena 5: A alianca foi formada. a visionaria uniu os povos de cidade flutuante em torno de selo real. A diversidade era a maior f",
+      "durationSec": 28,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de selo real foi finalmente revelado. a visionaria descobriu que cidade flutuante era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "A Fortaleza do Gelo, cena 6: O segredo de selo real foi finalmente revelado. a visionaria descobriu que cidade flutuante era apenas uma pequena parte",
+      "durationSec": 30,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: cidade flutuante se encheu de luz e musica. a visionaria foi honrado como heroi. selo real se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "A Fortaleza do Gelo, cena 7: A celebracao: cidade flutuante se encheu de luz e musica. a visionaria foi honrado como heroi. selo real se tornou um si",
+      "durationSec": 20,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: a visionaria prometeu voltar para cidade flutuante. selo real serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "A Fortaleza do Gelo, cena 8: A despedida: a visionaria prometeu voltar para cidade flutuante. selo real serviria como ponte entre mundos. A aventura ",
+      "durationSec": 22,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

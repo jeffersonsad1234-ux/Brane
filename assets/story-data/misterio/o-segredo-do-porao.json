@@ -1,0 +1,78 @@
+{
+  "id": "o-segredo-do-porao",
+  "title": "O Segredo do Porao",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 281,
+  "outro": "a detetive resolveu mais um caso. documento lacrado foi devolvido ao seu lugar. museu podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Segredo do Porao",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando documento lacrado foi descoberto em museu. a detetive foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Segredo do Porao, cena 1: O caso comecou quando documento lacrado foi descoberto em museu. a detetive foi chamado para investigar. Nada era o que ",
+      "durationSec": 44,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A detetive examinou museu em busca de pistas. documento lacrado forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Segredo do Porao, cena 2: A detetive examinou museu em busca de pistas. documento lacrado forneceu a primeira pista real. Mas ela levava a mais pe",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. a detetive verificou cada detalhe em museu. documento lacrado contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Segredo do Porao, cena 3: O suspeito principal tinha um alibi solido. a detetive verificou cada detalhe em museu. documento lacrado contradizia o ",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: a detetive descobriu que documento lacrado tinha sido plantado. museu nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Segredo do Porao, cena 4: Uma reviravolta inesperada: a detetive descobriu que documento lacrado tinha sido plantado. museu nao era a cena do crim",
+      "durationSec": 33,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. a detetive conectou documento lacrado com um caso antigo em museu. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Segredo do Porao, cena 5: As pecas comecaram a se encaixar. a detetive conectou documento lacrado com um caso antigo em museu. A solucao estava es",
+      "durationSec": 43,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: a detetive reuniu todos os suspeitos em museu. documento lacrado foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Segredo do Porao, cena 6: O confronto final: a detetive reuniu todos os suspeitos em museu. documento lacrado foi revelado como a prova definitiva",
+      "durationSec": 26,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. a detetive fechou documento lacrado sabendo que a justica tinha sido feita. museu guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Segredo do Porao, cena 7: A confissao trouxe alivio mas tambem tristeza. a detetive fechou documento lacrado sabendo que a justica tinha sido feit",
+      "durationSec": 22,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. a detetive guardou documento lacrado como recordacao. museu voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Segredo do Porao, cena 8: O caso foi arquivado. a detetive guardou documento lacrado como recordacao. museu voltou a rotina mas algo tinha mudado ",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

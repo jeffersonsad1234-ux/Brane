@@ -1,0 +1,78 @@
+{
+  "id": "o-grande-mercado-flutuante",
+  "title": "O Grande Mercado Flutuante",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 243,
+  "outro": "Sola navegou para o horizonte com ampulheta cosmica como guia. oceano de nuvens desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Grande Mercado Flutuante",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Sola pisou em oceano de nuvens pela primeira vez. O cenario era tao surreal que parecia um sonho. ampulheta cosmica foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "O Grande Mercado Flutuante, cena 1: Sola pisou em oceano de nuvens pela primeira vez. O cenario era tao surreal que parecia um sonho. ampulheta cosmica foi ",
+      "durationSec": 38,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de oceano de nuvens observavam Sola com curiosidade. ampulheta cosmica despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "O Grande Mercado Flutuante, cena 2: Os habitantes de oceano de nuvens observavam Sola com curiosidade. ampulheta cosmica despertava um interesse que ia alem",
+      "durationSec": 25,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. Sola precisou decifrar ampulheta cosmica para navegar por oceano de nuvens. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "O Grande Mercado Flutuante, cena 3: O mapa estava incompleto. Sola precisou decifrar ampulheta cosmica para navegar por oceano de nuvens. Cada passo revelav",
+      "durationSec": 35,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: oceano de nuvens estava ameacado por uma forca que ninguem compreendia totalmente. Sola consultou os anciaos que apontaram para ampulheta cosmica como a solucao.",
+      "imagePrompt": "O Grande Mercado Flutuante, cena 4: A crise: oceano de nuvens estava ameacado por uma forca que ninguem compreendia totalmente. Sola consultou os anciaos qu",
+      "durationSec": 39,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. Sola uniu os povos de oceano de nuvens em torno de ampulheta cosmica. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "O Grande Mercado Flutuante, cena 5: A alianca foi formada. Sola uniu os povos de oceano de nuvens em torno de ampulheta cosmica. A diversidade era a maior f",
+      "durationSec": 29,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de ampulheta cosmica foi finalmente revelado. Sola descobriu que oceano de nuvens era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "O Grande Mercado Flutuante, cena 6: O segredo de ampulheta cosmica foi finalmente revelado. Sola descobriu que oceano de nuvens era apenas uma pequena parte",
+      "durationSec": 26,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: oceano de nuvens se encheu de luz e musica. Sola foi honrado como heroi. ampulheta cosmica se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "O Grande Mercado Flutuante, cena 7: A celebracao: oceano de nuvens se encheu de luz e musica. Sola foi honrado como heroi. ampulheta cosmica se tornou um si",
+      "durationSec": 30,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: Sola prometeu voltar para oceano de nuvens. ampulheta cosmica serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "O Grande Mercado Flutuante, cena 8: A despedida: Sola prometeu voltar para oceano de nuvens. ampulheta cosmica serviria como ponte entre mundos. A aventura ",
+      "durationSec": 21,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

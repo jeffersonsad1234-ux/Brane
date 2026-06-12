@@ -1,0 +1,78 @@
+{
+  "id": "o-deserto-dos-ecos",
+  "title": "O Deserto dos Ecos",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 257,
+  "outro": "o cartografo navegou para o horizonte com ampulheta cosmica como guia. jardins verticais desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Deserto dos Ecos",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O cartografo pisou em jardins verticais pela primeira vez. O cenario era tao surreal que parecia um sonho. ampulheta cosmica foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "O Deserto dos Ecos, cena 1: O cartografo pisou em jardins verticais pela primeira vez. O cenario era tao surreal que parecia um sonho. ampulheta cos",
+      "durationSec": 31,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de jardins verticais observavam o cartografo com curiosidade. ampulheta cosmica despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "O Deserto dos Ecos, cena 2: Os habitantes de jardins verticais observavam o cartografo com curiosidade. ampulheta cosmica despertava um interesse qu",
+      "durationSec": 29,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. o cartografo precisou decifrar ampulheta cosmica para navegar por jardins verticais. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "O Deserto dos Ecos, cena 3: O mapa estava incompleto. o cartografo precisou decifrar ampulheta cosmica para navegar por jardins verticais. Cada pass",
+      "durationSec": 29,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: jardins verticais estava ameacado por uma forca que ninguem compreendia totalmente. o cartografo consultou os anciaos que apontaram para ampulheta cosmica como a solucao.",
+      "imagePrompt": "O Deserto dos Ecos, cena 4: A crise: jardins verticais estava ameacado por uma forca que ninguem compreendia totalmente. o cartografo consultou os a",
+      "durationSec": 31,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. o cartografo uniu os povos de jardins verticais em torno de ampulheta cosmica. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "O Deserto dos Ecos, cena 5: A alianca foi formada. o cartografo uniu os povos de jardins verticais em torno de ampulheta cosmica. A diversidade era ",
+      "durationSec": 35,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de ampulheta cosmica foi finalmente revelado. o cartografo descobriu que jardins verticais era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "O Deserto dos Ecos, cena 6: O segredo de ampulheta cosmica foi finalmente revelado. o cartografo descobriu que jardins verticais era apenas uma pequ",
+      "durationSec": 38,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: jardins verticais se encheu de luz e musica. o cartografo foi honrado como heroi. ampulheta cosmica se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "O Deserto dos Ecos, cena 7: A celebracao: jardins verticais se encheu de luz e musica. o cartografo foi honrado como heroi. ampulheta cosmica se tor",
+      "durationSec": 34,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: o cartografo prometeu voltar para jardins verticais. ampulheta cosmica serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "O Deserto dos Ecos, cena 8: A despedida: o cartografo prometeu voltar para jardins verticais. ampulheta cosmica serviria como ponte entre mundos. A ",
+      "durationSec": 30,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

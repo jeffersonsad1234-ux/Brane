@@ -1,0 +1,78 @@
+{
+  "id": "a-montanha-de-cristal",
+  "title": "A Montanha de Cristal",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 260,
+  "outro": "Orion navegou para o horizonte com bussola magica como guia. mercado subterrâneo desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Montanha de Cristal",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Orion pisou em mercado subterrâneo pela primeira vez. O cenario era tao surreal que parecia um sonho. bussola magica foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "A Montanha de Cristal, cena 1: Orion pisou em mercado subterrâneo pela primeira vez. O cenario era tao surreal que parecia um sonho. bussola magica foi",
+      "durationSec": 33,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de mercado subterrâneo observavam Orion com curiosidade. bussola magica despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "A Montanha de Cristal, cena 2: Os habitantes de mercado subterrâneo observavam Orion com curiosidade. bussola magica despertava um interesse que ia ale",
+      "durationSec": 40,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. Orion precisou decifrar bussola magica para navegar por mercado subterrâneo. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "A Montanha de Cristal, cena 3: O mapa estava incompleto. Orion precisou decifrar bussola magica para navegar por mercado subterrâneo. Cada passo revela",
+      "durationSec": 29,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: mercado subterrâneo estava ameacado por uma forca que ninguem compreendia totalmente. Orion consultou os anciaos que apontaram para bussola magica como a solucao.",
+      "imagePrompt": "A Montanha de Cristal, cena 4: A crise: mercado subterrâneo estava ameacado por uma forca que ninguem compreendia totalmente. Orion consultou os anciao",
+      "durationSec": 33,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. Orion uniu os povos de mercado subterrâneo em torno de bussola magica. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "A Montanha de Cristal, cena 5: A alianca foi formada. Orion uniu os povos de mercado subterrâneo em torno de bussola magica. A diversidade era a maior ",
+      "durationSec": 42,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de bussola magica foi finalmente revelado. Orion descobriu que mercado subterrâneo era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "A Montanha de Cristal, cena 6: O segredo de bussola magica foi finalmente revelado. Orion descobriu que mercado subterrâneo era apenas uma pequena part",
+      "durationSec": 30,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: mercado subterrâneo se encheu de luz e musica. Orion foi honrado como heroi. bussola magica se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "A Montanha de Cristal, cena 7: A celebracao: mercado subterrâneo se encheu de luz e musica. Orion foi honrado como heroi. bussola magica se tornou um s",
+      "durationSec": 22,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: Orion prometeu voltar para mercado subterrâneo. bussola magica serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "A Montanha de Cristal, cena 8: A despedida: Orion prometeu voltar para mercado subterrâneo. bussola magica serviria como ponte entre mundos. A aventura",
+      "durationSec": 31,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

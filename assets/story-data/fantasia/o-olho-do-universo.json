@@ -1,0 +1,78 @@
+{
+  "id": "o-olho-do-universo",
+  "title": "O Olho do Universo",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 274,
+  "outro": "Lyra cavalgou para o por do sol com amuleto mystico guardado no coracao. caverna dos ecos seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Olho do Universo",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou Lyra para caverna dos ecos. amuleto mystico pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "O Olho do Universo, cena 1: O destino chamou Lyra para caverna dos ecos. amuleto mystico pulsava com uma luz suave como se reconhecesse sua chegada.",
+      "durationSec": 36,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em caverna dos ecos revelaram maravilhas e perigos. Lyra segurou amuleto mystico firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "O Olho do Universo, cena 2: Os primeiros passos em caverna dos ecos revelaram maravilhas e perigos. Lyra segurou amuleto mystico firmemente sentindo",
+      "durationSec": 37,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de caverna dos ecos surgiu das sombras. Lyra precisou provar seu valor. amuleto mystico brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "O Olho do Universo, cena 3: O guardiao de caverna dos ecos surgiu das sombras. Lyra precisou provar seu valor. amuleto mystico brilhou intensamente ",
+      "durationSec": 36,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: caverna dos ecos escondia um segredo que apenas amuleto mystico podia desvendar. Lyra decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "O Olho do Universo, cena 4: O enigma: caverna dos ecos escondia um segredo que apenas amuleto mystico podia desvendar. Lyra decifrou as runas antiga",
+      "durationSec": 45,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. Lyra treinou incansavelmente em caverna dos ecos dominando amuleto mystico. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "O Olho do Universo, cena 5: A batalha se aproximava. Lyra treinou incansavelmente em caverna dos ecos dominando amuleto mystico. As forcas das treva",
+      "durationSec": 45,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por caverna dos ecos. Lyra ergueu amuleto mystico contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "O Olho do Universo, cena 6: O confronto final ecoou por caverna dos ecos. Lyra ergueu amuleto mystico contra a escuridao. A luz e a sombra colidiram",
+      "durationSec": 27,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada Lyra contemplou caverna dos ecos de um novo angulo. amuleto mystico agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "O Olho do Universo, cena 7: Com a paz restaurada Lyra contemplou caverna dos ecos de um novo angulo. amuleto mystico agora repousava mas seu poder c",
+      "durationSec": 28,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Lyra se despediu de caverna dos ecos com a promessa de voltar. amuleto mystico foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "O Olho do Universo, cena 8: Lyra se despediu de caverna dos ecos com a promessa de voltar. amuleto mystico foi guardado mas sua historia seria conta",
+      "durationSec": 20,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

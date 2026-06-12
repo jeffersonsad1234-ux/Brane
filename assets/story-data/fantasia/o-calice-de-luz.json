@@ -1,0 +1,78 @@
+{
+  "id": "o-calice-de-luz",
+  "title": "O Calice de Luz",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 255,
+  "outro": "Kael cavalgou para o por do sol com coroa elfica guardado no coracao. floresta encantada seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Calice de Luz",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou Kael para floresta encantada. coroa elfica pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "O Calice de Luz, cena 1: O destino chamou Kael para floresta encantada. coroa elfica pulsava com uma luz suave como se reconhecesse sua chegada. ",
+      "durationSec": 40,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em floresta encantada revelaram maravilhas e perigos. Kael segurou coroa elfica firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "O Calice de Luz, cena 2: Os primeiros passos em floresta encantada revelaram maravilhas e perigos. Kael segurou coroa elfica firmemente sentindo ",
+      "durationSec": 37,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de floresta encantada surgiu das sombras. Kael precisou provar seu valor. coroa elfica brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "O Calice de Luz, cena 3: O guardiao de floresta encantada surgiu das sombras. Kael precisou provar seu valor. coroa elfica brilhou intensamente r",
+      "durationSec": 33,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: floresta encantada escondia um segredo que apenas coroa elfica podia desvendar. Kael decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "O Calice de Luz, cena 4: O enigma: floresta encantada escondia um segredo que apenas coroa elfica podia desvendar. Kael decifrou as runas antigas",
+      "durationSec": 30,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. Kael treinou incansavelmente em floresta encantada dominando coroa elfica. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "O Calice de Luz, cena 5: A batalha se aproximava. Kael treinou incansavelmente em floresta encantada dominando coroa elfica. As forcas das trevas",
+      "durationSec": 25,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por floresta encantada. Kael ergueu coroa elfica contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "O Calice de Luz, cena 6: O confronto final ecoou por floresta encantada. Kael ergueu coroa elfica contra a escuridao. A luz e a sombra colidiram ",
+      "durationSec": 35,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada Kael contemplou floresta encantada de um novo angulo. coroa elfica agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "O Calice de Luz, cena 7: Com a paz restaurada Kael contemplou floresta encantada de um novo angulo. coroa elfica agora repousava mas seu poder co",
+      "durationSec": 27,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Kael se despediu de floresta encantada com a promessa de voltar. coroa elfica foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "O Calice de Luz, cena 8: Kael se despediu de floresta encantada com a promessa de voltar. coroa elfica foi guardado mas sua historia seria contad",
+      "durationSec": 28,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

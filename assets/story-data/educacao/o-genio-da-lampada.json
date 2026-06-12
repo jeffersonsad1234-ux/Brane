@@ -1,0 +1,78 @@
+{
+  "id": "o-genio-da-lampada",
+  "title": "O Genio da Lampada",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 243,
+  "outro": "estudante olhou para modelo atomico com orgulho. observatorio continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Genio da Lampada",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Estudante chegou em observatorio com uma pergunta que ninguem tinha respondido ainda. modelo atomico estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "O Genio da Lampada, cena 1: Estudante chegou em observatorio com uma pergunta que ninguem tinha respondido ainda. modelo atomico estava no centro do",
+      "durationSec": 38,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em modelo atomico. estudante passou horas em observatorio estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "O Genio da Lampada, cena 2: A primeira pista estava em modelo atomico. estudante passou horas em observatorio estudando cada detalhe. O conhecimento",
+      "durationSec": 28,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: estudante preparou modelo atomico cuidadosamente. observatorio se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "O Genio da Lampada, cena 3: O experimento: estudante preparou modelo atomico cuidadosamente. observatorio se encheu de equipamentos e expectativa. S",
+      "durationSec": 29,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. estudante mal acreditava no que modelo atomico revelava. observatorio se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "O Genio da Lampada, cena 4: Os resultados eram surpreendentes. estudante mal acreditava no que modelo atomico revelava. observatorio se tornou o cen",
+      "durationSec": 27,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. estudante enfrentou observatorio com novas duvidas. modelo atomico mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "O Genio da Lampada, cena 5: Mas o conhecimento nunca vem facil. estudante enfrentou observatorio com novas duvidas. modelo atomico mostrava um padra",
+      "durationSec": 30,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: estudante convidou outros estudiosos para observatorio. Juntos decifraram modelo atomico. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "O Genio da Lampada, cena 6: A colaboracao: estudante convidou outros estudiosos para observatorio. Juntos decifraram modelo atomico. O saber compart",
+      "durationSec": 38,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que modelo atomico revelou poderia mudar vidas. estudante liderou o projeto em observatorio para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "O Genio da Lampada, cena 7: A aplicacao pratica: o que modelo atomico revelou poderia mudar vidas. estudante liderou o projeto em observatorio para ",
+      "durationSec": 33,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: estudante registrou tudo em modelo atomico deixando observatorio como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "O Genio da Lampada, cena 8: O legado: estudante registrou tudo em modelo atomico deixando observatorio como um centro de aprendizado para futuras ge",
+      "durationSec": 20,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

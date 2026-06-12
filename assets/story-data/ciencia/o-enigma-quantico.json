@@ -1,0 +1,78 @@
+{
+  "id": "o-enigma-quantico",
+  "title": "O Enigma Quantico",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 273,
+  "outro": "a quimica desligou sequenciador de DNA ao final do expediente. acelerador de particulas continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Enigma Quantico",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A quimica ajustou sequenciador de DNA pela ultima vez. acelerador de particulas estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "O Enigma Quantico, cena 1: A quimica ajustou sequenciador de DNA pela ultima vez. acelerador de particulas estava silencioso cheio de expectativa. ",
+      "durationSec": 30,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. a quimica analisou cada ponto em acelerador de particulas. sequenciador de DNA registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "O Enigma Quantico, cena 2: Os dados comecaram a chegar. a quimica analisou cada ponto em acelerador de particulas. sequenciador de DNA registrava a",
+      "durationSec": 36,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. a quimica verificou os resultados multiplas vezes em acelerador de particulas. sequenciador de DNA havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "O Enigma Quantico, cena 3: O padrao era inconfundivel. a quimica verificou os resultados multiplas vezes em acelerador de particulas. sequenciador ",
+      "durationSec": 36,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. a quimica apresentou as evidencias em acelerador de particulas. sequenciador de DNA provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "O Enigma Quantico, cena 4: A comunidade cientifica foi notificada. a quimica apresentou as evidencias em acelerador de particulas. sequenciador de ",
+      "durationSec": 36,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. a quimica defendeu seu trabalho em acelerador de particulas usando sequenciador de DNA para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "O Enigma Quantico, cena 5: A controversia: nem todos aceitavam os resultados. a quimica defendeu seu trabalho em acelerador de particulas usando se",
+      "durationSec": 45,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. a quimica recebeu os parabens em acelerador de particulas. sequenciador de DNA seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "O Enigma Quantico, cena 6: A confirmacao chegou de outros laboratorios. a quimica recebeu os parabens em acelerador de particulas. sequenciador de ",
+      "durationSec": 34,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? a quimica liderou as discussoes em acelerador de particulas explorando as possibilidades que sequenciador de DNA abria.",
+      "imagePrompt": "O Enigma Quantico, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? a quimica liderou as discussoes em acelerador de ",
+      "durationSec": 28,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: a quimica escreveu o estudo final em acelerador de particulas. sequenciador de DNA mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "O Enigma Quantico, cena 8: O impacto: a quimica escreveu o estudo final em acelerador de particulas. sequenciador de DNA mudaria o ensino de cienci",
+      "durationSec": 28,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

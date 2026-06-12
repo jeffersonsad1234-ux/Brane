@@ -1,0 +1,78 @@
+{
+  "id": "a-lua-e-o-sol",
+  "title": "A Lua e o Sol",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 268,
+  "outro": "E assim a estrelinha aprendeu em vila dos brinquedos que a maior magica esta dentro de nos. chapeu colorido era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Lua e o Sol",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em vila dos brinquedos vivia a estrelinha. chapeu colorido era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "A Lua e o Sol, cena 1: Era uma vez em vila dos brinquedos vivia a estrelinha. chapeu colorido era seu bem mais precioso mas algo estava diferen",
+      "durationSec": 35,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A estrelinha acordou com um problema: chapeu colorido nao funcionava mais. Em vila dos brinquedos todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "A Lua e o Sol, cena 2: A estrelinha acordou com um problema: chapeu colorido nao funcionava mais. Em vila dos brinquedos todos se reuniram para",
+      "durationSec": 40,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. a estrelinha encontrou vila dos brinquedos de um jeito que nunca tinha visto. chapeu colorido brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "A Lua e o Sol, cena 3: O caminho era cheio de surpresas. a estrelinha encontrou vila dos brinquedos de um jeito que nunca tinha visto. chapeu c",
+      "durationSec": 37,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em vila dos brinquedos a estrelinha conheceu alguem que precisava de ajuda. chapeu colorido poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "A Lua e o Sol, cena 4: Um novo amigo apareceu. Em vila dos brinquedos a estrelinha conheceu alguem que precisava de ajuda. chapeu colorido pode",
+      "durationSec": 27,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: a estrelinha aprendeu que vila dos brinquedos era mais especial por seus habitantes do que por suas belezas. chapeu colorido nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "A Lua e o Sol, cena 5: A licao: a estrelinha aprendeu que vila dos brinquedos era mais especial por seus habitantes do que por suas belezas. ch",
+      "durationSec": 35,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas a estrelinha nao desistiu. Em vila dos brinquedos todos trabalharam juntos. chapeu colorido finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "A Lua e o Sol, cena 6: O desafio parecia grande demais mas a estrelinha nao desistiu. Em vila dos brinquedos todos trabalharam juntos. chapeu c",
+      "durationSec": 31,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em vila dos brinquedos. a estrelinha dancou com todos os amigos. chapeu colorido agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "A Lua e o Sol, cena 7: A comemoracao foi em vila dos brinquedos. a estrelinha dancou com todos os amigos. chapeu colorido agora brilhava mais f",
+      "durationSec": 33,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A estrelinha se despediu de vila dos brinquedos com um abraco coletivo. chapeu colorido estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "A Lua e o Sol, cena 8: A estrelinha se despediu de vila dos brinquedos com um abraco coletivo. chapeu colorido estava guardado no coracao nao n",
+      "durationSec": 30,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

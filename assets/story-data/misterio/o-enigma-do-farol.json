@@ -1,0 +1,78 @@
+{
+  "id": "o-enigma-do-farol",
+  "title": "O Enigma do Farol",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 273,
+  "outro": "o comissario resolveu mais um caso. mapa da cidade foi devolvido ao seu lugar. hotel abandonado podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Enigma do Farol",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando mapa da cidade foi descoberto em hotel abandonado. o comissario foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Enigma do Farol, cena 1: O caso comecou quando mapa da cidade foi descoberto em hotel abandonado. o comissario foi chamado para investigar. Nada ",
+      "durationSec": 43,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O comissario examinou hotel abandonado em busca de pistas. mapa da cidade forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Enigma do Farol, cena 2: O comissario examinou hotel abandonado em busca de pistas. mapa da cidade forneceu a primeira pista real. Mas ela levava",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. o comissario verificou cada detalhe em hotel abandonado. mapa da cidade contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Enigma do Farol, cena 3: O suspeito principal tinha um alibi solido. o comissario verificou cada detalhe em hotel abandonado. mapa da cidade cont",
+      "durationSec": 44,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: o comissario descobriu que mapa da cidade tinha sido plantado. hotel abandonado nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Enigma do Farol, cena 4: Uma reviravolta inesperada: o comissario descobriu que mapa da cidade tinha sido plantado. hotel abandonado nao era a ce",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. o comissario conectou mapa da cidade com um caso antigo em hotel abandonado. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Enigma do Farol, cena 5: As pecas comecaram a se encaixar. o comissario conectou mapa da cidade com um caso antigo em hotel abandonado. A solucao",
+      "durationSec": 27,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: o comissario reuniu todos os suspeitos em hotel abandonado. mapa da cidade foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Enigma do Farol, cena 6: O confronto final: o comissario reuniu todos os suspeitos em hotel abandonado. mapa da cidade foi revelado como a prova ",
+      "durationSec": 28,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. o comissario fechou mapa da cidade sabendo que a justica tinha sido feita. hotel abandonado guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Enigma do Farol, cena 7: A confissao trouxe alivio mas tambem tristeza. o comissario fechou mapa da cidade sabendo que a justica tinha sido feita",
+      "durationSec": 20,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. o comissario guardou mapa da cidade como recordacao. hotel abandonado voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Enigma do Farol, cena 8: O caso foi arquivado. o comissario guardou mapa da cidade como recordacao. hotel abandonado voltou a rotina mas algo tin",
+      "durationSec": 27,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

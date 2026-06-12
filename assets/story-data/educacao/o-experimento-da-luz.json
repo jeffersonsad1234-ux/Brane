@@ -1,0 +1,78 @@
+{
+  "id": "o-experimento-da-luz",
+  "title": "O Experimento da Luz",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 241,
+  "outro": "doutoranda olhou para quadro-negro com orgulho. sala de aula continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Experimento da Luz",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Doutoranda chegou em sala de aula com uma pergunta que ninguem tinha respondido ainda. quadro-negro estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "O Experimento da Luz, cena 1: Doutoranda chegou em sala de aula com uma pergunta que ninguem tinha respondido ainda. quadro-negro estava no centro do ",
+      "durationSec": 31,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em quadro-negro. doutoranda passou horas em sala de aula estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "O Experimento da Luz, cena 2: A primeira pista estava em quadro-negro. doutoranda passou horas em sala de aula estudando cada detalhe. O conhecimento ",
+      "durationSec": 32,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: doutoranda preparou quadro-negro cuidadosamente. sala de aula se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "O Experimento da Luz, cena 3: O experimento: doutoranda preparou quadro-negro cuidadosamente. sala de aula se encheu de equipamentos e expectativa. Se",
+      "durationSec": 27,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. doutoranda mal acreditava no que quadro-negro revelava. sala de aula se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "O Experimento da Luz, cena 4: Os resultados eram surpreendentes. doutoranda mal acreditava no que quadro-negro revelava. sala de aula se tornou o cent",
+      "durationSec": 38,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. doutoranda enfrentou sala de aula com novas duvidas. quadro-negro mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "O Experimento da Luz, cena 5: Mas o conhecimento nunca vem facil. doutoranda enfrentou sala de aula com novas duvidas. quadro-negro mostrava um padrao",
+      "durationSec": 28,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: doutoranda convidou outros estudiosos para sala de aula. Juntos decifraram quadro-negro. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "O Experimento da Luz, cena 6: A colaboracao: doutoranda convidou outros estudiosos para sala de aula. Juntos decifraram quadro-negro. O saber comparti",
+      "durationSec": 39,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que quadro-negro revelou poderia mudar vidas. doutoranda liderou o projeto em sala de aula para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "O Experimento da Luz, cena 7: A aplicacao pratica: o que quadro-negro revelou poderia mudar vidas. doutoranda liderou o projeto em sala de aula para t",
+      "durationSec": 21,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: doutoranda registrou tudo em quadro-negro deixando sala de aula como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "O Experimento da Luz, cena 8: O legado: doutoranda registrou tudo em quadro-negro deixando sala de aula como um centro de aprendizado para futuras ger",
+      "durationSec": 25,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

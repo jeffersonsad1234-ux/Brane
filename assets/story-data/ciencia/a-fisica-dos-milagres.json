@@ -1,0 +1,78 @@
+{
+  "id": "a-fisica-dos-milagres",
+  "title": "A Fisica dos Milagres",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 264,
+  "outro": "o astronomo desligou detector de particulas ao final do expediente. acelerador de particulas continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Fisica dos Milagres",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O astronomo ajustou detector de particulas pela ultima vez. acelerador de particulas estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "A Fisica dos Milagres, cena 1: O astronomo ajustou detector de particulas pela ultima vez. acelerador de particulas estava silencioso cheio de expectat",
+      "durationSec": 44,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. o astronomo analisou cada ponto em acelerador de particulas. detector de particulas registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "A Fisica dos Milagres, cena 2: Os dados comecaram a chegar. o astronomo analisou cada ponto em acelerador de particulas. detector de particulas registr",
+      "durationSec": 25,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. o astronomo verificou os resultados multiplas vezes em acelerador de particulas. detector de particulas havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "A Fisica dos Milagres, cena 3: O padrao era inconfundivel. o astronomo verificou os resultados multiplas vezes em acelerador de particulas. detector de",
+      "durationSec": 30,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. o astronomo apresentou as evidencias em acelerador de particulas. detector de particulas provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "A Fisica dos Milagres, cena 4: A comunidade cientifica foi notificada. o astronomo apresentou as evidencias em acelerador de particulas. detector de pa",
+      "durationSec": 39,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. o astronomo defendeu seu trabalho em acelerador de particulas usando detector de particulas para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "A Fisica dos Milagres, cena 5: A controversia: nem todos aceitavam os resultados. o astronomo defendeu seu trabalho em acelerador de particulas usando ",
+      "durationSec": 43,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. o astronomo recebeu os parabens em acelerador de particulas. detector de particulas seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "A Fisica dos Milagres, cena 6: A confirmacao chegou de outros laboratorios. o astronomo recebeu os parabens em acelerador de particulas. detector de pa",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? o astronomo liderou as discussoes em acelerador de particulas explorando as possibilidades que detector de particulas abria.",
+      "imagePrompt": "A Fisica dos Milagres, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? o astronomo liderou as discussoes em acelerador d",
+      "durationSec": 22,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: o astronomo escreveu o estudo final em acelerador de particulas. detector de particulas mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "A Fisica dos Milagres, cena 8: O impacto: o astronomo escreveu o estudo final em acelerador de particulas. detector de particulas mudaria o ensino de c",
+      "durationSec": 30,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

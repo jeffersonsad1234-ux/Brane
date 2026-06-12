@@ -1,0 +1,78 @@
+{
+  "id": "a-geracao-estelar",
+  "title": "A Geracao Estelar",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 292,
+  "outro": "piloto guardou traje avancado como o maior tesouro da humanidade. colonia marciana se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Geracao Estelar",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em colonia marciana. piloto correu para o painel de controle. traje avancado emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "A Geracao Estelar, cena 1: O alerta vermelho acendeu em colonia marciana. piloto correu para o painel de controle. traje avancado emitia um pulso r",
+      "durationSec": 45,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. piloto verificou os sensores tres vezes. colonia marciana estava sofrendo distorcoes espacio-temporais. traje avancado era a fonte.",
+      "imagePrompt": "A Geracao Estelar, cena 2: As leituras eram impossiveis. piloto verificou os sensores tres vezes. colonia marciana estava sofrendo distorcoes espac",
+      "durationSec": 30,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: traje avancado nao era uma tecnologia convencional. piloto teorizou que colonia marciana tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "A Geracao Estelar, cena 3: A descoberta: traje avancado nao era uma tecnologia convencional. piloto teorizou que colonia marciana tinha sido constr",
+      "durationSec": 41,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Piloto propos um plano arriscado. Se funcionasse colonia marciana poderia ser salva. traje avancado precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "A Geracao Estelar, cena 4: Piloto propos um plano arriscado. Se funcionasse colonia marciana poderia ser salva. traje avancado precisava ser ativad",
+      "durationSec": 45,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. piloto monitorava cada parametro em colonia marciana. traje avancado vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "A Geracao Estelar, cena 5: O experimento comecou. piloto monitorava cada parametro em colonia marciana. traje avancado vibrava em uma frequencia qu",
+      "durationSec": 44,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. piloto observou colonia marciana se distorcer ao redor de traje avancado. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "A Geracao Estelar, cena 6: Uma fenda se abriu. piloto observou colonia marciana se distorcer ao redor de traje avancado. Atraves da abertura vislum",
+      "durationSec": 37,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. piloto comunicou-se com a inteligencia por tras de traje avancado. colonia marciana tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "A Geracao Estelar, cena 7: O contato foi estabelecido. piloto comunicou-se com a inteligencia por tras de traje avancado. colonia marciana tornou-s",
+      "durationSec": 27,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: piloto documentou tudo sobre traje avancado e colonia marciana. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "A Geracao Estelar, cena 8: O legado: piloto documentou tudo sobre traje avancado e colonia marciana. A humanidade nunca mais seria a mesma. Uma nov",
+      "durationSec": 23,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

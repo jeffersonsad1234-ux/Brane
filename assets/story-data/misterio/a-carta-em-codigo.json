@@ -1,0 +1,78 @@
+{
+  "id": "a-carta-em-codigo",
+  "title": "A Carta em Codigo",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 250,
+  "outro": "Maria resolveu mais um caso. fita de seguranca foi devolvido ao seu lugar. museu podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Carta em Codigo",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando fita de seguranca foi descoberto em museu. Maria foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "A Carta em Codigo, cena 1: O caso comecou quando fita de seguranca foi descoberto em museu. Maria foi chamado para investigar. Nada era o que parec",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Maria examinou museu em busca de pistas. fita de seguranca forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "A Carta em Codigo, cena 2: Maria examinou museu em busca de pistas. fita de seguranca forneceu a primeira pista real. Mas ela levava a mais pergunt",
+      "durationSec": 44,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. Maria verificou cada detalhe em museu. fita de seguranca contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "A Carta em Codigo, cena 3: O suspeito principal tinha um alibi solido. Maria verificou cada detalhe em museu. fita de seguranca contradizia o depoi",
+      "durationSec": 37,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: Maria descobriu que fita de seguranca tinha sido plantado. museu nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "A Carta em Codigo, cena 4: Uma reviravolta inesperada: Maria descobriu que fita de seguranca tinha sido plantado. museu nao era a cena do crime ori",
+      "durationSec": 29,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. Maria conectou fita de seguranca com um caso antigo em museu. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "A Carta em Codigo, cena 5: As pecas comecaram a se encaixar. Maria conectou fita de seguranca com um caso antigo em museu. A solucao estava escondi",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: Maria reuniu todos os suspeitos em museu. fita de seguranca foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "A Carta em Codigo, cena 6: O confronto final: Maria reuniu todos os suspeitos em museu. fita de seguranca foi revelado como a prova definitiva. O c",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. Maria fechou fita de seguranca sabendo que a justica tinha sido feita. museu guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "A Carta em Codigo, cena 7: A confissao trouxe alivio mas tambem tristeza. Maria fechou fita de seguranca sabendo que a justica tinha sido feita. mu",
+      "durationSec": 25,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. Maria guardou fita de seguranca como recordacao. museu voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "A Carta em Codigo, cena 8: O caso foi arquivado. Maria guardou fita de seguranca como recordacao. museu voltou a rotina mas algo tinha mudado para ",
+      "durationSec": 21,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

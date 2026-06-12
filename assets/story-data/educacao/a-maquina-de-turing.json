@@ -1,0 +1,78 @@
+{
+  "id": "a-maquina-de-turing",
+  "title": "A Maquina de Turing",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 274,
+  "outro": "doutoranda olhou para modelo atomico com orgulho. sala de aula continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Maquina de Turing",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Doutoranda chegou em sala de aula com uma pergunta que ninguem tinha respondido ainda. modelo atomico estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "A Maquina de Turing, cena 1: Doutoranda chegou em sala de aula com uma pergunta que ninguem tinha respondido ainda. modelo atomico estava no centro d",
+      "durationSec": 38,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em modelo atomico. doutoranda passou horas em sala de aula estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "A Maquina de Turing, cena 2: A primeira pista estava em modelo atomico. doutoranda passou horas em sala de aula estudando cada detalhe. O conheciment",
+      "durationSec": 44,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: doutoranda preparou modelo atomico cuidadosamente. sala de aula se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "A Maquina de Turing, cena 3: O experimento: doutoranda preparou modelo atomico cuidadosamente. sala de aula se encheu de equipamentos e expectativa. ",
+      "durationSec": 42,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. doutoranda mal acreditava no que modelo atomico revelava. sala de aula se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "A Maquina de Turing, cena 4: Os resultados eram surpreendentes. doutoranda mal acreditava no que modelo atomico revelava. sala de aula se tornou o ce",
+      "durationSec": 30,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. doutoranda enfrentou sala de aula com novas duvidas. modelo atomico mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "A Maquina de Turing, cena 5: Mas o conhecimento nunca vem facil. doutoranda enfrentou sala de aula com novas duvidas. modelo atomico mostrava um padr",
+      "durationSec": 35,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: doutoranda convidou outros estudiosos para sala de aula. Juntos decifraram modelo atomico. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "A Maquina de Turing, cena 6: A colaboracao: doutoranda convidou outros estudiosos para sala de aula. Juntos decifraram modelo atomico. O saber compar",
+      "durationSec": 34,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que modelo atomico revelou poderia mudar vidas. doutoranda liderou o projeto em sala de aula para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "A Maquina de Turing, cena 7: A aplicacao pratica: o que modelo atomico revelou poderia mudar vidas. doutoranda liderou o projeto em sala de aula para",
+      "durationSec": 28,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: doutoranda registrou tudo em modelo atomico deixando sala de aula como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "A Maquina de Turing, cena 8: O legado: doutoranda registrou tudo em modelo atomico deixando sala de aula como um centro de aprendizado para futuras g",
+      "durationSec": 23,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

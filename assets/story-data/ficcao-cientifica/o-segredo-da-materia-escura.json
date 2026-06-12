@@ -1,0 +1,78 @@
+{
+  "id": "o-segredo-da-materia-escura",
+  "title": "O Segredo da Materia Escura",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 253,
+  "outro": "piloto guardou cubo de dados como o maior tesouro da humanidade. nave interestelar se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Segredo da Materia Escura",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em nave interestelar. piloto correu para o painel de controle. cubo de dados emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "O Segredo da Materia Escura, cena 1: O alerta vermelho acendeu em nave interestelar. piloto correu para o painel de controle. cubo de dados emitia um pulso r",
+      "durationSec": 37,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. piloto verificou os sensores tres vezes. nave interestelar estava sofrendo distorcoes espacio-temporais. cubo de dados era a fonte.",
+      "imagePrompt": "O Segredo da Materia Escura, cena 2: As leituras eram impossiveis. piloto verificou os sensores tres vezes. nave interestelar estava sofrendo distorcoes espa",
+      "durationSec": 25,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: cubo de dados nao era uma tecnologia convencional. piloto teorizou que nave interestelar tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "O Segredo da Materia Escura, cena 3: A descoberta: cubo de dados nao era uma tecnologia convencional. piloto teorizou que nave interestelar tinha sido constr",
+      "durationSec": 33,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Piloto propos um plano arriscado. Se funcionasse nave interestelar poderia ser salva. cubo de dados precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "O Segredo da Materia Escura, cena 4: Piloto propos um plano arriscado. Se funcionasse nave interestelar poderia ser salva. cubo de dados precisava ser ativad",
+      "durationSec": 37,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. piloto monitorava cada parametro em nave interestelar. cubo de dados vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "O Segredo da Materia Escura, cena 5: O experimento comecou. piloto monitorava cada parametro em nave interestelar. cubo de dados vibrava em uma frequencia qu",
+      "durationSec": 32,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. piloto observou nave interestelar se distorcer ao redor de cubo de dados. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "O Segredo da Materia Escura, cena 6: Uma fenda se abriu. piloto observou nave interestelar se distorcer ao redor de cubo de dados. Atraves da abertura vislum",
+      "durationSec": 39,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. piloto comunicou-se com a inteligencia por tras de cubo de dados. nave interestelar tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "O Segredo da Materia Escura, cena 7: O contato foi estabelecido. piloto comunicou-se com a inteligencia por tras de cubo de dados. nave interestelar tornou-s",
+      "durationSec": 30,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: piloto documentou tudo sobre cubo de dados e nave interestelar. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "O Segredo da Materia Escura, cena 8: O legado: piloto documentou tudo sobre cubo de dados e nave interestelar. A humanidade nunca mais seria a mesma. Uma nov",
+      "durationSec": 20,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

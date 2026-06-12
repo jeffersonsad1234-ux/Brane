@@ -1,0 +1,78 @@
+{
+  "id": "a-bicicleta-da-liberdade",
+  "title": "A Bicicleta da Liberdade",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 286,
+  "outro": "o imigrante fechou fotografia antiga com cuidado. estacao ferroviaria continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Bicicleta da Liberdade",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1930. o imigrante testemunhava um momento que mudaria o curso da historia. fotografia antiga estava prestes a desempenhar um papel crucial em estacao ferroviaria.",
+      "imagePrompt": "A Bicicleta da Liberdade, cena 1: O ano era 1930. o imigrante testemunhava um momento que mudaria o curso da historia. fotografia antiga estava prestes a ",
+      "durationSec": 33,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em estacao ferroviaria. o imigrante observava fotografia antiga com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Bicicleta da Liberdade, cena 2: A tensao crescia em estacao ferroviaria. o imigrante observava fotografia antiga com atencao sabendo que cada detalhe im",
+      "durationSec": 36,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. o imigrante mediou as discussoes em estacao ferroviaria. fotografia antiga representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Bicicleta da Liberdade, cena 3: O conflito de ideias era palpavel. o imigrante mediou as discussoes em estacao ferroviaria. fotografia antiga representa",
+      "durationSec": 44,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: o imigrante participou do momento em que fotografia antiga foi utilizado em estacao ferroviaria. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Bicicleta da Liberdade, cena 4: O marco historico: o imigrante participou do momento em que fotografia antiga foi utilizado em estacao ferroviaria. O qu",
+      "durationSec": 31,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. o imigrante lutou contra as adversidades em estacao ferroviaria. fotografia antiga era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Bicicleta da Liberdade, cena 5: Os desafios surgiam a cada esquina. o imigrante lutou contra as adversidades em estacao ferroviaria. fotografia antiga e",
+      "durationSec": 43,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. estacao ferroviaria nunca mais seria o mesmo depois daquele dia. o imigrante guardou fotografia antiga como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Bicicleta da Liberdade, cena 6: A transformacao aconteceu. estacao ferroviaria nunca mais seria o mesmo depois daquele dia. o imigrante guardou fotograf",
+      "durationSec": 43,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. o imigrante ajudou a documentar o que aconteceu em estacao ferroviaria. fotografia antiga se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Bicicleta da Liberdade, cena 7: O legado comecou a ser construido. o imigrante ajudou a documentar o que aconteceu em estacao ferroviaria. fotografia an",
+      "durationSec": 25,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. o imigrante contemplou estacao ferroviaria transformado. fotografia antiga estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Bicicleta da Liberdade, cena 8: Os frutos do passado. o imigrante contemplou estacao ferroviaria transformado. fotografia antiga estava agora em exposic",
+      "durationSec": 31,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

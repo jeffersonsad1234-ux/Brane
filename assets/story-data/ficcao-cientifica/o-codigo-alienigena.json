@@ -1,0 +1,78 @@
+{
+  "id": "o-codigo-alienigena",
+  "title": "O Codigo Alienigena",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 282,
+  "outro": "engenheiro guardou sinal misterioso como o maior tesouro da humanidade. capsula de criogenia se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Codigo Alienigena",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em capsula de criogenia. engenheiro correu para o painel de controle. sinal misterioso emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "O Codigo Alienigena, cena 1: O alerta vermelho acendeu em capsula de criogenia. engenheiro correu para o painel de controle. sinal misterioso emitia ",
+      "durationSec": 42,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. engenheiro verificou os sensores tres vezes. capsula de criogenia estava sofrendo distorcoes espacio-temporais. sinal misterioso era a fonte.",
+      "imagePrompt": "O Codigo Alienigena, cena 2: As leituras eram impossiveis. engenheiro verificou os sensores tres vezes. capsula de criogenia estava sofrendo distorco",
+      "durationSec": 35,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: sinal misterioso nao era uma tecnologia convencional. engenheiro teorizou que capsula de criogenia tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "O Codigo Alienigena, cena 3: A descoberta: sinal misterioso nao era uma tecnologia convencional. engenheiro teorizou que capsula de criogenia tinha s",
+      "durationSec": 30,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Engenheiro propos um plano arriscado. Se funcionasse capsula de criogenia poderia ser salva. sinal misterioso precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "O Codigo Alienigena, cena 4: Engenheiro propos um plano arriscado. Se funcionasse capsula de criogenia poderia ser salva. sinal misterioso precisava ",
+      "durationSec": 39,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. engenheiro monitorava cada parametro em capsula de criogenia. sinal misterioso vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "O Codigo Alienigena, cena 5: O experimento comecou. engenheiro monitorava cada parametro em capsula de criogenia. sinal misterioso vibrava em uma fre",
+      "durationSec": 42,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. engenheiro observou capsula de criogenia se distorcer ao redor de sinal misterioso. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "O Codigo Alienigena, cena 6: Uma fenda se abriu. engenheiro observou capsula de criogenia se distorcer ao redor de sinal misterioso. Atraves da abert",
+      "durationSec": 35,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. engenheiro comunicou-se com a inteligencia por tras de sinal misterioso. capsula de criogenia tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "O Codigo Alienigena, cena 7: O contato foi estabelecido. engenheiro comunicou-se com a inteligencia por tras de sinal misterioso. capsula de criogeni",
+      "durationSec": 31,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: engenheiro documentou tudo sobre sinal misterioso e capsula de criogenia. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "O Codigo Alienigena, cena 8: O legado: engenheiro documentou tudo sobre sinal misterioso e capsula de criogenia. A humanidade nunca mais seria a mesm",
+      "durationSec": 28,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

@@ -6,6 +6,8 @@ import useBackgroundMusic from "../../hooks/useBackgroundMusic";
 import useLiveSync from "../../hooks/useLiveSync";
 import AnimatedBackground from "./AnimatedBackground";
 
+const API_BASE = (process.env.REACT_APP_BACKEND_URL || `http://${window.location.hostname}:8000`).trim();
+
 const COLORS = {
   bg: "#050608",
   primary: "#8A2CFF",
@@ -176,6 +178,19 @@ export default function BranpyLive() {
   const [loadingText, setLoadingText] = useState("Carregando...");
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
+
+  // Story mode state
+  const [storyMode, setStoryMode] = useState(false);
+  const [storyData, setStoryData] = useState(null);
+  const [currentSceneIdx, setCurrentSceneIdx] = useState(0);
+  const [storyPaused, setStoryPaused] = useState(false);
+  const [storyImageUrl, setStoryImageUrl] = useState("");
+  const [storyNarration, setStoryNarration] = useState("");
+  const [storyTotalScenes, setStoryTotalScenes] = useState(0);
+  const [storyTitle, setStoryTitle] = useState("");
+  const [storyLoading, setStoryLoading] = useState(false);
+  const [storyTransition, setStoryTransition] = useState(false);
+  const sceneTimerRef = useRef(null);
 
   const [bgVariant, setBgVariant] = useState(() => localStorage.getItem("brane_bg") || "neon");
 
@@ -432,6 +447,97 @@ export default function BranpyLive() {
     }
   }, [cancelAll, clearAllTimers, announcing, ttsPlayer, narrator]);
 
+  // ── Story Mode ──
+  const playScene = useCallback((idx, story) => {
+    const data = story || storyData;
+    if (!data || !data.scenes || idx >= data.scenes.length) {
+      setStoryMode(false);
+      setStoryData(null);
+      return;
+    }
+    const scene = data.scenes[idx];
+    setCurrentSceneIdx(idx);
+    setStoryImageUrl(scene.imageUrl || "");
+    setStoryNarration(scene.narration || "");
+    setStoryTransition(true);
+    setTimeout(() => setStoryTransition(false), 500);
+
+    if (sceneTimerRef.current) clearTimeout(sceneTimerRef.current);
+
+    const onNarrationEnd = () => {
+      const remaining = Math.max(2000, (scene.durationSec * 1000) - 2000);
+      sceneTimerRef.current = setTimeout(() => {
+        if (!storyPaused) playScene(idx + 1);
+      }, remaining);
+    };
+
+    if (ttsPlayer.ttsEnabled) {
+      ttsPlayer.cancel();
+      ttsPlayer.speak(scene.narration, onNarrationEnd);
+    } else {
+      narrator.cancel();
+      narrator.speak(scene.narration, onNarrationEnd);
+    }
+  }, [storyData, storyPaused, ttsPlayer, narrator]);
+
+  const loadStory = useCallback(async (categoryId, storyId) => {
+    setStoryLoading(true);
+    setStoryMode(true);
+    setPhase("loading");
+    try {
+      const r = await fetch(`${API_BASE}/api/stories/${categoryId}/${storyId}`);
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const data = await r.json();
+      setStoryData(data);
+      setStoryTotalScenes(data.sceneCount || data.scenes.length);
+      setStoryTitle(data.title);
+      setCurrentSceneIdx(0);
+      setStoryPaused(false);
+      // Pre-generate TTS for all scenes
+      if (ttsPlayer.ttsEnabled) {
+        const items = data.scenes.map((s, i) => ({ id: `s_${i}`, text: s.narration }));
+        ttsPlayer.pregenItems(items);
+      }
+      setTimeout(() => playScene(0, data), 800);
+    } catch (err) {
+      console.error("[STORY] load error:", err);
+      setStoryMode(false);
+    }
+    setStoryLoading(false);
+  }, [ttsPlayer, playScene]);
+
+  const handleNextScene = useCallback(() => {
+    if (sceneTimerRef.current) clearTimeout(sceneTimerRef.current);
+    ttsPlayer.cancel();
+    narrator.cancel();
+    playScene(currentSceneIdx + 1);
+  }, [currentSceneIdx, playScene, ttsPlayer, narrator]);
+
+  const handlePauseStory = useCallback(() => {
+    setStoryPaused(true);
+    ttsPlayer.cancel();
+    narrator.cancel();
+    if (sceneTimerRef.current) clearTimeout(sceneTimerRef.current);
+  }, [ttsPlayer, narrator]);
+
+  const handleResumeStory = useCallback(() => {
+    setStoryPaused(false);
+    playScene(currentSceneIdx);
+  }, [currentSceneIdx, playScene]);
+
+  const handleStopStory = useCallback(() => {
+    if (sceneTimerRef.current) clearTimeout(sceneTimerRef.current);
+    ttsPlayer.cancel();
+    narrator.cancel();
+    setStoryMode(false);
+    setStoryData(null);
+  }, [ttsPlayer, narrator]);
+
+  const handleNextStory = useCallback(() => {
+    // Just stop current story; admin will send START_STORY
+    handleStopStory();
+  }, [handleStopStory]);
+
   // ── WebSocket command listener ──
   useEffect(() => {
     liveSync.on("adminConnected", () => {
@@ -507,13 +613,34 @@ export default function BranpyLive() {
         case "disableTts":
           ttsPlayer.setTtsEnabled(false);
           break;
+        // Story commands
+        case "startStory":
+          if (msg.categoryId && msg.storyId) loadStory(msg.categoryId, msg.storyId);
+          break;
+        case "nextScene":
+          handleNextScene();
+          break;
+        case "pauseStory":
+          handlePauseStory();
+          break;
+        case "resumeStory":
+          handleResumeStory();
+          break;
+        case "stopStory":
+          handleStopStory();
+          break;
+        case "nextStory":
+          handleNextStory();
+          break;
         default: break;
       }
     });
     return () => { liveSync.off("command"); liveSync.off("adminConnected"); };
   }, [liveSync, handleRemotePause, handleRemoteContinue, handleRestart,
       handleRemoteNext, narrator, music, handleRemoteSpeak, ttsPlayer,
-      phase, currentIndex, bgVariant, announcing, activeQuizCategory]);
+      phase, currentIndex, bgVariant, announcing, activeQuizCategory,
+      loadStory, handleNextScene, handlePauseStory, handleResumeStory,
+      handleStopStory, handleNextStory]);
 
   // ── Quiz Library: SET_QUIZ_LIBRARY handler ──
   useEffect(() => {
@@ -531,12 +658,32 @@ export default function BranpyLive() {
       setActiveQuizCategory(displayCategory);
       clearAllTimers();
       narrator.cancel();
+      ttsPlayer.cancel();
       setPaused(false);
       setPhase("loading");
+      // Stop story if active
+      if (sceneTimerRef.current) clearTimeout(sceneTimerRef.current);
+      setStoryMode(false);
+      setStoryData(null);
       loadQuestions(queryCategory, count);
     });
     return () => { liveSync.off("SET_QUIZ_LIBRARY"); };
   }, [liveSync, clearAllTimers, narrator, loadQuestions]);
+
+  // ── Story: START_STORY handler ──
+  useEffect(() => {
+    liveSync.on("START_STORY", (msg) => {
+      console.log("[LIVE] Recebido START_STORY", msg);
+      if (!msg.categoryId || !msg.storyId) return;
+      clearAllTimers();
+      narrator.cancel();
+      ttsPlayer.cancel();
+      setPaused(false);
+      setPhase("loading");
+      loadStory(msg.categoryId, msg.storyId);
+    });
+    return () => { liveSync.off("START_STORY"); };
+  }, [liveSync, clearAllTimers, narrator, ttsPlayer, loadStory]);
 
   // ── Send voices to admin ──
   useEffect(() => {
@@ -547,7 +694,7 @@ export default function BranpyLive() {
 
   // ── Send status to admin ──
   useEffect(() => {
-    liveSync.sendStatus({
+    const statusPayload = {
       phase,
       currentIndex,
       paused: pausedRef.current,
@@ -565,11 +712,21 @@ export default function BranpyLive() {
       activeQuizCategory,
       ttsEnabled: ttsPlayer.ttsEnabled,
       ttsVoiceId: ttsPlayer.voiceId,
-    });
+    };
+    if (storyMode) {
+      statusPayload.storyMode = true;
+      statusPayload.storyTitle = storyTitle;
+      statusPayload.storyScene = currentSceneIdx + 1;
+      statusPayload.totalScenes = storyTotalScenes;
+      statusPayload.storyPaused = storyPaused;
+    }
+    liveSync.sendStatus(statusPayload);
   }, [phase, currentIndex, paused, bgVariant,
       music.currentTrack, music.isPlaying, music.volume,
       narrator.enabled, narrator.voice, narrator.volume, narrator.speedMode, narrator.pitch,
-      narrator.voiceMode, announcing, liveSync, activeQuizCategory, ttsPlayer.ttsEnabled, ttsPlayer.voiceId]);
+      narrator.voiceMode, announcing, liveSync, activeQuizCategory,
+      ttsPlayer.ttsEnabled, ttsPlayer.voiceId,
+      storyMode, storyTitle, currentSceneIdx, storyTotalScenes, storyPaused]);
 
   // ── Forward TTS/music errors to admin ──
   useEffect(() => {
@@ -590,6 +747,121 @@ export default function BranpyLive() {
       liveSync.send({ type: "ttsUnlocked", unlocked: true });
     }
   }, [ttsPlayer.unlocked, liveSync]);
+
+  // ── Real-time story status to admin ──
+  useEffect(() => {
+    if (!storyMode || !storyData) return;
+    liveSync.send({
+      type: "storyStatus",
+      storyTitle,
+      storyScene: currentSceneIdx + 1,
+      totalScenes: storyTotalScenes || storyData.sceneCount,
+      storyPaused,
+    });
+  }, [storyMode, storyData, storyTitle, currentSceneIdx, storyTotalScenes, storyPaused, liveSync]);
+
+  // ── Story Mode UI ──
+  if (storyMode && storyData) {
+    const scene = storyData.scenes[currentSceneIdx];
+    const progressPct = ((currentSceneIdx + 1) / storyTotalScenes) * 100;
+    return (
+      <div style={{
+        width: "100vw", height: "100vh",
+        overflow: "hidden", position: "relative",
+        background: COLORS.bg,
+        transition: "all 0.8s ease",
+      }}>
+        {/* Scene image */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: storyImageUrl
+            ? `url(${storyImageUrl}) center/cover no-repeat`
+            : `linear-gradient(135deg, ${COLORS.primary}40, ${COLORS.secondary}60)`,
+          opacity: storyTransition ? 0.6 : 1,
+          transition: "opacity 0.8s ease, transform 0.8s ease",
+          transform: storyTransition ? "scale(1.05)" : "scale(1)",
+        }} />
+
+        {/* Dark overlay for readability */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.6) 100%)",
+        }} />
+
+        {/* Title bar */}
+        <div style={{
+          position: "absolute", top: 0, left: 0, right: 0, zIndex: 20,
+          padding: "60px 20px 20px",
+          background: "linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%)",
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 600, color: COLORS.accent, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>
+            {storyData.category}
+          </div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", textShadow: "0 2px 10px rgba(0,0,0,0.5)" }}>
+            {storyTitle}
+          </div>
+        </div>
+
+        {/* Scene narration (subtitle) */}
+        {scene && (
+          <div style={{
+            position: "absolute", bottom: "100px", left: 0, right: 0, zIndex: 20,
+            padding: "0 24px",
+            textAlign: "center",
+          }}>
+            <div style={{
+              display: "inline-block",
+              background: "rgba(0,0,0,0.6)",
+              backdropFilter: "blur(8px)",
+              padding: "12px 20px",
+              borderRadius: 12,
+              maxWidth: "80%",
+              margin: "0 auto",
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: COLORS.accent, marginBottom: 4 }}>
+                Cena {currentSceneIdx + 1} / {storyTotalScenes}
+              </div>
+              <div style={{ fontSize: "clamp(13px, 2vw, 18px)", color: "#fff", lineHeight: 1.5, fontWeight: 500 }}>
+                {scene.narration}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Progress bar */}
+        <div style={{
+          position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 20,
+          height: 4,
+          background: "rgba(255,255,255,0.1)",
+        }}>
+          <div style={{
+            width: `${progressPct}%`,
+            height: "100%",
+            background: `linear-gradient(90deg, ${COLORS.primary}, ${COLORS.accent})`,
+            transition: "width 0.5s ease",
+            borderRadius: "0 2px 2px 0",
+          }} />
+        </div>
+
+        {/* Pause overlay */}
+        {storyPaused && (
+          <div style={{
+            position: "absolute", inset: 0, zIndex: 30,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: "rgba(0,0,0,0.5)",
+          }}>
+            <div style={{
+              fontSize: 48, fontWeight: 900, color: "#fff",
+              textShadow: "0 0 30px rgba(0,0,0,0.8)",
+              letterSpacing: 4,
+            }}>
+              PAUSADO
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   if (phase === "loading") {
     // Audio activation overlay (shown before user taps the button)

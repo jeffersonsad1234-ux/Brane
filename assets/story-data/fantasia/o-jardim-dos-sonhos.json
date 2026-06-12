@@ -1,0 +1,78 @@
+{
+  "id": "o-jardim-dos-sonhos",
+  "title": "O Jardim dos Sonhos",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 255,
+  "outro": "a rainha cavalgou para o por do sol com coroa elfica guardado no coracao. montanha sagrada seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Jardim dos Sonhos",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou a rainha para montanha sagrada. coroa elfica pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "O Jardim dos Sonhos, cena 1: O destino chamou a rainha para montanha sagrada. coroa elfica pulsava com uma luz suave como se reconhecesse sua chegada",
+      "durationSec": 30,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em montanha sagrada revelaram maravilhas e perigos. a rainha segurou coroa elfica firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "O Jardim dos Sonhos, cena 2: Os primeiros passos em montanha sagrada revelaram maravilhas e perigos. a rainha segurou coroa elfica firmemente sentind",
+      "durationSec": 37,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de montanha sagrada surgiu das sombras. a rainha precisou provar seu valor. coroa elfica brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "O Jardim dos Sonhos, cena 3: O guardiao de montanha sagrada surgiu das sombras. a rainha precisou provar seu valor. coroa elfica brilhou intensamente",
+      "durationSec": 34,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: montanha sagrada escondia um segredo que apenas coroa elfica podia desvendar. a rainha decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "O Jardim dos Sonhos, cena 4: O enigma: montanha sagrada escondia um segredo que apenas coroa elfica podia desvendar. a rainha decifrou as runas antig",
+      "durationSec": 28,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. a rainha treinou incansavelmente em montanha sagrada dominando coroa elfica. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "O Jardim dos Sonhos, cena 5: A batalha se aproximava. a rainha treinou incansavelmente em montanha sagrada dominando coroa elfica. As forcas das trev",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por montanha sagrada. a rainha ergueu coroa elfica contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "O Jardim dos Sonhos, cena 6: O confronto final ecoou por montanha sagrada. a rainha ergueu coroa elfica contra a escuridao. A luz e a sombra colidira",
+      "durationSec": 41,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada a rainha contemplou montanha sagrada de um novo angulo. coroa elfica agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "O Jardim dos Sonhos, cena 7: Com a paz restaurada a rainha contemplou montanha sagrada de um novo angulo. coroa elfica agora repousava mas seu poder ",
+      "durationSec": 33,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A rainha se despediu de montanha sagrada com a promessa de voltar. coroa elfica foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "O Jardim dos Sonhos, cena 8: A rainha se despediu de montanha sagrada com a promessa de voltar. coroa elfica foi guardado mas sua historia seria cont",
+      "durationSec": 21,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

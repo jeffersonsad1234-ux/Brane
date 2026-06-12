@@ -1,0 +1,78 @@
+{
+  "id": "a-armadura-do-heroi",
+  "title": "A Armadura do Heroi",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 266,
+  "outro": "Elara cavalgou para o por do sol com mapa astral guardado no coracao. caverna dos ecos seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Armadura do Heroi",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou Elara para caverna dos ecos. mapa astral pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "A Armadura do Heroi, cena 1: O destino chamou Elara para caverna dos ecos. mapa astral pulsava com uma luz suave como se reconhecesse sua chegada. Um",
+      "durationSec": 32,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em caverna dos ecos revelaram maravilhas e perigos. Elara segurou mapa astral firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "A Armadura do Heroi, cena 2: Os primeiros passos em caverna dos ecos revelaram maravilhas e perigos. Elara segurou mapa astral firmemente sentindo se",
+      "durationSec": 39,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de caverna dos ecos surgiu das sombras. Elara precisou provar seu valor. mapa astral brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "A Armadura do Heroi, cena 3: O guardiao de caverna dos ecos surgiu das sombras. Elara precisou provar seu valor. mapa astral brilhou intensamente res",
+      "durationSec": 34,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: caverna dos ecos escondia um segredo que apenas mapa astral podia desvendar. Elara decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "A Armadura do Heroi, cena 4: O enigma: caverna dos ecos escondia um segredo que apenas mapa astral podia desvendar. Elara decifrou as runas antigas r",
+      "durationSec": 34,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. Elara treinou incansavelmente em caverna dos ecos dominando mapa astral. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "A Armadura do Heroi, cena 5: A batalha se aproximava. Elara treinou incansavelmente em caverna dos ecos dominando mapa astral. As forcas das trevas s",
+      "durationSec": 35,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por caverna dos ecos. Elara ergueu mapa astral contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "A Armadura do Heroi, cena 6: O confronto final ecoou por caverna dos ecos. Elara ergueu mapa astral contra a escuridao. A luz e a sombra colidiram em",
+      "durationSec": 27,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada Elara contemplou caverna dos ecos de um novo angulo. mapa astral agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "A Armadura do Heroi, cena 7: Com a paz restaurada Elara contemplou caverna dos ecos de um novo angulo. mapa astral agora repousava mas seu poder cont",
+      "durationSec": 34,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Elara se despediu de caverna dos ecos com a promessa de voltar. mapa astral foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "A Armadura do Heroi, cena 8: Elara se despediu de caverna dos ecos com a promessa de voltar. mapa astral foi guardado mas sua historia seria contada ",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

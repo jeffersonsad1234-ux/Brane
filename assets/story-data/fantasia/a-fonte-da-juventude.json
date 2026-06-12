@@ -1,0 +1,78 @@
+{
+  "id": "a-fonte-da-juventude",
+  "title": "A Fonte da Juventude",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 266,
+  "outro": "a rainha cavalgou para o por do sol com cristal magico guardado no coracao. floresta encantada seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Fonte da Juventude",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou a rainha para floresta encantada. cristal magico pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "A Fonte da Juventude, cena 1: O destino chamou a rainha para floresta encantada. cristal magico pulsava com uma luz suave como se reconhecesse sua che",
+      "durationSec": 35,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em floresta encantada revelaram maravilhas e perigos. a rainha segurou cristal magico firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "A Fonte da Juventude, cena 2: Os primeiros passos em floresta encantada revelaram maravilhas e perigos. a rainha segurou cristal magico firmemente sen",
+      "durationSec": 25,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de floresta encantada surgiu das sombras. a rainha precisou provar seu valor. cristal magico brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "A Fonte da Juventude, cena 3: O guardiao de floresta encantada surgiu das sombras. a rainha precisou provar seu valor. cristal magico brilhou intensam",
+      "durationSec": 43,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: floresta encantada escondia um segredo que apenas cristal magico podia desvendar. a rainha decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "A Fonte da Juventude, cena 4: O enigma: floresta encantada escondia um segredo que apenas cristal magico podia desvendar. a rainha decifrou as runas a",
+      "durationSec": 37,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. a rainha treinou incansavelmente em floresta encantada dominando cristal magico. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "A Fonte da Juventude, cena 5: A batalha se aproximava. a rainha treinou incansavelmente em floresta encantada dominando cristal magico. As forcas das ",
+      "durationSec": 43,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por floresta encantada. a rainha ergueu cristal magico contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "A Fonte da Juventude, cena 6: O confronto final ecoou por floresta encantada. a rainha ergueu cristal magico contra a escuridao. A luz e a sombra coli",
+      "durationSec": 26,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada a rainha contemplou floresta encantada de um novo angulo. cristal magico agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "A Fonte da Juventude, cena 7: Com a paz restaurada a rainha contemplou floresta encantada de um novo angulo. cristal magico agora repousava mas seu po",
+      "durationSec": 30,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A rainha se despediu de floresta encantada com a promessa de voltar. cristal magico foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "A Fonte da Juventude, cena 8: A rainha se despediu de floresta encantada com a promessa de voltar. cristal magico foi guardado mas sua historia seria ",
+      "durationSec": 27,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "o-passaro-sem-asas",
+  "title": "O Passaro sem Asas",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 251,
+  "outro": "E assim o pequeno dragao aprendeu em castelo colorido que a maior magica esta dentro de nos. caixa de musica era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Passaro sem Asas",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em castelo colorido vivia o pequeno dragao. caixa de musica era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "O Passaro sem Asas, cena 1: Era uma vez em castelo colorido vivia o pequeno dragao. caixa de musica era seu bem mais precioso mas algo estava difere",
+      "durationSec": 39,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O pequeno dragao acordou com um problema: caixa de musica nao funcionava mais. Em castelo colorido todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "O Passaro sem Asas, cena 2: O pequeno dragao acordou com um problema: caixa de musica nao funcionava mais. Em castelo colorido todos se reuniram par",
+      "durationSec": 29,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. o pequeno dragao encontrou castelo colorido de um jeito que nunca tinha visto. caixa de musica brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "O Passaro sem Asas, cena 3: O caminho era cheio de surpresas. o pequeno dragao encontrou castelo colorido de um jeito que nunca tinha visto. caixa d",
+      "durationSec": 29,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em castelo colorido o pequeno dragao conheceu alguem que precisava de ajuda. caixa de musica poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "O Passaro sem Asas, cena 4: Um novo amigo apareceu. Em castelo colorido o pequeno dragao conheceu alguem que precisava de ajuda. caixa de musica pod",
+      "durationSec": 25,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: o pequeno dragao aprendeu que castelo colorido era mais especial por seus habitantes do que por suas belezas. caixa de musica nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "O Passaro sem Asas, cena 5: A licao: o pequeno dragao aprendeu que castelo colorido era mais especial por seus habitantes do que por suas belezas. c",
+      "durationSec": 27,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas o pequeno dragao nao desistiu. Em castelo colorido todos trabalharam juntos. caixa de musica finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "O Passaro sem Asas, cena 6: O desafio parecia grande demais mas o pequeno dragao nao desistiu. Em castelo colorido todos trabalharam juntos. caixa d",
+      "durationSec": 45,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em castelo colorido. o pequeno dragao dancou com todos os amigos. caixa de musica agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "O Passaro sem Asas, cena 7: A comemoracao foi em castelo colorido. o pequeno dragao dancou com todos os amigos. caixa de musica agora brilhava mais ",
+      "durationSec": 24,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O pequeno dragao se despediu de castelo colorido com um abraco coletivo. caixa de musica estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "O Passaro sem Asas, cena 8: O pequeno dragao se despediu de castelo colorido com um abraco coletivo. caixa de musica estava guardado no coracao nao ",
+      "durationSec": 33,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

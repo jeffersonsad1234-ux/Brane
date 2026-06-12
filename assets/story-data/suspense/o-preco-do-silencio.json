@@ -1,0 +1,78 @@
+{
+  "id": "o-preco-do-silencio",
+  "title": "O Preco do Silencio",
+  "category": "suspense",
+  "sceneCount": 8,
+  "totalDurationSec": 274,
+  "outro": "o bancario guardou fotografia antiga como lembranca do caso. hotel decadente continuaria existindo mas seus segredos finalmente tinham sido revelados.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Preco do Silencio",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O bancario encontrou fotografia antiga em hotel decadente. A descoberta parecia inocente mas algo naquela cena nao se encaixava. Cada detalhe fora cuidadosamente arranjado.",
+      "imagePrompt": "O Preco do Silencio, cena 1: O bancario encontrou fotografia antiga em hotel decadente. A descoberta parecia inocente mas algo naquela cena nao se en",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As pecas comecaram a se conectar. o bancario revisou as anotacoes mais uma vez. hotel decadente guardava mais segredos do que aparentava. fotografia antiga era a chave.",
+      "imagePrompt": "O Preco do Silencio, cena 2: As pecas comecaram a se conectar. o bancario revisou as anotacoes mais uma vez. hotel decadente guardava mais segredos d",
+      "durationSec": 28,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Alguem estava seguindo o bancario. As sombras em hotel decadente escondiam movimentos furtivos. fotografia antiga desapareceu misteriosamente confirmando suas suspeitas.",
+      "imagePrompt": "O Preco do Silencio, cena 3: Alguem estava seguindo o bancario. As sombras em hotel decadente escondiam movimentos furtivos. fotografia antiga desapa",
+      "durationSec": 25,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O encontro foi marcado em hotel decadente. o bancario chegou cedo mas o desconhecido ja estava la. fotografia antiga foi entregue em silencio junto com um aviso.",
+      "imagePrompt": "O Preco do Silencio, cena 4: O encontro foi marcado em hotel decadente. o bancario chegou cedo mas o desconhecido ja estava la. fotografia antiga foi",
+      "durationSec": 43,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A verdade comecou a emergir. o bancario decifrou o codigo escondido em fotografia antiga. hotel decadente nao era o que parecia. Cada resposta levava a mais perguntas.",
+      "imagePrompt": "O Preco do Silencio, cena 5: A verdade comecou a emergir. o bancario decifrou o codigo escondido em fotografia antiga. hotel decadente nao era o que ",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto era inevitavel. o bancario enfrentou o suspeito em hotel decadente. fotografia antiga foi usado como prova mas a situacao estava longe de ser resolvida.",
+      "imagePrompt": "O Preco do Silencio, cena 6: O confronto era inevitavel. o bancario enfrentou o suspeito em hotel decadente. fotografia antiga foi usado como prova m",
+      "durationSec": 40,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A reviravolta: fotografia antiga nao era o que o bancario pensava. hotel decadente continha a peca final do quebra-cabeca. O verdadeiro culpado estava mais perto do que imaginava.",
+      "imagePrompt": "O Preco do Silencio, cena 7: A reviravolta: fotografia antiga nao era o que o bancario pensava. hotel decadente continha a peca final do quebra-cabec",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O desfecho se aproximava. o bancario reuniu todas as evidencias em hotel decadente. fotografia antiga selaria o destino de todos os envolvidos. A verdade finalmente viria a tona.",
+      "imagePrompt": "O Preco do Silencio, cena 8: O desfecho se aproximava. o bancario reuniu todas as evidencias em hotel decadente. fotografia antiga selaria o destino ",
+      "durationSec": 25,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "a-torre-do-vento",
+  "title": "A Torre do Vento",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 261,
+  "outro": "Lyra cavalgou para o por do sol com cristal magico guardado no coracao. planicie dos ventos seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Torre do Vento",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou Lyra para planicie dos ventos. cristal magico pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "A Torre do Vento, cena 1: O destino chamou Lyra para planicie dos ventos. cristal magico pulsava com uma luz suave como se reconhecesse sua chegad",
+      "durationSec": 44,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em planicie dos ventos revelaram maravilhas e perigos. Lyra segurou cristal magico firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "A Torre do Vento, cena 2: Os primeiros passos em planicie dos ventos revelaram maravilhas e perigos. Lyra segurou cristal magico firmemente sentin",
+      "durationSec": 30,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de planicie dos ventos surgiu das sombras. Lyra precisou provar seu valor. cristal magico brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "A Torre do Vento, cena 3: O guardiao de planicie dos ventos surgiu das sombras. Lyra precisou provar seu valor. cristal magico brilhou intensament",
+      "durationSec": 30,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: planicie dos ventos escondia um segredo que apenas cristal magico podia desvendar. Lyra decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "A Torre do Vento, cena 4: O enigma: planicie dos ventos escondia um segredo que apenas cristal magico podia desvendar. Lyra decifrou as runas anti",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. Lyra treinou incansavelmente em planicie dos ventos dominando cristal magico. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "A Torre do Vento, cena 5: A batalha se aproximava. Lyra treinou incansavelmente em planicie dos ventos dominando cristal magico. As forcas das tre",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por planicie dos ventos. Lyra ergueu cristal magico contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "A Torre do Vento, cena 6: O confronto final ecoou por planicie dos ventos. Lyra ergueu cristal magico contra a escuridao. A luz e a sombra colidir",
+      "durationSec": 29,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada Lyra contemplou planicie dos ventos de um novo angulo. cristal magico agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "A Torre do Vento, cena 7: Com a paz restaurada Lyra contemplou planicie dos ventos de um novo angulo. cristal magico agora repousava mas seu poder",
+      "durationSec": 33,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Lyra se despediu de planicie dos ventos com a promessa de voltar. cristal magico foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "A Torre do Vento, cena 8: Lyra se despediu de planicie dos ventos com a promessa de voltar. cristal magico foi guardado mas sua historia seria con",
+      "durationSec": 33,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

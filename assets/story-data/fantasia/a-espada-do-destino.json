@@ -1,0 +1,78 @@
+{
+  "id": "a-espada-do-destino",
+  "title": "A Espada do Destino",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 270,
+  "outro": "o guardiao cavalgou para o por do sol com mapa astral guardado no coracao. planicie dos ventos seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Espada do Destino",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou o guardiao para planicie dos ventos. mapa astral pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "A Espada do Destino, cena 1: O destino chamou o guardiao para planicie dos ventos. mapa astral pulsava com uma luz suave como se reconhecesse sua che",
+      "durationSec": 44,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em planicie dos ventos revelaram maravilhas e perigos. o guardiao segurou mapa astral firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "A Espada do Destino, cena 2: Os primeiros passos em planicie dos ventos revelaram maravilhas e perigos. o guardiao segurou mapa astral firmemente sen",
+      "durationSec": 39,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de planicie dos ventos surgiu das sombras. o guardiao precisou provar seu valor. mapa astral brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "A Espada do Destino, cena 3: O guardiao de planicie dos ventos surgiu das sombras. o guardiao precisou provar seu valor. mapa astral brilhou intensam",
+      "durationSec": 33,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: planicie dos ventos escondia um segredo que apenas mapa astral podia desvendar. o guardiao decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "A Espada do Destino, cena 4: O enigma: planicie dos ventos escondia um segredo que apenas mapa astral podia desvendar. o guardiao decifrou as runas a",
+      "durationSec": 32,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. o guardiao treinou incansavelmente em planicie dos ventos dominando mapa astral. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "A Espada do Destino, cena 5: A batalha se aproximava. o guardiao treinou incansavelmente em planicie dos ventos dominando mapa astral. As forcas das ",
+      "durationSec": 33,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por planicie dos ventos. o guardiao ergueu mapa astral contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "A Espada do Destino, cena 6: O confronto final ecoou por planicie dos ventos. o guardiao ergueu mapa astral contra a escuridao. A luz e a sombra coli",
+      "durationSec": 43,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada o guardiao contemplou planicie dos ventos de um novo angulo. mapa astral agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "A Espada do Destino, cena 7: Com a paz restaurada o guardiao contemplou planicie dos ventos de um novo angulo. mapa astral agora repousava mas seu po",
+      "durationSec": 24,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O guardiao se despediu de planicie dos ventos com a promessa de voltar. mapa astral foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "A Espada do Destino, cena 8: O guardiao se despediu de planicie dos ventos com a promessa de voltar. mapa astral foi guardado mas sua historia seria ",
+      "durationSec": 22,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

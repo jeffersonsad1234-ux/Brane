@@ -1,0 +1,78 @@
+{
+  "id": "a-testemunha-oculta",
+  "title": "A Testemunha Oculta",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 257,
+  "outro": "a perita resolveu mais um caso. documento lacrado foi devolvido ao seu lugar. mansion antiga podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Testemunha Oculta",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando documento lacrado foi descoberto em mansion antiga. a perita foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "A Testemunha Oculta, cena 1: O caso comecou quando documento lacrado foi descoberto em mansion antiga. a perita foi chamado para investigar. Nada era",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A perita examinou mansion antiga em busca de pistas. documento lacrado forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "A Testemunha Oculta, cena 2: A perita examinou mansion antiga em busca de pistas. documento lacrado forneceu a primeira pista real. Mas ela levava a ",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. a perita verificou cada detalhe em mansion antiga. documento lacrado contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "A Testemunha Oculta, cena 3: O suspeito principal tinha um alibi solido. a perita verificou cada detalhe em mansion antiga. documento lacrado contrad",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: a perita descobriu que documento lacrado tinha sido plantado. mansion antiga nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "A Testemunha Oculta, cena 4: Uma reviravolta inesperada: a perita descobriu que documento lacrado tinha sido plantado. mansion antiga nao era a cena ",
+      "durationSec": 32,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. a perita conectou documento lacrado com um caso antigo em mansion antiga. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "A Testemunha Oculta, cena 5: As pecas comecaram a se encaixar. a perita conectou documento lacrado com um caso antigo em mansion antiga. A solucao es",
+      "durationSec": 36,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: a perita reuniu todos os suspeitos em mansion antiga. documento lacrado foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "A Testemunha Oculta, cena 6: O confronto final: a perita reuniu todos os suspeitos em mansion antiga. documento lacrado foi revelado como a prova def",
+      "durationSec": 41,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. a perita fechou documento lacrado sabendo que a justica tinha sido feita. mansion antiga guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "A Testemunha Oculta, cena 7: A confissao trouxe alivio mas tambem tristeza. a perita fechou documento lacrado sabendo que a justica tinha sido feita.",
+      "durationSec": 22,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. a perita guardou documento lacrado como recordacao. mansion antiga voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "A Testemunha Oculta, cena 8: O caso foi arquivado. a perita guardou documento lacrado como recordacao. mansion antiga voltou a rotina mas algo tinha ",
+      "durationSec": 26,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

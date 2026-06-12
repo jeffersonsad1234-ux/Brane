@@ -1,0 +1,78 @@
+{
+  "id": "a-floresta-dos-sussurros",
+  "title": "A Floresta dos Sussurros",
+  "category": "terror",
+  "sceneCount": 8,
+  "totalDurationSec": 267,
+  "outro": "Quando Marcelo finalmente escapou de corredor escuro levou consigo apenas espelho antigo e a certeza de que algumas portas nunca deveriam ser abertas.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Floresta dos Sussurros",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A noite caia sobre corredor escuro quando Marcelo sentiu um arrepio repentino. O vento uivava entre as frestas, carregando um som que parecia vir de muito longe ou de muito perto.",
+      "imagePrompt": "A Floresta dos Sussurros, cena 1: A noite caia sobre corredor escuro quando Marcelo sentiu um arrepio repentino. O vento uivava entre as frestas, carregan",
+      "durationSec": 39,
+      "musicSuggestion": "sombrio",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Marcelo acendeu a lanterna mas a luz parecia engolida pela escuridao. corredor escuro estava mais frio do que deveria. Pegadas na poeira indicavam que alguem tinha passado por ali recentemente.",
+      "imagePrompt": "A Floresta dos Sussurros, cena 2: Marcelo acendeu a lanterna mas a luz parecia engolida pela escuridao. corredor escuro estava mais frio do que deveria. P",
+      "durationSec": 32,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Um rangido veio do andar de cima. Marcelo prendeu a respiracao. espelho antigo estava exatamente onde nao deveria estar. Como tinha chegado ate ali?",
+      "imagePrompt": "A Floresta dos Sussurros, cena 3: Um rangido veio do andar de cima. Marcelo prendeu a respiracao. espelho antigo estava exatamente onde nao deveria estar.",
+      "durationSec": 33,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O ar ficou denso pesado. Marcelo sentiu uma presenca observando de corredor escuro. Nao estava sozinho. O espelho antigo comecou a vibrar lentamente emitindo um som grave e hipnotico.",
+      "imagePrompt": "A Floresta dos Sussurros, cena 4: O ar ficou denso pesado. Marcelo sentiu uma presenca observando de corredor escuro. Nao estava sozinho. O espelho antigo",
+      "durationSec": 35,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As paredes pareciam se mover. Marcelo esfregou os olhos mas a ilusao persistia. espelho antigo refletia uma imagem que nao correspondia ao ambiente uma figura encapuzada atras de si.",
+      "imagePrompt": "A Floresta dos Sussurros, cena 5: As paredes pareciam se mover. Marcelo esfregou os olhos mas a ilusao persistia. espelho antigo refletia uma imagem que n",
+      "durationSec": 35,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O som de passos se aproximou. Marcelo se encolheu em corredor escuro tentando controlar a respiracao. espelho antigo caiu no chao ecoando como um grito na escuridao total.",
+      "imagePrompt": "A Floresta dos Sussurros, cena 6: O som de passos se aproximou. Marcelo se encolheu em corredor escuro tentando controlar a respiracao. espelho antigo cai",
+      "durationSec": 42,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Uma voz sussurrou seu nome. Marcelo se virou bruscamente. corredor escuro estava vazio mas espelho antigo tinha mudado de posicao. O ar gelado tocava sua nuca.",
+      "imagePrompt": "A Floresta dos Sussurros, cena 7: Uma voz sussurrou seu nome. Marcelo se virou bruscamente. corredor escuro estava vazio mas espelho antigo tinha mudado d",
+      "durationSec": 24,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O relogio parou. Marcelo percebeu que o tempo nao passava em corredor escuro. espelho antigo mostrava uma cena que nunca tinha acontecido ou que ainda ia acontecer.",
+      "imagePrompt": "A Floresta dos Sussurros, cena 8: O relogio parou. Marcelo percebeu que o tempo nao passava em corredor escuro. espelho antigo mostrava uma cena que nunca",
+      "durationSec": 27,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    }
+  ]
+}

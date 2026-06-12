@@ -1,0 +1,78 @@
+{
+  "id": "o-coelho-que-perdeu-a-orelha",
+  "title": "O Coelho que Perdeu a Orelha",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 268,
+  "outro": "E assim Pipoca aprendeu em vila dos brinquedos que a maior magica esta dentro de nos. sapatinho brilhante era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Coelho que Perdeu a Orelha",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em vila dos brinquedos vivia Pipoca. sapatinho brilhante era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "O Coelho que Perdeu a Orelha, cena 1: Era uma vez em vila dos brinquedos vivia Pipoca. sapatinho brilhante era seu bem mais precioso mas algo estava diferente",
+      "durationSec": 34,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Pipoca acordou com um problema: sapatinho brilhante nao funcionava mais. Em vila dos brinquedos todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "O Coelho que Perdeu a Orelha, cena 2: Pipoca acordou com um problema: sapatinho brilhante nao funcionava mais. Em vila dos brinquedos todos se reuniram para a",
+      "durationSec": 45,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. Pipoca encontrou vila dos brinquedos de um jeito que nunca tinha visto. sapatinho brilhante brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "O Coelho que Perdeu a Orelha, cena 3: O caminho era cheio de surpresas. Pipoca encontrou vila dos brinquedos de um jeito que nunca tinha visto. sapatinho bril",
+      "durationSec": 45,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em vila dos brinquedos Pipoca conheceu alguem que precisava de ajuda. sapatinho brilhante poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "O Coelho que Perdeu a Orelha, cena 4: Um novo amigo apareceu. Em vila dos brinquedos Pipoca conheceu alguem que precisava de ajuda. sapatinho brilhante poderi",
+      "durationSec": 25,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: Pipoca aprendeu que vila dos brinquedos era mais especial por seus habitantes do que por suas belezas. sapatinho brilhante nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "O Coelho que Perdeu a Orelha, cena 5: A licao: Pipoca aprendeu que vila dos brinquedos era mais especial por seus habitantes do que por suas belezas. sapatinh",
+      "durationSec": 26,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas Pipoca nao desistiu. Em vila dos brinquedos todos trabalharam juntos. sapatinho brilhante finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "O Coelho que Perdeu a Orelha, cena 6: O desafio parecia grande demais mas Pipoca nao desistiu. Em vila dos brinquedos todos trabalharam juntos. sapatinho bril",
+      "durationSec": 37,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em vila dos brinquedos. Pipoca dancou com todos os amigos. sapatinho brilhante agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "O Coelho que Perdeu a Orelha, cena 7: A comemoracao foi em vila dos brinquedos. Pipoca dancou com todos os amigos. sapatinho brilhante agora brilhava mais for",
+      "durationSec": 24,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Pipoca se despediu de vila dos brinquedos com um abraco coletivo. sapatinho brilhante estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "O Coelho que Perdeu a Orelha, cena 8: Pipoca se despediu de vila dos brinquedos com um abraco coletivo. sapatinho brilhante estava guardado no coracao nao nas",
+      "durationSec": 32,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

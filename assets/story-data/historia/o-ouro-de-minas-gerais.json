@@ -1,0 +1,78 @@
+{
+  "id": "o-ouro-de-minas-gerais",
+  "title": "O Ouro de Minas Gerais",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 273,
+  "outro": "o abolicionista fechou mapa imperial com cuidado. porto antigo continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Ouro de Minas Gerais",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1964. o abolicionista testemunhava um momento que mudaria o curso da historia. mapa imperial estava prestes a desempenhar um papel crucial em porto antigo.",
+      "imagePrompt": "O Ouro de Minas Gerais, cena 1: O ano era 1964. o abolicionista testemunhava um momento que mudaria o curso da historia. mapa imperial estava prestes a ",
+      "durationSec": 39,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em porto antigo. o abolicionista observava mapa imperial com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "O Ouro de Minas Gerais, cena 2: A tensao crescia em porto antigo. o abolicionista observava mapa imperial com atencao sabendo que cada detalhe importava",
+      "durationSec": 39,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. o abolicionista mediou as discussoes em porto antigo. mapa imperial representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "O Ouro de Minas Gerais, cena 3: O conflito de ideias era palpavel. o abolicionista mediou as discussoes em porto antigo. mapa imperial representava mais",
+      "durationSec": 45,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: o abolicionista participou do momento em que mapa imperial foi utilizado em porto antigo. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "O Ouro de Minas Gerais, cena 4: O marco historico: o abolicionista participou do momento em que mapa imperial foi utilizado em porto antigo. O que antes",
+      "durationSec": 29,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. o abolicionista lutou contra as adversidades em porto antigo. mapa imperial era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "O Ouro de Minas Gerais, cena 5: Os desafios surgiam a cada esquina. o abolicionista lutou contra as adversidades em porto antigo. mapa imperial era a le",
+      "durationSec": 29,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. porto antigo nunca mais seria o mesmo depois daquele dia. o abolicionista guardou mapa imperial como reliquia de um tempo de mudancas.",
+      "imagePrompt": "O Ouro de Minas Gerais, cena 6: A transformacao aconteceu. porto antigo nunca mais seria o mesmo depois daquele dia. o abolicionista guardou mapa imperi",
+      "durationSec": 41,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. o abolicionista ajudou a documentar o que aconteceu em porto antigo. mapa imperial se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "O Ouro de Minas Gerais, cena 7: O legado comecou a ser construido. o abolicionista ajudou a documentar o que aconteceu em porto antigo. mapa imperial se",
+      "durationSec": 20,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. o abolicionista contemplou porto antigo transformado. mapa imperial estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "O Ouro de Minas Gerais, cena 8: Os frutos do passado. o abolicionista contemplou porto antigo transformado. mapa imperial estava agora em exposicao cont",
+      "durationSec": 31,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

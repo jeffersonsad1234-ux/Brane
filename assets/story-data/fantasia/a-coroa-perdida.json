@@ -1,0 +1,78 @@
+{
+  "id": "a-coroa-perdida",
+  "title": "A Coroa Perdida",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 271,
+  "outro": "Elara cavalgou para o por do sol com coroa elfica guardado no coracao. planicie dos ventos seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Coroa Perdida",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou Elara para planicie dos ventos. coroa elfica pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "A Coroa Perdida, cena 1: O destino chamou Elara para planicie dos ventos. coroa elfica pulsava com uma luz suave como se reconhecesse sua chegada",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em planicie dos ventos revelaram maravilhas e perigos. Elara segurou coroa elfica firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "A Coroa Perdida, cena 2: Os primeiros passos em planicie dos ventos revelaram maravilhas e perigos. Elara segurou coroa elfica firmemente sentind",
+      "durationSec": 30,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de planicie dos ventos surgiu das sombras. Elara precisou provar seu valor. coroa elfica brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "A Coroa Perdida, cena 3: O guardiao de planicie dos ventos surgiu das sombras. Elara precisou provar seu valor. coroa elfica brilhou intensamente",
+      "durationSec": 43,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: planicie dos ventos escondia um segredo que apenas coroa elfica podia desvendar. Elara decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "A Coroa Perdida, cena 4: O enigma: planicie dos ventos escondia um segredo que apenas coroa elfica podia desvendar. Elara decifrou as runas antig",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. Elara treinou incansavelmente em planicie dos ventos dominando coroa elfica. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "A Coroa Perdida, cena 5: A batalha se aproximava. Elara treinou incansavelmente em planicie dos ventos dominando coroa elfica. As forcas das trev",
+      "durationSec": 32,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por planicie dos ventos. Elara ergueu coroa elfica contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "A Coroa Perdida, cena 6: O confronto final ecoou por planicie dos ventos. Elara ergueu coroa elfica contra a escuridao. A luz e a sombra colidira",
+      "durationSec": 45,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada Elara contemplou planicie dos ventos de um novo angulo. coroa elfica agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "A Coroa Perdida, cena 7: Com a paz restaurada Elara contemplou planicie dos ventos de um novo angulo. coroa elfica agora repousava mas seu poder ",
+      "durationSec": 26,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Elara se despediu de planicie dos ventos com a promessa de voltar. coroa elfica foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "A Coroa Perdida, cena 8: Elara se despediu de planicie dos ventos com a promessa de voltar. coroa elfica foi guardado mas sua historia seria cont",
+      "durationSec": 33,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

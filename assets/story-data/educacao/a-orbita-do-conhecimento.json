@@ -1,0 +1,78 @@
+{
+  "id": "a-orbita-do-conhecimento",
+  "title": "A Orbita do Conhecimento",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 277,
+  "outro": "cientista olhou para livro antigo com orgulho. laboratorio continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Orbita do Conhecimento",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Cientista chegou em laboratorio com uma pergunta que ninguem tinha respondido ainda. livro antigo estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "A Orbita do Conhecimento, cena 1: Cientista chegou em laboratorio com uma pergunta que ninguem tinha respondido ainda. livro antigo estava no centro do mi",
+      "durationSec": 39,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em livro antigo. cientista passou horas em laboratorio estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "A Orbita do Conhecimento, cena 2: A primeira pista estava em livro antigo. cientista passou horas em laboratorio estudando cada detalhe. O conhecimento an",
+      "durationSec": 32,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: cientista preparou livro antigo cuidadosamente. laboratorio se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "A Orbita do Conhecimento, cena 3: O experimento: cientista preparou livro antigo cuidadosamente. laboratorio se encheu de equipamentos e expectativa. Se a",
+      "durationSec": 33,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. cientista mal acreditava no que livro antigo revelava. laboratorio se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "A Orbita do Conhecimento, cena 4: Os resultados eram surpreendentes. cientista mal acreditava no que livro antigo revelava. laboratorio se tornou o centro",
+      "durationSec": 29,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. cientista enfrentou laboratorio com novas duvidas. livro antigo mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "A Orbita do Conhecimento, cena 5: Mas o conhecimento nunca vem facil. cientista enfrentou laboratorio com novas duvidas. livro antigo mostrava um padrao q",
+      "durationSec": 38,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: cientista convidou outros estudiosos para laboratorio. Juntos decifraram livro antigo. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "A Orbita do Conhecimento, cena 6: A colaboracao: cientista convidou outros estudiosos para laboratorio. Juntos decifraram livro antigo. O saber compartilh",
+      "durationSec": 37,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que livro antigo revelou poderia mudar vidas. cientista liderou o projeto em laboratorio para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "A Orbita do Conhecimento, cena 7: A aplicacao pratica: o que livro antigo revelou poderia mudar vidas. cientista liderou o projeto em laboratorio para tra",
+      "durationSec": 34,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: cientista registrou tudo em livro antigo deixando laboratorio como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "A Orbita do Conhecimento, cena 8: O legado: cientista registrou tudo em livro antigo deixando laboratorio como um centro de aprendizado para futuras gerac",
+      "durationSec": 35,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

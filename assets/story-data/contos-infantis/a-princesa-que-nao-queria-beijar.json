@@ -1,0 +1,78 @@
+{
+  "id": "a-princesa-que-nao-queria-beijar",
+  "title": "A Princesa que Nao Queria Beijar",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 268,
+  "outro": "E assim Luna aprendeu em vila dos brinquedos que a maior magica esta dentro de nos. pincel magico era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Princesa que Nao Queria Beijar",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em vila dos brinquedos vivia Luna. pincel magico era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "A Princesa que Nao Queria Beijar, cena 1: Era uma vez em vila dos brinquedos vivia Luna. pincel magico era seu bem mais precioso mas algo estava diferente hoje. U",
+      "durationSec": 41,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Luna acordou com um problema: pincel magico nao funcionava mais. Em vila dos brinquedos todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "A Princesa que Nao Queria Beijar, cena 2: Luna acordou com um problema: pincel magico nao funcionava mais. Em vila dos brinquedos todos se reuniram para ajudar. C",
+      "durationSec": 42,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. Luna encontrou vila dos brinquedos de um jeito que nunca tinha visto. pincel magico brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "A Princesa que Nao Queria Beijar, cena 3: O caminho era cheio de surpresas. Luna encontrou vila dos brinquedos de um jeito que nunca tinha visto. pincel magico br",
+      "durationSec": 26,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em vila dos brinquedos Luna conheceu alguem que precisava de ajuda. pincel magico poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "A Princesa que Nao Queria Beijar, cena 4: Um novo amigo apareceu. Em vila dos brinquedos Luna conheceu alguem que precisava de ajuda. pincel magico poderia ser a ",
+      "durationSec": 25,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: Luna aprendeu que vila dos brinquedos era mais especial por seus habitantes do que por suas belezas. pincel magico nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "A Princesa que Nao Queria Beijar, cena 5: A licao: Luna aprendeu que vila dos brinquedos era mais especial por seus habitantes do que por suas belezas. pincel mag",
+      "durationSec": 42,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas Luna nao desistiu. Em vila dos brinquedos todos trabalharam juntos. pincel magico finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "A Princesa que Nao Queria Beijar, cena 6: O desafio parecia grande demais mas Luna nao desistiu. Em vila dos brinquedos todos trabalharam juntos. pincel magico fi",
+      "durationSec": 36,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em vila dos brinquedos. Luna dancou com todos os amigos. pincel magico agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "A Princesa que Nao Queria Beijar, cena 7: A comemoracao foi em vila dos brinquedos. Luna dancou com todos os amigos. pincel magico agora brilhava mais forte do qu",
+      "durationSec": 29,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Luna se despediu de vila dos brinquedos com um abraco coletivo. pincel magico estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "A Princesa que Nao Queria Beijar, cena 8: Luna se despediu de vila dos brinquedos com um abraco coletivo. pincel magico estava guardado no coracao nao nas maos. E",
+      "durationSec": 27,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

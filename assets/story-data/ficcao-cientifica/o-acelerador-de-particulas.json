@@ -1,0 +1,78 @@
+{
+  "id": "o-acelerador-de-particulas",
+  "title": "O Acelerador de Particulas",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 292,
+  "outro": "piloto guardou traje avancado como o maior tesouro da humanidade. nave interestelar se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Acelerador de Particulas",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em nave interestelar. piloto correu para o painel de controle. traje avancado emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "O Acelerador de Particulas, cena 1: O alerta vermelho acendeu em nave interestelar. piloto correu para o painel de controle. traje avancado emitia um pulso ",
+      "durationSec": 44,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. piloto verificou os sensores tres vezes. nave interestelar estava sofrendo distorcoes espacio-temporais. traje avancado era a fonte.",
+      "imagePrompt": "O Acelerador de Particulas, cena 2: As leituras eram impossiveis. piloto verificou os sensores tres vezes. nave interestelar estava sofrendo distorcoes espa",
+      "durationSec": 44,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: traje avancado nao era uma tecnologia convencional. piloto teorizou que nave interestelar tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "O Acelerador de Particulas, cena 3: A descoberta: traje avancado nao era uma tecnologia convencional. piloto teorizou que nave interestelar tinha sido const",
+      "durationSec": 36,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Piloto propos um plano arriscado. Se funcionasse nave interestelar poderia ser salva. traje avancado precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "O Acelerador de Particulas, cena 4: Piloto propos um plano arriscado. Se funcionasse nave interestelar poderia ser salva. traje avancado precisava ser ativa",
+      "durationSec": 38,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. piloto monitorava cada parametro em nave interestelar. traje avancado vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "O Acelerador de Particulas, cena 5: O experimento comecou. piloto monitorava cada parametro em nave interestelar. traje avancado vibrava em uma frequencia q",
+      "durationSec": 42,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. piloto observou nave interestelar se distorcer ao redor de traje avancado. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "O Acelerador de Particulas, cena 6: Uma fenda se abriu. piloto observou nave interestelar se distorcer ao redor de traje avancado. Atraves da abertura vislu",
+      "durationSec": 40,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. piloto comunicou-se com a inteligencia por tras de traje avancado. nave interestelar tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "O Acelerador de Particulas, cena 7: O contato foi estabelecido. piloto comunicou-se com a inteligencia por tras de traje avancado. nave interestelar tornou-",
+      "durationSec": 26,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: piloto documentou tudo sobre traje avancado e nave interestelar. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "O Acelerador de Particulas, cena 8: O legado: piloto documentou tudo sobre traje avancado e nave interestelar. A humanidade nunca mais seria a mesma. Uma no",
+      "durationSec": 22,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "a-quimica-das-emoces",
+  "title": "A Química das Emoções",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 271,
+  "outro": "dr. nakamura desligou microscópio eletrônico ao final do expediente. laboratório de partículas continuaria sua missão de desvendar o universo. A ciência caminha devagar, mas não para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Química das Emoções",
+    "style": "fotográfico realista, iluminação cinematográfica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Dr. nakamura ajustou microscópio eletrônico pela última vez. laboratório de partículas estava silencioso, cheio de expectativa. Se a teoria estivesse correta, o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "A Química das Emoções, cena 1: Dr. nakamura ajustou microscópio eletrônico pela última vez. laboratório de partículas estava silencioso, cheio de expec",
+      "durationSec": 43,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados começaram a chegar. dr. nakamura analisou cada ponto em laboratório de partículas. microscópio eletrônico registrava algo que desafiava as leis conhecidas da física. Uma nova fronteira se abria.",
+      "imagePrompt": "A Química das Emoções, cena 2: Os dados começaram a chegar. dr. nakamura analisou cada ponto em laboratório de partículas. microscópio eletrônico regis",
+      "durationSec": 36,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrão era inconfundível. dr. nakamura verificou os resultados múltiplas vezes em laboratório de partículas. microscópio eletrônico havia detectado o que cientistas procuravam há décadas. A descoberta era monumental.",
+      "imagePrompt": "A Química das Emoções, cena 3: O padrão era inconfundível. dr. nakamura verificou os resultados múltiplas vezes em laboratório de partículas. microscóp",
+      "durationSec": 26,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade científica foi notificada. dr. nakamura apresentou as evidências em laboratório de partículas. microscópio eletrônico provava que o modelo teórico estava correto — mas também revelava novas perguntas.",
+      "imagePrompt": "A Química das Emoções, cena 4: A comunidade científica foi notificada. dr. nakamura apresentou as evidências em laboratório de partículas. microscópio ",
+      "durationSec": 41,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controvérsia: nem todos aceitavam os resultados. dr. nakamura defendeu seu trabalho em laboratório de partículas, usando microscópio eletrônico para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "A Química das Emoções, cena 5: A controvérsia: nem todos aceitavam os resultados. dr. nakamura defendeu seu trabalho em laboratório de partículas, usan",
+      "durationSec": 38,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmação chegou de outros laboratórios. dr. nakamura recebeu os parabéns em laboratório de partículas. microscópio eletrônico seria reconhecido como um dos instrumentos mais importantes da década.",
+      "imagePrompt": "A Química das Emoções, cena 6: A confirmação chegou de outros laboratórios. dr. nakamura recebeu os parabéns em laboratório de partículas. microscópio ",
+      "durationSec": 32,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicação prática: como a descoberta poderia beneficiar a sociedade? dr. nakamura liderou as discussões em laboratório de partículas, explorando as possibilidades que microscópio eletrônico abria.",
+      "imagePrompt": "A Química das Emoções, cena 7: A aplicação prática: como a descoberta poderia beneficiar a sociedade? dr. nakamura liderou as discussões em laboratório",
+      "durationSec": 32,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: dr. nakamura escreveu o estudo final em laboratório de partículas. microscópio eletrônico mudaria o ensino de ciências por gerações. A ciência não é respostas — é melhores perguntas.",
+      "imagePrompt": "A Química das Emoções, cena 8: O impacto: dr. nakamura escreveu o estudo final em laboratório de partículas. microscópio eletrônico mudaria o ensino de",
+      "durationSec": 23,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

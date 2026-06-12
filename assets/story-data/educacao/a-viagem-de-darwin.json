@@ -1,0 +1,78 @@
+{
+  "id": "a-viagem-de-darwin",
+  "title": "A Viagem de Darwin",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 267,
+  "outro": "doutoranda olhou para modelo atomico com orgulho. biblioteca continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Viagem de Darwin",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Doutoranda chegou em biblioteca com uma pergunta que ninguem tinha respondido ainda. modelo atomico estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "A Viagem de Darwin, cena 1: Doutoranda chegou em biblioteca com uma pergunta que ninguem tinha respondido ainda. modelo atomico estava no centro do ",
+      "durationSec": 33,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em modelo atomico. doutoranda passou horas em biblioteca estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "A Viagem de Darwin, cena 2: A primeira pista estava em modelo atomico. doutoranda passou horas em biblioteca estudando cada detalhe. O conhecimento ",
+      "durationSec": 45,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: doutoranda preparou modelo atomico cuidadosamente. biblioteca se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "A Viagem de Darwin, cena 3: O experimento: doutoranda preparou modelo atomico cuidadosamente. biblioteca se encheu de equipamentos e expectativa. Se",
+      "durationSec": 39,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. doutoranda mal acreditava no que modelo atomico revelava. biblioteca se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "A Viagem de Darwin, cena 4: Os resultados eram surpreendentes. doutoranda mal acreditava no que modelo atomico revelava. biblioteca se tornou o cent",
+      "durationSec": 25,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. doutoranda enfrentou biblioteca com novas duvidas. modelo atomico mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "A Viagem de Darwin, cena 5: Mas o conhecimento nunca vem facil. doutoranda enfrentou biblioteca com novas duvidas. modelo atomico mostrava um padrao",
+      "durationSec": 28,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: doutoranda convidou outros estudiosos para biblioteca. Juntos decifraram modelo atomico. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "A Viagem de Darwin, cena 6: A colaboracao: doutoranda convidou outros estudiosos para biblioteca. Juntos decifraram modelo atomico. O saber comparti",
+      "durationSec": 30,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que modelo atomico revelou poderia mudar vidas. doutoranda liderou o projeto em biblioteca para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "A Viagem de Darwin, cena 7: A aplicacao pratica: o que modelo atomico revelou poderia mudar vidas. doutoranda liderou o projeto em biblioteca para t",
+      "durationSec": 34,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: doutoranda registrou tudo em modelo atomico deixando biblioteca como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "A Viagem de Darwin, cena 8: O legado: doutoranda registrou tudo em modelo atomico deixando biblioteca como um centro de aprendizado para futuras ger",
+      "durationSec": 33,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

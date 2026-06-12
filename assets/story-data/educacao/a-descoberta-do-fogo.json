@@ -1,0 +1,78 @@
+{
+  "id": "a-descoberta-do-fogo",
+  "title": "A Descoberta do Fogo",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 296,
+  "outro": "professor olhou para instrumento cientifico com orgulho. sala de aula continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Descoberta do Fogo",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Professor chegou em sala de aula com uma pergunta que ninguem tinha respondido ainda. instrumento cientifico estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "A Descoberta do Fogo, cena 1: Professor chegou em sala de aula com uma pergunta que ninguem tinha respondido ainda. instrumento cientifico estava no c",
+      "durationSec": 34,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em instrumento cientifico. professor passou horas em sala de aula estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "A Descoberta do Fogo, cena 2: A primeira pista estava em instrumento cientifico. professor passou horas em sala de aula estudando cada detalhe. O conh",
+      "durationSec": 31,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: professor preparou instrumento cientifico cuidadosamente. sala de aula se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "A Descoberta do Fogo, cena 3: O experimento: professor preparou instrumento cientifico cuidadosamente. sala de aula se encheu de equipamentos e expect",
+      "durationSec": 37,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. professor mal acreditava no que instrumento cientifico revelava. sala de aula se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "A Descoberta do Fogo, cena 4: Os resultados eram surpreendentes. professor mal acreditava no que instrumento cientifico revelava. sala de aula se torn",
+      "durationSec": 42,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. professor enfrentou sala de aula com novas duvidas. instrumento cientifico mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "A Descoberta do Fogo, cena 5: Mas o conhecimento nunca vem facil. professor enfrentou sala de aula com novas duvidas. instrumento cientifico mostrava ",
+      "durationSec": 41,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: professor convidou outros estudiosos para sala de aula. Juntos decifraram instrumento cientifico. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "A Descoberta do Fogo, cena 6: A colaboracao: professor convidou outros estudiosos para sala de aula. Juntos decifraram instrumento cientifico. O saber",
+      "durationSec": 45,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que instrumento cientifico revelou poderia mudar vidas. professor liderou o projeto em sala de aula para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "A Descoberta do Fogo, cena 7: A aplicacao pratica: o que instrumento cientifico revelou poderia mudar vidas. professor liderou o projeto em sala de au",
+      "durationSec": 33,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: professor registrou tudo em instrumento cientifico deixando sala de aula como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "A Descoberta do Fogo, cena 8: O legado: professor registrou tudo em instrumento cientifico deixando sala de aula como um centro de aprendizado para fu",
+      "durationSec": 33,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

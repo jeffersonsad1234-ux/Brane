@@ -1,0 +1,78 @@
+{
+  "id": "a-revolta-da-armada",
+  "title": "A Revolta da Armada",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 245,
+  "outro": "o abolicionista fechou bandeira da epoca com cuidado. praca historica continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Revolta da Armada",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1930. o abolicionista testemunhava um momento que mudaria o curso da historia. bandeira da epoca estava prestes a desempenhar um papel crucial em praca historica.",
+      "imagePrompt": "A Revolta da Armada, cena 1: O ano era 1930. o abolicionista testemunhava um momento que mudaria o curso da historia. bandeira da epoca estava preste",
+      "durationSec": 36,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em praca historica. o abolicionista observava bandeira da epoca com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Revolta da Armada, cena 2: A tensao crescia em praca historica. o abolicionista observava bandeira da epoca com atencao sabendo que cada detalhe im",
+      "durationSec": 33,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. o abolicionista mediou as discussoes em praca historica. bandeira da epoca representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Revolta da Armada, cena 3: O conflito de ideias era palpavel. o abolicionista mediou as discussoes em praca historica. bandeira da epoca representa",
+      "durationSec": 45,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: o abolicionista participou do momento em que bandeira da epoca foi utilizado em praca historica. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Revolta da Armada, cena 4: O marco historico: o abolicionista participou do momento em que bandeira da epoca foi utilizado em praca historica. O qu",
+      "durationSec": 27,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. o abolicionista lutou contra as adversidades em praca historica. bandeira da epoca era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Revolta da Armada, cena 5: Os desafios surgiam a cada esquina. o abolicionista lutou contra as adversidades em praca historica. bandeira da epoca e",
+      "durationSec": 27,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. praca historica nunca mais seria o mesmo depois daquele dia. o abolicionista guardou bandeira da epoca como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Revolta da Armada, cena 6: A transformacao aconteceu. praca historica nunca mais seria o mesmo depois daquele dia. o abolicionista guardou bandeira",
+      "durationSec": 25,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. o abolicionista ajudou a documentar o que aconteceu em praca historica. bandeira da epoca se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Revolta da Armada, cena 7: O legado comecou a ser construido. o abolicionista ajudou a documentar o que aconteceu em praca historica. bandeira da e",
+      "durationSec": 20,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. o abolicionista contemplou praca historica transformado. bandeira da epoca estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Revolta da Armada, cena 8: Os frutos do passado. o abolicionista contemplou praca historica transformado. bandeira da epoca estava agora em exposic",
+      "durationSec": 32,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

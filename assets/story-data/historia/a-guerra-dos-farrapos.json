@@ -1,0 +1,78 @@
+{
+  "id": "a-guerra-dos-farrapos",
+  "title": "A Guerra dos Farrapos",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 287,
+  "outro": "Dom Pedro fechou fotografia antiga com cuidado. sertao nordestino continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Guerra dos Farrapos",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1988. Dom Pedro testemunhava um momento que mudaria o curso da historia. fotografia antiga estava prestes a desempenhar um papel crucial em sertao nordestino.",
+      "imagePrompt": "A Guerra dos Farrapos, cena 1: O ano era 1988. Dom Pedro testemunhava um momento que mudaria o curso da historia. fotografia antiga estava prestes a de",
+      "durationSec": 42,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em sertao nordestino. Dom Pedro observava fotografia antiga com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Guerra dos Farrapos, cena 2: A tensao crescia em sertao nordestino. Dom Pedro observava fotografia antiga com atencao sabendo que cada detalhe import",
+      "durationSec": 36,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. Dom Pedro mediou as discussoes em sertao nordestino. fotografia antiga representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Guerra dos Farrapos, cena 3: O conflito de ideias era palpavel. Dom Pedro mediou as discussoes em sertao nordestino. fotografia antiga representava m",
+      "durationSec": 36,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: Dom Pedro participou do momento em que fotografia antiga foi utilizado em sertao nordestino. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Guerra dos Farrapos, cena 4: O marco historico: Dom Pedro participou do momento em que fotografia antiga foi utilizado em sertao nordestino. O que an",
+      "durationSec": 40,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. Dom Pedro lutou contra as adversidades em sertao nordestino. fotografia antiga era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Guerra dos Farrapos, cena 5: Os desafios surgiam a cada esquina. Dom Pedro lutou contra as adversidades em sertao nordestino. fotografia antiga era a",
+      "durationSec": 40,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. sertao nordestino nunca mais seria o mesmo depois daquele dia. Dom Pedro guardou fotografia antiga como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Guerra dos Farrapos, cena 6: A transformacao aconteceu. sertao nordestino nunca mais seria o mesmo depois daquele dia. Dom Pedro guardou fotografia a",
+      "durationSec": 44,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. Dom Pedro ajudou a documentar o que aconteceu em sertao nordestino. fotografia antiga se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Guerra dos Farrapos, cena 7: O legado comecou a ser construido. Dom Pedro ajudou a documentar o que aconteceu em sertao nordestino. fotografia antiga",
+      "durationSec": 24,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. Dom Pedro contemplou sertao nordestino transformado. fotografia antiga estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Guerra dos Farrapos, cena 8: Os frutos do passado. Dom Pedro contemplou sertao nordestino transformado. fotografia antiga estava agora em exposicao c",
+      "durationSec": 25,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

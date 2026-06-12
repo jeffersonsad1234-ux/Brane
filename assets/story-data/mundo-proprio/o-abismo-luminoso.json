@@ -1,0 +1,78 @@
+{
+  "id": "o-abismo-luminoso",
+  "title": "O Abismo Luminoso",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 306,
+  "outro": "a visionaria navegou para o horizonte com bussola magica como guia. mercado subterrâneo desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Abismo Luminoso",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A visionaria pisou em mercado subterrâneo pela primeira vez. O cenario era tao surreal que parecia um sonho. bussola magica foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "O Abismo Luminoso, cena 1: A visionaria pisou em mercado subterrâneo pela primeira vez. O cenario era tao surreal que parecia um sonho. bussola mag",
+      "durationSec": 44,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de mercado subterrâneo observavam a visionaria com curiosidade. bussola magica despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "O Abismo Luminoso, cena 2: Os habitantes de mercado subterrâneo observavam a visionaria com curiosidade. bussola magica despertava um interesse que",
+      "durationSec": 35,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. a visionaria precisou decifrar bussola magica para navegar por mercado subterrâneo. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "O Abismo Luminoso, cena 3: O mapa estava incompleto. a visionaria precisou decifrar bussola magica para navegar por mercado subterrâneo. Cada passo",
+      "durationSec": 42,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: mercado subterrâneo estava ameacado por uma forca que ninguem compreendia totalmente. a visionaria consultou os anciaos que apontaram para bussola magica como a solucao.",
+      "imagePrompt": "O Abismo Luminoso, cena 4: A crise: mercado subterrâneo estava ameacado por uma forca que ninguem compreendia totalmente. a visionaria consultou os",
+      "durationSec": 44,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. a visionaria uniu os povos de mercado subterrâneo em torno de bussola magica. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "O Abismo Luminoso, cena 5: A alianca foi formada. a visionaria uniu os povos de mercado subterrâneo em torno de bussola magica. A diversidade era a",
+      "durationSec": 44,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de bussola magica foi finalmente revelado. a visionaria descobriu que mercado subterrâneo era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "O Abismo Luminoso, cena 6: O segredo de bussola magica foi finalmente revelado. a visionaria descobriu que mercado subterrâneo era apenas uma peque",
+      "durationSec": 40,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: mercado subterrâneo se encheu de luz e musica. a visionaria foi honrado como heroi. bussola magica se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "O Abismo Luminoso, cena 7: A celebracao: mercado subterrâneo se encheu de luz e musica. a visionaria foi honrado como heroi. bussola magica se torn",
+      "durationSec": 34,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: a visionaria prometeu voltar para mercado subterrâneo. bussola magica serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "O Abismo Luminoso, cena 8: A despedida: a visionaria prometeu voltar para mercado subterrâneo. bussola magica serviria como ponte entre mundos. A a",
+      "durationSec": 23,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

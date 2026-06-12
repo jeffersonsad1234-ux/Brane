@@ -1,0 +1,78 @@
+{
+  "id": "a-ponte-dos-saberes",
+  "title": "A Ponte dos Saberes",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 286,
+  "outro": "cientista olhou para telescopio com orgulho. biblioteca continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Ponte dos Saberes",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Cientista chegou em biblioteca com uma pergunta que ninguem tinha respondido ainda. telescopio estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "A Ponte dos Saberes, cena 1: Cientista chegou em biblioteca com uma pergunta que ninguem tinha respondido ainda. telescopio estava no centro do miste",
+      "durationSec": 32,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em telescopio. cientista passou horas em biblioteca estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "A Ponte dos Saberes, cena 2: A primeira pista estava em telescopio. cientista passou horas em biblioteca estudando cada detalhe. O conhecimento antig",
+      "durationSec": 33,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: cientista preparou telescopio cuidadosamente. biblioteca se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "A Ponte dos Saberes, cena 3: O experimento: cientista preparou telescopio cuidadosamente. biblioteca se encheu de equipamentos e expectativa. Se a te",
+      "durationSec": 43,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. cientista mal acreditava no que telescopio revelava. biblioteca se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "A Ponte dos Saberes, cena 4: Os resultados eram surpreendentes. cientista mal acreditava no que telescopio revelava. biblioteca se tornou o centro de",
+      "durationSec": 45,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. cientista enfrentou biblioteca com novas duvidas. telescopio mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "A Ponte dos Saberes, cena 5: Mas o conhecimento nunca vem facil. cientista enfrentou biblioteca com novas duvidas. telescopio mostrava um padrao que ",
+      "durationSec": 27,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: cientista convidou outros estudiosos para biblioteca. Juntos decifraram telescopio. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "A Ponte dos Saberes, cena 6: A colaboracao: cientista convidou outros estudiosos para biblioteca. Juntos decifraram telescopio. O saber compartilhado",
+      "durationSec": 40,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que telescopio revelou poderia mudar vidas. cientista liderou o projeto em biblioteca para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "A Ponte dos Saberes, cena 7: A aplicacao pratica: o que telescopio revelou poderia mudar vidas. cientista liderou o projeto em biblioteca para transf",
+      "durationSec": 31,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: cientista registrou tudo em telescopio deixando biblioteca como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "A Ponte dos Saberes, cena 8: O legado: cientista registrou tudo em telescopio deixando biblioteca como um centro de aprendizado para futuras geracoes",
+      "durationSec": 35,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

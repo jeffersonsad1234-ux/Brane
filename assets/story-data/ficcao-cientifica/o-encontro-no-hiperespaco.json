@@ -1,0 +1,78 @@
+{
+  "id": "o-encontro-no-hiperespaco",
+  "title": "O Encontro no Hiperespaco",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 291,
+  "outro": "comandante guardou sinal misterioso como o maior tesouro da humanidade. colonia marciana se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Encontro no Hiperespaco",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em colonia marciana. comandante correu para o painel de controle. sinal misterioso emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "O Encontro no Hiperespaco, cena 1: O alerta vermelho acendeu em colonia marciana. comandante correu para o painel de controle. sinal misterioso emitia um p",
+      "durationSec": 38,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. comandante verificou os sensores tres vezes. colonia marciana estava sofrendo distorcoes espacio-temporais. sinal misterioso era a fonte.",
+      "imagePrompt": "O Encontro no Hiperespaco, cena 2: As leituras eram impossiveis. comandante verificou os sensores tres vezes. colonia marciana estava sofrendo distorcoes e",
+      "durationSec": 42,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: sinal misterioso nao era uma tecnologia convencional. comandante teorizou que colonia marciana tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "O Encontro no Hiperespaco, cena 3: A descoberta: sinal misterioso nao era uma tecnologia convencional. comandante teorizou que colonia marciana tinha sido ",
+      "durationSec": 43,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Comandante propos um plano arriscado. Se funcionasse colonia marciana poderia ser salva. sinal misterioso precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "O Encontro no Hiperespaco, cena 4: Comandante propos um plano arriscado. Se funcionasse colonia marciana poderia ser salva. sinal misterioso precisava ser ",
+      "durationSec": 43,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. comandante monitorava cada parametro em colonia marciana. sinal misterioso vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "O Encontro no Hiperespaco, cena 5: O experimento comecou. comandante monitorava cada parametro em colonia marciana. sinal misterioso vibrava em uma frequen",
+      "durationSec": 38,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. comandante observou colonia marciana se distorcer ao redor de sinal misterioso. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "O Encontro no Hiperespaco, cena 6: Uma fenda se abriu. comandante observou colonia marciana se distorcer ao redor de sinal misterioso. Atraves da abertura ",
+      "durationSec": 34,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. comandante comunicou-se com a inteligencia por tras de sinal misterioso. colonia marciana tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "O Encontro no Hiperespaco, cena 7: O contato foi estabelecido. comandante comunicou-se com a inteligencia por tras de sinal misterioso. colonia marciana to",
+      "durationSec": 26,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: comandante documentou tudo sobre sinal misterioso e colonia marciana. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "O Encontro no Hiperespaco, cena 8: O legado: comandante documentou tudo sobre sinal misterioso e colonia marciana. A humanidade nunca mais seria a mesma. U",
+      "durationSec": 27,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

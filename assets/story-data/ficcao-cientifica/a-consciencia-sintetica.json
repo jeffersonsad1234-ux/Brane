@@ -1,0 +1,78 @@
+{
+  "id": "a-consciencia-sintetica",
+  "title": "A Consciencia Sintetica",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 301,
+  "outro": "biologa espacial guardou amostra biologico como o maior tesouro da humanidade. estacao espacial se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Consciencia Sintetica",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em estacao espacial. biologa espacial correu para o painel de controle. amostra biologico emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "A Consciencia Sintetica, cena 1: O alerta vermelho acendeu em estacao espacial. biologa espacial correu para o painel de controle. amostra biologico emit",
+      "durationSec": 35,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. biologa espacial verificou os sensores tres vezes. estacao espacial estava sofrendo distorcoes espacio-temporais. amostra biologico era a fonte.",
+      "imagePrompt": "A Consciencia Sintetica, cena 2: As leituras eram impossiveis. biologa espacial verificou os sensores tres vezes. estacao espacial estava sofrendo distor",
+      "durationSec": 38,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: amostra biologico nao era uma tecnologia convencional. biologa espacial teorizou que estacao espacial tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "A Consciencia Sintetica, cena 3: A descoberta: amostra biologico nao era uma tecnologia convencional. biologa espacial teorizou que estacao espacial tinh",
+      "durationSec": 45,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Biologa espacial propos um plano arriscado. Se funcionasse estacao espacial poderia ser salva. amostra biologico precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "A Consciencia Sintetica, cena 4: Biologa espacial propos um plano arriscado. Se funcionasse estacao espacial poderia ser salva. amostra biologico precisa",
+      "durationSec": 40,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. biologa espacial monitorava cada parametro em estacao espacial. amostra biologico vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "A Consciencia Sintetica, cena 5: O experimento comecou. biologa espacial monitorava cada parametro em estacao espacial. amostra biologico vibrava em uma ",
+      "durationSec": 40,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. biologa espacial observou estacao espacial se distorcer ao redor de amostra biologico. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "A Consciencia Sintetica, cena 6: Uma fenda se abriu. biologa espacial observou estacao espacial se distorcer ao redor de amostra biologico. Atraves da ab",
+      "durationSec": 45,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. biologa espacial comunicou-se com a inteligencia por tras de amostra biologico. estacao espacial tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "A Consciencia Sintetica, cena 7: O contato foi estabelecido. biologa espacial comunicou-se com a inteligencia por tras de amostra biologico. estacao espa",
+      "durationSec": 29,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: biologa espacial documentou tudo sobre amostra biologico e estacao espacial. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "A Consciencia Sintetica, cena 8: O legado: biologa espacial documentou tudo sobre amostra biologico e estacao espacial. A humanidade nunca mais seria a m",
+      "durationSec": 29,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

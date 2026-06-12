@@ -1,0 +1,78 @@
+{
+  "id": "o-crime-perfeito",
+  "title": "O Crime Perfeito",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 264,
+  "outro": "a jornalista resolveu mais um caso. chave mestra foi devolvido ao seu lugar. casa de campo podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Crime Perfeito",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando chave mestra foi descoberto em casa de campo. a jornalista foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Crime Perfeito, cena 1: O caso comecou quando chave mestra foi descoberto em casa de campo. a jornalista foi chamado para investigar. Nada era o",
+      "durationSec": 40,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A jornalista examinou casa de campo em busca de pistas. chave mestra forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Crime Perfeito, cena 2: A jornalista examinou casa de campo em busca de pistas. chave mestra forneceu a primeira pista real. Mas ela levava a ma",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. a jornalista verificou cada detalhe em casa de campo. chave mestra contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Crime Perfeito, cena 3: O suspeito principal tinha um alibi solido. a jornalista verificou cada detalhe em casa de campo. chave mestra contradiz",
+      "durationSec": 36,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: a jornalista descobriu que chave mestra tinha sido plantado. casa de campo nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Crime Perfeito, cena 4: Uma reviravolta inesperada: a jornalista descobriu que chave mestra tinha sido plantado. casa de campo nao era a cena do",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. a jornalista conectou chave mestra com um caso antigo em casa de campo. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Crime Perfeito, cena 5: As pecas comecaram a se encaixar. a jornalista conectou chave mestra com um caso antigo em casa de campo. A solucao esta",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: a jornalista reuniu todos os suspeitos em casa de campo. chave mestra foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Crime Perfeito, cena 6: O confronto final: a jornalista reuniu todos os suspeitos em casa de campo. chave mestra foi revelado como a prova defin",
+      "durationSec": 43,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. a jornalista fechou chave mestra sabendo que a justica tinha sido feita. casa de campo guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Crime Perfeito, cena 7: A confissao trouxe alivio mas tambem tristeza. a jornalista fechou chave mestra sabendo que a justica tinha sido feita. ",
+      "durationSec": 22,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. a jornalista guardou chave mestra como recordacao. casa de campo voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Crime Perfeito, cena 8: O caso foi arquivado. a jornalista guardou chave mestra como recordacao. casa de campo voltou a rotina mas algo tinha mu",
+      "durationSec": 24,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

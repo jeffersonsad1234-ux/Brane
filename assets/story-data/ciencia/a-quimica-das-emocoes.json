@@ -1,0 +1,78 @@
+{
+  "id": "a-quimica-das-emocoes",
+  "title": "A Quimica das Emocoes",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 247,
+  "outro": "o astronomo desligou microscopio eletronico ao final do expediente. laboratorio de particulas continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Quimica das Emocoes",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O astronomo ajustou microscopio eletronico pela ultima vez. laboratorio de particulas estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "A Quimica das Emocoes, cena 1: O astronomo ajustou microscopio eletronico pela ultima vez. laboratorio de particulas estava silencioso cheio de expecta",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. o astronomo analisou cada ponto em laboratorio de particulas. microscopio eletronico registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "A Quimica das Emocoes, cena 2: Os dados comecaram a chegar. o astronomo analisou cada ponto em laboratorio de particulas. microscopio eletronico regist",
+      "durationSec": 44,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. o astronomo verificou os resultados multiplas vezes em laboratorio de particulas. microscopio eletronico havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "A Quimica das Emocoes, cena 3: O padrao era inconfundivel. o astronomo verificou os resultados multiplas vezes em laboratorio de particulas. microscopi",
+      "durationSec": 33,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. o astronomo apresentou as evidencias em laboratorio de particulas. microscopio eletronico provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "A Quimica das Emocoes, cena 4: A comunidade cientifica foi notificada. o astronomo apresentou as evidencias em laboratorio de particulas. microscopio e",
+      "durationSec": 41,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. o astronomo defendeu seu trabalho em laboratorio de particulas usando microscopio eletronico para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "A Quimica das Emocoes, cena 5: A controversia: nem todos aceitavam os resultados. o astronomo defendeu seu trabalho em laboratorio de particulas usando",
+      "durationSec": 26,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. o astronomo recebeu os parabens em laboratorio de particulas. microscopio eletronico seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "A Quimica das Emocoes, cena 6: A confirmacao chegou de outros laboratorios. o astronomo recebeu os parabens em laboratorio de particulas. microscopio e",
+      "durationSec": 27,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? o astronomo liderou as discussoes em laboratorio de particulas explorando as possibilidades que microscopio eletronico abria.",
+      "imagePrompt": "A Quimica das Emocoes, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? o astronomo liderou as discussoes em laboratorio ",
+      "durationSec": 22,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: o astronomo escreveu o estudo final em laboratorio de particulas. microscopio eletronico mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "A Quimica das Emocoes, cena 8: O impacto: o astronomo escreveu o estudo final em laboratorio de particulas. microscopio eletronico mudaria o ensino de ",
+      "durationSec": 23,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

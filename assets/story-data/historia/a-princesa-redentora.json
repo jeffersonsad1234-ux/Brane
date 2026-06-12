@@ -1,0 +1,78 @@
+{
+  "id": "a-princesa-redentora",
+  "title": "A Princesa Redentora",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 272,
+  "outro": "o abolicionista fechou mapa imperial com cuidado. praca historica continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Princesa Redentora",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1988. o abolicionista testemunhava um momento que mudaria o curso da historia. mapa imperial estava prestes a desempenhar um papel crucial em praca historica.",
+      "imagePrompt": "A Princesa Redentora, cena 1: O ano era 1988. o abolicionista testemunhava um momento que mudaria o curso da historia. mapa imperial estava prestes a ",
+      "durationSec": 45,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em praca historica. o abolicionista observava mapa imperial com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Princesa Redentora, cena 2: A tensao crescia em praca historica. o abolicionista observava mapa imperial com atencao sabendo que cada detalhe import",
+      "durationSec": 32,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. o abolicionista mediou as discussoes em praca historica. mapa imperial representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Princesa Redentora, cena 3: O conflito de ideias era palpavel. o abolicionista mediou as discussoes em praca historica. mapa imperial representava m",
+      "durationSec": 27,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: o abolicionista participou do momento em que mapa imperial foi utilizado em praca historica. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Princesa Redentora, cena 4: O marco historico: o abolicionista participou do momento em que mapa imperial foi utilizado em praca historica. O que an",
+      "durationSec": 34,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. o abolicionista lutou contra as adversidades em praca historica. mapa imperial era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Princesa Redentora, cena 5: Os desafios surgiam a cada esquina. o abolicionista lutou contra as adversidades em praca historica. mapa imperial era a",
+      "durationSec": 44,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. praca historica nunca mais seria o mesmo depois daquele dia. o abolicionista guardou mapa imperial como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Princesa Redentora, cena 6: A transformacao aconteceu. praca historica nunca mais seria o mesmo depois daquele dia. o abolicionista guardou mapa imp",
+      "durationSec": 42,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. o abolicionista ajudou a documentar o que aconteceu em praca historica. mapa imperial se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Princesa Redentora, cena 7: O legado comecou a ser construido. o abolicionista ajudou a documentar o que aconteceu em praca historica. mapa imperial",
+      "durationSec": 28,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. o abolicionista contemplou praca historica transformado. mapa imperial estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Princesa Redentora, cena 8: Os frutos do passado. o abolicionista contemplou praca historica transformado. mapa imperial estava agora em exposicao c",
+      "durationSec": 20,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

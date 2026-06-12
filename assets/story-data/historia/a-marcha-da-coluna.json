@@ -1,0 +1,78 @@
+{
+  "id": "a-marcha-da-coluna",
+  "title": "A Marcha da Coluna",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 268,
+  "outro": "Dom Pedro fechou instrumento colonial com cuidado. praca historica continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Marcha da Coluna",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1822. Dom Pedro testemunhava um momento que mudaria o curso da historia. instrumento colonial estava prestes a desempenhar um papel crucial em praca historica.",
+      "imagePrompt": "A Marcha da Coluna, cena 1: O ano era 1822. Dom Pedro testemunhava um momento que mudaria o curso da historia. instrumento colonial estava prestes a",
+      "durationSec": 35,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em praca historica. Dom Pedro observava instrumento colonial com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Marcha da Coluna, cena 2: A tensao crescia em praca historica. Dom Pedro observava instrumento colonial com atencao sabendo que cada detalhe impor",
+      "durationSec": 29,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. Dom Pedro mediou as discussoes em praca historica. instrumento colonial representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Marcha da Coluna, cena 3: O conflito de ideias era palpavel. Dom Pedro mediou as discussoes em praca historica. instrumento colonial representava ",
+      "durationSec": 45,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: Dom Pedro participou do momento em que instrumento colonial foi utilizado em praca historica. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Marcha da Coluna, cena 4: O marco historico: Dom Pedro participou do momento em que instrumento colonial foi utilizado em praca historica. O que a",
+      "durationSec": 41,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. Dom Pedro lutou contra as adversidades em praca historica. instrumento colonial era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Marcha da Coluna, cena 5: Os desafios surgiam a cada esquina. Dom Pedro lutou contra as adversidades em praca historica. instrumento colonial era ",
+      "durationSec": 26,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. praca historica nunca mais seria o mesmo depois daquele dia. Dom Pedro guardou instrumento colonial como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Marcha da Coluna, cena 6: A transformacao aconteceu. praca historica nunca mais seria o mesmo depois daquele dia. Dom Pedro guardou instrumento co",
+      "durationSec": 43,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. Dom Pedro ajudou a documentar o que aconteceu em praca historica. instrumento colonial se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Marcha da Coluna, cena 7: O legado comecou a ser construido. Dom Pedro ajudou a documentar o que aconteceu em praca historica. instrumento colonia",
+      "durationSec": 21,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. Dom Pedro contemplou praca historica transformado. instrumento colonial estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Marcha da Coluna, cena 8: Os frutos do passado. Dom Pedro contemplou praca historica transformado. instrumento colonial estava agora em exposicao ",
+      "durationSec": 28,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

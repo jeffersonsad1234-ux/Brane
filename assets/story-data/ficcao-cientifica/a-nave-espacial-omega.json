@@ -1,0 +1,78 @@
+{
+  "id": "a-nave-espacial-omega",
+  "title": "A Nave Espacial Omega",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 284,
+  "outro": "piloto guardou traje avancado como o maior tesouro da humanidade. nave interestelar se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Nave Espacial Omega",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em nave interestelar. piloto correu para o painel de controle. traje avancado emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "A Nave Espacial Omega, cena 1: O alerta vermelho acendeu em nave interestelar. piloto correu para o painel de controle. traje avancado emitia um pulso ",
+      "durationSec": 44,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. piloto verificou os sensores tres vezes. nave interestelar estava sofrendo distorcoes espacio-temporais. traje avancado era a fonte.",
+      "imagePrompt": "A Nave Espacial Omega, cena 2: As leituras eram impossiveis. piloto verificou os sensores tres vezes. nave interestelar estava sofrendo distorcoes espa",
+      "durationSec": 29,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: traje avancado nao era uma tecnologia convencional. piloto teorizou que nave interestelar tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "A Nave Espacial Omega, cena 3: A descoberta: traje avancado nao era uma tecnologia convencional. piloto teorizou que nave interestelar tinha sido const",
+      "durationSec": 44,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Piloto propos um plano arriscado. Se funcionasse nave interestelar poderia ser salva. traje avancado precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "A Nave Espacial Omega, cena 4: Piloto propos um plano arriscado. Se funcionasse nave interestelar poderia ser salva. traje avancado precisava ser ativa",
+      "durationSec": 41,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. piloto monitorava cada parametro em nave interestelar. traje avancado vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "A Nave Espacial Omega, cena 5: O experimento comecou. piloto monitorava cada parametro em nave interestelar. traje avancado vibrava em uma frequencia q",
+      "durationSec": 29,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. piloto observou nave interestelar se distorcer ao redor de traje avancado. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "A Nave Espacial Omega, cena 6: Uma fenda se abriu. piloto observou nave interestelar se distorcer ao redor de traje avancado. Atraves da abertura vislu",
+      "durationSec": 35,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. piloto comunicou-se com a inteligencia por tras de traje avancado. nave interestelar tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "A Nave Espacial Omega, cena 7: O contato foi estabelecido. piloto comunicou-se com a inteligencia por tras de traje avancado. nave interestelar tornou-",
+      "durationSec": 30,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: piloto documentou tudo sobre traje avancado e nave interestelar. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "A Nave Espacial Omega, cena 8: O legado: piloto documentou tudo sobre traje avancado e nave interestelar. A humanidade nunca mais seria a mesma. Uma no",
+      "durationSec": 32,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

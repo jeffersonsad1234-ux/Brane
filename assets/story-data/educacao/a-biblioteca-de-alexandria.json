@@ -1,0 +1,78 @@
+{
+  "id": "a-biblioteca-de-alexandria",
+  "title": "A Biblioteca de Alexandria",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 275,
+  "outro": "aluna olhou para microscopio com orgulho. centro de pesquisa continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Biblioteca de Alexandria",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Aluna chegou em centro de pesquisa com uma pergunta que ninguem tinha respondido ainda. microscopio estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "A Biblioteca de Alexandria, cena 1: Aluna chegou em centro de pesquisa com uma pergunta que ninguem tinha respondido ainda. microscopio estava no centro do ",
+      "durationSec": 36,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em microscopio. aluna passou horas em centro de pesquisa estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "A Biblioteca de Alexandria, cena 2: A primeira pista estava em microscopio. aluna passou horas em centro de pesquisa estudando cada detalhe. O conhecimento ",
+      "durationSec": 40,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: aluna preparou microscopio cuidadosamente. centro de pesquisa se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "A Biblioteca de Alexandria, cena 3: O experimento: aluna preparou microscopio cuidadosamente. centro de pesquisa se encheu de equipamentos e expectativa. Se",
+      "durationSec": 35,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. aluna mal acreditava no que microscopio revelava. centro de pesquisa se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "A Biblioteca de Alexandria, cena 4: Os resultados eram surpreendentes. aluna mal acreditava no que microscopio revelava. centro de pesquisa se tornou o cent",
+      "durationSec": 30,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. aluna enfrentou centro de pesquisa com novas duvidas. microscopio mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "A Biblioteca de Alexandria, cena 5: Mas o conhecimento nunca vem facil. aluna enfrentou centro de pesquisa com novas duvidas. microscopio mostrava um padrao",
+      "durationSec": 37,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: aluna convidou outros estudiosos para centro de pesquisa. Juntos decifraram microscopio. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "A Biblioteca de Alexandria, cena 6: A colaboracao: aluna convidou outros estudiosos para centro de pesquisa. Juntos decifraram microscopio. O saber comparti",
+      "durationSec": 35,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que microscopio revelou poderia mudar vidas. aluna liderou o projeto em centro de pesquisa para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "A Biblioteca de Alexandria, cena 7: A aplicacao pratica: o que microscopio revelou poderia mudar vidas. aluna liderou o projeto em centro de pesquisa para t",
+      "durationSec": 35,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: aluna registrou tudo em microscopio deixando centro de pesquisa como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "A Biblioteca de Alexandria, cena 8: O legado: aluna registrou tudo em microscopio deixando centro de pesquisa como um centro de aprendizado para futuras ger",
+      "durationSec": 27,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

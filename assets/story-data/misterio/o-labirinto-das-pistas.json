@@ -1,0 +1,78 @@
+{
+  "id": "o-labirinto-das-pistas",
+  "title": "O Labirinto das Pistas",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 255,
+  "outro": "Lucas resolveu mais um caso. mapa da cidade foi devolvido ao seu lugar. escritorio particular podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Labirinto das Pistas",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando mapa da cidade foi descoberto em escritorio particular. Lucas foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Labirinto das Pistas, cena 1: O caso comecou quando mapa da cidade foi descoberto em escritorio particular. Lucas foi chamado para investigar. Nada er",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Lucas examinou escritorio particular em busca de pistas. mapa da cidade forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Labirinto das Pistas, cena 2: Lucas examinou escritorio particular em busca de pistas. mapa da cidade forneceu a primeira pista real. Mas ela levava a",
+      "durationSec": 27,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. Lucas verificou cada detalhe em escritorio particular. mapa da cidade contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Labirinto das Pistas, cena 3: O suspeito principal tinha um alibi solido. Lucas verificou cada detalhe em escritorio particular. mapa da cidade contra",
+      "durationSec": 32,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: Lucas descobriu que mapa da cidade tinha sido plantado. escritorio particular nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Labirinto das Pistas, cena 4: Uma reviravolta inesperada: Lucas descobriu que mapa da cidade tinha sido plantado. escritorio particular nao era a cena",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. Lucas conectou mapa da cidade com um caso antigo em escritorio particular. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Labirinto das Pistas, cena 5: As pecas comecaram a se encaixar. Lucas conectou mapa da cidade com um caso antigo em escritorio particular. A solucao e",
+      "durationSec": 36,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: Lucas reuniu todos os suspeitos em escritorio particular. mapa da cidade foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Labirinto das Pistas, cena 6: O confronto final: Lucas reuniu todos os suspeitos em escritorio particular. mapa da cidade foi revelado como a prova de",
+      "durationSec": 36,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. Lucas fechou mapa da cidade sabendo que a justica tinha sido feita. escritorio particular guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Labirinto das Pistas, cena 7: A confissao trouxe alivio mas tambem tristeza. Lucas fechou mapa da cidade sabendo que a justica tinha sido feita. escri",
+      "durationSec": 21,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. Lucas guardou mapa da cidade como recordacao. escritorio particular voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Labirinto das Pistas, cena 8: O caso foi arquivado. Lucas guardou mapa da cidade como recordacao. escritorio particular voltou a rotina mas algo tinha",
+      "durationSec": 24,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

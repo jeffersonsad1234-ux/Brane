@@ -1,0 +1,78 @@
+{
+  "id": "a-pista-falsa",
+  "title": "A Pista Falsa",
+  "category": "suspense",
+  "sceneCount": 8,
+  "totalDurationSec": 285,
+  "outro": "o detetive guardou relogio de bolso como lembranca do caso. cafe da esquina continuaria existindo mas seus segredos finalmente tinham sido revelados.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Pista Falsa",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O detetive encontrou relogio de bolso em cafe da esquina. A descoberta parecia inocente mas algo naquela cena nao se encaixava. Cada detalhe fora cuidadosamente arranjado.",
+      "imagePrompt": "A Pista Falsa, cena 1: O detetive encontrou relogio de bolso em cafe da esquina. A descoberta parecia inocente mas algo naquela cena nao se enc",
+      "durationSec": 36,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As pecas comecaram a se conectar. o detetive revisou as anotacoes mais uma vez. cafe da esquina guardava mais segredos do que aparentava. relogio de bolso era a chave.",
+      "imagePrompt": "A Pista Falsa, cena 2: As pecas comecaram a se conectar. o detetive revisou as anotacoes mais uma vez. cafe da esquina guardava mais segredos d",
+      "durationSec": 27,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Alguem estava seguindo o detetive. As sombras em cafe da esquina escondiam movimentos furtivos. relogio de bolso desapareceu misteriosamente confirmando suas suspeitas.",
+      "imagePrompt": "A Pista Falsa, cena 3: Alguem estava seguindo o detetive. As sombras em cafe da esquina escondiam movimentos furtivos. relogio de bolso desapar",
+      "durationSec": 32,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O encontro foi marcado em cafe da esquina. o detetive chegou cedo mas o desconhecido ja estava la. relogio de bolso foi entregue em silencio junto com um aviso.",
+      "imagePrompt": "A Pista Falsa, cena 4: O encontro foi marcado em cafe da esquina. o detetive chegou cedo mas o desconhecido ja estava la. relogio de bolso foi ",
+      "durationSec": 38,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A verdade comecou a emergir. o detetive decifrou o codigo escondido em relogio de bolso. cafe da esquina nao era o que parecia. Cada resposta levava a mais perguntas.",
+      "imagePrompt": "A Pista Falsa, cena 5: A verdade comecou a emergir. o detetive decifrou o codigo escondido em relogio de bolso. cafe da esquina nao era o que p",
+      "durationSec": 40,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto era inevitavel. o detetive enfrentou o suspeito em cafe da esquina. relogio de bolso foi usado como prova mas a situacao estava longe de ser resolvida.",
+      "imagePrompt": "A Pista Falsa, cena 6: O confronto era inevitavel. o detetive enfrentou o suspeito em cafe da esquina. relogio de bolso foi usado como prova ma",
+      "durationSec": 42,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A reviravolta: relogio de bolso nao era o que o detetive pensava. cafe da esquina continha a peca final do quebra-cabeca. O verdadeiro culpado estava mais perto do que imaginava.",
+      "imagePrompt": "A Pista Falsa, cena 7: A reviravolta: relogio de bolso nao era o que o detetive pensava. cafe da esquina continha a peca final do quebra-cabeca",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O desfecho se aproximava. o detetive reuniu todas as evidencias em cafe da esquina. relogio de bolso selaria o destino de todos os envolvidos. A verdade finalmente viria a tona.",
+      "imagePrompt": "A Pista Falsa, cena 8: O desfecho se aproximava. o detetive reuniu todas as evidencias em cafe da esquina. relogio de bolso selaria o destino d",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

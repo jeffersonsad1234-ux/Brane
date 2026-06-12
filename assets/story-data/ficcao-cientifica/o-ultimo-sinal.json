@@ -1,0 +1,78 @@
+{
+  "id": "o-ultimo-sinal",
+  "title": "O Ultimo Sinal",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 246,
+  "outro": "piloto guardou computador quantico como o maior tesouro da humanidade. base lunar se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Ultimo Sinal",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em base lunar. piloto correu para o painel de controle. computador quantico emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "O Ultimo Sinal, cena 1: O alerta vermelho acendeu em base lunar. piloto correu para o painel de controle. computador quantico emitia um pulso ri",
+      "durationSec": 36,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. piloto verificou os sensores tres vezes. base lunar estava sofrendo distorcoes espacio-temporais. computador quantico era a fonte.",
+      "imagePrompt": "O Ultimo Sinal, cena 2: As leituras eram impossiveis. piloto verificou os sensores tres vezes. base lunar estava sofrendo distorcoes espacio-tem",
+      "durationSec": 28,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: computador quantico nao era uma tecnologia convencional. piloto teorizou que base lunar tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "O Ultimo Sinal, cena 3: A descoberta: computador quantico nao era uma tecnologia convencional. piloto teorizou que base lunar tinha sido constru",
+      "durationSec": 26,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Piloto propos um plano arriscado. Se funcionasse base lunar poderia ser salva. computador quantico precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "O Ultimo Sinal, cena 4: Piloto propos um plano arriscado. Se funcionasse base lunar poderia ser salva. computador quantico precisava ser ativado",
+      "durationSec": 38,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. piloto monitorava cada parametro em base lunar. computador quantico vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "O Ultimo Sinal, cena 5: O experimento comecou. piloto monitorava cada parametro em base lunar. computador quantico vibrava em uma frequencia que",
+      "durationSec": 44,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. piloto observou base lunar se distorcer ao redor de computador quantico. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "O Ultimo Sinal, cena 6: Uma fenda se abriu. piloto observou base lunar se distorcer ao redor de computador quantico. Atraves da abertura vislumb",
+      "durationSec": 25,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. piloto comunicou-se com a inteligencia por tras de computador quantico. base lunar tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "O Ultimo Sinal, cena 7: O contato foi estabelecido. piloto comunicou-se com a inteligencia por tras de computador quantico. base lunar tornou-se",
+      "durationSec": 26,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: piloto documentou tudo sobre computador quantico e base lunar. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "O Ultimo Sinal, cena 8: O legado: piloto documentou tudo sobre computador quantico e base lunar. A humanidade nunca mais seria a mesma. Uma nova",
+      "durationSec": 23,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "o-enigma-do-relogio",
+  "title": "O Enigma do Relogio",
+  "category": "suspense",
+  "sceneCount": 8,
+  "totalDurationSec": 243,
+  "outro": "a professora guardou chave numerada como lembranca do caso. sala de arquivos continuaria existindo mas seus segredos finalmente tinham sido revelados.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Enigma do Relogio",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A professora encontrou chave numerada em sala de arquivos. A descoberta parecia inocente mas algo naquela cena nao se encaixava. Cada detalhe fora cuidadosamente arranjado.",
+      "imagePrompt": "O Enigma do Relogio, cena 1: A professora encontrou chave numerada em sala de arquivos. A descoberta parecia inocente mas algo naquela cena nao se en",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As pecas comecaram a se conectar. a professora revisou as anotacoes mais uma vez. sala de arquivos guardava mais segredos do que aparentava. chave numerada era a chave.",
+      "imagePrompt": "O Enigma do Relogio, cena 2: As pecas comecaram a se conectar. a professora revisou as anotacoes mais uma vez. sala de arquivos guardava mais segredo",
+      "durationSec": 33,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Alguem estava seguindo a professora. As sombras em sala de arquivos escondiam movimentos furtivos. chave numerada desapareceu misteriosamente confirmando suas suspeitas.",
+      "imagePrompt": "O Enigma do Relogio, cena 3: Alguem estava seguindo a professora. As sombras em sala de arquivos escondiam movimentos furtivos. chave numerada desapa",
+      "durationSec": 29,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O encontro foi marcado em sala de arquivos. a professora chegou cedo mas o desconhecido ja estava la. chave numerada foi entregue em silencio junto com um aviso.",
+      "imagePrompt": "O Enigma do Relogio, cena 4: O encontro foi marcado em sala de arquivos. a professora chegou cedo mas o desconhecido ja estava la. chave numerada foi",
+      "durationSec": 29,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A verdade comecou a emergir. a professora decifrou o codigo escondido em chave numerada. sala de arquivos nao era o que parecia. Cada resposta levava a mais perguntas.",
+      "imagePrompt": "O Enigma do Relogio, cena 5: A verdade comecou a emergir. a professora decifrou o codigo escondido em chave numerada. sala de arquivos nao era o que ",
+      "durationSec": 42,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto era inevitavel. a professora enfrentou o suspeito em sala de arquivos. chave numerada foi usado como prova mas a situacao estava longe de ser resolvida.",
+      "imagePrompt": "O Enigma do Relogio, cena 6: O confronto era inevitavel. a professora enfrentou o suspeito em sala de arquivos. chave numerada foi usado como prova m",
+      "durationSec": 33,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A reviravolta: chave numerada nao era o que a professora pensava. sala de arquivos continha a peca final do quebra-cabeca. O verdadeiro culpado estava mais perto do que imaginava.",
+      "imagePrompt": "O Enigma do Relogio, cena 7: A reviravolta: chave numerada nao era o que a professora pensava. sala de arquivos continha a peca final do quebra-cabec",
+      "durationSec": 23,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O desfecho se aproximava. a professora reuniu todas as evidencias em sala de arquivos. chave numerada selaria o destino de todos os envolvidos. A verdade finalmente viria a tona.",
+      "imagePrompt": "O Enigma do Relogio, cena 8: O desfecho se aproximava. a professora reuniu todas as evidencias em sala de arquivos. chave numerada selaria o destino ",
+      "durationSec": 24,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

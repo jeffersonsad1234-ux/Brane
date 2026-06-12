@@ -1,0 +1,78 @@
+{
+  "id": "o-negocio-das-sombras",
+  "title": "O Negocio das Sombras",
+  "category": "suspense",
+  "sceneCount": 8,
+  "totalDurationSec": 273,
+  "outro": "a jornalista guardou fotografia antiga como lembranca do caso. estacao de trem continuaria existindo mas seus segredos finalmente tinham sido revelados.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Negocio das Sombras",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A jornalista encontrou fotografia antiga em estacao de trem. A descoberta parecia inocente mas algo naquela cena nao se encaixava. Cada detalhe fora cuidadosamente arranjado.",
+      "imagePrompt": "O Negocio das Sombras, cena 1: A jornalista encontrou fotografia antiga em estacao de trem. A descoberta parecia inocente mas algo naquela cena nao se ",
+      "durationSec": 36,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As pecas comecaram a se conectar. a jornalista revisou as anotacoes mais uma vez. estacao de trem guardava mais segredos do que aparentava. fotografia antiga era a chave.",
+      "imagePrompt": "O Negocio das Sombras, cena 2: As pecas comecaram a se conectar. a jornalista revisou as anotacoes mais uma vez. estacao de trem guardava mais segredos",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Alguem estava seguindo a jornalista. As sombras em estacao de trem escondiam movimentos furtivos. fotografia antiga desapareceu misteriosamente confirmando suas suspeitas.",
+      "imagePrompt": "O Negocio das Sombras, cena 3: Alguem estava seguindo a jornalista. As sombras em estacao de trem escondiam movimentos furtivos. fotografia antiga desa",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O encontro foi marcado em estacao de trem. a jornalista chegou cedo mas o desconhecido ja estava la. fotografia antiga foi entregue em silencio junto com um aviso.",
+      "imagePrompt": "O Negocio das Sombras, cena 4: O encontro foi marcado em estacao de trem. a jornalista chegou cedo mas o desconhecido ja estava la. fotografia antiga f",
+      "durationSec": 32,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A verdade comecou a emergir. a jornalista decifrou o codigo escondido em fotografia antiga. estacao de trem nao era o que parecia. Cada resposta levava a mais perguntas.",
+      "imagePrompt": "O Negocio das Sombras, cena 5: A verdade comecou a emergir. a jornalista decifrou o codigo escondido em fotografia antiga. estacao de trem nao era o qu",
+      "durationSec": 36,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto era inevitavel. a jornalista enfrentou o suspeito em estacao de trem. fotografia antiga foi usado como prova mas a situacao estava longe de ser resolvida.",
+      "imagePrompt": "O Negocio das Sombras, cena 6: O confronto era inevitavel. a jornalista enfrentou o suspeito em estacao de trem. fotografia antiga foi usado como prova",
+      "durationSec": 28,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A reviravolta: fotografia antiga nao era o que a jornalista pensava. estacao de trem continha a peca final do quebra-cabeca. O verdadeiro culpado estava mais perto do que imaginava.",
+      "imagePrompt": "O Negocio das Sombras, cena 7: A reviravolta: fotografia antiga nao era o que a jornalista pensava. estacao de trem continha a peca final do quebra-cab",
+      "durationSec": 31,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O desfecho se aproximava. a jornalista reuniu todas as evidencias em estacao de trem. fotografia antiga selaria o destino de todos os envolvidos. A verdade finalmente viria a tona.",
+      "imagePrompt": "O Negocio das Sombras, cena 8: O desfecho se aproximava. a jornalista reuniu todas as evidencias em estacao de trem. fotografia antiga selaria o destin",
+      "durationSec": 32,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

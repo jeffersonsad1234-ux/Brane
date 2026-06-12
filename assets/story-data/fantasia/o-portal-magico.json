@@ -1,0 +1,78 @@
+{
+  "id": "o-portal-magico",
+  "title": "O Portal Magico",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 264,
+  "outro": "Kael cavalgou para o por do sol com espada lendaria guardado no coracao. montanha sagrada seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Portal Magico",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou Kael para montanha sagrada. espada lendaria pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "O Portal Magico, cena 1: O destino chamou Kael para montanha sagrada. espada lendaria pulsava com uma luz suave como se reconhecesse sua chegada.",
+      "durationSec": 39,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em montanha sagrada revelaram maravilhas e perigos. Kael segurou espada lendaria firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "O Portal Magico, cena 2: Os primeiros passos em montanha sagrada revelaram maravilhas e perigos. Kael segurou espada lendaria firmemente sentindo",
+      "durationSec": 33,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de montanha sagrada surgiu das sombras. Kael precisou provar seu valor. espada lendaria brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "O Portal Magico, cena 3: O guardiao de montanha sagrada surgiu das sombras. Kael precisou provar seu valor. espada lendaria brilhou intensamente ",
+      "durationSec": 35,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: montanha sagrada escondia um segredo que apenas espada lendaria podia desvendar. Kael decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "O Portal Magico, cena 4: O enigma: montanha sagrada escondia um segredo que apenas espada lendaria podia desvendar. Kael decifrou as runas antiga",
+      "durationSec": 37,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. Kael treinou incansavelmente em montanha sagrada dominando espada lendaria. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "O Portal Magico, cena 5: A batalha se aproximava. Kael treinou incansavelmente em montanha sagrada dominando espada lendaria. As forcas das treva",
+      "durationSec": 35,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por montanha sagrada. Kael ergueu espada lendaria contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "O Portal Magico, cena 6: O confronto final ecoou por montanha sagrada. Kael ergueu espada lendaria contra a escuridao. A luz e a sombra colidiram",
+      "durationSec": 35,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada Kael contemplou montanha sagrada de um novo angulo. espada lendaria agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "O Portal Magico, cena 7: Com a paz restaurada Kael contemplou montanha sagrada de um novo angulo. espada lendaria agora repousava mas seu poder c",
+      "durationSec": 28,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Kael se despediu de montanha sagrada com a promessa de voltar. espada lendaria foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "O Portal Magico, cena 8: Kael se despediu de montanha sagrada com a promessa de voltar. espada lendaria foi guardado mas sua historia seria conta",
+      "durationSec": 22,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "a-forca-da-gravidade",
+  "title": "A Forca da Gravidade",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 267,
+  "outro": "o biologo desligou sequenciador de DNA ao final do expediente. estacao de pesquisa continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Forca da Gravidade",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O biologo ajustou sequenciador de DNA pela ultima vez. estacao de pesquisa estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "A Forca da Gravidade, cena 1: O biologo ajustou sequenciador de DNA pela ultima vez. estacao de pesquisa estava silencioso cheio de expectativa. Se a ",
+      "durationSec": 32,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. o biologo analisou cada ponto em estacao de pesquisa. sequenciador de DNA registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "A Forca da Gravidade, cena 2: Os dados comecaram a chegar. o biologo analisou cada ponto em estacao de pesquisa. sequenciador de DNA registrava algo q",
+      "durationSec": 32,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. o biologo verificou os resultados multiplas vezes em estacao de pesquisa. sequenciador de DNA havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "A Forca da Gravidade, cena 3: O padrao era inconfundivel. o biologo verificou os resultados multiplas vezes em estacao de pesquisa. sequenciador de DN",
+      "durationSec": 38,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. o biologo apresentou as evidencias em estacao de pesquisa. sequenciador de DNA provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "A Forca da Gravidade, cena 4: A comunidade cientifica foi notificada. o biologo apresentou as evidencias em estacao de pesquisa. sequenciador de DNA p",
+      "durationSec": 34,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. o biologo defendeu seu trabalho em estacao de pesquisa usando sequenciador de DNA para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "A Forca da Gravidade, cena 5: A controversia: nem todos aceitavam os resultados. o biologo defendeu seu trabalho em estacao de pesquisa usando sequenc",
+      "durationSec": 37,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. o biologo recebeu os parabens em estacao de pesquisa. sequenciador de DNA seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "A Forca da Gravidade, cena 6: A confirmacao chegou de outros laboratorios. o biologo recebeu os parabens em estacao de pesquisa. sequenciador de DNA s",
+      "durationSec": 29,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? o biologo liderou as discussoes em estacao de pesquisa explorando as possibilidades que sequenciador de DNA abria.",
+      "imagePrompt": "A Forca da Gravidade, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? o biologo liderou as discussoes em estacao de pes",
+      "durationSec": 30,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: o biologo escreveu o estudo final em estacao de pesquisa. sequenciador de DNA mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "A Forca da Gravidade, cena 8: O impacto: o biologo escreveu o estudo final em estacao de pesquisa. sequenciador de DNA mudaria o ensino de ciencias po",
+      "durationSec": 35,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

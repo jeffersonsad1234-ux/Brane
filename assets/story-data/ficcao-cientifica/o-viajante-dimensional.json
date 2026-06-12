@@ -1,0 +1,78 @@
+{
+  "id": "o-viajante-dimensional",
+  "title": "O Viajante Dimensional",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 265,
+  "outro": "tecnico de sistemas guardou amostra biologico como o maior tesouro da humanidade. sala de comando se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Viajante Dimensional",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em sala de comando. tecnico de sistemas correu para o painel de controle. amostra biologico emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "O Viajante Dimensional, cena 1: O alerta vermelho acendeu em sala de comando. tecnico de sistemas correu para o painel de controle. amostra biologico em",
+      "durationSec": 43,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. tecnico de sistemas verificou os sensores tres vezes. sala de comando estava sofrendo distorcoes espacio-temporais. amostra biologico era a fonte.",
+      "imagePrompt": "O Viajante Dimensional, cena 2: As leituras eram impossiveis. tecnico de sistemas verificou os sensores tres vezes. sala de comando estava sofrendo dist",
+      "durationSec": 29,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: amostra biologico nao era uma tecnologia convencional. tecnico de sistemas teorizou que sala de comando tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "O Viajante Dimensional, cena 3: A descoberta: amostra biologico nao era uma tecnologia convencional. tecnico de sistemas teorizou que sala de comando ti",
+      "durationSec": 45,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Tecnico de sistemas propos um plano arriscado. Se funcionasse sala de comando poderia ser salva. amostra biologico precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "O Viajante Dimensional, cena 4: Tecnico de sistemas propos um plano arriscado. Se funcionasse sala de comando poderia ser salva. amostra biologico preci",
+      "durationSec": 32,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. tecnico de sistemas monitorava cada parametro em sala de comando. amostra biologico vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "O Viajante Dimensional, cena 5: O experimento comecou. tecnico de sistemas monitorava cada parametro em sala de comando. amostra biologico vibrava em um",
+      "durationSec": 27,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. tecnico de sistemas observou sala de comando se distorcer ao redor de amostra biologico. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "O Viajante Dimensional, cena 6: Uma fenda se abriu. tecnico de sistemas observou sala de comando se distorcer ao redor de amostra biologico. Atraves da ",
+      "durationSec": 29,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. tecnico de sistemas comunicou-se com a inteligencia por tras de amostra biologico. sala de comando tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "O Viajante Dimensional, cena 7: O contato foi estabelecido. tecnico de sistemas comunicou-se com a inteligencia por tras de amostra biologico. sala de c",
+      "durationSec": 26,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: tecnico de sistemas documentou tudo sobre amostra biologico e sala de comando. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "O Viajante Dimensional, cena 8: O legado: tecnico de sistemas documentou tudo sobre amostra biologico e sala de comando. A humanidade nunca mais seria a",
+      "durationSec": 34,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

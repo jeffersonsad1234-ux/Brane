@@ -1,0 +1,78 @@
+{
+  "id": "a-luta-pelo-voto-feminino",
+  "title": "A Luta pelo Voto Feminino",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 265,
+  "outro": "a historiadora fechou moeda antiga com cuidado. cidade planejada continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Luta pelo Voto Feminino",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1964. a historiadora testemunhava um momento que mudaria o curso da historia. moeda antiga estava prestes a desempenhar um papel crucial em cidade planejada.",
+      "imagePrompt": "A Luta pelo Voto Feminino, cena 1: O ano era 1964. a historiadora testemunhava um momento que mudaria o curso da historia. moeda antiga estava prestes a de",
+      "durationSec": 30,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em cidade planejada. a historiadora observava moeda antiga com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Luta pelo Voto Feminino, cena 2: A tensao crescia em cidade planejada. a historiadora observava moeda antiga com atencao sabendo que cada detalhe importa",
+      "durationSec": 41,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. a historiadora mediou as discussoes em cidade planejada. moeda antiga representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Luta pelo Voto Feminino, cena 3: O conflito de ideias era palpavel. a historiadora mediou as discussoes em cidade planejada. moeda antiga representava ma",
+      "durationSec": 29,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: a historiadora participou do momento em que moeda antiga foi utilizado em cidade planejada. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Luta pelo Voto Feminino, cena 4: O marco historico: a historiadora participou do momento em que moeda antiga foi utilizado em cidade planejada. O que ant",
+      "durationSec": 36,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. a historiadora lutou contra as adversidades em cidade planejada. moeda antiga era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Luta pelo Voto Feminino, cena 5: Os desafios surgiam a cada esquina. a historiadora lutou contra as adversidades em cidade planejada. moeda antiga era a ",
+      "durationSec": 34,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. cidade planejada nunca mais seria o mesmo depois daquele dia. a historiadora guardou moeda antiga como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Luta pelo Voto Feminino, cena 6: A transformacao aconteceu. cidade planejada nunca mais seria o mesmo depois daquele dia. a historiadora guardou moeda an",
+      "durationSec": 40,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. a historiadora ajudou a documentar o que aconteceu em cidade planejada. moeda antiga se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Luta pelo Voto Feminino, cena 7: O legado comecou a ser construido. a historiadora ajudou a documentar o que aconteceu em cidade planejada. moeda antiga ",
+      "durationSec": 20,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. a historiadora contemplou cidade planejada transformado. moeda antiga estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Luta pelo Voto Feminino, cena 8: Os frutos do passado. a historiadora contemplou cidade planejada transformado. moeda antiga estava agora em exposicao co",
+      "durationSec": 35,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

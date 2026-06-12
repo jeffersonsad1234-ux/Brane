@@ -1,0 +1,78 @@
+{
+  "id": "o-bosque-das-fadas",
+  "title": "O Bosque das Fadas",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 277,
+  "outro": "Lyra cavalgou para o por do sol com grimorio antigo guardado no coracao. caverna dos ecos seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Bosque das Fadas",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou Lyra para caverna dos ecos. grimorio antigo pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "O Bosque das Fadas, cena 1: O destino chamou Lyra para caverna dos ecos. grimorio antigo pulsava com uma luz suave como se reconhecesse sua chegada.",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em caverna dos ecos revelaram maravilhas e perigos. Lyra segurou grimorio antigo firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "O Bosque das Fadas, cena 2: Os primeiros passos em caverna dos ecos revelaram maravilhas e perigos. Lyra segurou grimorio antigo firmemente sentindo",
+      "durationSec": 37,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de caverna dos ecos surgiu das sombras. Lyra precisou provar seu valor. grimorio antigo brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "O Bosque das Fadas, cena 3: O guardiao de caverna dos ecos surgiu das sombras. Lyra precisou provar seu valor. grimorio antigo brilhou intensamente ",
+      "durationSec": 39,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: caverna dos ecos escondia um segredo que apenas grimorio antigo podia desvendar. Lyra decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "O Bosque das Fadas, cena 4: O enigma: caverna dos ecos escondia um segredo que apenas grimorio antigo podia desvendar. Lyra decifrou as runas antiga",
+      "durationSec": 38,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. Lyra treinou incansavelmente em caverna dos ecos dominando grimorio antigo. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "O Bosque das Fadas, cena 5: A batalha se aproximava. Lyra treinou incansavelmente em caverna dos ecos dominando grimorio antigo. As forcas das treva",
+      "durationSec": 30,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por caverna dos ecos. Lyra ergueu grimorio antigo contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "O Bosque das Fadas, cena 6: O confronto final ecoou por caverna dos ecos. Lyra ergueu grimorio antigo contra a escuridao. A luz e a sombra colidiram",
+      "durationSec": 38,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada Lyra contemplou caverna dos ecos de um novo angulo. grimorio antigo agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "O Bosque das Fadas, cena 7: Com a paz restaurada Lyra contemplou caverna dos ecos de um novo angulo. grimorio antigo agora repousava mas seu poder c",
+      "durationSec": 32,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Lyra se despediu de caverna dos ecos com a promessa de voltar. grimorio antigo foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "O Bosque das Fadas, cena 8: Lyra se despediu de caverna dos ecos com a promessa de voltar. grimorio antigo foi guardado mas sua historia seria conta",
+      "durationSec": 32,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

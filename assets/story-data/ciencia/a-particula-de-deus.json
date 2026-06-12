@@ -1,0 +1,78 @@
+{
+  "id": "a-particula-de-deus",
+  "title": "A Particula de Deus",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 295,
+  "outro": "o matematico desligou telescopio espacial ao final do expediente. estacao de pesquisa continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Particula de Deus",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O matematico ajustou telescopio espacial pela ultima vez. estacao de pesquisa estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "A Particula de Deus, cena 1: O matematico ajustou telescopio espacial pela ultima vez. estacao de pesquisa estava silencioso cheio de expectativa. Se",
+      "durationSec": 42,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. o matematico analisou cada ponto em estacao de pesquisa. telescopio espacial registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "A Particula de Deus, cena 2: Os dados comecaram a chegar. o matematico analisou cada ponto em estacao de pesquisa. telescopio espacial registrava alg",
+      "durationSec": 41,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. o matematico verificou os resultados multiplas vezes em estacao de pesquisa. telescopio espacial havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "A Particula de Deus, cena 3: O padrao era inconfundivel. o matematico verificou os resultados multiplas vezes em estacao de pesquisa. telescopio espa",
+      "durationSec": 35,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. o matematico apresentou as evidencias em estacao de pesquisa. telescopio espacial provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "A Particula de Deus, cena 4: A comunidade cientifica foi notificada. o matematico apresentou as evidencias em estacao de pesquisa. telescopio espacia",
+      "durationSec": 30,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. o matematico defendeu seu trabalho em estacao de pesquisa usando telescopio espacial para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "A Particula de Deus, cena 5: A controversia: nem todos aceitavam os resultados. o matematico defendeu seu trabalho em estacao de pesquisa usando tele",
+      "durationSec": 42,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. o matematico recebeu os parabens em estacao de pesquisa. telescopio espacial seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "A Particula de Deus, cena 6: A confirmacao chegou de outros laboratorios. o matematico recebeu os parabens em estacao de pesquisa. telescopio espacia",
+      "durationSec": 44,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? o matematico liderou as discussoes em estacao de pesquisa explorando as possibilidades que telescopio espacial abria.",
+      "imagePrompt": "A Particula de Deus, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? o matematico liderou as discussoes em estacao de ",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: o matematico escreveu o estudo final em estacao de pesquisa. telescopio espacial mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "A Particula de Deus, cena 8: O impacto: o matematico escreveu o estudo final em estacao de pesquisa. telescopio espacial mudaria o ensino de ciencias",
+      "durationSec": 30,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

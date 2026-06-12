@@ -1,0 +1,78 @@
+{
+  "id": "o-enigma-dos-buracos-de-minhoca",
+  "title": "O Enigma dos Buracos de Minhoca",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 270,
+  "outro": "cientista-chefe guardou cristal energetico como o maior tesouro da humanidade. colonia marciana se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Enigma dos Buracos de Minhoca",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em colonia marciana. cientista-chefe correu para o painel de controle. cristal energetico emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "O Enigma dos Buracos de Minhoca, cena 1: O alerta vermelho acendeu em colonia marciana. cientista-chefe correu para o painel de controle. cristal energetico emit",
+      "durationSec": 40,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. cientista-chefe verificou os sensores tres vezes. colonia marciana estava sofrendo distorcoes espacio-temporais. cristal energetico era a fonte.",
+      "imagePrompt": "O Enigma dos Buracos de Minhoca, cena 2: As leituras eram impossiveis. cientista-chefe verificou os sensores tres vezes. colonia marciana estava sofrendo distorc",
+      "durationSec": 31,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: cristal energetico nao era uma tecnologia convencional. cientista-chefe teorizou que colonia marciana tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "O Enigma dos Buracos de Minhoca, cena 3: A descoberta: cristal energetico nao era uma tecnologia convencional. cientista-chefe teorizou que colonia marciana tinh",
+      "durationSec": 30,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Cientista-chefe propos um plano arriscado. Se funcionasse colonia marciana poderia ser salva. cristal energetico precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "O Enigma dos Buracos de Minhoca, cena 4: Cientista-chefe propos um plano arriscado. Se funcionasse colonia marciana poderia ser salva. cristal energetico precisa",
+      "durationSec": 40,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. cientista-chefe monitorava cada parametro em colonia marciana. cristal energetico vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "O Enigma dos Buracos de Minhoca, cena 5: O experimento comecou. cientista-chefe monitorava cada parametro em colonia marciana. cristal energetico vibrava em uma ",
+      "durationSec": 41,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. cientista-chefe observou colonia marciana se distorcer ao redor de cristal energetico. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "O Enigma dos Buracos de Minhoca, cena 6: Uma fenda se abriu. cientista-chefe observou colonia marciana se distorcer ao redor de cristal energetico. Atraves da ab",
+      "durationSec": 39,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. cientista-chefe comunicou-se com a inteligencia por tras de cristal energetico. colonia marciana tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "O Enigma dos Buracos de Minhoca, cena 7: O contato foi estabelecido. cientista-chefe comunicou-se com a inteligencia por tras de cristal energetico. colonia marc",
+      "durationSec": 29,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: cientista-chefe documentou tudo sobre cristal energetico e colonia marciana. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "O Enigma dos Buracos de Minhoca, cena 8: O legado: cientista-chefe documentou tudo sobre cristal energetico e colonia marciana. A humanidade nunca mais seria a m",
+      "durationSec": 20,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "o-caso-das-joias-perdidas",
+  "title": "O Caso das Joias Perdidas",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 268,
+  "outro": "o investigador resolveu mais um caso. relatorio policial foi devolvido ao seu lugar. sala de interrogatorio podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Caso das Joias Perdidas",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando relatorio policial foi descoberto em sala de interrogatorio. o investigador foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Caso das Joias Perdidas, cena 1: O caso comecou quando relatorio policial foi descoberto em sala de interrogatorio. o investigador foi chamado para inves",
+      "durationSec": 40,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O investigador examinou sala de interrogatorio em busca de pistas. relatorio policial forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Caso das Joias Perdidas, cena 2: O investigador examinou sala de interrogatorio em busca de pistas. relatorio policial forneceu a primeira pista real. Ma",
+      "durationSec": 27,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. o investigador verificou cada detalhe em sala de interrogatorio. relatorio policial contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Caso das Joias Perdidas, cena 3: O suspeito principal tinha um alibi solido. o investigador verificou cada detalhe em sala de interrogatorio. relatorio p",
+      "durationSec": 41,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: o investigador descobriu que relatorio policial tinha sido plantado. sala de interrogatorio nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Caso das Joias Perdidas, cena 4: Uma reviravolta inesperada: o investigador descobriu que relatorio policial tinha sido plantado. sala de interrogatorio ",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. o investigador conectou relatorio policial com um caso antigo em sala de interrogatorio. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Caso das Joias Perdidas, cena 5: As pecas comecaram a se encaixar. o investigador conectou relatorio policial com um caso antigo em sala de interrogatori",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: o investigador reuniu todos os suspeitos em sala de interrogatorio. relatorio policial foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Caso das Joias Perdidas, cena 6: O confronto final: o investigador reuniu todos os suspeitos em sala de interrogatorio. relatorio policial foi revelado c",
+      "durationSec": 26,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. o investigador fechou relatorio policial sabendo que a justica tinha sido feita. sala de interrogatorio guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Caso das Joias Perdidas, cena 7: A confissao trouxe alivio mas tambem tristeza. o investigador fechou relatorio policial sabendo que a justica tinha sido",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. o investigador guardou relatorio policial como recordacao. sala de interrogatorio voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Caso das Joias Perdidas, cena 8: O caso foi arquivado. o investigador guardou relatorio policial como recordacao. sala de interrogatorio voltou a rotina ",
+      "durationSec": 25,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

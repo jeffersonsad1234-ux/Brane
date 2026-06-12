@@ -1,0 +1,78 @@
+{
+  "id": "o-sinal-de-proxima-centauri",
+  "title": "O Sinal de Proxima Centauri",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 255,
+  "outro": "biologa espacial guardou dispositivo alienigena como o maior tesouro da humanidade. estacao espacial se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Sinal de Proxima Centauri",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em estacao espacial. biologa espacial correu para o painel de controle. dispositivo alienigena emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "O Sinal de Proxima Centauri, cena 1: O alerta vermelho acendeu em estacao espacial. biologa espacial correu para o painel de controle. dispositivo alienigena",
+      "durationSec": 39,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. biologa espacial verificou os sensores tres vezes. estacao espacial estava sofrendo distorcoes espacio-temporais. dispositivo alienigena era a fonte.",
+      "imagePrompt": "O Sinal de Proxima Centauri, cena 2: As leituras eram impossiveis. biologa espacial verificou os sensores tres vezes. estacao espacial estava sofrendo distor",
+      "durationSec": 26,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: dispositivo alienigena nao era uma tecnologia convencional. biologa espacial teorizou que estacao espacial tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "O Sinal de Proxima Centauri, cena 3: A descoberta: dispositivo alienigena nao era uma tecnologia convencional. biologa espacial teorizou que estacao espacial",
+      "durationSec": 34,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Biologa espacial propos um plano arriscado. Se funcionasse estacao espacial poderia ser salva. dispositivo alienigena precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "O Sinal de Proxima Centauri, cena 4: Biologa espacial propos um plano arriscado. Se funcionasse estacao espacial poderia ser salva. dispositivo alienigena pr",
+      "durationSec": 27,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. biologa espacial monitorava cada parametro em estacao espacial. dispositivo alienigena vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "O Sinal de Proxima Centauri, cena 5: O experimento comecou. biologa espacial monitorava cada parametro em estacao espacial. dispositivo alienigena vibrava em",
+      "durationSec": 36,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. biologa espacial observou estacao espacial se distorcer ao redor de dispositivo alienigena. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "O Sinal de Proxima Centauri, cena 6: Uma fenda se abriu. biologa espacial observou estacao espacial se distorcer ao redor de dispositivo alienigena. Atraves ",
+      "durationSec": 39,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. biologa espacial comunicou-se com a inteligencia por tras de dispositivo alienigena. estacao espacial tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "O Sinal de Proxima Centauri, cena 7: O contato foi estabelecido. biologa espacial comunicou-se com a inteligencia por tras de dispositivo alienigena. estacao",
+      "durationSec": 28,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: biologa espacial documentou tudo sobre dispositivo alienigena e estacao espacial. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "O Sinal de Proxima Centauri, cena 8: O legado: biologa espacial documentou tudo sobre dispositivo alienigena e estacao espacial. A humanidade nunca mais seri",
+      "durationSec": 26,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

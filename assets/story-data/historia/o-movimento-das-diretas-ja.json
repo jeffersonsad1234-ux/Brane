@@ -1,0 +1,78 @@
+{
+  "id": "o-movimento-das-diretas-ja",
+  "title": "O Movimento das Diretas Ja",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 291,
+  "outro": "o abolicionista fechou moeda antiga com cuidado. sertao nordestino continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Movimento das Diretas Ja",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1964. o abolicionista testemunhava um momento que mudaria o curso da historia. moeda antiga estava prestes a desempenhar um papel crucial em sertao nordestino.",
+      "imagePrompt": "O Movimento das Diretas Ja, cena 1: O ano era 1964. o abolicionista testemunhava um momento que mudaria o curso da historia. moeda antiga estava prestes a d",
+      "durationSec": 31,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em sertao nordestino. o abolicionista observava moeda antiga com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "O Movimento das Diretas Ja, cena 2: A tensao crescia em sertao nordestino. o abolicionista observava moeda antiga com atencao sabendo que cada detalhe impor",
+      "durationSec": 37,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. o abolicionista mediou as discussoes em sertao nordestino. moeda antiga representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "O Movimento das Diretas Ja, cena 3: O conflito de ideias era palpavel. o abolicionista mediou as discussoes em sertao nordestino. moeda antiga representava ",
+      "durationSec": 37,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: o abolicionista participou do momento em que moeda antiga foi utilizado em sertao nordestino. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "O Movimento das Diretas Ja, cena 4: O marco historico: o abolicionista participou do momento em que moeda antiga foi utilizado em sertao nordestino. O que a",
+      "durationSec": 44,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. o abolicionista lutou contra as adversidades em sertao nordestino. moeda antiga era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "O Movimento das Diretas Ja, cena 5: Os desafios surgiam a cada esquina. o abolicionista lutou contra as adversidades em sertao nordestino. moeda antiga era ",
+      "durationSec": 45,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. sertao nordestino nunca mais seria o mesmo depois daquele dia. o abolicionista guardou moeda antiga como reliquia de um tempo de mudancas.",
+      "imagePrompt": "O Movimento das Diretas Ja, cena 6: A transformacao aconteceu. sertao nordestino nunca mais seria o mesmo depois daquele dia. o abolicionista guardou moeda ",
+      "durationSec": 41,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. o abolicionista ajudou a documentar o que aconteceu em sertao nordestino. moeda antiga se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "O Movimento das Diretas Ja, cena 7: O legado comecou a ser construido. o abolicionista ajudou a documentar o que aconteceu em sertao nordestino. moeda antig",
+      "durationSec": 21,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. o abolicionista contemplou sertao nordestino transformado. moeda antiga estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "O Movimento das Diretas Ja, cena 8: Os frutos do passado. o abolicionista contemplou sertao nordestino transformado. moeda antiga estava agora em exposicao ",
+      "durationSec": 35,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

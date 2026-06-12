@@ -1,0 +1,78 @@
+{
+  "id": "a-mascara-da-verdade",
+  "title": "A Mascara da Verdade",
+  "category": "suspense",
+  "sceneCount": 8,
+  "totalDurationSec": 263,
+  "outro": "a advogada guardou relogio de bolso como lembranca do caso. hotel decadente continuaria existindo mas seus segredos finalmente tinham sido revelados.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Mascara da Verdade",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A advogada encontrou relogio de bolso em hotel decadente. A descoberta parecia inocente mas algo naquela cena nao se encaixava. Cada detalhe fora cuidadosamente arranjado.",
+      "imagePrompt": "A Mascara da Verdade, cena 1: A advogada encontrou relogio de bolso em hotel decadente. A descoberta parecia inocente mas algo naquela cena nao se enc",
+      "durationSec": 40,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As pecas comecaram a se conectar. a advogada revisou as anotacoes mais uma vez. hotel decadente guardava mais segredos do que aparentava. relogio de bolso era a chave.",
+      "imagePrompt": "A Mascara da Verdade, cena 2: As pecas comecaram a se conectar. a advogada revisou as anotacoes mais uma vez. hotel decadente guardava mais segredos d",
+      "durationSec": 28,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Alguem estava seguindo a advogada. As sombras em hotel decadente escondiam movimentos furtivos. relogio de bolso desapareceu misteriosamente confirmando suas suspeitas.",
+      "imagePrompt": "A Mascara da Verdade, cena 3: Alguem estava seguindo a advogada. As sombras em hotel decadente escondiam movimentos furtivos. relogio de bolso desapar",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O encontro foi marcado em hotel decadente. a advogada chegou cedo mas o desconhecido ja estava la. relogio de bolso foi entregue em silencio junto com um aviso.",
+      "imagePrompt": "A Mascara da Verdade, cena 4: O encontro foi marcado em hotel decadente. a advogada chegou cedo mas o desconhecido ja estava la. relogio de bolso foi ",
+      "durationSec": 28,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A verdade comecou a emergir. a advogada decifrou o codigo escondido em relogio de bolso. hotel decadente nao era o que parecia. Cada resposta levava a mais perguntas.",
+      "imagePrompt": "A Mascara da Verdade, cena 5: A verdade comecou a emergir. a advogada decifrou o codigo escondido em relogio de bolso. hotel decadente nao era o que p",
+      "durationSec": 41,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto era inevitavel. a advogada enfrentou o suspeito em hotel decadente. relogio de bolso foi usado como prova mas a situacao estava longe de ser resolvida.",
+      "imagePrompt": "A Mascara da Verdade, cena 6: O confronto era inevitavel. a advogada enfrentou o suspeito em hotel decadente. relogio de bolso foi usado como prova ma",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A reviravolta: relogio de bolso nao era o que a advogada pensava. hotel decadente continha a peca final do quebra-cabeca. O verdadeiro culpado estava mais perto do que imaginava.",
+      "imagePrompt": "A Mascara da Verdade, cena 7: A reviravolta: relogio de bolso nao era o que a advogada pensava. hotel decadente continha a peca final do quebra-cabeca",
+      "durationSec": 24,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O desfecho se aproximava. a advogada reuniu todas as evidencias em hotel decadente. relogio de bolso selaria o destino de todos os envolvidos. A verdade finalmente viria a tona.",
+      "imagePrompt": "A Mascara da Verdade, cena 8: O desfecho se aproximava. a advogada reuniu todas as evidencias em hotel decadente. relogio de bolso selaria o destino d",
+      "durationSec": 24,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

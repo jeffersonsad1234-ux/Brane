@@ -1,0 +1,78 @@
+{
+  "id": "base-marte-silencio",
+  "title": "Base Marte: Silencio",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 281,
+  "outro": "cientista-chefe guardou sinal misterioso como o maior tesouro da humanidade. modulo de pesquisa se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: Base Marte: Silencio",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em modulo de pesquisa. cientista-chefe correu para o painel de controle. sinal misterioso emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "Base Marte: Silencio, cena 1: O alerta vermelho acendeu em modulo de pesquisa. cientista-chefe correu para o painel de controle. sinal misterioso emit",
+      "durationSec": 44,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. cientista-chefe verificou os sensores tres vezes. modulo de pesquisa estava sofrendo distorcoes espacio-temporais. sinal misterioso era a fonte.",
+      "imagePrompt": "Base Marte: Silencio, cena 2: As leituras eram impossiveis. cientista-chefe verificou os sensores tres vezes. modulo de pesquisa estava sofrendo disto",
+      "durationSec": 26,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: sinal misterioso nao era uma tecnologia convencional. cientista-chefe teorizou que modulo de pesquisa tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "Base Marte: Silencio, cena 3: A descoberta: sinal misterioso nao era uma tecnologia convencional. cientista-chefe teorizou que modulo de pesquisa tinh",
+      "durationSec": 42,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Cientista-chefe propos um plano arriscado. Se funcionasse modulo de pesquisa poderia ser salva. sinal misterioso precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "Base Marte: Silencio, cena 4: Cientista-chefe propos um plano arriscado. Se funcionasse modulo de pesquisa poderia ser salva. sinal misterioso precisa",
+      "durationSec": 38,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. cientista-chefe monitorava cada parametro em modulo de pesquisa. sinal misterioso vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "Base Marte: Silencio, cena 5: O experimento comecou. cientista-chefe monitorava cada parametro em modulo de pesquisa. sinal misterioso vibrava em uma ",
+      "durationSec": 38,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. cientista-chefe observou modulo de pesquisa se distorcer ao redor de sinal misterioso. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "Base Marte: Silencio, cena 6: Uma fenda se abriu. cientista-chefe observou modulo de pesquisa se distorcer ao redor de sinal misterioso. Atraves da ab",
+      "durationSec": 42,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. cientista-chefe comunicou-se com a inteligencia por tras de sinal misterioso. modulo de pesquisa tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "Base Marte: Silencio, cena 7: O contato foi estabelecido. cientista-chefe comunicou-se com a inteligencia por tras de sinal misterioso. modulo de pesq",
+      "durationSec": 24,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: cientista-chefe documentou tudo sobre sinal misterioso e modulo de pesquisa. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "Base Marte: Silencio, cena 8: O legado: cientista-chefe documentou tudo sobre sinal misterioso e modulo de pesquisa. A humanidade nunca mais seria a m",
+      "durationSec": 27,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

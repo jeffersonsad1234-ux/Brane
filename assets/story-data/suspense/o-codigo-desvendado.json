@@ -1,0 +1,78 @@
+{
+  "id": "o-codigo-desvendado",
+  "title": "O Codigo Desvendado",
+  "category": "suspense",
+  "sceneCount": 8,
+  "totalDurationSec": 259,
+  "outro": "a jornalista guardou carta lacrada como lembranca do caso. predio comercial continuaria existindo mas seus segredos finalmente tinham sido revelados.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Codigo Desvendado",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A jornalista encontrou carta lacrada em predio comercial. A descoberta parecia inocente mas algo naquela cena nao se encaixava. Cada detalhe fora cuidadosamente arranjado.",
+      "imagePrompt": "O Codigo Desvendado, cena 1: A jornalista encontrou carta lacrada em predio comercial. A descoberta parecia inocente mas algo naquela cena nao se enc",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As pecas comecaram a se conectar. a jornalista revisou as anotacoes mais uma vez. predio comercial guardava mais segredos do que aparentava. carta lacrada era a chave.",
+      "imagePrompt": "O Codigo Desvendado, cena 2: As pecas comecaram a se conectar. a jornalista revisou as anotacoes mais uma vez. predio comercial guardava mais segredo",
+      "durationSec": 42,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Alguem estava seguindo a jornalista. As sombras em predio comercial escondiam movimentos furtivos. carta lacrada desapareceu misteriosamente confirmando suas suspeitas.",
+      "imagePrompt": "O Codigo Desvendado, cena 3: Alguem estava seguindo a jornalista. As sombras em predio comercial escondiam movimentos furtivos. carta lacrada desapar",
+      "durationSec": 25,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O encontro foi marcado em predio comercial. a jornalista chegou cedo mas o desconhecido ja estava la. carta lacrada foi entregue em silencio junto com um aviso.",
+      "imagePrompt": "O Codigo Desvendado, cena 4: O encontro foi marcado em predio comercial. a jornalista chegou cedo mas o desconhecido ja estava la. carta lacrada foi ",
+      "durationSec": 42,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A verdade comecou a emergir. a jornalista decifrou o codigo escondido em carta lacrada. predio comercial nao era o que parecia. Cada resposta levava a mais perguntas.",
+      "imagePrompt": "O Codigo Desvendado, cena 5: A verdade comecou a emergir. a jornalista decifrou o codigo escondido em carta lacrada. predio comercial nao era o que p",
+      "durationSec": 38,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto era inevitavel. a jornalista enfrentou o suspeito em predio comercial. carta lacrada foi usado como prova mas a situacao estava longe de ser resolvida.",
+      "imagePrompt": "O Codigo Desvendado, cena 6: O confronto era inevitavel. a jornalista enfrentou o suspeito em predio comercial. carta lacrada foi usado como prova ma",
+      "durationSec": 27,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A reviravolta: carta lacrada nao era o que a jornalista pensava. predio comercial continha a peca final do quebra-cabeca. O verdadeiro culpado estava mais perto do que imaginava.",
+      "imagePrompt": "O Codigo Desvendado, cena 7: A reviravolta: carta lacrada nao era o que a jornalista pensava. predio comercial continha a peca final do quebra-cabeca",
+      "durationSec": 23,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O desfecho se aproximava. a jornalista reuniu todas as evidencias em predio comercial. carta lacrada selaria o destino de todos os envolvidos. A verdade finalmente viria a tona.",
+      "imagePrompt": "O Codigo Desvendado, cena 8: O desfecho se aproximava. a jornalista reuniu todas as evidencias em predio comercial. carta lacrada selaria o destino d",
+      "durationSec": 23,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "a-invencao-da-escrita",
+  "title": "A Invencao da Escrita",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 271,
+  "outro": "aprendiz olhou para instrumento cientifico com orgulho. museu continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Invencao da Escrita",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Aprendiz chegou em museu com uma pergunta que ninguem tinha respondido ainda. instrumento cientifico estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "A Invencao da Escrita, cena 1: Aprendiz chegou em museu com uma pergunta que ninguem tinha respondido ainda. instrumento cientifico estava no centro do",
+      "durationSec": 35,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em instrumento cientifico. aprendiz passou horas em museu estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "A Invencao da Escrita, cena 2: A primeira pista estava em instrumento cientifico. aprendiz passou horas em museu estudando cada detalhe. O conhecimento",
+      "durationSec": 39,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: aprendiz preparou instrumento cientifico cuidadosamente. museu se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "A Invencao da Escrita, cena 3: O experimento: aprendiz preparou instrumento cientifico cuidadosamente. museu se encheu de equipamentos e expectativa. S",
+      "durationSec": 36,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. aprendiz mal acreditava no que instrumento cientifico revelava. museu se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "A Invencao da Escrita, cena 4: Os resultados eram surpreendentes. aprendiz mal acreditava no que instrumento cientifico revelava. museu se tornou o cen",
+      "durationSec": 31,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. aprendiz enfrentou museu com novas duvidas. instrumento cientifico mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "A Invencao da Escrita, cena 5: Mas o conhecimento nunca vem facil. aprendiz enfrentou museu com novas duvidas. instrumento cientifico mostrava um padra",
+      "durationSec": 45,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: aprendiz convidou outros estudiosos para museu. Juntos decifraram instrumento cientifico. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "A Invencao da Escrita, cena 6: A colaboracao: aprendiz convidou outros estudiosos para museu. Juntos decifraram instrumento cientifico. O saber compart",
+      "durationSec": 29,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que instrumento cientifico revelou poderia mudar vidas. aprendiz liderou o projeto em museu para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "A Invencao da Escrita, cena 7: A aplicacao pratica: o que instrumento cientifico revelou poderia mudar vidas. aprendiz liderou o projeto em museu para ",
+      "durationSec": 34,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: aprendiz registrou tudo em instrumento cientifico deixando museu como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "A Invencao da Escrita, cena 8: O legado: aprendiz registrou tudo em instrumento cientifico deixando museu como um centro de aprendizado para futuras ge",
+      "durationSec": 22,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

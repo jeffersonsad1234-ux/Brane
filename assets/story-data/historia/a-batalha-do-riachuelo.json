@@ -1,0 +1,78 @@
+{
+  "id": "a-batalha-do-riachuelo",
+  "title": "A Batalha do Riachuelo",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 287,
+  "outro": "Princesa Isabel fechou fotografia antiga com cuidado. estacao ferroviaria continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Batalha do Riachuelo",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1922. Princesa Isabel testemunhava um momento que mudaria o curso da historia. fotografia antiga estava prestes a desempenhar um papel crucial em estacao ferroviaria.",
+      "imagePrompt": "A Batalha do Riachuelo, cena 1: O ano era 1922. Princesa Isabel testemunhava um momento que mudaria o curso da historia. fotografia antiga estava preste",
+      "durationSec": 39,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em estacao ferroviaria. Princesa Isabel observava fotografia antiga com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Batalha do Riachuelo, cena 2: A tensao crescia em estacao ferroviaria. Princesa Isabel observava fotografia antiga com atencao sabendo que cada detalh",
+      "durationSec": 42,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. Princesa Isabel mediou as discussoes em estacao ferroviaria. fotografia antiga representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Batalha do Riachuelo, cena 3: O conflito de ideias era palpavel. Princesa Isabel mediou as discussoes em estacao ferroviaria. fotografia antiga repres",
+      "durationSec": 43,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: Princesa Isabel participou do momento em que fotografia antiga foi utilizado em estacao ferroviaria. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Batalha do Riachuelo, cena 4: O marco historico: Princesa Isabel participou do momento em que fotografia antiga foi utilizado em estacao ferroviaria. ",
+      "durationSec": 36,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. Princesa Isabel lutou contra as adversidades em estacao ferroviaria. fotografia antiga era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Batalha do Riachuelo, cena 5: Os desafios surgiam a cada esquina. Princesa Isabel lutou contra as adversidades em estacao ferroviaria. fotografia anti",
+      "durationSec": 36,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. estacao ferroviaria nunca mais seria o mesmo depois daquele dia. Princesa Isabel guardou fotografia antiga como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Batalha do Riachuelo, cena 6: A transformacao aconteceu. estacao ferroviaria nunca mais seria o mesmo depois daquele dia. Princesa Isabel guardou foto",
+      "durationSec": 33,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. Princesa Isabel ajudou a documentar o que aconteceu em estacao ferroviaria. fotografia antiga se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Batalha do Riachuelo, cena 7: O legado comecou a ser construido. Princesa Isabel ajudou a documentar o que aconteceu em estacao ferroviaria. fotografi",
+      "durationSec": 26,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. Princesa Isabel contemplou estacao ferroviaria transformado. fotografia antiga estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Batalha do Riachuelo, cena 8: Os frutos do passado. Princesa Isabel contemplou estacao ferroviaria transformado. fotografia antiga estava agora em exp",
+      "durationSec": 32,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

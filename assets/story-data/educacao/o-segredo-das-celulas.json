@@ -1,0 +1,78 @@
+{
+  "id": "o-segredo-das-celulas",
+  "title": "O Segredo das Celulas",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 254,
+  "outro": "aprendiz olhou para amostra geologica com orgulho. sala de aula continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Segredo das Celulas",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Aprendiz chegou em sala de aula com uma pergunta que ninguem tinha respondido ainda. amostra geologica estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "O Segredo das Celulas, cena 1: Aprendiz chegou em sala de aula com uma pergunta que ninguem tinha respondido ainda. amostra geologica estava no centro ",
+      "durationSec": 30,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em amostra geologica. aprendiz passou horas em sala de aula estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "O Segredo das Celulas, cena 2: A primeira pista estava em amostra geologica. aprendiz passou horas em sala de aula estudando cada detalhe. O conhecimen",
+      "durationSec": 31,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: aprendiz preparou amostra geologica cuidadosamente. sala de aula se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "O Segredo das Celulas, cena 3: O experimento: aprendiz preparou amostra geologica cuidadosamente. sala de aula se encheu de equipamentos e expectativa.",
+      "durationSec": 40,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. aprendiz mal acreditava no que amostra geologica revelava. sala de aula se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "O Segredo das Celulas, cena 4: Os resultados eram surpreendentes. aprendiz mal acreditava no que amostra geologica revelava. sala de aula se tornou o c",
+      "durationSec": 27,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. aprendiz enfrentou sala de aula com novas duvidas. amostra geologica mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "O Segredo das Celulas, cena 5: Mas o conhecimento nunca vem facil. aprendiz enfrentou sala de aula com novas duvidas. amostra geologica mostrava um pad",
+      "durationSec": 29,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: aprendiz convidou outros estudiosos para sala de aula. Juntos decifraram amostra geologica. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "O Segredo das Celulas, cena 6: A colaboracao: aprendiz convidou outros estudiosos para sala de aula. Juntos decifraram amostra geologica. O saber compa",
+      "durationSec": 43,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que amostra geologica revelou poderia mudar vidas. aprendiz liderou o projeto em sala de aula para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "O Segredo das Celulas, cena 7: A aplicacao pratica: o que amostra geologica revelou poderia mudar vidas. aprendiz liderou o projeto em sala de aula par",
+      "durationSec": 34,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: aprendiz registrou tudo em amostra geologica deixando sala de aula como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "O Segredo das Celulas, cena 8: O legado: aprendiz registrou tudo em amostra geologica deixando sala de aula como um centro de aprendizado para futuras ",
+      "durationSec": 20,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

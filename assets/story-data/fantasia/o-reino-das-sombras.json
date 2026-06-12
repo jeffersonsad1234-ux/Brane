@@ -1,0 +1,78 @@
+{
+  "id": "o-reino-das-sombras",
+  "title": "O Reino das Sombras",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 273,
+  "outro": "o cavaleiro cavalgou para o por do sol com mapa astral guardado no coracao. montanha sagrada seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Reino das Sombras",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou o cavaleiro para montanha sagrada. mapa astral pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "O Reino das Sombras, cena 1: O destino chamou o cavaleiro para montanha sagrada. mapa astral pulsava com uma luz suave como se reconhecesse sua chega",
+      "durationSec": 40,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em montanha sagrada revelaram maravilhas e perigos. o cavaleiro segurou mapa astral firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "O Reino das Sombras, cena 2: Os primeiros passos em montanha sagrada revelaram maravilhas e perigos. o cavaleiro segurou mapa astral firmemente senti",
+      "durationSec": 36,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de montanha sagrada surgiu das sombras. o cavaleiro precisou provar seu valor. mapa astral brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "O Reino das Sombras, cena 3: O guardiao de montanha sagrada surgiu das sombras. o cavaleiro precisou provar seu valor. mapa astral brilhou intensamen",
+      "durationSec": 43,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: montanha sagrada escondia um segredo que apenas mapa astral podia desvendar. o cavaleiro decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "O Reino das Sombras, cena 4: O enigma: montanha sagrada escondia um segredo que apenas mapa astral podia desvendar. o cavaleiro decifrou as runas ant",
+      "durationSec": 25,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. o cavaleiro treinou incansavelmente em montanha sagrada dominando mapa astral. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "O Reino das Sombras, cena 5: A batalha se aproximava. o cavaleiro treinou incansavelmente em montanha sagrada dominando mapa astral. As forcas das tr",
+      "durationSec": 36,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por montanha sagrada. o cavaleiro ergueu mapa astral contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "O Reino das Sombras, cena 6: O confronto final ecoou por montanha sagrada. o cavaleiro ergueu mapa astral contra a escuridao. A luz e a sombra colidi",
+      "durationSec": 43,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada o cavaleiro contemplou montanha sagrada de um novo angulo. mapa astral agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "O Reino das Sombras, cena 7: Com a paz restaurada o cavaleiro contemplou montanha sagrada de um novo angulo. mapa astral agora repousava mas seu pode",
+      "durationSec": 24,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O cavaleiro se despediu de montanha sagrada com a promessa de voltar. mapa astral foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "O Reino das Sombras, cena 8: O cavaleiro se despediu de montanha sagrada com a promessa de voltar. mapa astral foi guardado mas sua historia seria co",
+      "durationSec": 26,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

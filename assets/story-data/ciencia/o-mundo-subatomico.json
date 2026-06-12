@@ -1,0 +1,78 @@
+{
+  "id": "o-mundo-subatomico",
+  "title": "O Mundo Subatomico",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 244,
+  "outro": "Dra. Mendes desligou microscopio eletronico ao final do expediente. centro de computacao continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Mundo Subatomico",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Dra. Mendes ajustou microscopio eletronico pela ultima vez. centro de computacao estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "O Mundo Subatomico, cena 1: Dra. Mendes ajustou microscopio eletronico pela ultima vez. centro de computacao estava silencioso cheio de expectativa.",
+      "durationSec": 34,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. Dra. Mendes analisou cada ponto em centro de computacao. microscopio eletronico registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "O Mundo Subatomico, cena 2: Os dados comecaram a chegar. Dra. Mendes analisou cada ponto em centro de computacao. microscopio eletronico registrava ",
+      "durationSec": 30,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. Dra. Mendes verificou os resultados multiplas vezes em centro de computacao. microscopio eletronico havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "O Mundo Subatomico, cena 3: O padrao era inconfundivel. Dra. Mendes verificou os resultados multiplas vezes em centro de computacao. microscopio ele",
+      "durationSec": 26,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. Dra. Mendes apresentou as evidencias em centro de computacao. microscopio eletronico provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "O Mundo Subatomico, cena 4: A comunidade cientifica foi notificada. Dra. Mendes apresentou as evidencias em centro de computacao. microscopio eletro",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. Dra. Mendes defendeu seu trabalho em centro de computacao usando microscopio eletronico para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "O Mundo Subatomico, cena 5: A controversia: nem todos aceitavam os resultados. Dra. Mendes defendeu seu trabalho em centro de computacao usando micr",
+      "durationSec": 28,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. Dra. Mendes recebeu os parabens em centro de computacao. microscopio eletronico seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "O Mundo Subatomico, cena 6: A confirmacao chegou de outros laboratorios. Dra. Mendes recebeu os parabens em centro de computacao. microscopio eletro",
+      "durationSec": 40,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? Dra. Mendes liderou as discussoes em centro de computacao explorando as possibilidades que microscopio eletronico abria.",
+      "imagePrompt": "O Mundo Subatomico, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? Dra. Mendes liderou as discussoes em centro de co",
+      "durationSec": 23,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: Dra. Mendes escreveu o estudo final em centro de computacao. microscopio eletronico mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "O Mundo Subatomico, cena 8: O impacto: Dra. Mendes escreveu o estudo final em centro de computacao. microscopio eletronico mudaria o ensino de cienc",
+      "durationSec": 32,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

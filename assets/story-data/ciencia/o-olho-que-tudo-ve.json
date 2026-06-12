@@ -1,0 +1,78 @@
+{
+  "id": "o-olho-que-tudo-ve",
+  "title": "O Olho que Tudo Ve",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 263,
+  "outro": "a neurocientista desligou laser de precisao ao final do expediente. laboratorio de particulas continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Olho que Tudo Ve",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A neurocientista ajustou laser de precisao pela ultima vez. laboratorio de particulas estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "O Olho que Tudo Ve, cena 1: A neurocientista ajustou laser de precisao pela ultima vez. laboratorio de particulas estava silencioso cheio de expecta",
+      "durationSec": 44,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. a neurocientista analisou cada ponto em laboratorio de particulas. laser de precisao registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "O Olho que Tudo Ve, cena 2: Os dados comecaram a chegar. a neurocientista analisou cada ponto em laboratorio de particulas. laser de precisao regist",
+      "durationSec": 45,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. a neurocientista verificou os resultados multiplas vezes em laboratorio de particulas. laser de precisao havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "O Olho que Tudo Ve, cena 3: O padrao era inconfundivel. a neurocientista verificou os resultados multiplas vezes em laboratorio de particulas. laser",
+      "durationSec": 25,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. a neurocientista apresentou as evidencias em laboratorio de particulas. laser de precisao provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "O Olho que Tudo Ve, cena 4: A comunidade cientifica foi notificada. a neurocientista apresentou as evidencias em laboratorio de particulas. laser de",
+      "durationSec": 27,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. a neurocientista defendeu seu trabalho em laboratorio de particulas usando laser de precisao para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "O Olho que Tudo Ve, cena 5: A controversia: nem todos aceitavam os resultados. a neurocientista defendeu seu trabalho em laboratorio de particulas u",
+      "durationSec": 37,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. a neurocientista recebeu os parabens em laboratorio de particulas. laser de precisao seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "O Olho que Tudo Ve, cena 6: A confirmacao chegou de outros laboratorios. a neurocientista recebeu os parabens em laboratorio de particulas. laser de",
+      "durationSec": 33,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? a neurocientista liderou as discussoes em laboratorio de particulas explorando as possibilidades que laser de precisao abria.",
+      "imagePrompt": "O Olho que Tudo Ve, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? a neurocientista liderou as discussoes em laborat",
+      "durationSec": 23,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: a neurocientista escreveu o estudo final em laboratorio de particulas. laser de precisao mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "O Olho que Tudo Ve, cena 8: O impacto: a neurocientista escreveu o estudo final em laboratorio de particulas. laser de precisao mudaria o ensino de ",
+      "durationSec": 29,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

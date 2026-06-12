@@ -1,0 +1,78 @@
+{
+  "id": "o-templo-do-silencio",
+  "title": "O Templo do Silencio",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 298,
+  "outro": "o explorador navegou para o horizonte com bussola magica como guia. oceano de nuvens desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Templo do Silencio",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O explorador pisou em oceano de nuvens pela primeira vez. O cenario era tao surreal que parecia um sonho. bussola magica foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "O Templo do Silencio, cena 1: O explorador pisou em oceano de nuvens pela primeira vez. O cenario era tao surreal que parecia um sonho. bussola magica",
+      "durationSec": 39,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de oceano de nuvens observavam o explorador com curiosidade. bussola magica despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "O Templo do Silencio, cena 2: Os habitantes de oceano de nuvens observavam o explorador com curiosidade. bussola magica despertava um interesse que ia",
+      "durationSec": 39,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. o explorador precisou decifrar bussola magica para navegar por oceano de nuvens. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "O Templo do Silencio, cena 3: O mapa estava incompleto. o explorador precisou decifrar bussola magica para navegar por oceano de nuvens. Cada passo re",
+      "durationSec": 41,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: oceano de nuvens estava ameacado por uma forca que ninguem compreendia totalmente. o explorador consultou os anciaos que apontaram para bussola magica como a solucao.",
+      "imagePrompt": "O Templo do Silencio, cena 4: A crise: oceano de nuvens estava ameacado por uma forca que ninguem compreendia totalmente. o explorador consultou os an",
+      "durationSec": 44,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. o explorador uniu os povos de oceano de nuvens em torno de bussola magica. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "O Templo do Silencio, cena 5: A alianca foi formada. o explorador uniu os povos de oceano de nuvens em torno de bussola magica. A diversidade era a ma",
+      "durationSec": 41,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de bussola magica foi finalmente revelado. o explorador descobriu que oceano de nuvens era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "O Templo do Silencio, cena 6: O segredo de bussola magica foi finalmente revelado. o explorador descobriu que oceano de nuvens era apenas uma pequena ",
+      "durationSec": 35,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: oceano de nuvens se encheu de luz e musica. o explorador foi honrado como heroi. bussola magica se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "O Templo do Silencio, cena 7: A celebracao: oceano de nuvens se encheu de luz e musica. o explorador foi honrado como heroi. bussola magica se tornou ",
+      "durationSec": 24,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: o explorador prometeu voltar para oceano de nuvens. bussola magica serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "O Templo do Silencio, cena 8: A despedida: o explorador prometeu voltar para oceano de nuvens. bussola magica serviria como ponte entre mundos. A aven",
+      "durationSec": 35,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

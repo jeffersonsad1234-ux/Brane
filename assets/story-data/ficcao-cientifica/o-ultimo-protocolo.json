@@ -1,0 +1,78 @@
+{
+  "id": "o-ultimo-protocolo",
+  "title": "O Ultimo Protocolo",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 281,
+  "outro": "doutora guardou amostra biologico como o maior tesouro da humanidade. modulo de pesquisa se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Ultimo Protocolo",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em modulo de pesquisa. doutora correu para o painel de controle. amostra biologico emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "O Ultimo Protocolo, cena 1: O alerta vermelho acendeu em modulo de pesquisa. doutora correu para o painel de controle. amostra biologico emitia um p",
+      "durationSec": 45,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. doutora verificou os sensores tres vezes. modulo de pesquisa estava sofrendo distorcoes espacio-temporais. amostra biologico era a fonte.",
+      "imagePrompt": "O Ultimo Protocolo, cena 2: As leituras eram impossiveis. doutora verificou os sensores tres vezes. modulo de pesquisa estava sofrendo distorcoes es",
+      "durationSec": 38,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: amostra biologico nao era uma tecnologia convencional. doutora teorizou que modulo de pesquisa tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "O Ultimo Protocolo, cena 3: A descoberta: amostra biologico nao era uma tecnologia convencional. doutora teorizou que modulo de pesquisa tinha sido ",
+      "durationSec": 45,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Doutora propos um plano arriscado. Se funcionasse modulo de pesquisa poderia ser salva. amostra biologico precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "O Ultimo Protocolo, cena 4: Doutora propos um plano arriscado. Se funcionasse modulo de pesquisa poderia ser salva. amostra biologico precisava ser ",
+      "durationSec": 35,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. doutora monitorava cada parametro em modulo de pesquisa. amostra biologico vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "O Ultimo Protocolo, cena 5: O experimento comecou. doutora monitorava cada parametro em modulo de pesquisa. amostra biologico vibrava em uma frequen",
+      "durationSec": 43,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. doutora observou modulo de pesquisa se distorcer ao redor de amostra biologico. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "O Ultimo Protocolo, cena 6: Uma fenda se abriu. doutora observou modulo de pesquisa se distorcer ao redor de amostra biologico. Atraves da abertura ",
+      "durationSec": 28,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. doutora comunicou-se com a inteligencia por tras de amostra biologico. modulo de pesquisa tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "O Ultimo Protocolo, cena 7: O contato foi estabelecido. doutora comunicou-se com a inteligencia por tras de amostra biologico. modulo de pesquisa to",
+      "durationSec": 21,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: doutora documentou tudo sobre amostra biologico e modulo de pesquisa. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "O Ultimo Protocolo, cena 8: O legado: doutora documentou tudo sobre amostra biologico e modulo de pesquisa. A humanidade nunca mais seria a mesma. U",
+      "durationSec": 26,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

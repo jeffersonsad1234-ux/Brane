@@ -1,0 +1,78 @@
+{
+  "id": "o-brinquedo-esquecido",
+  "title": "O Brinquedo Esquecido",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 269,
+  "outro": "E assim Luna aprendeu em fundo do mar que a maior magica esta dentro de nos. caixa de musica era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Brinquedo Esquecido",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em fundo do mar vivia Luna. caixa de musica era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "O Brinquedo Esquecido, cena 1: Era uma vez em fundo do mar vivia Luna. caixa de musica era seu bem mais precioso mas algo estava diferente hoje. Uma av",
+      "durationSec": 32,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Luna acordou com um problema: caixa de musica nao funcionava mais. Em fundo do mar todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "O Brinquedo Esquecido, cena 2: Luna acordou com um problema: caixa de musica nao funcionava mais. Em fundo do mar todos se reuniram para ajudar. Cada a",
+      "durationSec": 26,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. Luna encontrou fundo do mar de um jeito que nunca tinha visto. caixa de musica brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "O Brinquedo Esquecido, cena 3: O caminho era cheio de surpresas. Luna encontrou fundo do mar de um jeito que nunca tinha visto. caixa de musica brilhav",
+      "durationSec": 44,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em fundo do mar Luna conheceu alguem que precisava de ajuda. caixa de musica poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "O Brinquedo Esquecido, cena 4: Um novo amigo apareceu. Em fundo do mar Luna conheceu alguem que precisava de ajuda. caixa de musica poderia ser a chave",
+      "durationSec": 31,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: Luna aprendeu que fundo do mar era mais especial por seus habitantes do que por suas belezas. caixa de musica nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "O Brinquedo Esquecido, cena 5: A licao: Luna aprendeu que fundo do mar era mais especial por seus habitantes do que por suas belezas. caixa de musica n",
+      "durationSec": 44,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas Luna nao desistiu. Em fundo do mar todos trabalharam juntos. caixa de musica finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "O Brinquedo Esquecido, cena 6: O desafio parecia grande demais mas Luna nao desistiu. Em fundo do mar todos trabalharam juntos. caixa de musica finalme",
+      "durationSec": 45,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em fundo do mar. Luna dancou com todos os amigos. caixa de musica agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "O Brinquedo Esquecido, cena 7: A comemoracao foi em fundo do mar. Luna dancou com todos os amigos. caixa de musica agora brilhava mais forte do que nun",
+      "durationSec": 23,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Luna se despediu de fundo do mar com um abraco coletivo. caixa de musica estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "O Brinquedo Esquecido, cena 8: Luna se despediu de fundo do mar com um abraco coletivo. caixa de musica estava guardado no coracao nao nas maos. E vive",
+      "durationSec": 24,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

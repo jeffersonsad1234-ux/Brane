@@ -1,0 +1,78 @@
+{
+  "id": "o-ultimo-andar",
+  "title": "O Ultimo Andar",
+  "category": "terror",
+  "sceneCount": 8,
+  "totalDurationSec": 286,
+  "outro": "Quando Dr. Moreira finalmente escapou de hospital desativado levou consigo apenas caixa de musica e a certeza de que algumas portas nunca deveriam ser abertas.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Ultimo Andar",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A noite caia sobre hospital desativado quando Dr. Moreira sentiu um arrepio repentino. O vento uivava entre as frestas, carregando um som que parecia vir de muito longe ou de muito perto.",
+      "imagePrompt": "O Ultimo Andar, cena 1: A noite caia sobre hospital desativado quando Dr. Moreira sentiu um arrepio repentino. O vento uivava entre as frestas, ",
+      "durationSec": 41,
+      "musicSuggestion": "sombrio",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Dr. Moreira acendeu a lanterna mas a luz parecia engolida pela escuridao. hospital desativado estava mais frio do que deveria. Pegadas na poeira indicavam que alguem tinha passado por ali recentemente.",
+      "imagePrompt": "O Ultimo Andar, cena 2: Dr. Moreira acendeu a lanterna mas a luz parecia engolida pela escuridao. hospital desativado estava mais frio do que de",
+      "durationSec": 44,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Um rangido veio do andar de cima. Dr. Moreira prendeu a respiracao. caixa de musica estava exatamente onde nao deveria estar. Como tinha chegado ate ali?",
+      "imagePrompt": "O Ultimo Andar, cena 3: Um rangido veio do andar de cima. Dr. Moreira prendeu a respiracao. caixa de musica estava exatamente onde nao deveria e",
+      "durationSec": 33,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O ar ficou denso pesado. Dr. Moreira sentiu uma presenca observando de hospital desativado. Nao estava sozinho. O caixa de musica comecou a vibrar lentamente emitindo um som grave e hipnotico.",
+      "imagePrompt": "O Ultimo Andar, cena 4: O ar ficou denso pesado. Dr. Moreira sentiu uma presenca observando de hospital desativado. Nao estava sozinho. O caixa ",
+      "durationSec": 26,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As paredes pareciam se mover. Dr. Moreira esfregou os olhos mas a ilusao persistia. caixa de musica refletia uma imagem que nao correspondia ao ambiente uma figura encapuzada atras de si.",
+      "imagePrompt": "O Ultimo Andar, cena 5: As paredes pareciam se mover. Dr. Moreira esfregou os olhos mas a ilusao persistia. caixa de musica refletia uma imagem ",
+      "durationSec": 39,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O som de passos se aproximou. Dr. Moreira se encolheu em hospital desativado tentando controlar a respiracao. caixa de musica caiu no chao ecoando como um grito na escuridao total.",
+      "imagePrompt": "O Ultimo Andar, cena 6: O som de passos se aproximou. Dr. Moreira se encolheu em hospital desativado tentando controlar a respiracao. caixa de m",
+      "durationSec": 42,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Uma voz sussurrou seu nome. Dr. Moreira se virou bruscamente. hospital desativado estava vazio mas caixa de musica tinha mudado de posicao. O ar gelado tocava sua nuca.",
+      "imagePrompt": "O Ultimo Andar, cena 7: Uma voz sussurrou seu nome. Dr. Moreira se virou bruscamente. hospital desativado estava vazio mas caixa de musica tinha",
+      "durationSec": 32,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O relogio parou. Dr. Moreira percebeu que o tempo nao passava em hospital desativado. caixa de musica mostrava uma cena que nunca tinha acontecido ou que ainda ia acontecer.",
+      "imagePrompt": "O Ultimo Andar, cena 8: O relogio parou. Dr. Moreira percebeu que o tempo nao passava em hospital desativado. caixa de musica mostrava uma cena ",
+      "durationSec": 29,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    }
+  ]
+}

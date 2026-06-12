@@ -1,0 +1,78 @@
+{
+  "id": "o-valor-da-traicao",
+  "title": "O Valor da Traicao",
+  "category": "suspense",
+  "sceneCount": 8,
+  "totalDurationSec": 293,
+  "outro": "o bancario guardou dispositivo eletronico como lembranca do caso. escritorio vazio continuaria existindo mas seus segredos finalmente tinham sido revelados.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Valor da Traicao",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O bancario encontrou dispositivo eletronico em escritorio vazio. A descoberta parecia inocente mas algo naquela cena nao se encaixava. Cada detalhe fora cuidadosamente arranjado.",
+      "imagePrompt": "O Valor da Traicao, cena 1: O bancario encontrou dispositivo eletronico em escritorio vazio. A descoberta parecia inocente mas algo naquela cena nao",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As pecas comecaram a se conectar. o bancario revisou as anotacoes mais uma vez. escritorio vazio guardava mais segredos do que aparentava. dispositivo eletronico era a chave.",
+      "imagePrompt": "O Valor da Traicao, cena 2: As pecas comecaram a se conectar. o bancario revisou as anotacoes mais uma vez. escritorio vazio guardava mais segredos ",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Alguem estava seguindo o bancario. As sombras em escritorio vazio escondiam movimentos furtivos. dispositivo eletronico desapareceu misteriosamente confirmando suas suspeitas.",
+      "imagePrompt": "O Valor da Traicao, cena 3: Alguem estava seguindo o bancario. As sombras em escritorio vazio escondiam movimentos furtivos. dispositivo eletronico ",
+      "durationSec": 43,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O encontro foi marcado em escritorio vazio. o bancario chegou cedo mas o desconhecido ja estava la. dispositivo eletronico foi entregue em silencio junto com um aviso.",
+      "imagePrompt": "O Valor da Traicao, cena 4: O encontro foi marcado em escritorio vazio. o bancario chegou cedo mas o desconhecido ja estava la. dispositivo eletroni",
+      "durationSec": 43,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A verdade comecou a emergir. o bancario decifrou o codigo escondido em dispositivo eletronico. escritorio vazio nao era o que parecia. Cada resposta levava a mais perguntas.",
+      "imagePrompt": "O Valor da Traicao, cena 5: A verdade comecou a emergir. o bancario decifrou o codigo escondido em dispositivo eletronico. escritorio vazio nao era ",
+      "durationSec": 40,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto era inevitavel. o bancario enfrentou o suspeito em escritorio vazio. dispositivo eletronico foi usado como prova mas a situacao estava longe de ser resolvida.",
+      "imagePrompt": "O Valor da Traicao, cena 6: O confronto era inevitavel. o bancario enfrentou o suspeito em escritorio vazio. dispositivo eletronico foi usado como p",
+      "durationSec": 29,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A reviravolta: dispositivo eletronico nao era o que o bancario pensava. escritorio vazio continha a peca final do quebra-cabeca. O verdadeiro culpado estava mais perto do que imaginava.",
+      "imagePrompt": "O Valor da Traicao, cena 7: A reviravolta: dispositivo eletronico nao era o que o bancario pensava. escritorio vazio continha a peca final do quebra",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O desfecho se aproximava. o bancario reuniu todas as evidencias em escritorio vazio. dispositivo eletronico selaria o destino de todos os envolvidos. A verdade finalmente viria a tona.",
+      "imagePrompt": "O Valor da Traicao, cena 8: O desfecho se aproximava. o bancario reuniu todas as evidencias em escritorio vazio. dispositivo eletronico selaria o de",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

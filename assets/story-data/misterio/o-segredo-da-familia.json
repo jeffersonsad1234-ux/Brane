@@ -1,0 +1,78 @@
+{
+  "id": "o-segredo-da-familia",
+  "title": "O Segredo da Familia",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 265,
+  "outro": "Lucas resolveu mais um caso. caderno de anotacoes foi devolvido ao seu lugar. delegacia podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Segredo da Familia",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando caderno de anotacoes foi descoberto em delegacia. Lucas foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Segredo da Familia, cena 1: O caso comecou quando caderno de anotacoes foi descoberto em delegacia. Lucas foi chamado para investigar. Nada era o qu",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Lucas examinou delegacia em busca de pistas. caderno de anotacoes forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Segredo da Familia, cena 2: Lucas examinou delegacia em busca de pistas. caderno de anotacoes forneceu a primeira pista real. Mas ela levava a mais ",
+      "durationSec": 33,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. Lucas verificou cada detalhe em delegacia. caderno de anotacoes contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Segredo da Familia, cena 3: O suspeito principal tinha um alibi solido. Lucas verificou cada detalhe em delegacia. caderno de anotacoes contradizia ",
+      "durationSec": 26,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: Lucas descobriu que caderno de anotacoes tinha sido plantado. delegacia nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Segredo da Familia, cena 4: Uma reviravolta inesperada: Lucas descobriu que caderno de anotacoes tinha sido plantado. delegacia nao era a cena do cr",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. Lucas conectou caderno de anotacoes com um caso antigo em delegacia. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Segredo da Familia, cena 5: As pecas comecaram a se encaixar. Lucas conectou caderno de anotacoes com um caso antigo em delegacia. A solucao estava ",
+      "durationSec": 31,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: Lucas reuniu todos os suspeitos em delegacia. caderno de anotacoes foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Segredo da Familia, cena 6: O confronto final: Lucas reuniu todos os suspeitos em delegacia. caderno de anotacoes foi revelado como a prova definiti",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. Lucas fechou caderno de anotacoes sabendo que a justica tinha sido feita. delegacia guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Segredo da Familia, cena 7: A confissao trouxe alivio mas tambem tristeza. Lucas fechou caderno de anotacoes sabendo que a justica tinha sido feita.",
+      "durationSec": 21,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. Lucas guardou caderno de anotacoes como recordacao. delegacia voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Segredo da Familia, cena 8: O caso foi arquivado. Lucas guardou caderno de anotacoes como recordacao. delegacia voltou a rotina mas algo tinha mudad",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

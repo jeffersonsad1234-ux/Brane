@@ -1,0 +1,78 @@
+{
+  "id": "a-borboleta-colorida",
+  "title": "A Borboleta Colorida",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 256,
+  "outro": "E assim Lili aprendeu em montanha do arco-iris que a maior magica esta dentro de nos. cesta de doces era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Borboleta Colorida",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em montanha do arco-iris vivia Lili. cesta de doces era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "A Borboleta Colorida, cena 1: Era uma vez em montanha do arco-iris vivia Lili. cesta de doces era seu bem mais precioso mas algo estava diferente hoje",
+      "durationSec": 38,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Lili acordou com um problema: cesta de doces nao funcionava mais. Em montanha do arco-iris todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "A Borboleta Colorida, cena 2: Lili acordou com um problema: cesta de doces nao funcionava mais. Em montanha do arco-iris todos se reuniram para ajudar",
+      "durationSec": 33,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. Lili encontrou montanha do arco-iris de um jeito que nunca tinha visto. cesta de doces brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "A Borboleta Colorida, cena 3: O caminho era cheio de surpresas. Lili encontrou montanha do arco-iris de um jeito que nunca tinha visto. cesta de doces",
+      "durationSec": 33,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em montanha do arco-iris Lili conheceu alguem que precisava de ajuda. cesta de doces poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "A Borboleta Colorida, cena 4: Um novo amigo apareceu. Em montanha do arco-iris Lili conheceu alguem que precisava de ajuda. cesta de doces poderia ser",
+      "durationSec": 25,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: Lili aprendeu que montanha do arco-iris era mais especial por seus habitantes do que por suas belezas. cesta de doces nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "A Borboleta Colorida, cena 5: A licao: Lili aprendeu que montanha do arco-iris era mais especial por seus habitantes do que por suas belezas. cesta de",
+      "durationSec": 28,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas Lili nao desistiu. Em montanha do arco-iris todos trabalharam juntos. cesta de doces finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "A Borboleta Colorida, cena 6: O desafio parecia grande demais mas Lili nao desistiu. Em montanha do arco-iris todos trabalharam juntos. cesta de doces",
+      "durationSec": 44,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em montanha do arco-iris. Lili dancou com todos os amigos. cesta de doces agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "A Borboleta Colorida, cena 7: A comemoracao foi em montanha do arco-iris. Lili dancou com todos os amigos. cesta de doces agora brilhava mais forte do",
+      "durationSec": 24,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Lili se despediu de montanha do arco-iris com um abraco coletivo. cesta de doces estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "A Borboleta Colorida, cena 8: Lili se despediu de montanha do arco-iris com um abraco coletivo. cesta de doces estava guardado no coracao nao nas maos",
+      "durationSec": 31,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

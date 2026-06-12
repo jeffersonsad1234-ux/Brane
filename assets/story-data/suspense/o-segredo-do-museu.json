@@ -1,0 +1,78 @@
+{
+  "id": "o-segredo-do-museu",
+  "title": "O Segredo do Museu",
+  "category": "suspense",
+  "sceneCount": 8,
+  "totalDurationSec": 271,
+  "outro": "Ana guardou pastas arquivadas como lembranca do caso. escritorio vazio continuaria existindo mas seus segredos finalmente tinham sido revelados.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Segredo do Museu",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Ana encontrou pastas arquivadas em escritorio vazio. A descoberta parecia inocente mas algo naquela cena nao se encaixava. Cada detalhe fora cuidadosamente arranjado.",
+      "imagePrompt": "O Segredo do Museu, cena 1: Ana encontrou pastas arquivadas em escritorio vazio. A descoberta parecia inocente mas algo naquela cena nao se encaixav",
+      "durationSec": 38,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As pecas comecaram a se conectar. Ana revisou as anotacoes mais uma vez. escritorio vazio guardava mais segredos do que aparentava. pastas arquivadas era a chave.",
+      "imagePrompt": "O Segredo do Museu, cena 2: As pecas comecaram a se conectar. Ana revisou as anotacoes mais uma vez. escritorio vazio guardava mais segredos do que ",
+      "durationSec": 25,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Alguem estava seguindo Ana. As sombras em escritorio vazio escondiam movimentos furtivos. pastas arquivadas desapareceu misteriosamente confirmando suas suspeitas.",
+      "imagePrompt": "O Segredo do Museu, cena 3: Alguem estava seguindo Ana. As sombras em escritorio vazio escondiam movimentos furtivos. pastas arquivadas desapareceu ",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O encontro foi marcado em escritorio vazio. Ana chegou cedo mas o desconhecido ja estava la. pastas arquivadas foi entregue em silencio junto com um aviso.",
+      "imagePrompt": "O Segredo do Museu, cena 4: O encontro foi marcado em escritorio vazio. Ana chegou cedo mas o desconhecido ja estava la. pastas arquivadas foi entre",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A verdade comecou a emergir. Ana decifrou o codigo escondido em pastas arquivadas. escritorio vazio nao era o que parecia. Cada resposta levava a mais perguntas.",
+      "imagePrompt": "O Segredo do Museu, cena 5: A verdade comecou a emergir. Ana decifrou o codigo escondido em pastas arquivadas. escritorio vazio nao era o que pareci",
+      "durationSec": 42,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto era inevitavel. Ana enfrentou o suspeito em escritorio vazio. pastas arquivadas foi usado como prova mas a situacao estava longe de ser resolvida.",
+      "imagePrompt": "O Segredo do Museu, cena 6: O confronto era inevitavel. Ana enfrentou o suspeito em escritorio vazio. pastas arquivadas foi usado como prova mas a s",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A reviravolta: pastas arquivadas nao era o que Ana pensava. escritorio vazio continha a peca final do quebra-cabeca. O verdadeiro culpado estava mais perto do que imaginava.",
+      "imagePrompt": "O Segredo do Museu, cena 7: A reviravolta: pastas arquivadas nao era o que Ana pensava. escritorio vazio continha a peca final do quebra-cabeca. O v",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O desfecho se aproximava. Ana reuniu todas as evidencias em escritorio vazio. pastas arquivadas selaria o destino de todos os envolvidos. A verdade finalmente viria a tona.",
+      "imagePrompt": "O Segredo do Museu, cena 8: O desfecho se aproximava. Ana reuniu todas as evidencias em escritorio vazio. pastas arquivadas selaria o destino de tod",
+      "durationSec": 29,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

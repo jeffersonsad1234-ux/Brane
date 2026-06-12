@@ -1,0 +1,78 @@
+{
+  "id": "o-teorema-esquecido",
+  "title": "O Teorema Esquecido",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 276,
+  "outro": "professor olhou para amostra geologica com orgulho. centro de pesquisa continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Teorema Esquecido",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Professor chegou em centro de pesquisa com uma pergunta que ninguem tinha respondido ainda. amostra geologica estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "O Teorema Esquecido, cena 1: Professor chegou em centro de pesquisa com uma pergunta que ninguem tinha respondido ainda. amostra geologica estava no ",
+      "durationSec": 30,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em amostra geologica. professor passou horas em centro de pesquisa estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "O Teorema Esquecido, cena 2: A primeira pista estava em amostra geologica. professor passou horas em centro de pesquisa estudando cada detalhe. O con",
+      "durationSec": 45,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: professor preparou amostra geologica cuidadosamente. centro de pesquisa se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "O Teorema Esquecido, cena 3: O experimento: professor preparou amostra geologica cuidadosamente. centro de pesquisa se encheu de equipamentos e expec",
+      "durationSec": 33,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. professor mal acreditava no que amostra geologica revelava. centro de pesquisa se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "O Teorema Esquecido, cena 4: Os resultados eram surpreendentes. professor mal acreditava no que amostra geologica revelava. centro de pesquisa se tor",
+      "durationSec": 39,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. professor enfrentou centro de pesquisa com novas duvidas. amostra geologica mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "O Teorema Esquecido, cena 5: Mas o conhecimento nunca vem facil. professor enfrentou centro de pesquisa com novas duvidas. amostra geologica mostrava",
+      "durationSec": 40,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: professor convidou outros estudiosos para centro de pesquisa. Juntos decifraram amostra geologica. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "O Teorema Esquecido, cena 6: A colaboracao: professor convidou outros estudiosos para centro de pesquisa. Juntos decifraram amostra geologica. O sabe",
+      "durationSec": 32,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que amostra geologica revelou poderia mudar vidas. professor liderou o projeto em centro de pesquisa para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "O Teorema Esquecido, cena 7: A aplicacao pratica: o que amostra geologica revelou poderia mudar vidas. professor liderou o projeto em centro de pesqu",
+      "durationSec": 32,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: professor registrou tudo em amostra geologica deixando centro de pesquisa como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "O Teorema Esquecido, cena 8: O legado: professor registrou tudo em amostra geologica deixando centro de pesquisa como um centro de aprendizado para f",
+      "durationSec": 25,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "a-energia-escura",
+  "title": "A Energia Escura",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 281,
+  "outro": "a fisica desligou espectrometro ao final do expediente. centro de computacao continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Energia Escura",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A fisica ajustou espectrometro pela ultima vez. centro de computacao estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "A Energia Escura, cena 1: A fisica ajustou espectrometro pela ultima vez. centro de computacao estava silencioso cheio de expectativa. Se a teoria",
+      "durationSec": 40,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. a fisica analisou cada ponto em centro de computacao. espectrometro registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "A Energia Escura, cena 2: Os dados comecaram a chegar. a fisica analisou cada ponto em centro de computacao. espectrometro registrava algo que des",
+      "durationSec": 39,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. a fisica verificou os resultados multiplas vezes em centro de computacao. espectrometro havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "A Energia Escura, cena 3: O padrao era inconfundivel. a fisica verificou os resultados multiplas vezes em centro de computacao. espectrometro havi",
+      "durationSec": 42,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. a fisica apresentou as evidencias em centro de computacao. espectrometro provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "A Energia Escura, cena 4: A comunidade cientifica foi notificada. a fisica apresentou as evidencias em centro de computacao. espectrometro provava",
+      "durationSec": 29,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. a fisica defendeu seu trabalho em centro de computacao usando espectrometro para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "A Energia Escura, cena 5: A controversia: nem todos aceitavam os resultados. a fisica defendeu seu trabalho em centro de computacao usando espectr",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. a fisica recebeu os parabens em centro de computacao. espectrometro seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "A Energia Escura, cena 6: A confirmacao chegou de outros laboratorios. a fisica recebeu os parabens em centro de computacao. espectrometro seria r",
+      "durationSec": 45,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? a fisica liderou as discussoes em centro de computacao explorando as possibilidades que espectrometro abria.",
+      "imagePrompt": "A Energia Escura, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? a fisica liderou as discussoes em centro de compu",
+      "durationSec": 26,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: a fisica escreveu o estudo final em centro de computacao. espectrometro mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "A Energia Escura, cena 8: O impacto: a fisica escreveu o estudo final em centro de computacao. espectrometro mudaria o ensino de ciencias por gera",
+      "durationSec": 29,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

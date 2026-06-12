@@ -1,0 +1,78 @@
+{
+  "id": "o-sussurro-na-escuridao",
+  "title": "O Sussurro na Escuridao",
+  "category": "terror",
+  "sceneCount": 8,
+  "totalDurationSec": 273,
+  "outro": "Quando o investigador finalmente escapou de casa abandonada levou consigo apenas espelho antigo e a certeza de que algumas portas nunca deveriam ser abertas.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Sussurro na Escuridao",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A noite caia sobre casa abandonada quando o investigador sentiu um arrepio repentino. O vento uivava entre as frestas, carregando um som que parecia vir de muito longe ou de muito perto.",
+      "imagePrompt": "O Sussurro na Escuridao, cena 1: A noite caia sobre casa abandonada quando o investigador sentiu um arrepio repentino. O vento uivava entre as frestas, c",
+      "durationSec": 42,
+      "musicSuggestion": "sombrio",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O investigador acendeu a lanterna mas a luz parecia engolida pela escuridao. casa abandonada estava mais frio do que deveria. Pegadas na poeira indicavam que alguem tinha passado por ali recentemente.",
+      "imagePrompt": "O Sussurro na Escuridao, cena 2: O investigador acendeu a lanterna mas a luz parecia engolida pela escuridao. casa abandonada estava mais frio do que dev",
+      "durationSec": 35,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Um rangido veio do andar de cima. o investigador prendeu a respiracao. espelho antigo estava exatamente onde nao deveria estar. Como tinha chegado ate ali?",
+      "imagePrompt": "O Sussurro na Escuridao, cena 3: Um rangido veio do andar de cima. o investigador prendeu a respiracao. espelho antigo estava exatamente onde nao deveria",
+      "durationSec": 31,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O ar ficou denso pesado. o investigador sentiu uma presenca observando de casa abandonada. Nao estava sozinho. O espelho antigo comecou a vibrar lentamente emitindo um som grave e hipnotico.",
+      "imagePrompt": "O Sussurro na Escuridao, cena 4: O ar ficou denso pesado. o investigador sentiu uma presenca observando de casa abandonada. Nao estava sozinho. O espelho",
+      "durationSec": 39,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As paredes pareciam se mover. o investigador esfregou os olhos mas a ilusao persistia. espelho antigo refletia uma imagem que nao correspondia ao ambiente uma figura encapuzada atras de si.",
+      "imagePrompt": "O Sussurro na Escuridao, cena 5: As paredes pareciam se mover. o investigador esfregou os olhos mas a ilusao persistia. espelho antigo refletia uma image",
+      "durationSec": 35,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O som de passos se aproximou. o investigador se encolheu em casa abandonada tentando controlar a respiracao. espelho antigo caiu no chao ecoando como um grito na escuridao total.",
+      "imagePrompt": "O Sussurro na Escuridao, cena 6: O som de passos se aproximou. o investigador se encolheu em casa abandonada tentando controlar a respiracao. espelho ant",
+      "durationSec": 35,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Uma voz sussurrou seu nome. o investigador se virou bruscamente. casa abandonada estava vazio mas espelho antigo tinha mudado de posicao. O ar gelado tocava sua nuca.",
+      "imagePrompt": "O Sussurro na Escuridao, cena 7: Uma voz sussurrou seu nome. o investigador se virou bruscamente. casa abandonada estava vazio mas espelho antigo tinha m",
+      "durationSec": 28,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O relogio parou. o investigador percebeu que o tempo nao passava em casa abandonada. espelho antigo mostrava uma cena que nunca tinha acontecido ou que ainda ia acontecer.",
+      "imagePrompt": "O Sussurro na Escuridao, cena 8: O relogio parou. o investigador percebeu que o tempo nao passava em casa abandonada. espelho antigo mostrava uma cena qu",
+      "durationSec": 28,
+      "musicSuggestion": "sombrio",
+      "transition": "fade"
+    }
+  ]
+}

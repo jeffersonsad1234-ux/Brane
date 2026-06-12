@@ -1,0 +1,78 @@
+{
+  "id": "a-semana-de-arte-moderna",
+  "title": "A Semana de Arte Moderna",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 261,
+  "outro": "a lider comunitaria fechou moeda antiga com cuidado. praca historica continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Semana de Arte Moderna",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1930. a lider comunitaria testemunhava um momento que mudaria o curso da historia. moeda antiga estava prestes a desempenhar um papel crucial em praca historica.",
+      "imagePrompt": "A Semana de Arte Moderna, cena 1: O ano era 1930. a lider comunitaria testemunhava um momento que mudaria o curso da historia. moeda antiga estava prestes",
+      "durationSec": 34,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em praca historica. a lider comunitaria observava moeda antiga com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Semana de Arte Moderna, cena 2: A tensao crescia em praca historica. a lider comunitaria observava moeda antiga com atencao sabendo que cada detalhe imp",
+      "durationSec": 40,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. a lider comunitaria mediou as discussoes em praca historica. moeda antiga representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Semana de Arte Moderna, cena 3: O conflito de ideias era palpavel. a lider comunitaria mediou as discussoes em praca historica. moeda antiga representav",
+      "durationSec": 36,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: a lider comunitaria participou do momento em que moeda antiga foi utilizado em praca historica. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Semana de Arte Moderna, cena 4: O marco historico: a lider comunitaria participou do momento em que moeda antiga foi utilizado em praca historica. O que",
+      "durationSec": 26,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. a lider comunitaria lutou contra as adversidades em praca historica. moeda antiga era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Semana de Arte Moderna, cena 5: Os desafios surgiam a cada esquina. a lider comunitaria lutou contra as adversidades em praca historica. moeda antiga er",
+      "durationSec": 32,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. praca historica nunca mais seria o mesmo depois daquele dia. a lider comunitaria guardou moeda antiga como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Semana de Arte Moderna, cena 6: A transformacao aconteceu. praca historica nunca mais seria o mesmo depois daquele dia. a lider comunitaria guardou moed",
+      "durationSec": 40,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. a lider comunitaria ajudou a documentar o que aconteceu em praca historica. moeda antiga se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Semana de Arte Moderna, cena 7: O legado comecou a ser construido. a lider comunitaria ajudou a documentar o que aconteceu em praca historica. moeda ant",
+      "durationSec": 22,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. a lider comunitaria contemplou praca historica transformado. moeda antiga estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Semana de Arte Moderna, cena 8: Os frutos do passado. a lider comunitaria contemplou praca historica transformado. moeda antiga estava agora em exposica",
+      "durationSec": 31,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

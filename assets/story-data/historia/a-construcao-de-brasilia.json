@@ -1,0 +1,78 @@
+{
+  "id": "a-construcao-de-brasilia",
+  "title": "A Construcao de Brasilia",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 254,
+  "outro": "Princesa Isabel fechou documento oficial com cuidado. fazenda colonial continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Construcao de Brasilia",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1964. Princesa Isabel testemunhava um momento que mudaria o curso da historia. documento oficial estava prestes a desempenhar um papel crucial em fazenda colonial.",
+      "imagePrompt": "A Construcao de Brasilia, cena 1: O ano era 1964. Princesa Isabel testemunhava um momento que mudaria o curso da historia. documento oficial estava preste",
+      "durationSec": 32,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em fazenda colonial. Princesa Isabel observava documento oficial com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Construcao de Brasilia, cena 2: A tensao crescia em fazenda colonial. Princesa Isabel observava documento oficial com atencao sabendo que cada detalhe i",
+      "durationSec": 32,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. Princesa Isabel mediou as discussoes em fazenda colonial. documento oficial representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Construcao de Brasilia, cena 3: O conflito de ideias era palpavel. Princesa Isabel mediou as discussoes em fazenda colonial. documento oficial represent",
+      "durationSec": 37,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: Princesa Isabel participou do momento em que documento oficial foi utilizado em fazenda colonial. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Construcao de Brasilia, cena 4: O marco historico: Princesa Isabel participou do momento em que documento oficial foi utilizado em fazenda colonial. O q",
+      "durationSec": 37,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. Princesa Isabel lutou contra as adversidades em fazenda colonial. documento oficial era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Construcao de Brasilia, cena 5: Os desafios surgiam a cada esquina. Princesa Isabel lutou contra as adversidades em fazenda colonial. documento oficial ",
+      "durationSec": 29,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. fazenda colonial nunca mais seria o mesmo depois daquele dia. Princesa Isabel guardou documento oficial como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Construcao de Brasilia, cena 6: A transformacao aconteceu. fazenda colonial nunca mais seria o mesmo depois daquele dia. Princesa Isabel guardou documen",
+      "durationSec": 28,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. Princesa Isabel ajudou a documentar o que aconteceu em fazenda colonial. documento oficial se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Construcao de Brasilia, cena 7: O legado comecou a ser construido. Princesa Isabel ajudou a documentar o que aconteceu em fazenda colonial. documento of",
+      "durationSec": 26,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. Princesa Isabel contemplou fazenda colonial transformado. documento oficial estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Construcao de Brasilia, cena 8: Os frutos do passado. Princesa Isabel contemplou fazenda colonial transformado. documento oficial estava agora em exposi",
+      "durationSec": 33,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

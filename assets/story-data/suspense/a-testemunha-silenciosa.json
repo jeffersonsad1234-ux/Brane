@@ -1,0 +1,78 @@
+{
+  "id": "a-testemunha-silenciosa",
+  "title": "A Testemunha Silenciosa",
+  "category": "suspense",
+  "sceneCount": 8,
+  "totalDurationSec": 273,
+  "outro": "Carlos guardou carta lacrada como lembranca do caso. galeria de arte continuaria existindo mas seus segredos finalmente tinham sido revelados.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Testemunha Silenciosa",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Carlos encontrou carta lacrada em galeria de arte. A descoberta parecia inocente mas algo naquela cena nao se encaixava. Cada detalhe fora cuidadosamente arranjado.",
+      "imagePrompt": "A Testemunha Silenciosa, cena 1: Carlos encontrou carta lacrada em galeria de arte. A descoberta parecia inocente mas algo naquela cena nao se encaixava.",
+      "durationSec": 42,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As pecas comecaram a se conectar. Carlos revisou as anotacoes mais uma vez. galeria de arte guardava mais segredos do que aparentava. carta lacrada era a chave.",
+      "imagePrompt": "A Testemunha Silenciosa, cena 2: As pecas comecaram a se conectar. Carlos revisou as anotacoes mais uma vez. galeria de arte guardava mais segredos do qu",
+      "durationSec": 42,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Alguem estava seguindo Carlos. As sombras em galeria de arte escondiam movimentos furtivos. carta lacrada desapareceu misteriosamente confirmando suas suspeitas.",
+      "imagePrompt": "A Testemunha Silenciosa, cena 3: Alguem estava seguindo Carlos. As sombras em galeria de arte escondiam movimentos furtivos. carta lacrada desapareceu mi",
+      "durationSec": 26,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O encontro foi marcado em galeria de arte. Carlos chegou cedo mas o desconhecido ja estava la. carta lacrada foi entregue em silencio junto com um aviso.",
+      "imagePrompt": "A Testemunha Silenciosa, cena 4: O encontro foi marcado em galeria de arte. Carlos chegou cedo mas o desconhecido ja estava la. carta lacrada foi entregu",
+      "durationSec": 39,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A verdade comecou a emergir. Carlos decifrou o codigo escondido em carta lacrada. galeria de arte nao era o que parecia. Cada resposta levava a mais perguntas.",
+      "imagePrompt": "A Testemunha Silenciosa, cena 5: A verdade comecou a emergir. Carlos decifrou o codigo escondido em carta lacrada. galeria de arte nao era o que parecia.",
+      "durationSec": 27,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto era inevitavel. Carlos enfrentou o suspeito em galeria de arte. carta lacrada foi usado como prova mas a situacao estava longe de ser resolvida.",
+      "imagePrompt": "A Testemunha Silenciosa, cena 6: O confronto era inevitavel. Carlos enfrentou o suspeito em galeria de arte. carta lacrada foi usado como prova mas a sit",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A reviravolta: carta lacrada nao era o que Carlos pensava. galeria de arte continha a peca final do quebra-cabeca. O verdadeiro culpado estava mais perto do que imaginava.",
+      "imagePrompt": "A Testemunha Silenciosa, cena 7: A reviravolta: carta lacrada nao era o que Carlos pensava. galeria de arte continha a peca final do quebra-cabeca. O ver",
+      "durationSec": 30,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O desfecho se aproximava. Carlos reuniu todas as evidencias em galeria de arte. carta lacrada selaria o destino de todos os envolvidos. A verdade finalmente viria a tona.",
+      "imagePrompt": "A Testemunha Silenciosa, cena 8: O desfecho se aproximava. Carlos reuniu todas as evidencias em galeria de arte. carta lacrada selaria o destino de todos",
+      "durationSec": 32,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

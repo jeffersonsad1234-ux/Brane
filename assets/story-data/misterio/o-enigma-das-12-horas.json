@@ -1,0 +1,78 @@
+{
+  "id": "o-enigma-das-12-horas",
+  "title": "O Enigma das 12 Horas",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 258,
+  "outro": "o comissario resolveu mais um caso. gravacao misteriosa foi devolvido ao seu lugar. casa de campo podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Enigma das 12 Horas",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando gravacao misteriosa foi descoberto em casa de campo. o comissario foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Enigma das 12 Horas, cena 1: O caso comecou quando gravacao misteriosa foi descoberto em casa de campo. o comissario foi chamado para investigar. Nad",
+      "durationSec": 37,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O comissario examinou casa de campo em busca de pistas. gravacao misteriosa forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Enigma das 12 Horas, cena 2: O comissario examinou casa de campo em busca de pistas. gravacao misteriosa forneceu a primeira pista real. Mas ela leva",
+      "durationSec": 25,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. o comissario verificou cada detalhe em casa de campo. gravacao misteriosa contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Enigma das 12 Horas, cena 3: O suspeito principal tinha um alibi solido. o comissario verificou cada detalhe em casa de campo. gravacao misteriosa co",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: o comissario descobriu que gravacao misteriosa tinha sido plantado. casa de campo nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Enigma das 12 Horas, cena 4: Uma reviravolta inesperada: o comissario descobriu que gravacao misteriosa tinha sido plantado. casa de campo nao era a ",
+      "durationSec": 28,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. o comissario conectou gravacao misteriosa com um caso antigo em casa de campo. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Enigma das 12 Horas, cena 5: As pecas comecaram a se encaixar. o comissario conectou gravacao misteriosa com um caso antigo em casa de campo. A soluc",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: o comissario reuniu todos os suspeitos em casa de campo. gravacao misteriosa foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Enigma das 12 Horas, cena 6: O confronto final: o comissario reuniu todos os suspeitos em casa de campo. gravacao misteriosa foi revelado como a prov",
+      "durationSec": 35,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. o comissario fechou gravacao misteriosa sabendo que a justica tinha sido feita. casa de campo guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Enigma das 12 Horas, cena 7: A confissao trouxe alivio mas tambem tristeza. o comissario fechou gravacao misteriosa sabendo que a justica tinha sido ",
+      "durationSec": 24,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. o comissario guardou gravacao misteriosa como recordacao. casa de campo voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Enigma das 12 Horas, cena 8: O caso foi arquivado. o comissario guardou gravacao misteriosa como recordacao. casa de campo voltou a rotina mas algo t",
+      "durationSec": 29,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "os-guardies-do-cristal",
+  "title": "Os Guardiões do Cristal",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 254,
+  "outro": "lyra cavalgou para o pôr do sol com cristal mágico guardado no coração. castelo antigo seria sempre um lar. As lendas nunca morrem — elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: Os Guardiões do Cristal",
+    "style": "fotográfico realista, iluminação cinematográfica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou lyra para castelo antigo. cristal mágico pulsava com uma luz suave, como se reconhecesse sua chegada. Uma jornada épica estava prestes a começar.",
+      "imagePrompt": "Os Guardiões do Cristal, cena 1: O destino chamou lyra para castelo antigo. cristal mágico pulsava com uma luz suave, como se reconhecesse sua chegada. U",
+      "durationSec": 45,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em castelo antigo revelaram maravilhas e perigos. lyra segurou cristal mágico firmemente, sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "Os Guardiões do Cristal, cena 2: Os primeiros passos em castelo antigo revelaram maravilhas e perigos. lyra segurou cristal mágico firmemente, sentindo s",
+      "durationSec": 28,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardião de castelo antigo surgiu das sombras. lyra precisou provar seu valor. cristal mágico brilhou intensamente, respondendo à coragem de seu portador.",
+      "imagePrompt": "Os Guardiões do Cristal, cena 3: O guardião de castelo antigo surgiu das sombras. lyra precisou provar seu valor. cristal mágico brilhou intensamente, re",
+      "durationSec": 39,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: castelo antigo escondia um segredo que apenas cristal mágico podia desvendar. lyra decifrou as runas antigas, revelando um conhecimento perdido há milênios.",
+      "imagePrompt": "Os Guardiões do Cristal, cena 4: O enigma: castelo antigo escondia um segredo que apenas cristal mágico podia desvendar. lyra decifrou as runas antigas, ",
+      "durationSec": 39,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. lyra treinou incansavelmente em castelo antigo, dominando cristal mágico. As forças das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "Os Guardiões do Cristal, cena 5: A batalha se aproximava. lyra treinou incansavelmente em castelo antigo, dominando cristal mágico. As forças das trevas ",
+      "durationSec": 35,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por castelo antigo. lyra ergueu cristal mágico contra a escuridão. A luz e a sombra colidiram em uma explosão de energia pura.",
+      "imagePrompt": "Os Guardiões do Cristal, cena 6: O confronto final ecoou por castelo antigo. lyra ergueu cristal mágico contra a escuridão. A luz e a sombra colidiram em",
+      "durationSec": 27,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada, lyra contemplou castelo antigo de um novo ângulo. cristal mágico agora repousava, mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "Os Guardiões do Cristal, cena 7: Com a paz restaurada, lyra contemplou castelo antigo de um novo ângulo. cristal mágico agora repousava, mas seu poder co",
+      "durationSec": 21,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Lyra se despediu de castelo antigo com a promessa de voltar. cristal mágico foi guardado, mas sua história seria contada por gerações. O reino estava salvo.",
+      "imagePrompt": "Os Guardiões do Cristal, cena 8: Lyra se despediu de castelo antigo com a promessa de voltar. cristal mágico foi guardado, mas sua história seria contada",
+      "durationSec": 20,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

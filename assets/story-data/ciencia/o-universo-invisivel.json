@@ -1,0 +1,78 @@
+{
+  "id": "o-universo-invisivel",
+  "title": "O Universo Invisivel",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 281,
+  "outro": "a neurocientista desligou microscopio eletronico ao final do expediente. instituto de neurociencia continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Universo Invisivel",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A neurocientista ajustou microscopio eletronico pela ultima vez. instituto de neurociencia estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "O Universo Invisivel, cena 1: A neurocientista ajustou microscopio eletronico pela ultima vez. instituto de neurociencia estava silencioso cheio de ex",
+      "durationSec": 38,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. a neurocientista analisou cada ponto em instituto de neurociencia. microscopio eletronico registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "O Universo Invisivel, cena 2: Os dados comecaram a chegar. a neurocientista analisou cada ponto em instituto de neurociencia. microscopio eletronico r",
+      "durationSec": 44,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. a neurocientista verificou os resultados multiplas vezes em instituto de neurociencia. microscopio eletronico havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "O Universo Invisivel, cena 3: O padrao era inconfundivel. a neurocientista verificou os resultados multiplas vezes em instituto de neurociencia. micro",
+      "durationSec": 45,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. a neurocientista apresentou as evidencias em instituto de neurociencia. microscopio eletronico provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "O Universo Invisivel, cena 4: A comunidade cientifica foi notificada. a neurocientista apresentou as evidencias em instituto de neurociencia. microsco",
+      "durationSec": 42,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. a neurocientista defendeu seu trabalho em instituto de neurociencia usando microscopio eletronico para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "O Universo Invisivel, cena 5: A controversia: nem todos aceitavam os resultados. a neurocientista defendeu seu trabalho em instituto de neurociencia u",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. a neurocientista recebeu os parabens em instituto de neurociencia. microscopio eletronico seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "O Universo Invisivel, cena 6: A confirmacao chegou de outros laboratorios. a neurocientista recebeu os parabens em instituto de neurociencia. microsco",
+      "durationSec": 26,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? a neurocientista liderou as discussoes em instituto de neurociencia explorando as possibilidades que microscopio eletronico abria.",
+      "imagePrompt": "O Universo Invisivel, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? a neurocientista liderou as discussoes em institu",
+      "durationSec": 24,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: a neurocientista escreveu o estudo final em instituto de neurociencia. microscopio eletronico mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "O Universo Invisivel, cena 8: O impacto: a neurocientista escreveu o estudo final em instituto de neurociencia. microscopio eletronico mudaria o ensin",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

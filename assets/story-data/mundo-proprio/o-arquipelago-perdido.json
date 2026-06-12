@@ -1,0 +1,78 @@
+{
+  "id": "o-arquipelago-perdido",
+  "title": "O Arquipelago Perdido",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 254,
+  "outro": "a arquivista navegou para o horizonte com mapa estelar como guia. cidade flutuante desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Arquipelago Perdido",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A arquivista pisou em cidade flutuante pela primeira vez. O cenario era tao surreal que parecia um sonho. mapa estelar foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "O Arquipelago Perdido, cena 1: A arquivista pisou em cidade flutuante pela primeira vez. O cenario era tao surreal que parecia um sonho. mapa estelar f",
+      "durationSec": 39,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de cidade flutuante observavam a arquivista com curiosidade. mapa estelar despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "O Arquipelago Perdido, cena 2: Os habitantes de cidade flutuante observavam a arquivista com curiosidade. mapa estelar despertava um interesse que ia a",
+      "durationSec": 33,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. a arquivista precisou decifrar mapa estelar para navegar por cidade flutuante. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "O Arquipelago Perdido, cena 3: O mapa estava incompleto. a arquivista precisou decifrar mapa estelar para navegar por cidade flutuante. Cada passo reve",
+      "durationSec": 39,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: cidade flutuante estava ameacado por uma forca que ninguem compreendia totalmente. a arquivista consultou os anciaos que apontaram para mapa estelar como a solucao.",
+      "imagePrompt": "O Arquipelago Perdido, cena 4: A crise: cidade flutuante estava ameacado por uma forca que ninguem compreendia totalmente. a arquivista consultou os an",
+      "durationSec": 26,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. a arquivista uniu os povos de cidade flutuante em torno de mapa estelar. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "O Arquipelago Perdido, cena 5: A alianca foi formada. a arquivista uniu os povos de cidade flutuante em torno de mapa estelar. A diversidade era a maio",
+      "durationSec": 28,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de mapa estelar foi finalmente revelado. a arquivista descobriu que cidade flutuante era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "O Arquipelago Perdido, cena 6: O segredo de mapa estelar foi finalmente revelado. a arquivista descobriu que cidade flutuante era apenas uma pequena pa",
+      "durationSec": 30,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: cidade flutuante se encheu de luz e musica. a arquivista foi honrado como heroi. mapa estelar se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "O Arquipelago Perdido, cena 7: A celebracao: cidade flutuante se encheu de luz e musica. a arquivista foi honrado como heroi. mapa estelar se tornou um",
+      "durationSec": 29,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: a arquivista prometeu voltar para cidade flutuante. mapa estelar serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "O Arquipelago Perdido, cena 8: A despedida: a arquivista prometeu voltar para cidade flutuante. mapa estelar serviria como ponte entre mundos. A aventu",
+      "durationSec": 30,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "id": "o-alibi-impossivel",
+  "title": "O Alibi Impossivel",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 265,
+  "outro": "o comissario resolveu mais um caso. mapa da cidade foi devolvido ao seu lugar. casa de campo podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Alibi Impossivel",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando mapa da cidade foi descoberto em casa de campo. o comissario foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Alibi Impossivel, cena 1: O caso comecou quando mapa da cidade foi descoberto em casa de campo. o comissario foi chamado para investigar. Nada era",
+      "durationSec": 33,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O comissario examinou casa de campo em busca de pistas. mapa da cidade forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Alibi Impossivel, cena 2: O comissario examinou casa de campo em busca de pistas. mapa da cidade forneceu a primeira pista real. Mas ela levava a ",
+      "durationSec": 41,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. o comissario verificou cada detalhe em casa de campo. mapa da cidade contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Alibi Impossivel, cena 3: O suspeito principal tinha um alibi solido. o comissario verificou cada detalhe em casa de campo. mapa da cidade contrad",
+      "durationSec": 41,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: o comissario descobriu que mapa da cidade tinha sido plantado. casa de campo nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Alibi Impossivel, cena 4: Uma reviravolta inesperada: o comissario descobriu que mapa da cidade tinha sido plantado. casa de campo nao era a cena ",
+      "durationSec": 31,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. o comissario conectou mapa da cidade com um caso antigo em casa de campo. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Alibi Impossivel, cena 5: As pecas comecaram a se encaixar. o comissario conectou mapa da cidade com um caso antigo em casa de campo. A solucao es",
+      "durationSec": 36,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: o comissario reuniu todos os suspeitos em casa de campo. mapa da cidade foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Alibi Impossivel, cena 6: O confronto final: o comissario reuniu todos os suspeitos em casa de campo. mapa da cidade foi revelado como a prova def",
+      "durationSec": 36,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. o comissario fechou mapa da cidade sabendo que a justica tinha sido feita. casa de campo guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Alibi Impossivel, cena 7: A confissao trouxe alivio mas tambem tristeza. o comissario fechou mapa da cidade sabendo que a justica tinha sido feita",
+      "durationSec": 24,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. o comissario guardou mapa da cidade como recordacao. casa de campo voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Alibi Impossivel, cena 8: O caso foi arquivado. o comissario guardou mapa da cidade como recordacao. casa de campo voltou a rotina mas algo tinha ",
+      "durationSec": 23,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

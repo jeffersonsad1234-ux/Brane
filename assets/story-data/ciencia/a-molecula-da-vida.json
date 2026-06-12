@@ -1,0 +1,78 @@
+{
+  "id": "a-molecula-da-vida",
+  "title": "A Molecula da Vida",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 271,
+  "outro": "a neurocientista desligou sequenciador de DNA ao final do expediente. centro de computacao continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Molecula da Vida",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "A neurocientista ajustou sequenciador de DNA pela ultima vez. centro de computacao estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "A Molecula da Vida, cena 1: A neurocientista ajustou sequenciador de DNA pela ultima vez. centro de computacao estava silencioso cheio de expectativ",
+      "durationSec": 43,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. a neurocientista analisou cada ponto em centro de computacao. sequenciador de DNA registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "A Molecula da Vida, cena 2: Os dados comecaram a chegar. a neurocientista analisou cada ponto em centro de computacao. sequenciador de DNA registrav",
+      "durationSec": 35,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. a neurocientista verificou os resultados multiplas vezes em centro de computacao. sequenciador de DNA havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "A Molecula da Vida, cena 3: O padrao era inconfundivel. a neurocientista verificou os resultados multiplas vezes em centro de computacao. sequenciad",
+      "durationSec": 43,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. a neurocientista apresentou as evidencias em centro de computacao. sequenciador de DNA provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "A Molecula da Vida, cena 4: A comunidade cientifica foi notificada. a neurocientista apresentou as evidencias em centro de computacao. sequenciador ",
+      "durationSec": 27,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. a neurocientista defendeu seu trabalho em centro de computacao usando sequenciador de DNA para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "A Molecula da Vida, cena 5: A controversia: nem todos aceitavam os resultados. a neurocientista defendeu seu trabalho em centro de computacao usando",
+      "durationSec": 28,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. a neurocientista recebeu os parabens em centro de computacao. sequenciador de DNA seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "A Molecula da Vida, cena 6: A confirmacao chegou de outros laboratorios. a neurocientista recebeu os parabens em centro de computacao. sequenciador ",
+      "durationSec": 38,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? a neurocientista liderou as discussoes em centro de computacao explorando as possibilidades que sequenciador de DNA abria.",
+      "imagePrompt": "A Molecula da Vida, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? a neurocientista liderou as discussoes em centro ",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: a neurocientista escreveu o estudo final em centro de computacao. sequenciador de DNA mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "A Molecula da Vida, cena 8: O impacto: a neurocientista escreveu o estudo final em centro de computacao. sequenciador de DNA mudaria o ensino de cie",
+      "durationSec": 26,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

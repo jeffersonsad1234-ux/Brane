@@ -1,0 +1,78 @@
+{
+  "id": "o-dna-da-vida",
+  "title": "O DNA da Vida",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 257,
+  "outro": "cientista olhou para microscopio com orgulho. jardim botanico continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O DNA da Vida",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Cientista chegou em jardim botanico com uma pergunta que ninguem tinha respondido ainda. microscopio estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "O DNA da Vida, cena 1: Cientista chegou em jardim botanico com uma pergunta que ninguem tinha respondido ainda. microscopio estava no centro do",
+      "durationSec": 31,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em microscopio. cientista passou horas em jardim botanico estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "O DNA da Vida, cena 2: A primeira pista estava em microscopio. cientista passou horas em jardim botanico estudando cada detalhe. O conhecimento",
+      "durationSec": 39,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: cientista preparou microscopio cuidadosamente. jardim botanico se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "O DNA da Vida, cena 3: O experimento: cientista preparou microscopio cuidadosamente. jardim botanico se encheu de equipamentos e expectativa. S",
+      "durationSec": 42,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. cientista mal acreditava no que microscopio revelava. jardim botanico se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "O DNA da Vida, cena 4: Os resultados eram surpreendentes. cientista mal acreditava no que microscopio revelava. jardim botanico se tornou o cen",
+      "durationSec": 31,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. cientista enfrentou jardim botanico com novas duvidas. microscopio mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "O DNA da Vida, cena 5: Mas o conhecimento nunca vem facil. cientista enfrentou jardim botanico com novas duvidas. microscopio mostrava um padra",
+      "durationSec": 38,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: cientista convidou outros estudiosos para jardim botanico. Juntos decifraram microscopio. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "O DNA da Vida, cena 6: A colaboracao: cientista convidou outros estudiosos para jardim botanico. Juntos decifraram microscopio. O saber compart",
+      "durationSec": 28,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que microscopio revelou poderia mudar vidas. cientista liderou o projeto em jardim botanico para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "O DNA da Vida, cena 7: A aplicacao pratica: o que microscopio revelou poderia mudar vidas. cientista liderou o projeto em jardim botanico para ",
+      "durationSec": 27,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: cientista registrou tudo em microscopio deixando jardim botanico como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "O DNA da Vida, cena 8: O legado: cientista registrou tudo em microscopio deixando jardim botanico como um centro de aprendizado para futuras ge",
+      "durationSec": 21,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

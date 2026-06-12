@@ -1,0 +1,78 @@
+{
+  "id": "o-grito-do-ipiranga",
+  "title": "O Grito do Ipiranga",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 261,
+  "outro": "a historiadora fechou carta historica com cuidado. palacio imperial continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Grito do Ipiranga",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1822. a historiadora testemunhava um momento que mudaria o curso da historia. carta historica estava prestes a desempenhar um papel crucial em palacio imperial.",
+      "imagePrompt": "O Grito do Ipiranga, cena 1: O ano era 1822. a historiadora testemunhava um momento que mudaria o curso da historia. carta historica estava prestes a",
+      "durationSec": 45,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em palacio imperial. a historiadora observava carta historica com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "O Grito do Ipiranga, cena 2: A tensao crescia em palacio imperial. a historiadora observava carta historica com atencao sabendo que cada detalhe impo",
+      "durationSec": 36,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. a historiadora mediou as discussoes em palacio imperial. carta historica representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "O Grito do Ipiranga, cena 3: O conflito de ideias era palpavel. a historiadora mediou as discussoes em palacio imperial. carta historica representava",
+      "durationSec": 39,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: a historiadora participou do momento em que carta historica foi utilizado em palacio imperial. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "O Grito do Ipiranga, cena 4: O marco historico: a historiadora participou do momento em que carta historica foi utilizado em palacio imperial. O que ",
+      "durationSec": 26,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. a historiadora lutou contra as adversidades em palacio imperial. carta historica era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "O Grito do Ipiranga, cena 5: Os desafios surgiam a cada esquina. a historiadora lutou contra as adversidades em palacio imperial. carta historica era",
+      "durationSec": 35,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. palacio imperial nunca mais seria o mesmo depois daquele dia. a historiadora guardou carta historica como reliquia de um tempo de mudancas.",
+      "imagePrompt": "O Grito do Ipiranga, cena 6: A transformacao aconteceu. palacio imperial nunca mais seria o mesmo depois daquele dia. a historiadora guardou carta hi",
+      "durationSec": 27,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. a historiadora ajudou a documentar o que aconteceu em palacio imperial. carta historica se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "O Grito do Ipiranga, cena 7: O legado comecou a ser construido. a historiadora ajudou a documentar o que aconteceu em palacio imperial. carta histori",
+      "durationSec": 21,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. a historiadora contemplou palacio imperial transformado. carta historica estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "O Grito do Ipiranga, cena 8: Os frutos do passado. a historiadora contemplou palacio imperial transformado. carta historica estava agora em exposicao",
+      "durationSec": 32,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

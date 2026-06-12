@@ -1,0 +1,78 @@
+{
+  "id": "a-formula-da-agua",
+  "title": "A Formula da Agua",
+  "category": "educacao",
+  "sceneCount": 8,
+  "totalDurationSec": 313,
+  "outro": "estudante olhou para telescopio com orgulho. jardim botanico continuaria inspirando mentes curiosas. A maior descoberta foi que aprender e uma jornada sem fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Formula da Agua",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Estudante chegou em jardim botanico com uma pergunta que ninguem tinha respondido ainda. telescopio estava no centro do misterio esperando por alguem com coragem de explora-lo.",
+      "imagePrompt": "A Formula da Agua, cena 1: Estudante chegou em jardim botanico com uma pergunta que ninguem tinha respondido ainda. telescopio estava no centro do ",
+      "durationSec": 37,
+      "musicSuggestion": "calmo",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A primeira pista estava em telescopio. estudante passou horas em jardim botanico estudando cada detalhe. O conhecimento antigo guardava segredos que a ciencia moderna ignorava.",
+      "imagePrompt": "A Formula da Agua, cena 2: A primeira pista estava em telescopio. estudante passou horas em jardim botanico estudando cada detalhe. O conhecimento ",
+      "durationSec": 41,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O experimento: estudante preparou telescopio cuidadosamente. jardim botanico se encheu de equipamentos e expectativa. Se a teoria estivesse correta tudo mudaria.",
+      "imagePrompt": "A Formula da Agua, cena 3: O experimento: estudante preparou telescopio cuidadosamente. jardim botanico se encheu de equipamentos e expectativa. Se",
+      "durationSec": 41,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Os resultados eram surpreendentes. estudante mal acreditava no que telescopio revelava. jardim botanico se tornou o centro de uma descoberta que reescreveria os livros.",
+      "imagePrompt": "A Formula da Agua, cena 4: Os resultados eram surpreendentes. estudante mal acreditava no que telescopio revelava. jardim botanico se tornou o cent",
+      "durationSec": 42,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Mas o conhecimento nunca vem facil. estudante enfrentou jardim botanico com novas duvidas. telescopio mostrava um padrao que desafiava as explicacoes tradicionais.",
+      "imagePrompt": "A Formula da Agua, cena 5: Mas o conhecimento nunca vem facil. estudante enfrentou jardim botanico com novas duvidas. telescopio mostrava um padrao",
+      "durationSec": 43,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A colaboracao: estudante convidou outros estudiosos para jardim botanico. Juntos decifraram telescopio. O saber compartilhado era mais poderoso que qualquer descoberta individual.",
+      "imagePrompt": "A Formula da Agua, cena 6: A colaboracao: estudante convidou outros estudiosos para jardim botanico. Juntos decifraram telescopio. O saber comparti",
+      "durationSec": 43,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: o que telescopio revelou poderia mudar vidas. estudante liderou o projeto em jardim botanico para transformar teoria em beneficio real para a sociedade.",
+      "imagePrompt": "A Formula da Agua, cena 7: A aplicacao pratica: o que telescopio revelou poderia mudar vidas. estudante liderou o projeto em jardim botanico para t",
+      "durationSec": 34,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: estudante registrou tudo em telescopio deixando jardim botanico como um centro de aprendizado para futuras geracoes. O conhecimento nunca morre ele se transforma.",
+      "imagePrompt": "A Formula da Agua, cena 8: O legado: estudante registrou tudo em telescopio deixando jardim botanico como um centro de aprendizado para futuras ger",
+      "durationSec": 32,
+      "musicSuggestion": "calmo",
+      "transition": "fade"
+    }
+  ]
+}

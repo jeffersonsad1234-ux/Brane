@@ -1,0 +1,78 @@
+{
+  "id": "a-estrela-que-queria-brilhar",
+  "title": "A Estrela que Queria Brilhar",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 281,
+  "outro": "E assim a fada aprendeu em montanha do arco-iris que a maior magica esta dentro de nos. globo de luz era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Estrela que Queria Brilhar",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em montanha do arco-iris vivia a fada. globo de luz era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "A Estrela que Queria Brilhar, cena 1: Era uma vez em montanha do arco-iris vivia a fada. globo de luz era seu bem mais precioso mas algo estava diferente hoje",
+      "durationSec": 38,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A fada acordou com um problema: globo de luz nao funcionava mais. Em montanha do arco-iris todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "A Estrela que Queria Brilhar, cena 2: A fada acordou com um problema: globo de luz nao funcionava mais. Em montanha do arco-iris todos se reuniram para ajudar",
+      "durationSec": 38,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. a fada encontrou montanha do arco-iris de um jeito que nunca tinha visto. globo de luz brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "A Estrela que Queria Brilhar, cena 3: O caminho era cheio de surpresas. a fada encontrou montanha do arco-iris de um jeito que nunca tinha visto. globo de luz",
+      "durationSec": 42,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em montanha do arco-iris a fada conheceu alguem que precisava de ajuda. globo de luz poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "A Estrela que Queria Brilhar, cena 4: Um novo amigo apareceu. Em montanha do arco-iris a fada conheceu alguem que precisava de ajuda. globo de luz poderia ser",
+      "durationSec": 43,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: a fada aprendeu que montanha do arco-iris era mais especial por seus habitantes do que por suas belezas. globo de luz nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "A Estrela que Queria Brilhar, cena 5: A licao: a fada aprendeu que montanha do arco-iris era mais especial por seus habitantes do que por suas belezas. globo ",
+      "durationSec": 36,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas a fada nao desistiu. Em montanha do arco-iris todos trabalharam juntos. globo de luz finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "A Estrela que Queria Brilhar, cena 6: O desafio parecia grande demais mas a fada nao desistiu. Em montanha do arco-iris todos trabalharam juntos. globo de luz",
+      "durationSec": 26,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em montanha do arco-iris. a fada dancou com todos os amigos. globo de luz agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "A Estrela que Queria Brilhar, cena 7: A comemoracao foi em montanha do arco-iris. a fada dancou com todos os amigos. globo de luz agora brilhava mais forte do",
+      "durationSec": 35,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A fada se despediu de montanha do arco-iris com um abraco coletivo. globo de luz estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "A Estrela que Queria Brilhar, cena 8: A fada se despediu de montanha do arco-iris com um abraco coletivo. globo de luz estava guardado no coracao nao nas maos",
+      "durationSec": 23,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

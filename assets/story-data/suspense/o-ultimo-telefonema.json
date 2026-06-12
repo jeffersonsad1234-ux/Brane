@@ -1,0 +1,78 @@
+{
+  "id": "o-ultimo-telefonema",
+  "title": "O Ultimo Telefonema",
+  "category": "suspense",
+  "sceneCount": 8,
+  "totalDurationSec": 277,
+  "outro": "Carlos guardou pastas arquivadas como lembranca do caso. estacao de trem continuaria existindo mas seus segredos finalmente tinham sido revelados.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Ultimo Telefonema",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Carlos encontrou pastas arquivadas em estacao de trem. A descoberta parecia inocente mas algo naquela cena nao se encaixava. Cada detalhe fora cuidadosamente arranjado.",
+      "imagePrompt": "O Ultimo Telefonema, cena 1: Carlos encontrou pastas arquivadas em estacao de trem. A descoberta parecia inocente mas algo naquela cena nao se encaix",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As pecas comecaram a se conectar. Carlos revisou as anotacoes mais uma vez. estacao de trem guardava mais segredos do que aparentava. pastas arquivadas era a chave.",
+      "imagePrompt": "O Ultimo Telefonema, cena 2: As pecas comecaram a se conectar. Carlos revisou as anotacoes mais uma vez. estacao de trem guardava mais segredos do qu",
+      "durationSec": 34,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "Alguem estava seguindo Carlos. As sombras em estacao de trem escondiam movimentos furtivos. pastas arquivadas desapareceu misteriosamente confirmando suas suspeitas.",
+      "imagePrompt": "O Ultimo Telefonema, cena 3: Alguem estava seguindo Carlos. As sombras em estacao de trem escondiam movimentos furtivos. pastas arquivadas desaparece",
+      "durationSec": 32,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O encontro foi marcado em estacao de trem. Carlos chegou cedo mas o desconhecido ja estava la. pastas arquivadas foi entregue em silencio junto com um aviso.",
+      "imagePrompt": "O Ultimo Telefonema, cena 4: O encontro foi marcado em estacao de trem. Carlos chegou cedo mas o desconhecido ja estava la. pastas arquivadas foi ent",
+      "durationSec": 44,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A verdade comecou a emergir. Carlos decifrou o codigo escondido em pastas arquivadas. estacao de trem nao era o que parecia. Cada resposta levava a mais perguntas.",
+      "imagePrompt": "O Ultimo Telefonema, cena 5: A verdade comecou a emergir. Carlos decifrou o codigo escondido em pastas arquivadas. estacao de trem nao era o que pare",
+      "durationSec": 36,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto era inevitavel. Carlos enfrentou o suspeito em estacao de trem. pastas arquivadas foi usado como prova mas a situacao estava longe de ser resolvida.",
+      "imagePrompt": "O Ultimo Telefonema, cena 6: O confronto era inevitavel. Carlos enfrentou o suspeito em estacao de trem. pastas arquivadas foi usado como prova mas a",
+      "durationSec": 32,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A reviravolta: pastas arquivadas nao era o que Carlos pensava. estacao de trem continha a peca final do quebra-cabeca. O verdadeiro culpado estava mais perto do que imaginava.",
+      "imagePrompt": "O Ultimo Telefonema, cena 7: A reviravolta: pastas arquivadas nao era o que Carlos pensava. estacao de trem continha a peca final do quebra-cabeca. O",
+      "durationSec": 26,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O desfecho se aproximava. Carlos reuniu todas as evidencias em estacao de trem. pastas arquivadas selaria o destino de todos os envolvidos. A verdade finalmente viria a tona.",
+      "imagePrompt": "O Ultimo Telefonema, cena 8: O desfecho se aproximava. Carlos reuniu todas as evidencias em estacao de trem. pastas arquivadas selaria o destino de t",
+      "durationSec": 28,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

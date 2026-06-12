@@ -1,0 +1,78 @@
+{
+  "id": "o-pulo-do-gato-quantico",
+  "title": "O Pulo do Gato Quantico",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 289,
+  "outro": "o matematico desligou supercomputador ao final do expediente. acelerador de particulas continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Pulo do Gato Quantico",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O matematico ajustou supercomputador pela ultima vez. acelerador de particulas estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "O Pulo do Gato Quantico, cena 1: O matematico ajustou supercomputador pela ultima vez. acelerador de particulas estava silencioso cheio de expectativa. S",
+      "durationSec": 40,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. o matematico analisou cada ponto em acelerador de particulas. supercomputador registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "O Pulo do Gato Quantico, cena 2: Os dados comecaram a chegar. o matematico analisou cada ponto em acelerador de particulas. supercomputador registrava al",
+      "durationSec": 42,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. o matematico verificou os resultados multiplas vezes em acelerador de particulas. supercomputador havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "O Pulo do Gato Quantico, cena 3: O padrao era inconfundivel. o matematico verificou os resultados multiplas vezes em acelerador de particulas. supercompu",
+      "durationSec": 45,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. o matematico apresentou as evidencias em acelerador de particulas. supercomputador provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "O Pulo do Gato Quantico, cena 4: A comunidade cientifica foi notificada. o matematico apresentou as evidencias em acelerador de particulas. supercomputad",
+      "durationSec": 36,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. o matematico defendeu seu trabalho em acelerador de particulas usando supercomputador para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "O Pulo do Gato Quantico, cena 5: A controversia: nem todos aceitavam os resultados. o matematico defendeu seu trabalho em acelerador de particulas usando",
+      "durationSec": 39,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. o matematico recebeu os parabens em acelerador de particulas. supercomputador seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "O Pulo do Gato Quantico, cena 6: A confirmacao chegou de outros laboratorios. o matematico recebeu os parabens em acelerador de particulas. supercomputad",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? o matematico liderou as discussoes em acelerador de particulas explorando as possibilidades que supercomputador abria.",
+      "imagePrompt": "O Pulo do Gato Quantico, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? o matematico liderou as discussoes em acelerador ",
+      "durationSec": 32,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: o matematico escreveu o estudo final em acelerador de particulas. supercomputador mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "O Pulo do Gato Quantico, cena 8: O impacto: o matematico escreveu o estudo final em acelerador de particulas. supercomputador mudaria o ensino de ciencia",
+      "durationSec": 24,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

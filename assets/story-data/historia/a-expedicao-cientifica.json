@@ -1,0 +1,78 @@
+{
+  "id": "a-expedicao-cientifica",
+  "title": "A Expedicao Cientifica",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 265,
+  "outro": "a lider comunitaria fechou documento oficial com cuidado. palacio imperial continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Expedicao Cientifica",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1964. a lider comunitaria testemunhava um momento que mudaria o curso da historia. documento oficial estava prestes a desempenhar um papel crucial em palacio imperial.",
+      "imagePrompt": "A Expedicao Cientifica, cena 1: O ano era 1964. a lider comunitaria testemunhava um momento que mudaria o curso da historia. documento oficial estava pr",
+      "durationSec": 32,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em palacio imperial. a lider comunitaria observava documento oficial com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Expedicao Cientifica, cena 2: A tensao crescia em palacio imperial. a lider comunitaria observava documento oficial com atencao sabendo que cada detal",
+      "durationSec": 31,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. a lider comunitaria mediou as discussoes em palacio imperial. documento oficial representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Expedicao Cientifica, cena 3: O conflito de ideias era palpavel. a lider comunitaria mediou as discussoes em palacio imperial. documento oficial repre",
+      "durationSec": 35,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: a lider comunitaria participou do momento em que documento oficial foi utilizado em palacio imperial. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Expedicao Cientifica, cena 4: O marco historico: a lider comunitaria participou do momento em que documento oficial foi utilizado em palacio imperial.",
+      "durationSec": 40,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. a lider comunitaria lutou contra as adversidades em palacio imperial. documento oficial era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Expedicao Cientifica, cena 5: Os desafios surgiam a cada esquina. a lider comunitaria lutou contra as adversidades em palacio imperial. documento ofic",
+      "durationSec": 39,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. palacio imperial nunca mais seria o mesmo depois daquele dia. a lider comunitaria guardou documento oficial como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Expedicao Cientifica, cena 6: A transformacao aconteceu. palacio imperial nunca mais seria o mesmo depois daquele dia. a lider comunitaria guardou doc",
+      "durationSec": 35,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. a lider comunitaria ajudou a documentar o que aconteceu em palacio imperial. documento oficial se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Expedicao Cientifica, cena 7: O legado comecou a ser construido. a lider comunitaria ajudou a documentar o que aconteceu em palacio imperial. document",
+      "durationSec": 29,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. a lider comunitaria contemplou palacio imperial transformado. documento oficial estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Expedicao Cientifica, cena 8: Os frutos do passado. a lider comunitaria contemplou palacio imperial transformado. documento oficial estava agora em ex",
+      "durationSec": 24,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

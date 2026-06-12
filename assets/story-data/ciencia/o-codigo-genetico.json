@@ -1,0 +1,78 @@
+{
+  "id": "o-codigo-genetico",
+  "title": "O Codigo Genetico",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 255,
+  "outro": "Dr. Nakamura desligou detector de particulas ao final do expediente. centro de genomica continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Codigo Genetico",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Dr. Nakamura ajustou detector de particulas pela ultima vez. centro de genomica estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "O Codigo Genetico, cena 1: Dr. Nakamura ajustou detector de particulas pela ultima vez. centro de genomica estava silencioso cheio de expectativa. ",
+      "durationSec": 30,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. Dr. Nakamura analisou cada ponto em centro de genomica. detector de particulas registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "O Codigo Genetico, cena 2: Os dados comecaram a chegar. Dr. Nakamura analisou cada ponto em centro de genomica. detector de particulas registrava a",
+      "durationSec": 33,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. Dr. Nakamura verificou os resultados multiplas vezes em centro de genomica. detector de particulas havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "O Codigo Genetico, cena 3: O padrao era inconfundivel. Dr. Nakamura verificou os resultados multiplas vezes em centro de genomica. detector de part",
+      "durationSec": 38,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. Dr. Nakamura apresentou as evidencias em centro de genomica. detector de particulas provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "O Codigo Genetico, cena 4: A comunidade cientifica foi notificada. Dr. Nakamura apresentou as evidencias em centro de genomica. detector de particu",
+      "durationSec": 32,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. Dr. Nakamura defendeu seu trabalho em centro de genomica usando detector de particulas para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "O Codigo Genetico, cena 5: A controversia: nem todos aceitavam os resultados. Dr. Nakamura defendeu seu trabalho em centro de genomica usando detec",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. Dr. Nakamura recebeu os parabens em centro de genomica. detector de particulas seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "O Codigo Genetico, cena 6: A confirmacao chegou de outros laboratorios. Dr. Nakamura recebeu os parabens em centro de genomica. detector de particu",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? Dr. Nakamura liderou as discussoes em centro de genomica explorando as possibilidades que detector de particulas abria.",
+      "imagePrompt": "O Codigo Genetico, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? Dr. Nakamura liderou as discussoes em centro de g",
+      "durationSec": 25,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: Dr. Nakamura escreveu o estudo final em centro de genomica. detector de particulas mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "O Codigo Genetico, cena 8: O impacto: Dr. Nakamura escreveu o estudo final em centro de genomica. detector de particulas mudaria o ensino de cienci",
+      "durationSec": 35,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

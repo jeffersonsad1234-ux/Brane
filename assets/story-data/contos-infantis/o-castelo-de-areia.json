@@ -1,0 +1,78 @@
+{
+  "id": "o-castelo-de-areia",
+  "title": "O Castelo de Areia",
+  "category": "contos-infantis",
+  "sceneCount": 8,
+  "totalDurationSec": 274,
+  "outro": "E assim a fada aprendeu em ceu estrelado que a maior magica esta dentro de nos. cesta de doces era apenas um lembrete disso. Fim.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Castelo de Areia",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Era uma vez em ceu estrelado vivia a fada. cesta de doces era seu bem mais precioso mas algo estava diferente hoje. Uma aventura magica estava prestes a comecar.",
+      "imagePrompt": "O Castelo de Areia, cena 1: Era uma vez em ceu estrelado vivia a fada. cesta de doces era seu bem mais precioso mas algo estava diferente hoje. Uma ",
+      "durationSec": 31,
+      "musicSuggestion": "alegre",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A fada acordou com um problema: cesta de doces nao funcionava mais. Em ceu estrelado todos se reuniram para ajudar. Cada amigo ofereceu uma solucao diferente.",
+      "imagePrompt": "O Castelo de Areia, cena 2: A fada acordou com um problema: cesta de doces nao funcionava mais. Em ceu estrelado todos se reuniram para ajudar. Cada",
+      "durationSec": 28,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O caminho era cheio de surpresas. a fada encontrou ceu estrelado de um jeito que nunca tinha visto. cesta de doces brilhava fracamente como se esperasse por algo especial.",
+      "imagePrompt": "O Castelo de Areia, cena 3: O caminho era cheio de surpresas. a fada encontrou ceu estrelado de um jeito que nunca tinha visto. cesta de doces brilh",
+      "durationSec": 43,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Um novo amigo apareceu. Em ceu estrelado a fada conheceu alguem que precisava de ajuda. cesta de doces poderia ser a chave para resolver o problema do novo amigo.",
+      "imagePrompt": "O Castelo de Areia, cena 4: Um novo amigo apareceu. Em ceu estrelado a fada conheceu alguem que precisava de ajuda. cesta de doces poderia ser a cha",
+      "durationSec": 45,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A licao: a fada aprendeu que ceu estrelado era mais especial por seus habitantes do que por suas belezas. cesta de doces nao era magico a magica estava no coracao de cada um.",
+      "imagePrompt": "O Castelo de Areia, cena 5: A licao: a fada aprendeu que ceu estrelado era mais especial por seus habitantes do que por suas belezas. cesta de doces",
+      "durationSec": 41,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O desafio parecia grande demais mas a fada nao desistiu. Em ceu estrelado todos trabalharam juntos. cesta de doces finalmente comecou a funcionar iluminando o ambiente.",
+      "imagePrompt": "O Castelo de Areia, cena 6: O desafio parecia grande demais mas a fada nao desistiu. Em ceu estrelado todos trabalharam juntos. cesta de doces final",
+      "durationSec": 27,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A comemoracao foi em ceu estrelado. a fada dancou com todos os amigos. cesta de doces agora brilhava mais forte do que nunca alimentado pela alegria da amizade.",
+      "imagePrompt": "O Castelo de Areia, cena 7: A comemoracao foi em ceu estrelado. a fada dancou com todos os amigos. cesta de doces agora brilhava mais forte do que n",
+      "durationSec": 29,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A fada se despediu de ceu estrelado com um abraco coletivo. cesta de doces estava guardado no coracao nao nas maos. E viveram felizes para sempre.",
+      "imagePrompt": "O Castelo de Areia, cena 8: A fada se despediu de ceu estrelado com um abraco coletivo. cesta de doces estava guardado no coracao nao nas maos. E vi",
+      "durationSec": 30,
+      "musicSuggestion": "alegre",
+      "transition": "fade"
+    }
+  ]
+}

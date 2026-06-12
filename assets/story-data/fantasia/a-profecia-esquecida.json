@@ -1,0 +1,78 @@
+{
+  "id": "a-profecia-esquecida",
+  "title": "A Profecia Esquecida",
+  "category": "fantasia",
+  "sceneCount": 8,
+  "totalDurationSec": 247,
+  "outro": "Lyra cavalgou para o por do sol com chave prateada guardado no coracao. reino submerso seria sempre um lar. As lendas nunca morrem elas esperam.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Profecia Esquecida",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O destino chamou Lyra para reino submerso. chave prateada pulsava com uma luz suave como se reconhecesse sua chegada. Uma jornada epica estava prestes a comecar.",
+      "imagePrompt": "A Profecia Esquecida, cena 1: O destino chamou Lyra para reino submerso. chave prateada pulsava com uma luz suave como se reconhecesse sua chegada. Um",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os primeiros passos em reino submerso revelaram maravilhas e perigos. Lyra segurou chave prateada firmemente sentindo seu poder ancestral percorrer o corpo.",
+      "imagePrompt": "A Profecia Esquecida, cena 2: Os primeiros passos em reino submerso revelaram maravilhas e perigos. Lyra segurou chave prateada firmemente sentindo se",
+      "durationSec": 25,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O guardiao de reino submerso surgiu das sombras. Lyra precisou provar seu valor. chave prateada brilhou intensamente respondendo a coragem de seu portador.",
+      "imagePrompt": "A Profecia Esquecida, cena 3: O guardiao de reino submerso surgiu das sombras. Lyra precisou provar seu valor. chave prateada brilhou intensamente res",
+      "durationSec": 29,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O enigma: reino submerso escondia um segredo que apenas chave prateada podia desvendar. Lyra decifrou as runas antigas revelando um conhecimento perdido ha milenios.",
+      "imagePrompt": "A Profecia Esquecida, cena 4: O enigma: reino submerso escondia um segredo que apenas chave prateada podia desvendar. Lyra decifrou as runas antigas r",
+      "durationSec": 43,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A batalha se aproximava. Lyra treinou incansavelmente em reino submerso dominando chave prateada. As forcas das trevas se reuniam nas fronteiras do reino.",
+      "imagePrompt": "A Profecia Esquecida, cena 5: A batalha se aproximava. Lyra treinou incansavelmente em reino submerso dominando chave prateada. As forcas das trevas s",
+      "durationSec": 29,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final ecoou por reino submerso. Lyra ergueu chave prateada contra a escuridao. A luz e a sombra colidiram em uma explosao de energia pura.",
+      "imagePrompt": "A Profecia Esquecida, cena 6: O confronto final ecoou por reino submerso. Lyra ergueu chave prateada contra a escuridao. A luz e a sombra colidiram em",
+      "durationSec": 28,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "Com a paz restaurada Lyra contemplou reino submerso de um novo angulo. chave prateada agora repousava mas seu poder continuaria protegendo o reino.",
+      "imagePrompt": "A Profecia Esquecida, cena 7: Com a paz restaurada Lyra contemplou reino submerso de um novo angulo. chave prateada agora repousava mas seu poder cont",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Lyra se despediu de reino submerso com a promessa de voltar. chave prateada foi guardado mas sua historia seria contada por geracoes. O reino estava salvo.",
+      "imagePrompt": "A Profecia Esquecida, cena 8: Lyra se despediu de reino submerso com a promessa de voltar. chave prateada foi guardado mas sua historia seria contada ",
+      "durationSec": 31,
+      "musicSuggestion": "epico",
+      "transition": "fade"
+    }
+  ]
+}

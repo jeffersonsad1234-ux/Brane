@@ -1,0 +1,78 @@
+{
+  "id": "a-frente-de-trabalhadores",
+  "title": "A Frente de Trabalhadores",
+  "category": "historia",
+  "sceneCount": 8,
+  "totalDurationSec": 269,
+  "outro": "a professora fechou diario pessoal com cuidado. fazenda colonial continuava vivo na memoria do povo. A historia nao e o passado e a semente do futuro.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Frente de Trabalhadores",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O ano era 1945. a professora testemunhava um momento que mudaria o curso da historia. diario pessoal estava prestes a desempenhar um papel crucial em fazenda colonial.",
+      "imagePrompt": "A Frente de Trabalhadores, cena 1: O ano era 1945. a professora testemunhava um momento que mudaria o curso da historia. diario pessoal estava prestes a de",
+      "durationSec": 43,
+      "musicSuggestion": "classico",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "A tensao crescia em fazenda colonial. a professora observava diario pessoal com atencao sabendo que cada detalhe importava. As decisoes tomadas ali ecoariam por geracoes.",
+      "imagePrompt": "A Frente de Trabalhadores, cena 2: A tensao crescia em fazenda colonial. a professora observava diario pessoal com atencao sabendo que cada detalhe importa",
+      "durationSec": 37,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O conflito de ideias era palpavel. a professora mediou as discussoes em fazenda colonial. diario pessoal representava mais que um simples artefato era o simbolo de uma era.",
+      "imagePrompt": "A Frente de Trabalhadores, cena 3: O conflito de ideias era palpavel. a professora mediou as discussoes em fazenda colonial. diario pessoal representava ma",
+      "durationSec": 31,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "O marco historico: a professora participou do momento em que diario pessoal foi utilizado em fazenda colonial. O que antes era sonho comecava a se tornar realidade.",
+      "imagePrompt": "A Frente de Trabalhadores, cena 4: O marco historico: a professora participou do momento em que diario pessoal foi utilizado em fazenda colonial. O que ant",
+      "durationSec": 29,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "Os desafios surgiam a cada esquina. a professora lutou contra as adversidades em fazenda colonial. diario pessoal era a lembranca de que a perseveranca sempre vence.",
+      "imagePrompt": "A Frente de Trabalhadores, cena 5: Os desafios surgiam a cada esquina. a professora lutou contra as adversidades em fazenda colonial. diario pessoal era a ",
+      "durationSec": 29,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A transformacao aconteceu. fazenda colonial nunca mais seria o mesmo depois daquele dia. a professora guardou diario pessoal como reliquia de um tempo de mudancas.",
+      "imagePrompt": "A Frente de Trabalhadores, cena 6: A transformacao aconteceu. fazenda colonial nunca mais seria o mesmo depois daquele dia. a professora guardou diario pes",
+      "durationSec": 40,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O legado comecou a ser construido. a professora ajudou a documentar o que aconteceu em fazenda colonial. diario pessoal se tornou peca de museu testemunha silenciosa da historia.",
+      "imagePrompt": "A Frente de Trabalhadores, cena 7: O legado comecou a ser construido. a professora ajudou a documentar o que aconteceu em fazenda colonial. diario pessoal ",
+      "durationSec": 25,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "Os frutos do passado. a professora contemplou fazenda colonial transformado. diario pessoal estava agora em exposicao contando a novas geracoes a historia de coragem e determinacao.",
+      "imagePrompt": "A Frente de Trabalhadores, cena 8: Os frutos do passado. a professora contemplou fazenda colonial transformado. diario pessoal estava agora em exposicao co",
+      "durationSec": 35,
+      "musicSuggestion": "classico",
+      "transition": "fade"
+    }
+  ]
+}

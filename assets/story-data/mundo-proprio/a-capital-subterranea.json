@@ -1,0 +1,78 @@
+{
+  "id": "a-capital-subterranea",
+  "title": "A Capital Subterrânea",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 273,
+  "outro": "sola navegou para o horizonte com mapa estelar como guia. cidade flutuante desapareceu na distância, mas sua essência permaneceria viva. Toda jornada é um recomeço.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Capital Subterrânea",
+    "style": "fotográfico realista, iluminação cinematográfica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Sola pisou em cidade flutuante pela primeira vez. O cenário era tão surreal que parecia um sonho. mapa estelar foi a razão da viagem, mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "A Capital Subterrânea, cena 1: Sola pisou em cidade flutuante pela primeira vez. O cenário era tão surreal que parecia um sonho. mapa estelar foi a raz",
+      "durationSec": 34,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de cidade flutuante observavam sola com curiosidade. mapa estelar despertava um interesse que ia além do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "A Capital Subterrânea, cena 2: Os habitantes de cidade flutuante observavam sola com curiosidade. mapa estelar despertava um interesse que ia além do c",
+      "durationSec": 43,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. sola precisou decifrar mapa estelar para navegar por cidade flutuante. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "A Capital Subterrânea, cena 3: O mapa estava incompleto. sola precisou decifrar mapa estelar para navegar por cidade flutuante. Cada passo revelava mai",
+      "durationSec": 43,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: cidade flutuante estava ameaçado por uma força que ninguém compreendia totalmente. sola consultou os anciãos, que apontaram para mapa estelar como a solução.",
+      "imagePrompt": "A Capital Subterrânea, cena 4: A crise: cidade flutuante estava ameaçado por uma força que ninguém compreendia totalmente. sola consultou os anciãos, q",
+      "durationSec": 43,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A aliança foi formada. sola uniu os povos de cidade flutuante em torno de mapa estelar. A diversidade era a maior força daquele mundo extraordinário.",
+      "imagePrompt": "A Capital Subterrânea, cena 5: A aliança foi formada. sola uniu os povos de cidade flutuante em torno de mapa estelar. A diversidade era a maior força ",
+      "durationSec": 28,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de mapa estelar foi finalmente revelado. sola descobriu que cidade flutuante era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "A Capital Subterrânea, cena 6: O segredo de mapa estelar foi finalmente revelado. sola descobriu que cidade flutuante era apenas uma pequena parte de a",
+      "durationSec": 28,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebração: cidade flutuante se encheu de luz e música. sola foi honrado como herói. mapa estelar se tornou um símbolo de união entre os povos.",
+      "imagePrompt": "A Capital Subterrânea, cena 7: A celebração: cidade flutuante se encheu de luz e música. sola foi honrado como herói. mapa estelar se tornou um símbolo",
+      "durationSec": 23,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: sola prometeu voltar para cidade flutuante. mapa estelar serviria como ponte entre mundos. A aventura nunca termina — ela se transforma em memória.",
+      "imagePrompt": "A Capital Subterrânea, cena 8: A despedida: sola prometeu voltar para cidade flutuante. mapa estelar serviria como ponte entre mundos. A aventura nunca",
+      "durationSec": 31,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

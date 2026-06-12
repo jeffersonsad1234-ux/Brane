@@ -1,0 +1,78 @@
+{
+  "id": "o-despertar-da-ia",
+  "title": "O Despertar da IA",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 279,
+  "outro": "cientista-chefe guardou traje avancado como o maior tesouro da humanidade. laboratorio quantico se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Despertar da IA",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em laboratorio quantico. cientista-chefe correu para o painel de controle. traje avancado emitia um pulso ritmico que nao correspondia a nenhuma frequencia conhecida.",
+      "imagePrompt": "O Despertar da IA, cena 1: O alerta vermelho acendeu em laboratorio quantico. cientista-chefe correu para o painel de controle. traje avancado emit",
+      "durationSec": 33,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossiveis. cientista-chefe verificou os sensores tres vezes. laboratorio quantico estava sofrendo distorcoes espacio-temporais. traje avancado era a fonte.",
+      "imagePrompt": "O Despertar da IA, cena 2: As leituras eram impossiveis. cientista-chefe verificou os sensores tres vezes. laboratorio quantico estava sofrendo dis",
+      "durationSec": 40,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: traje avancado nao era uma tecnologia convencional. cientista-chefe teorizou que laboratorio quantico tinha sido construido por uma inteligencia alem da compreensao humana.",
+      "imagePrompt": "O Despertar da IA, cena 3: A descoberta: traje avancado nao era uma tecnologia convencional. cientista-chefe teorizou que laboratorio quantico tinh",
+      "durationSec": 32,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Cientista-chefe propos um plano arriscado. Se funcionasse laboratorio quantico poderia ser salva. traje avancado precisava ser ativado mesmo que as consequencias fossem imprevisiveis.",
+      "imagePrompt": "O Despertar da IA, cena 4: Cientista-chefe propos um plano arriscado. Se funcionasse laboratorio quantico poderia ser salva. traje avancado precisa",
+      "durationSec": 44,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento comecou. cientista-chefe monitorava cada parametro em laboratorio quantico. traje avancado vibrava em uma frequencia que parecia ressoar com o proprio tecido do espaco.",
+      "imagePrompt": "O Despertar da IA, cena 5: O experimento comecou. cientista-chefe monitorava cada parametro em laboratorio quantico. traje avancado vibrava em uma ",
+      "durationSec": 31,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. cientista-chefe observou laboratorio quantico se distorcer ao redor de traje avancado. Atraves da abertura vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "O Despertar da IA, cena 6: Uma fenda se abriu. cientista-chefe observou laboratorio quantico se distorcer ao redor de traje avancado. Atraves da ab",
+      "durationSec": 37,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. cientista-chefe comunicou-se com a inteligencia por tras de traje avancado. laboratorio quantico tornou-se um ponto de encontro entre civilizacoes.",
+      "imagePrompt": "O Despertar da IA, cena 7: O contato foi estabelecido. cientista-chefe comunicou-se com a inteligencia por tras de traje avancado. laboratorio quan",
+      "durationSec": 30,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: cientista-chefe documentou tudo sobre traje avancado e laboratorio quantico. A humanidade nunca mais seria a mesma. Uma nova era de exploracao interestelar comecava.",
+      "imagePrompt": "O Despertar da IA, cena 8: O legado: cientista-chefe documentou tudo sobre traje avancado e laboratorio quantico. A humanidade nunca mais seria a m",
+      "durationSec": 32,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

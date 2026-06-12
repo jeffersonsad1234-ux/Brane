@@ -1,0 +1,78 @@
+{
+  "id": "a-cidade-flutuante",
+  "title": "A Cidade Flutuante",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 266,
+  "outro": "o cartografo navegou para o horizonte com ampulheta cosmica como guia. templo suspenso desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Cidade Flutuante",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O cartografo pisou em templo suspenso pela primeira vez. O cenario era tao surreal que parecia um sonho. ampulheta cosmica foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "A Cidade Flutuante, cena 1: O cartografo pisou em templo suspenso pela primeira vez. O cenario era tao surreal que parecia um sonho. ampulheta cosmi",
+      "durationSec": 33,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de templo suspenso observavam o cartografo com curiosidade. ampulheta cosmica despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "A Cidade Flutuante, cena 2: Os habitantes de templo suspenso observavam o cartografo com curiosidade. ampulheta cosmica despertava um interesse que ",
+      "durationSec": 28,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. o cartografo precisou decifrar ampulheta cosmica para navegar por templo suspenso. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "A Cidade Flutuante, cena 3: O mapa estava incompleto. o cartografo precisou decifrar ampulheta cosmica para navegar por templo suspenso. Cada passo ",
+      "durationSec": 40,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: templo suspenso estava ameacado por uma forca que ninguem compreendia totalmente. o cartografo consultou os anciaos que apontaram para ampulheta cosmica como a solucao.",
+      "imagePrompt": "A Cidade Flutuante, cena 4: A crise: templo suspenso estava ameacado por uma forca que ninguem compreendia totalmente. o cartografo consultou os anc",
+      "durationSec": 31,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. o cartografo uniu os povos de templo suspenso em torno de ampulheta cosmica. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "A Cidade Flutuante, cena 5: A alianca foi formada. o cartografo uniu os povos de templo suspenso em torno de ampulheta cosmica. A diversidade era a ",
+      "durationSec": 44,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de ampulheta cosmica foi finalmente revelado. o cartografo descobriu que templo suspenso era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "A Cidade Flutuante, cena 6: O segredo de ampulheta cosmica foi finalmente revelado. o cartografo descobriu que templo suspenso era apenas uma pequen",
+      "durationSec": 31,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: templo suspenso se encheu de luz e musica. o cartografo foi honrado como heroi. ampulheta cosmica se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "A Cidade Flutuante, cena 7: A celebracao: templo suspenso se encheu de luz e musica. o cartografo foi honrado como heroi. ampulheta cosmica se torno",
+      "durationSec": 26,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: o cartografo prometeu voltar para templo suspenso. ampulheta cosmica serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "A Cidade Flutuante, cena 8: A despedida: o cartografo prometeu voltar para templo suspenso. ampulheta cosmica serviria como ponte entre mundos. A av",
+      "durationSec": 33,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

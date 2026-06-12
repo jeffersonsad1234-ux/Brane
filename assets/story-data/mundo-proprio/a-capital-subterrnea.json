@@ -1,0 +1,78 @@
+{
+  "id": "a-capital-subterrnea",
+  "title": "A Capital Subterrânea",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 305,
+  "outro": "Orion navegou para o horizonte com mapa estelar como guia. caverna bioluminescente desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Capital Subterrânea",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Orion pisou em caverna bioluminescente pela primeira vez. O cenario era tao surreal que parecia um sonho. mapa estelar foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "A Capital Subterrânea, cena 1: Orion pisou em caverna bioluminescente pela primeira vez. O cenario era tao surreal que parecia um sonho. mapa estelar f",
+      "durationSec": 36,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de caverna bioluminescente observavam Orion com curiosidade. mapa estelar despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "A Capital Subterrânea, cena 2: Os habitantes de caverna bioluminescente observavam Orion com curiosidade. mapa estelar despertava um interesse que ia a",
+      "durationSec": 44,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. Orion precisou decifrar mapa estelar para navegar por caverna bioluminescente. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "A Capital Subterrânea, cena 3: O mapa estava incompleto. Orion precisou decifrar mapa estelar para navegar por caverna bioluminescente. Cada passo reve",
+      "durationSec": 41,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: caverna bioluminescente estava ameacado por uma forca que ninguem compreendia totalmente. Orion consultou os anciaos que apontaram para mapa estelar como a solucao.",
+      "imagePrompt": "A Capital Subterrânea, cena 4: A crise: caverna bioluminescente estava ameacado por uma forca que ninguem compreendia totalmente. Orion consultou os an",
+      "durationSec": 40,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. Orion uniu os povos de caverna bioluminescente em torno de mapa estelar. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "A Capital Subterrânea, cena 5: A alianca foi formada. Orion uniu os povos de caverna bioluminescente em torno de mapa estelar. A diversidade era a maio",
+      "durationSec": 42,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de mapa estelar foi finalmente revelado. Orion descobriu que caverna bioluminescente era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "A Capital Subterrânea, cena 6: O segredo de mapa estelar foi finalmente revelado. Orion descobriu que caverna bioluminescente era apenas uma pequena pa",
+      "durationSec": 45,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: caverna bioluminescente se encheu de luz e musica. Orion foi honrado como heroi. mapa estelar se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "A Capital Subterrânea, cena 7: A celebracao: caverna bioluminescente se encheu de luz e musica. Orion foi honrado como heroi. mapa estelar se tornou um",
+      "durationSec": 23,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: Orion prometeu voltar para caverna bioluminescente. mapa estelar serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "A Capital Subterrânea, cena 8: A despedida: Orion prometeu voltar para caverna bioluminescente. mapa estelar serviria como ponte entre mundos. A aventu",
+      "durationSec": 34,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

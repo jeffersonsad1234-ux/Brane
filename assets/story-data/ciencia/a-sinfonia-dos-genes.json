@@ -1,0 +1,78 @@
+{
+  "id": "a-sinfonia-dos-genes",
+  "title": "A Sinfonia dos Genes",
+  "category": "ciencia",
+  "sceneCount": 8,
+  "totalDurationSec": 259,
+  "outro": "Dr. Nakamura desligou detector de particulas ao final do expediente. centro de computacao continuaria sua missao de desvendar o universo. A ciencia caminha devagar mas nao para nunca.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Sinfonia dos Genes",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Dr. Nakamura ajustou detector de particulas pela ultima vez. centro de computacao estava silencioso cheio de expectativa. Se a teoria estivesse correta o experimento mudaria tudo que se sabia sobre o universo.",
+      "imagePrompt": "A Sinfonia dos Genes, cena 1: Dr. Nakamura ajustou detector de particulas pela ultima vez. centro de computacao estava silencioso cheio de expectativa",
+      "durationSec": 31,
+      "musicSuggestion": "futurista",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os dados comecaram a chegar. Dr. Nakamura analisou cada ponto em centro de computacao. detector de particulas registrava algo que desafiava as leis conhecidas da fisica. Uma nova fronteira se abria.",
+      "imagePrompt": "A Sinfonia dos Genes, cena 2: Os dados comecaram a chegar. Dr. Nakamura analisou cada ponto em centro de computacao. detector de particulas registrava",
+      "durationSec": 38,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O padrao era inconfundivel. Dr. Nakamura verificou os resultados multiplas vezes em centro de computacao. detector de particulas havia detectado o que cientistas procuravam ha decadas. A descoberta era monumental.",
+      "imagePrompt": "A Sinfonia dos Genes, cena 3: O padrao era inconfundivel. Dr. Nakamura verificou os resultados multiplas vezes em centro de computacao. detector de pa",
+      "durationSec": 34,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A comunidade cientifica foi notificada. Dr. Nakamura apresentou as evidencias em centro de computacao. detector de particulas provava que o modelo teorico estava correto mas tambem revelava novas perguntas.",
+      "imagePrompt": "A Sinfonia dos Genes, cena 4: A comunidade cientifica foi notificada. Dr. Nakamura apresentou as evidencias em centro de computacao. detector de parti",
+      "durationSec": 34,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A controversia: nem todos aceitavam os resultados. Dr. Nakamura defendeu seu trabalho em centro de computacao usando detector de particulas para demonstrar a reprodutibilidade do experimento.",
+      "imagePrompt": "A Sinfonia dos Genes, cena 5: A controversia: nem todos aceitavam os resultados. Dr. Nakamura defendeu seu trabalho em centro de computacao usando det",
+      "durationSec": 39,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "A confirmacao chegou de outros laboratorios. Dr. Nakamura recebeu os parabens em centro de computacao. detector de particulas seria reconhecido como um dos instrumentos mais importantes da decada.",
+      "imagePrompt": "A Sinfonia dos Genes, cena 6: A confirmacao chegou de outros laboratorios. Dr. Nakamura recebeu os parabens em centro de computacao. detector de parti",
+      "durationSec": 34,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? Dr. Nakamura liderou as discussoes em centro de computacao explorando as possibilidades que detector de particulas abria.",
+      "imagePrompt": "A Sinfonia dos Genes, cena 7: A aplicacao pratica: como a descoberta poderia beneficiar a sociedade? Dr. Nakamura liderou as discussoes em centro de c",
+      "durationSec": 25,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O impacto: Dr. Nakamura escreveu o estudo final em centro de computacao. detector de particulas mudaria o ensino de ciencias por geracoes. A ciencia nao e respostas e melhores perguntas.",
+      "imagePrompt": "A Sinfonia dos Genes, cena 8: O impacto: Dr. Nakamura escreveu o estudo final em centro de computacao. detector de particulas mudaria o ensino de cien",
+      "durationSec": 24,
+      "musicSuggestion": "futurista",
+      "transition": "fade"
+    }
+  ]
+}

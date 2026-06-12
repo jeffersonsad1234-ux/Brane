@@ -1,0 +1,78 @@
+{
+  "id": "o-quadro-roubado",
+  "title": "O Quadro Roubado",
+  "category": "misterio",
+  "sceneCount": 8,
+  "totalDurationSec": 300,
+  "outro": "o investigador resolveu mais um caso. chave mestra foi devolvido ao seu lugar. casa de campo podia respirar aliviado. Mas o proximo misterio ja esperava.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Quadro Roubado",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O caso comecou quando chave mestra foi descoberto em casa de campo. o investigador foi chamado para investigar. Nada era o que parecia naquele cenario aparentemente comum.",
+      "imagePrompt": "O Quadro Roubado, cena 1: O caso comecou quando chave mestra foi descoberto em casa de campo. o investigador foi chamado para investigar. Nada era",
+      "durationSec": 43,
+      "musicSuggestion": "tenso",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "O investigador examinou casa de campo em busca de pistas. chave mestra forneceu a primeira pista real. Mas ela levava a mais perguntas do que respostas.",
+      "imagePrompt": "O Quadro Roubado, cena 2: O investigador examinou casa de campo em busca de pistas. chave mestra forneceu a primeira pista real. Mas ela levava a ",
+      "durationSec": 44,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O suspeito principal tinha um alibi solido. o investigador verificou cada detalhe em casa de campo. chave mestra contradizia o depoimento de todos os envolvidos.",
+      "imagePrompt": "O Quadro Roubado, cena 3: O suspeito principal tinha um alibi solido. o investigador verificou cada detalhe em casa de campo. chave mestra contrad",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Uma reviravolta inesperada: o investigador descobriu que chave mestra tinha sido plantado. casa de campo nao era a cena do crime original. O verdadeiro crime acontecera em outro lugar.",
+      "imagePrompt": "O Quadro Roubado, cena 4: Uma reviravolta inesperada: o investigador descobriu que chave mestra tinha sido plantado. casa de campo nao era a cena ",
+      "durationSec": 25,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "As pecas comecaram a se encaixar. o investigador conectou chave mestra com um caso antigo em casa de campo. A solucao estava escondida em um detalhe que todos ignoraram.",
+      "imagePrompt": "O Quadro Roubado, cena 5: As pecas comecaram a se encaixar. o investigador conectou chave mestra com um caso antigo em casa de campo. A solucao es",
+      "durationSec": 40,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O confronto final: o investigador reuniu todos os suspeitos em casa de campo. chave mestra foi revelado como a prova definitiva. O culpado nao tinha para onde fugir.",
+      "imagePrompt": "O Quadro Roubado, cena 6: O confronto final: o investigador reuniu todos os suspeitos em casa de campo. chave mestra foi revelado como a prova def",
+      "durationSec": 45,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A confissao trouxe alivio mas tambem tristeza. o investigador fechou chave mestra sabendo que a justica tinha sido feita. casa de campo guardaria para sempre a memoria daquele caso.",
+      "imagePrompt": "O Quadro Roubado, cena 7: A confissao trouxe alivio mas tambem tristeza. o investigador fechou chave mestra sabendo que a justica tinha sido feita",
+      "durationSec": 29,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O caso foi arquivado. o investigador guardou chave mestra como recordacao. casa de campo voltou a rotina mas algo tinha mudado para sempre naquela comunidade.",
+      "imagePrompt": "O Quadro Roubado, cena 8: O caso foi arquivado. o investigador guardou chave mestra como recordacao. casa de campo voltou a rotina mas algo tinha ",
+      "durationSec": 29,
+      "musicSuggestion": "tenso",
+      "transition": "fade"
+    }
+  ]
+}

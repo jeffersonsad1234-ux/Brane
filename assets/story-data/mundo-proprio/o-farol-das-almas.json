@@ -1,0 +1,78 @@
+{
+  "id": "o-farol-das-almas",
+  "title": "O Farol das Almas",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 259,
+  "outro": "o cartografo navegou para o horizonte com pergaminho selado como guia. caverna bioluminescente desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: O Farol das Almas",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O cartografo pisou em caverna bioluminescente pela primeira vez. O cenario era tao surreal que parecia um sonho. pergaminho selado foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "O Farol das Almas, cena 1: O cartografo pisou em caverna bioluminescente pela primeira vez. O cenario era tao surreal que parecia um sonho. pergami",
+      "durationSec": 44,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de caverna bioluminescente observavam o cartografo com curiosidade. pergaminho selado despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "O Farol das Almas, cena 2: Os habitantes de caverna bioluminescente observavam o cartografo com curiosidade. pergaminho selado despertava um intere",
+      "durationSec": 31,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. o cartografo precisou decifrar pergaminho selado para navegar por caverna bioluminescente. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "O Farol das Almas, cena 3: O mapa estava incompleto. o cartografo precisou decifrar pergaminho selado para navegar por caverna bioluminescente. Cad",
+      "durationSec": 35,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: caverna bioluminescente estava ameacado por uma forca que ninguem compreendia totalmente. o cartografo consultou os anciaos que apontaram para pergaminho selado como a solucao.",
+      "imagePrompt": "O Farol das Almas, cena 4: A crise: caverna bioluminescente estava ameacado por uma forca que ninguem compreendia totalmente. o cartografo consulto",
+      "durationSec": 28,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. o cartografo uniu os povos de caverna bioluminescente em torno de pergaminho selado. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "O Farol das Almas, cena 5: A alianca foi formada. o cartografo uniu os povos de caverna bioluminescente em torno de pergaminho selado. A diversidad",
+      "durationSec": 38,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de pergaminho selado foi finalmente revelado. o cartografo descobriu que caverna bioluminescente era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "O Farol das Almas, cena 6: O segredo de pergaminho selado foi finalmente revelado. o cartografo descobriu que caverna bioluminescente era apenas um",
+      "durationSec": 26,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: caverna bioluminescente se encheu de luz e musica. o cartografo foi honrado como heroi. pergaminho selado se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "O Farol das Almas, cena 7: A celebracao: caverna bioluminescente se encheu de luz e musica. o cartografo foi honrado como heroi. pergaminho selado ",
+      "durationSec": 23,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: o cartografo prometeu voltar para caverna bioluminescente. pergaminho selado serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "O Farol das Almas, cena 8: A despedida: o cartografo prometeu voltar para caverna bioluminescente. pergaminho selado serviria como ponte entre mund",
+      "durationSec": 34,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}

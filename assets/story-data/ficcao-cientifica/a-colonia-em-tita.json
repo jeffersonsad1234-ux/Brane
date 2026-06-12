@@ -1,0 +1,78 @@
+{
+  "id": "a-colonia-em-tita",
+  "title": "A Colônia em Titã",
+  "category": "ficcao-cientifica",
+  "sceneCount": 8,
+  "totalDurationSec": 260,
+  "outro": "comandante guardou dispositivo alienígena como o maior tesouro da humanidade. nave interestelar se tornou um monumento ao primeiro contato. O universo finalmente tinha voz.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: A Colônia em Titã",
+    "style": "fotográfico realista, iluminação cinematográfica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "O alerta vermelho acendeu em nave interestelar. comandante correu para o painel de controle. dispositivo alienígena emitia um pulso rítmico que não correspondia a nenhuma frequência conhecida.",
+      "imagePrompt": "A Colônia em Titã, cena 1: O alerta vermelho acendeu em nave interestelar. comandante correu para o painel de controle. dispositivo alienígena emit",
+      "durationSec": 41,
+      "musicSuggestion": "espacial",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "As leituras eram impossíveis. comandante verificou os sensores três vezes. nave interestelar estava sofrendo distorções espaço-temporais. dispositivo alienígena era a fonte.",
+      "imagePrompt": "A Colônia em Titã, cena 2: As leituras eram impossíveis. comandante verificou os sensores três vezes. nave interestelar estava sofrendo distorções ",
+      "durationSec": 27,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "A descoberta: dispositivo alienígena não era uma tecnologia convencional. comandante teorizou que nave interestelar tinha sido construído por uma inteligência além da compreensão humana.",
+      "imagePrompt": "A Colônia em Titã, cena 3: A descoberta: dispositivo alienígena não era uma tecnologia convencional. comandante teorizou que nave interestelar tinh",
+      "durationSec": 36,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "Comandante propôs um plano arriscado. Se funcionasse, nave interestelar poderia ser salva. dispositivo alienígena precisava ser ativado, mesmo que as consequências fossem imprevisíveis.",
+      "imagePrompt": "A Colônia em Titã, cena 4: Comandante propôs um plano arriscado. Se funcionasse, nave interestelar poderia ser salva. dispositivo alienígena precis",
+      "durationSec": 32,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "O experimento começou. comandante monitorava cada parâmetro em nave interestelar. dispositivo alienígena vibrava em uma frequência que parecia ressoar com o próprio tecido do espaço.",
+      "imagePrompt": "A Colônia em Titã, cena 5: O experimento começou. comandante monitorava cada parâmetro em nave interestelar. dispositivo alienígena vibrava em uma ",
+      "durationSec": 45,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "Uma fenda se abriu. comandante observou nave interestelar se distorcer ao redor de dispositivo alienígena. Através da abertura, vislumbrou um universo completamente diferente do seu.",
+      "imagePrompt": "A Colônia em Titã, cena 6: Uma fenda se abriu. comandante observou nave interestelar se distorcer ao redor de dispositivo alienígena. Através da ab",
+      "durationSec": 28,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "O contato foi estabelecido. comandante comunicou-se com a inteligência por trás de dispositivo alienígena. nave interestelar tornou-se um ponto de encontro entre civilizações.",
+      "imagePrompt": "A Colônia em Titã, cena 7: O contato foi estabelecido. comandante comunicou-se com a inteligência por trás de dispositivo alienígena. nave interest",
+      "durationSec": 30,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "O legado: comandante documentou tudo sobre dispositivo alienígena e nave interestelar. A humanidade nunca mais seria a mesma. Uma nova era de exploração interestelar começava.",
+      "imagePrompt": "A Colônia em Titã, cena 8: O legado: comandante documentou tudo sobre dispositivo alienígena e nave interestelar. A humanidade nunca mais seria a m",
+      "durationSec": 21,
+      "musicSuggestion": "espacial",
+      "transition": "fade"
+    }
+  ]
+}

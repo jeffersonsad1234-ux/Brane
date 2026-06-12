@@ -1,0 +1,78 @@
+{
+  "id": "as-torres-de-prata",
+  "title": "As Torres de Prata",
+  "category": "mundo-proprio",
+  "sceneCount": 8,
+  "totalDurationSec": 289,
+  "outro": "Kiran navegou para o horizonte com selo real como guia. mercado subterrâneo desapareceu na distancia mas sua essencia permaneceria viva. Toda jornada e um recomeco.",
+  "promptsForImageGen": {
+    "description": "Cenas realistas para: As Torres de Prata",
+    "style": "fotografico realista, iluminacao cinematografica"
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "narration": "Kiran pisou em mercado subterrâneo pela primeira vez. O cenario era tao surreal que parecia um sonho. selo real foi a razao da viagem mas a jornada era o verdadeiro tesouro.",
+      "imagePrompt": "As Torres de Prata, cena 1: Kiran pisou em mercado subterrâneo pela primeira vez. O cenario era tao surreal que parecia um sonho. selo real foi a ra",
+      "durationSec": 37,
+      "musicSuggestion": "exploracao",
+      "transition": "crossfade"
+    },
+    {
+      "id": 2,
+      "narration": "Os habitantes de mercado subterrâneo observavam Kiran com curiosidade. selo real despertava um interesse que ia alem do comercial. Algo maior estava em jogo.",
+      "imagePrompt": "As Torres de Prata, cena 2: Os habitantes de mercado subterrâneo observavam Kiran com curiosidade. selo real despertava um interesse que ia alem do ",
+      "durationSec": 27,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 3,
+      "narration": "O mapa estava incompleto. Kiran precisou decifrar selo real para navegar por mercado subterrâneo. Cada passo revelava mais camadas de um mundo extraordinariamente complexo.",
+      "imagePrompt": "As Torres de Prata, cena 3: O mapa estava incompleto. Kiran precisou decifrar selo real para navegar por mercado subterrâneo. Cada passo revelava ma",
+      "durationSec": 39,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 4,
+      "narration": "A crise: mercado subterrâneo estava ameacado por uma forca que ninguem compreendia totalmente. Kiran consultou os anciaos que apontaram para selo real como a solucao.",
+      "imagePrompt": "As Torres de Prata, cena 4: A crise: mercado subterrâneo estava ameacado por uma forca que ninguem compreendia totalmente. Kiran consultou os anciao",
+      "durationSec": 39,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 5,
+      "narration": "A alianca foi formada. Kiran uniu os povos de mercado subterrâneo em torno de selo real. A diversidade era a maior forca daquele mundo extraordinario.",
+      "imagePrompt": "As Torres de Prata, cena 5: A alianca foi formada. Kiran uniu os povos de mercado subterrâneo em torno de selo real. A diversidade era a maior forca",
+      "durationSec": 43,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 6,
+      "narration": "O segredo de selo real foi finalmente revelado. Kiran descobriu que mercado subterrâneo era apenas uma pequena parte de algo muito maior. O universo era mais conectado do que imaginavam.",
+      "imagePrompt": "As Torres de Prata, cena 6: O segredo de selo real foi finalmente revelado. Kiran descobriu que mercado subterrâneo era apenas uma pequena parte de ",
+      "durationSec": 39,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 7,
+      "narration": "A celebracao: mercado subterrâneo se encheu de luz e musica. Kiran foi honrado como heroi. selo real se tornou um simbolo de uniao entre os povos.",
+      "imagePrompt": "As Torres de Prata, cena 7: A celebracao: mercado subterrâneo se encheu de luz e musica. Kiran foi honrado como heroi. selo real se tornou um simbol",
+      "durationSec": 35,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    },
+    {
+      "id": 8,
+      "narration": "A despedida: Kiran prometeu voltar para mercado subterrâneo. selo real serviria como ponte entre mundos. A aventura nunca termina ela se transforma em memoria.",
+      "imagePrompt": "As Torres de Prata, cena 8: A despedida: Kiran prometeu voltar para mercado subterrâneo. selo real serviria como ponte entre mundos. A aventura nunc",
+      "durationSec": 30,
+      "musicSuggestion": "exploracao",
+      "transition": "fade"
+    }
+  ]
+}
