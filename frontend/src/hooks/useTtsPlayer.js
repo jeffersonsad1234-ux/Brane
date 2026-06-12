@@ -65,6 +65,22 @@ export default function useTtsPlayer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Silent WAV base64 for audio unlock (1 sample, 22 bytes)
+  const SILENT_WAV = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
+
+  const unlock = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    try {
+      audio.src = SILENT_WAV;
+      audio.play().then(() => {
+        audio.pause();
+        audio.src = "";
+        audio.load();
+      }).catch(() => {});
+    } catch (e) { /* ignore */ }
+  }, []);
+
   const playUrl = useCallback((url) => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -73,7 +89,8 @@ export default function useTtsPlayer() {
     speakingRef.current = true;
     audio.src = url;
     audio.play().catch((err) => {
-      console.warn("[TTS] play error:", err);
+      console.error("[TTS] play error:", err.message || err);
+      setLastError("audio.play: " + (err.message || "bloqueado pelo navegador"));
       revokeCurrent();
       speakingRef.current = false;
       queueRef.current = [];
@@ -183,6 +200,7 @@ export default function useTtsPlayer() {
     speak,
     speakSequence,
     cancel,
+    unlock,
     lastError,
-  }), [enabled, voiceId, ready, speak, speakSequence, cancel, changeVoice, setTtsEnabled, lastError]);
+  }), [enabled, voiceId, ready, speak, speakSequence, cancel, unlock, changeVoice, setTtsEnabled, lastError]);
 }

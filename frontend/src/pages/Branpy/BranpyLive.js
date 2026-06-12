@@ -197,6 +197,7 @@ export default function BranpyLive() {
     try {
       narrator.activate();
       music.activate();
+      ttsPlayer.unlock();
       const cfg = quizConfigRef.current;
       console.log("[LIVE] Ativando audio, quizConfig:", cfg);
       await loadQuestions(cfg.category, cfg.count);
