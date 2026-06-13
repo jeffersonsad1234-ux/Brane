@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 
-const API_BASE = (process.env.REACT_APP_BACKEND_URL || `http://${window.location.hostname}:8000`).trim();
+const API_BASE = (process.env.REACT_APP_BACKEND_URL || `http://${window.location.hostname}:8080`).trim();
 
 const VOICE_CHARACTERS = [
   { id: "mulher_jovem",     label: "Mulher Jovem",               voice: "pt-BR-FranciscaNeural",        pitch: "+0Hz",  rate: "+0%" },
@@ -21,10 +21,14 @@ export default function useTtsPlayer() {
   const [unlocked, setUnlocked] = useState(() => localStorage.getItem("brane_tts_unlocked") === "true");
   const [testing, setTesting] = useState(false);
   const [testError, setTestError] = useState(null);
+  const [speedRate, setSpeedRate] = useState(() => {
+    const saved = localStorage.getItem("brane_tts_speed_rate");
+    return saved ? parseFloat(saved) : 1.0;
+  });
   const audioRef = useRef(null);
-  const queueRef = useRef([]);
   const onEndRef = useRef(null);
   const speakingRef = useRef(false);
+  const speakRequestIdRef = useRef(0);
 
   useEffect(() => {
     const audio = new Audio();
@@ -32,22 +36,26 @@ export default function useTtsPlayer() {
     audioRef.current = audio;
     setReady(true);
     audio.onended = () => {
+      console.log("[TTS_END] audio.onended fired");
+      try { window.__lastTtsEvent = { type: "TTS_END", timestamp: Date.now() }; } catch (e) {}
       speakingRef.current = false;
-      const next = queueRef.current.shift();
-      if (next) {
-        playUrl(next);
-      } else {
-        const cb = onEndRef.current;
-        onEndRef.current = null;
-        if (cb) setTimeout(cb, 100);
-      }
-    };
-    audio.onerror = () => {
-      speakingRef.current = false;
-      queueRef.current = [];
       const cb = onEndRef.current;
       onEndRef.current = null;
-      if (cb) setTimeout(cb, 100);
+      if (cb) {
+        console.log("[TTS_END] invoking onEnd callback");
+        setTimeout(cb, 100);
+      }
+    };
+    audio.onerror = (event) => {
+      console.log("[TTS_ERROR] audio.onerror fired", event?.message || event);
+      try { window.__lastTtsEvent = { type: "TTS_ERROR", error: event?.message || event, timestamp: Date.now() }; } catch (e) {}
+      speakingRef.current = false;
+      const cb = onEndRef.current;
+      onEndRef.current = null;
+      if (cb) {
+        console.log("[TTS_ERROR] invoking onEnd callback after error");
+        setTimeout(cb, 100);
+      }
     };
     return () => {
       audio.pause();
@@ -74,22 +82,34 @@ export default function useTtsPlayer() {
   const playUrl = useCallback((url) => {
     const audio = audioRef.current;
     if (!audio) return;
+    console.log("[TTS_START] playUrl", url);
+    try { window.__lastTtsEvent = { type: "TTS_START", url, timestamp: Date.now() }; } catch (e) {}
     speakingRef.current = true;
     audio.src = url;
-    audio.play().catch((err) => {
-      console.error("[TTS] play error:", err.message || err);
+    audio.play().then(() => {
+      console.log("[TTS_START] audio.play() succeeded");
+    }).catch((err) => {
+      console.error("[TTS_ERROR] play error:", err.message || err);
       setLastError("audio.play: " + (err.message || "bloqueado pelo navegador"));
+      try { window.__lastTtsEvent = { type: "TTS_ERROR", error: err.message || err, timestamp: Date.now() }; } catch (e) {}
       speakingRef.current = false;
-      queueRef.current = [];
       const cb = onEndRef.current;
       onEndRef.current = null;
-      if (cb) setTimeout(cb, 100);
+      if (cb) {
+        console.log("[TTS_ERROR] invoking onEnd callback after play error");
+        setTimeout(cb, 100);
+      }
     });
   }, []);
 
   const characterForId = useCallback((id) => {
     return VOICE_CHARACTERS.find(c => c.id === id) || VOICE_CHARACTERS[0];
   }, []);
+
+  const resolveRate = useCallback((char) => {
+    const pct = Math.round((speedRate - 1.0) * 100);
+    return pct >= 0 ? `+${pct}%` : `${pct}%`;
+  }, [speedRate]);
 
   const generateUrl = useCallback(async (text, cId) => {
     const char = characterForId(cId || voiceId);
@@ -98,7 +118,7 @@ export default function useTtsPlayer() {
       const r = await fetch(`${API_BASE}/api/tts/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, voice: char.voice, pitch: char.pitch, rate: char.rate }),
+        body: JSON.stringify({ text, voice: char.voice, pitch: char.pitch, rate: resolveRate(char) }),
       });
       if (!r.ok) {
         const errBody = await r.text().catch(() => "");
@@ -112,7 +132,7 @@ export default function useTtsPlayer() {
       setLastError(err.message);
       return null;
     }
-  }, [voiceId, characterForId]);
+  }, [voiceId, characterForId, resolveRate]);
 
   const pregenItems = useCallback(async (items) => {
     if (!items || items.length === 0) return [];
@@ -128,7 +148,7 @@ export default function useTtsPlayer() {
               text: item.text,
               voice: char.voice,
               pitch: char.pitch,
-              rate: char.rate,
+              rate: resolveRate(char),
             };
           }),
         }),
@@ -141,7 +161,7 @@ export default function useTtsPlayer() {
       setLastError("pregen: " + err.message);
       return [];
     }
-  }, [voiceId, characterForId]);
+  }, [voiceId, characterForId, resolveRate]);
 
   const testLocally = useCallback(async () => {
     setTesting(true);
@@ -171,24 +191,37 @@ export default function useTtsPlayer() {
     }
   }, [generateUrl]);
 
+  const cancel = useCallback(() => {
+    console.log("[TTS_CANCEL] cancel called");
+    try { window.__lastTtsEvent = { type: "TTS_CANCEL", timestamp: Date.now() }; } catch (e) {}
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.src = "";
+    }
+    speakingRef.current = false;
+    onEndRef.current = null;
+  }, []);
+
   const speak = useCallback(async (text, onEnd) => {
+    const requestId = ++speakRequestIdRef.current;
+    console.log("[TTS_START] speak requested", { text, requestId });
+    try { window.__lastTtsEvent = { type: "TTS_REQUEST", text, requestId, timestamp: Date.now() }; } catch (e) {}
     if (!enabled || !text || !audioRef.current) {
+      console.log("[TTS_ERROR] speak aborted - disabled or missing audio", { enabled, hasText: !!text, audioExists: !!audioRef.current });
       if (onEnd) setTimeout(onEnd, 100);
       return;
     }
+    cancel();
     const url = await generateUrl(text);
-    if (!url) {
+    if (!url || speakRequestIdRef.current !== requestId) {
+      console.log("[TTS_ERROR] speak cancelled before play", { url, currentRequestId: speakRequestIdRef.current, requestId });
       if (onEnd) setTimeout(onEnd, 100);
       return;
     }
-    if (speakingRef.current) {
-      queueRef.current.push(url);
-      if (!onEndRef.current) onEndRef.current = onEnd;
-    } else {
-      onEndRef.current = onEnd || null;
-      playUrl(url);
-    }
-  }, [enabled, generateUrl, playUrl]);
+    onEndRef.current = onEnd || null;
+    playUrl(url);
+  }, [cancel, enabled, generateUrl, playUrl]);
 
   const speakSequence = useCallback(async (items, onEnd) => {
     const filtered = items.filter((item) => item.text);
@@ -210,17 +243,6 @@ export default function useTtsPlayer() {
     next();
   }, [enabled, speak]);
 
-  const cancel = useCallback(() => {
-    const audio = audioRef.current;
-    if (audio) {
-      audio.pause();
-      audio.src = "";
-    }
-    queueRef.current = [];
-    speakingRef.current = false;
-    onEndRef.current = null;
-  }, []);
-
   const changeVoice = useCallback((id) => {
     setVoiceId(id);
     localStorage.setItem("brane_tts_voice", id);
@@ -231,6 +253,12 @@ export default function useTtsPlayer() {
     localStorage.setItem("brane_tts_enabled", val);
     if (!val) cancel();
   }, [cancel]);
+
+  const setSpeedRateValue = useCallback((rate) => {
+    const clamped = Math.max(0.1, Math.min(10, rate));
+    setSpeedRate(clamped);
+    localStorage.setItem("brane_tts_speed_rate", String(clamped));
+  }, []);
 
   return useMemo(() => ({
     ttsEnabled: enabled,
@@ -250,5 +278,7 @@ export default function useTtsPlayer() {
     testLocally,
     generateUrl,
     pregenItems,
-  }), [enabled, voiceId, ready, speak, speakSequence, cancel, unlock, changeVoice, setTtsEnabled, lastError, unlocked, testing, testError, testLocally, generateUrl, pregenItems]);
+    speedRate,
+    setSpeedRate: setSpeedRateValue,
+  }), [enabled, voiceId, ready, speak, speakSequence, cancel, unlock, changeVoice, setTtsEnabled, lastError, unlocked, testing, testError, testLocally, generateUrl, pregenItems, speedRate, setSpeedRateValue]);
 }

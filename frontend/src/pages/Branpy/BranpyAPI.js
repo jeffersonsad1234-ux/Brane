@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const BACKEND_HOST = window.location.hostname;
-const API = (process.env.REACT_APP_BACKEND_URL || `http://${BACKEND_HOST}:8000`).trim() + "/api";
+const API = (process.env.REACT_APP_BACKEND_URL || `http://${BACKEND_HOST}:8080`).trim() + "/api";
 
 function getHeaders() {
   const token = localStorage.getItem('brane_token');
@@ -118,6 +118,22 @@ export async function getLiveQuiz(count = 10, category) {
   let url = `${API}/branpy/live?count=${count}`;
   if (category) url += `&category=${encodeURIComponent(category)}`;
   const res = await axios.get(url, { headers: getHeaders() });
+  return res.data;
+}
+
+export async function getLiveQuizV2(count = 50, category) {
+  let url = `${API}/branpy/live-v2?count=${count}`;
+  if (category) url += `&category=${encodeURIComponent(category)}`;
+  // Temporary debug: expose URL and response for diagnostics
+  try {
+    console.log("[API] GET", url);
+    window.__lastFetchUrl = url;
+  } catch (e) {}
+  const res = await axios.get(url, { headers: getHeaders() });
+  try {
+    console.log("[API] Response for", url, res.data);
+    window.__lastFetchResponse = res.data;
+  } catch (e) {}
   return res.data;
 }
 

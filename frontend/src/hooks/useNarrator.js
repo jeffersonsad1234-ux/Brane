@@ -399,9 +399,9 @@ export default function useNarrator() {
     setVoice(v);
     if (v) {
       try { localStorage.setItem(STORAGE_KEY, v.name); } catch (err) { console.error("[Narrator] save voice error:", err); }
-      applyPreset(v);
+      // Do NOT applyPreset here — user explicitly chose this voice, respect their settings
     }
-  }, [applyPreset]);
+  }, []);
 
   const activate = useCallback(() => {
     if (activationStatus !== "idle") return;
@@ -438,6 +438,7 @@ export default function useNarrator() {
   }, [activationStatus, pickVoiceByMode, applyPreset]);
 
   const cancel = useCallback(() => {
+    console.log("[TTS_CANCEL] narrator cancel called");
     try {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -483,11 +484,21 @@ export default function useNarrator() {
         u.voice = voiceRef.current;
       }
       u.onerror = (e) => {
-        console.error("[Narrator] utterance error:", e.error);
+        console.log("[TTS_ERROR] narrator utterance error", e.error, e);
+        try { window.__lastTtsEvent = { type: "TTS_ERROR", source: "narrator", error: e.error, timestamp: Date.now() }; } catch (err) {}
         if (e.error !== "canceled" && e.error !== "interrupted") setIsBlocked(true);
-        if (onEnd) onEnd();
+        if (onEnd) {
+          console.log("[TTS_ERROR] narrator invoking onEnd callback after utterance error");
+          onEnd();
+        }
       };
-      if (onEnd) u.onend = onEnd;
+      if (onEnd) {
+        u.onend = () => {
+          console.log("[TTS_END] narrator utterance ended");
+          try { window.__lastTtsEvent = { type: "TTS_END", source: "narrator", timestamp: Date.now() }; } catch (err) {}
+          onEnd();
+        };
+      }
       window.speechSynthesis.speak(u);
     } catch (err) {
       console.error("[Narrator] speakSingle error:", err);
@@ -497,11 +508,15 @@ export default function useNarrator() {
 
   const speak = useCallback((text, onEnd) => {
     try {
+      console.log("[TTS_START] narrator speak", { text });
+      try { window.__lastTtsEvent = { type: "TTS_START", source: "narrator", text, timestamp: Date.now() }; } catch (err) {}
       if (!text) {
+        console.log("[TTS_ERROR] narrator speak aborted - empty text");
         if (onEnd) setTimeout(onEnd, 0);
         return;
       }
       if (!enabledRef.current || !("speechSynthesis" in window)) {
+        console.log("[TTS_ERROR] narrator speak aborted - disabled or unsupported", { enabled: enabledRef.current });
         if (onEnd) setTimeout(onEnd, 0);
         return;
       }
@@ -530,8 +545,11 @@ export default function useNarrator() {
 
   const speakSequence = useCallback((items, onEnd) => {
     try {
+      console.log("[TTS_START] narrator speakSequence", { items });
+      try { window.__lastTtsEvent = { type: "TTS_START", source: "narratorSequence", items, timestamp: Date.now() }; } catch (err) {}
       const filtered = items.filter((item) => item.text);
       if (!enabledRef.current || filtered.length === 0) {
+        console.log("[TTS_ERROR] narrator speakSequence aborted", { enabled: enabledRef.current, count: filtered.length });
         if (onEnd) setTimeout(onEnd, 0);
         return;
       }
@@ -547,6 +565,7 @@ export default function useNarrator() {
           if (i < filtered.length) {
             timeoutRef.current = setTimeout(next, delayAfter);
           } else if (onEnd) {
+            console.log("[TTS_END] narrator speakSequence completed");
             onEnd();
           }
         });

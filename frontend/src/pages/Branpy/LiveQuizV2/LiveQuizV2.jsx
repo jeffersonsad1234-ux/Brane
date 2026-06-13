@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { getLiveQuiz } from "./BranpyAPI";
-import useNarrator from "../../hooks/useNarrator";
-import useTtsPlayer from "../../hooks/useTtsPlayer";
-import useBackgroundMusic from "../../hooks/useBackgroundMusic";
-import useLiveSync from "../../hooks/useLiveSync";
-import AnimatedBackground from "./AnimatedBackground";
+import useTtsPlayer from "../../../hooks/useTtsPlayer";
+import useNarrator from "../../../hooks/useNarrator";
+import useBackgroundMusic from "../../../hooks/useBackgroundMusic";
+import useLiveSync from "../../../hooks/useLiveSync";
+import useQuizEngine from "./engine/useQuizEngine";
+import QuizBackground, { VARIANTS } from "./components/QuizBackground";
+import { getLiveQuizV2 } from "../BranpyAPI";
+import { CATEGORIES } from "./data/quizSeedV2";
 
 const COLORS = {
   bg: "#050608",
@@ -19,66 +21,55 @@ const COLORS = {
 
 const LABELS = ["A", "B", "C", "D"];
 
-const GENERIC_EXPLANATIONS = [
-  "Esse é um tema relevante que merece atenção e estudo",
-];
-
-const ENCOURAGEMENTS = [
-  "Muito bem!",
-  "Excelente!",
-  "Você está indo muito bem!",
-  "Acertou!",
-  "Vamos para a próxima!",
-  "Boa resposta!",
-];
-
-function getRandomEncouragement() {
-  return ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)];
-}
-
-function isGenericExplanation(text) {
-  if (!text) return true;
-  const trimmed = text.trim().toLowerCase();
-  if (trimmed.length < 10) return true;
-  return GENERIC_EXPLANATIONS.some((g) => g.toLowerCase() === trimmed);
-}
-
-export function shuffleQuestion(question) {
-  if (!question.alternatives || question.alternatives.length < 2) return question;
-  const originalCorrect = question.correct;
-  const indices = question.alternatives.map((_, i) => i);
-  for (let i = indices.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [indices[i], indices[j]] = [indices[j], indices[i]];
+const ALTERNATIVE_ARTICLE = /^(Um |Uma |Um\b|Uma\b)/i;
+function normalizeQuestion(question) {
+  if (!question || !Array.isArray(question.alternatives) || question.alternatives.length < 2) {
+    return question;
   }
-  let shuffled = {
+
+  const alternatives = question.alternatives.slice(0, 4);
+  let correct = Number.isInteger(question.correct) ? question.correct : 0;
+  if (correct < 0 || correct >= alternatives.length) {
+    correct = 0;
+  }
+
+  return {
     ...question,
-    alternatives: indices.map((i) => question.alternatives[i]),
-    correct: indices.indexOf(originalCorrect),
+    alternatives,
+    correct,
   };
-  const articlePattern = /^(Um |Uma |Um\b|Uma\b)/i;
-  if (shuffled.alternatives[0] && articlePattern.test(shuffled.alternatives[0].trim())) {
+}
+
+function shuffleQuestion(question) {
+  const normalized = normalizeQuestion(question);
+  if (!normalized || !Array.isArray(normalized.alternatives) || normalized.alternatives.length < 2) {
+    return normalized;
+  }
+
+  const originalCorrect = normalized.correct;
+  const indices = normalized.alternatives.map((_, i) => i);
+  const shuffledIndices = [...indices].sort(() => Math.random() - 0.5);
+  const alternatives = shuffledIndices.map((i) => normalized.alternatives[i]);
+  const correct = shuffledIndices.indexOf(originalCorrect);
+
+  const shuffled = { ...normalized, alternatives, correct };
+  if (ALTERNATIVE_ARTICLE.test(shuffled.alternatives[0].trim())) {
     for (let swap = 1; swap < shuffled.alternatives.length; swap++) {
-      if (!articlePattern.test(shuffled.alternatives[swap].trim())) {
-        [shuffled.alternatives[0], shuffled.alternatives[swap]] = [shuffled.alternatives[swap], shuffled.alternatives[0]];
-        if (shuffled.correct === 0) shuffled.correct = swap;
-        else if (shuffled.correct === swap) shuffled.correct = 0;
+      if (!ALTERNATIVE_ARTICLE.test(shuffled.alternatives[swap].trim())) {
+        [shuffled.alternatives[0], shuffled.alternatives[swap]] = [
+          shuffled.alternatives[swap], shuffled.alternatives[0],
+        ];
+        if (shuffled.correct === 0) {
+          shuffled.correct = swap;
+        } else if (shuffled.correct === swap) {
+          shuffled.correct = 0;
+        }
         break;
       }
     }
   }
+
   return shuffled;
-}
-
-function randomViewers() {
-  const base = [500, 1000, 2000, 5000, 8000, 12000];
-  const chosen = base[Math.floor(Math.random() * base.length)];
-  return Math.max(100, chosen + Math.floor(Math.random() * 500) - 250);
-}
-
-function formatViewers(n) {
-  if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1) + "K";
-  return String(n);
 }
 
 function CountdownNumber({ number }) {
@@ -128,7 +119,7 @@ function AnswerReveal({ question, correct, explanation }) {
       }}>
         {question.alternatives[correct]}
       </div>
-      {explanation && !isGenericExplanation(explanation) && (
+      {explanation && explanation.trim().length > 10 && (
         <div style={{
           fontSize: 14, color: COLORS.muted,
           textAlign: "center", maxWidth: 500, lineHeight: 1.5,
@@ -140,138 +131,109 @@ function AnswerReveal({ question, correct, explanation }) {
   );
 }
 
-const PHASE_TIMEOUT = {
-  question_intro: 1800,
-  countdown: 10000,
-  answer: 2600,
-  explanation: 3600,
-};
-
-const PHASE_NEXT = {
-  question_intro: "countdown",
-  countdown: "answer",
-  answer: "explanation",
-  explanation: null,
-};
-
-export default function BranpyLive() {
-  const [questions, setQuestions] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [phase, setPhase] = useState("loading");
-  const [countdown, setCountdown] = useState(10);
+export default function LiveQuizV2() {
+  const [bgVariant, setBgVariant] = useState(() => localStorage.getItem("brane_bg_v2") || "neon");
+  const [activeQuizCategory, setActiveQuizCategory] = useState(null);
   const [viewers, setViewers] = useState(1234);
   const [loadingText, setLoadingText] = useState("Carregando...");
-  const [paused, setPaused] = useState(false);
-  const [bgVariant, setBgVariant] = useState(() => localStorage.getItem("brane_bg") || "neon");
   const [announcing, setAnnouncing] = useState(false);
-  const [activeQuizCategory, setActiveQuizCategory] = useState(null);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
 
   const narrator = useNarrator();
   const ttsPlayer = useTtsPlayer();
   const music = useBackgroundMusic();
   const liveSync = useLiveSync("live");
 
-  const pausedRef = useRef(false);
-  const phaseRef = useRef("loading");
-  const indexRef = useRef(0);
-  const questionsRef = useRef([]);
   const audioGenRef = useRef(0);
-  const countdownIntervalRef = useRef(null);
-  const fallbackTimerRef = useRef(null);
   const quizConfigRef = useRef({ category: null, count: null, shouldLoop: true });
   const viewerIntervalRef = useRef(null);
 
-  useEffect(() => { pausedRef.current = paused; }, [paused]);
-  useEffect(() => { phaseRef.current = phase; }, [phase]);
-  useEffect(() => { indexRef.current = currentIndex; }, [currentIndex]);
-  useEffect(() => { questionsRef.current = questions; }, [questions]);
-
-  const stopAllTimers = useCallback(() => {
-    if (countdownIntervalRef.current) { clearInterval(countdownIntervalRef.current); countdownIntervalRef.current = null; }
-    if (fallbackTimerRef.current) { clearTimeout(fallbackTimerRef.current); fallbackTimerRef.current = null; }
+  const fetchQuizQuestions = useCallback(async (category, count) => {
+    setIsLoadingQuestions(true);
+    setLoadingText("Buscando perguntas...");
+    try {
+      const response = await getLiveQuizV2(count, category);
+      const questions = Array.isArray(response?.questions) ? response.questions : [];
+      if (questions.length === 0) {
+        console.warn("[QuizV2] Nenhuma pergunta retornada");
+        setLoadingText("Nenhuma pergunta disponível para esta categoria.");
+        return [];
+      }
+      setLoadingText("Carregando perguntas...");
+      return questions.map(shuffleQuestion).filter((q) => q && Array.isArray(q.alternatives) && q.alternatives.length >= 2);
+    } catch (err) {
+      console.error("[QuizV2] fetchQuizQuestions error:", err);
+      setLoadingText("Falha ao carregar perguntas.");
+      return [];
+    } finally {
+      setIsLoadingQuestions(false);
+    }
   }, []);
 
-  const stopAudio = useCallback(() => {
+  const onSpeak = useCallback((text, onDone) => {
+    console.log("[QUIZ_WAITING_FOR_TTS] onSpeak", text ? `${text.slice(0, 40)}${text.length > 40 ? '...' : ''}` : "<empty>");
+    const requestId = audioGenRef.current + 1;
+    audioGenRef.current = requestId;
+    const safeDone = () => {
+      if (audioGenRef.current === requestId) {
+        console.log("[QUIZ_TTS_FINISHED] safeDone fired", { requestId });
+        if (onDone) onDone();
+      } else {
+        console.log("[QUIZ_TTS_FINISHED] safeDone ignored stale request", { requestId, current: audioGenRef.current });
+      }
+    };
+    if (ttsPlayer.ttsEnabled) {
+      console.log("[QUIZ_WAITING_FOR_TTS] using ttsPlayer");
+      ttsPlayer.speak(text, safeDone);
+    } else {
+      console.log("[QUIZ_WAITING_FOR_TTS] using narrator");
+      narrator.cancel();
+      narrator.speak(text, safeDone);
+    }
+  }, [ttsPlayer, narrator]);
+
+  const onCancel = useCallback(() => {
+    console.log("[TTS] onCancel");
     audioGenRef.current++;
     narrator.cancel();
     ttsPlayer.cancel();
   }, [narrator, ttsPlayer]);
 
-  const speakText = useCallback((text, onDone) => {
-    const requestId = audioGenRef.current + 1;
-    stopAudio();
-    audioGenRef.current = requestId;
-    const safeDone = () => {
-      if (audioGenRef.current === requestId && onDone) onDone();
-    };
-    if (ttsPlayer.ttsEnabled) {
-      ttsPlayer.speak(text, safeDone);
-    } else {
-      narrator.cancel();
-      narrator.speak(text, safeDone);
-    }
-  }, [ttsPlayer, narrator, stopAudio]);
-
-  const goToPhase = useCallback((nextPhase, questionIdx) => {
-    if (pausedRef.current) return;
-    stopAllTimers();
-    stopAudio();
-
-    if (questionIdx !== undefined) {
-      setCurrentIndex(questionIdx);
-      indexRef.current = questionIdx;
-    }
-    setPhase(nextPhase);
-    phaseRef.current = nextPhase;
-  }, [stopAllTimers, stopAudio]);
-
-  const startQuiz = useCallback((qs) => {
-    setQuestions(qs);
-    questionsRef.current = qs;
-    setCurrentIndex(0);
-    indexRef.current = 0;
-    console.log(`[QUIZ] start — ${qs.length} perguntas`);
-    goToPhase("question_intro", 0);
-  }, [goToPhase]);
-
-  const loadQuestions = useCallback(async (category, count) => {
-    try {
-      const limit = count || 50;
-      console.log(`[QUIZ] loading — category=${category || "todas"}, limit=${limit}`);
-      const data = await getLiveQuiz(limit, category);
-      if (!data.questions || data.questions.length === 0) {
-        setLoadingText(`Erro: 0 perguntas (${category || "todas"})`);
-        return;
+  const onFinishedRef = useRef(null);
+  const onFinished = useCallback(async (shouldLoop) => {
+    console.log("[QUIZ] onFinished", shouldLoop);
+    if (shouldLoop) {
+      const cfg = quizConfigRef.current;
+      const qs = await fetchQuizQuestions(cfg.category, cfg.count || 50);
+      if (qs.length) {
+        engine.startQuiz(qs);
       }
-      const shuffled = data.questions.map((q) => shuffleQuestion(q));
+    }
+  }, [fetchQuizQuestions]);
 
-      startQuiz(shuffled);
+  useEffect(() => {
+    onFinishedRef.current = onFinished;
+  }, [onFinished]);
 
-      const firstQ = shuffled[0];
-      const firstItems = [
-        { id: "q0_intro", text: firstQ.question },
-        { id: "q0_ans", text: firstQ.alternatives[firstQ.correct] },
-      ];
-      if (firstQ.explanation && !isGenericExplanation(firstQ.explanation)) {
-        firstItems.push({ id: "q0_expl", text: firstQ.explanation });
-      }
-      ttsPlayer.pregenItems(firstItems).catch(() => {});
-
-      const rest = [];
-      shuffled.forEach((q, idx) => {
-        if (idx === 0) return;
-        rest.push({ id: `q${idx}_intro`, text: q.question });
-        rest.push({ id: `q${idx}_ans`, text: q.alternatives[q.correct] });
-        if (q.explanation && !isGenericExplanation(q.explanation)) {
-          rest.push({ id: `q${idx}_expl`, text: q.explanation });
-        }
+  const engine = useQuizEngine({
+    onSpeak,
+    onCancel,
+    onFinished: (...args) => onFinishedRef.current?.(...args),
+    onPhaseChange: (phase, qIndex) => {
+      liveSync.sendStatus({
+        phase, currentIndex: qIndex, paused: engine.paused, bgVariant,
+        currentTrack: music.currentTrack, isPlaying: music.isPlaying,
+        narratorEnabled: narrator.enabled, announcing,
+        voiceName: narrator.voice?.name || "", voiceMode: narrator.voiceMode || "padrao",
+        volume: narrator.volume, speedMode: narrator.speedMode, pitch: narrator.pitch,
+        musicVolume: music.volume, activeQuizCategory,
+        ttsEnabled: ttsPlayer.ttsEnabled, ttsVoiceId: ttsPlayer.voiceId,
       });
-      ttsPlayer.pregenItems(rest).catch(() => {});
-    } catch (err) {
-      console.error("[QUIZ] loadQuestions error:", err);
-      setLoadingText("Erro ao carregar perguntas");
-    }
-  }, [ttsPlayer, startQuiz]);
+    },
+    onCountdownTick: (remaining) => {
+      console.log("[PHASE] countdown", remaining);
+    },
+  });
 
   const handleActivateAudio = useCallback(async () => {
     try {
@@ -279,157 +241,44 @@ export default function BranpyLive() {
       music.activate();
       ttsPlayer.unlock();
       const cfg = quizConfigRef.current;
-      await loadQuestions(cfg.category, cfg.count);
+      const qs = await fetchQuizQuestions(cfg.category, cfg.count || 50);
+      if (qs.length) {
+        engine.startQuiz(qs);
+      } else {
+        setLoadingText("Não foi possível iniciar o quiz.");
+      }
     } catch (err) {
-      console.error("[QUIZ] activate error:", err);
+      console.error("[QuizV2] activate error:", err);
       setLoadingText("Erro ao iniciar.");
     }
-  }, [narrator, music, ttsPlayer, loadQuestions]);
-
-  const handleRestart = useCallback(() => {
-    stopAllTimers();
-    stopAudio();
-    setPaused(false);
-    pausedRef.current = false;
-    setPhase("loading");
-    phaseRef.current = "loading";
-    const cfg = quizConfigRef.current;
-    loadQuestions(cfg.category, cfg.count);
-  }, [stopAllTimers, stopAudio, loadQuestions]);
-
-  const handleRemotePause = useCallback(() => {
-    stopAllTimers();
-    stopAudio();
-    setPaused(true);
-    pausedRef.current = true;
-  }, [stopAllTimers, stopAudio]);
-
-  const handleRemoteContinue = useCallback(() => {
-    setPaused(false);
-    pausedRef.current = false;
-  }, []);
-
-  const handleRemoteNext = useCallback(() => {
-    stopAllTimers();
-    stopAudio();
-    setPaused(false);
-    pausedRef.current = false;
-    const cur = phaseRef.current;
-    const next = PHASE_NEXT[cur];
-    if (next) {
-      goToPhase(next);
-    } else {
-      handleRestart();
-    }
-  }, [stopAllTimers, stopAudio, goToPhase, handleRestart]);
+  }, [narrator, music, ttsPlayer, engine, fetchQuizQuestions]);
 
   const handleRemoteSpeak = useCallback((text) => {
     if (!text.trim() || announcing) return;
-    stopAllTimers();
-    stopAudio();
-    setPaused(true);
-    pausedRef.current = true;
+    engine.pause();
     setAnnouncing(true);
-    const done = () => { setAnnouncing(false); setPaused(false); pausedRef.current = false; };
-    speakText(text.trim(), done);
-  }, [stopAllTimers, stopAudio, speakText, announcing]);
+    const done = () => { setAnnouncing(false); engine.resume(); };
+    onSpeak(text.trim(), done);
+  }, [engine, onSpeak, announcing]);
 
-  // ── PHASE DRIVER — refs prevent re-runs from hook identity changes ──
-  const goToPhaseRef = useRef(goToPhase);
-  goToPhaseRef.current = goToPhase;
-  const speakTextRef = useRef(speakText);
-  speakTextRef.current = speakText;
-  const loadQuestionsRef = useRef(loadQuestions);
-  loadQuestionsRef.current = loadQuestions;
-
+  // Viewer ticker
   useEffect(() => {
-    if (paused || phase === "loading") return;
-    const q = questions[currentIndex];
-    if (!q) return;
-
-    const gen = audioGenRef.current;
-    const myPhase = phase;
-    console.log(`[QUIZ] ${myPhase}`);
-
-    if (myPhase === "countdown") {
-      setCountdown(10);
-      const start = Date.now();
-      countdownIntervalRef.current = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - start) / 1000);
-        const remaining = Math.max(0, 10 - elapsed);
-        setCountdown(remaining);
-        if (remaining === 0) {
-          clearInterval(countdownIntervalRef.current);
-          countdownIntervalRef.current = null;
-          if (audioGenRef.current === gen) {
-            console.log("[QUIZ] countdown → answer");
-            goToPhaseRef.current("answer");
-          }
-        }
-      }, 100);
-    } else if (myPhase === "question_intro") {
-      console.log("[QUIZ] speak question");
-      speakTextRef.current(q.question);
-    } else if (myPhase === "answer") {
-      console.log("[QUIZ] speak answer");
-      speakTextRef.current(q.alternatives[q.correct]);
-    } else if (myPhase === "explanation") {
-      const text = (q.explanation && !isGenericExplanation(q.explanation))
-        ? q.explanation : getRandomEncouragement();
-      console.log("[QUIZ] speak explanation");
-      speakTextRef.current(text);
-    }
-
-    fallbackTimerRef.current = setTimeout(() => {
-      if (audioGenRef.current === gen && phaseRef.current === myPhase) {
-        console.log(`[QUIZ] ${myPhase} fallback`);
-        const next = PHASE_NEXT[myPhase];
-        if (next) {
-          goToPhaseRef.current(next);
-        } else {
-          const nextIdx = indexRef.current + 1;
-          if (nextIdx >= questionsRef.current.length) {
-            const cfg = quizConfigRef.current;
-            if (cfg.shouldLoop) {
-              setPhase("loading");
-              phaseRef.current = "loading";
-              loadQuestionsRef.current(cfg.category, cfg.count);
-            } else {
-              setPhase("loading");
-              phaseRef.current = "loading";
-              setLoadingText("Quiz concluído!");
-            }
-          } else {
-            goToPhaseRef.current("question_intro", nextIdx);
-          }
-        }
-      }
-    }, PHASE_TIMEOUT[myPhase] || 8000);
-
-    return () => {
-      if (countdownIntervalRef.current) { clearInterval(countdownIntervalRef.current); countdownIntervalRef.current = null; }
-      if (fallbackTimerRef.current) { clearTimeout(fallbackTimerRef.current); fallbackTimerRef.current = null; }
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, currentIndex, paused]);
-
-  // ── Viewer ticker ──
-  useEffect(() => {
-    viewerIntervalRef.current = setInterval(() => setViewers(randomViewers()), 8000);
+    viewerIntervalRef.current = setInterval(() => {
+      const base = [500, 1000, 2000, 5000, 8000, 12000];
+      const chosen = base[Math.floor(Math.random() * base.length)];
+      setViewers(Math.max(100, chosen + Math.floor(Math.random() * 500) - 250));
+    }, 8000);
     return () => clearInterval(viewerIntervalRef.current);
   }, []);
 
-  // ── Cancel on unmount ──
-  useEffect(() => () => { stopAudio(); stopAllTimers(); }, [stopAudio, stopAllTimers]);
-
-  // ── WebSocket command listener ──
+  // WebSocket command listener
   useEffect(() => {
     liveSync.on("adminConnected", () => {
       if (narrator.activationStatus === "activated" && narrator.allVoices.length > 0) {
         liveSync.sendVoices(narrator.allVoices.map((v) => ({ name: v.name, lang: v.lang })));
       }
       liveSync.sendStatus({
-        phase, currentIndex, paused: pausedRef.current, bgVariant,
+        phase: engine.phase, currentIndex: engine.currentIndex, paused: engine.paused, bgVariant,
         currentTrack: music.currentTrack, isPlaying: music.isPlaying,
         narratorEnabled: narrator.enabled, announcing,
         voiceName: narrator.voice?.name || "", voiceMode: narrator.voiceMode || "padrao",
@@ -438,12 +287,13 @@ export default function BranpyLive() {
         ttsEnabled: ttsPlayer.ttsEnabled, ttsVoiceId: ttsPlayer.voiceId,
       });
     });
+
     liveSync.on("command", (msg) => {
       switch (msg.command) {
-        case "pause": handleRemotePause(); break;
-        case "resume": handleRemoteContinue(); break;
-        case "restart": handleRestart(); break;
-        case "nextQuestion": handleRemoteNext(); break;
+        case "pause": engine.pause(); break;
+        case "resume": engine.resume(); break;
+        case "restart": engine.restart(); break;
+        case "nextQuestion": engine.nextQuestion(); break;
         case "setVoice":
           if (msg.voiceName) {
             const v = narrator.voices.find((x) => x.name === msg.voiceName);
@@ -466,7 +316,7 @@ export default function BranpyLive() {
           if (msg.pitch != null) narrator.setPitch(parseFloat(msg.pitch));
           break;
         case "setBackground":
-          if (msg.variant) { setBgVariant(msg.variant); localStorage.setItem("brane_bg", msg.variant); }
+          if (msg.variant) { setBgVariant(msg.variant); localStorage.setItem("brane_bg_v2", msg.variant); }
           break;
         case "setMusic":
           if (msg.track != null) music.selectTrack(msg.track || "");
@@ -500,35 +350,45 @@ export default function BranpyLive() {
         default: break;
       }
     });
-    return () => { liveSync.off("command"); liveSync.off("adminConnected"); };
-  }, [liveSync, handleRemotePause, handleRemoteContinue, handleRestart,
-      handleRemoteNext, narrator, music, handleRemoteSpeak, ttsPlayer,
-      phase, currentIndex, bgVariant, announcing, activeQuizCategory]);
 
-  // ── Quiz Library handler ──
+    return () => { liveSync.off("command"); liveSync.off("adminConnected"); };
+  }, [liveSync, engine, narrator, music, handleRemoteSpeak, ttsPlayer, bgVariant, announcing, activeQuizCategory]);
+
+  // Quiz Library handler
   useEffect(() => {
-    liveSync.on("SET_QUIZ_LIBRARY", (msg) => {
+    liveSync.on("SET_QUIZ_LIBRARY_V2", async (msg) => {
+      // Log incoming admin message
+      try {
+        console.log("[Live] Received WS message", msg?.type || "SET_QUIZ_LIBRARY_V2", msg);
+        window.__lastLivePayload = msg;
+      } catch (e) {}
       if (!msg.categoryId && !msg.categoryName) return;
-      const queryCategory = msg.categoryId || msg.categoryName;
-      const displayCategory = msg.categoryName || msg.categoryId;
+      const queryCategory = msg.categoryId || "";
+      const displayCategory = msg.categoryName || msg.categoryId || "Todas";
       const count = msg.questionLimit > 0 ? msg.questionLimit : null;
       quizConfigRef.current = { category: queryCategory, count, shouldLoop: !count };
       setActiveQuizCategory(displayCategory);
-      stopAllTimers();
-      stopAudio();
-      setPaused(false);
-      pausedRef.current = false;
-      setPhase("loading");
-      phaseRef.current = "loading";
-      loadQuestions(queryCategory, count);
+      engine.setConfig({ category: queryCategory, count, shouldLoop: !count });
+      if (engine.goToPhase) {
+        engine.goToPhase(engine.PHASES.LOADING);
+      }
+      // Indicate fetch is about to run
+      try { console.log("[Live] fetchQuizQuestions -> category:", queryCategory, "count:", count || 50); } catch (e) {}
+      const qs = await fetchQuizQuestions(queryCategory, count || 50);
+      try { console.log("[Live] fetchQuizQuestions returned", Array.isArray(qs) ? qs.length : 0, "questions"); window.__lastLiveFetchedQuestions = qs || []; } catch (e) {}
+      if (qs.length) {
+        // ensure first question is shown immediately
+        engine.startQuiz(qs);
+        try { engine.goToPhase && engine.goToPhase(engine.PHASES.QUESTION_INTRO, 0); } catch (e) {}
+      }
     });
-    return () => { liveSync.off("SET_QUIZ_LIBRARY"); };
-  }, [liveSync, stopAllTimers, stopAudio, loadQuestions]);
+    return () => { liveSync.off("SET_QUIZ_LIBRARY_V2"); };
+  }, [liveSync, engine, fetchQuizQuestions]);
 
-  // ── Send status ──
+  // Send status
   useEffect(() => {
     liveSync.sendStatus({
-      phase, currentIndex, paused: pausedRef.current, bgVariant,
+      phase: engine.phase, currentIndex: engine.currentIndex, paused: engine.paused, bgVariant,
       currentTrack: music.currentTrack, isPlaying: music.isPlaying,
       narratorEnabled: narrator.enabled, announcing,
       voiceName: narrator.voice?.name || "", voiceMode: narrator.voiceMode || "padrao",
@@ -537,7 +397,7 @@ export default function BranpyLive() {
       musicVolume: music.volume, activeQuizCategory,
       ttsEnabled: ttsPlayer.ttsEnabled, ttsVoiceId: ttsPlayer.voiceId,
     });
-  }, [phase, currentIndex, paused, bgVariant,
+  }, [engine.phase, engine.currentIndex, engine.paused, bgVariant,
       music.currentTrack, music.isPlaying, music.volume,
       narrator.enabled, narrator.voice, narrator.volume, narrator.speedMode, narrator.pitch,
       narrator.voiceMode, announcing, liveSync, activeQuizCategory,
@@ -561,11 +421,15 @@ export default function BranpyLive() {
     if (ttsPlayer.unlocked) liveSync.send({ type: "ttsUnlocked", unlocked: true });
   }, [ttsPlayer.unlocked, liveSync]);
 
-  // ═══════════════════════════════════════════════════
   // RENDER
-  // ═══════════════════════════════════════════════════
+  const { PHASES } = engine;
+  const phase = engine.phase;
+  const q = engine.currentQuestion;
+  const countdown = engine.countdown;
+  const currentIndex = engine.currentIndex;
+  const paused = engine.paused;
 
-  if (phase === "loading") {
+  if (phase === PHASES.IDLE) {
     if (narrator.activationStatus === "idle") {
       return (
         <div style={{
@@ -574,7 +438,7 @@ export default function BranpyLive() {
           color: COLORS.text, fontFamily: "system-ui, -apple-system, sans-serif",
           padding: 40, boxSizing: "border-box",
         }}>
-          <div style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>QUIZ BRANE</div>
+          <div style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>QUIZ V2</div>
           <div style={{ fontSize: 14, color: COLORS.muted, marginBottom: 40, textAlign: "center" }}>
             Toque no botão para ativar o áudio
           </div>
@@ -629,7 +493,53 @@ export default function BranpyLive() {
     );
   }
 
-  const q = questions[currentIndex];
+  if (phase === PHASES.LOADING) {
+    return (
+      <div style={{
+        width: "100vw", height: "100vh", display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center", background: COLORS.bg,
+        color: COLORS.muted, fontFamily: "system-ui, -apple-system, sans-serif",
+        fontSize: 18, gap: 12, padding: 32, boxSizing: "border-box", textAlign: "center",
+      }}>
+        <div>{loadingText}</div>
+        <div style={{ fontSize: 13, color: COLORS.correct }}>✓ Áudio ativado</div>
+      </div>
+    );
+  }
+
+  if (phase === PHASES.FINISHED) {
+    return (
+      <div style={{
+        width: "100vw", height: "100vh", display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center", background: COLORS.bg,
+        color: COLORS.text, fontFamily: "system-ui, -apple-system, sans-serif",
+        padding: 40, boxSizing: "border-box",
+      }}>
+        <div style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>QUIZ FINALIZADO</div>
+        <div style={{ fontSize: 14, color: COLORS.muted, marginBottom: 40 }}>
+          Aguardando próxima rodada...
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === PHASES.PAUSED) {
+    return (
+      <div style={{
+        width: "100vw", height: "100vh", display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center", background: COLORS.bg,
+        color: COLORS.text, fontFamily: "system-ui, -apple-system, sans-serif",
+        padding: 40, boxSizing: "border-box",
+      }}>
+        <AnimatedBackground variant={bgVariant} />
+        <div style={{ fontSize: 28, fontWeight: 800, marginBottom: 8, zIndex: 10 }}>PAUSADO</div>
+        <div style={{ fontSize: 14, color: COLORS.muted, zIndex: 10 }}>
+          Aguardando comando do admin...
+        </div>
+      </div>
+    );
+  }
+
   if (!q) {
     return (
       <div style={{
@@ -641,12 +551,12 @@ export default function BranpyLive() {
     );
   }
 
-  const revealOrExplain = phase === "answer" || phase === "explanation";
-  const showAlternatives = phase === "countdown" || revealOrExplain;
+  const revealOrExplain = phase === PHASES.ANSWER || phase === PHASES.EXPLANATION;
+  const showAlternatives = phase === PHASES.COUNTDOWN || revealOrExplain;
   const isQuestionTop = showAlternatives;
-  const showCountdown = phase === "countdown";
-  const progressPct = phase === "question_intro" ? 0
-    : phase === "countdown" ? ((10 - countdown) / 10) * 100
+  const showCountdown = phase === PHASES.COUNTDOWN;
+  const progressPct = phase === PHASES.QUESTION_INTRO ? 0
+    : phase === PHASES.COUNTDOWN ? ((12 - countdown) / 12) * 100
     : 100;
 
   return (
@@ -659,7 +569,7 @@ export default function BranpyLive() {
       transition: "background 0.6s ease",
       userSelect: "none", WebkitUserSelect: "none", WebkitTouchCallout: "none",
     }}>
-      <AnimatedBackground variant={bgVariant} />
+      <QuizBackground variant={bgVariant} />
 
       <style>{`
         @keyframes pulse { 0%{transform:scale(1.2);opacity:0.5} 100%{transform:scale(1);opacity:1} }
@@ -684,7 +594,7 @@ export default function BranpyLive() {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span className="live-dot" />
-          <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: 1 }}>QUIZ AO VIVO</span>
+          <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: 1 }}>QUIZ V2</span>
           {activeQuizCategory && (
             <span style={{
               fontSize: 11, fontWeight: 600, color: COLORS.accent,
@@ -711,7 +621,7 @@ export default function BranpyLive() {
         }}>
           <span>👁</span>
           <span style={{ fontWeight: 700, color: COLORS.text, minWidth: 40, textAlign: "right" }}>
-            {formatViewers(viewers)}
+            {viewers >= 1000 ? (viewers / 1000).toFixed(viewers >= 10000 ? 0 : 1) + "K" : String(viewers)}
           </span>
           <span style={{ fontSize: 11 }}>assistindo</span>
         </div>

@@ -1,13 +1,15 @@
 from fastapi import FastAPI, APIRouter, HTTPException, UploadFile, File, Request, Response
-from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse, HTMLResponse
+from fastapi.responses import JSONResponse, PlainTextResponse, RedirectResponse, HTMLResponse, FileResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from motor.motor_asyncio import AsyncIOMotorClient
 import os, logging, uuid, requests as http_requests, base64
 from PIL import Image
 from io import BytesIO
 from pathlib import Path
 from pydantic import BaseModel
+import unicodedata
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
 import json
@@ -4872,10 +4874,59 @@ async def tts_list_characters():
 # ── Branpy Live Quiz ────────────────────────────────────────
 QUIZ_SEED_PATH = ROOT_DIR / "quiz_seed" / "quiz_seed.json"
 _quiz_pool = []
+
+def _ascii_key(text: str) -> str:
+    return unicodedata.normalize("NFKD", (text or "").lower()).encode("ascii", "ignore").decode("ascii")
+
+def _sanitize_quiz_item(item: dict) -> Optional[dict]:
+    if not isinstance(item, dict):
+        return None
+    question = (item.get("question") or "").strip()
+    if not question:
+        return None
+    alternatives = item.get("alternatives")
+    if not isinstance(alternatives, list) or len(alternatives) < 2:
+        return None
+    correct = item.get("correct")
+    if not isinstance(correct, int) or correct < 0 or correct >= len(alternatives):
+        return None
+    explanation = (item.get("explanation") or "").strip()
+    category = (item.get("category") or "").strip()
+
+    ascii_question = _ascii_key(question)
+    bad_patterns = [
+        "quem descobriu o segundo",
+        "como funciona o deserto",
+        "como funciona a amazonia",
+        "como funciona a amazonia",
+        "o que ea filosofia",
+        "quem descobriu a gravidade",
+    ]
+    if any(pattern in ascii_question for pattern in bad_patterns):
+        return None
+
+    if ascii_question.startswith("how do you say") and " in english" in ascii_question:
+        phrase = question
+        if phrase.lower().startswith("how do you say") and phrase.lower().endswith(" in english?"):
+            inner = phrase[14:-12].strip().strip(" '")
+            if inner:
+                question = f"Como se diz {inner} em inglês?"
+    elif not question.endswith("?"):
+        question = f"{question}?"
+
+    return {
+        "question": question,
+        "alternatives": alternatives,
+        "correct": correct,
+        "category": category,
+        "explanation": explanation,
+    }
+
 try:
     if QUIZ_SEED_PATH.exists():
         with open(QUIZ_SEED_PATH, encoding="utf-8") as f:
-            _quiz_pool = json.load(f)
+            raw_quiz = json.load(f)
+            _quiz_pool = [q for q in (_sanitize_quiz_item(item) for item in raw_quiz) if q]
 except Exception as e:
     logging.warning(f"Could not load quiz seed: {e}")
 
@@ -4886,8 +4937,8 @@ async def branpy_live(request: Request, count: int = 10, category: str = ""):
         return {"questions": [], "total": 0}
     pool = _quiz_pool
     if category:
-        cat = category.strip().lower()
-        pool = [q for q in pool if q.get("category", "").strip().lower() == cat]
+        cat = _ascii_key(category.strip())
+        pool = [q for q in pool if _ascii_key(q.get("category", "")) == cat]
         if not pool:
             return {"questions": [], "total": len(_quiz_pool), "category_total": 0}
     k = min(count, len(pool))
@@ -4902,6 +4953,34 @@ async def branpy_live(request: Request, count: int = 10, category: str = ""):
             "explanation": q.get("explanation", ""),
         })
     return {"questions": out, "total": len(_quiz_pool), "category_total": len(pool)}
+
+@api_router.get("/branpy/live-v2")
+async def branpy_live_v2(request: Request, count: int = 50, category: str = ""):
+    from random import sample
+    if not _quiz_pool:
+        return {"questions": [], "total": 0}
+    pool = _quiz_pool
+    if category:
+        cat = _ascii_key(category.strip())
+        pool = [q for q in pool if _ascii_key(q.get("category", "")) == cat]
+        if not pool:
+            return {"questions": [], "total": len(_quiz_pool), "category_total": 0}
+    k = min(count, len(pool))
+    selected = sample(pool, k)
+    out = []
+    for q in selected:
+        out.append({
+            "question": q["question"],
+            "alternatives": q["alternatives"],
+            "correct": q["correct"],
+            "category": q.get("category", ""),
+            "explanation": q.get("explanation", ""),
+        })
+    return {"questions": out, "total": len(_quiz_pool), "category_total": len(pool)}
+
+@app.get("/api/branpy/live-v2")
+async def branpy_live_v2_direct(request: Request, count: int = 50, category: str = ""):
+    return await branpy_live_v2(request, count=count, category=category)
 
 # Serve the standalone HTML admin control panel
 LIVE_CONTROL_PATH = ROOT_DIR / "live_control.html"
@@ -5014,57 +5093,6 @@ async def shutdown_db_client():
 @app.get("/teste")
 def teste():
     return {"ok": True}
-
-# ==================== STORIES ENDPOINT ====================
-STORY_DATA_DIR = Path(__file__).resolve().parent.parent / "assets" / "story-data"
-STORY_IMAGES_DIR = Path(__file__).resolve().parent.parent / "assets" / "story-images"
-
-@app.get("/api/stories/categories")
-async def story_categories():
-    cat_file = STORY_DATA_DIR / "categories.json"
-    if not cat_file.exists():
-        return {"categories": []}
-    return json.loads(cat_file.read_text(encoding="utf-8"))
-
-@app.get("/api/stories/{category}")
-async def story_list(category: str):
-    cat_dir = STORY_DATA_DIR / category
-    if not cat_dir.exists():
-        raise HTTPException(404, "Categoria nao encontrada")
-    story_list = []
-    for f in sorted(cat_dir.glob("*.json")):
-        story = json.loads(f.read_text(encoding="utf-8"))
-        story_list.append({
-            "id": story["id"],
-            "title": story["title"],
-            "category": story["category"],
-            "sceneCount": story["sceneCount"],
-            "totalDurationSec": story["totalDurationSec"],
-        })
-    return {"category": category, "stories": story_list}
-
-@app.get("/api/stories/{category}/{story_id}")
-async def story_detail(category: str, story_id: str, request: Request):
-    story_file = STORY_DATA_DIR / category / f"{story_id}.json"
-    if not story_file.exists():
-        raise HTTPException(404, "Historia nao encontrada")
-    story = json.loads(story_file.read_text(encoding="utf-8"))
-    host = request.headers.get("host", "localhost:8000")
-    proto = request.headers.get("x-forwarded-proto", "http")
-    base_url = f"{proto}://{host}/story-images/{category}/{story_id}"
-    for scene in story.get("scenes", []):
-        img_num = scene.get("id", 1)
-        scene["imageUrl"] = f"{base_url}/scene-{img_num}.jpg"
-    return story
-
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-
-# Mount story-images as static
-try:
-    app.mount("/story-images", StaticFiles(directory=str(STORY_IMAGES_DIR)), name="story-images")
-except Exception as e:
-    logger.warning(f"[STORIES] Could not mount /story-images static: {e}")
 
 # ==================== TTS ENDPOINT ====================
 # Standalone TTS via edge-tts (no MongoDB dependency)

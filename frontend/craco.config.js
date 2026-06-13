@@ -88,6 +88,13 @@ let webpackConfig = {
 };
 
 webpackConfig.devServer = (devServerConfig) => {
+  // Enable SPA fallback for BrowserRouter routes like /branpy/live
+  // Preserve the original react-scripts config ({ disableDotRule: true, index: '/' })
+  // to avoid breaking connect-history-api-fallback behavior
+  if (typeof devServerConfig.historyApiFallback === 'boolean') {
+    devServerConfig.historyApiFallback = { disableDotRule: true, index: '/' };
+  }
+
   // Add health check endpoints if enabled
   if (config.enableHealthCheck && setupHealthEndpoints && healthPluginInstance) {
     const originalSetupMiddlewares = devServerConfig.setupMiddlewares;

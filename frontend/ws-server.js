@@ -1,10 +1,10 @@
-const { WebSocketServer } = require("ws");
+const WebSocket = require("ws");
 
-const PORT = 3002;
+const PORT = 3003;
 let liveClient = null;
 let adminClient = null;
 
-const server = new WebSocketServer({ port: PORT, host: "0.0.0.0" });
+const server = new WebSocket.Server({ port: PORT, host: "0.0.0.0" });
 
 server.on("connection", (ws) => {
   let role = null;
@@ -54,6 +54,17 @@ server.on("connection", (ws) => {
           console.log("[WS] SET_QUIZ_LIBRARY enviado ao live");
         } else {
           console.log("[WS] ERRO: liveClient indisponivel ao encaminhar SET_QUIZ_LIBRARY");
+        }
+        return;
+      }
+
+      if (msg.type === "SET_QUIZ_LIBRARY_V2") {
+        console.log("[WS] Admin -> Live SET_QUIZ_LIBRARY_V2:", JSON.stringify(msg).slice(0, 200));
+        if (liveClient && liveClient.readyState === 1) {
+          liveClient.send(JSON.stringify(msg));
+          console.log("[WS] SET_QUIZ_LIBRARY_V2 enviado ao live");
+        } else {
+          console.log("[WS] ERRO: liveClient indisponivel ao encaminhar SET_QUIZ_LIBRARY_V2");
         }
         return;
       }

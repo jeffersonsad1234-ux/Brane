@@ -62,6 +62,9 @@ import { I18nProvider } from "./i18n/I18nContext";
 import BLivreSEO from "./components/BLivreSEO";
 import ErrorBoundary from "./components/ErrorBoundary";
 import BranpyApp from "./pages/Branpy/BranpyApp";
+import LiveQuizV2Admin from "./pages/Branpy/LiveQuizV2/LiveQuizV2Admin";
+import LiveQuizV2Clean from "./pages/Branpy/LiveQuizV2/LiveQuizV2Clean";
+import LiveQuizV2AdminClean from "./pages/Branpy/LiveQuizV2/LiveQuizV2AdminClean";
 
 function BLivreLayout() {
   return (
@@ -114,6 +117,7 @@ function AppRouter() {
 
   const path = location.pathname;
   const isAuth = path === "/auth";
+  const isLiveStudio = path.startsWith("/live-studio");
 
   if (isAuth) {
     return (
@@ -136,7 +140,7 @@ function AppRouter() {
       <AnimatedBackground />
 
       <div className="relative z-10">
-        {!isAdmin && !isSocial && <Navbar />}
+        {!isAdmin && !isSocial && !isLiveStudio && <Navbar />}
 
         <main className="min-h-screen">
           <Routes>
@@ -216,6 +220,9 @@ function AppRouter() {
             <Route path="/notanews/*" element={<Notanews />} />
             <Route path="/affiliate-agent/*" element={<AffiliateAgentApp />} />
             <Route path="/branpy/*" element={<BranpyApp />} />
+            <Route path="/live-studio/admin" element={<LiveQuizV2AdminClean />} />
+            <Route path="/live-studio" element={<LiveQuizV2Clean />} />
+            <Route path="/admin-v2" element={<LiveQuizV2Admin />} />
             <Route path="/loja/:categoria" element={<PublicStoreFront />} />
 
             <Route
@@ -370,8 +377,8 @@ function AppRouter() {
           </Routes>
         </main>
 
-        {!isAdmin && !isSocial && <Footer />}
-        {!isAdmin && !isSocial && <FloatingSupport />}
+        {!isAdmin && !isSocial && !isLiveStudio && <Footer />}
+        {!isAdmin && !isSocial && !isLiveStudio && <FloatingSupport />}
         <InstallPWA />
       </div>
 

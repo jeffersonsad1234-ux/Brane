@@ -6,6 +6,10 @@ import BranpyTrending from "./BranpyTrending";
 import BranpySearch from "./BranpySearch";
 import BranpyVideoDetail from "./BranpyVideoDetail";
 import BranpyLive from "./BranpyLive";
+import LiveQuizV2 from "./LiveQuizV2/LiveQuizV2";
+import LiveQuizV2Admin from "./LiveQuizV2/LiveQuizV2Admin";
+import LiveQuizV2Clean from "./LiveQuizV2/LiveQuizV2Clean";
+import LiveQuizV2AdminClean from "./LiveQuizV2/LiveQuizV2AdminClean";
 import { useAuth } from "../../contexts/AuthContext";
 import { useState, useRef, useEffect } from "react";
 
@@ -98,7 +102,7 @@ function BranpyBottomNav() {
 function AdminRedirect() {
   useEffect(() => {
     const hostname = window.location.hostname;
-    window.location.href = `http://${hostname}:8000/admin`;
+    window.location.href = `http://${hostname}:8080/admin`;
   }, []);
   return null;
 }
@@ -106,7 +110,7 @@ function AdminRedirect() {
 export default function BranpyApp() {
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
-  const isLive = location.pathname === "/branpy/live" || location.pathname === "/branpy/live/admin";
+  const isLive = location.pathname === "/branpy/live" || location.pathname === "/branpy/live/admin" || location.pathname === "/branpy/live-v2" || location.pathname === "/branpy/live-v2/admin";
 
   if (searchQuery) {
     return <Navigate to={`/branpy/search?q=${encodeURIComponent(searchQuery)}`} />;
@@ -124,6 +128,10 @@ export default function BranpyApp() {
         <Route path="video/:id" element={<BranpyVideoDetail />} />
         <Route path="live/admin" element={<AdminRedirect />} />
         <Route path="live" element={<BranpyLive />} />
+        <Route path="live-v2/admin" element={<LiveQuizV2Admin />} />
+        <Route path="live-v2" element={<LiveQuizV2 />} />
+        <Route path="live-v2-clean/admin" element={<LiveQuizV2AdminClean />} />
+        <Route path="live-v2-clean" element={<LiveQuizV2Clean />} />
         <Route path="admin" element={<AdminRedirect />} />
       </Routes>
       {!isLive && <BranpyBottomNav />}

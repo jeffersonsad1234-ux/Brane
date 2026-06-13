@@ -1,6 +1,6 @@
 import { useRef, useCallback, useState, useEffect, useMemo } from "react";
 
-const WS_PORT = 3002;
+const WS_PORT = 3003;
 const WS_URL = `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname}:${WS_PORT}`;
 
 export default function useLiveSync(role) {
