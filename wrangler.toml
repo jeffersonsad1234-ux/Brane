@@ -1,3 +1,0 @@
-name = "brane"
-pages_build_output_dir = "./frontend/build"
-# Auto-deploy: Cloudflare Pages triggered by git push to main
