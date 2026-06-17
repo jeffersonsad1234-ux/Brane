@@ -2,6 +2,8 @@ import "./App.css";
 import { BrowserRouter as BrowserRouterOriginal, HashRouter, Routes, Route, useLocation, Navigate, Outlet } from "react-router-dom";
 
 const isElectron = window.electron?.isElectron;
+const isCapacitor = window.Capacitor !== undefined;
+const isNative = isElectron || isCapacitor;
 const Router = isElectron ? HashRouter : BrowserRouterOriginal;
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -65,6 +67,10 @@ import BranpyApp from "./pages/Branpy/BranpyApp";
 import LiveQuizV2Admin from "./pages/Branpy/LiveQuizV2/LiveQuizV2Admin";
 import LiveQuizV2Clean from "./pages/Branpy/LiveQuizV2/LiveQuizV2Clean";
 import LiveQuizV2AdminClean from "./pages/Branpy/LiveQuizV2/LiveQuizV2AdminClean";
+import LiveStudioV3Player from "./live-studio-v3/player/PlayerPage";
+import LiveStudioV3Admin from "./live-studio-v3/admin/AdminPage";
+import GameArena from "./matchmaking/game/GameArena";
+import OgImagePage from "./pages/OgImagePage";
 
 function BLivreLayout() {
   return (
@@ -94,7 +100,7 @@ function ProtectedRoute({ children, adminOnly = false, sellerOnly = false }) {
   if (!user) return <Navigate to="/auth" replace />;
 
   if (adminOnly && user.role !== "admin") {
-    return <Navigate to="/market" replace />;
+    return <Navigate to="/live-studio-v3/player" replace />;
   }
 
   if (
@@ -124,7 +130,7 @@ function AppRouter() {
       <>
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
-          <Route path="*" element={<Navigate to="/market" replace />} />
+          <Route path="*" element={<Navigate to="/live-studio-v3/player" replace />} />
         </Routes>
 
         <Toaster position="top-right" />
@@ -144,7 +150,8 @@ function AppRouter() {
 
         <main className="min-h-screen">
           <Routes>
-            <Route path="/" element={isElectron ? <Navigate to="/branpy/live" replace /> : <Navigate to="/market" replace />} />
+            <Route path="/" element={isElectron ? <Navigate to="/branpy/live" replace /> : <Navigate to="/live-studio-v3/player" replace />} />
+            <Route path="/live-studio-v3" element={<Navigate to="/live-studio-v3/player" replace />} />
             <Route path="/market" element={<HomePage />} />
 
             <Route path="/fornecedores" element={<SuppliersPage />} />
@@ -222,6 +229,10 @@ function AppRouter() {
             <Route path="/branpy/*" element={<BranpyApp />} />
             <Route path="/live-studio/admin" element={<LiveQuizV2AdminClean />} />
             <Route path="/live-studio" element={<LiveQuizV2Clean />} />
+            <Route path="/live-studio-v3/admin" element={<LiveStudioV3Admin />} />
+            <Route path="/live-studio-v3/player" element={<LiveStudioV3Player />} />
+            <Route path="/game/:matchId" element={<GameArena />} />
+            <Route path="/ogimage" element={<OgImagePage />} />
             <Route path="/admin-v2" element={<LiveQuizV2Admin />} />
             <Route path="/loja/:categoria" element={<PublicStoreFront />} />
 
@@ -373,7 +384,7 @@ function AppRouter() {
             <Route path="/terms" element={<Navigate to="/pages/termos" replace />} />
             <Route path="/privacidade" element={<Navigate to="/pages/privacidade" replace />} />
 
-            <Route path="*" element={<Navigate to="/market" replace />} />
+            <Route path="*" element={<Navigate to="/live-studio-v3/player" replace />} />
           </Routes>
         </main>
 

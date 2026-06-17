@@ -4851,16 +4851,18 @@ async def branpy_admin_users(request: Request, page: int = 1, limit: int = 50):
     return {"users": users, "total": total}
 
 # ── TTS Voice Characters ─────────────────────────────────────
-# Maps 8 character types to existing TTS voices + pitch/rate modulation
+# Maps friendly voice names to edge-tts voices + pitch/rate modulation
 TTS_CHARACTERS = {
-    "mulher_jovem":     {"voice": "pt-BR-FranciscaNeural",        "pitch": "+0Hz",  "rate": "+0%",   "name": "Mulher Jovem"},
-    "homem_jovem":      {"voice": "pt-BR-AntonioNeural",          "pitch": "+0Hz",  "rate": "+0%",   "name": "Homem Jovem"},
-    "homem_adulto":     {"voice": "pt-BR-AntonioNeural",          "pitch": "-8Hz",  "rate": "-5%",   "name": "Homem Adulto"},
-    "senhora":          {"voice": "pt-BR-ThalitaMultilingualNeural","pitch": "+0Hz", "rate": "+0%",   "name": "Senhora"},
-    "senhor_idoso":     {"voice": "pt-BR-AntonioNeural",          "pitch": "-18Hz", "rate": "-12%",  "name": "Senhor / Idoso (Narrador)"},
-    "animada_quiz":     {"voice": "pt-BR-FranciscaNeural",        "pitch": "+12Hz", "rate": "+18%",  "name": "Voz Animada de Quiz"},
-    "seria_historia":   {"voice": "pt-BR-ThalitaMultilingualNeural","pitch": "-8Hz","rate": "-10%",  "name": "Voz Séria para História"},
-    "infantil_charadas": {"voice": "pt-BR-FranciscaNeural",       "pitch": "+22Hz", "rate": "+22%",  "name": "Voz Infantil / Leve (Charadas)"},
+    "francisco":  {"voice": "pt-BR-FranciscaNeural",   "pitch": "+0Hz",  "rate": "+0%",  "name": "Francisco"},
+    "maria":      {"voice": "pt-BR-FranciscaNeural",   "pitch": "+8Hz",  "rate": "+0%",  "name": "Maria"},
+    "antonio":    {"voice": "pt-BR-AntonioNeural",     "pitch": "-4Hz",  "rate": "+0%",  "name": "Antonio"},
+    "narrador":   {"voice": "pt-BR-AntonioNeural",     "pitch": "-12Hz", "rate": "-8%",  "name": "Narrador"},
+    "robot":      {"voice": "pt-BR-HumbertoNeural",    "pitch": "-20Hz", "rate": "-15%", "name": "Robot"},
+    # ── Terror Mode: 4 genuinely different voices (FASTER rates) ──
+    "terror_narrador": {"voice": "pt-BR-AntonioNeural",     "pitch": "-20Hz", "rate": "+5%",  "name": "Narrador Sombrio"},
+    "terror_anciao":   {"voice": "pt-BR-AntonioNeural",     "pitch": "-30Hz", "rate": "-2%",  "name": "Anciao Profundo"},
+    "terror_idosa":    {"voice": "pt-BR-FranciscaNeural",   "pitch": "-10Hz", "rate": "+8%",  "name": "Idosa Misteriosa"},
+    "terror_sombria":  {"voice": "pt-BR-ThalitaMultilingualNeural", "pitch": "-14Hz", "rate": "+3%",  "name": "Anciã Sombria"},
 }
 
 @api_router.get("/tts/characters")
@@ -4868,7 +4870,7 @@ async def tts_list_characters():
     """Return available TTS voice characters."""
     return {
         "characters": {k: v for k, v in TTS_CHARACTERS.items()},
-        "default": "mulher_jovem",
+        "default": "francisco",
     }
 
 # ── Branpy Live Quiz ────────────────────────────────────────
@@ -5111,6 +5113,7 @@ TTS_TEMP.mkdir(exist_ok=True)
 TTS_CACHE_DIR = Path(__file__).parent / "tts-cache"
 TTS_CACHE_DIR.mkdir(exist_ok=True)
 TTS_START = tts_time.time()
+_tts_semaphore = asyncio.Semaphore(2)
 
 class TTSBody(BaseModel):
     text: str
@@ -5120,7 +5123,7 @@ class TTSBody(BaseModel):
 
 class TTSGenBody(BaseModel):
     text: str
-    voice: str = "pt-BR-FranciscaNeural"
+    voice: str = "francisco"
     rate: str = "+0%"
     pitch: str = "+0Hz"
 
@@ -5143,45 +5146,50 @@ async def _generate_tts_to(text: str, voice: str, rate: str, pitch: str, output:
     voice = voice if voice in TTS_VOICES else "pt-BR-FranciscaNeural"
     voices_to_try = [voice] + [v for v in TTS_VOICES if v != voice]
     tempdir = TTS_TEMP
+    last_err = None
     for v in voices_to_try[:5]:
-        uid = f"tts_{uuid.uuid4().hex[:10]}"
-        mp3 = tempdir / f"{uid}.mp3"
-        wav = tempdir / f"{uid}.wav"
-        try:
-            tts = edge_tts.Communicate(text=text_sanitized, voice=v, rate=rate, pitch=pitch)
-            await tts.save(str(mp3))
-            if not mp3.exists() or mp3.stat().st_size < 200:
-                raise ValueError("Audio muito pequeno")
-            dur = 0
+        for attempt in range(3):
+            uid = f"tts_{uuid.uuid4().hex[:10]}"
+            mp3 = tempdir / f"{uid}.mp3"
+            wav = tempdir / f"{uid}.wav"
             try:
-                p = subprocess.run(["ffprobe","-v","quiet","-print_format","json","-show_streams",str(mp3)], capture_output=True, text=True, timeout=10)
-                info = json.loads(p.stdout)
-                if info.get("streams"): dur = round(float(info["streams"][0].get("duration",0)))
-            except: pass
-            final, mtype, codec = mp3, "audio/mpeg", "mp3"
-            try:
-                subprocess.run(["ffmpeg","-y","-i",str(mp3),"-acodec","pcm_s16le","-ar","24000","-ac","1","-af","loudnorm=I=-16:LRA=11:TP=-1.5",str(wav)], check=True, capture_output=True, timeout=30)
-                final, mtype, codec = wav, "audio/wav", "pcm_s16le"
+                tts = edge_tts.Communicate(text=text_sanitized, voice=v, rate=rate, pitch=pitch)
+                await tts.save(str(mp3))
+                if not mp3.exists() or mp3.stat().st_size < 200:
+                    raise ValueError("Audio muito pequeno")
+                dur = 0
                 try:
-                    p2 = subprocess.run(["ffprobe","-v","quiet","-print_format","json","-show_streams",str(wav)], capture_output=True, text=True, timeout=10)
-                    i2 = json.loads(p2.stdout)
-                    if i2.get("streams"): dur = round(float(i2["streams"][0].get("duration",0)))
+                    p = subprocess.run(["ffprobe","-v","quiet","-print_format","json","-show_streams",str(mp3)], capture_output=True, text=True, timeout=10)
+                    info = json.loads(p.stdout)
+                    if info.get("streams"): dur = round(float(info["streams"][0].get("duration",0)))
                 except: pass
-            except: pass
-            kb = round(final.stat().st_size / 1024, 1)
-            logger.info(f"[TTS] OK: {v} | {kb}KB | {dur}s | {codec}")
-            shutil.copy2(str(final), str(output))
-            for p in [mp3, wav]:
-                try: p.unlink()
+                final, mtype, codec = mp3, "audio/mpeg", "mp3"
+                try:
+                    subprocess.run(["ffmpeg","-y","-i",str(mp3),"-acodec","pcm_s16le","-ar","24000","-ac","1","-af","loudnorm=I=-16:LRA=11:TP=-1.5",str(wav)], check=True, capture_output=True, timeout=30)
+                    final, mtype, codec = wav, "audio/wav", "pcm_s16le"
+                    try:
+                        p2 = subprocess.run(["ffprobe","-v","quiet","-print_format","json","-show_streams",str(wav)], capture_output=True, text=True, timeout=10)
+                        i2 = json.loads(p2.stdout)
+                        if i2.get("streams"): dur = round(float(i2["streams"][0].get("duration",0)))
+                    except: pass
                 except: pass
-            return mtype, codec, dur
-        except Exception as e:
-            logger.error(f"[TTS] {v}: {e}")
-            for p in [mp3,wav]:
-                try: p.unlink()
-                except: pass
-            continue
-    raise RuntimeError("TTS falhou apos varias tentativas")
+                kb = round(final.stat().st_size / 1024, 1)
+                logger.info(f"[TTS] OK: {v} | {kb}KB | {dur}s | {codec}")
+                shutil.copy2(str(final), str(output))
+                for p in [mp3, wav]:
+                    try: p.unlink()
+                    except: pass
+                return mtype, codec, dur
+            except Exception as e:
+                last_err = e
+                logger.error(f"[TTS] {v} attempt {attempt+1}: {e}")
+                for p in [mp3,wav]:
+                    try: p.unlink()
+                    except: pass
+                if attempt < 2:
+                    await asyncio.sleep(1 + attempt)
+                continue
+    raise RuntimeError(f"TTS falhou: {last_err}")
 
 @app.post("/api/tts", response_class=FileResponse)
 async def tts_generate(body: TTSBody):
@@ -5201,17 +5209,34 @@ async def tts_generate(body: TTSBody):
 # ── Cached TTS: generate + serve from /tts-cache ──
 SERVER_HOST_CACHE_VAR = None
 
+def _resolve_voice(voice_input: str) -> dict:
+    """Resolve a friendly voice name or edge-tts voice to its config."""
+    lower = voice_input.strip().lower()
+    if lower in TTS_CHARACTERS:
+        return TTS_CHARACTERS[lower]
+    for name, cfg in TTS_CHARACTERS.items():
+        if cfg["voice"].lower() == lower:
+            return cfg
+    return TTS_CHARACTERS["francisco"]
+
 @app.post("/api/tts/generate")
 async def tts_generate_cached(body: TTSGenBody, request: Request):
     """Generate TTS audio, cache to /tts-cache, return audio URL.
-    Tablet only needs to do: new Audio(audioUrl).play()
+    Accepts friendly voice names: francisco, maria, antonio, narrador, robot.
+    Returns { audioUrl, voice }.
     """
     global SERVER_HOST_CACHE_VAR
     if not body.text or len(body.text.strip()) < 2:
         raise HTTPException(400, "Texto muito curto")
     text = body.text.strip()[:5000]
-    voice = body.voice if body.voice in TTS_VOICES else "pt-BR-FranciscaNeural"
-    content_hash = hashlib.md5((text + voice + body.rate + body.pitch).encode()).hexdigest()[:16]
+
+    char_cfg = _resolve_voice(body.voice)
+    edge_voice = char_cfg["voice"]
+    pitch = body.pitch if body.pitch != "+0Hz" else char_cfg["pitch"]
+    rate = body.rate if body.rate != "+0%" else char_cfg["rate"]
+    voice_name = body.voice.strip().lower() if body.voice.strip().lower() in TTS_CHARACTERS else "francisco"
+
+    content_hash = hashlib.md5((text + edge_voice + rate + pitch).encode()).hexdigest()[:16]
     wav_path = TTS_CACHE_DIR / f"{content_hash}.wav"
     mp3_path = TTS_CACHE_DIR / f"{content_hash}.mp3"
 
@@ -5222,64 +5247,115 @@ async def tts_generate_cached(body: TTSGenBody, request: Request):
     else:
         out = TTS_CACHE_DIR / f"{content_hash}.wav"
         try:
-            await _generate_tts_to(text, voice, body.rate, body.pitch, out)
+            async with _tts_semaphore:
+                await _generate_tts_to(text, edge_voice, rate, pitch, out)
             cached_path = out
         except Exception as e:
-            # fallback: try mp3 if wav generation fails
             out = TTS_CACHE_DIR / f"{content_hash}.mp3"
-            await _generate_tts_to(text, voice, body.rate, body.pitch, out)
+            async with _tts_semaphore:
+                await _generate_tts_to(text, edge_voice, rate, pitch, out)
             cached_path = out
 
     suffix = cached_path.suffix
-    host = request.headers.get("host", "localhost:8000")
+    host = request.headers.get("host", "localhost:8080")
     proto = request.headers.get("x-forwarded-proto", "http")
     base_url = f"{proto}://{host}"
     SERVER_HOST_CACHE_VAR = base_url
-    audio_url = f"{base_url}/tts-cache/{content_hash}{suffix}"
-    return {"audioUrl": audio_url}
+    audio_url = f"{base_url}/audio/{content_hash}{suffix}"
+    return {"audioUrl": audio_url, "voice": voice_name}
 
 @app.post("/api/tts/pregen")
 async def tts_pregen(body: TTSBatchBody, request: Request):
     """Pre-generate TTS audio for multiple items at once.
-    Returns { items: [{id, audioUrl, error?}] }.
+    Returns { items: [{id, audioUrl, voice, error?}] }.
     """
-    host = request.headers.get("host", "localhost:8000")
+    host = request.headers.get("host", "localhost:8080")
     proto = request.headers.get("x-forwarded-proto", "http")
     base_url = f"{proto}://{host}"
 
     async def gen_item(item: TTSBatchItem) -> dict:
         if not item.text or len(item.text.strip()) < 2:
-            return {"id": item.id, "audioUrl": None, "error": "Texto muito curto"}
+            return {"id": item.id, "audioUrl": None, "voice": item.voice, "error": "Texto muito curto"}
         text = item.text.strip()[:5000]
-        voice = item.voice if item.voice in TTS_VOICES else "pt-BR-FranciscaNeural"
-        ch = hashlib.md5((text + voice + item.rate + item.pitch).encode()).hexdigest()[:16]
+        char_cfg = _resolve_voice(item.voice)
+        edge_voice = char_cfg["voice"]
+        pitch = item.pitch if item.pitch != "+0Hz" else char_cfg["pitch"]
+        rate = item.rate if item.rate != "+0%" else char_cfg["rate"]
+        voice_name = item.voice.strip().lower() if item.voice.strip().lower() in TTS_CHARACTERS else "francisco"
+        ch = hashlib.md5((text + edge_voice + rate + pitch).encode()).hexdigest()[:16]
         wav_p = TTS_CACHE_DIR / f"{ch}.wav"
         mp3_p = TTS_CACHE_DIR / f"{ch}.mp3"
         if wav_p.exists():
-            return {"id": item.id, "audioUrl": f"{base_url}/tts-cache/{ch}.wav"}
+            return {"id": item.id, "audioUrl": f"{base_url}/audio/{ch}.wav", "voice": voice_name}
         if mp3_p.exists():
-            return {"id": item.id, "audioUrl": f"{base_url}/tts-cache/{ch}.mp3"}
+            return {"id": item.id, "audioUrl": f"{base_url}/audio/{ch}.mp3", "voice": voice_name}
         out = TTS_CACHE_DIR / f"{ch}.wav"
         try:
-            await _generate_tts_to(text, voice, item.rate, item.pitch, out)
-            return {"id": item.id, "audioUrl": f"{base_url}/tts-cache/{ch}.wav"}
+            await _generate_tts_to(text, edge_voice, rate, pitch, out)
+            return {"id": item.id, "audioUrl": f"{base_url}/audio/{ch}.wav", "voice": voice_name}
         except Exception as e:
             out = TTS_CACHE_DIR / f"{ch}.mp3"
             try:
-                await _generate_tts_to(text, voice, item.rate, item.pitch, out)
-                return {"id": item.id, "audioUrl": f"{base_url}/tts-cache/{ch}.mp3"}
+                await _generate_tts_to(text, edge_voice, rate, pitch, out)
+                return {"id": item.id, "audioUrl": f"{base_url}/audio/{ch}.mp3", "voice": voice_name}
             except Exception as e2:
                 logger.error(f"[TTS] pregen {item.id}: {e2}")
-                return {"id": item.id, "audioUrl": None, "error": str(e2)[:200]}
+                return {"id": item.id, "audioUrl": None, "voice": voice_name, "error": str(e2)[:200]}
 
     results = await asyncio.gather(*[gen_item(i) for i in body.items])
     return {"items": results}
 
-# Mount static serving for /tts-cache
+# Mount static serving for /tts-cache and /audio
 try:
     app.mount("/tts-cache", StaticFiles(directory=str(TTS_CACHE_DIR)), name="tts-cache")
 except Exception as e:
     logger.warning(f"[TTS] Could not mount /tts-cache static: {e}")
+try:
+    app.mount("/audio", StaticFiles(directory=str(TTS_CACHE_DIR)), name="audio")
+except Exception as e:
+    logger.warning(f"[TTS] Could not mount /audio static: {e}")
+
+# ==================== WebM → MP4 Conversion ====================
+
+import subprocess, tempfile
+
+@app.post("/api/convert/webm-to-mp4")
+async def convert_webm_to_mp4(file: UploadFile = File(...)):
+    """Convert WebM video to MP4 using ffmpeg."""
+    webm_data = await file.read()
+    if len(webm_data) < 1000:
+        raise HTTPException(400, "Arquivo muito pequeno")
+
+    with tempfile.NamedTemporaryFile(suffix=".webm", delete=False) as inf:
+        inf.write(webm_data)
+        in_path = inf.name
+
+    out_path = in_path.replace(".webm", ".mp4")
+
+    try:
+        proc = subprocess.run(
+            ["ffmpeg", "-y", "-i", in_path, "-c:v", "libx264", "-preset", "fast",
+             "-crf", "23", "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart",
+             out_path],
+            capture_output=True, timeout=120,
+        )
+        if proc.returncode != 0:
+            logger.error(f"[CONVERT] ffmpeg failed: {proc.stderr.decode()[:500]}")
+            raise HTTPException(500, f"ffmpeg falhou: {proc.stderr.decode()[:200]}")
+
+        with open(out_path, "rb") as f:
+            mp4_data = f.read()
+
+        return Response(
+            content=mp4_data,
+            media_type="video/mp4",
+            headers={"Content-Disposition": "attachment; filename=clip.mp4"},
+        )
+    finally:
+        try: os.unlink(in_path)
+        except: pass
+        try: os.unlink(out_path)
+        except: pass
 
 # ==================== Product Import via Playwright ====================
 
@@ -6337,3 +6413,90 @@ async def document_ai(file: UploadFile = File(...), action: str = "summarize"):
     except Exception as e:
         logger.error(f"Error processing document: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Document AI error: {str(e)}")
+
+# ==========================================
+# OJIMAGE - SOCIAL PREVIEW GENERATOR
+# ==========================================
+
+from PIL import Image, ImageDraw, ImageFont
+from io import BytesIO as PILBytesIO
+
+OG_WIDTH = 1200
+OG_HEIGHT = 630
+
+OG_STYLES = {
+    "minimal": {"bg": (15, 15, 15), "text": (255, 255, 255), "accent": (124, 58, 237)},
+    "dark": {"bg": (10, 25, 50), "text": (220, 230, 255), "accent": (56, 189, 248)},
+    "gradient": {"bg": (88, 28, 135), "text": (255, 255, 255), "accent": (59, 130, 246)},
+    "bold": {"bg": (220, 38, 38), "text": (255, 255, 255), "accent": (255, 255, 255)},
+}
+
+def _og_get_font(size):
+    paths = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "/System/Library/Fonts/Helvetica.ttc",
+        "C:\\Windows\\Fonts\\arial.ttf",
+    ]
+    for p in paths:
+        try:
+            return ImageFont.truetype(p, size)
+        except (IOError, OSError):
+            continue
+    return ImageFont.load_default()
+
+def _og_wrap(text, font, max_w):
+    words = text.split()
+    lines, cur = [], ""
+    for w in words:
+        test = f"{cur} {w}".strip()
+        if font.getbbox(test)[2] <= max_w:
+            cur = test
+        else:
+            if cur:
+                lines.append(cur)
+            cur = w
+    if cur:
+        lines.append(cur)
+    return lines
+
+def render_og(title, style="minimal"):
+    cfg = OG_STYLES.get(style, OG_STYLES["minimal"])
+    img = Image.new("RGB", (OG_WIDTH, OG_HEIGHT), cfg["bg"])
+    draw = ImageDraw.Draw(img)
+    draw.rectangle([(0, 0), (OG_WIDTH, 8)], fill=cfg["accent"])
+    draw.ellipse([(OG_WIDTH - 300, -100), (OG_WIDTH + 100, 300)], fill=cfg["accent"])
+    font = _og_get_font(72)
+    lines = _og_wrap(title, font, OG_WIDTH - 200)[:4]
+    if len(lines) == 4:
+        lines[3] = lines[3][:20] + "..."
+    lh = 88
+    total = len(lines) * lh
+    y0 = (OG_HEIGHT - total) // 2
+    for i, line in enumerate(lines):
+        bb = font.getbbox(line)
+        tw = bb[2] - bb[0]
+        x = (OG_WIDTH - tw) // 2
+        draw.text((x, y0 + i * lh), line, fill=cfg["text"], font=font)
+    ay = y0 + total + 20
+    draw.rectangle([(OG_WIDTH // 2 - 60, ay), (OG_WIDTH // 2 + 60, ay + 4)], fill=cfg["accent"])
+    buf = PILBytesIO()
+    img.save(buf, format="PNG", optimize=True)
+    buf.seek(0)
+    return buf.getvalue()
+
+class OGRequest(BaseModel):
+    title: str
+    style: str = "minimal"
+
+@api_router.post("/og")
+async def generate_og(req: OGRequest):
+    if not req.title or not req.title.strip():
+        raise HTTPException(400, "Title is required")
+    if req.style not in OG_STYLES:
+        raise HTTPException(400, f"Style '{req.style}' not found. Use: {list(OG_STYLES.keys())}")
+    try:
+        png = render_og(req.title, req.style)
+    except Exception as e:
+        raise HTTPException(500, f"Image generation failed: {str(e)}")
+    return Response(content=png, media_type="image/png", headers={"X-Style": req.style})
