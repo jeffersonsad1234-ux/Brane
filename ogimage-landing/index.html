@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OJIMAGE - Social Preview Image Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; line-height: 1.6; }
+    .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+    .hero { text-align: center; padding: 80px 20px 60px; }
+    .hero h1 { font-size: 2.5rem; color: #fff; margin-bottom: 12px; }
+    .hero h1 span { color: #3b82f6; }
+    .hero p { font-size: 1.2rem; color: #888; margin-bottom: 8px; }
+    .hero .badge { display: inline-block; background: #3b82f622; border: 1px solid #3b82f655; color: #60a5fa; padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; margin-bottom: 30px; }
+    .demo { background: #111; border: 1px solid #222; border-radius: 12px; padding: 40px; margin-bottom: 60px; }
+    .demo h2 { font-size: 1.4rem; color: #fff; margin-bottom: 20px; }
+    .demo-input { width: 100%; padding: 14px 18px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 1rem; font-family: inherit; }
+    .demo-input:focus { outline: none; border-color: #3b82f6; }
+    .demo-row { display: flex; gap: 12px; margin-top: 16px; align-items: center; flex-wrap: wrap; }
+    .demo-select { padding: 12px 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 0.95rem; cursor: pointer; }
+    .demo-select:focus { outline: none; border-color: #3b82f6; }
+    .btn { padding: 12px 28px; background: #3b82f6; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn:hover { background: #2563eb; }
+    .btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+    .demo-result { margin-top: 20px; display: none; }
+    .demo-result.show { display: block; }
+    .demo-result img { max-width: 100%; border-radius: 8px; border: 1px solid #333; }
+    .demo-meta { font-size: 0.8rem; color: #666; margin-top: 8px; }
+    .demo-error { color: #ef4444; margin-top: 12px; display: none; }
+    .demo-error.show { display: block; }
+    .features { margin-bottom: 60px; }
+    .features h2 { font-size: 1.8rem; color: #fff; text-align: center; margin-bottom: 40px; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .feature { background: #111; border: 1px solid #222; border-radius: 12px; padding: 24px; text-align: center; }
+    .feature h3 { color: #fff; font-size: 1.1rem; margin-bottom: 8px; }
+    .feature p { color: #888; font-size: 0.9rem; }
+    .footer { text-align: center; padding: 40px 20px; border-top: 1px solid #1a1a1a; color: #444; font-size: 0.85rem; }
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 1.8rem; }
+      .feature-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <div class="container">
+      <div class="badge">Social Preview Generator</div>
+      <h1>Make your links look <span>professional</span></h1>
+      <p>Title → PNG in 3 seconds. No design. No Canva.</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="demo">
+      <h2>Try it now</h2>
+      <input type="text" class="demo-input" id="demoTitle" placeholder="Enter your title..." value="How to build a SaaS in 48 hours">
+      <div class="demo-row">
+        <select class="demo-select" id="demoStyle">
+          <option value="minimal">Minimal (dark)</option>
+          <option value="dark">Dark (blue)</option>
+          <option value="gradient">Gradient (purple)</option>
+          <option value="bold">Bold (red)</option>
+        </select>
+        <button class="btn" id="demoBtn" onclick="generateImage()">Generate</button>
+        <button class="btn" id="downloadBtn" style="display:none; background:#22c55e;" onclick="downloadImage()">Download PNG</button>
+      </div>
+      <div class="demo-error" id="demoError"></div>
+      <div class="demo-result" id="demoResult">
+        <img id="demoImage" alt="OG Image Preview">
+        <div class="demo-meta" id="demoMeta"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="features">
+      <h2>Why OGImage?</h2>
+      <div class="feature-grid">
+        <div class="feature">
+          <h3>3 Seconds</h3>
+          <p>Title → PNG instantly. No waiting.</p>
+        </div>
+        <div class="feature">
+          <h3>No Design Skills</h3>
+          <p>Professional results without Canva or Photoshop.</p>
+        </div>
+        <div class="feature">
+          <h3>Twitter Ready</h3>
+          <p>1200x630 PNG optimized for social previews.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>OJIMAGE © 2025 — Every link you share becomes marketing.</p>
+  </div>
+
+  <script>
+    const API_BASE = 'https://ojimage-api.up.railway.app';
+    let currentBlob = null;
+
+    async function generateImage() {
+      const title = document.getElementById('demoTitle').value.trim();
+      const style = document.getElementById('demoStyle').value;
+      const btn = document.getElementById('demoBtn');
+      const error = document.getElementById('demoError');
+      const result = document.getElementById('demoResult');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const meta = document.getElementById('demoMeta');
+
+      if (!title) {
+        error.textContent = 'Enter a title first.';
+        error.classList.add('show');
+        return;
+      }
+
+      error.classList.remove('show');
+      btn.disabled = true;
+      btn.textContent = 'Generating...';
+
+      const start = Date.now();
+
+      try {
+        const response = await fetch(`${API_BASE}/og`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, style }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.detail || `Error ${response.status}`);
+        }
+
+        currentBlob = await response.blob();
+        const url = URL.createObjectURL(currentBlob);
+
+        document.getElementById('demoImage').src = url;
+
+        const elapsed = Date.now() - start;
+        const size = (currentBlob.size / 1024).toFixed(1);
+        meta.textContent = `${size}KB • ${elapsed}ms • style: ${style}`;
+        result.classList.add('show');
+        downloadBtn.style.display = 'inline-block';
+
+      } catch (e) {
+        error.textContent = e.message || 'Error generating image.';
+        error.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Generate';
+      }
+    }
+
+    function downloadImage() {
+      if (!currentBlob) return;
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(currentBlob);
+      a.download = 'og-image.png';
+      a.click();
+    }
+
+    document.getElementById('demoTitle').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        generateImage();
+      }
+    });
+  </script>
+</body>
+</html>
