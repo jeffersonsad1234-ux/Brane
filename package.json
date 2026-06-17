@@ -18,7 +18,9 @@
     "electron:dev": "concurrently -k \"npm start --prefix ./frontend\" \"wait-on http://localhost:3001 && cross-env NODE_ENV=development electron .\"",
     "electron:build:react": "cross-env PUBLIC_URL=. npm run build --prefix ./frontend",
     "electron:build": "npm run electron:build:react && electron-builder --win --config electron-builder.yml",
-    "electron:start": "electron ."
+    "electron:start": "electron .",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "dependencies": {
     "date-fns": "^3.6.0",
@@ -29,6 +31,7 @@
     "cross-env": "^7.0.3",
     "electron": "^33.4.11",
     "electron-builder": "^25.1.8",
-    "wait-on": "^8.0.5"
+    "wait-on": "^8.0.5",
+    "wrangler": "^4.101.0"
   }
 }
