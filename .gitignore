@@ -70,3 +70,9 @@ simulate_*
 backend/tts-cache/
 backend/quiz_seed/*.bak
 backend/quiz_seed/backup_*
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
