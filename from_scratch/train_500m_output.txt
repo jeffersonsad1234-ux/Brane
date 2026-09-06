@@ -1,0 +1,25 @@
+============================================================
+BRANPY 500M — TREINO DO ZERO (CPU Otimizado)
+============================================================
+
+[1/5] Gerando corpus...
+  444 linhas
+
+[2/5] Treinando tokenizer...
+[Tokenizer] Treinando BPE com vocab_size=16000
+[Tokenizer] Corpus: 444 textos
+[Tokenizer] Vocab final: 606 tokens
+[Tokenizer] Salvo em weights/bran9bpy_500m\tokenizer.json
+  Vocab: 606 tokens
+
+[3/5] Criando modelo 500M...
+[Model] BranPy-473.4M — 24 layers, 1280d, 16h
+  Parametros: 473,364,480 (473.4M)
+  RAM estimada: ~1.9GB (float32)
+
+[4/5] Preparando dados...
+  444 exemplos, 444 batches
+
+[5/5] Treinando (CPU, gradient checkpointing)...
+  Step 1/4440 (0.0%) | Loss: 6.9755 | 295.0s/step | ETA: 21831min
+  Step 10/4440 (0.2%) | Loss: 5.1651 | 819.7s/step | ETA: 69248min

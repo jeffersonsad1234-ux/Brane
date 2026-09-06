@@ -1,0 +1,34 @@
+============================================================
+BRANPY AI FOUNDATION MODEL v1 — LARGE (500M)
+Epochs: 10 | LR: 0.0003 | Accum: 16
+Max len: 128 | Batch: 1
+============================================================
+
+[1/5] Gerando dataset...
+  14168 pares
+
+[2/5] Treinando tokenizer...
+[Tokenizer] Treinando BPE com vocab_size=8000
+[Tokenizer] Corpus: 28675 textos
+  Merges: 1000/1584
+[Tokenizer] Vocab final: 1054 tokens
+[Tokenizer] Salvo em weights/bran9bpy_large\tokenizer.json
+  Vocab: 1054
+
+[3/5] Criando modelo LARGE (500M)...
+[Model] BranPy-505.5M — 40 layers, 1024d, 16h
+  Parametros: 505,454,592 (505.5M)
+
+[4/5] Preparando dataset...
+  14168 exemplos
+
+[5/5] Treinando...
+  Effective batch: 16
+  Total steps: 8850
+  Step 1/8850 (0.0%) | Loss: 6.8834 | Tempo: 16.3s | ETA: 285.8h
+  Step 10/8850 (0.1%) | Loss: 3.3399 | Tempo: 14.5s | ETA: 418.5h
+  Step 20/8850 (0.2%) | Loss: 4.1551 | Tempo: 61.1s | ETA: 388.5h
+  Step 30/8850 (0.3%) | Loss: 2.8295 | Tempo: 103.1s | ETA: 414.6h
+  Step 40/8850 (0.5%) | Loss: 2.7789 | Tempo: 121.8s | ETA: 467.2h
+  Step 50/8850 (0.6%) | Loss: 2.3312 | Tempo: 189.7s | ETA: 508.8h
+  Step 60/8850 (0.7%) | Loss: 6.8004 | Tempo: 120.3s | ETA: 535.0h

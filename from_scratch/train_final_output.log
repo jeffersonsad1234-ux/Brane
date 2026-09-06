@@ -1,0 +1,17 @@
+============================================================
+BRANPY AI — TREINO FINAL V3 (50M, SGD, fp16)
+============================================================
+Construindo tokenizer BPE (8K)...
+
+
+
+Tokenizer: 8000 tokens
+Pares Q/A: 25645
+Treino: 23080 | Val: 2565
+Dataset: 23080 exemplos
+Batches: 2885
+Modelo: 35.7M params | d=512 layers=10 heads=8 d_ff=2048
+
+Treinando 30 epocas (SGD + fp16)...
+============================================================
+[1/30] 0/2885 | Loss: 277.4747 | ETA: 0min

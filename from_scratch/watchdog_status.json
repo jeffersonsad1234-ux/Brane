@@ -1,0 +1,23 @@
+{
+  "time": "17/07 21:39:13",
+  "tasks": [
+    {
+      "name": "VQ-VAE",
+      "running": true,
+      "log": [
+        "  Imagem gerada: D:\\BRANPY-AI\\from_scratch\\weights\\vqvae_128\\generated_2.ppm",
+        "  Imagem gerada: D:\\BRANPY-AI\\from_scratch\\weights\\vqvae_128\\generated_3.ppm"
+      ],
+      "restarted": false
+    },
+    {
+      "name": "150M-Text",
+      "running": true,
+      "log": [
+        "  Step 3700/26400 (14.0%) | Loss: 1.1195 | Tempo: 4.1s | ETA: 132.8h | LR: 0.000235",
+        "  Step 3700/26400 (14.0%) | Loss: 0.9877 | Tempo: 4.1s | ETA: 132.8h | LR: 0.000235"
+      ],
+      "restarted": false
+    }
+  ]
+}

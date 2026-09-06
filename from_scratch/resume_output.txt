@@ -1,0 +1,201 @@
+============================================================
+BRANPY AI FOUNDATION MODEL v1 — RESUME (epochs 9-10)
+============================================================
+
+[1/5] Carregando checkpoint epoch8...
+  Epoch: 8
+  Loss media: 0.6695
+  Config: {'vocab_size': 1054, 'model_size': 'small', 'n_layers': 6, 'd_model': 256, 'n_heads': 8, 'd_ff': 1024, 'max_seq_len': 256}
+[Model] BranPy-5.1M — 6 layers, 256d, 8h
+  Parametros: 5,139,968 (5.14M)
+[Tokenizer] Carregado de weights/bran9bpy_final\tokenizer.json — 1054 tokens
+  Tokens: 1054
+
+[2/5] Gerando dataset...
+  14168 pares
+
+[3/5] Preparando dataset...
+  14168 exemplos, 3542 batches
+
+[4/5] Continuando treino (epochs 9-10)...
+  Step 28337/35420 (80.0%) | Loss: 0.6414 | Tempo: 1.4s | ETA: 174min
+  Step 28386/35420 (80.1%) | Loss: 0.7430 | Tempo: 1.1s | ETA: 141min
+  Step 28436/35420 (80.3%) | Loss: 0.7497 | Tempo: 1.1s | ETA: 137min
+  Step 28486/35420 (80.4%) | Loss: 0.6834 | Tempo: 1.1s | ETA: 135min
+  Step 28536/35420 (80.6%) | Loss: 0.6299 | Tempo: 1.1s | ETA: 134min
+  Step 28586/35420 (80.7%) | Loss: 0.5522 | Tempo: 1.1s | ETA: 134min
+  Step 28636/35420 (80.8%) | Loss: 0.5868 | Tempo: 1.1s | ETA: 132min
+  Step 28686/35420 (81.0%) | Loss: 0.6549 | Tempo: 1.1s | ETA: 131min
+  Step 28736/35420 (81.1%) | Loss: 0.5494 | Tempo: 1.1s | ETA: 130min
+  Step 28786/35420 (81.3%) | Loss: 0.5797 | Tempo: 1.2s | ETA: 128min
+  Step 28836/35420 (81.4%) | Loss: 0.6022 | Tempo: 1.1s | ETA: 127min
+  Step 28886/35420 (81.6%) | Loss: 0.6456 | Tempo: 1.0s | ETA: 126min
+  Step 28936/35420 (81.7%) | Loss: 0.5208 | Tempo: 1.1s | ETA: 125min
+  Step 28986/35420 (81.8%) | Loss: 0.7134 | Tempo: 1.1s | ETA: 124min
+  Step 29036/35420 (82.0%) | Loss: 0.9754 | Tempo: 1.1s | ETA: 123min
+  Step 29086/35420 (82.1%) | Loss: 0.6029 | Tempo: 1.1s | ETA: 122min
+  Step 29136/35420 (82.3%) | Loss: 0.9717 | Tempo: 1.1s | ETA: 121min
+  Step 29186/35420 (82.4%) | Loss: 0.7251 | Tempo: 1.1s | ETA: 120min
+  Step 29236/35420 (82.5%) | Loss: 0.6664 | Tempo: 1.1s | ETA: 119min
+  Step 29286/35420 (82.7%) | Loss: 0.6118 | Tempo: 1.1s | ETA: 118min
+  Step 29336/35420 (82.8%) | Loss: 0.6343 | Tempo: 1.1s | ETA: 117min
+  Step 29386/35420 (83.0%) | Loss: 0.5969 | Tempo: 1.1s | ETA: 116min
+  Step 29436/35420 (83.1%) | Loss: 0.6175 | Tempo: 1.1s | ETA: 115min
+  Step 29486/35420 (83.2%) | Loss: 0.5584 | Tempo: 1.1s | ETA: 114min
+  Step 29536/35420 (83.4%) | Loss: 0.5949 | Tempo: 1.1s | ETA: 113min
+  Step 29586/35420 (83.5%) | Loss: 0.7503 | Tempo: 1.1s | ETA: 112min
+  Step 29636/35420 (83.7%) | Loss: 0.6557 | Tempo: 1.1s | ETA: 111min
+  Step 29686/35420 (83.8%) | Loss: 0.6766 | Tempo: 1.1s | ETA: 110min
+  Step 29736/35420 (84.0%) | Loss: 0.6224 | Tempo: 1.1s | ETA: 109min
+  Step 29786/35420 (84.1%) | Loss: 0.4909 | Tempo: 1.2s | ETA: 108min
+  Step 29836/35420 (84.2%) | Loss: 0.5631 | Tempo: 1.1s | ETA: 107min
+  Step 29886/35420 (84.4%) | Loss: 0.5577 | Tempo: 1.1s | ETA: 106min
+  Step 29936/35420 (84.5%) | Loss: 0.6424 | Tempo: 1.4s | ETA: 106min
+  Step 29986/35420 (84.7%) | Loss: 1.0322 | Tempo: 1.1s | ETA: 105min
+  Step 30036/35420 (84.8%) | Loss: 0.5533 | Tempo: 1.1s | ETA: 104min
+  Step 30086/35420 (84.9%) | Loss: 0.7190 | Tempo: 1.1s | ETA: 103min
+  Step 30136/35420 (85.1%) | Loss: 0.6547 | Tempo: 1.2s | ETA: 102min
+  Step 30186/35420 (85.2%) | Loss: 0.6556 | Tempo: 1.1s | ETA: 101min
+  Step 30236/35420 (85.4%) | Loss: 0.6579 | Tempo: 1.1s | ETA: 100min
+  Step 30286/35420 (85.5%) | Loss: 0.5682 | Tempo: 1.1s | ETA: 99min
+  Step 30336/35420 (85.6%) | Loss: 0.8249 | Tempo: 1.1s | ETA: 98min
+  Step 30386/35420 (85.8%) | Loss: 0.6607 | Tempo: 1.1s | ETA: 97min
+  Step 30436/35420 (85.9%) | Loss: 0.6152 | Tempo: 1.2s | ETA: 96min
+  Step 30486/35420 (86.1%) | Loss: 0.6489 | Tempo: 1.1s | ETA: 95min
+  Step 30536/35420 (86.2%) | Loss: 1.0448 | Tempo: 1.1s | ETA: 94min
+  Step 30586/35420 (86.4%) | Loss: 0.6686 | Tempo: 1.1s | ETA: 93min
+  Step 30636/35420 (86.5%) | Loss: 0.7298 | Tempo: 1.1s | ETA: 92min
+  Step 30686/35420 (86.6%) | Loss: 0.5675 | Tempo: 1.1s | ETA: 91min
+  Step 30736/35420 (86.8%) | Loss: 0.6709 | Tempo: 1.1s | ETA: 90min
+  Step 30786/35420 (86.9%) | Loss: 0.6314 | Tempo: 1.2s | ETA: 89min
+  Step 30836/35420 (87.1%) | Loss: 0.6977 | Tempo: 1.1s | ETA: 88min
+  Step 30886/35420 (87.2%) | Loss: 0.6520 | Tempo: 1.1s | ETA: 87min
+  Step 30936/35420 (87.3%) | Loss: 0.6271 | Tempo: 1.2s | ETA: 86min
+  Step 30986/35420 (87.5%) | Loss: 0.7342 | Tempo: 1.1s | ETA: 85min
+  Step 31036/35420 (87.6%) | Loss: 0.8096 | Tempo: 1.2s | ETA: 84min
+  Step 31086/35420 (87.8%) | Loss: 0.6376 | Tempo: 1.2s | ETA: 83min
+  Step 31136/35420 (87.9%) | Loss: 0.6565 | Tempo: 1.2s | ETA: 82min
+  Step 31186/35420 (88.0%) | Loss: 0.8668 | Tempo: 1.1s | ETA: 82min
+  Step 31236/35420 (88.2%) | Loss: 0.7442 | Tempo: 1.2s | ETA: 81min
+  Step 31286/35420 (88.3%) | Loss: 0.5302 | Tempo: 1.1s | ETA: 80min
+  Step 31336/35420 (88.5%) | Loss: 0.6943 | Tempo: 1.1s | ETA: 79min
+  Step 31386/35420 (88.6%) | Loss: 0.9102 | Tempo: 1.1s | ETA: 78min
+  Step 31436/35420 (88.8%) | Loss: 0.5930 | Tempo: 1.2s | ETA: 77min
+  Step 31486/35420 (88.9%) | Loss: 0.8726 | Tempo: 1.1s | ETA: 76min
+  Step 31536/35420 (89.0%) | Loss: 0.7495 | Tempo: 1.2s | ETA: 75min
+  Step 31586/35420 (89.2%) | Loss: 0.6818 | Tempo: 1.1s | ETA: 74min
+  Step 31636/35420 (89.3%) | Loss: 0.6057 | Tempo: 1.1s | ETA: 73min
+  Step 31686/35420 (89.5%) | Loss: 0.5965 | Tempo: 0.7s | ETA: 72min
+  Step 31736/35420 (89.6%) | Loss: 0.6785 | Tempo: 0.7s | ETA: 70min
+  Step 31786/35420 (89.7%) | Loss: 0.6230 | Tempo: 0.7s | ETA: 69min
+  Step 31836/35420 (89.9%) | Loss: 0.7288 | Tempo: 0.7s | ETA: 68min
+
+  Epoch 9/10 | Loss media: 0.6760 | Melhor: 0.4337 | Tempo: 66.8min
+  Checkpoint salvo: weights/bran9bpy_final\model_epoch9.pt
+  Step 31886/35420 (90.0%) | Loss: 0.7820 | Tempo: 0.8s | ETA: 67min
+  Step 31936/35420 (90.2%) | Loss: 0.6504 | Tempo: 0.7s | ETA: 65min
+  Step 31986/35420 (90.3%) | Loss: 0.7227 | Tempo: 0.7s | ETA: 64min
+  Step 32036/35420 (90.4%) | Loss: 0.6110 | Tempo: 0.7s | ETA: 63min
+  Step 32086/35420 (90.6%) | Loss: 0.6416 | Tempo: 0.8s | ETA: 62min
+  Step 32136/35420 (90.7%) | Loss: 0.7270 | Tempo: 0.7s | ETA: 61min
+  Step 32186/35420 (90.9%) | Loss: 0.6058 | Tempo: 0.7s | ETA: 59min
+  Step 32236/35420 (91.0%) | Loss: 0.6149 | Tempo: 0.7s | ETA: 58min
+  Step 32286/35420 (91.2%) | Loss: 0.5420 | Tempo: 0.7s | ETA: 57min
+  Step 32336/35420 (91.3%) | Loss: 0.5106 | Tempo: 0.7s | ETA: 56min
+  Step 32386/35420 (91.4%) | Loss: 0.6123 | Tempo: 1.1s | ETA: 55min
+  Step 32436/35420 (91.6%) | Loss: 0.5133 | Tempo: 1.2s | ETA: 54min
+  Step 32486/35420 (91.7%) | Loss: 0.5848 | Tempo: 1.1s | ETA: 53min
+  Step 32536/35420 (91.9%) | Loss: 0.6552 | Tempo: 1.1s | ETA: 52min
+  Step 32586/35420 (92.0%) | Loss: 0.5289 | Tempo: 1.2s | ETA: 52min
+  Step 32636/35420 (92.1%) | Loss: 0.5678 | Tempo: 1.2s | ETA: 51min
+  Step 32686/35420 (92.3%) | Loss: 0.7701 | Tempo: 1.1s | ETA: 50min
+  Step 32736/35420 (92.4%) | Loss: 0.7317 | Tempo: 1.2s | ETA: 49min
+  Step 32786/35420 (92.6%) | Loss: 0.6807 | Tempo: 1.2s | ETA: 48min
+  Step 32836/35420 (92.7%) | Loss: 0.5763 | Tempo: 1.1s | ETA: 47min
+  Step 32886/35420 (92.8%) | Loss: 0.6080 | Tempo: 1.1s | ETA: 46min
+  Step 32936/35420 (93.0%) | Loss: 0.5916 | Tempo: 1.2s | ETA: 46min
+  Step 32986/35420 (93.1%) | Loss: 0.5129 | Tempo: 1.2s | ETA: 45min
+  Step 33036/35420 (93.3%) | Loss: 0.7011 | Tempo: 1.2s | ETA: 44min
+  Step 33086/35420 (93.4%) | Loss: 0.6001 | Tempo: 1.1s | ETA: 43min
+  Step 33136/35420 (93.6%) | Loss: 0.8100 | Tempo: 1.2s | ETA: 42min
+  Step 33186/35420 (93.7%) | Loss: 0.4506 | Tempo: 1.1s | ETA: 41min
+  Step 33236/35420 (93.8%) | Loss: 0.5520 | Tempo: 1.1s | ETA: 40min
+  Step 33286/35420 (94.0%) | Loss: 0.6272 | Tempo: 1.2s | ETA: 39min
+  Step 33336/35420 (94.1%) | Loss: 0.6209 | Tempo: 1.1s | ETA: 38min
+  Step 33386/35420 (94.3%) | Loss: 0.9410 | Tempo: 1.2s | ETA: 37min
+  Step 33436/35420 (94.4%) | Loss: 0.6282 | Tempo: 1.1s | ETA: 37min
+  Step 33486/35420 (94.5%) | Loss: 0.7537 | Tempo: 1.1s | ETA: 36min
+  Step 33536/35420 (94.7%) | Loss: 0.5644 | Tempo: 1.1s | ETA: 35min
+  Step 33586/35420 (94.8%) | Loss: 0.7262 | Tempo: 1.1s | ETA: 34min
+  Step 33636/35420 (95.0%) | Loss: 0.5387 | Tempo: 1.1s | ETA: 33min
+  Step 33686/35420 (95.1%) | Loss: 0.5621 | Tempo: 1.2s | ETA: 32min
+  Step 33736/35420 (95.2%) | Loss: 0.6583 | Tempo: 1.2s | ETA: 31min
+  Step 33786/35420 (95.4%) | Loss: 0.7750 | Tempo: 1.1s | ETA: 30min
+  Step 33836/35420 (95.5%) | Loss: 0.6401 | Tempo: 1.2s | ETA: 29min
+  Step 33886/35420 (95.7%) | Loss: 0.7762 | Tempo: 1.2s | ETA: 28min
+  Step 33936/35420 (95.8%) | Loss: 0.7285 | Tempo: 1.1s | ETA: 27min
+  Step 33986/35420 (96.0%) | Loss: 0.4966 | Tempo: 1.1s | ETA: 27min
+  Step 34036/35420 (96.1%) | Loss: 0.6530 | Tempo: 1.1s | ETA: 26min
+  Step 34086/35420 (96.2%) | Loss: 0.5238 | Tempo: 1.1s | ETA: 25min
+  Step 34136/35420 (96.4%) | Loss: 0.6285 | Tempo: 1.1s | ETA: 24min
+  Step 34186/35420 (96.5%) | Loss: 0.6595 | Tempo: 1.1s | ETA: 23min
+  Step 34236/35420 (96.7%) | Loss: 0.8776 | Tempo: 1.1s | ETA: 22min
+  Step 34286/35420 (96.8%) | Loss: 0.6384 | Tempo: 1.1s | ETA: 21min
+  Step 34336/35420 (96.9%) | Loss: 0.6141 | Tempo: 1.2s | ETA: 20min
+  Step 34386/35420 (97.1%) | Loss: 0.4907 | Tempo: 1.1s | ETA: 19min
+  Step 34436/35420 (97.2%) | Loss: 0.8435 | Tempo: 1.1s | ETA: 18min
+  Step 34486/35420 (97.4%) | Loss: 0.6596 | Tempo: 1.2s | ETA: 17min
+  Step 34536/35420 (97.5%) | Loss: 0.5051 | Tempo: 1.1s | ETA: 16min
+  Step 34586/35420 (97.6%) | Loss: 0.6546 | Tempo: 1.1s | ETA: 15min
+  Step 34636/35420 (97.8%) | Loss: 0.7007 | Tempo: 1.1s | ETA: 15min
+  Step 34686/35420 (97.9%) | Loss: 0.7605 | Tempo: 1.2s | ETA: 14min
+  Step 34736/35420 (98.1%) | Loss: 0.7037 | Tempo: 1.1s | ETA: 13min
+  Step 34786/35420 (98.2%) | Loss: 0.9331 | Tempo: 0.8s | ETA: 12min
+  Step 34836/35420 (98.4%) | Loss: 0.6688 | Tempo: 0.9s | ETA: 11min
+  Step 34886/35420 (98.5%) | Loss: 0.7771 | Tempo: 0.7s | ETA: 10min
+  Step 34936/35420 (98.6%) | Loss: 0.6033 | Tempo: 1.2s | ETA: 9min
+  Step 34986/35420 (98.8%) | Loss: 0.7017 | Tempo: 1.1s | ETA: 8min
+  Step 35036/35420 (98.9%) | Loss: 0.7779 | Tempo: 1.1s | ETA: 7min
+  Step 35086/35420 (99.1%) | Loss: 0.8758 | Tempo: 1.1s | ETA: 6min
+  Step 35136/35420 (99.2%) | Loss: 0.5614 | Tempo: 1.1s | ETA: 5min
+  Step 35186/35420 (99.3%) | Loss: 0.5274 | Tempo: 1.1s | ETA: 4min
+  Step 35236/35420 (99.5%) | Loss: 0.5912 | Tempo: 1.2s | ETA: 3min
+  Step 35286/35420 (99.6%) | Loss: 0.5771 | Tempo: 1.1s | ETA: 2min
+  Step 35336/35420 (99.8%) | Loss: 0.5136 | Tempo: 1.1s | ETA: 2min
+  Step 35386/35420 (99.9%) | Loss: 0.6249 | Tempo: 1.1s | ETA: 1min
+
+  Epoch 10/10 | Loss media: 0.6588 | Melhor: 0.4111 | Tempo: 131.2min
+  Checkpoint salvo: weights/bran9bpy_final\model_epoch10.pt
+
+[5/5] Salvando modelo final...
+
+============================================================
+BRANPY AI FOUNDATION MODEL v1 — CONCLUIDO!
+Tempo total resume: 131.2min (2.19h)
+Melhor loss: 0.4111
+Parametros: 5,139,968 (5.14M)
+Modelo: weights/bran9bpy_final\model_final.pt
+============================================================
+
+[EXTRA] Teste de geracao...
+  Input: oi
+  Output: oi a pra um ? o ! e ! vou detalhar em a .
+
+  Input: me ensina python
+  Output: me a python programar um o em o voce planeja ? o o amanha e to ! feliz .
+
+  Input: como criar site
+  Output: como criar site ? e perfeito pra um . a e boa . loja online e iniciante de e boa .
+
+  Input: o que e ia
+  Output: o que e ia e em a ? como c# pra criar uma plataforma ? o ?
+
+  Input: obrigado
+  Output: obrigado bem de pra um o ? muito bem ! vou , to . . .
+
+  Input: qual a diferenca entre python e javascript
+  Output: qual a a e python e javascript ? o o : da e va reais . e va criar
+
+  Input: me conta uma piada
+  Output: me ta uma piada - online se que bom serve ? e ae to . comece . comece rio ,
+

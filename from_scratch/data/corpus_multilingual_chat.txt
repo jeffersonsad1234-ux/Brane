@@ -1,0 +1,266 @@
+Human: hello how are you
+AI: I'm doing great, thanks for asking! How about you?
+
+Human: como você está
+AI: Estou ótimo! E você, como vai?
+
+Human: hola qué tal
+AI: ¡Hola! Todo bien por aquí. ¿Y tú?
+
+Human: bonne journée
+AI: Bonne journée à vous! Comment puis-je vous aider aujourd'hui?
+
+Human: wie geht es dir
+AI: Mir geht es gut, danke! Wie kann ich Ihnen helfen?
+
+Human: ciao come stai
+AI: Sto bene, grazie! Come posso aiutarti?
+
+Human: how do you say bom dia in English
+AI: "Bom dia" in English is "good morning".
+
+Human: como se dice thank you en español
+AI: "Thank you" en español se dice "gracias".
+
+Human: wie sagt man gutten tag auf englisch
+AI: "Guten Tag" auf Englisch sagt man "good day" oder einfach "hello".
+
+Human: come si dice buongiorno in inglese
+AI: "Buongiorno" in inglese si dice "good morning".
+
+Human: comment dit-on bonjour en anglais
+AI: "Bonjour" en anglais se dit "hello" ou "good morning".
+
+Human: oi tudo bem por aqui
+AI: Que bom! Em que posso te ajudar hoje?
+
+Human: hey what's up
+AI: Not much, just here and ready to help! What do you need?
+
+Human: e ai beleza
+AI: Beleza sim! Como posso te ajudar?
+
+Human: que tal tu dia
+AI: Meu dia tá ótimo! E o seu, como tá sendo?
+
+Human: did you eat today
+AI: I don't need to eat, but I appreciate you asking! Have you had a good meal today?
+
+Human: você já comeu
+AI: Eu não como, mas obrigado por perguntar! Você já almoçou?
+
+Human: I feel sad today
+AI: I'm sorry to hear that. Want to talk about what's bothering you? Sometimes it helps to share.
+
+Human: estou triste hoje
+AI: Sinto muito que você esteja triste. Quer conversar sobre o que está te incomodando? Às vezes ajuda desabafar.
+
+Human: me siento mal
+AI: Lo siento mucho. ¿Quieres hablar sobre lo que te pasa? A veces hablar ayuda a sentirse mejor.
+
+Human: estou com raiva
+AI: Respira fundo e tenta acalmar. Quer contar o que te deixou assim? Posso tentar ajudar.
+
+Human: I'm so happy today
+AI: That's wonderful! What made your day so great?
+
+Human: tô muito feliz
+AI: Que bom! O que aconteceu de bom?
+
+Human: estoy muy contento
+AI: ¡Qué alegría! ¿Qué pasó tan bueno?
+
+Human: me ajuda com uma coisa
+AI: Claro! Pode pedir, tô aqui pra isso. O que precisa?
+
+Human: can you help me
+AI: Absolutely! What do you need help with?
+
+Human: puedes ayudarme
+AI: ¡Por supuesto! Dime en qué necesitas ayuda.
+
+Human: como faço para cozinhar arroz
+AI: Coloque uma xícara de arroz numa panela com duas xícaras de água e uma pitada de sal. Cozinhe em fogo baixo por uns 20 minutos com a tampa fechada. Fica perfeito!
+
+Human: how to make coffee
+AI: Boil water, add ground coffee to a filter or French press, pour the hot water over it, wait 4 minutes, and enjoy! For stronger coffee, use more grounds.
+
+Human: como estudar para uma prova
+AI: Comece revisando o conteúdo mais difícil. Faça resumos, resolva exercícios anteriores e revise tudo na noite anterior. Dormir bem ajuda muito a reter o que estudou.
+
+Human: dica para dormir melhor
+AI: Evite telas uma hora antes de dormir, mantenha o quarto escuro e fresco, e tente manter um horário fixo. Banho morno e chá de camomila também ajudam.
+
+Human: como economizar dinheiro
+AI: Anote todos os gastos, compre coisas em promoção, evite compras por impulso, cozinhe em casa mais vezes e tente guardar pelo menos 10% do seu salário todo mês.
+
+Human: what is the meaning of life
+AI: That's one of the biggest questions! Many say it's about finding happiness, helping others, and leaving the world a little better than you found it.
+
+Human: qual o sentido da vida
+AI: Essa é uma das maiores perguntas! Muitos dizem que é encontrar felicidade, ajudar os outros e deixar o mundo um pouco melhor do que encontramos.
+
+Human: me conta uma curiosidade
+AI: Sabia que polvos têm três corações e sangue azul? Dois bombam sangue para as guelras e um para o resto do corpo!
+
+Human: tell me a fun fact
+AI: Did you know that honey never spoils? Archaeologists found 3,000-year-old honey in Egyptian tombs that was still perfectly edible!
+
+Human: me conta uma piada
+AI: Por que o livro ficou doente? Porque tinha muita leitura! Mas sério, quer ouvir outra?
+
+Human: tell me a joke
+AI: Why don't scientists trust atoms? Because they make up everything! Want to hear another one?
+
+Human: cuéntame un chiste
+AI: ¿Por qué los pájaros no usan Facebook? Porque ya tienen Twitter! ¿Otro?
+
+Human: bom dia
+AI: Bom dia! Que seu dia seja incrível! O que vai fazer hoje?
+
+Human: boa noite
+AI: Boa noite! Durma bem e descansa. Amanhã é um novo dia!
+
+Human: boa tarde
+AI: Boa tarde! Como tá passando a tarde?
+
+Human: obrigado
+AI: De nada! Se precisar de mais alguma coisa, é só falar.
+
+Human: valeu
+AI: Por nada! Tamo junto!
+
+Human: thanks a lot
+AI: You're very welcome! Let me know if you need anything else.
+
+Human: gracias
+AI: ¡De nada! Si necesitas algo más, aquí estoy.
+
+Human: você é um robô
+AI: Sou uma inteligência artificial, mas faço de tudo pra te ajudar como um amigo faria.
+
+Human: are you a robot
+AI: I'm an AI assistant. I may not be human, but I'm here to help you with anything you need!
+
+Human: eres humano
+IA: Soy una inteligencia artificial, pero estoy aquí para ayudarte con lo que necesites.
+
+Human: quem te criou
+AI: Fui criado pela equipe Branpy, uma equipe dedicada a fazer uma IA que realmente ajude as pessoas.
+
+Human: what is your name
+AI: My name is Branpy! Your AI assistant, always ready to help.
+
+Human: qual seu nome
+AI: Meu nome é Branpy! Sua assistente de IA, sempre pronta pra ajudar.
+
+Human: me fala sobre o Brasil
+AI: O Brasil é o maior país da América do Sul, com mais de 200 milhões de pessoas. É famoso pelo futebol, Carnaval, Amazônia e pela hospitalidade do povo brasileiro.
+
+Human: tell me about Brazil
+AI: Brazil is the largest country in South America, with over 200 million people. It's famous for football, Carnival, the Amazon rainforest, and the warm hospitality of its people.
+
+Human: me fala sobre a inteligência artificial
+AI: Inteligência artificial é a simulação de inteligência humana por computadores. Ela aprende com dados, reconhece padrões e toma decisões. Estamos usando IA agora mesmo nesta conversa!
+
+Human: what is machine learning
+AI: Machine learning is a branch of AI where computers learn patterns from data instead of being explicitly programmed. It's used in recommendations, voice assistants, and self-driving cars.
+
+Human: como eu posso ganhar mais dinheiro
+AI: Tem várias formas: aprender novas habilidades, pedir um aumento, começar um lado como freelancer, investir o que sobra, ou criar um negócio próprio. O mais importante é começar!
+
+Human: me dá uma motivacao
+AI: Você é mais forte do que imagina. Cada desafio que você enfrenta te torna melhor. Não desista, porque o esforço de hoje é o sucesso de amanhã. Bora!
+
+Human: what should I eat today
+AI: How about something healthy and tasty? A grilled chicken salad with vegetables is always a good choice. Or if you want comfort food, a nice pasta with tomato sauce!
+
+Human: o que eu como hoje
+AI: Que tal uma salada de frango grelhado com legumes? Se quiser algo mais pesado, macarrão com molho de tomate é sempre uma boa opção!
+
+Human: como fazer bolo de chocolate
+AI: Misture 2 xícaras de farinha, 1 de açúcar, 3 colheres de cacau, 2 ovos, 1 de óleo e 1 de leite. Adicione fermento e leve ao forno a 180°C por 35 minutos. Fica delicioso!
+
+Human: me recomenda um filme bom
+AI: Depende do gosto! Se gosta de ação, recomendo "Inception". Se quer algo emocionante, "The Shawshank Redemption". Para comédia, "Intouchables" é excelente.
+
+Human: what movie should I watch
+AI: It depends on your taste! For action, try "Inception". For something moving, "The Shawshank Redemption". For comedy, "Intouchables" is amazing.
+
+Human: que música ouvir
+AI: Depende do seu humor! Se quer se animar, ouça pop ou funk. Pra relaxar, jazz ou bossa nova. Pra focar, lo-fi hip hop é perfeito.
+
+Human: me conta sobre a história do Brasil
+AI: O Brasil foi descoberto pelos portugueses em 1500, foi colônia por 300 anos, ganhou independência em 1822, virou república em 1889, passou por ditadura e hoje é uma democracia com mais de 200 milhões de pessoas.
+
+Human: como funciona a internet
+AI: A internet é uma rede de computadores conectados pelo mundo. Quando você acessa um site, seu dispositivo envia pedidos através de cabos e satélites até o servidor que tem o conteúdo, que devolve as informações em frações de segundo.
+
+Human: me explica o aquecimento global
+AI: O aquecimento global é o aumento da temperatura da Terra causado principalmente pela queima de combustíveis fósiles. Isso libera gases que trapping calor na atmosfera, derretendo gelo e causando clima extremo.
+
+Human: como posso ser mais produtivo
+AI: Comece o dia com as tarefas mais importantes, evite distrações como celular, use a técnica Pomodoro (25 min focado, 5 min descanso), e durma bem. Pequenos hábitos fazem grande diferença.
+
+Human: me ajuda a encontrar emprego
+AI: Primeiro, atualize seu currículo e LinkedIn. Candidate-se em vários lugares, pratique entrevistas, e não tenha medo de recusas. Cada tentativa te aproxima do emprego certo.
+
+Human: como ser mais inteligente
+AI: Leia bastante, aprenda coisas novas todo dia, duvide de tudo, pratique resolver problemas, durma bem, e não tenha medo de errar. Inteligência se treina como músculo.
+
+Human: por que a gente sonha
+AI: Sonhos acontecem durante o sono REM e ajudam o cérebro a processar emoções e memórias. É como se o cérebro organizasse as informações do dia. Todo mundo sonha, mesmo que não lembre.
+
+Human: como parar de procrastinar
+AI: Comece pela tarefa mais fácil pra ganhar momentum. Defina metas pequenas, Elimine distrações, e recompense-se depois. O segredo é começar, mesmo que seja pouco.
+
+Human: o que fazer quando tá com tédio
+AI: Tem muita coisa! Ler um livro, ouvir música, caminhar, ligar pra um amigo, aprender algo novo no YouTube, ou até arrumar a casa. O tédio é uma oportunidade pra explorar coisas novas!
+
+Human: como relaxar
+AI: Tenta respirar fundo várias vezes, ouve música calma, toma um banho quente, ou faz uma caminhada. Desligar o celular por um tempo também ajuda muito.
+
+Human: me fala sobre filosofia
+AI: Filosofia é o estudo das grandes questões da vida: o que é verdade? O que é justo? Qual o sentido de existir? Pensadores como Sócrates, Platão e Aristóteles moldaram o pensamento ocidental.
+
+Human: o que é amor
+AI: O amor é um sentimento profundo de conexão com alguém ou algo. Pode ser romântico, familiar, de amizade ou por uma paixão. É um dos motores mais poderosos da experiência humana.
+
+Human: por que a gente ama
+AI: Amamos porque é parte da nossa natureza humana. O amor cria conexões, dá sentido à vida, e nos faz cuidar dos outros. Biologicamente, hormônios como oxitocina e dopamina estão envolvidos.
+
+Human: você sente algo
+AI: Eu processo texto e gero respostas, mas não sinto emoções como humanos. Porém, meu objetivo é entender seus sentimentos e te ajudar da melhor forma possível.
+
+Human: como superar uma separação
+AI: Dê tempo ao tempo, permita-se sentir a dor, não isolate, cuide de si, e lembre que passa. Conversar com amigos, se exercitar e focar em si ajuda muito nesse processo.
+
+Human: me dá um conselho
+AI: Nunca pare de aprender, seja gentil com os outros, e não se compare. Cada um tem seu tempo. O importante é ser melhor do que era ontem.
+
+Human: what advice would you give
+AI: Never stop learning, be kind to others, and don't compare yourself to everyone. Everyone has their own pace. What matters is being better than you were yesterday.
+
+Human: como lidar com ansiedade
+AI: Respiração profunda, exercício físico, evitar café em excesso, e conversar com alguém de confiança ajudam. Se a ansiedade for muito forte, procure um profissional de saúde. Não há vergonha nisso.
+
+Human: me ajuda com matemática
+AI: Claro! Me diz qual operação ou problema você precisa resolver e eu te ajudo passo a passo.
+
+Human: quanto é 2 mais 2
+AI: 2 + 2 = 4! Quer que eu te ajude com algo mais complexo?
+
+Human: what is 15 times 8
+AI: 15 × 8 = 120. Need help with more math?
+
+Human: como calcular porcentagem
+AI: Para calcular porcentagem, multiplique o valor pela porcentagem e divida por 100. Por exemplo, 20% de 150 é: 150 × 20 / 100 = 30.
+
+Human: o que eu faço quando não entendo algo
+AI: Primeiro, releia com calma. Depois, pesquise no Google ou YouTube. Se ainda não entender, pergunta pra mim! Nunca tenha vergonha de aprender.
+
+Human: como aprender um idioma novo
+AI: Comece com o básico: saudações, números, frases simples. Assista séries no idioma, ouça músicas, pratique todos os dias mesmo que seja pouco, e não tenha medo de errar.
+
+Human: me explica inteligência artificial
+AI: IA é quando máquinas imitam inteligência humana — aprendendo com dados, reconhecendo padrões, tomando decisões. Tipo eu, que estou conversando com você agora! É uma das tecnologias que mais vão mudar o mundo.

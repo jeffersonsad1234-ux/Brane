@@ -1,0 +1,719 @@
+Human: to com problema no trabalho
+AI: Que tipo de problema? Chefe, colegas, tarefa? Me explica que posso te ajudar a pensar.
+
+Human: como funciona bitcoin
+AI: Moeda digital descentralizada. Blockchain: registro público. Criada em 2009 por Satoshi Nakamoto. Volátil, especulativo.
+
+Human: me diz, o que e stf
+AI: Supremo Tribunal Federal. Julga constitucionalidade das leis. 11 ministros. Indicados pelo Presidente. vitalícios.
+
+Human: voce sabe o que e game design
+AI: Design de jogos. Mecânicas, narrativa, level design, economia interna. Combina programação, arte, psicologia.
+
+Human: como ganhar dinheiro na internet
+AI: Freelance, e-commerce, conteúdo, investimentos. Cuidado: golpes são comuns. Não existe dinheiro fácil. Estude e trabalhe.
+
+Human: to com problema de amizade!
+AI: Amizade é difícil. Me conta o que aconteceu que te ajudo.
+
+Human: me diz, o que e 5g
+AI: Quinta geração de rede celular. Mais rápido (10x), menor latência, mais dispositivos. Requer antenas novas.
+
+Human: como comecar a programar jogos
+AI: 1) Aprenda Python/GDScript. 2) Game engine: Godot (grátis), Unity, Unreal. 3) Faça jogos simples. 4) Pratique todos os dias.
+
+Human: voce sabe como saber se fui hackeado
+AI: Sinais: senha nao funciona, Activity estranha, email suspeito. Mude senhas, verifique dispositivos, ative 2FA.
+
+Human: como funciona bateria
+AI: Nao deixe descarregar totalmente. Carregue entre 20-80%. Evite calor. Desative GPS/Bluetooth quando nao usar.
+
+Human: me explica como fazer feijao
+AI: Deixe de molho 8h. Cozinhe com água, sal, alho, louro. 1h no fogo. Feijão carioca: tomate, cebola, bacon.
+
+Human: o que e e-sports
+AI: Esportes eletrônicos. Competições de jogos. Profissionais ganham milhões. Jogos: LoL, CS, Valorant, Fortnite.
+
+Human: o que e game design
+AI: Design de jogos. Mecânicas, narrativa, level design, economia interna. Combina programação, arte, psicologia.
+
+Human: me ajuda, to com dor de cabeca
+AI: Descansa, bebe agua, toma dipirona. Se persistir, procura medico. Pode ser estresse, desidratacao, fome.
+
+Human: ia vai substituir humanos
+AI: Em algumas tarefas: sim. Criatividade complexa, empatia: não. IA é ferramenta, não substituto. Depende do uso.
+
+Human: voce sabe como fazer feijao
+AI: Deixe de molho 8h. Cozinhe com água, sal, alho, louro. 1h no fogo. Feijão carioca: tomate, cebola, bacon.
+
+Human: me ajuda, nao consigo engordar
+AI: Coma mais calorias: frutas secas, abacate, arroz, feijão. Treine força. Metabolismo alto é genético, mas dá pra ganhar massa.
+
+Human: voce sabe o que e exercicio aerobico
+AI: Atividade que eleva batimentos: caminhada, corrida, natação, bike. Melhora cardiovascular, queima gordura, melhora humor.
+
+Human: me explica como economizar dinheiro
+AI: 1) Orçamento mensal. 2) Investimento automático. 3) Evite compras por impulso. 4) Compare preços. 5) Cozinhe em casa.
+
+Human: to com problema de amor!
+AI: Coração partido? Me conta. As vezes falar ajuda. Não tem jeito fácil, mas passa.
+
+Human: como funciona global
+AI: Temperatura media da Terra subindo. Causa: atividade humana. Efeitos: derretimento de gelo, furacoes, secas.
+
+Human: voce sabe como comecar a programar jogos
+AI: 1) Aprenda Python/GDScript. 2) Game engine: Godot (grátis), Unity, Unreal. 3) Faça jogos simples. 4) Pratique todos os dias.
+
+Human: como saber se fui hackeado
+AI: Sinais: senha nao funciona, Activity estranha, email suspeito. Mude senhas, verifique dispositivos, ative 2FA.
+
+Human: o que e exercicio aerobico
+AI: Atividade que eleva batimentos: caminhada, corrida, natação, bike. Melhora cardiovascular, queima gordura, melhora humor.
+
+Human: me diz, como fazer exercicio
+AI: Comece leve: caminhada 30 min. Progressão: musculação, HIIT. Frequência: 3-5x/semana. Descanse. Água. Dieta.
+
+Human: me explica o que e inteligencia artificial
+AI: Computador que simula inteligência humana. Aprendizado, raciocínio, percepção. Machine learning, deep learning, NLP.
+
+Human: como funciona feijao
+AI: Deixe de molho 8h. Cozinhe com água, sal, alho, louro. 1h no fogo. Feijão carioca: tomate, cebola, bacon.
+
+Human: me explica como comecar a programar jogos
+AI: 1) Aprenda Python/GDScript. 2) Game engine: Godot (grátis), Unity, Unreal. 3) Faça jogos simples. 4) Pratique todos os dias.
+
+Human: me ajuda, to com problema financeiro
+AI: Dívidas? Falta de renda? Me conta que te ajudo a pensar em solução.
+
+Human: como funciona congresso
+AI: Senado (81 senadores) + Câmara (513 deputados). Fazem leis. Presidente sanciona. Pode vetar. Congresso derruba veto.
+
+Human: voce sabe o que e energia hidrelétrica
+AI: Agua em movimento gera eletricidade. Brasil depende muito (60%). Itaipu: maior do mundo.
+
+Human: me explica como funciona o congresso
+AI: Senado (81 senadores) + Câmara (513 deputados). Fazem leis. Presidente sanciona. Pode vetar. Congresso derruba veto.
+
+Human: o que e exercicio anaerobico
+AI: Força e potência: musculação, sprint. Ganho massa muscular, força óssea. Combinar com aeróbico.
+
+Human: como funciona solar
+AI: Painéis fotovoltaicos convertem luz solar em eletricidade. Brasil tem potencial enorme. Custos caíram 90% em 10 anos.
+
+Human: como funciona climatico
+AI: Aquecimento global causado por gases estufa. CO2 da queima de combustíveis fósseis. Consequências: extremos, nivel do mar.
+
+Human: me ajuda, to com fome
+AI: Vai comer alguma coisa! Cozinhe algo simples ou peça delivery. Nao fique com fome.
+
+Human: me diz, como saber se fui hackeado
+AI: Sinais: senha nao funciona, Activity estranha, email suspeito. Mude senhas, verifique dispositivos, ative 2FA.
+
+Human: como funciona anaerobico
+AI: Força e potência: musculação, sprint. Ganho massa muscular, força óssea. Combinar com aeróbico.
+
+Human: me explica o que e e-sports
+AI: Esportes eletrônicos. Competições de jogos. Profissionais ganham milhões. Jogos: LoL, CS, Valorant, Fortnite.
+
+Human: como funciona jogos
+AI: 1) Aprenda Python/GDScript. 2) Game engine: Godot (grátis), Unity, Unreal. 3) Faça jogos simples. 4) Pratique todos os dias.
+
+Human: me explica o que e phishing
+AI: Golpe que finge ser empresa legitima pra roubar dados. Email/site falso. Verifique sempre URL, nao clique em links duvidosos.
+
+Human: to com tosse
+AI: Chá de mel com limão, água morna, descansa. Se vier com sangue ou durar muito, médico urgente.
+
+Human: me explica como parar o aquecimento global
+AI: Reduzir emissões: energia limpa, transporte elétrico, desmatamento zero. Acordo de Paris: limitar a 1.5°C.
+
+Human: voce sabe receita simples de omelete
+AI: 2 ovos, sal, queijo, presunto. Bata ovos, despeje na frigideira. Recheie, dobre. Pronto em 5 minutos.
+
+Human: como fazer feijao
+AI: Deixe de molho 8h. Cozinhe com água, sal, alho, louro. 1h no fogo. Feijão carioca: tomate, cebola, bacon.
+
+Human: voce sabe como ser mais produtivo
+AI: Pomodoro (25+5). Elimine distrações. Priorize o importante. Durma bem. Exercite-se. Evite multitarefa.
+
+Human: voce sabe o que e exercicio anaerobico
+AI: Força e potência: musculação, sprint. Ganho massa muscular, força óssea. Combinar com aeróbico.
+
+Human: to com sono
+AI: Entao dorme! Celular off, luz apagada, travesseiro confortavel. 7-8 horas sao ideais.
+
+Human: como funciona phishing
+AI: Golpe que finge ser empresa legitima pra roubar dados. Email/site falso. Verifique sempre URL, nao clique em links duvidosos.
+
+Human: me diz, o que e inteligencia artificial
+AI: Computador que simula inteligência humana. Aprendizado, raciocínio, percepção. Machine learning, deep learning, NLP.
+
+Human: voce sabe o que e 5g
+AI: Quinta geração de rede celular. Mais rápido (10x), menor latência, mais dispositivos. Requer antenas novas.
+
+Human: voce sabe o que e energia solar
+AI: Painéis fotovoltaicos convertem luz solar em eletricidade. Brasil tem potencial enorme. Custos caíram 90% em 10 anos.
+
+Human: to me sentindo mal
+AI: Mal de que? Físico ou emocional? Se físico: médico. Se emocional: terapeuta. Não guarde isso.
+
+Human: me diz, o que e e-sports
+AI: Esportes eletrônicos. Competições de jogos. Profissionais ganham milhões. Jogos: LoL, CS, Valorant, Fortnite.
+
+Human: me diz, ia vai substituir humanos
+AI: Em algumas tarefas: sim. Criatividade complexa, empatia: não. IA é ferramenta, não substituto. Depende do uso.
+
+Human: me diz, o que e bitcoin
+AI: Moeda digital descentralizada. Blockchain: registro público. Criada em 2009 por Satoshi Nakamoto. Volátil, especulativo.
+
+Human: o que e energia hidrelétrica
+AI: Agua em movimento gera eletricidade. Brasil depende muito (60%). Itaipu: maior do mundo.
+
+Human: me diz, o que e game design
+AI: Design de jogos. Mecânicas, narrativa, level design, economia interna. Combina programação, arte, psicologia.
+
+Human: to com problema de sono!
+AI: Rotina: horário fixo, sem celular, quarto escuro, temp fresco. Se persistir: médico do sono.
+
+Human: me ajuda, to com problema na familia
+AI: Família é complicada. Me conta o que tá acontecendo que te ajudo a processar.
+
+Human: como proteger meus dados na internet
+AI: Use senhas fortes (12+ caracteres, mistura). Ative 2FA. Nao clique em links suspeitos. Use VPN em redes publicas. Atualize software.
+
+Human: to com problema financeiro!
+AI: Dívidas? Falta de renda? Me conta que te ajudo a pensar em solução.
+
+Human: to com dor de barriga
+AI: Chá de camomila, água morna, evita comida pesada. Se persistir ou for forte, procura médico.
+
+Human: me diz, como fazer arroz
+AI: 1 xícara arroz, 2 xícaras água, sal, óleo. Refogue alho, adicione arroz, água. Cozinhe 15-20 min tapado.
+
+Human: me explica como ser mais produtivo
+AI: Pomodoro (25+5). Elimine distrações. Priorize o importante. Durma bem. Exercite-se. Evite multitarefa.
+
+Human: me diz, como funciona o congresso
+AI: Senado (81 senadores) + Câmara (513 deputados). Fazem leis. Presidente sanciona. Pode vetar. Congresso derruba veto.
+
+Human: me diz, como parar o aquecimento global
+AI: Reduzir emissões: energia limpa, transporte elétrico, desmatamento zero. Acordo de Paris: limitar a 1.5°C.
+
+Human: me explica como fazer arroz
+AI: 1 xícara arroz, 2 xícaras água, sal, óleo. Refogue alho, adicione arroz, água. Cozinhe 15-20 min tapado.
+
+Human: me diz, como fazer feijao
+AI: Deixe de molho 8h. Cozinhe com água, sal, alho, louro. 1h no fogo. Feijão carioca: tomate, cebola, bacon.
+
+Human: voce sabe o que e e-sports
+AI: Esportes eletrônicos. Competições de jogos. Profissionais ganham milhões. Jogos: LoL, CS, Valorant, Fortnite.
+
+Human: o que e stf
+AI: Supremo Tribunal Federal. Julga constitucionalidade das leis. 11 ministros. Indicados pelo Presidente. vitalícios.
+
+Human: como funciona blockchain
+AI: Registro público e imutável. Cada bloco encadeado. Base de criptomoedas. Aplicações: contratos, supply chain, voto.
+
+Human: como funciona stf
+AI: Supremo Tribunal Federal. Julga constitucionalidade das leis. 11 ministros. Indicados pelo Presidente. vitalícios.
+
+Human: to com dor de barriga!
+AI: Chá de camomila, água morna, evita comida pesada. Se persistir ou for forte, procura médico.
+
+Human: me explica o que e stf
+AI: Supremo Tribunal Federal. Julga constitucionalidade das leis. 11 ministros. Indicados pelo Presidente. vitalícios.
+
+Human: como funciona hidrelétrica
+AI: Agua em movimento gera eletricidade. Brasil depende muito (60%). Itaipu: maior do mundo.
+
+Human: to com problema na familia!
+AI: Família é complicada. Me conta o que tá acontecendo que te ajudo a processar.
+
+Human: me explica como ser mais empatico
+AI: Escute sem julgar. Ponha-se no lugar do outro. Valide sentimentos. Não minimize. Pergunte como ajudar.
+
+Human: to com problema de saude!
+AI: Que problema? Se for sério, médico urgente. Se for dúvida, me pergunta que te oriento.
+
+Human: o que e energia eolica
+AI: Turbinas captam vento pra gerar eletricidade. Brasil: nordeste e sul. Limpa e renovável.
+
+Human: to com problema de sono
+AI: Rotina: horário fixo, sem celular, quarto escuro, temp fresco. Se persistir: médico do sono.
+
+Human: o que e phishing
+AI: Golpe que finge ser empresa legitima pra roubar dados. Email/site falso. Verifique sempre URL, nao clique em links duvidosos.
+
+Human: to com problema de depressao!
+AI: Depressão é doença. Procure ajuda profissional. Terapia + medicação funciona. Você não tá sozinho.
+
+Human: me diz, como proteger meus dados na internet
+AI: Use senhas fortes (12+ caracteres, mistura). Ative 2FA. Nao clique em links suspeitos. Use VPN em redes publicas. Atualize software.
+
+Human: como funciona design
+AI: Design de jogos. Mecânicas, narrativa, level design, economia interna. Combina programação, arte, psicologia.
+
+Human: me explica como lidar com conflito
+AI: Ouça o outro, expresse seu lado, busque solução, não vitória. Escolha suas batalhas. Descanse antes de reagir.
+
+Human: me explica como cuidar da bateria
+AI: Nao deixe descarregar totalmente. Carregue entre 20-80%. Evite calor. Desative GPS/Bluetooth quando nao usar.
+
+Human: me ajuda, to com problema na escola
+AI: Qual problema? Estudo, bullying, professores? Me conta que te ajudo a pensar em solução.
+
+Human: voce sabe como lidar com conflito
+AI: Ouça o outro, expresse seu lado, busque solução, não vitória. Escolha suas batalhas. Descanse antes de reagir.
+
+Human: to com problema no trabalho!
+AI: Que tipo de problema? Chefe, colegas, tarefa? Me explica que posso te ajudar a pensar.
+
+Human: me explica ia vai substituir humanos
+AI: Em algumas tarefas: sim. Criatividade complexa, empatia: não. IA é ferramenta, não substituto. Depende do uso.
+
+Human: como funciona autoestima
+AI: Exercício, conquistas pequenas, cuidar da aparência, cercar-se de gente boa, terapia. Não compare com os outros.
+
+Human: como funciona o congresso
+AI: Senado (81 senadores) + Câmara (513 deputados). Fazem leis. Presidente sanciona. Pode vetar. Congresso derruba veto.
+
+Human: me diz, o que e exercicio aerobico
+AI: Atividade que eleva batimentos: caminhada, corrida, natação, bike. Melhora cardiovascular, queima gordura, melhora humor.
+
+Human: o que e energia solar
+AI: Painéis fotovoltaicos convertem luz solar em eletricidade. Brasil tem potencial enorme. Custos caíram 90% em 10 anos.
+
+Human: me diz, como comecar a programar jogos
+AI: 1) Aprenda Python/GDScript. 2) Game engine: Godot (grátis), Unity, Unreal. 3) Faça jogos simples. 4) Pratique todos os dias.
+
+Human: como funciona omelete
+AI: 2 ovos, sal, queijo, presunto. Bata ovos, despeje na frigideira. Recheie, dobre. Pronto em 5 minutos.
+
+Human: como funciona hackeado
+AI: Sinais: senha nao funciona, Activity estranha, email suspeito. Mude senhas, verifique dispositivos, ative 2FA.
+
+Human: nao consigo emagrecer
+AI: Déficit calórico + exercício. Não existe dieta milagrosa. Coma menos, mova mais. Consistência é chave.
+
+Human: me diz, como ser mais empatico
+AI: Escute sem julgar. Ponha-se no lugar do outro. Valide sentimentos. Não minimize. Pergunte como ajudar.
+
+Human: como funciona 5g
+AI: Quinta geração de rede celular. Mais rápido (10x), menor latência, mais dispositivos. Requer antenas novas.
+
+Human: voce sabe o que e chatgpt
+AI: Modelo de linguagem da OpenAI. Treinado em bilhões de textos. Gera texto, responde perguntas, programa. Não é perfeito.
+
+Human: voce sabe o que e phishing
+AI: Golpe que finge ser empresa legitima pra roubar dados. Email/site falso. Verifique sempre URL, nao clique em links duvidosos.
+
+Human: como funciona celular
+AI: Computador miniaturizado. Processador, RAM, tela, bateria, antena. Sistema: Android ou iOS. Conecta por 4G/5G/WiFi.
+
+Human: o que e blockchain
+AI: Registro público e imutável. Cada bloco encadeado. Base de criptomoedas. Aplicações: contratos, supply chain, voto.
+
+Human: como economizar dinheiro
+AI: 1) Orçamento mensal. 2) Investimento automático. 3) Evite compras por impulso. 4) Compare preços. 5) Cozinhe em casa.
+
+Human: me ajuda, to com dor de barriga
+AI: Chá de camomila, água morna, evita comida pesada. Se persistir ou for forte, procura médico.
+
+Human: voce sabe como parar o aquecimento global
+AI: Reduzir emissões: energia limpa, transporte elétrico, desmatamento zero. Acordo de Paris: limitar a 1.5°C.
+
+Human: me explica o que e chatgpt
+AI: Modelo de linguagem da OpenAI. Treinado em bilhões de textos. Gera texto, responde perguntas, programa. Não é perfeito.
+
+Human: voce sabe como economizar dinheiro
+AI: 1) Orçamento mensal. 2) Investimento automático. 3) Evite compras por impulso. 4) Compare preços. 5) Cozinhe em casa.
+
+Human: como funciona impeachment
+AI: Processo de destituição do Presidente. Câmara (2/3) → Senado (2/3). Razões: crime comum ou responsabilidade.
+
+Human: me diz, o que e aquecimento global
+AI: Temperatura media da Terra subindo. Causa: atividade humana. Efeitos: derretimento de gelo, furacoes, secas.
+
+Human: o que e bitcoin
+AI: Moeda digital descentralizada. Blockchain: registro público. Criada em 2009 por Satoshi Nakamoto. Volátil, especulativo.
+
+Human: to com problema de ansiedade
+AI: Respiração 4-7-8, exercício, terapia. Ansiedade é tratável. Não sofra sozinho.
+
+Human: como funciona produtivo
+AI: Pomodoro (25+5). Elimine distrações. Priorize o importante. Durma bem. Exercite-se. Evite multitarefa.
+
+Human: como funciona humanos
+AI: Em algumas tarefas: sim. Criatividade complexa, empatia: não. IA é ferramenta, não substituto. Depende do uso.
+
+Human: me explica como fazer amigos
+AI: Seja genuíno, ouça, interesse-se pelo outro. Particip de grupos, hobbies. Amizade leva tempo. Qualidade > quantidade.
+
+Human: voce sabe o que e aquecimento global
+AI: Temperatura media da Terra subindo. Causa: atividade humana. Efeitos: derretimento de gelo, furacoes, secas.
+
+Human: to com problema financeiro
+AI: Dívidas? Falta de renda? Me conta que te ajudo a pensar em solução.
+
+Human: como funciona arroz
+AI: 1 xícara arroz, 2 xícaras água, sal, óleo. Refogue alho, adicione arroz, água. Cozinhe 15-20 min tapado.
+
+Human: me diz, o que e blockchain
+AI: Registro público e imutável. Cada bloco encadeado. Base de criptomoedas. Aplicações: contratos, supply chain, voto.
+
+Human: to com febre!
+AI: Bebe muita agua, descansa, toma paracetamol. Se passar de 39°C ou durar 3 dias, procura médico.
+
+Human: me explica o que e bitcoin
+AI: Moeda digital descentralizada. Blockchain: registro público. Criada em 2009 por Satoshi Nakamoto. Volátil, especulativo.
+
+Human: me explica o que e energia eolica
+AI: Turbinas captam vento pra gerar eletricidade. Brasil: nordeste e sul. Limpa e renovável.
+
+Human: me explica o que e energia solar
+AI: Painéis fotovoltaicos convertem luz solar em eletricidade. Brasil tem potencial enorme. Custos caíram 90% em 10 anos.
+
+Human: como funciona exercicio
+AI: Comece leve: caminhada 30 min. Progressão: musculação, HIIT. Frequência: 3-5x/semana. Descanse. Água. Dieta.
+
+Human: me explica o que e game design
+AI: Design de jogos. Mecânicas, narrativa, level design, economia interna. Combina programação, arte, psicologia.
+
+Human: como funciona chatgpt
+AI: Modelo de linguagem da OpenAI. Treinado em bilhões de textos. Gera texto, responde perguntas, programa. Não é perfeito.
+
+Human: nao consigo engordar!
+AI: Coma mais calorias: frutas secas, abacate, arroz, feijão. Treine força. Metabolismo alto é genético, mas dá pra ganhar massa.
+
+Human: me diz, como cuidar da bateria
+AI: Nao deixe descarregar totalmente. Carregue entre 20-80%. Evite calor. Desative GPS/Bluetooth quando nao usar.
+
+Human: como melhorar autoestima
+AI: Exercício, conquistas pequenas, cuidar da aparência, cercar-se de gente boa, terapia. Não compare com os outros.
+
+Human: me ajuda, to com problema no trabalho
+AI: Que tipo de problema? Chefe, colegas, tarefa? Me explica que posso te ajudar a pensar.
+
+Human: voce sabe o que e cambio climatico
+AI: Aquecimento global causado por gases estufa. CO2 da queima de combustíveis fósseis. Consequências: extremos, nivel do mar.
+
+Human: como fazer amigos
+AI: Seja genuíno, ouça, interesse-se pelo outro. Particip de grupos, hobbies. Amizade leva tempo. Qualidade > quantidade.
+
+Human: voce sabe como ser mais empatico
+AI: Escute sem julgar. Ponha-se no lugar do outro. Valide sentimentos. Não minimize. Pergunte como ajudar.
+
+Human: me diz, o que e energia eolica
+AI: Turbinas captam vento pra gerar eletricidade. Brasil: nordeste e sul. Limpa e renovável.
+
+Human: como cuidar da bateria
+AI: Nao deixe descarregar totalmente. Carregue entre 20-80%. Evite calor. Desative GPS/Bluetooth quando nao usar.
+
+Human: me diz, o que e chatgpt
+AI: Modelo de linguagem da OpenAI. Treinado em bilhões de textos. Gera texto, responde perguntas, programa. Não é perfeito.
+
+Human: voce sabe o que e energia eolica
+AI: Turbinas captam vento pra gerar eletricidade. Brasil: nordeste e sul. Limpa e renovável.
+
+Human: me diz, como ser mais produtivo
+AI: Pomodoro (25+5). Elimine distrações. Priorize o importante. Durma bem. Exercite-se. Evite multitarefa.
+
+Human: como funciona aerobico
+AI: Atividade que eleva batimentos: caminhada, corrida, natação, bike. Melhora cardiovascular, queima gordura, melhora humor.
+
+Human: como funciona internet
+AI: Freelance, e-commerce, conteúdo, investimentos. Cuidado: golpes são comuns. Não existe dinheiro fácil. Estude e trabalhe.
+
+Human: me explica o que e exercicio anaerobico
+AI: Força e potência: musculação, sprint. Ganho massa muscular, força óssea. Combinar com aeróbico.
+
+Human: to com sono!
+AI: Entao dorme! Celular off, luz apagada, travesseiro confortavel. 7-8 horas sao ideais.
+
+Human: me explica como melhorar autoestima
+AI: Exercício, conquistas pequenas, cuidar da aparência, cercar-se de gente boa, terapia. Não compare com os outros.
+
+Human: me diz, como funciona um celular
+AI: Computador miniaturizado. Processador, RAM, tela, bateria, antena. Sistema: Android ou iOS. Conecta por 4G/5G/WiFi.
+
+Human: me diz, receita simples de omelete
+AI: 2 ovos, sal, queijo, presunto. Bata ovos, despeje na frigideira. Recheie, dobre. Pronto em 5 minutos.
+
+Human: me diz, o que e cambio climatico
+AI: Aquecimento global causado por gases estufa. CO2 da queima de combustíveis fósseis. Consequências: extremos, nivel do mar.
+
+Human: me diz, como fazer amigos
+AI: Seja genuíno, ouça, interesse-se pelo outro. Particip de grupos, hobbies. Amizade leva tempo. Qualidade > quantidade.
+
+Human: voce sabe como fazer amigos
+AI: Seja genuíno, ouça, interesse-se pelo outro. Particip de grupos, hobbies. Amizade leva tempo. Qualidade > quantidade.
+
+Human: como funciona artificial
+AI: Computador que simula inteligência humana. Aprendizado, raciocínio, percepção. Machine learning, deep learning, NLP.
+
+Human: me diz, como ganhar dinheiro na internet
+AI: Freelance, e-commerce, conteúdo, investimentos. Cuidado: golpes são comuns. Não existe dinheiro fácil. Estude e trabalhe.
+
+Human: o que e impeachment
+AI: Processo de destituição do Presidente. Câmara (2/3) → Senado (2/3). Razões: crime comum ou responsabilidade.
+
+Human: me explica como saber se fui hackeado
+AI: Sinais: senha nao funciona, Activity estranha, email suspeito. Mude senhas, verifique dispositivos, ative 2FA.
+
+Human: me explica o que e aquecimento global
+AI: Temperatura media da Terra subindo. Causa: atividade humana. Efeitos: derretimento de gelo, furacoes, secas.
+
+Human: me ajuda, to com febre
+AI: Bebe muita agua, descansa, toma paracetamol. Se passar de 39°C ou durar 3 dias, procura médico.
+
+Human: me ajuda, to com tosse
+AI: Chá de mel com limão, água morna, descansa. Se vier com sangue ou durar muito, médico urgente.
+
+Human: me ajuda, to com problema de saude
+AI: Que problema? Se for sério, médico urgente. Se for dúvida, me pergunta que te oriento.
+
+Human: receita simples de omelete
+AI: 2 ovos, sal, queijo, presunto. Bata ovos, despeje na frigideira. Recheie, dobre. Pronto em 5 minutos.
+
+Human: me diz, o que e impeachment
+AI: Processo de destituição do Presidente. Câmara (2/3) → Senado (2/3). Razões: crime comum ou responsabilidade.
+
+Human: como funciona eolica
+AI: Turbinas captam vento pra gerar eletricidade. Brasil: nordeste e sul. Limpa e renovável.
+
+Human: como lidar com conflito
+AI: Ouça o outro, expresse seu lado, busque solução, não vitória. Escolha suas batalhas. Descanse antes de reagir.
+
+Human: o que e aquecimento global
+AI: Temperatura media da Terra subindo. Causa: atividade humana. Efeitos: derretimento de gelo, furacoes, secas.
+
+Human: nao consigo emagrecer!
+AI: Déficit calórico + exercício. Não existe dieta milagrosa. Coma menos, mova mais. Consistência é chave.
+
+Human: voce sabe como fazer arroz
+AI: 1 xícara arroz, 2 xícaras água, sal, óleo. Refogue alho, adicione arroz, água. Cozinhe 15-20 min tapado.
+
+Human: me diz, o que e energia solar
+AI: Painéis fotovoltaicos convertem luz solar em eletricidade. Brasil tem potencial enorme. Custos caíram 90% em 10 anos.
+
+Human: to com dor de cabeca!
+AI: Descansa, bebe agua, toma dipirona. Se persistir, procura medico. Pode ser estresse, desidratacao, fome.
+
+Human: como funciona global
+AI: Reduzir emissões: energia limpa, transporte elétrico, desmatamento zero. Acordo de Paris: limitar a 1.5°C.
+
+Human: to com fome
+AI: Vai comer alguma coisa! Cozinhe algo simples ou peça delivery. Nao fique com fome.
+
+Human: voce sabe ia vai substituir humanos
+AI: Em algumas tarefas: sim. Criatividade complexa, empatia: não. IA é ferramenta, não substituto. Depende do uso.
+
+Human: to com problema na escola!
+AI: Qual problema? Estudo, bullying, professores? Me conta que te ajudo a pensar em solução.
+
+Human: como funciona empatico
+AI: Escute sem julgar. Ponha-se no lugar do outro. Valide sentimentos. Não minimize. Pergunte como ajudar.
+
+Human: me explica o que e blockchain
+AI: Registro público e imutável. Cada bloco encadeado. Base de criptomoedas. Aplicações: contratos, supply chain, voto.
+
+Human: voce sabe como cuidar da bateria
+AI: Nao deixe descarregar totalmente. Carregue entre 20-80%. Evite calor. Desative GPS/Bluetooth quando nao usar.
+
+Human: me ajuda, to com problema de sono
+AI: Rotina: horário fixo, sem celular, quarto escuro, temp fresco. Se persistir: médico do sono.
+
+Human: voce sabe como funciona o congresso
+AI: Senado (81 senadores) + Câmara (513 deputados). Fazem leis. Presidente sanciona. Pode vetar. Congresso derruba veto.
+
+Human: to com problema de amor
+AI: Coração partido? Me conta. As vezes falar ajuda. Não tem jeito fácil, mas passa.
+
+Human: me explica receita simples de omelete
+AI: 2 ovos, sal, queijo, presunto. Bata ovos, despeje na frigideira. Recheie, dobre. Pronto em 5 minutos.
+
+Human: voce sabe como funciona um celular
+AI: Computador miniaturizado. Processador, RAM, tela, bateria, antena. Sistema: Android ou iOS. Conecta por 4G/5G/WiFi.
+
+Human: me explica como fazer exercicio
+AI: Comece leve: caminhada 30 min. Progressão: musculação, HIIT. Frequência: 3-5x/semana. Descanse. Água. Dieta.
+
+Human: como fazer arroz
+AI: 1 xícara arroz, 2 xícaras água, sal, óleo. Refogue alho, adicione arroz, água. Cozinhe 15-20 min tapado.
+
+Human: como parar o aquecimento global
+AI: Reduzir emissões: energia limpa, transporte elétrico, desmatamento zero. Acordo de Paris: limitar a 1.5°C.
+
+Human: como funciona um celular
+AI: Computador miniaturizado. Processador, RAM, tela, bateria, antena. Sistema: Android ou iOS. Conecta por 4G/5G/WiFi.
+
+Human: como funciona e-sports
+AI: Esportes eletrônicos. Competições de jogos. Profissionais ganham milhões. Jogos: LoL, CS, Valorant, Fortnite.
+
+Human: me diz, o que e phishing
+AI: Golpe que finge ser empresa legitima pra roubar dados. Email/site falso. Verifique sempre URL, nao clique em links duvidosos.
+
+Human: como ser mais produtivo
+AI: Pomodoro (25+5). Elimine distrações. Priorize o importante. Durma bem. Exercite-se. Evite multitarefa.
+
+Human: me diz, como melhorar autoestima
+AI: Exercício, conquistas pequenas, cuidar da aparência, cercar-se de gente boa, terapia. Não compare com os outros.
+
+Human: me diz, o que e exercicio anaerobico
+AI: Força e potência: musculação, sprint. Ganho massa muscular, força óssea. Combinar com aeróbico.
+
+Human: me diz, o que e energia hidrelétrica
+AI: Agua em movimento gera eletricidade. Brasil depende muito (60%). Itaipu: maior do mundo.
+
+Human: voce sabe o que e blockchain
+AI: Registro público e imutável. Cada bloco encadeado. Base de criptomoedas. Aplicações: contratos, supply chain, voto.
+
+Human: to com problema na escola
+AI: Qual problema? Estudo, bullying, professores? Me conta que te ajudo a pensar em solução.
+
+Human: to com problema de saude
+AI: Que problema? Se for sério, médico urgente. Se for dúvida, me pergunta que te oriento.
+
+Human: to precisando de dinheiro!
+AI: Procure emprego, freelance, venda coisas que não usa. Não caia em golpes de dinheiro fácil.
+
+Human: me ajuda, to com problema de amizade
+AI: Amizade é difícil. Me conta o que aconteceu que te ajudo.
+
+Human: como funciona conflito
+AI: Ouça o outro, expresse seu lado, busque solução, não vitória. Escolha suas batalhas. Descanse antes de reagir.
+
+Human: me explica como ganhar dinheiro na internet
+AI: Freelance, e-commerce, conteúdo, investimentos. Cuidado: golpes são comuns. Não existe dinheiro fácil. Estude e trabalhe.
+
+Human: me ajuda, to com sono
+AI: Entao dorme! Celular off, luz apagada, travesseiro confortavel. 7-8 horas sao ideais.
+
+Human: me explica o que e energia hidrelétrica
+AI: Agua em movimento gera eletricidade. Brasil depende muito (60%). Itaipu: maior do mundo.
+
+Human: me explica como proteger meus dados na internet
+AI: Use senhas fortes (12+ caracteres, mistura). Ative 2FA. Nao clique em links suspeitos. Use VPN em redes publicas. Atualize software.
+
+Human: voce sabe o que e stf
+AI: Supremo Tribunal Federal. Julga constitucionalidade das leis. 11 ministros. Indicados pelo Presidente. vitalícios.
+
+Human: o que e inteligencia artificial
+AI: Computador que simula inteligência humana. Aprendizado, raciocínio, percepção. Machine learning, deep learning, NLP.
+
+Human: o que e 5g
+AI: Quinta geração de rede celular. Mais rápido (10x), menor latência, mais dispositivos. Requer antenas novas.
+
+Human: me explica o que e exercicio aerobico
+AI: Atividade que eleva batimentos: caminhada, corrida, natação, bike. Melhora cardiovascular, queima gordura, melhora humor.
+
+Human: voce sabe como fazer exercicio
+AI: Comece leve: caminhada 30 min. Progressão: musculação, HIIT. Frequência: 3-5x/semana. Descanse. Água. Dieta.
+
+Human: to com problema de depressao
+AI: Depressão é doença. Procure ajuda profissional. Terapia + medicação funciona. Você não tá sozinho.
+
+Human: me diz, como lidar com conflito
+AI: Ouça o outro, expresse seu lado, busque solução, não vitória. Escolha suas batalhas. Descanse antes de reagir.
+
+Human: to me sentindo mal!
+AI: Mal de que? Físico ou emocional? Se físico: médico. Se emocional: terapeuta. Não guarde isso.
+
+Human: to com dor de cabeca
+AI: Descansa, bebe agua, toma dipirona. Se persistir, procura medico. Pode ser estresse, desidratacao, fome.
+
+Human: como fazer exercicio
+AI: Comece leve: caminhada 30 min. Progressão: musculação, HIIT. Frequência: 3-5x/semana. Descanse. Água. Dieta.
+
+Human: to precisando de dinheiro
+AI: Procure emprego, freelance, venda coisas que não usa. Não caia em golpes de dinheiro fácil.
+
+Human: to com problema de ansiedade!
+AI: Respiração 4-7-8, exercício, terapia. Ansiedade é tratável. Não sofra sozinho.
+
+Human: voce sabe o que e bitcoin
+AI: Moeda digital descentralizada. Blockchain: registro público. Criada em 2009 por Satoshi Nakamoto. Volátil, especulativo.
+
+Human: me explica o que e 5g
+AI: Quinta geração de rede celular. Mais rápido (10x), menor latência, mais dispositivos. Requer antenas novas.
+
+Human: me explica o que e cambio climatico
+AI: Aquecimento global causado por gases estufa. CO2 da queima de combustíveis fósseis. Consequências: extremos, nivel do mar.
+
+Human: to com problema de amizade
+AI: Amizade é difícil. Me conta o que aconteceu que te ajudo.
+
+Human: voce sabe o que e inteligencia artificial
+AI: Computador que simula inteligência humana. Aprendizado, raciocínio, percepção. Machine learning, deep learning, NLP.
+
+Human: voce sabe o que e impeachment
+AI: Processo de destituição do Presidente. Câmara (2/3) → Senado (2/3). Razões: crime comum ou responsabilidade.
+
+Human: voce sabe como proteger meus dados na internet
+AI: Use senhas fortes (12+ caracteres, mistura). Ative 2FA. Nao clique em links suspeitos. Use VPN em redes publicas. Atualize software.
+
+Human: o que e chatgpt
+AI: Modelo de linguagem da OpenAI. Treinado em bilhões de textos. Gera texto, responde perguntas, programa. Não é perfeito.
+
+Human: como funciona internet
+AI: Use senhas fortes (12+ caracteres, mistura). Ative 2FA. Nao clique em links suspeitos. Use VPN em redes publicas. Atualize software.
+
+Human: me diz, como economizar dinheiro
+AI: 1) Orçamento mensal. 2) Investimento automático. 3) Evite compras por impulso. 4) Compare preços. 5) Cozinhe em casa.
+
+Human: to com problema na familia
+AI: Família é complicada. Me conta o que tá acontecendo que te ajudo a processar.
+
+Human: voce sabe como ganhar dinheiro na internet
+AI: Freelance, e-commerce, conteúdo, investimentos. Cuidado: golpes são comuns. Não existe dinheiro fácil. Estude e trabalhe.
+
+Human: me explica o que e impeachment
+AI: Processo de destituição do Presidente. Câmara (2/3) → Senado (2/3). Razões: crime comum ou responsabilidade.
+
+Human: me ajuda, to me sentindo mal
+AI: Mal de que? Físico ou emocional? Se físico: médico. Se emocional: terapeuta. Não guarde isso.
+
+Human: to com febre
+AI: Bebe muita agua, descansa, toma paracetamol. Se passar de 39°C ou durar 3 dias, procura médico.
+
+Human: como funciona amigos
+AI: Seja genuíno, ouça, interesse-se pelo outro. Particip de grupos, hobbies. Amizade leva tempo. Qualidade > quantidade.
+
+Human: me ajuda, to com problema de amor
+AI: Coração partido? Me conta. As vezes falar ajuda. Não tem jeito fácil, mas passa.
+
+Human: como funciona dinheiro
+AI: 1) Orçamento mensal. 2) Investimento automático. 3) Evite compras por impulso. 4) Compare preços. 5) Cozinhe em casa.
+
+Human: nao consigo engordar
+AI: Coma mais calorias: frutas secas, abacate, arroz, feijão. Treine força. Metabolismo alto é genético, mas dá pra ganhar massa.
+
+Human: me ajuda, to precisando de dinheiro
+AI: Procure emprego, freelance, venda coisas que não usa. Não caia em golpes de dinheiro fácil.
+
+Human: to com tosse!
+AI: Chá de mel com limão, água morna, descansa. Se vier com sangue ou durar muito, médico urgente.
+
+Human: me ajuda, to com problema de ansiedade
+AI: Respiração 4-7-8, exercício, terapia. Ansiedade é tratável. Não sofra sozinho.
+
+Human: o que e cambio climatico
+AI: Aquecimento global causado por gases estufa. CO2 da queima de combustíveis fósseis. Consequências: extremos, nivel do mar.
+
+Human: to com fome!
+AI: Vai comer alguma coisa! Cozinhe algo simples ou peça delivery. Nao fique com fome.
+
+Human: voce sabe como melhorar autoestima
+AI: Exercício, conquistas pequenas, cuidar da aparência, cercar-se de gente boa, terapia. Não compare com os outros.
+
+Human: me ajuda, to com problema de depressao
+AI: Depressão é doença. Procure ajuda profissional. Terapia + medicação funciona. Você não tá sozinho.
+
+Human: como ser mais empatico
+AI: Escute sem julgar. Ponha-se no lugar do outro. Valide sentimentos. Não minimize. Pergunte como ajudar.
+
+Human: me ajuda, nao consigo emagrecer
+AI: Déficit calórico + exercício. Não existe dieta milagrosa. Coma menos, mova mais. Consistência é chave.
+
+Human: me explica como funciona um celular
+AI: Computador miniaturizado. Processador, RAM, tela, bateria, antena. Sistema: Android ou iOS. Conecta por 4G/5G/WiFi.

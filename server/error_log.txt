@@ -1,0 +1,6 @@
+2026-07-18 21:45:01,460 [branpy] Carregando modelo: bran9bpy_final
+2026-07-18 21:45:01,727 [branpy] Modelo carregado: bran9bpy_final (5.14M) em 0.2s
+INFO:     Started server process [12108]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:11435 (Press CTRL+C to quit)

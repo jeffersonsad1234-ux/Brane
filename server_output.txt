@@ -1,0 +1,13 @@
+2026-07-13 09:14:48,964 [branpy] Carregando modelo: bran9bpy_final
+[Model] BranPy-5.1M — 6 layers, 256d, 8h
+[Tokenizer] Carregado de D:\BRANPY-AI\from_scratch\weights\bran9bpy_final\tokenizer.json — 1054 tokens
+2026-07-13 09:14:49,745 [branpy] Modelo carregado: bran9bpy_final (5.14M) em 0.8s
+INFO:     Started server process [3844]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:11435 (Press CTRL+C to quit)
+INFO:     127.0.0.1:61286 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61287 - "GET /api/info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61288 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61348 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61515 - "POST /api/chat HTTP/1.1" 200 OK

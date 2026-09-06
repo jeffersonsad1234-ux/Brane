@@ -1,0 +1,480 @@
+============================================================
+BRANPY AI — TREINO V2 (BPE Tokenizer)
+============================================================
+Tokenizador carregado: 16000 tokens
+Pares Q/A únicos: 25645
+Treino: 23080 | Validação: 2565
+Dataset: 23080 exemplos, max_len=256
+Batches por época: 2885
+Modelo: 16.9M parâmetros, vocab=16000, d=384, layers=6, heads=6
+
+Treinando 30 épocas...
+============================================================
+[1/30] 0/2885 | Loss: 220.4389 | ETA: 0.0min
+[1/30] 100/2885 | Loss: 10.0690 | ETA: 175.2min
+[1/30] 200/2885 | Loss: 6.4849 | ETA: 153.0min
+[1/30] 300/2885 | Loss: 4.9428 | ETA: 137.0min
+[1/30] 400/2885 | Loss: 5.8219 | ETA: 126.7min
+[1/30] 500/2885 | Loss: 2.9205 | ETA: 118.9min
+[1/30] 600/2885 | Loss: 5.9917 | ETA: 111.9min
+[1/30] 700/2885 | Loss: 7.9829 | ETA: 105.7min
+[1/30] 800/2885 | Loss: 2.5765 | ETA: 100.0min
+[1/30] 900/2885 | Loss: 6.4098 | ETA: 94.7min
+[1/30] 1000/2885 | Loss: 3.4747 | ETA: 89.4min
+[1/30] 1100/2885 | Loss: 2.2625 | ETA: 84.2min
+[1/30] 1200/2885 | Loss: 2.4541 | ETA: 79.1min
+[1/30] 1300/2885 | Loss: 4.1572 | ETA: 74.1min
+[1/30] 1400/2885 | Loss: 2.8122 | ETA: 69.3min
+[1/30] 1500/2885 | Loss: 6.8441 | ETA: 64.5min
+[1/30] 1600/2885 | Loss: 5.1391 | ETA: 59.7min
+[1/30] 1700/2885 | Loss: 1.6374 | ETA: 54.9min
+[1/30] 1800/2885 | Loss: 3.8574 | ETA: 50.2min
+[1/30] 1900/2885 | Loss: 4.4310 | ETA: 45.5min
+[1/30] 2000/2885 | Loss: 3.0284 | ETA: 40.8min
+[1/30] 2100/2885 | Loss: 2.7001 | ETA: 36.1min
+[1/30] 2200/2885 | Loss: 4.3851 | ETA: 31.5min
+[1/30] 2300/2885 | Loss: 6.0461 | ETA: 26.9min
+[1/30] 2400/2885 | Loss: 1.4855 | ETA: 22.2min
+[1/30] 2500/2885 | Loss: 2.8280 | ETA: 17.6min
+[1/30] 2600/2885 | Loss: 5.4151 | ETA: 13.0min
+[1/30] 2700/2885 | Loss: 1.4120 | ETA: 8.4min
+[1/30] 2800/2885 | Loss: 2.4679 | ETA: 3.8min
+
+Época 1 | Loss: 5.1200 | Tempo: 132.0min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M V M M M M 
+  Best Loss: 5.1200
+
+[2/30] 0/2885 | Loss: 3.8000 | ETA: 0.0min
+[2/30] 100/2885 | Loss: 3.4666 | ETA: 124.8min
+[2/30] 200/2885 | Loss: 3.9670 | ETA: 120.6min
+[2/30] 300/2885 | Loss: 2.4752 | ETA: 115.9min
+[2/30] 400/2885 | Loss: 3.6052 | ETA: 112.9min
+[2/30] 500/2885 | Loss: 1.2584 | ETA: 109.0min
+[2/30] 600/2885 | Loss: 1.4940 | ETA: 104.2min
+[2/30] 700/2885 | Loss: 4.2396 | ETA: 99.5min
+[2/30] 800/2885 | Loss: 1.0890 | ETA: 94.8min
+[2/30] 900/2885 | Loss: 3.5155 | ETA: 90.6min
+[2/30] 1000/2885 | Loss: 2.2456 | ETA: 86.0min
+[2/30] 1100/2885 | Loss: 4.2193 | ETA: 81.3min
+[2/30] 1200/2885 | Loss: 1.9201 | ETA: 76.7min
+[2/30] 1300/2885 | Loss: 1.5245 | ETA: 72.2min
+[2/30] 1400/2885 | Loss: 1.3392 | ETA: 67.6min
+[2/30] 1500/2885 | Loss: 0.9961 | ETA: 62.9min
+[2/30] 1600/2885 | Loss: 1.5606 | ETA: 58.4min
+[2/30] 1700/2885 | Loss: 1.1754 | ETA: 53.8min
+[2/30] 1800/2885 | Loss: 1.0304 | ETA: 49.2min
+[2/30] 1900/2885 | Loss: 3.9705 | ETA: 44.7min
+[2/30] 2000/2885 | Loss: 2.0643 | ETA: 40.1min
+[2/30] 2100/2885 | Loss: 2.0133 | ETA: 35.6min
+[2/30] 2200/2885 | Loss: 2.6267 | ETA: 31.0min
+[2/30] 2300/2885 | Loss: 1.6693 | ETA: 26.5min
+[2/30] 2400/2885 | Loss: 1.1510 | ETA: 22.2min
+[2/30] 2500/2885 | Loss: 1.8956 | ETA: 17.8min
+[2/30] 2600/2885 | Loss: 1.0665 | ETA: 13.1min
+[2/30] 2700/2885 | Loss: 1.3223 | ETA: 8.5min
+[2/30] 2800/2885 | Loss: 3.3220 | ETA: 3.9min
+
+Época 2 | Loss: 2.2574 | Tempo: 133.0min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : M M M M M M M M M M M M M M M M M M M N M M M M M M M M M M M M M M M M M N M M 
+  Best Loss: 2.2574
+
+[3/30] 0/2885 | Loss: 3.0156 | ETA: 0.0min
+[3/30] 100/2885 | Loss: 2.1840 | ETA: 124.6min
+[3/30] 200/2885 | Loss: 1.1994 | ETA: 119.7min
+[3/30] 300/2885 | Loss: 1.8201 | ETA: 115.3min
+[3/30] 400/2885 | Loss: 2.3010 | ETA: 110.9min
+[3/30] 500/2885 | Loss: 1.5754 | ETA: 106.7min
+[3/30] 600/2885 | Loss: 1.3817 | ETA: 102.4min
+[3/30] 700/2885 | Loss: 1.0766 | ETA: 98.0min
+[3/30] 800/2885 | Loss: 2.1278 | ETA: 93.5min
+[3/30] 900/2885 | Loss: 1.0801 | ETA: 89.0min
+[3/30] 1000/2885 | Loss: 0.8997 | ETA: 84.4min
+[3/30] 1100/2885 | Loss: 3.2916 | ETA: 79.8min
+[3/30] 1200/2885 | Loss: 0.9894 | ETA: 75.3min
+[3/30] 1300/2885 | Loss: 3.7837 | ETA: 411.6min
+[3/30] 1400/2885 | Loss: 1.2602 | ETA: 362.8min
+[3/30] 1500/2885 | Loss: 2.1790 | ETA: 320.0min
+[3/30] 1600/2885 | Loss: 1.3562 | ETA: 281.9min
+[3/30] 1700/2885 | Loss: 0.8745 | ETA: 247.9min
+[3/30] 1800/2885 | Loss: 1.0272 | ETA: 217.1min
+[3/30] 1900/2885 | Loss: 2.3348 | ETA: 189.0min
+[3/30] 2000/2885 | Loss: 1.0444 | ETA: 582.7min
+[3/30] 2100/2885 | Loss: 2.5108 | ETA: 493.9min
+[3/30] 2200/2885 | Loss: 1.0017 | ETA: 412.7min
+[3/30] 2300/2885 | Loss: 3.7270 | ETA: 338.2min
+[3/30] 2400/2885 | Loss: 3.3299 | ETA: 269.5min
+[3/30] 2500/2885 | Loss: 0.9198 | ETA: 206.0min
+[3/30] 2600/2885 | Loss: 1.9995 | ETA: 147.0min
+[3/30] 2700/2885 | Loss: 1.0058 | ETA: 193.9min
+[3/30] 2800/2885 | Loss: 1.0266 | ETA: 85.5min
+
+Época 3 | Loss: 1.9529 | Tempo: 2854.6min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : N M M N M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M M 
+  Best Loss: 1.9529
+
+[4/30] 0/2885 | Loss: 1.3083 | ETA: 0.0min
+[4/30] 100/2885 | Loss: 3.3974 | ETA: 124.6min
+[4/30] 200/2885 | Loss: 3.1249 | ETA: 120.9min
+[4/30] 300/2885 | Loss: 1.0949 | ETA: 117.4min
+[4/30] 400/2885 | Loss: 4.0939 | ETA: 112.2min
+[4/30] 500/2885 | Loss: 0.9528 | ETA: 107.5min
+[4/30] 600/2885 | Loss: 0.9971 | ETA: 5003.9min
+[4/30] 700/2885 | Loss: 2.2902 | ETA: 4119.2min
+[4/30] 800/2885 | Loss: 2.5806 | ETA: 3453.5min
+[4/30] 900/2885 | Loss: 1.0077 | ETA: 2932.7min
+[4/30] 1000/2885 | Loss: 1.3700 | ETA: 2515.1min
+[4/30] 1100/2885 | Loss: 3.0561 | ETA: 2172.4min
+[4/30] 1200/2885 | Loss: 1.0191 | ETA: 1886.1min
+[4/30] 1300/2885 | Loss: 0.8449 | ETA: 1643.2min
+[4/30] 1400/2885 | Loss: 1.0537 | ETA: 1434.3min
+[4/30] 1500/2885 | Loss: 1.3179 | ETA: 1252.7min
+[4/30] 1600/2885 | Loss: 2.5911 | ETA: 1093.2min
+[4/30] 1700/2885 | Loss: 0.9298 | ETA: 951.8min
+[4/30] 1800/2885 | Loss: 0.9152 | ETA: 825.7min
+[4/30] 1900/2885 | Loss: 3.0521 | ETA: 712.5min
+[4/30] 2000/2885 | Loss: 1.0456 | ETA: 610.2min
+[4/30] 2100/2885 | Loss: 1.0358 | ETA: 517.1min
+[4/30] 2200/2885 | Loss: 1.8822 | ETA: 432.1min
+[4/30] 2300/2885 | Loss: 1.4502 | ETA: 354.0min
+[4/30] 2400/2885 | Loss: 0.8509 | ETA: 282.1min
+[4/30] 2500/2885 | Loss: 0.9728 | ETA: 215.5min
+[4/30] 2600/2885 | Loss: 1.4697 | ETA: 153.8min
+[4/30] 2700/2885 | Loss: 1.6631 | ETA: 96.2min
+[4/30] 2800/2885 | Loss: 0.8733 | ETA: 42.5min
+
+Época 4 | Loss: 1.7964 | Tempo: 1420.8min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : M molha M economiza economiza sustentáveis sustentáveis sustentáveis sustentávei
+  Best Loss: 1.7964
+
+[5/30] 0/2885 | Loss: 0.8691 | ETA: 0.0min
+[5/30] 100/2885 | Loss: 1.2164 | ETA: 123.6min
+[5/30] 200/2885 | Loss: 0.9664 | ETA: 118.7min
+[5/30] 300/2885 | Loss: 0.8067 | ETA: 242.2min
+[5/30] 400/2885 | Loss: 1.0108 | ETA: 202.9min
+[5/30] 500/2885 | Loss: 0.9139 | ETA: 177.1min
+[5/30] 600/2885 | Loss: 3.0900 | ETA: 158.6min
+[5/30] 700/2885 | Loss: 0.8521 | ETA: 144.1min
+[5/30] 800/2885 | Loss: 2.8784 | ETA: 132.1min
+[5/30] 900/2885 | Loss: 0.9804 | ETA: 121.7min
+[5/30] 1000/2885 | Loss: 1.6611 | ETA: 112.4min
+[5/30] 1100/2885 | Loss: 1.2393 | ETA: 104.0min
+[5/30] 1200/2885 | Loss: 2.3350 | ETA: 96.4min
+[5/30] 1300/2885 | Loss: 2.1572 | ETA: 89.1min
+[5/30] 1400/2885 | Loss: 0.9464 | ETA: 82.2min
+[5/30] 1500/2885 | Loss: 1.1456 | ETA: 75.7min
+[5/30] 1600/2885 | Loss: 1.0054 | ETA: 69.4min
+[5/30] 1700/2885 | Loss: 1.2836 | ETA: 63.4min
+[5/30] 1800/2885 | Loss: 2.3240 | ETA: 57.5min
+[5/30] 1900/2885 | Loss: 0.9010 | ETA: 51.8min
+[5/30] 2000/2885 | Loss: 0.9295 | ETA: 46.2min
+[5/30] 2100/2885 | Loss: 0.8847 | ETA: 40.6min
+[5/30] 2200/2885 | Loss: 2.3347 | ETA: 35.2min
+[5/30] 2300/2885 | Loss: 2.4596 | ETA: 29.9min
+[5/30] 2400/2885 | Loss: 0.9993 | ETA: 24.6min
+[5/30] 2500/2885 | Loss: 1.3110 | ETA: 103.9min
+[5/30] 2600/2885 | Loss: 0.9182 | ETA: 74.4min
+[5/30] 2700/2885 | Loss: 2.2752 | ETA: 46.7min
+[5/30] 2800/2885 | Loss: 2.6132 | ETA: 20.7min
+
+Época 5 | Loss: 1.6853 | Tempo: 694.2min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : P M eletrôn eletrôn eletrôn eletrôn eletrôn eletrôn eletrôn eletrôn eletrôn elet
+  Best Loss: 1.6853
+
+[6/30] 0/2885 | Loss: 3.2433 | ETA: 0.0min
+[6/30] 100/2885 | Loss: 2.1706 | ETA: 122.8min
+[6/30] 200/2885 | Loss: 1.0141 | ETA: 118.7min
+[6/30] 300/2885 | Loss: 0.9988 | ETA: 4206.6min
+[6/30] 400/2885 | Loss: 1.5327 | ETA: 3065.9min
+[6/30] 500/2885 | Loss: 2.6355 | ETA: 2376.4min
+[6/30] 600/2885 | Loss: 0.9450 | ETA: 1915.1min
+[6/30] 700/2885 | Loss: 3.3910 | ETA: 1583.9min
+[6/30] 800/2885 | Loss: 2.2194 | ETA: 1334.4min
+[6/30] 900/2885 | Loss: 1.0124 | ETA: 1139.2min
+[6/30] 1000/2885 | Loss: 1.4933 | ETA: 982.1min
+[6/30] 1100/2885 | Loss: 1.7039 | ETA: 852.8min
+[6/30] 1200/2885 | Loss: 3.1461 | ETA: 744.2min
+[6/30] 1300/2885 | Loss: 1.0421 | ETA: 651.7min
+[6/30] 1400/2885 | Loss: 1.8113 | ETA: 571.7min
+[6/30] 1500/2885 | Loss: 0.9424 | ETA: 501.7min
+[6/30] 1600/2885 | Loss: 1.0577 | ETA: 440.0min
+[6/30] 1700/2885 | Loss: 3.4061 | ETA: 385.0min
+[6/30] 1800/2885 | Loss: 2.4885 | ETA: 335.7min
+[6/30] 1900/2885 | Loss: 1.0906 | ETA: 291.0min
+[6/30] 2000/2885 | Loss: 2.3652 | ETA: 250.3min
+[6/30] 2100/2885 | Loss: 1.0598 | ETA: 213.1min
+[6/30] 2200/2885 | Loss: 0.9139 | ETA: 178.8min
+[6/30] 2300/2885 | Loss: 2.6224 | ETA: 147.2min
+[6/30] 2400/2885 | Loss: 2.0653 | ETA: 117.8min
+[6/30] 2500/2885 | Loss: 2.8269 | ETA: 90.4min
+[6/30] 2600/2885 | Loss: 1.1844 | ETA: 64.8min
+[6/30] 2700/2885 | Loss: 2.8733 | ETA: 40.7min
+[6/30] 2800/2885 | Loss: 3.3592 | ETA: 18.1min
+
+Época 6 | Loss: 1.8399 | Tempo: 606.2min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : M Computers causado causado concentração concentração concentração concentração 
+  Best Loss: 1.6853
+
+[7/30] 0/2885 | Loss: 1.7207 | ETA: 0.0min
+[7/30] 100/2885 | Loss: 2.0296 | ETA: 126.1min
+[7/30] 200/2885 | Loss: 0.9452 | ETA: 121.9min
+[7/30] 300/2885 | Loss: 1.4379 | ETA: 117.5min
+[7/30] 400/2885 | Loss: 1.3503 | ETA: 112.8min
+[7/30] 500/2885 | Loss: 1.9719 | ETA: 110.8min
+[7/30] 600/2885 | Loss: 1.9522 | ETA: 109.3min
+[7/30] 700/2885 | Loss: 2.7099 | ETA: 103.6min
+[7/30] 800/2885 | Loss: 1.0002 | ETA: 98.1min
+[7/30] 900/2885 | Loss: 3.2173 | ETA: 93.0min
+[7/30] 1000/2885 | Loss: 1.0892 | ETA: 87.9min
+[7/30] 1100/2885 | Loss: 0.9831 | ETA: 82.9min
+[7/30] 1200/2885 | Loss: 1.1729 | ETA: 78.0min
+[7/30] 1300/2885 | Loss: 0.9320 | ETA: 73.1min
+[7/30] 1400/2885 | Loss: 1.0793 | ETA: 68.4min
+[7/30] 1500/2885 | Loss: 3.7320 | ETA: 63.6min
+[7/30] 1600/2885 | Loss: 2.1451 | ETA: 59.0min
+[7/30] 1700/2885 | Loss: 1.3656 | ETA: 54.3min
+[7/30] 1800/2885 | Loss: 3.6512 | ETA: 49.6min
+[7/30] 1900/2885 | Loss: 3.1037 | ETA: 45.0min
+[7/30] 2000/2885 | Loss: 1.1967 | ETA: 40.3min
+[7/30] 2100/2885 | Loss: 2.3678 | ETA: 35.7min
+[7/30] 2200/2885 | Loss: 2.2790 | ETA: 31.1min
+[7/30] 2300/2885 | Loss: 2.1500 | ETA: 26.6min
+[7/30] 2400/2885 | Loss: 1.0198 | ETA: 22.0min
+[7/30] 2500/2885 | Loss: 2.9748 | ETA: 17.4min
+[7/30] 2600/2885 | Loss: 1.4449 | ETA: 12.9min
+[7/30] 2700/2885 | Loss: 1.4847 | ETA: 8.3min
+[7/30] 2800/2885 | Loss: 1.4249 | ETA: 3.8min
+
+Época 7 | Loss: 1.7654 | Tempo: 131.2min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : P M gravitational taoísmo acordeão acordeão acordeão acordeão acordeão acordeão 
+  Best Loss: 1.6853
+
+[8/30] 0/2885 | Loss: 2.6840 | ETA: 0.0min
+[8/30] 100/2885 | Loss: 1.3001 | ETA: 124.5min
+[8/30] 200/2885 | Loss: 0.8691 | ETA: 120.0min
+[8/30] 300/2885 | Loss: 1.4131 | ETA: 115.8min
+[8/30] 400/2885 | Loss: 1.7595 | ETA: 111.2min
+[8/30] 500/2885 | Loss: 1.0502 | ETA: 106.6min
+[8/30] 600/2885 | Loss: 1.0028 | ETA: 101.8min
+[8/30] 700/2885 | Loss: 1.2846 | ETA: 97.3min
+[8/30] 800/2885 | Loss: 1.6792 | ETA: 93.0min
+[8/30] 900/2885 | Loss: 0.9570 | ETA: 88.6min
+[8/30] 1000/2885 | Loss: 2.5524 | ETA: 84.1min
+[8/30] 1100/2885 | Loss: 1.0950 | ETA: 79.6min
+[8/30] 1200/2885 | Loss: 3.1311 | ETA: 75.1min
+[8/30] 1300/2885 | Loss: 2.4327 | ETA: 70.7min
+[8/30] 1400/2885 | Loss: 1.6776 | ETA: 66.2min
+[8/30] 1500/2885 | Loss: 3.1942 | ETA: 61.8min
+[8/30] 1600/2885 | Loss: 1.7475 | ETA: 57.4min
+[8/30] 1700/2885 | Loss: 2.1072 | ETA: 52.9min
+[8/30] 1800/2885 | Loss: 3.0588 | ETA: 48.4min
+[8/30] 1900/2885 | Loss: 1.1899 | ETA: 44.0min
+[8/30] 2000/2885 | Loss: 0.9990 | ETA: 39.5min
+[8/30] 2100/2885 | Loss: 1.5919 | ETA: 35.0min
+[8/30] 2200/2885 | Loss: 2.0775 | ETA: 30.6min
+[8/30] 2300/2885 | Loss: 2.5766 | ETA: 26.1min
+[8/30] 2400/2885 | Loss: 1.2298 | ETA: 21.6min
+[8/30] 2500/2885 | Loss: 0.8231 | ETA: 17.2min
+[8/30] 2600/2885 | Loss: 1.4501 | ETA: 12.7min
+[8/30] 2700/2885 | Loss: 1.3626 | ETA: 8.2min
+[8/30] 2800/2885 | Loss: 1.2756 | ETA: 3.8min
+
+Época 8 | Loss: 1.6911 | Tempo: 128.9min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : O j Aumenta Fí Cuide fotovoltaicos fotovoltaicos fotovoltaicos Nazismo Nazismo N
+  Best Loss: 1.6853
+
+[9/30] 0/2885 | Loss: 2.4348 | ETA: 0.0min
+[9/30] 100/2885 | Loss: 1.5101 | ETA: 124.8min
+[9/30] 200/2885 | Loss: 0.8619 | ETA: 120.0min
+[9/30] 300/2885 | Loss: 0.9663 | ETA: 114.9min
+[9/30] 400/2885 | Loss: 2.0344 | ETA: 110.2min
+[9/30] 500/2885 | Loss: 0.9671 | ETA: 105.7min
+[9/30] 600/2885 | Loss: 0.9938 | ETA: 101.0min
+[9/30] 700/2885 | Loss: 0.8638 | ETA: 96.4min
+[9/30] 800/2885 | Loss: 0.9953 | ETA: 2408.5min
+[9/30] 900/2885 | Loss: 0.9662 | ETA: 2048.3min
+[9/30] 1000/2885 | Loss: 1.9097 | ETA: 1759.0min
+[9/30] 1100/2885 | Loss: 0.9603 | ETA: 1521.5min
+[9/30] 1200/2885 | Loss: 1.9924 | ETA: 1323.2min
+[9/30] 1300/2885 | Loss: 1.2360 | ETA: 1154.3min
+[9/30] 1400/2885 | Loss: 3.1020 | ETA: 1009.0min
+[9/30] 1500/2885 | Loss: 1.0630 | ETA: 903.8min
+[9/30] 1600/2885 | Loss: 0.8906 | ETA: 789.7min
+[9/30] 1700/2885 | Loss: 3.4748 | ETA: 688.5min
+[9/30] 1800/2885 | Loss: 2.0464 | ETA: 598.0min
+[9/30] 1900/2885 | Loss: 1.6171 | ETA: 516.6min
+[9/30] 2000/2885 | Loss: 0.8547 | ETA: 442.8min
+[9/30] 2100/2885 | Loss: 1.2788 | ETA: 375.7min
+[9/30] 2200/2885 | Loss: 1.0813 | ETA: 314.5min
+[9/30] 2300/2885 | Loss: 3.0537 | ETA: 258.0min
+[9/30] 2400/2885 | Loss: 1.5321 | ETA: 205.8min
+[9/30] 2500/2885 | Loss: 1.3035 | ETA: 157.4min
+[9/30] 2600/2885 | Loss: 2.3838 | ETA: 112.4min
+[9/30] 2700/2885 | Loss: 2.9116 | ETA: 70.4min
+[9/30] 2800/2885 | Loss: 1.0006 | ETA: 31.1min
+
+Época 9 | Loss: 1.6341 | Tempo: 1082.5min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : O otra elétrico elétrico elétrico elétrico M N fixo M M M = lendo M M M M M M M 
+  Best Loss: 1.6341
+
+[10/30] 0/2885 | Loss: 1.4662 | ETA: 0.0min
+[10/30] 100/2885 | Loss: 1.2773 | ETA: 123.8min
+[10/30] 200/2885 | Loss: 0.8175 | ETA: 119.2min
+[10/30] 300/2885 | Loss: 0.8494 | ETA: 114.7min
+[10/30] 400/2885 | Loss: 2.2639 | ETA: 110.9min
+[10/30] 500/2885 | Loss: 1.3318 | ETA: 106.2min
+[10/30] 600/2885 | Loss: 1.2072 | ETA: 101.5min
+[10/30] 700/2885 | Loss: 1.8050 | ETA: 96.9min
+[10/30] 800/2885 | Loss: 2.2682 | ETA: 92.3min
+[10/30] 900/2885 | Loss: 1.3533 | ETA: 88.0min
+[10/30] 1000/2885 | Loss: 1.5859 | ETA: 83.8min
+[10/30] 1100/2885 | Loss: 1.7943 | ETA: 79.5min
+[10/30] 1200/2885 | Loss: 0.9979 | ETA: 75.7min
+[10/30] 1300/2885 | Loss: 1.1528 | ETA: 72.1min
+[10/30] 1400/2885 | Loss: 1.9229 | ETA: 68.5min
+[10/30] 1500/2885 | Loss: 2.3407 | ETA: 64.6min
+[10/30] 1600/2885 | Loss: 2.3358 | ETA: 60.4min
+[10/30] 1700/2885 | Loss: 2.1791 | ETA: 55.7min
+[10/30] 1800/2885 | Loss: 3.6705 | ETA: 50.8min
+[10/30] 1900/2885 | Loss: 0.8724 | ETA: 45.9min
+[10/30] 2000/2885 | Loss: 1.1131 | ETA: 41.1min
+[10/30] 2100/2885 | Loss: 1.4727 | ETA: 36.9min
+[10/30] 2200/2885 | Loss: 0.8763 | ETA: 32.1min
+[10/30] 2300/2885 | Loss: 1.0608 | ETA: 27.4min
+[10/30] 2400/2885 | Loss: 2.0808 | ETA: 23.3min
+[10/30] 2500/2885 | Loss: 0.9211 | ETA: 18.9min
+[10/30] 2600/2885 | Loss: 0.9650 | ETA: 14.1min
+[10/30] 2700/2885 | Loss: 0.9117 | ETA: 9.2min
+[10/30] 2800/2885 | Loss: 2.0442 | ETA: 4.3min
+
+Época 10 | Loss: 1.5667 | Tempo: 146.5min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : fuse fotovoltaicos Amazônica Amazônica M M calenta calenta SEO SEO SEO SEO ated 
+  Best Loss: 1.5667
+
+[11/30] 0/2885 | Loss: 2.2985 | ETA: 0.0min
+[11/30] 100/2885 | Loss: 2.0270 | ETA: 125.3min
+[11/30] 200/2885 | Loss: 1.1180 | ETA: 120.3min
+[11/30] 300/2885 | Loss: 0.7835 | ETA: 116.3min
+[11/30] 400/2885 | Loss: 0.9721 | ETA: 118.2min
+[11/30] 500/2885 | Loss: 0.9417 | ETA: 112.2min
+[11/30] 600/2885 | Loss: 2.2110 | ETA: 106.7min
+[11/30] 700/2885 | Loss: 0.7762 | ETA: 101.6min
+[11/30] 800/2885 | Loss: 1.0557 | ETA: 96.6min
+[11/30] 900/2885 | Loss: 0.9418 | ETA: 91.6min
+[11/30] 1000/2885 | Loss: 1.3716 | ETA: 86.7min
+[11/30] 1100/2885 | Loss: 1.2523 | ETA: 82.0min
+[11/30] 1200/2885 | Loss: 2.0681 | ETA: 77.3min
+[11/30] 1300/2885 | Loss: 0.8222 | ETA: 72.5min
+[11/30] 1400/2885 | Loss: 1.0952 | ETA: 67.7min
+[11/30] 1500/2885 | Loss: 0.8749 | ETA: 63.0min
+[11/30] 1600/2885 | Loss: 1.1435 | ETA: 58.3min
+[11/30] 1700/2885 | Loss: 2.1810 | ETA: 70.9min
+[11/30] 1800/2885 | Loss: 2.0547 | ETA: 64.0min
+[11/30] 1900/2885 | Loss: 0.8812 | ETA: 57.3min
+[11/30] 2000/2885 | Loss: 1.0272 | ETA: 51.0min
+[11/30] 2100/2885 | Loss: 0.8346 | ETA: 44.8min
+[11/30] 2200/2885 | Loss: 2.4412 | ETA: 39.0min
+[11/30] 2300/2885 | Loss: 1.5463 | ETA: 33.1min
+[11/30] 2400/2885 | Loss: 3.3314 | ETA: 27.4min
+[11/30] 2500/2885 | Loss: 2.0371 | ETA: 22.0min
+[11/30] 2600/2885 | Loss: 1.8452 | ETA: 16.2min
+[11/30] 2700/2885 | Loss: 1.9747 | ETA: 10.4min
+[11/30] 2800/2885 | Loss: 3.2113 | ETA: 4.7min
+
+Época 11 | Loss: 1.5077 | Tempo: 161.5min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : M Exército tima tima tima trabalhadores trabalhadores trabalhadores trabalhadore
+  Best Loss: 1.5077
+
+[12/30] 0/2885 | Loss: 0.9808 | ETA: 0.0min
+[12/30] 100/2885 | Loss: 0.8127 | ETA: 123.2min
+[12/30] 200/2885 | Loss: 0.9205 | ETA: 118.0min
+[12/30] 300/2885 | Loss: 1.1101 | ETA: 113.7min
+[12/30] 400/2885 | Loss: 0.8235 | ETA: 109.0min
+[12/30] 500/2885 | Loss: 2.8249 | ETA: 104.7min
+[12/30] 600/2885 | Loss: 1.9067 | ETA: 599.2min
+[12/30] 700/2885 | Loss: 1.0699 | ETA: 505.1min
+[12/30] 800/2885 | Loss: 1.0069 | ETA: 433.4min
+[12/30] 900/2885 | Loss: 1.9457 | ETA: 376.7min
+[12/30] 1000/2885 | Loss: 0.6791 | ETA: 330.2min
+[12/30] 1100/2885 | Loss: 1.1181 | ETA: 291.4min
+[12/30] 1200/2885 | Loss: 0.9176 | ETA: 258.4min
+[12/30] 1300/2885 | Loss: 2.2614 | ETA: 229.7min
+[12/30] 1400/2885 | Loss: 2.2062 | ETA: 204.6min
+[12/30] 1500/2885 | Loss: 0.7566 | ETA: 182.1min
+[12/30] 1600/2885 | Loss: 0.8899 | ETA: 162.0min
+[12/30] 1700/2885 | Loss: 2.0549 | ETA: 143.7min
+[12/30] 1800/2885 | Loss: 1.1085 | ETA: 127.0min
+[12/30] 1900/2885 | Loss: 3.6697 | ETA: 111.5min
+[12/30] 2000/2885 | Loss: 1.0064 | ETA: 97.1min
+[12/30] 2100/2885 | Loss: 0.9005 | ETA: 83.7min
+[12/30] 2200/2885 | Loss: 0.8855 | ETA: 71.1min
+[12/30] 2300/2885 | Loss: 2.1646 | ETA: 59.1min
+[12/30] 2400/2885 | Loss: 1.0552 | ETA: 47.9min
+[12/30] 2500/2885 | Loss: 1.0698 | ETA: 37.1min
+[12/30] 2600/2885 | Loss: 1.4589 | ETA: 26.9min
+[12/30] 2700/2885 | Loss: 1.5153 | ETA: 17.1min
+[12/30] 2800/2885 | Loss: 0.9394 | ETA: 7.6min
+
+Época 12 | Loss: 1.4363 | Tempo: 258.7min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : Reg emissões emissões emissões emissões emissões Requer Requer Requer Requer Req
+  Best Loss: 1.4363
+
+[13/30] 0/2885 | Loss: 1.3350 | ETA: 0.0min
+[13/30] 100/2885 | Loss: 1.9345 | ETA: 123.1min
+[13/30] 200/2885 | Loss: 2.7121 | ETA: 118.0min
+[13/30] 300/2885 | Loss: 1.2970 | ETA: 113.4min
+[13/30] 400/2885 | Loss: 1.0011 | ETA: 109.6min
+[13/30] 500/2885 | Loss: 1.7503 | ETA: 105.1min
+[13/30] 600/2885 | Loss: 1.0006 | ETA: 100.5min
+[13/30] 700/2885 | Loss: 0.8349 | ETA: 96.3min
+[13/30] 800/2885 | Loss: 0.8784 | ETA: 92.0min
+[13/30] 900/2885 | Loss: 0.9525 | ETA: 87.7min
+[13/30] 1000/2885 | Loss: 0.7536 | ETA: 84.4min
+[13/30] 1100/2885 | Loss: 0.9229 | ETA: 79.9min
+[13/30] 1200/2885 | Loss: 2.4069 | ETA: 75.4min
+[13/30] 1300/2885 | Loss: 1.0318 | ETA: 70.9min
+[13/30] 1400/2885 | Loss: 2.2992 | ETA: 66.4min
+[13/30] 1500/2885 | Loss: 1.0039 | ETA: 61.9min
+[13/30] 1600/2885 | Loss: 1.1250 | ETA: 57.4min
+[13/30] 1700/2885 | Loss: 1.0802 | ETA: 53.0min
+[13/30] 1800/2885 | Loss: 2.6853 | ETA: 48.5min
+[13/30] 1900/2885 | Loss: 2.3070 | ETA: 44.1min
+[13/30] 2000/2885 | Loss: 0.8903 | ETA: 39.6min
+[13/30] 2100/2885 | Loss: 0.9047 | ETA: 35.1min
+[13/30] 2200/2885 | Loss: 2.5251 | ETA: 30.6min
+[13/30] 2300/2885 | Loss: 0.9217 | ETA: 26.1min
+[13/30] 2400/2885 | Loss: 0.8089 | ETA: 21.7min
+[13/30] 2500/2885 | Loss: 2.3667 | ETA: 17.2min
+[13/30] 2600/2885 | Loss: 1.9066 | ETA: 12.7min
+[13/30] 2700/2885 | Loss: 0.9074 | ETA: 8.2min
+[13/30] 2800/2885 | Loss: 0.9669 | ETA: 3.8min
+
+Época 13 | Loss: 1.3762 | Tempo: 129.1min
+  Teste: o que e inteligencia artificial -> P : o que e inteligencia artificial R : absorb Bach [ K falhas oportunidades oportunidades tiliz tiliz tiliz tiliz acord
+  Best Loss: 1.3762
+
+[14/30] 0/2885 | Loss: 0.9301 | ETA: 0.0min
+[14/30] 100/2885 | Loss: 2.1669 | ETA: 122.4min
+[14/30] 200/2885 | Loss: 0.7215 | ETA: 119.1min
+[14/30] 300/2885 | Loss: 0.9015 | ETA: 114.8min
+[14/30] 400/2885 | Loss: 0.7592 | ETA: 110.2min
+[14/30] 500/2885 | Loss: 1.1054 | ETA: 105.6min
+[14/30] 600/2885 | Loss: 0.9344 | ETA: 101.2min
+[14/30] 700/2885 | Loss: 0.8864 | ETA: 96.8min
+[14/30] 800/2885 | Loss: 1.4130 | ETA: 92.5min
+[14/30] 900/2885 | Loss: 0.8234 | ETA: 88.1min
+[14/30] 1000/2885 | Loss: 1.3834 | ETA: 83.6min
+[14/30] 1100/2885 | Loss: 0.6864 | ETA: 79.2min
+[14/30] 1200/2885 | Loss: 1.3723 | ETA: 74.7min
+[14/30] 1300/2885 | Loss: 2.0453 | ETA: 70.3min
+[14/30] 1400/2885 | Loss: 2.5700 | ETA: 65.8min
+[14/30] 1500/2885 | Loss: 0.9808 | ETA: 61.3min
+[14/30] 1600/2885 | Loss: 2.5138 | ETA: 56.9min
+[14/30] 1700/2885 | Loss: 1.7609 | ETA: 149.5min
+[14/30] 1800/2885 | Loss: 0.8897 | ETA: 131.9min
+[14/30] 1900/2885 | Loss: 1.1582 | ETA: 115.7min
+[14/30] 2000/2885 | Loss: 0.8323 | ETA: 100.7min
+[14/30] 2100/2885 | Loss: 0.8261 | ETA: 86.7min
+[14/30] 2200/2885 | Loss: 0.9125 | ETA: 73.6min
+[14/30] 2300/2885 | Loss: 0.7980 | ETA: 61.2min
+[14/30] 2400/2885 | Loss: 1.0048 | ETA: 68.2min
+[14/30] 2500/2885 | Loss: 2.1844 | ETA: 52.8min

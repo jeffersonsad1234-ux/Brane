@@ -1,0 +1,235 @@
+============================================================
+BRANPY AI — TREINO V4 (16.9M, BPE 8K, Otimizado)
+============================================================
+Tokenizer: 8000 tokens
+Pares Q/A: 25645
+Treino: 23080
+Dataset: 23080 exemplos
+Batches: 2885
+Modelo: 13.8M params | d=384 layers=6
+Resume epoch 19
+
+Treinando 30 epocas...
+============================================================
+[20/30] 0/2885 | Loss: 3.8105 | ETA: 0min
+[20/30] 200/2885 | Loss: 1.0236 | ETA: 52min
+[20/30] 400/2885 | Loss: 4.4154 | ETA: 46min
+[20/30] 600/2885 | Loss: 2.2735 | ETA: 51min
+[20/30] 800/2885 | Loss: 2.0488 | ETA: 52min
+[20/30] 1000/2885 | Loss: 4.0539 | ETA: 49min
+[20/30] 1200/2885 | Loss: 1.5540 | ETA: 46min
+[20/30] 1400/2885 | Loss: 1.4637 | ETA: 41min
+[20/30] 1600/2885 | Loss: 1.1430 | ETA: 36min
+[20/30] 1800/2885 | Loss: 1.1726 | ETA: 30min
+[20/30] 2000/2885 | Loss: 4.0684 | ETA: 26min
+[20/30] 2200/2885 | Loss: 4.1363 | ETA: 24min
+[20/30] 2400/2885 | Loss: 2.9675 | ETA: 21min
+[20/30] 2600/2885 | Loss: 4.6304 | ETA: 13min
+[20/30] 2800/2885 | Loss: 1.5604 | ETA: 4min
+
+Epoca 20 | Loss: 2.1352 | 131.5min
+  Teste: P : o que voce e R : interna Einste inação orienta convertem envia Nazi Neuronios S betes alto trabalhador 11 11 11 11 11 11 11 11 11 11 11 11 11 11 1
+  Best: 2.1352
+
+[21/30] 0/2885 | Loss: 2.8659 | ETA: 0min
+[21/30] 200/2885 | Loss: 2.9636 | ETA: 120min
+[21/30] 400/2885 | Loss: 2.2224 | ETA: 112min
+[21/30] 600/2885 | Loss: 0.9853 | ETA: 105min
+[21/30] 800/2885 | Loss: 1.0862 | ETA: 95min
+[21/30] 1000/2885 | Loss: 3.9642 | ETA: 85min
+[21/30] 1200/2885 | Loss: 2.5500 | ETA: 75min
+[21/30] 1400/2885 | Loss: 2.9444 | ETA: 60min
+[21/30] 1600/2885 | Loss: 1.1695 | ETA: 52min
+[21/30] 1800/2885 | Loss: 1.7522 | ETA: 42min
+[21/30] 2000/2885 | Loss: 1.4956 | ETA: 32min
+[21/30] 2200/2885 | Loss: 1.0230 | ETA: 24min
+[21/30] 2400/2885 | Loss: 1.4890 | ETA: 17min
+[21/30] 2600/2885 | Loss: 1.1969 | ETA: 10min
+[21/30] 2800/2885 | Loss: 1.2172 | ETA: 3min
+
+Epoca 21 | Loss: 2.1230 | 94.7min
+  Teste: P : o que voce e R : evita bagunça Ou PN Or Or fadiga fadiga fadiga fadiga fadiga fadiga Nazi Portugal orienta estat estat estat estat planos # produz
+  Best: 2.1230
+
+[22/30] 0/2885 | Loss: 3.0025 | ETA: 0min
+[22/30] 200/2885 | Loss: 1.6155 | ETA: 69min
+[22/30] 400/2885 | Loss: 1.9861 | ETA: 63min
+[22/30] 600/2885 | Loss: 4.3128 | ETA: 58min
+[22/30] 800/2885 | Loss: 3.1010 | ETA: 53min
+[22/30] 1000/2885 | Loss: 1.6592 | ETA: 48min
+[22/30] 1200/2885 | Loss: 2.7940 | ETA: 42min
+[22/30] 1400/2885 | Loss: 1.1536 | ETA: 37min
+[22/30] 1600/2885 | Loss: 1.3446 | ETA: 32min
+[22/30] 1800/2885 | Loss: 2.1008 | ETA: 27min
+[22/30] 2000/2885 | Loss: 2.1815 | ETA: 22min
+[22/30] 2200/2885 | Loss: 2.1202 | ETA: 17min
+[22/30] 2400/2885 | Loss: 1.0142 | ETA: 12min
+[22/30] 2600/2885 | Loss: 1.0247 | ETA: 48min
+[22/30] 2800/2885 | Loss: 1.3141 | ETA: 13min
+
+Epoca 22 | Loss: 2.1169 | 440.5min
+  Teste: P : o que voce e R : interna vonta iras raiz Neuronios P +). Einste Pesquis Neuronios conectados conectados conectados conectados conectados conectado
+  Best: 2.1169
+
+[23/30] 0/2885 | Loss: 3.9040 | ETA: 0min
+[23/30] 200/2885 | Loss: 1.7844 | ETA: 39min
+[23/30] 400/2885 | Loss: 1.5967 | ETA: 36min
+[23/30] 600/2885 | Loss: 0.9873 | ETA: 33min
+[23/30] 800/2885 | Loss: 2.0012 | ETA: 30min
+[23/30] 1000/2885 | Loss: 3.0575 | ETA: 28min
+[23/30] 1200/2885 | Loss: 4.1351 | ETA: 25min
+[23/30] 1400/2885 | Loss: 0.8224 | ETA: 22min
+[23/30] 1600/2885 | Loss: 1.5565 | ETA: 19min
+[23/30] 1800/2885 | Loss: 1.9626 | ETA: 16min
+[23/30] 2000/2885 | Loss: 1.6059 | ETA: 13min
+[23/30] 2200/2885 | Loss: 0.9771 | ETA: 290min
+[23/30] 2400/2885 | Loss: 0.9958 | ETA: 189min
+[23/30] 2600/2885 | Loss: 2.3149 | ETA: 103min
+[23/30] 2800/2885 | Loss: 1.3546 | ETA: 28min
+
+Epoca 23 | Loss: 2.1042 | 942.9min
+  Teste: P : o que voce e R : Tristeza vitaminas Platão Wi dal iras iras iras iras iras iras iras iras iras iras iras iras elas minutes elas Nazi elas sia manh
+  Best: 2.1042
+
+[24/30] 0/2885 | Loss: 3.9970 | ETA: 0min
+[24/30] 200/2885 | Loss: 2.6273 | ETA: 38min
+[24/30] 400/2885 | Loss: 0.9206 | ETA: 35min
+[24/30] 600/2885 | Loss: 3.2329 | ETA: 32min
+[24/30] 800/2885 | Loss: 1.2778 | ETA: 30min
+[24/30] 1000/2885 | Loss: 1.5234 | ETA: 27min
+[24/30] 1200/2885 | Loss: 1.4801 | ETA: 24min
+[24/30] 1400/2885 | Loss: 0.9269 | ETA: 21min
+[24/30] 1600/2885 | Loss: 4.3624 | ETA: 20min
+[24/30] 1800/2885 | Loss: 2.2878 | ETA: 17min
+[24/30] 2000/2885 | Loss: 3.4552 | ETA: 13min
+[24/30] 2200/2885 | Loss: 1.0395 | ETA: 10min
+[24/30] 2400/2885 | Loss: 2.2100 | ETA: 7min
+[24/30] 2600/2885 | Loss: 1.5540 | ETA: 4min
+[24/30] 2800/2885 | Loss: 4.0180 | ETA: 1min
+
+Epoca 24 | Loss: 2.0925 | 44.2min
+  Teste: P : o que voce e R : Jos diversao 3 betes Einste pontos Ecos sia zimas zimas produzir produzir produzir produzir produzir produzir produzir produzir p
+  Best: 2.0925
+
+[25/30] 0/2885 | Loss: 1.8473 | ETA: 0min
+[25/30] 200/2885 | Loss: 1.4657 | ETA: 40min
+[25/30] 400/2885 | Loss: 1.7026 | ETA: 37min
+[25/30] 600/2885 | Loss: 1.6418 | ETA: 34min
+[25/30] 800/2885 | Loss: 1.0675 | ETA: 30min
+[25/30] 1000/2885 | Loss: 2.3595 | ETA: 28min
+[25/30] 1200/2885 | Loss: 4.0678 | ETA: 25min
+[25/30] 1400/2885 | Loss: 3.6585 | ETA: 22min
+[25/30] 1600/2885 | Loss: 2.0469 | ETA: 19min
+[25/30] 1800/2885 | Loss: 1.3713 | ETA: 16min
+[25/30] 2000/2885 | Loss: 2.5394 | ETA: 13min
+[25/30] 2200/2885 | Loss: 4.0278 | ETA: 10min
+[25/30] 2400/2885 | Loss: 1.9236 | ETA: 7min
+[25/30] 2600/2885 | Loss: 2.5762 | ETA: 4min
+[25/30] 2800/2885 | Loss: 2.1482 | ETA: 1min
+
+Epoca 25 | Loss: 2.0823 | 42.6min
+  Teste: P : o que voce e R : interna vonta iras CBT betes vídeo bil ; limitar limitar limitar planos planos mões Neuronios conectados conectados conectados co
+  Best: 2.0823
+
+[26/30] 0/2885 | Loss: 1.5882 | ETA: 0min
+[26/30] 200/2885 | Loss: 2.0815 | ETA: 39min
+[26/30] 400/2885 | Loss: 1.0474 | ETA: 36min
+[26/30] 600/2885 | Loss: 4.3309 | ETA: 33min
+[26/30] 800/2885 | Loss: 1.7402 | ETA: 30min
+[26/30] 1000/2885 | Loss: 3.2996 | ETA: 27min
+[26/30] 1200/2885 | Loss: 1.0502 | ETA: 24min
+[26/30] 1400/2885 | Loss: 2.3540 | ETA: 22min
+[26/30] 1600/2885 | Loss: 4.8030 | ETA: 19min
+[26/30] 1800/2885 | Loss: 1.1872 | ETA: 16min
+[26/30] 2000/2885 | Loss: 1.9113 | ETA: 13min
+[26/30] 2200/2885 | Loss: 1.0573 | ETA: 10min
+[26/30] 2400/2885 | Loss: 2.4862 | ETA: 7min
+[26/30] 2600/2885 | Loss: 1.0377 | ETA: 4min
+[26/30] 2800/2885 | Loss: 1.7511 | ETA: 1min
+
+Epoca 26 | Loss: 2.0772 | 41.7min
+  Teste: P : o que voce e R : R 16 conexão conexão sia manhã padrão padrão Neuronios Neuronios explici elas dal dal dal ( rem rem rem rem privada criação Wi Wi
+  Best: 2.0772
+
+[27/30] 0/2885 | Loss: 2.5613 | ETA: 0min
+[27/30] 200/2885 | Loss: 3.1523 | ETA: 38min
+[27/30] 400/2885 | Loss: 1.6435 | ETA: 2473min
+[27/30] 600/2885 | Loss: 2.7952 | ETA: 1528min
+[27/30] 800/2885 | Loss: 1.6111 | ETA: 1054min
+[27/30] 1000/2885 | Loss: 1.1076 | ETA: 768min
+[27/30] 1200/2885 | Loss: 1.5607 | ETA: 576min
+[27/30] 1400/2885 | Loss: 0.9383 | ETA: 438min
+[27/30] 1600/2885 | Loss: 1.1306 | ETA: 334min
+[27/30] 1800/2885 | Loss: 2.8775 | ETA: 253min
+[27/30] 2000/2885 | Loss: 2.0185 | ETA: 187min
+[27/30] 2200/2885 | Loss: 0.8708 | ETA: 132min
+[27/30] 2400/2885 | Loss: 1.2450 | ETA: 86min
+[27/30] 2600/2885 | Loss: 1.7289 | ETA: 47min
+[27/30] 2800/2885 | Loss: 1.9825 | ETA: 35min
+
+Epoca 27 | Loss: 2.0661 | 1173.5min
+  Teste: P : o que voce e R : interna vonta iras CBT limitar culação zimas zimas & = sexo sexo sexo sexo sexo sexo sexo sexo sexo sexo sexo sexo sexo sexo sexo
+  Best: 2.0661
+
+[28/30] 0/2885 | Loss: 2.7392 | ETA: 0min
+[28/30] 200/2885 | Loss: 2.6560 | ETA: 38min
+[28/30] 400/2885 | Loss: 1.7542 | ETA: 35min
+[28/30] 600/2885 | Loss: 1.5991 | ETA: 33min
+[28/30] 800/2885 | Loss: 1.8498 | ETA: 30min
+[28/30] 1000/2885 | Loss: 1.5726 | ETA: 27min
+[28/30] 1200/2885 | Loss: 0.8544 | ETA: 24min
+[28/30] 1400/2885 | Loss: 1.4822 | ETA: 21min
+[28/30] 1600/2885 | Loss: 1.0976 | ETA: 18min
+[28/30] 1800/2885 | Loss: 2.0523 | ETA: 15min
+[28/30] 2000/2885 | Loss: 1.2674 | ETA: 43min
+[28/30] 2200/2885 | Loss: 1.0533 | ETA: 31min
+[28/30] 2400/2885 | Loss: 0.9385 | ETA: 21min
+[28/30] 2600/2885 | Loss: 1.2216 | ETA: 12min
+[28/30] 2800/2885 | Loss: 2.6738 | ETA: 3min
+
+Epoca 28 | Loss: 2.0570 | 110.4min
+  Teste: P : o que voce e R : O -- padrão padrão hotosynthesis Nazi grega grega engra engra Q algoritmos algoritmos acte bagun fissão vitamina vitamina exercic
+  Best: 2.0570
+
+[29/30] 0/2885 | Loss: 0.9666 | ETA: 0min
+[29/30] 200/2885 | Loss: 1.0308 | ETA: 38min
+[29/30] 400/2885 | Loss: 1.7668 | ETA: 35min
+[29/30] 600/2885 | Loss: 2.3978 | ETA: 32min
+[29/30] 800/2885 | Loss: 1.2516 | ETA: 30min
+[29/30] 1000/2885 | Loss: 2.8067 | ETA: 27min
+[29/30] 1200/2885 | Loss: 1.6839 | ETA: 24min
+[29/30] 1400/2885 | Loss: 1.2888 | ETA: 21min
+[29/30] 1600/2885 | Loss: 2.8715 | ETA: 408min
+[29/30] 1800/2885 | Loss: 1.3970 | ETA: 308min
+[29/30] 2000/2885 | Loss: 2.4683 | ETA: 227min
+[29/30] 2200/2885 | Loss: 1.2628 | ETA: 161min
+[29/30] 2400/2885 | Loss: 2.7817 | ETA: 105min
+[29/30] 2600/2885 | Loss: 2.0892 | ETA: 57min
+[29/30] 2800/2885 | Loss: 1.6309 | ETA: 16min
+
+Epoca 29 | Loss: 2.0531 | 527.0min
+  Teste: P : o que voce e R : S Einste -- -- -- S + bagun % inva criação Neuronios elas elas elas elas elas sia manhã manhã manhã manhã manhã manhã manhã manhã
+  Best: 2.0531
+
+[30/30] 0/2885 | Loss: 1.7986 | ETA: 0min
+[30/30] 200/2885 | Loss: 2.4182 | ETA: 38min
+[30/30] 400/2885 | Loss: 3.6509 | ETA: 35min
+[30/30] 600/2885 | Loss: 1.6705 | ETA: 33min
+[30/30] 800/2885 | Loss: 1.2949 | ETA: 1557min
+[30/30] 1000/2885 | Loss: 1.2310 | ETA: 1132min
+[30/30] 1200/2885 | Loss: 0.9493 | ETA: 847min
+[30/30] 1400/2885 | Loss: 3.1195 | ETA: 643min
+[30/30] 1600/2885 | Loss: 3.3607 | ETA: 489min
+[30/30] 1800/2885 | Loss: 2.2756 | ETA: 369min
+[30/30] 2000/2885 | Loss: 1.8745 | ETA: 272min
+[30/30] 2200/2885 | Loss: 2.2135 | ETA: 192min
+[30/30] 2400/2885 | Loss: 0.9708 | ETA: 125min
+[30/30] 2600/2885 | Loss: 2.6261 | ETA: 68min
+[30/30] 2800/2885 | Loss: 2.5548 | ETA: 19min
+
+Epoca 30 | Loss: 2.0386 | 628.2min
+  Teste: P : o que voce e R : Tristeza T mulher
+  Best: 2.0386
+
+
+COMPLETO! Best: 2.0386

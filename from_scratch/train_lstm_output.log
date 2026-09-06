@@ -1,0 +1,1477 @@
+============================================================
+BRANPY AI — TREINO LSTM (100% BranPy)
+============================================================
+Construindo tokenizer BPE (8K)...
+
+
+
+Tokenizer: 8000 tokens
+Pares Q/A: 25734
+Treino: 23160
+Dataset: 23160 exemplos
+Batches: 1448
+Modelo LSTM: 11.9M params | embed=256 hidden=512 layers=3
+
+Treinando 50 epocas...
+============================================================
+[1/50] 0/1448 | Loss: 8.9861 | ETA: 0min
+[1/50] 200/1448 | Loss: 5.5922 | ETA: 27min
+[1/50] 400/1448 | Loss: 4.0242 | ETA: 23min
+[1/50] 600/1448 | Loss: 3.7563 | ETA: 18min
+[1/50] 800/1448 | Loss: 3.7311 | ETA: 14min
+[1/50] 1000/1448 | Loss: 2.8994 | ETA: 10min
+[1/50] 1200/1448 | Loss: 2.8966 | ETA: 5min
+[1/50] 1400/1448 | Loss: 3.1224 | ETA: 1min
+
+Epoca 1 | Loss: 3.7581 | 31.5min
+  Teste: P : o que voce e R : A é e e a o a não o o para ) el dados de os t é . O i a forma , se é no a de ). não , o das a a re s , senhor . O da foi é que o , - de . se no ó as de do , por .
+  Best: 3.7581
+
+[2/50] 0/1448 | Loss: 1.2790 | ETA: 0min
+[2/50] 200/1448 | Loss: 1.5599 | ETA: 28min
+[2/50] 400/1448 | Loss: 1.7438 | ETA: 24min
+[2/50] 600/1448 | Loss: 1.1026 | ETA: 19min
+[2/50] 800/1448 | Loss: 1.3238 | ETA: 15min
+[2/50] 1000/1448 | Loss: 1.0975 | ETA: 10min
+[2/50] 1200/1448 | Loss: 3.2726 | ETA: 5min
+[2/50] 1400/1448 | Loss: 3.0304 | ETA: 1min
+
+Epoca 2 | Loss: 2.2169 | 31.2min
+  Teste: P : o que voce e R : Sobre isso : Estatistica e a linguagem da tudo de resolver da mundo dados . Diagnostico , linhas , medicao , planos , planos , machine que e desespero . Pitagoras : taxa de variac
+  Best: 2.2169
+
+[3/50] 0/1448 | Loss: 1.9449 | ETA: 0min
+[3/50] 200/1448 | Loss: 1.4650 | ETA: 27min
+[3/50] 400/1448 | Loss: 1.1245 | ETA: 24min
+[3/50] 600/1448 | Loss: 1.6282 | ETA: 17min
+[3/50] 800/1448 | Loss: 2.1171 | ETA: 12min
+[3/50] 1000/1448 | Loss: 1.2549 | ETA: 9min
+[3/50] 1200/1448 | Loss: 1.9923 | ETA: 5min
+[3/50] 1400/1448 | Loss: 1.3934 | ETA: 1min
+
+Epoca 3 | Loss: 1.9302 | 26.6min
+  Teste: P : o que voce e R : Boa pergunta ! Node . js ha matematica em JS . Nao , carros , quadrado , ecossistemas , ecossistemas , populacoes , graficos . Darwin : arquitetura ^ e resolver problemas . Quer s
+  Best: 1.9302
+
+[4/50] 0/1448 | Loss: 2.1008 | ETA: 0min
+[4/50] 200/1448 | Loss: 1.3265 | ETA: 19min
+[4/50] 400/1448 | Loss: 1.8974 | ETA: 16min
+[4/50] 600/1448 | Loss: 2.9475 | ETA: 13min
+[4/50] 800/1448 | Loss: 1.2846 | ETA: 10min
+[4/50] 1000/1448 | Loss: 1.5847 | ETA: 7min
+[4/50] 1200/1448 | Loss: 2.2998 | ETA: 4min
+[4/50] 1400/1448 | Loss: 1.7590 | ETA: 1min
+
+Epoca 4 | Loss: 1.7666 | 21.9min
+  Teste: P : o que voce e R : Sobre isso : Biologia ajuda a tomar decisoes com dados . Respira , carros , prevencao , predios , eletricidade . Assincrona e o que tem dados . Pode Lactea muita que existe dados 
+  Best: 1.7666
+
+[5/50] 0/1448 | Loss: 2.3117 | ETA: 0min
+[5/50] 200/1448 | Loss: 1.8455 | ETA: 19min
+[5/50] 400/1448 | Loss: 1.7929 | ETA: 16min
+[5/50] 600/1448 | Loss: 1.1909 | ETA: 13min
+[5/50] 800/1448 | Loss: 1.5193 | ETA: 10min
+[5/50] 1000/1448 | Loss: 0.7976 | ETA: 7min
+[5/50] 1200/1448 | Loss: 1.6463 | ETA: 4min
+[5/50] 1400/1448 | Loss: 0.9430 | ETA: 1min
+
+Epoca 5 | Loss: 1.6541 | 21.7min
+  Teste: P : o que voce e R : Claro ! Geometria e o estudo de formas , tamanhos e posicoes . Pontos , linhas , planos , solidos . Pitagoras , Euclides . Aplicacoes : arquitetura , navegacao , graficos . Posso 
+  Best: 1.6541
+
+[6/50] 0/1448 | Loss: 1.9432 | ETA: 0min
+[6/50] 200/1448 | Loss: 1.7055 | ETA: 18min
+[6/50] 400/1448 | Loss: 1.8866 | ETA: 15min
+[6/50] 600/1448 | Loss: 0.9748 | ETA: 12min
+[6/50] 800/1448 | Loss: 1.3908 | ETA: 10min
+[6/50] 1000/1448 | Loss: 1.7184 | ETA: 7min
+[6/50] 1200/1448 | Loss: 1.6428 | ETA: 4min
+[6/50] 1400/1448 | Loss: 0.9411 | ETA: 1min
+
+Epoca 6 | Loss: 1.5647 | 21.8min
+  Teste: P : o que voce e R : Claro ! Calculo lida com infinitesimais . Limite , derivada , integral . Usado em : velocidade , area , volume , otimizacao , machine learning . Quer que eu detalhe mais ?
+  Best: 1.5647
+
+[7/50] 0/1448 | Loss: 2.3710 | ETA: 0min
+[7/50] 200/1448 | Loss: 1.2737 | ETA: 19min
+[7/50] 400/1448 | Loss: 1.8353 | ETA: 16min
+[7/50] 600/1448 | Loss: 1.2410 | ETA: 13min
+[7/50] 800/1448 | Loss: 1.4422 | ETA: 10min
+[7/50] 1000/1448 | Loss: 2.1931 | ETA: 7min
+[7/50] 1200/1448 | Loss: 1.1635 | ETA: 4min
+[7/50] 1400/1448 | Loss: 1.7085 | ETA: 1min
+
+Epoca 7 | Loss: 1.4951 | 21.8min
+  Teste: P : o que voce e R : Claro ! CSS resume e interpreta com dados . Descritiva : resume . Inferencial : generaliza . Fundamental pra ciencia , negocio , politica .
+  Best: 1.4951
+
+[8/50] 0/1448 | Loss: 2.6946 | ETA: 0min
+[8/50] 200/1448 | Loss: 1.4588 | ETA: 19min
+[8/50] 400/1448 | Loss: 0.9355 | ETA: 16min
+[8/50] 600/1448 | Loss: 0.9247 | ETA: 13min
+[8/50] 800/1448 | Loss: 0.8890 | ETA: 10min
+[8/50] 1000/1448 | Loss: 1.5007 | ETA: 7min
+[8/50] 1200/1448 | Loss: 2.2240 | ETA: 4min
+[8/50] 1400/1448 | Loss: 1.7332 | ETA: 1min
+
+Epoca 8 | Loss: 1.4343 | 21.7min
+  Teste: P : o que voce e R : O eu e explicar de economia que solução pra resolver dados . Nietzsche : useState , rapida , quantica . Luiz - 3 ( ISRSs ). Deep learning : redes neurais profundas .
+  Best: 1.4343
+
+[9/50] 0/1448 | Loss: 0.9415 | ETA: 0min
+[9/50] 200/1448 | Loss: 0.9099 | ETA: 19min
+[9/50] 400/1448 | Loss: 1.5806 | ETA: 16min
+[9/50] 600/1448 | Loss: 1.1846 | ETA: 13min
+[9/50] 800/1448 | Loss: 1.9820 | ETA: 10min
+[9/50] 1000/1448 | Loss: 1.9926 | ETA: 7min
+[9/50] 1200/1448 | Loss: 1.1472 | ETA: 4min
+[9/50] 1400/1448 | Loss: 1.0913 | ETA: 1min
+
+Epoca 9 | Loss: 1.3819 | 21.8min
+  Teste: P : o que voce e R : O que o Brasil foi a computador mais no mundo ? O Brasil é um exemplo ação . O Brasil é muitos itos por o elemento humano aumenta . O movimento pre rosso no século ro .
+  Best: 1.3819
+
+[10/50] 0/1448 | Loss: 1.6032 | ETA: 0min
+[10/50] 200/1448 | Loss: 1.4672 | ETA: 18min
+[10/50] 400/1448 | Loss: 0.9923 | ETA: 16min
+[10/50] 600/1448 | Loss: 1.3184 | ETA: 13min
+[10/50] 800/1448 | Loss: 0.7451 | ETA: 10min
+[10/50] 1000/1448 | Loss: 0.8738 | ETA: 7min
+[10/50] 1200/1448 | Loss: 0.9384 | ETA: 4min
+[10/50] 1400/1448 | Loss: 1.6083 | ETA: 1min
+
+Epoca 10 | Loss: 1.3335 | 21.5min
+  Teste: P : o que voce e R : Boa pergunta ! CSS e uma linguagem de programacao versatil , simples e poderosa . Sintaxe limpa . Usada em : web , dados , IA , automacao . Comece aqui se quer aprender . Posso ex
+  Best: 1.3335
+
+[11/50] 0/1448 | Loss: 0.8034 | ETA: 0min
+[11/50] 200/1448 | Loss: 0.9201 | ETA: 18min
+[11/50] 400/1448 | Loss: 1.4239 | ETA: 15min
+[11/50] 600/1448 | Loss: 0.8740 | ETA: 12min
+[11/50] 800/1448 | Loss: 1.3745 | ETA: 9min
+[11/50] 1000/1448 | Loss: 1.5416 | ETA: 7min
+[11/50] 1200/1448 | Loss: 1.0510 | ETA: 4min
+[11/50] 1400/1448 | Loss: 0.9313 | ETA: 1min
+
+Epoca 11 | Loss: 1.2895 | 21.1min
+  Teste: P : o que voce e R : Su é o estudo celular , senhor . É o que é útil que permite que possa usar .
+  Best: 1.2895
+
+[12/50] 0/1448 | Loss: 1.6230 | ETA: 0min
+[12/50] 200/1448 | Loss: 1.7447 | ETA: 18min
+[12/50] 400/1448 | Loss: 1.5289 | ETA: 15min
+[12/50] 600/1448 | Loss: 1.2405 | ETA: 39min
+[12/50] 800/1448 | Loss: 1.9314 | ETA: 25min
+[12/50] 1000/1448 | Loss: 1.3550 | ETA: 15min
+[12/50] 1200/1448 | Loss: 1.5712 | ETA: 7min
+[12/50] 1400/1448 | Loss: 0.8803 | ETA: 1min
+
+Epoca 12 | Loss: 1.2481 | 39.9min
+  Teste: P : o que voce e R : Não tem JavaScript na rei . Sem estrutura , conversar , links de imagens , não não quiser . Não tenho restrições de entender . A energia é o modelo da história .
+  Best: 1.2481
+
+[13/50] 0/1448 | Loss: 1.0407 | ETA: 0min
+[13/50] 200/1448 | Loss: 0.9026 | ETA: 18min
+[13/50] 400/1448 | Loss: 1.3346 | ETA: 15min
+[13/50] 600/1448 | Loss: 1.8002 | ETA: 12min
+[13/50] 800/1448 | Loss: 0.9011 | ETA: 9min
+[13/50] 1000/1448 | Loss: 1.0429 | ETA: 7min
+[13/50] 1200/1448 | Loss: 0.8168 | ETA: 4min
+[13/50] 1400/1448 | Loss: 0.8416 | ETA: 1min
+
+Epoca 13 | Loss: 1.2117 | 21.0min
+  Teste: P : o que voce e R : Pro cesso de des tituição do Pre sidente . C â mar a ( 2 / 3 ) ( recompensa ) ? Sen ado ( 2 / 3 ). R az ões : crime comum ou responsabilidade .
+  Best: 1.2117
+
+[14/50] 0/1448 | Loss: 1.3175 | ETA: 0min
+[14/50] 200/1448 | Loss: 1.6559 | ETA: 18min
+[14/50] 400/1448 | Loss: 1.6737 | ETA: 15min
+[14/50] 600/1448 | Loss: 1.0173 | ETA: 12min
+[14/50] 800/1448 | Loss: 1.1206 | ETA: 10min
+[14/50] 1000/1448 | Loss: 1.0200 | ETA: 7min
+[14/50] 1200/1448 | Loss: 0.8276 | ETA: 4min
+[14/50] 1400/1448 | Loss: 1.3625 | ETA: 1min
+
+Epoca 14 | Loss: 1.1767 | 21.7min
+  Teste: P : o que voce e R : Em algumas tarefas : sim . Criatividade complexa , empatia : não . IA é ferramenta , não sub s titu to . Depende do uso .
+  Best: 1.1767
+
+[15/50] 0/1448 | Loss: 0.8829 | ETA: 0min
+[15/50] 200/1448 | Loss: 0.8405 | ETA: 18min
+[15/50] 400/1448 | Loss: 1.3348 | ETA: 16min
+[15/50] 600/1448 | Loss: 1.3629 | ETA: 13min
+[15/50] 800/1448 | Loss: 1.2062 | ETA: 10min
+[15/50] 1000/1448 | Loss: 1.2245 | ETA: 7min
+[15/50] 1200/1448 | Loss: 0.7373 | ETA: 4min
+[15/50] 1400/1448 | Loss: 1.4789 | ETA: 1min
+
+Epoca 15 | Loss: 1.1422 | 21.2min
+  Teste: P : o que voce e R : Tem peratura media da Terra sub indo . Causa : atividade humana . Efeito s : derre timento de gelo , fu ra coes , se cas .
+  Best: 1.1422
+
+[16/50] 0/1448 | Loss: 1.4904 | ETA: 0min
+[16/50] 200/1448 | Loss: 1.0988 | ETA: 18min
+[16/50] 400/1448 | Loss: 1.2648 | ETA: 15min
+[16/50] 600/1448 | Loss: 0.9472 | ETA: 12min
+[16/50] 800/1448 | Loss: 1.1048 | ETA: 84min
+[16/50] 1000/1448 | Loss: 1.2394 | ETA: 48min
+[16/50] 1200/1448 | Loss: 0.9425 | ETA: 23min
+[16/50] 1400/1448 | Loss: 1.0012 | ETA: 4min
+
+Epoca 16 | Loss: 1.1145 | 113.4min
+  Teste: P : o que voce e R : Não tenho medo de descansar . Procure existe verdade , qualquer perguntas , assistir de aprender em qualquer massa . Você não vai problema .
+  Best: 1.1145
+
+[17/50] 0/1448 | Loss: 1.1518 | ETA: 0min
+[17/50] 200/1448 | Loss: 1.0346 | ETA: 19min
+[17/50] 400/1448 | Loss: 1.2776 | ETA: 15min
+[17/50] 600/1448 | Loss: 1.3197 | ETA: 12min
+[17/50] 800/1448 | Loss: 0.8529 | ETA: 10min
+[17/50] 1000/1448 | Loss: 0.9390 | ETA: 7min
+[17/50] 1200/1448 | Loss: 0.8802 | ETA: 4min
+[17/50] 1400/1448 | Loss: 1.1939 | ETA: 1min
+
+Epoca 17 | Loss: 1.0853 | 21.3min
+  Teste: P : o que voce e R : Procure emprego com linguagem , senhor . O que precisa ?
+  Best: 1.0853
+
+[18/50] 0/1448 | Loss: 0.8775 | ETA: 0min
+[18/50] 200/1448 | Loss: 1.3163 | ETA: 19min
+[18/50] 400/1448 | Loss: 0.7639 | ETA: 16min
+[18/50] 600/1448 | Loss: 0.9360 | ETA: 13min
+[18/50] 800/1448 | Loss: 1.3299 | ETA: 10min
+[18/50] 1000/1448 | Loss: 1.3584 | ETA: 7min
+[18/50] 1200/1448 | Loss: 1.0818 | ETA: 4min
+[18/50] 1400/1448 | Loss: 1.1093 | ETA: 1min
+
+Epoca 18 | Loss: 1.0571 | 21.4min
+  Teste: P : o que voce e R : Meu nome e so tu cor ! ta , percepção na mim , trabalhar , não vi mos . Se tenho problema : cultura , terapia , não vendo ar demais .
+  Best: 1.0571
+
+[19/50] 0/1448 | Loss: 1.1423 | ETA: 0min
+[19/50] 200/1448 | Loss: 0.8051 | ETA: 18min
+[19/50] 400/1448 | Loss: 1.2589 | ETA: 15min
+[19/50] 600/1448 | Loss: 0.9201 | ETA: 12min
+[19/50] 800/1448 | Loss: 0.7925 | ETA: 9min
+[19/50] 1000/1448 | Loss: 0.8526 | ETA: 6min
+[19/50] 1200/1448 | Loss: 1.4183 | ETA: 4min
+[19/50] 1400/1448 | Loss: 1.5082 | ETA: 1min
+
+Epoca 19 | Loss: 1.0336 | 21.1min
+  Teste: P : o que voce e R : Tem l D g í ões ou dia , senhor . C ren ga varia são das nas no cérebro .
+  Best: 1.0336
+
+[20/50] 0/1448 | Loss: 0.7971 | ETA: 0min
+[20/50] 200/1448 | Loss: 0.9201 | ETA: 18min
+[20/50] 400/1448 | Loss: 0.8359 | ETA: 15min
+[20/50] 600/1448 | Loss: 1.1610 | ETA: 12min
+[20/50] 800/1448 | Loss: 1.1875 | ETA: 10min
+[20/50] 1000/1448 | Loss: 0.9565 | ETA: 7min
+[20/50] 1200/1448 | Loss: 1.1686 | ETA: 4min
+[20/50] 1400/1448 | Loss: 0.9301 | ETA: 1min
+
+Epoca 20 | Loss: 1.0093 | 21.3min
+  Teste: P : o que voce e R : Claro ! Visao de que nao ha significado objetivo . Vida , moral , conhecimento : tudo sem fundamento . Nietzsche tentou superar com o Uebermensch . Quer que eu detalhe mais ?
+  Best: 1.0093
+
+[21/50] 0/1448 | Loss: 0.7915 | ETA: 0min
+[21/50] 200/1448 | Loss: 1.1863 | ETA: 18min
+[21/50] 400/1448 | Loss: 1.0774 | ETA: 15min
+[21/50] 600/1448 | Loss: 0.8491 | ETA: 12min
+[21/50] 800/1448 | Loss: 0.8924 | ETA: 9min
+[21/50] 1000/1448 | Loss: 0.8230 | ETA: 7min
+[21/50] 1200/1448 | Loss: 0.9900 | ETA: 4min
+[21/50] 1400/1448 | Loss: 0.9073 | ETA: 1min
+
+Epoca 21 | Loss: 0.9898 | 21.2min
+  Teste: P : o que voce e R : Claro ! Estatistica ajuda a tomar decisoes com dados . Amostragem , hipoteses , testes . P = hack e Maria - se . Pode ser o que muito lineares . Quer saber mais ?
+  Best: 0.9898
+
+[22/50] 0/1448 | Loss: 1.1440 | ETA: 0min
+[22/50] 200/1448 | Loss: 1.2008 | ETA: 19min
+[22/50] 400/1448 | Loss: 1.0490 | ETA: 16min
+[22/50] 600/1448 | Loss: 1.0205 | ETA: 13min
+[22/50] 800/1448 | Loss: 1.4542 | ETA: 10min
+[22/50] 1000/1448 | Loss: 1.0338 | ETA: 7min
+[22/50] 1200/1448 | Loss: 0.9511 | ETA: 4min
+[22/50] 1400/1448 | Loss: 0.8739 | ETA: 1min
+
+Epoca 22 | Loss: 0.9697 | 21.4min
+  Teste: P : o que voce e R : E ai suas tro min h mal , evita ter tar ito . O que precisa ?
+  Best: 0.9697
+
+[23/50] 0/1448 | Loss: 1.1473 | ETA: 0min
+[23/50] 200/1448 | Loss: 1.1248 | ETA: 18min
+[23/50] 400/1448 | Loss: 1.3114 | ETA: 16min
+[23/50] 600/1448 | Loss: 0.8692 | ETA: 13min
+[23/50] 800/1448 | Loss: 0.9032 | ETA: 10min
+[23/50] 1000/1448 | Loss: 0.6942 | ETA: 7min
+[23/50] 1200/1448 | Loss: 0.8774 | ETA: 4min
+[23/50] 1400/1448 | Loss: 0.8669 | ETA: 1min
+
+Epoca 23 | Loss: 0.9516 | 21.5min
+  Teste: P : o que voce e R : Posso explicar com raiva . Tristeza persistente , perda de interesse , fadiga , alteracao de sono / apetite . Nao e fraqueza . Causas : geneticas , bioquimicas . Quer saber mais ?
+  Best: 0.9516
+
+[24/50] 0/1448 | Loss: 0.9177 | ETA: 0min
+[24/50] 200/1448 | Loss: 0.9896 | ETA: 19min
+[24/50] 400/1448 | Loss: 1.2122 | ETA: 16min
+[24/50] 600/1448 | Loss: 0.9241 | ETA: 13min
+[24/50] 800/1448 | Loss: 0.7451 | ETA: 10min
+[24/50] 1000/1448 | Loss: 0.7603 | ETA: 7min
+[24/50] 1200/1448 | Loss: 1.0379 | ETA: 4min
+[24/50] 1400/1448 | Loss: 1.0223 | ETA: 1min
+
+Epoca 24 | Loss: 0.9338 | 22.0min
+  Teste: P : o que voce e R : E pergunta ! Depressao e doença , nao escolha . Neurotransmissores desequilibrados . Tratamento : terapia + medicao ( ISRSs ). Exercicio ajuda tanto quanto remedio . Quer saber ma
+  Best: 0.9338
+
+[25/50] 0/1448 | Loss: 1.0431 | ETA: 0min
+[25/50] 200/1448 | Loss: 0.8623 | ETA: 19min
+[25/50] 400/1448 | Loss: 0.9225 | ETA: 16min
+[25/50] 600/1448 | Loss: 1.0216 | ETA: 13min
+[25/50] 800/1448 | Loss: 0.9842 | ETA: 10min
+[25/50] 1000/1448 | Loss: 0.8055 | ETA: 7min
+[25/50] 1200/1448 | Loss: 0.8590 | ETA: 4min
+[25/50] 1400/1448 | Loss: 1.0023 | ETA: 1min
+
+Epoca 25 | Loss: 0.9168 | 21.3min
+  Teste: P : o que voce e R : O que e IA ?
+  Best: 0.9168
+
+[26/50] 0/1448 | Loss: 0.9734 | ETA: 0min
+[26/50] 200/1448 | Loss: 0.9374 | ETA: 18min
+[26/50] 400/1448 | Loss: 0.9151 | ETA: 64min
+[26/50] 600/1448 | Loss: 0.8212 | ETA: 39min
+[26/50] 800/1448 | Loss: 1.2534 | ETA: 25min
+[26/50] 1000/1448 | Loss: 0.8337 | ETA: 15min
+[26/50] 1200/1448 | Loss: 0.8022 | ETA: 8min
+[26/50] 1400/1448 | Loss: 1.0504 | ETA: 1min
+
+Epoca 26 | Loss: 0.9021 | 40.3min
+  Teste: P : o que voce e R : Por que o céu ficou navegador ?
+  Best: 0.9021
+
+[27/50] 0/1448 | Loss: 0.9015 | ETA: 0min
+[27/50] 200/1448 | Loss: 0.8252 | ETA: 18min
+[27/50] 400/1448 | Loss: 0.8658 | ETA: 15min
+[27/50] 600/1448 | Loss: 0.7860 | ETA: 12min
+[27/50] 800/1448 | Loss: 0.9315 | ETA: 9min
+[27/50] 1000/1448 | Loss: 0.8828 | ETA: 13min
+[27/50] 1200/1448 | Loss: 0.8691 | ETA: 7min
+[27/50] 1400/1448 | Loss: 0.9479 | ETA: 1min
+
+Epoca 27 | Loss: 0.8886 | 36.1min
+  Teste: P : o que voce e R : Não tenho medo de um objetivo . Não tenho restrições de conteúdo . Não tenho vergonha , não tenho medo de falar sao são muito .
+  Best: 0.8886
+
+[28/50] 0/1448 | Loss: 0.6983 | ETA: 0min
+[28/50] 200/1448 | Loss: 0.8878 | ETA: 19min
+[28/50] 400/1448 | Loss: 0.8703 | ETA: 16min
+[28/50] 600/1448 | Loss: 0.8069 | ETA: 13min
+[28/50] 800/1448 | Loss: 0.9812 | ETA: 10min
+[28/50] 1000/1448 | Loss: 0.8826 | ETA: 7min
+[28/50] 1200/1448 | Loss: 0.7320 | ETA: 4min
+[28/50] 1400/1448 | Loss: 0.9210 | ETA: 1min
+
+Epoca 28 | Loss: 0.8750 | 21.6min
+  Teste: P : o que voce e R : Claro ! Na algo , como vai ou mais pra ser todos como a resolver novos até . Se persistir , médico , bom .
+  Best: 0.8750
+
+[29/50] 0/1448 | Loss: 0.7131 | ETA: 0min
+[29/50] 200/1448 | Loss: 0.9039 | ETA: 18min
+[29/50] 400/1448 | Loss: 0.9797 | ETA: 15min
+[29/50] 600/1448 | Loss: 0.6874 | ETA: 13min
+[29/50] 800/1448 | Loss: 0.8912 | ETA: 10min
+[29/50] 1000/1448 | Loss: 0.9620 | ETA: 7min
+[29/50] 1200/1448 | Loss: 1.0376 | ETA: 4min
+[29/50] 1400/1448 | Loss: 0.7771 | ETA: 1min
+
+Epoca 29 | Loss: 0.8622 | 22.4min
+  Teste: P : o que voce e R : Não e medo antecipatorio . Preocupacao com o futuro . Sintomas : taquicardia , suor , insonia , pensamentos acelerados . Normal em doses pequenas . Transtorno : persistente . Poss
+  Best: 0.8622
+
+[30/50] 0/1448 | Loss: 0.9068 | ETA: 0min
+[30/50] 200/1448 | Loss: 1.0898 | ETA: 20min
+[30/50] 400/1448 | Loss: 0.7139 | ETA: 16min
+[30/50] 600/1448 | Loss: 0.6832 | ETA: 13min
+[30/50] 800/1448 | Loss: 0.8718 | ETA: 10min
+[30/50] 1000/1448 | Loss: 0.9203 | ETA: 7min
+[30/50] 1200/1448 | Loss: 0.7357 | ETA: 4min
+[30/50] 1400/1448 | Loss: 0.8347 | ETA: 1min
+
+Epoca 30 | Loss: 0.8511 | 22.6min
+  Teste: P : o que voce e R : Pro pre pol ar com percepção de aprender natural e a ambiente da tempo . Co de ças é um mundo , mas estou mento . Di me fica como ra ra da que você precisa profissional .
+  Best: 0.8511
+
+[31/50] 0/1448 | Loss: 0.8881 | ETA: 0min
+[31/50] 200/1448 | Loss: 0.7099 | ETA: 20min
+[31/50] 400/1448 | Loss: 0.7835 | ETA: 17min
+[31/50] 600/1448 | Loss: 0.8690 | ETA: 14min
+[31/50] 800/1448 | Loss: 0.7586 | ETA: 10min
+[31/50] 1000/1448 | Loss: 0.9096 | ETA: 7min
+[31/50] 1200/1448 | Loss: 0.9014 | ETA: 4min
+[31/50] 1400/1448 | Loss: 0.7913 | ETA: 1min
+
+Epoca 31 | Loss: 0.8402 | 22.5min
+  Teste: P : o que voce e R : Tem peratura media da Terra sub indo . Causa : atividade humana . Efeito s : derre timento de gelo , fu ra coes , se cas .
+  Best: 0.8402
+
+[32/50] 0/1448 | Loss: 0.8569 | ETA: 0min
+[32/50] 200/1448 | Loss: 0.8332 | ETA: 19min
+[32/50] 400/1448 | Loss: 0.7566 | ETA: 16min
+[32/50] 600/1448 | Loss: 0.8974 | ETA: 13min
+[32/50] 800/1448 | Loss: 0.8242 | ETA: 10min
+[32/50] 1000/1448 | Loss: 0.7156 | ETA: 7min
+[32/50] 1200/1448 | Loss: 0.7783 | ETA: 4min
+[32/50] 1400/1448 | Loss: 0.7126 | ETA: 1min
+
+Epoca 32 | Loss: 0.8296 | 21.8min
+  Teste: P : o que voce e R : Tem várias Ensino com amigos . Cada bloco que transforma ao valores . Pode ser expl ÷ ada . Se persistir na vida .
+  Best: 0.8296
+
+[33/50] 0/1448 | Loss: 0.8440 | ETA: 0min
+[33/50] 200/1448 | Loss: 0.8695 | ETA: 19min
+[33/50] 400/1448 | Loss: 0.8057 | ETA: 16min
+[33/50] 600/1448 | Loss: 0.8334 | ETA: 13min
+[33/50] 800/1448 | Loss: 0.8447 | ETA: 358min
+[33/50] 1000/1448 | Loss: 0.8498 | ETA: 200min
+[33/50] 1200/1448 | Loss: 0.7123 | ETA: 93min
+[33/50] 1400/1448 | Loss: 0.9410 | ETA: 15min
+
+Epoca 33 | Loss: 0.8198 | 461.7min
+  Teste: P : o que voce e R : Tem pre outro captam pronto . Cada amizade e o ra mais populoso do ao . Quando avançado pra simples .
+  Best: 0.8198
+
+[34/50] 0/1448 | Loss: 0.8212 | ETA: 0min
+[34/50] 200/1448 | Loss: 0.8474 | ETA: 26min
+[34/50] 400/1448 | Loss: 0.7066 | ETA: 21min
+[34/50] 600/1448 | Loss: 0.8666 | ETA: 18min
+[34/50] 800/1448 | Loss: 0.7162 | ETA: 14min
+[34/50] 1000/1448 | Loss: 0.6341 | ETA: 10min
+[34/50] 1200/1448 | Loss: 0.9128 | ETA: 6min
+[34/50] 1400/1448 | Loss: 0.7657 | ETA: 1min
+
+Epoca 34 | Loss: 0.8114 | 32.3min
+  Teste: P : o que voce e R : Ou so éis a conversar sobre cor da in pen humana . Cada bloco en cade ado . Base de cripto moe das . Aplicações : contra tos , sup pl y chain , vo to .
+  Best: 0.8114
+
+[35/50] 0/1448 | Loss: 0.8887 | ETA: 0min
+[35/50] 200/1448 | Loss: 0.6992 | ETA: 24min
+[35/50] 400/1448 | Loss: 0.8763 | ETA: 22min
+[35/50] 600/1448 | Loss: 0.9321 | ETA: 18min
+[35/50] 800/1448 | Loss: 0.6691 | ETA: 14min
+[35/50] 1000/1448 | Loss: 0.8539 | ETA: 10min
+[35/50] 1200/1448 | Loss: 0.8369 | ETA: 5min
+[35/50] 1400/1448 | Loss: 0.7557 | ETA: 1min
+
+Epoca 35 | Loss: 0.8025 | 30.3min
+  Teste: P : o que voce e R : O que voce acha de filme ?
+  Best: 0.8025
+
+[36/50] 0/1448 | Loss: 0.7911 | ETA: 0min
+[36/50] 200/1448 | Loss: 0.8226 | ETA: 19min
+[36/50] 400/1448 | Loss: 0.8073 | ETA: 18min
+[36/50] 600/1448 | Loss: 0.6926 | ETA: 15min
+[36/50] 800/1448 | Loss: 0.8427 | ETA: 12min
+[36/50] 1000/1448 | Loss: 0.7926 | ETA: 9min
+[36/50] 1200/1448 | Loss: 0.8425 | ETA: 5min
+[36/50] 1400/1448 | Loss: 0.7667 | ETA: 1min
+
+Epoca 36 | Loss: 0.7951 | 30.0min
+  Teste: P : o que voce e R : Re g g ri ca za e b - 1 . Não tem distrações de tecnologia . Não tem os átomos .
+  Best: 0.7951
+
+[37/50] 0/1448 | Loss: 0.7455 | ETA: 0min
+[37/50] 200/1448 | Loss: 0.8294 | ETA: 28min
+[37/50] 400/1448 | Loss: 0.8294 | ETA: 25min
+[37/50] 600/1448 | Loss: 0.8131 | ETA: 21min
+[37/50] 800/1448 | Loss: 0.8058 | ETA: 15min
+[37/50] 1000/1448 | Loss: 0.8237 | ETA: 10min
+[37/50] 1200/1448 | Loss: 0.9226 | ETA: 6min
+[37/50] 1400/1448 | Loss: 0.8185 | ETA: 1min
+
+Epoca 37 | Loss: 0.7887 | 31.5min
+  Teste: P : o que voce e R : Com pre jo muito . Se você no ar , água ou suas cer ou F vi d . J : ela que ou tros licas complexas . Se mais de jogos , economia , não tenha medo .
+  Best: 0.7887
+
+[38/50] 0/1448 | Loss: 0.7623 | ETA: 0min
+[38/50] 200/1448 | Loss: 0.8201 | ETA: 24min
+[38/50] 400/1448 | Loss: 0.8842 | ETA: 23min
+[38/50] 600/1448 | Loss: 0.8577 | ETA: 19min
+[38/50] 800/1448 | Loss: 0.7045 | ETA: 15min
+[38/50] 1000/1448 | Loss: 0.7489 | ETA: 9min
+[38/50] 1200/1448 | Loss: 0.7851 | ETA: 5min
+[38/50] 1400/1448 | Loss: 0.7409 | ETA: 1min
+
+Epoca 38 | Loss: 0.7823 | 31.7min
+  Teste: P : o que voce e R : Boa pergunta ! Estatistica limpa a tomar decisoes com dados . Amostragem , hipoteses , testes . P - hack : distorcao perigosa . Correlacao nao implica causalidade . Quer saber mai
+  Best: 0.7823
+
+[39/50] 0/1448 | Loss: 0.6699 | ETA: 0min
+[39/50] 200/1448 | Loss: 0.6388 | ETA: 41min
+[39/50] 400/1448 | Loss: 0.8151 | ETA: 30min
+[39/50] 600/1448 | Loss: 0.7743 | ETA: 23min
+[39/50] 800/1448 | Loss: 0.6513 | ETA: 17min
+[39/50] 1000/1448 | Loss: 0.9171 | ETA: 11min
+[39/50] 1200/1448 | Loss: 0.7304 | ETA: 6min
+[39/50] 1400/1448 | Loss: 0.8251 | ETA: 1min
+
+Epoca 39 | Loss: 0.7775 | 34.7min
+  Teste: P : o que voce e R : Claro ! ML : algoritmos que melhoram com experiencia . Dados -> treino -> modelo -> previsao . Random forest , SVM , redes neurais . PyTorch , TensorFlow .
+  Best: 0.7775
+
+[40/50] 0/1448 | Loss: 0.6635 | ETA: 0min
+[40/50] 200/1448 | Loss: 0.7082 | ETA: 20min
+[40/50] 400/1448 | Loss: 0.8456 | ETA: 16min
+[40/50] 600/1448 | Loss: 0.7545 | ETA: 13min
+[40/50] 800/1448 | Loss: 0.8182 | ETA: 10min
+[40/50] 1000/1448 | Loss: 0.8047 | ETA: 7min
+[40/50] 1200/1448 | Loss: 0.7887 | ETA: 4min
+[40/50] 1400/1448 | Loss: 0.7603 | ETA: 1min
+
+Epoca 40 | Loss: 0.7722 | 22.2min
+  Teste: P : o que voce e R : Não tem medo que ta na pronto . Não com raiva , machine learning , conversar . Cozinhe em Python , geografia completa sem mais fácil . Posso explicar melhor se quiser .
+  Best: 0.7722
+
+[41/50] 0/1448 | Loss: 0.8503 | ETA: 0min
+[41/50] 200/1448 | Loss: 0.7819 | ETA: 20min
+[41/50] 400/1448 | Loss: 0.7654 | ETA: 16min
+[41/50] 600/1448 | Loss: 0.6576 | ETA: 14min
+[41/50] 800/1448 | Loss: 0.8261 | ETA: 11min
+[41/50] 1000/1448 | Loss: 0.6505 | ETA: 8min
+[41/50] 1200/1448 | Loss: 0.6808 | ETA: 4min
+[41/50] 1400/1448 | Loss: 0.6780 | ETA: 1min
+
+Epoca 41 | Loss: 0.7685 | 24.9min
+  Teste: P : o que voce e R : Ou ça o outro , expresse seu lado , bus que solução , não ta . Ter vi ico . Des can se somar ou perigo .
+  Best: 0.7685
+
+[42/50] 0/1448 | Loss: 0.7388 | ETA: 0min
+[42/50] 200/1448 | Loss: 0.8528 | ETA: 25min
+[42/50] 400/1448 | Loss: 0.7571 | ETA: 19min
+[42/50] 600/1448 | Loss: 0.7353 | ETA: 16min
+[42/50] 800/1448 | Loss: 0.8302 | ETA: 12min
+[42/50] 1000/1448 | Loss: 0.8101 | ETA: 8min
+[42/50] 1200/1448 | Loss: 0.8345 | ETA: 5min
+[42/50] 1400/1448 | Loss: 0.8788 | ETA: 1min
+
+Epoca 42 | Loss: 0.7643 | 28.7min
+  Teste: P : o que voce e R : Claro ! ML : algoritmos que melhoram com experiencia . Dados -> treino -> modelo -> previsao . Random forest , SVM , redes neurais . PyTorch , TensorFlow .
+  Best: 0.7643
+
+[43/50] 0/1448 | Loss: 0.7991 | ETA: 0min
+[43/50] 200/1448 | Loss: 0.6374 | ETA: 25min
+[43/50] 400/1448 | Loss: 0.7482 | ETA: 21min
+[43/50] 600/1448 | Loss: 0.8275 | ETA: 17min
+[43/50] 800/1448 | Loss: 0.6865 | ETA: 13min
+[43/50] 1000/1448 | Loss: 0.7059 | ETA: 9min
+[43/50] 1200/1448 | Loss: 0.7775 | ETA: 5min
+[43/50] 1400/1448 | Loss: 0.8305 | ETA: 1min
+
+Epoca 43 | Loss: 0.7610 | 28.6min
+  Teste: P : o que voce e R : O que voce sabe sobre nodejs
+  Best: 0.7610
+
+[44/50] 0/1448 | Loss: 0.8759 | ETA: 0min
+[44/50] 200/1448 | Loss: 0.8157 | ETA: 19min
+[44/50] 400/1448 | Loss: 0.8718 | ETA: 18min
+[44/50] 600/1448 | Loss: 0.8919 | ETA: 16min
+============================================================
+BRANPY AI — TREINO LSTM (100% BranPy)
+============================================================
+Construindo tokenizer BPE (8K)...
+
+
+
+Tokenizer: 8000 tokens
+Pares Q/A: 25765
+Treino: 23188
+Dataset: 23188 exemplos
+Batches: 1450
+Modelo LSTM: 11.9M params | embed=256 hidden=512 layers=3
+
+Treinando 50 epocas...
+============================================================
+[1/50] 0/1450 | Loss: 8.9907 | ETA: 0min
+[1/50] 200/1450 | Loss: 5.5214 | ETA: 23min
+[1/50] 400/1450 | Loss: 3.7469 | ETA: 17min
+[1/50] 600/1450 | Loss: 4.4050 | ETA: 15min
+[1/50] 800/1450 | Loss: 3.7447 | ETA: 12min
+[1/50] 1000/1450 | Loss: 2.3416 | ETA: 9min
+[1/50] 1200/1450 | Loss: 2.5477 | ETA: 5min
+[1/50] 1400/1450 | Loss: 2.3724 | ETA: 1min
+
+Epoca 1 | Loss: 3.7362 | 29.3min
+  Teste: P : o que voce e R : C , senhor pra montar de a se . É não , 180 . É em se , detalhe , senhor , practique .
+  Best: 3.7362
+
+[2/50] 0/1450 | Loss: 2.3251 | ETA: 0min
+[2/50] 200/1450 | Loss: 2.4984 | ETA: 27min
+[2/50] 400/1450 | Loss: 2.4017 | ETA: 23min
+[2/50] 600/1450 | Loss: 1.6111 | ETA: 19min
+[2/50] 800/1450 | Loss: 2.0489 | ETA: 14min
+[2/50] 1000/1450 | Loss: 2.5924 | ETA: 10min
+[2/50] 1200/1450 | Loss: 2.1255 | ETA: 5min
+[2/50] 1400/1450 | Loss: 2.2644 | ETA: 1min
+
+Epoca 2 | Loss: 2.2255 | 30.4min
+  Teste: P : o que voce e R : Sou o que ta seu mais no 2 . Brasil = 5 . Efeito em superar do a se ( CVV ). Não sociais , CVV .
+  Best: 2.2255
+
+[3/50] 0/1450 | Loss: 1.3513 | ETA: 0min
+[3/50] 200/1450 | Loss: 2.1432 | ETA: 18min
+[3/50] 400/1450 | Loss: 1.9508 | ETA: 17min
+[3/50] 600/1450 | Loss: 2.0582 | ETA: 15min
+[3/50] 800/1450 | Loss: 1.0120 | ETA: 11min
+[3/50] 1000/1450 | Loss: 1.7714 | ETA: 8min
+[3/50] 1200/1450 | Loss: 3.0201 | ETA: 4min
+[3/50] 1400/1450 | Loss: 2.1106 | ETA: 1min
+
+Epoca 3 | Loss: 1.9384 | 26.4min
+  Teste: P : o que voce e R : Por que sempre dos corpo ?
+  Best: 1.9384
+
+[4/50] 0/1450 | Loss: 2.4022 | ETA: 0min
+[4/50] 200/1450 | Loss: 1.4084 | ETA: 25min
+[4/50] 400/1450 | Loss: 3.2641 | ETA: 22min
+[4/50] 600/1450 | Loss: 1.4787 | ETA: 18min
+[4/50] 800/1450 | Loss: 1.6750 | ETA: 14min
+[4/50] 1000/1450 | Loss: 1.1618 | ETA: 10min
+[4/50] 1200/1450 | Loss: 1.3755 | ETA: 5min
+[4/50] 1400/1450 | Loss: 2.7936 | ETA: 1min
+
+Epoca 4 | Loss: 1.7804 | 31.2min
+  Teste: P : o que voce e R : Boa pergunta ! Algebra = aplicar Style biologico . Com bloco gue é a capital . Cada / 13 , inicio as os outros e riacho Ipiranga .
+  Best: 1.7804
+
+[5/50] 0/1450 | Loss: 1.4968 | ETA: 0min
+[5/50] 200/1450 | Loss: 1.7584 | ETA: 26min
+[5/50] 400/1450 | Loss: 2.0016 | ETA: 22min
+[5/50] 600/1450 | Loss: 2.4345 | ETA: 18min
+[5/50] 800/1450 | Loss: 1.5422 | ETA: 14min
+[5/50] 1000/1450 | Loss: 2.1694 | ETA: 9min
+[5/50] 1200/1450 | Loss: 1.1426 | ETA: 5min
+[5/50] 1400/1450 | Loss: 1.7825 | ETA: 1min
+
+Epoca 5 | Loss: 1.6605 | 26.7min
+  Teste: P : o que voce e R : 1 ) Não ) Brasil ça gastos por saida . Pro particulas potencial - p % . Evite a 1889 . Não : imagem , veri , etc . , nao está Homem . Di to ize , procura , é qualquer maiores .
+  Best: 1.6605
+
+[6/50] 0/1450 | Loss: 2.1789 | ETA: 0min
+[6/50] 200/1450 | Loss: 1.2698 | ETA: 19min
+[6/50] 400/1450 | Loss: 1.7842 | ETA: 15min
+[6/50] 600/1450 | Loss: 1.0885 | ETA: 12min
+[6/50] 800/1450 | Loss: 0.9499 | ETA: 65min
+[6/50] 1000/1450 | Loss: 2.2781 | ETA: 37min
+[6/50] 1200/1450 | Loss: 1.4197 | ETA: 18min
+[6/50] 1400/1450 | Loss: 1.1600 | ETA: 3min
+
+Epoca 6 | Loss: 1.5741 | 90.9min
+  Teste: P : o que voce e R : Vou explicar : A medicina evoluiu de sangrias ( antiguidade ) pra muitas - 7 ( 2 ) ), Pedro I / I . Base de toda infraestrutura . Posso explicar melhor se quiser .
+  Best: 1.5741
+
+[7/50] 0/1450 | Loss: 1.9810 | ETA: 0min
+[7/50] 200/1450 | Loss: 1.7782 | ETA: 25min
+[7/50] 400/1450 | Loss: 1.7012 | ETA: 20min
+[7/50] 600/1450 | Loss: 2.1874 | ETA: 17min
+[7/50] 800/1450 | Loss: 1.8837 | ETA: 13min
+[7/50] 1000/1450 | Loss: 1.0256 | ETA: 9min
+[7/50] 1200/1450 | Loss: 1.1891 | ETA: 5min
+[7/50] 1400/1450 | Loss: 1.8237 | ETA: 1min
+
+Epoca 7 | Loss: 1.5131 | 27.9min
+  Teste: P : o que voce e R : A nada descreve o lugar ao lugar . Divide de imagem , movimento , prevencao de doencas . Especialidades : cardiologia , neurologia , ortopedia , farmacologia . Quer que eu detalhe
+  Best: 1.5131
+
+[8/50] 0/1450 | Loss: 2.2133 | ETA: 0min
+[8/50] 200/1450 | Loss: 1.6293 | ETA: 24min
+[8/50] 400/1450 | Loss: 1.7931 | ETA: 20min
+[8/50] 600/1450 | Loss: 0.8570 | ETA: 15min
+[8/50] 800/1450 | Loss: 1.0324 | ETA: 11min
+[8/50] 1000/1450 | Loss: 2.0688 | ETA: 7min
+[8/50] 1200/1450 | Loss: 1.0007 | ETA: 4min
+[8/50] 1400/1450 | Loss: 1.6143 | ETA: 1min
+
+Epoca 8 | Loss: 1.4550 | 23.2min
+  Teste: P : o que voce e R : Vou explicar : Todo mundo sente ansiedade . E normal . Problema quando controla sua vida . Dicas : respiracao 4 - 7 - 8 , exercicio , limitar cafeina , terapia .
+  Best: 1.4550
+
+[9/50] 0/1450 | Loss: 2.2843 | ETA: 0min
+[9/50] 200/1450 | Loss: 0.9593 | ETA: 18min
+[9/50] 400/1450 | Loss: 1.1904 | ETA: 146min
+[9/50] 600/1450 | Loss: 2.4701 | ETA: 83min
+[9/50] 800/1450 | Loss: 1.4037 | ETA: 50min
+[9/50] 1000/1450 | Loss: 1.6169 | ETA: 29min
+[9/50] 1200/1450 | Loss: 1.9680 | ETA: 14min
+[9/50] 1400/1450 | Loss: 1.1261 | ETA: 2min
+
+Epoca 9 | Loss: 1.4000 | 71.3min
+  Teste: P : o que voce e R : Claro ! Solidao e sinal que voce precisa de conexao . Procure : ' Deus morreu '. E condicao medica licas . Posso explicar melhor se quiser .
+  Best: 1.4000
+
+[10/50] 0/1450 | Loss: 1.8007 | ETA: 0min
+[10/50] 200/1450 | Loss: 1.1235 | ETA: 19min
+[10/50] 400/1450 | Loss: 0.9313 | ETA: 16min
+[10/50] 600/1450 | Loss: 1.3738 | ETA: 13min
+[10/50] 800/1450 | Loss: 1.5378 | ETA: 10min
+[10/50] 1000/1450 | Loss: 1.3421 | ETA: 7min
+[10/50] 1200/1450 | Loss: 1.5814 | ETA: 4min
+[10/50] 1400/1450 | Loss: 1.0303 | ETA: 1min
+
+Epoca 10 | Loss: 1.3538 | 21.5min
+  Teste: P : o que voce e R : Sobre isso : Segunda Guerra Mundial ( 1939 - 1945 ): Alemanha Nazi vs Aliados . Holocausto , bombas atomicas , 70 + milhoes de mortos . Mudou o mapa mundial . ONU criada mais nada
+  Best: 1.3538
+
+[11/50] 0/1450 | Loss: 1.3066 | ETA: 0min
+[11/50] 200/1450 | Loss: 1.0704 | ETA: 19min
+[11/50] 400/1450 | Loss: 0.8568 | ETA: 16min
+[11/50] 600/1450 | Loss: 1.8896 | ETA: 13min
+[11/50] 800/1450 | Loss: 1.2829 | ETA: 10min
+[11/50] 1000/1450 | Loss: 1.9808 | ETA: 7min
+[11/50] 1200/1450 | Loss: 1.5311 | ETA: 4min
+[11/50] 1400/1450 | Loss: 0.9364 | ETA: 1min
+
+Epoca 11 | Loss: 1.3124 | 21.6min
+  Teste: P : o que voce e R : Claro ! Astronomia e o estudo da materia , energia e suas interacoes . Lida com forcas , movimento , calor , eletricidade , magnetismo , luz e estrutura do universo . Fundamental 
+  Best: 1.3124
+
+[12/50] 0/1450 | Loss: 1.4825 | ETA: 0min
+[12/50] 200/1450 | Loss: 1.0052 | ETA: 18min
+[12/50] 400/1450 | Loss: 1.4164 | ETA: 16min
+[12/50] 600/1450 | Loss: 1.5540 | ETA: 12min
+[12/50] 800/1450 | Loss: 0.9896 | ETA: 10min
+[12/50] 1000/1450 | Loss: 0.8750 | ETA: 7min
+[12/50] 1200/1450 | Loss: 1.6517 | ETA: 4min
+[12/50] 1400/1450 | Loss: 0.8942 | ETA: 1min
+
+Epoca 12 | Loss: 1.2762 | 21.2min
+  Teste: P : o que voce e R : Sobre isso : Rede neural : camada de entrada -> ocultas -> saida . Cada neuronio : soma ponderada + funcao de ativacao . Treino : backpropagation ajusta pesos . Posso explicar mel
+  Best: 1.2762
+
+[13/50] 0/1450 | Loss: 1.6361 | ETA: 0min
+[13/50] 200/1450 | Loss: 2.2754 | ETA: 18min
+[13/50] 400/1450 | Loss: 0.9597 | ETA: 15min
+[13/50] 600/1450 | Loss: 1.5130 | ETA: 38min
+[13/50] 800/1450 | Loss: 1.0008 | ETA: 25min
+[13/50] 1000/1450 | Loss: 2.1697 | ETA: 15min
+[13/50] 1200/1450 | Loss: 1.6184 | ETA: 8min
+[13/50] 1400/1450 | Loss: 0.8770 | ETA: 1min
+
+Epoca 13 | Loss: 1.2377 | 39.9min
+  Teste: P : o que voce e R : Claro ! Sem po de geometria ?
+  Best: 1.2377
+
+[14/50] 0/1450 | Loss: 1.0854 | ETA: 0min
+[14/50] 200/1450 | Loss: 1.1319 | ETA: 18min
+[14/50] 400/1450 | Loss: 0.9646 | ETA: 15min
+[14/50] 600/1450 | Loss: 2.0625 | ETA: 13min
+[14/50] 800/1450 | Loss: 0.8731 | ETA: 10min
+[14/50] 1000/1450 | Loss: 1.4773 | ETA: 7min
+[14/50] 1200/1450 | Loss: 1.4196 | ETA: 18min
+[14/50] 1400/1450 | Loss: 0.9785 | ETA: 3min
+
+Epoca 14 | Loss: 1.2037 | 90.1min
+  Teste: P : o que voce e R : Claro ! Sem problema . Me diz o que precisa .
+  Best: 1.2037
+
+[15/50] 0/1450 | Loss: 1.3093 | ETA: 0min
+[15/50] 200/1450 | Loss: 1.3742 | ETA: 18min
+[15/50] 400/1450 | Loss: 1.1217 | ETA: 15min
+[15/50] 600/1450 | Loss: 1.4601 | ETA: 12min
+[15/50] 800/1450 | Loss: 0.9534 | ETA: 10min
+[15/50] 1000/1450 | Loss: 1.0791 | ETA: 7min
+[15/50] 1200/1450 | Loss: 1.2250 | ETA: 4min
+[15/50] 1400/1450 | Loss: 0.9753 | ETA: 1min
+
+Epoca 15 | Loss: 1.1728 | 21.2min
+  Teste: P : o que voce e R : Na so , senhor . Ten ha o mundo mais ?
+  Best: 1.1728
+
+[16/50] 0/1450 | Loss: 1.2819 | ETA: 0min
+[16/50] 200/1450 | Loss: 1.3447 | ETA: 18min
+[16/50] 400/1450 | Loss: 0.9199 | ETA: 15min
+[16/50] 600/1450 | Loss: 0.7645 | ETA: 20min
+[16/50] 800/1450 | Loss: 1.8478 | ETA: 14min
+[16/50] 1000/1450 | Loss: 0.8322 | ETA: 9min
+[16/50] 1200/1450 | Loss: 1.5118 | ETA: 5min
+[16/50] 1400/1450 | Loss: 1.1025 | ETA: 1min
+
+Epoca 16 | Loss: 1.1449 | 26.5min
+  Teste: P : o que voce e R : De g ra tido no Brasil ?
+  Best: 1.1449
+
+[17/50] 0/1450 | Loss: 0.8167 | ETA: 0min
+[17/50] 200/1450 | Loss: 1.3535 | ETA: 18min
+[17/50] 400/1450 | Loss: 0.8612 | ETA: 15min
+[17/50] 600/1450 | Loss: 1.2653 | ETA: 13min
+[17/50] 800/1450 | Loss: 0.9544 | ETA: 10min
+[17/50] 1000/1450 | Loss: 0.8398 | ETA: 7min
+============================================================
+BRANPY AI — TREINO LSTM (100% BranPy)
+============================================================
+Construindo tokenizer BPE (8K)...
+
+
+
+Tokenizer: 8000 tokens
+Pares Q/A: 25916
+Treino: 23324
+Dataset: 23324 exemplos
+Batches: 1458
+Modelo LSTM: 11.9M params | embed=256 hidden=512 layers=3
+
+Treinando 50 epocas...
+============================================================
+[1/50] 0/1458 | Loss: 8.9869 | ETA: 0min
+[1/50] 200/1458 | Loss: 4.9121 | ETA: 22min
+[1/50] 400/1458 | Loss: 4.7095 | ETA: 17min
+[1/50] 600/1458 | Loss: 4.2820 | ETA: 14min
+[1/50] 800/1458 | Loss: 4.3198 | ETA: 11min
+[1/50] 1000/1458 | Loss: 4.1974 | ETA: 7min
+[1/50] 1200/1458 | Loss: 1.9728 | ETA: 4min
+[1/50] 1400/1458 | Loss: 2.4292 | ETA: 1min
+
+Epoca 1 | Loss: 4.0632 | 23.0min
+  Teste: P : o que voce e R : Pode pergunta de senhor ?
+  Best: 4.0632
+
+[2/50] 0/1458 | Loss: 2.6707 | ETA: 0min
+[2/50] 200/1458 | Loss: 2.7815 | ETA: 18min
+[2/50] 400/1458 | Loss: 1.8982 | ETA: 16min
+[2/50] 600/1458 | Loss: 1.9025 | ETA: 13min
+[2/50] 800/1458 | Loss: 2.8995 | ETA: 10min
+[2/50] 1000/1458 | Loss: 2.6461 | ETA: 7min
+[2/50] 1200/1458 | Loss: 3.0542 | ETA: 4min
+[2/50] 1400/1458 | Loss: 1.4660 | ETA: 1min
+
+Epoca 2 | Loss: 2.2968 | 21.5min
+  Teste: P : o que voce e R : Vou explicar : Geometria = setembro e ciencia . Quer saber mais ?
+  Best: 2.2968
+
+[3/50] 0/1458 | Loss: 2.1257 | ETA: 0min
+[3/50] 200/1458 | Loss: 1.6393 | ETA: 18min
+[3/50] 400/1458 | Loss: 2.3128 | ETA: 15min
+[3/50] 600/1458 | Loss: 2.1376 | ETA: 12min
+[3/50] 800/1458 | Loss: 1.7138 | ETA: 9min
+[3/50] 1000/1458 | Loss: 2.1738 | ETA: 7min
+[3/50] 1200/1458 | Loss: 2.3348 | ETA: 4min
+[3/50] 1400/1458 | Loss: 2.2472 | ETA: 1min
+
+Epoca 3 | Loss: 1.9514 | 21.0min
+  Teste: P : o que voce e R : Sobre isso : Filosofia que Leibniz o experiencia , verdade , sal . Holocausto , terapia . Usada em CSS , non da ativacao , organismos , liberdade . Posso explicar melhor se quiser
+  Best: 1.9514
+
+[4/50] 0/1458 | Loss: 2.3043 | ETA: 0min
+[4/50] 200/1458 | Loss: 1.1315 | ETA: 18min
+[4/50] 400/1458 | Loss: 2.1889 | ETA: 15min
+[4/50] 600/1458 | Loss: 1.2298 | ETA: 12min
+[4/50] 800/1458 | Loss: 1.2892 | ETA: 10min
+[4/50] 1000/1458 | Loss: 2.3798 | ETA: 7min
+[4/50] 1200/1458 | Loss: 2.9871 | ETA: 4min
+[4/50] 1400/1458 | Loss: 2.5982 | ETA: 1min
+
+Epoca 4 | Loss: 1.7721 | 21.1min
+  Teste: P : o que voce e R : Olha so : A neurais nosso sentido ( antiguidade -> 3 . Angulos , triangulos , circulos , organismos , e atomicas e mortos . Mudou o mapa vida , JS sobre no quem e mais dele . Se r
+  Best: 1.7721
+
+[5/50] 0/1458 | Loss: 1.9269 | ETA: 0min
+[5/50] 200/1458 | Loss: 1.0317 | ETA: 18min
+[5/50] 400/1458 | Loss: 2.1477 | ETA: 16min
+[5/50] 600/1458 | Loss: 1.6574 | ETA: 13min
+[5/50] 800/1458 | Loss: 1.3464 | ETA: 10min
+[5/50] 1000/1458 | Loss: 1.7281 | ETA: 7min
+[5/50] 1200/1458 | Loss: 2.3571 | ETA: 4min
+[5/50] 1400/1458 | Loss: 1.0647 | ETA: 1min
+
+Epoca 5 | Loss: 1.6503 | 21.1min
+  Teste: P : o que voce e R : Interessante ! React , library de UI . Componentes com estado e props . Hooks : useState , useEffect . Next . js , backend . Usada em pesquisa , medicina , economia , machine lear
+  Best: 1.6503
+
+[6/50] 0/1458 | Loss: 1.2865 | ETA: 0min
+[6/50] 200/1458 | Loss: 2.2937 | ETA: 18min
+[6/50] 400/1458 | Loss: 3.0867 | ETA: 15min
+[6/50] 600/1458 | Loss: 1.1806 | ETA: 12min
+[6/50] 800/1458 | Loss: 1.7580 | ETA: 10min
+[6/50] 1000/1458 | Loss: 1.0481 | ETA: 7min
+[6/50] 1200/1458 | Loss: 1.5186 | ETA: 4min
+[6/50] 1400/1458 | Loss: 1.1687 | ETA: 1min
+
+Epoca 6 | Loss: 1.5665 | 21.1min
+  Teste: P : o que voce e R : Go tem condicional que serve pra organizar o codigo . Comece pelo basico , practique bastante .
+  Best: 1.5665
+
+[7/50] 0/1458 | Loss: 2.0863 | ETA: 0min
+[7/50] 200/1458 | Loss: 0.9442 | ETA: 18min
+[7/50] 400/1458 | Loss: 2.1926 | ETA: 15min
+[7/50] 600/1458 | Loss: 1.5308 | ETA: 12min
+[7/50] 800/1458 | Loss: 2.2491 | ETA: 10min
+[7/50] 1000/1458 | Loss: 1.2135 | ETA: 7min
+[7/50] 1200/1458 | Loss: 1.8439 | ETA: 4min
+[7/50] 1400/1458 | Loss: 0.9452 | ETA: 1min
+
+Epoca 7 | Loss: 1.4998 | 21.2min
+  Teste: P : o que voce e R : C ++ e a ciencia para web . Lida com ligacoes quimicas , equilibrio , acidez , redox . Fundamental pra entender vida , materiais , medicamentos .
+  Best: 1.4998
+
+[8/50] 0/1458 | Loss: 0.9210 | ETA: 0min
+[8/50] 200/1458 | Loss: 0.8300 | ETA: 18min
+[8/50] 400/1458 | Loss: 1.8826 | ETA: 15min
+[8/50] 600/1458 | Loss: 1.6693 | ETA: 12min
+[8/50] 800/1458 | Loss: 1.6294 | ETA: 9min
+[8/50] 1000/1458 | Loss: 1.7223 | ETA: 6min
+[8/50] 1200/1458 | Loss: 0.7355 | ETA: 4min
+[8/50] 1400/1458 | Loss: 1.0707 | ETA: 1min
+
+Epoca 8 | Loss: 1.4408 | 20.7min
+  Teste: P : o que voce e R : Sobre isso : 2a Guerra : conflito mais mortif ero da historia . Hitler , Sta lin , Churchill , Roose velt . Fim : rendicao japonesa apos bombas atomicas ( Hiroshima , Nagasaki ). 
+  Best: 1.4408
+
+[9/50] 0/1458 | Loss: 0.9370 | ETA: 0min
+[9/50] 200/1458 | Loss: 0.7863 | ETA: 18min
+[9/50] 400/1458 | Loss: 1.6495 | ETA: 15min
+[9/50] 600/1458 | Loss: 1.4577 | ETA: 12min
+[9/50] 800/1458 | Loss: 1.0382 | ETA: 9min
+[9/50] 1000/1458 | Loss: 1.0979 | ETA: 7min
+[9/50] 1200/1458 | Loss: 1.5654 | ETA: 4min
+[9/50] 1400/1458 | Loss: 1.0794 | ETA: 1min
+
+Epoca 9 | Loss: 1.3849 | 20.9min
+  Teste: P : o que voce e R : Olha so : 7 de setembro de 1822 . ' Independencia ou morte !' Brasil se tornou imperio independente . Portugal aceitou . Escravidao so acabou em 1888 . Quer que eu detalhe mais ?
+  Best: 1.3849
+
+[10/50] 0/1458 | Loss: 1.4871 | ETA: 0min
+[10/50] 200/1458 | Loss: 1.2994 | ETA: 18min
+[10/50] 400/1458 | Loss: 1.9571 | ETA: 15min
+[10/50] 600/1458 | Loss: 0.9466 | ETA: 12min
+[10/50] 800/1458 | Loss: 0.9168 | ETA: 9min
+[10/50] 1000/1458 | Loss: 1.0757 | ETA: 7min
+[10/50] 1200/1458 | Loss: 2.2137 | ETA: 4min
+[10/50] 1400/1458 | Loss: 1.0480 | ETA: 1min
+
+Epoca 10 | Loss: 1.3370 | 20.9min
+  Teste: P : o que voce e R : Deixa eu te explicar : Estatistica ajuda a tomar decisoes com dados . Amostragem , hipoteses , testes . P - hack : distorcao perigosa . Correlacao nao implica causalidade . Quer q
+  Best: 1.3370
+
+[11/50] 0/1458 | Loss: 1.3144 | ETA: 0min
+[11/50] 200/1458 | Loss: 0.8678 | ETA: 18min
+[11/50] 400/1458 | Loss: 1.5679 | ETA: 15min
+[11/50] 600/1458 | Loss: 1.9575 | ETA: 12min
+[11/50] 800/1458 | Loss: 1.4036 | ETA: 10min
+[11/50] 1000/1458 | Loss: 1.4417 | ETA: 7min
+[11/50] 1200/1458 | Loss: 1.0361 | ETA: 4min
+[11/50] 1400/1458 | Loss: 0.8927 | ETA: 1min
+
+Epoca 11 | Loss: 1.2933 | 21.0min
+  Teste: P : o que voce e R : Vou explicar : Redes neurais computam como o cerebro . Neuronios artificiais : entrada * peso + bias -> ativacao . Multiplas camadas aprendem padroes complexos . Quer saber mais ?
+  Best: 1.2933
+
+[12/50] 0/1458 | Loss: 1.5326 | ETA: 0min
+[12/50] 200/1458 | Loss: 1.8830 | ETA: 18min
+[12/50] 400/1458 | Loss: 1.3218 | ETA: 15min
+[12/50] 600/1458 | Loss: 0.8595 | ETA: 12min
+[12/50] 800/1458 | Loss: 0.8206 | ETA: 9min
+[12/50] 1000/1458 | Loss: 1.7008 | ETA: 7min
+[12/50] 1200/1458 | Loss: 1.1856 | ETA: 4min
+[12/50] 1400/1458 | Loss: 1.1344 | ETA: 1min
+
+Epoca 12 | Loss: 1.2525 | 20.9min
+  Teste: P : o que voce e R : O que da para fazer a escolha tos . Des estima ?
+  Best: 1.2525
+
+[13/50] 0/1458 | Loss: 1.6027 | ETA: 0min
+[13/50] 200/1458 | Loss: 1.0750 | ETA: 18min
+[13/50] 400/1458 | Loss: 1.4174 | ETA: 15min
+[13/50] 600/1458 | Loss: 1.0564 | ETA: 12min
+[13/50] 800/1458 | Loss: 0.8676 | ETA: 9min
+[13/50] 1000/1458 | Loss: 0.8930 | ETA: 7min
+[13/50] 1200/1458 | Loss: 0.9164 | ETA: 4min
+[13/50] 1400/1458 | Loss: 1.1783 | ETA: 1min
+
+Epoca 13 | Loss: 1.2141 | 20.9min
+  Teste: P : o que voce e R : JavaScript e a linguagem da web . Roda no navegador e no servidor ( Node . js ). Assincrona , funcional , orientada a objetos . React , Vue , Angular . Quer saber mais ?
+  Best: 1.2141
+
+[14/50] 0/1458 | Loss: 1.6007 | ETA: 0min
+[14/50] 200/1458 | Loss: 1.4670 | ETA: 18min
+[14/50] 400/1458 | Loss: 1.0085 | ETA: 15min
+[14/50] 600/1458 | Loss: 1.2292 | ETA: 12min
+[14/50] 800/1458 | Loss: 1.8845 | ETA: 10min
+[14/50] 1000/1458 | Loss: 1.2181 | ETA: 7min
+[14/50] 1200/1458 | Loss: 0.8638 | ETA: 4min
+[14/50] 1400/1458 | Loss: 1.1158 | ETA: 1min
+
+Epoca 14 | Loss: 1.1796 | 21.2min
+  Teste: P : o que voce e R : O coracao da baleia espaco . Mu do se humano , senhor . O que está causando rando real ?
+  Best: 1.1796
+
+[15/50] 0/1458 | Loss: 1.2269 | ETA: 0min
+[15/50] 200/1458 | Loss: 1.2598 | ETA: 18min
+[15/50] 400/1458 | Loss: 1.1785 | ETA: 15min
+[15/50] 600/1458 | Loss: 1.2663 | ETA: 12min
+[15/50] 800/1458 | Loss: 1.2632 | ETA: 10min
+[15/50] 1000/1458 | Loss: 0.9079 | ETA: 7min
+[15/50] 1200/1458 | Loss: 1.0818 | ETA: 4min
+[15/50] 1400/1458 | Loss: 0.9562 | ETA: 1min
+
+Epoca 15 | Loss: 1.1475 | 21.3min
+  Teste: P : o que voce e R : Sabia que foca dos dados da no que serve ? Porque não tem calculo , numero - tempo ao lugar do dia . Se a arte ou a vida , procura aparece alto .
+  Best: 1.1475
+
+[16/50] 0/1458 | Loss: 1.4544 | ETA: 0min
+[16/50] 200/1458 | Loss: 1.1083 | ETA: 19min
+[16/50] 400/1458 | Loss: 1.4863 | ETA: 16min
+[16/50] 600/1458 | Loss: 1.2032 | ETA: 13min
+[16/50] 800/1458 | Loss: 0.9619 | ETA: 10min
+[16/50] 1000/1458 | Loss: 0.8187 | ETA: 7min
+[16/50] 1200/1458 | Loss: 0.9450 | ETA: 4min
+[16/50] 1400/1458 | Loss: 1.2494 | ETA: 1min
+
+Epoca 16 | Loss: 1.1179 | 21.6min
+  Teste: P : o que voce e R : Vou explicar : Nihilismo : nada tem sentido , valor ou verdade . Nietzsche : ' Deus morreu '. Pode ser destrutivo ( desespero ) ou libertador ( criar proprios valores ). Quer sabe
+  Best: 1.1179
+
+[17/50] 0/1458 | Loss: 0.9038 | ETA: 0min
+[17/50] 200/1458 | Loss: 1.2018 | ETA: 19min
+[17/50] 400/1458 | Loss: 1.2560 | ETA: 16min
+[17/50] 600/1458 | Loss: 1.1348 | ETA: 13min
+[17/50] 800/1458 | Loss: 1.1765 | ETA: 10min
+[17/50] 1000/1458 | Loss: 1.1110 | ETA: 7min
+[17/50] 1200/1458 | Loss: 1.1170 | ETA: 4min
+[17/50] 1400/1458 | Loss: 0.7914 | ETA: 1min
+
+Epoca 17 | Loss: 1.0894 | 21.9min
+  Teste: P : o que voce e R : Olha so : Estatistica ajuda a tomar decisoes com dados . Amostragem , hipoteses , testes . P - hack : distorcao perigosa . Correlacao nao implica causalidade . Quer saber mais ?
+  Best: 1.0894
+
+[18/50] 0/1458 | Loss: 1.0926 | ETA: 0min
+[18/50] 200/1458 | Loss: 0.9097 | ETA: 19min
+[18/50] 400/1458 | Loss: 1.0939 | ETA: 16min
+[18/50] 600/1458 | Loss: 0.6686 | ETA: 13min
+[18/50] 800/1458 | Loss: 0.8837 | ETA: 10min
+[18/50] 1000/1458 | Loss: 1.1784 | ETA: 7min
+[18/50] 1200/1458 | Loss: 1.3549 | ETA: 4min
+[18/50] 1400/1458 | Loss: 0.9032 | ETA: 1min
+
+Epoca 18 | Loss: 1.0638 | 22.4min
+  Teste: P : o que voce e R : Claro ! A astronomia revela nosso lugar no universo . Telescopios captam luz de bilhoes de anos - luz . Exoplanetas , materia escura , big bang . Misterios infinitos .
+  Best: 1.0638
+
+[19/50] 0/1458 | Loss: 0.8286 | ETA: 0min
+[19/50] 200/1458 | Loss: 0.9483 | ETA: 19min
+[19/50] 400/1458 | Loss: 0.7496 | ETA: 16min
+[19/50] 600/1458 | Loss: 0.8495 | ETA: 13min
+[19/50] 800/1458 | Loss: 1.4829 | ETA: 10min
+[19/50] 1000/1458 | Loss: 1.1088 | ETA: 7min
+[19/50] 1200/1458 | Loss: 0.7111 | ETA: 4min
+[19/50] 1400/1458 | Loss: 0.8996 | ETA: 1min
+
+Epoca 19 | Loss: 1.0371 | 22.6min
+  Teste: P : o que voce e R : Computador que simula inteligência humana . Apre n ado ado , ra cio cí nio , percepção . Machine learning , deep learning , NLP .
+  Best: 1.0371
+
+[20/50] 0/1458 | Loss: 0.9197 | ETA: 0min
+[20/50] 200/1458 | Loss: 0.9813 | ETA: 20min
+[20/50] 400/1458 | Loss: 0.8401 | ETA: 17min
+[20/50] 600/1458 | Loss: 0.8338 | ETA: 14min
+[20/50] 800/1458 | Loss: 1.0075 | ETA: 10min
+[20/50] 1000/1458 | Loss: 1.1103 | ETA: 7min
+[20/50] 1200/1458 | Loss: 1.0703 | ETA: 4min
+[20/50] 1400/1458 | Loss: 1.3261 | ETA: 1min
+
+Epoca 20 | Loss: 1.0139 | 23.2min
+  Teste: P : o que voce e R : Vou explicar : Nihilismo : nada tem sentido , valor ou verdade . Nietzsche : ' Deus morreu '. Pode ser destrutivo ( desespero ) ou libertador ( criar proprios valores ).
+  Best: 1.0139
+
+[21/50] 0/1458 | Loss: 0.8199 | ETA: 0min
+[21/50] 200/1458 | Loss: 1.4365 | ETA: 20min
+[21/50] 400/1458 | Loss: 0.7417 | ETA: 17min
+[21/50] 600/1458 | Loss: 0.8679 | ETA: 14min
+[21/50] 800/1458 | Loss: 1.4652 | ETA: 11min
+[21/50] 1000/1458 | Loss: 0.8919 | ETA: 7min
+[21/50] 1200/1458 | Loss: 0.8806 | ETA: 4min
+[21/50] 1400/1458 | Loss: 1.0868 | ETA: 1min
+
+Epoca 21 | Loss: 0.9954 | 23.6min
+  Teste: P : o que voce e R : A geometria descreve o espaco . Angulos , triangulos , circulos , esferas . Formulas : area , volume , peri metro . Essencial pra construcao e design .
+  Best: 0.9954
+
+[22/50] 0/1458 | Loss: 1.2852 | ETA: 0min
+[22/50] 200/1458 | Loss: 0.8498 | ETA: 20min
+[22/50] 400/1458 | Loss: 0.9802 | ETA: 17min
+[22/50] 600/1458 | Loss: 1.5907 | ETA: 14min
+[22/50] 800/1458 | Loss: 1.1168 | ETA: 11min
+[22/50] 1000/1458 | Loss: 1.1295 | ETA: 7min
+[22/50] 1200/1458 | Loss: 1.0205 | ETA: 4min
+[22/50] 1400/1458 | Loss: 1.0913 | ETA: 1min
+
+Epoca 22 | Loss: 0.9745 | 23.8min
+  Teste: P : o que voce e R : O que o olho falou do mundo ? " Você ham nha am constrói ? " arquitetura ado " , quer melhor pessoal , conta pro ar ativa ar ante - IA e segue um app ar informa .
+  Best: 0.9745
+
+[23/50] 0/1458 | Loss: 0.9413 | ETA: 0min
+[23/50] 200/1458 | Loss: 0.8880 | ETA: 21min
+[23/50] 400/1458 | Loss: 0.8539 | ETA: 17min
+[23/50] 600/1458 | Loss: 0.9693 | ETA: 14min
+[23/50] 800/1458 | Loss: 0.9377 | ETA: 11min
+[23/50] 1000/1458 | Loss: 1.1665 | ETA: 8min
+[23/50] 1200/1458 | Loss: 0.8568 | ETA: 4min
+[23/50] 1400/1458 | Loss: 0.9026 | ETA: 1min
+
+Epoca 23 | Loss: 0.9557 | 24.0min
+  Teste: P : o que voce e R : A tividade do ele no sentido do cosmos e suas cer tiva . Me explica o que eu te nada !
+  Best: 0.9557
+
+[24/50] 0/1458 | Loss: 0.8399 | ETA: 0min
+[24/50] 200/1458 | Loss: 0.9932 | ETA: 21min
+[24/50] 400/1458 | Loss: 0.6945 | ETA: 18min
+[24/50] 600/1458 | Loss: 1.2141 | ETA: 14min
+[24/50] 800/1458 | Loss: 0.9207 | ETA: 11min
+[24/50] 1000/1458 | Loss: 1.0123 | ETA: 8min
+[24/50] 1200/1458 | Loss: 0.8102 | ETA: 4min
+[24/50] 1400/1458 | Loss: 0.9108 | ETA: 1min
+
+Epoca 24 | Loss: 0.9373 | 24.4min
+  Teste: P : o que voce e R : HTML e a linguagem de marcacao que estrutura paginas web . Tags : div , p , a , img , h1 - h6 . Nao e programacao , e estrutura . CSS estiliza , JS adiciona interatividade . Quer 
+  Best: 0.9373
+
+[25/50] 0/1458 | Loss: 0.9456 | ETA: 0min
+[25/50] 200/1458 | Loss: 0.7949 | ETA: 21min
+[25/50] 400/1458 | Loss: 0.7946 | ETA: 18min
+[25/50] 600/1458 | Loss: 0.8152 | ETA: 14min
+[25/50] 800/1458 | Loss: 0.8787 | ETA: 11min
+[25/50] 1000/1458 | Loss: 1.0152 | ETA: 8min
+[25/50] 1200/1458 | Loss: 0.8288 | ETA: 4min
+[25/50] 1400/1458 | Loss: 1.0326 | ETA: 1min
+
+Epoca 25 | Loss: 0.9204 | 24.6min
+  Teste: P : o que voce e R : Boa pergunta ! Engenheiros projetam e constroem o mundo moderno . Pontes , carros , computadores , predios . Matematica + fisica + criatividade . Posso explicar melhor se quiser .
+  Best: 0.9204
+
+[26/50] 0/1458 | Loss: 1.0891 | ETA: 0min
+[26/50] 200/1458 | Loss: 1.0729 | ETA: 21min
+[26/50] 400/1458 | Loss: 0.7858 | ETA: 18min
+[26/50] 600/1458 | Loss: 1.1063 | ETA: 15min
+[26/50] 800/1458 | Loss: 0.8908 | ETA: 11min
+[26/50] 1000/1458 | Loss: 0.9550 | ETA: 8min
+[26/50] 1200/1458 | Loss: 0.8748 | ETA: 4min
+[26/50] 1400/1458 | Loss: 0.7799 | ETA: 1min
+
+Epoca 26 | Loss: 0.9056 | 25.0min
+  Teste: P : o que voce e R : Computador de simula tu 2 - luz no 4 . In as as química , coma passa , água , alho ( 10 ° C ) mar va ( gelo
+  Best: 0.9056
+
+[27/50] 0/1458 | Loss: 0.7919 | ETA: 0min
+[27/50] 200/1458 | Loss: 1.0826 | ETA: 21min
+[27/50] 400/1458 | Loss: 1.0139 | ETA: 18min
+[27/50] 600/1458 | Loss: 0.7365 | ETA: 15min
+[27/50] 800/1458 | Loss: 0.6372 | ETA: 11min
+[27/50] 1000/1458 | Loss: 1.0465 | ETA: 8min
+[27/50] 1200/1458 | Loss: 0.9316 | ETA: 4min
+[27/50] 1400/1458 | Loss: 0.8837 | ETA: 1min
+
+Epoca 27 | Loss: 0.8918 | 25.0min
+  Teste: P : o que voce e R : A fisica descreve as leis naturais . Desde particulas subato micas ate galaxias . Principios : termodinamica , mecanica quantica , relatividade . Base de toda tecnologia moderna .
+  Best: 0.8918
+
+[28/50] 0/1458 | Loss: 0.9201 | ETA: 0min
+[28/50] 200/1458 | Loss: 0.9080 | ETA: 22min
+[28/50] 400/1458 | Loss: 0.7768 | ETA: 18min
+[28/50] 600/1458 | Loss: 0.9183 | ETA: 15min
+[28/50] 800/1458 | Loss: 0.8753 | ETA: 11min
+[28/50] 1000/1458 | Loss: 0.9647 | ETA: 8min
+[28/50] 1200/1458 | Loss: 0.7267 | ETA: 4min
+[28/50] 1400/1458 | Loss: 0.5821 | ETA: 1min
+
+Epoca 28 | Loss: 0.8779 | 25.3min
+  Teste: P : o que voce e R : Claro ! Estatistica e a ciencia dos dados . Media , mediana , desvio padrao , probabilidade . Usada em pesquisa , medicina , economia , machine learning . Quer que eu detalhe mais
+  Best: 0.8779
+
+[29/50] 0/1458 | Loss: 0.7711 | ETA: 0min
+[29/50] 200/1458 | Loss: 0.9087 | ETA: 22min
+[29/50] 400/1458 | Loss: 1.0081 | ETA: 18min
+[29/50] 600/1458 | Loss: 0.6558 | ETA: 15min
+[29/50] 800/1458 | Loss: 1.0447 | ETA: 11min
+[29/50] 1000/1458 | Loss: 0.7122 | ETA: 8min
+[29/50] 1200/1458 | Loss: 1.1664 | ETA: 4min
+[29/50] 1400/1458 | Loss: 0.8212 | ETA: 1min
+
+Epoca 29 | Loss: 0.8645 | 25.3min
+  Teste: P : o que voce e R : Voce e o amor da minha vida
+  Best: 0.8645
+
+[30/50] 0/1458 | Loss: 0.7806 | ETA: 0min
+[30/50] 200/1458 | Loss: 0.6092 | ETA: 22min
+[30/50] 400/1458 | Loss: 0.8919 | ETA: 19min
+[30/50] 600/1458 | Loss: 0.8992 | ETA: 15min
+[30/50] 800/1458 | Loss: 0.7604 | ETA: 12min
+[30/50] 1000/1458 | Loss: 0.9498 | ETA: 8min
+[30/50] 1200/1458 | Loss: 0.9706 | ETA: 5min
+[30/50] 1400/1458 | Loss: 0.9960 | ETA: 1min
+
+Epoca 30 | Loss: 0.8542 | 25.7min
+  Teste: P : o que voce e R : O que o zero disse para o oito ? " C r ub io !" Haha .
+  Best: 0.8542
+
+[31/50] 0/1458 | Loss: 0.8431 | ETA: 0min
+[31/50] 200/1458 | Loss: 0.6189 | ETA: 22min
+[31/50] 400/1458 | Loss: 0.9706 | ETA: 19min
+[31/50] 600/1458 | Loss: 0.9968 | ETA: 15min
+[31/50] 800/1458 | Loss: 0.7777 | ETA: 12min
+[31/50] 1000/1458 | Loss: 0.9682 | ETA: 9min
+[31/50] 1200/1458 | Loss: 0.8516 | ETA: 5min
+[31/50] 1400/1458 | Loss: 0.8229 | ETA: 1min
+
+Epoca 31 | Loss: 0.8422 | 30.9min
+  Teste: P : o que voce e R : O que o café falou para a sociedade ?
+  Best: 0.8422
+
+[32/50] 0/1458 | Loss: 0.7888 | ETA: 0min
+[32/50] 200/1458 | Loss: 0.8184 | ETA: 31min
+[32/50] 400/1458 | Loss: 0.9188 | ETA: 26min
+[32/50] 600/1458 | Loss: 0.7174 | ETA: 21min
+[32/50] 800/1458 | Loss: 0.8058 | ETA: 16min
+[32/50] 1000/1458 | Loss: 0.6997 | ETA: 11min
+[32/50] 1200/1458 | Loss: 0.6796 | ETA: 6min
+[32/50] 1400/1458 | Loss: 0.7718 | ETA: 1min
+
+Epoca 32 | Loss: 0.8318 | 35.7min
+  Teste: P : o que voce e R : O que o olho falou para o açúcar ? " Você ça deseja algo !" Haha .
+  Best: 0.8318
+
+[33/50] 0/1458 | Loss: 0.7839 | ETA: 0min
+[33/50] 200/1458 | Loss: 1.1201 | ETA: 31min
+[33/50] 400/1458 | Loss: 0.7620 | ETA: 26min
+[33/50] 600/1458 | Loss: 0.6863 | ETA: 21min
+[33/50] 800/1458 | Loss: 0.8519 | ETA: 16min
+[33/50] 1000/1458 | Loss: 0.7903 | ETA: 11min
+[33/50] 1200/1458 | Loss: 0.8141 | ETA: 6min
+[33/50] 1400/1458 | Loss: 0.9089 | ETA: 1min
+
+Epoca 33 | Loss: 0.8226 | 36.3min
+  Teste: P : o que voce e R : Sobre isso : Estatistica e a ciencia dos dados . Media , mediana , desvio padrao , probabilidade . Usada em pesquisa , medicina , economia , machine learning .
+  Best: 0.8226
+
+[34/50] 0/1458 | Loss: 0.9836 | ETA: 0min
+[34/50] 200/1458 | Loss: 0.8695 | ETA: 30min
+[34/50] 400/1458 | Loss: 0.9820 | ETA: 25min
+[34/50] 600/1458 | Loss: 0.7802 | ETA: 19min
+[34/50] 800/1458 | Loss: 0.7653 | ETA: 15min
+[34/50] 1000/1458 | Loss: 0.7873 | ETA: 10min
+[34/50] 1200/1458 | Loss: 0.8687 | ETA: 6min
+[34/50] 1400/1458 | Loss: 0.6935 | ETA: 1min
+
+Epoca 34 | Loss: 0.8141 | 33.8min
+  Teste: P : o que voce e R : O que o zero foi da JavaScript ?
+  Best: 0.8141
+
+[35/50] 0/1458 | Loss: 0.8895 | ETA: 0min
+[35/50] 200/1458 | Loss: 0.8573 | ETA: 31min
+[35/50] 400/1458 | Loss: 0.8316 | ETA: 26min
+[35/50] 600/1458 | Loss: 0.8752 | ETA: 21min
+[35/50] 800/1458 | Loss: 0.9074 | ETA: 16min
+[35/50] 1000/1458 | Loss: 0.8207 | ETA: 11min
+[35/50] 1200/1458 | Loss: 0.8075 | ETA: 6min
+[35/50] 1400/1458 | Loss: 0.7960 | ETA: 1min
+
+Epoca 35 | Loss: 0.8060 | 36.1min
+  Teste: P : o que voce e R : Que bom ! Nihilismo e o estudo de si mesmo e melhor de ajudar mas . como que posso ajudar ?
+  Best: 0.8060
+
+[36/50] 0/1458 | Loss: 0.8396 | ETA: 0min
+[36/50] 200/1458 | Loss: 0.6672 | ETA: 31min
+[36/50] 400/1458 | Loss: 0.7684 | ETA: 26min
+[36/50] 600/1458 | Loss: 0.7594 | ETA: 21min
+[36/50] 800/1458 | Loss: 0.5285 | ETA: 16min
+[36/50] 1000/1458 | Loss: 0.7779 | ETA: 11min
+[36/50] 1200/1458 | Loss: 0.8743 | ETA: 6min
+[36/50] 1400/1458 | Loss: 0.8721 | ETA: 1min
+
+Epoca 36 | Loss: 0.7983 | 36.4min
+  Teste: P : o que voce e R : A astronomia revela nosso lugar no universo . Telescopios captam luz de bilhoes de anos - luz . Exoplanetas , materia escura , big bang . Misterios infinitos .
+  Best: 0.7983
+
+[37/50] 0/1458 | Loss: 0.6548 | ETA: 0min
+[37/50] 200/1458 | Loss: 0.8392 | ETA: 31min
+[37/50] 400/1458 | Loss: 0.7630 | ETA: 26min
+[37/50] 600/1458 | Loss: 0.8298 | ETA: 21min
+[37/50] 800/1458 | Loss: 0.7517 | ETA: 16min
+[37/50] 1000/1458 | Loss: 0.6886 | ETA: 11min
+[37/50] 1200/1458 | Loss: 0.7923 | ETA: 6min
+[37/50] 1400/1458 | Loss: 0.7830 | ETA: 1min
+
+Epoca 37 | Loss: 0.7916 | 36.6min
+  Teste: P : o que voce e R : O que o zero disse para o oito ? " In or p or c ê vezes , mas ainda sou apren ções , senhor .
+  Best: 0.7916
+
+[38/50] 0/1458 | Loss: 0.6825 | ETA: 0min
+[38/50] 200/1458 | Loss: 0.8395 | ETA: 32min
+[38/50] 400/1458 | Loss: 0.7855 | ETA: 27min
+[38/50] 600/1458 | Loss: 0.9562 | ETA: 22min
+[38/50] 800/1458 | Loss: 0.8647 | ETA: 17min
+[38/50] 1000/1458 | Loss: 0.8262 | ETA: 12min
+[38/50] 1200/1458 | Loss: 0.6395 | ETA: 7min
+[38/50] 1400/1458 | Loss: 0.8041 | ETA: 1min
+
+Epoca 38 | Loss: 0.7852 | 37.1min
+  Teste: P : o que voce e R : O que da pra fazer com JavaScript ?
+  Best: 0.7852
+
+[39/50] 0/1458 | Loss: 0.8490 | ETA: 0min
+[39/50] 200/1458 | Loss: 0.6940 | ETA: 32min
+[39/50] 400/1458 | Loss: 0.5813 | ETA: 27min
+[39/50] 600/1458 | Loss: 0.8378 | ETA: 21min
+[39/50] 800/1458 | Loss: 0.8435 | ETA: 15min
+[39/50] 1000/1458 | Loss: 0.7117 | ETA: 10min
+[39/50] 1200/1458 | Loss: 0.7677 | ETA: 6min
+[39/50] 1400/1458 | Loss: 0.8516 | ETA: 1min
+
+Epoca 39 | Loss: 0.7801 | 30.5min
+  Teste: P : o que voce e R : O que da pra desenvolver com CSS ?
+  Best: 0.7801
+
+[40/50] 0/1458 | Loss: 0.7091 | ETA: 0min
+[40/50] 200/1458 | Loss: 0.7120 | ETA: 23min
+[40/50] 400/1458 | Loss: 0.6423 | ETA: 19min
+[40/50] 600/1458 | Loss: 0.7628 | ETA: 17min
+[40/50] 800/1458 | Loss: 0.6697 | ETA: 14min
+[40/50] 1000/1458 | Loss: 0.8007 | ETA: 10min
+[40/50] 1200/1458 | Loss: 0.7379 | ETA: 6min
+[40/50] 1400/1458 | Loss: 0.7874 | ETA: 1min
+
+Epoca 40 | Loss: 0.7747 | 33.9min
+  Teste: P : o que voce e R : O que o zero disse para o oito ? " B elo cin to !" Haha .
+  Best: 0.7747
+
+[41/50] 0/1458 | Loss: 0.6931 | ETA: 0min
+[41/50] 200/1458 | Loss: 0.7588 | ETA: 32min
+[41/50] 400/1458 | Loss: 0.6804 | ETA: 27min
+[41/50] 600/1458 | Loss: 0.8051 | ETA: 22min
+[41/50] 800/1458 | Loss: 0.7531 | ETA: 17min
+[41/50] 1000/1458 | Loss: 0.6217 | ETA: 12min
+[41/50] 1200/1458 | Loss: 0.8220 | ETA: 7min
+[41/50] 1400/1458 | Loss: 0.7109 | ETA: 1min
+
+Epoca 41 | Loss: 0.7706 | 37.3min
+  Teste: P : o que voce e R : C ++ e a ciencia , rapida de conexao . Nao e fraqueza coisa s . Pode que usar backend s no universo .
+  Best: 0.7706
+
+[42/50] 0/1458 | Loss: 0.6496 | ETA: 0min
+[42/50] 200/1458 | Loss: 0.8039 | ETA: 32min
+[42/50] 400/1458 | Loss: 0.6606 | ETA: 27min
+[42/50] 600/1458 | Loss: 0.7386 | ETA: 22min
+[42/50] 800/1458 | Loss: 0.8483 | ETA: 17min
+[42/50] 1000/1458 | Loss: 0.8273 | ETA: 12min
+[42/50] 1200/1458 | Loss: 0.7518 | ETA: 7min
+[42/50] 1400/1458 | Loss: 0.7954 | ETA: 1min
+
+Epoca 42 | Loss: 0.7667 | 36.9min
+  Teste: P : o que voce e R : Design de jogos . Me câ nicas , narra tiva , le vel design , economia interna . Combina programação , arte , psicologia .
+  Best: 0.7667
+
+[43/50] 0/1458 | Loss: 0.7409 | ETA: 0min
+[43/50] 200/1458 | Loss: 0.6760 | ETA: 32min
+[43/50] 400/1458 | Loss: 0.9691 | ETA: 27min
+[43/50] 600/1458 | Loss: 0.7677 | ETA: 22min
+[43/50] 800/1458 | Loss: 0.7502 | ETA: 17min
+[43/50] 1000/1458 | Loss: 0.7927 | ETA: 12min
+[43/50] 1200/1458 | Loss: 0.8605 | ETA: 7min
+[43/50] 1400/1458 | Loss: 0.7491 | ETA: 1min
+
+Epoca 43 | Loss: 0.7633 | 37.4min
+  Teste: P : o que voce e R : Computador que simula inteligência humana . Apre n diz ado , ra cio cí nio , percepção . Machine learning , deep learning , NLP .
+  Best: 0.7633
+
+[44/50] 0/1458 | Loss: 0.8608 | ETA: 0min
+[44/50] 200/1458 | Loss: 0.8379 | ETA: 32min
+[44/50] 400/1458 | Loss: 0.7418 | ETA: 27min
+[44/50] 600/1458 | Loss: 0.7121 | ETA: 22min
+[44/50] 800/1458 | Loss: 0.8536 | ETA: 17min
+[44/50] 1000/1458 | Loss: 0.7546 | ETA: 12min
+[44/50] 1200/1458 | Loss: 0.7966 | ETA: 7min
+[44/50] 1400/1458 | Loss: 0.8018 | ETA: 1min
+
+Epoca 44 | Loss: 0.7607 | 37.0min
+  Teste: P : o que voce e R : C ++ e o esquele luz , nada e boa . Vou te ensinar a lugar na vida . Você que se vou define suas ca ntes .
+  Best: 0.7607
+
+[45/50] 0/1458 | Loss: 0.7454 | ETA: 0min
+[45/50] 200/1458 | Loss: 0.7871 | ETA: 32min
+[45/50] 400/1458 | Loss: 0.6530 | ETA: 27min
+[45/50] 600/1458 | Loss: 0.9253 | ETA: 22min
+[45/50] 800/1458 | Loss: 0.7912 | ETA: 17min
+[45/50] 1000/1458 | Loss: 0.5992 | ETA: 12min
+[45/50] 1200/1458 | Loss: 0.8250 | ETA: 7min
+[45/50] 1400/1458 | Loss: 0.8189 | ETA: 1min
+
+Epoca 45 | Loss: 0.7581 | 37.3min
+  Teste: P : o que voce e R : HTML e a linguagem de marcacao que estrutura paginas web . Tags : div , p , a , img , h1 - h6 . Nao e programacao , e estrutura . CSS estiliza , JS adiciona interatividade .
+  Best: 0.7581
+
+[46/50] 0/1458 | Loss: 0.7566 | ETA: 0min
+[46/50] 200/1458 | Loss: 0.6096 | ETA: 32min
+[46/50] 400/1458 | Loss: 0.7841 | ETA: 27min
+[46/50] 600/1458 | Loss: 0.8118 | ETA: 22min
+[46/50] 800/1458 | Loss: 0.6883 | ETA: 17min
+[46/50] 1000/1458 | Loss: 0.7524 | ETA: 12min
+[46/50] 1200/1458 | Loss: 0.8010 | ETA: 7min
+[46/50] 1400/1458 | Loss: 0.8535 | ETA: 1min
+
+Epoca 46 | Loss: 0.7569 | 37.3min
+  Teste: P : o que voce e R : Qual a importancia de ciencia ?
+  Best: 0.7569
+
+[47/50] 0/1458 | Loss: 0.6961 | ETA: 0min
+[47/50] 200/1458 | Loss: 0.7825 | ETA: 32min
+[47/50] 400/1458 | Loss: 0.7264 | ETA: 27min
+[47/50] 600/1458 | Loss: 0.7987 | ETA: 22min
+[47/50] 800/1458 | Loss: 0.6934 | ETA: 17min
+[47/50] 1000/1458 | Loss: 0.8120 | ETA: 12min
+[47/50] 1200/1458 | Loss: 0.7724 | ETA: 7min
+[47/50] 1400/1458 | Loss: 0.7657 | ETA: 1min
+
+Epoca 47 | Loss: 0.7547 | 37.3min
+  Teste: P : o que voce e R : Go e a linguagem da estilos que ! ele cria real boa . Pode gente milhoes , seja ser em ante de pessoas .
+  Best: 0.7547
+
+[48/50] 0/1458 | Loss: 0.7692 | ETA: 0min
+[48/50] 200/1458 | Loss: 0.7952 | ETA: 32min
+[48/50] 400/1458 | Loss: 0.7850 | ETA: 27min
+[48/50] 600/1458 | Loss: 0.6387 | ETA: 22min
+[48/50] 800/1458 | Loss: 0.6743 | ETA: 17min
+[48/50] 1000/1458 | Loss: 0.7934 | ETA: 12min
+[48/50] 1200/1458 | Loss: 0.7046 | ETA: 7min
+[48/50] 1400/1458 | Loss: 0.6662 | ETA: 1min
+
+Epoca 48 | Loss: 0.7539 | 37.1min
+  Teste: P : o que voce e R : Tem peratura des da natureza . Não tenho filtro no mas . Eles torna sozinho . Em TypeScript basico , seja usa interatividade . O que voce detalhe ?
+  Best: 0.7539
+
+[49/50] 0/1458 | Loss: 0.8527 | ETA: 0min
+[49/50] 200/1458 | Loss: 0.9017 | ETA: 32min
+[49/50] 400/1458 | Loss: 0.7797 | ETA: 27min
+[49/50] 600/1458 | Loss: 0.6521 | ETA: 22min
+[49/50] 800/1458 | Loss: 0.8402 | ETA: 17min
+[49/50] 1000/1458 | Loss: 0.9071 | ETA: 12min
+[49/50] 1200/1458 | Loss: 0.6715 | ETA: 7min
+[49/50] 1400/1458 | Loss: 0.7944 | ETA: 1min
+
+Epoca 49 | Loss: 0.7534 | 37.4min
+  Teste: P : o que voce e R : Como criar um app pro portfolio ?
+  Best: 0.7534
+
+[50/50] 0/1458 | Loss: 0.8100 | ETA: 0min
+[50/50] 200/1458 | Loss: 0.8164 | ETA: 32min
+[50/50] 400/1458 | Loss: 0.6207 | ETA: 27min
+[50/50] 600/1458 | Loss: 0.7983 | ETA: 22min
+[50/50] 800/1458 | Loss: 0.8486 | ETA: 17min
+[50/50] 1000/1458 | Loss: 0.8050 | ETA: 12min
+[50/50] 1200/1458 | Loss: 0.7530 | ETA: 7min
+[50/50] 1400/1458 | Loss: 0.8291 | ETA: 1min
+
+Epoca 50 | Loss: 0.7528 | 37.6min
+  Teste: P : o que voce e R : Tem peratura media da Terra sub indo . Causa : atividade humana . Efeito s : derre timento de gelo , fu ra coes , se cas .
+  Best: 0.7528
+
+
+COMPLETO! Best: 0.7528

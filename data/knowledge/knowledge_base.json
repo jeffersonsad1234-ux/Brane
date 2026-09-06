@@ -1,0 +1,208 @@
+[
+  {
+    "id": "d86da0c3-682",
+    "question": "o que e a mecanica quantica",
+    "question_norm": "o que e a mecanica quantica",
+    "tokens": [
+      "mecanica",
+      "quantica"
+    ],
+    "keywords": [
+      "mecanica quantica",
+      "fisica quantica"
+    ],
+    "answer": "A mecanica quantica descreve o mundo subatomico: particulas podem estar em varios estados ao mesmo tempo, e medir muda o resultado. Fato livre. Paradoxos que desafiam o senso comum. Base de muita tecnologia moderna, como semicondutores e lasers.",
+    "category": "geral",
+    "source": "manual",
+    "uses": 0,
+    "up": 0,
+    "down": 0,
+    "created": 1787251758.8828557,
+    "updated": 1787251758.882856
+  },
+  {
+    "id": "f53dcfc4-bc4",
+    "question": "o brasil foi descoberto pelos portugueses em 1500",
+    "question_norm": "o brasil foi descoberto pelos portugueses em 1500",
+    "tokens": [
+      "brasil",
+      "foi",
+      "descoberto",
+      "pelos",
+      "portugueses",
+      "1500"
+    ],
+    "keywords": [
+      "o brasil foi descoberto pelos portugueses em 1500"
+    ],
+    "answer": "o brasil foi descoberto pelos portugueses em 1500",
+    "category": "ouvido",
+    "source": "teste",
+    "uses": 0,
+    "up": 0,
+    "down": 0,
+    "created": 1787254249.6279967,
+    "updated": 1787254249.6279972
+  },
+  {
+    "id": "560af496-d36",
+    "question": "a economia brasileira e uma das maiores do mundo",
+    "question_norm": "a economia brasileira e uma das maiores do mundo",
+    "tokens": [
+      "economia",
+      "brasileira",
+      "maiores",
+      "mundo"
+    ],
+    "keywords": [
+      "a economia brasileira e uma das maiores do mundo"
+    ],
+    "answer": "a economia brasileira e uma das maiores do mundo",
+    "category": "ouvido",
+    "source": "teste",
+    "uses": 0,
+    "up": 0,
+    "down": 0,
+    "created": 1787254249.6287744,
+    "updated": 1787254249.628775
+  },
+  {
+    "id": "ecec364f-8c0",
+    "question": "o acai e uma fruta da amazonia rica em antioxidantes",
+    "question_norm": "o acai e uma fruta da amazonia rica em antioxidantes",
+    "tokens": [
+      "acai",
+      "fruta",
+      "amazonia",
+      "rica",
+      "antioxidantes"
+    ],
+    "keywords": [
+      "o acai e uma fruta da amazonia rica em antioxidantes"
+    ],
+    "answer": "o acai e uma fruta da amazonia rica em antioxidantes",
+    "category": "ouvido",
+    "source": "teste",
+    "uses": 0,
+    "up": 0,
+    "down": 0,
+    "created": 1787254249.629392,
+    "updated": 1787254249.6293921
+  },
+  {
+    "id": "0769367c-211",
+    "question": "a fotossintese transforma luz em energia para as plantas",
+    "question_norm": "a fotossintese transforma luz em energia para as plantas",
+    "tokens": [
+      "fotossintese",
+      "transforma",
+      "luz",
+      "energia",
+      "plantas"
+    ],
+    "keywords": [
+      "a fotossintese transforma luz em energia para as plantas"
+    ],
+    "answer": "a fotossintese transforma luz em energia para as plantas",
+    "category": "ouvido",
+    "source": "teste",
+    "uses": 0,
+    "up": 0,
+    "down": 0,
+    "created": 1787254249.6300702,
+    "updated": 1787254249.6300704
+  },
+  {
+    "id": "6f5d6c14-f8f",
+    "question": "vamos vamos vamos vamos la vamos la para vamos la para testar vamos la para testar",
+    "question_norm": "vamos vamos vamos vamos la vamos la para vamos la para testar vamos la para testar",
+    "tokens": [
+      "vamos",
+      "vamos",
+      "vamos",
+      "vamos",
+      "la",
+      "vamos",
+      "la",
+      "vamos",
+      "la",
+      "testar",
+      "vamos",
+      "la",
+      "testar"
+    ],
+    "keywords": [
+      "vamos vamos vamos vamos la vamos la para vamos la para testa"
+    ],
+    "answer": "vamos vamos vamos vamos la vamos la para vamos la para testar vamos la para testar",
+    "category": "ouvido",
+    "source": "app_ouvindo",
+    "uses": 0,
+    "up": 0,
+    "down": 0,
+    "created": 1787255853.6615212,
+    "updated": 1787255853.661522
+  },
+  {
+    "id": "b854c10b-b31",
+    "question": "[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]",
+    "question_norm": "musica de fundo musica de fundo musica de fundo musica de fundo musica de fundo musica de fundo musica de fundo musica de fundo musica de fundo",
+    "tokens": [
+      "musica",
+      "fundo",
+      "musica",
+      "fundo",
+      "musica",
+      "fundo",
+      "musica",
+      "fundo",
+      "musica",
+      "fundo",
+      "musica",
+      "fundo",
+      "musica",
+      "fundo",
+      "musica",
+      "fundo",
+      "musica",
+      "fundo"
+    ],
+    "keywords": [
+      "[música",
+      "de",
+      "fundo]",
+      "[música",
+      "de",
+      "fundo]",
+      "[música",
+      "de",
+      "fundo]",
+      "[música",
+      "de",
+      "fundo]",
+      "[música",
+      "de",
+      "fundo]",
+      "[música",
+      "de",
+      "fundo]",
+      "[música",
+      "de",
+      "fundo]",
+      "[música",
+      "de",
+      "fundo]",
+      "[música",
+      "de",
+      "fundo]"
+    ],
+    "answer": "[Do vídeo: https://www.youtube.com/watch?v=9bZkp7q19f0] [MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]\n[MÚSICA DE FUNDO]",
+    "category": "video",
+    "source": "video_url",
+    "uses": 0,
+    "up": 0,
+    "down": 0,
+    "created": 1787341275.6200156,
+    "updated": 1787341275.620016
+  }
+]

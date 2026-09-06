@@ -1,0 +1,148 @@
+[
+  {
+    "question": "bom dia, como vai você?",
+    "expected_type": "conversacao",
+    "brain1_response": "da e .",
+    "brain1_time": 0.47834324836730957,
+    "multi_response": "da se e . comece devagar e .",
+    "multi_time": 0.3855407238006592,
+    "brains_used": [
+      "brain_01_conversation"
+    ]
+  },
+  {
+    "question": "me conta uma piada",
+    "expected_type": "conversacao",
+    "brain1_response": "da e e .",
+    "brain1_time": 0.5001873970031738,
+    "multi_response": ". js ! muita gente usa e tem .",
+    "multi_time": 0.42939043045043945,
+    "brains_used": [
+      "brain_01_conversation"
+    ]
+  },
+  {
+    "question": "obrigado pela ajuda",
+    "expected_type": "conversacao",
+    "brain1_response": ". a ! tudo bem ?",
+    "brain1_time": 0.25558948516845703,
+    "multi_response": ". voce ta bem ?",
+    "multi_time": 0.2063755989074707,
+    "brains_used": [
+      "brain_01_conversation"
+    ]
+  },
+  {
+    "question": "quanto é 15 + 27?",
+    "expected_type": "raciocinio",
+    "brain1_response": "e .",
+    "brain1_time": 0.2514007091522217,
+    "multi_response": "o . é . e . é + 3 ? ia , ar - 15 = ar por a o .",
+    "multi_time": 1.0038318634033203,
+    "brains_used": [
+      "brain_02_reasoning"
+    ]
+  },
+  {
+    "question": "se eu tenho 100 reais e gasto 27, depois ganho 15, quanto tenho?",
+    "expected_type": "raciocinio",
+    "brain1_response": "e .",
+    "brain1_time": 0.393826961517334,
+    "multi_response": "15 . a ( 15 - = recebeu por ar o 2 ) 15 as no .",
+    "multi_time": 1.1894233226776123,
+    "brains_used": [
+      "brain_02_reasoning",
+      "brain_01_conversation"
+    ]
+  },
+  {
+    "question": "qual é a raiz quadrada de 144?",
+    "expected_type": "raciocinio",
+    "brain1_response": "da e .",
+    "brain1_time": 0.3868229389190674,
+    "multi_response": "não consigo o fornecido .",
+    "multi_time": 0.20316791534423828,
+    "brains_used": [
+      "brain_02_reasoning"
+    ]
+  },
+  {
+    "question": "Maria tem 3 vezes mais livros que Pedro. Pedro tem 5. Quantos livros Maria tem?",
+    "expected_type": "raciocinio",
+    "brain1_response": "e que .",
+    "brain1_time": 0.23830127716064453,
+    "multi_response": ". ( 7 .",
+    "multi_time": 0.3415389060974121,
+    "brains_used": [
+      "brain_02_reasoning"
+    ]
+  },
+  {
+    "question": "o que é gravidade?",
+    "expected_type": "conhecimento",
+    "brain1_response": "da que muito . comece o , depois va pra reais .",
+    "brain1_time": 0.4207627773284912,
+    "multi_response": "explique ia",
+    "multi_time": 0.10306334495544434,
+    "brains_used": [
+      "brain_03_knowledge"
+    ]
+  },
+  {
+    "question": "como funciona o corpo humano?",
+    "expected_type": "conhecimento",
+    "brain1_response": "da e va programar reais .",
+    "brain1_time": 0.2638881206512451,
+    "multi_response": "as a no ar , o al . o o : a os .",
+    "multi_time": 1.190310001373291,
+    "brains_used": [
+      "brain_03_knowledge"
+    ]
+  },
+  {
+    "question": "quem descobriu o Brasil?",
+    "expected_type": "conhecimento",
+    "brain1_response": "e .",
+    "brain1_time": 0.4078187942504883,
+    "multi_response": "da e . comece devagar e .",
+    "multi_time": 0.5008020401000977,
+    "brains_used": [
+      "brain_01_conversation"
+    ]
+  },
+  {
+    "question": "o que é inteligência artificial?",
+    "expected_type": "conhecimento",
+    "brain1_response": "da se exercite . comece devagar e .",
+    "brain1_time": 0.32064151763916016,
+    "multi_response": "o que você sabe e ia ?",
+    "multi_time": 0.22855281829833984,
+    "brains_used": [
+      "brain_03_knowledge"
+    ]
+  },
+  {
+    "question": "por que o céu é azul? explique com raciocínio",
+    "expected_type": "misto",
+    "brain1_response": "te e .",
+    "brain1_time": 0.28453564643859863,
+    "multi_response": "a , la a s e .\n\no . é o . e : a ar o a .",
+    "multi_time": 1.7209117412567139,
+    "brains_used": [
+      "brain_02_reasoning",
+      "brain_03_knowledge"
+    ]
+  },
+  {
+    "question": "calcula 20% de 500 e explica o que é porcentagem",
+    "expected_type": "misto",
+    "brain1_response": ".",
+    "brain1_time": 0.1889498233795166,
+    "multi_response": "o , al ; a ; viés al .\n\no a . e e ? ia a e .",
+    "multi_time": 1.1213726997375488,
+    "brains_used": [
+      "brain_02_reasoning",
+      "brain_03_knowledge"
+    ]
+  }
+]

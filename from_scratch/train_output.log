@@ -1,0 +1,31 @@
+============================================================
+BRANPY AI -- TREINO 50M OTIMIZADO
+============================================================
+Tokenizador: 203 tokens
+Carregando corpus...
+Dataset: 10000 exemplos
+Batches: 2500
+Modelo: 31.7M parametros
+Resume epoch 2
+
+Treinando 15 epocas, 2500 batches/epoca
+Tempo estimado: ~5.2 horas
+============================================================
+[3/15] 0/2500 | Loss: 1.8247 | ETA: 0min
+[3/15] 50/2500 | Loss: 1.9659 | ETA: 206min
+[3/15] 100/2500 | Loss: 1.6090 | ETA: 182min
+[3/15] 150/2500 | Loss: 1.5608 | ETA: 171min
+[3/15] 200/2500 | Loss: 0.8149 | ETA: 179min
+[3/15] 250/2500 | Loss: 1.5365 | ETA: 195min
+[3/15] 300/2500 | Loss: 1.7457 | ETA: 184min
+[3/15] 350/2500 | Loss: 1.7115 | ETA: 173min
+[3/15] 400/2500 | Loss: 0.9734 | ETA: 168min
+[3/15] 450/2500 | Loss: 2.0948 | ETA: 169min
+[3/15] 500/2500 | Loss: 1.5732 | ETA: 168min
+[3/15] 550/2500 | Loss: 0.7857 | ETA: 160min
+[3/15] 600/2500 | Loss: 1.6320 | ETA: 153min
+[3/15] 650/2500 | Loss: 1.1651 | ETA: 147min
+[3/15] 700/2500 | Loss: 2.0837 | ETA: 141min
+[3/15] 750/2500 | Loss: 1.2824 | ETA: 136min
+[3/15] 800/2500 | Loss: 1.6498 | ETA: 132min
+[3/15] 850/2500 | Loss: 1.3627 | ETA: 127min

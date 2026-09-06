@@ -1,0 +1,330 @@
+==================================================
+BRANPY MODEL — TREINO DO ZERO
+Tamanho: small | Epochs: 20 | LR: 0.0003
+Max len: 256 | Vocab: 8000
+==================================================
+
+[1/6] Gerando corpus proprio...
+  444 linhas geradas
+
+[2/6] Treinando tokenizer BPE proprio...
+[Tokenizer] Treinando BPE com vocab_size=8000
+[Tokenizer] Corpus: 444 textos
+[Tokenizer] Vocab final: 607 tokens
+[Tokenizer] Salvo em weights/bran9bpy_scratch\tokenizer.json
+  Vocab final: 607 tokens
+
+[3/6] Criando modelo transformer do zero...
+[Model] BranPy-5.0M — 6 layers, 256d, 8h
+  Parametros: 5,025,536 (5.03M)
+
+[4/6] Preparando dataset...
+  444 exemplos, 111 batches
+
+[5/6] Treinando...
+  Step 1/2220 (0.0%) | Loss: 6.4111 | Tempo: 1.6s | ETA: 60min
+  Step 10/2220 (0.5%) | Loss: 4.2377 | Tempo: 1.3s | ETA: 46min
+  Step 20/2220 (0.9%) | Loss: 3.3469 | Tempo: 1.2s | ETA: 44min
+  Step 30/2220 (1.4%) | Loss: 3.2469 | Tempo: 1.2s | ETA: 43min
+  Step 40/2220 (1.8%) | Loss: 3.0977 | Tempo: 1.0s | ETA: 42min
+  Step 50/2220 (2.3%) | Loss: 3.2690 | Tempo: 1.0s | ETA: 42min
+  Step 60/2220 (2.7%) | Loss: 3.1545 | Tempo: 1.1s | ETA: 42min
+  Step 70/2220 (3.2%) | Loss: 3.1773 | Tempo: 1.3s | ETA: 42min
+  Step 80/2220 (3.6%) | Loss: 2.0405 | Tempo: 1.2s | ETA: 42min
+  Step 90/2220 (4.1%) | Loss: 2.6410 | Tempo: 1.6s | ETA: 42min
+  Step 100/2220 (4.5%) | Loss: 2.7739 | Tempo: 1.4s | ETA: 42min
+  Step 110/2220 (5.0%) | Loss: 2.2654 | Tempo: 1.1s | ETA: 42min
+
+  Epoch 1/20 | Loss media: 3.2052 | Melhor: 2.0405 | Tempo: 2.2min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch1.pt
+  Step 120/2220 (5.4%) | Loss: 2.8183 | Tempo: 1.2s | ETA: 44min
+  Step 130/2220 (5.9%) | Loss: 2.2298 | Tempo: 1.1s | ETA: 44min
+  Step 140/2220 (6.3%) | Loss: 1.7365 | Tempo: 1.1s | ETA: 43min
+  Step 150/2220 (6.8%) | Loss: 2.3759 | Tempo: 1.0s | ETA: 43min
+  Step 160/2220 (7.2%) | Loss: 2.8201 | Tempo: 1.1s | ETA: 42min
+  Step 170/2220 (7.7%) | Loss: 2.6667 | Tempo: 1.0s | ETA: 42min
+  Step 180/2220 (8.1%) | Loss: 2.3904 | Tempo: 1.1s | ETA: 42min
+  Step 190/2220 (8.6%) | Loss: 2.0099 | Tempo: 1.1s | ETA: 41min
+  Step 200/2220 (9.0%) | Loss: 2.2330 | Tempo: 1.1s | ETA: 41min
+  Step 210/2220 (9.5%) | Loss: 1.6810 | Tempo: 1.2s | ETA: 41min
+  Step 220/2220 (9.9%) | Loss: 1.7007 | Tempo: 1.1s | ETA: 40min
+
+  Epoch 2/20 | Loss media: 2.2891 | Melhor: 1.5914 | Tempo: 4.5min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch2.pt
+  Step 230/2220 (10.4%) | Loss: 2.0096 | Tempo: 1.0s | ETA: 40min
+  Step 240/2220 (10.8%) | Loss: 1.6491 | Tempo: 1.3s | ETA: 40min
+  Step 250/2220 (11.3%) | Loss: 2.1273 | Tempo: 1.1s | ETA: 40min
+  Step 260/2220 (11.7%) | Loss: 1.6718 | Tempo: 1.1s | ETA: 39min
+  Step 270/2220 (12.2%) | Loss: 1.4977 | Tempo: 1.2s | ETA: 39min
+  Step 280/2220 (12.6%) | Loss: 1.6425 | Tempo: 1.1s | ETA: 39min
+  Step 290/2220 (13.1%) | Loss: 2.0496 | Tempo: 1.0s | ETA: 38min
+  Step 300/2220 (13.5%) | Loss: 2.6762 | Tempo: 1.1s | ETA: 38min
+  Step 310/2220 (14.0%) | Loss: 1.7803 | Tempo: 1.1s | ETA: 38min
+  Step 320/2220 (14.4%) | Loss: 1.8299 | Tempo: 1.1s | ETA: 38min
+  Step 330/2220 (14.9%) | Loss: 1.6783 | Tempo: 1.1s | ETA: 37min
+
+  Epoch 3/20 | Loss media: 1.9175 | Melhor: 1.0447 | Tempo: 6.6min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch3.pt
+  Step 340/2220 (15.3%) | Loss: 1.4492 | Tempo: 1.4s | ETA: 37min
+  Step 350/2220 (15.8%) | Loss: 1.7571 | Tempo: 1.2s | ETA: 37min
+  Step 360/2220 (16.2%) | Loss: 1.2371 | Tempo: 1.1s | ETA: 37min
+  Step 370/2220 (16.7%) | Loss: 2.0905 | Tempo: 1.1s | ETA: 37min
+  Step 380/2220 (17.1%) | Loss: 2.1384 | Tempo: 1.3s | ETA: 37min
+  Step 390/2220 (17.6%) | Loss: 1.6319 | Tempo: 1.0s | ETA: 36min
+  Step 400/2220 (18.0%) | Loss: 1.3880 | Tempo: 1.1s | ETA: 36min
+  Step 410/2220 (18.5%) | Loss: 1.2568 | Tempo: 1.0s | ETA: 36min
+  Step 420/2220 (18.9%) | Loss: 1.5180 | Tempo: 1.0s | ETA: 36min
+  Step 430/2220 (19.4%) | Loss: 1.7114 | Tempo: 1.1s | ETA: 35min
+  Step 440/2220 (19.8%) | Loss: 1.7270 | Tempo: 1.1s | ETA: 35min
+
+  Epoch 4/20 | Loss media: 1.6253 | Melhor: 0.8581 | Tempo: 8.7min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch4.pt
+  Step 450/2220 (20.3%) | Loss: 1.2288 | Tempo: 1.2s | ETA: 35min
+  Step 460/2220 (20.7%) | Loss: 1.3622 | Tempo: 1.0s | ETA: 35min
+  Step 470/2220 (21.2%) | Loss: 1.5581 | Tempo: 1.1s | ETA: 35min
+  Step 480/2220 (21.6%) | Loss: 1.2776 | Tempo: 1.2s | ETA: 34min
+  Step 490/2220 (22.1%) | Loss: 0.9950 | Tempo: 1.1s | ETA: 34min
+  Step 500/2220 (22.5%) | Loss: 1.0196 | Tempo: 1.1s | ETA: 34min
+  Step 510/2220 (23.0%) | Loss: 1.9475 | Tempo: 1.1s | ETA: 34min
+  Step 520/2220 (23.4%) | Loss: 1.3716 | Tempo: 1.1s | ETA: 33min
+  Step 530/2220 (23.9%) | Loss: 0.7093 | Tempo: 1.1s | ETA: 33min
+  Step 540/2220 (24.3%) | Loss: 1.6451 | Tempo: 1.1s | ETA: 33min
+  Step 550/2220 (24.8%) | Loss: 1.3386 | Tempo: 1.4s | ETA: 33min
+
+  Epoch 5/20 | Loss media: 1.4036 | Melhor: 0.7093 | Tempo: 10.9min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch5.pt
+  Step 560/2220 (25.2%) | Loss: 1.1104 | Tempo: 1.1s | ETA: 33min
+  Step 570/2220 (25.7%) | Loss: 1.3408 | Tempo: 1.2s | ETA: 33min
+  Step 580/2220 (26.1%) | Loss: 1.1296 | Tempo: 1.3s | ETA: 32min
+  Step 590/2220 (26.6%) | Loss: 0.9792 | Tempo: 1.1s | ETA: 32min
+  Step 600/2220 (27.0%) | Loss: 1.0462 | Tempo: 1.2s | ETA: 32min
+  Step 610/2220 (27.5%) | Loss: 1.3228 | Tempo: 1.1s | ETA: 32min
+  Step 620/2220 (27.9%) | Loss: 1.1308 | Tempo: 1.2s | ETA: 32min
+  Step 630/2220 (28.4%) | Loss: 1.3298 | Tempo: 1.2s | ETA: 31min
+  Step 640/2220 (28.8%) | Loss: 1.1675 | Tempo: 1.1s | ETA: 31min
+  Step 650/2220 (29.3%) | Loss: 1.2263 | Tempo: 1.1s | ETA: 31min
+  Step 660/2220 (29.7%) | Loss: 0.8503 | Tempo: 1.2s | ETA: 31min
+
+  Epoch 6/20 | Loss media: 1.2189 | Melhor: 0.7093 | Tempo: 13.1min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch6.pt
+  Step 670/2220 (30.2%) | Loss: 1.6452 | Tempo: 1.1s | ETA: 31min
+  Step 680/2220 (30.6%) | Loss: 1.1680 | Tempo: 1.1s | ETA: 30min
+  Step 690/2220 (31.1%) | Loss: 1.5252 | Tempo: 1.2s | ETA: 30min
+  Step 700/2220 (31.5%) | Loss: 0.9661 | Tempo: 1.1s | ETA: 30min
+  Step 710/2220 (32.0%) | Loss: 1.2511 | Tempo: 1.0s | ETA: 30min
+  Step 720/2220 (32.4%) | Loss: 1.1822 | Tempo: 0.8s | ETA: 29min
+  Step 730/2220 (32.9%) | Loss: 0.8174 | Tempo: 0.9s | ETA: 29min
+  Step 740/2220 (33.3%) | Loss: 1.5409 | Tempo: 0.8s | ETA: 29min
+  Step 750/2220 (33.8%) | Loss: 0.6464 | Tempo: 1.1s | ETA: 29min
+  Step 760/2220 (34.2%) | Loss: 1.3263 | Tempo: 0.8s | ETA: 28min
+  Step 770/2220 (34.7%) | Loss: 0.8080 | Tempo: 0.8s | ETA: 28min
+
+  Epoch 7/20 | Loss media: 1.0787 | Melhor: 0.5911 | Tempo: 14.9min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch7.pt
+  Step 780/2220 (35.1%) | Loss: 0.7109 | Tempo: 0.9s | ETA: 28min
+  Step 790/2220 (35.6%) | Loss: 0.9613 | Tempo: 0.9s | ETA: 27min
+  Step 800/2220 (36.0%) | Loss: 0.6827 | Tempo: 0.8s | ETA: 27min
+  Step 810/2220 (36.5%) | Loss: 0.9593 | Tempo: 0.8s | ETA: 27min
+  Step 820/2220 (36.9%) | Loss: 1.3076 | Tempo: 0.9s | ETA: 27min
+  Step 830/2220 (37.4%) | Loss: 1.3037 | Tempo: 0.9s | ETA: 26min
+  Step 840/2220 (37.8%) | Loss: 0.7236 | Tempo: 0.8s | ETA: 26min
+  Step 850/2220 (38.3%) | Loss: 1.1947 | Tempo: 0.9s | ETA: 26min
+  Step 860/2220 (38.7%) | Loss: 0.5205 | Tempo: 0.8s | ETA: 25min
+  Step 870/2220 (39.2%) | Loss: 0.9159 | Tempo: 0.8s | ETA: 25min
+  Step 880/2220 (39.6%) | Loss: 1.1243 | Tempo: 0.8s | ETA: 25min
+
+  Epoch 8/20 | Loss media: 0.9877 | Melhor: 0.5205 | Tempo: 16.6min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch8.pt
+  Step 890/2220 (40.1%) | Loss: 0.7690 | Tempo: 1.0s | ETA: 25min
+  Step 900/2220 (40.5%) | Loss: 1.4709 | Tempo: 1.0s | ETA: 25min
+  Step 910/2220 (41.0%) | Loss: 0.7317 | Tempo: 0.9s | ETA: 24min
+  Step 920/2220 (41.4%) | Loss: 0.8278 | Tempo: 0.9s | ETA: 24min
+  Step 930/2220 (41.9%) | Loss: 0.6335 | Tempo: 0.9s | ETA: 24min
+  Step 940/2220 (42.3%) | Loss: 0.5092 | Tempo: 0.9s | ETA: 24min
+  Step 950/2220 (42.8%) | Loss: 0.6189 | Tempo: 1.1s | ETA: 23min
+  Step 960/2220 (43.2%) | Loss: 0.9101 | Tempo: 0.8s | ETA: 23min
+  Step 970/2220 (43.7%) | Loss: 0.6610 | Tempo: 0.8s | ETA: 23min
+  Step 980/2220 (44.1%) | Loss: 0.8952 | Tempo: 0.8s | ETA: 23min
+  Step 990/2220 (44.6%) | Loss: 0.9057 | Tempo: 0.9s | ETA: 22min
+
+  Epoch 9/20 | Loss media: 0.8858 | Melhor: 0.4791 | Tempo: 18.2min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch9.pt
+  Step 1000/2220 (45.0%) | Loss: 0.7183 | Tempo: 0.9s | ETA: 22min
+  Step 1010/2220 (45.5%) | Loss: 1.0646 | Tempo: 0.9s | ETA: 22min
+  Step 1020/2220 (45.9%) | Loss: 0.7919 | Tempo: 0.8s | ETA: 22min
+  Step 1030/2220 (46.4%) | Loss: 0.8690 | Tempo: 0.9s | ETA: 22min
+  Step 1040/2220 (46.8%) | Loss: 0.8459 | Tempo: 1.0s | ETA: 21min
+  Step 1050/2220 (47.3%) | Loss: 0.4620 | Tempo: 0.7s | ETA: 21min
+  Step 1060/2220 (47.7%) | Loss: 1.2993 | Tempo: 0.8s | ETA: 21min
+  Step 1070/2220 (48.2%) | Loss: 0.6165 | Tempo: 0.9s | ETA: 21min
+  Step 1080/2220 (48.6%) | Loss: 0.8100 | Tempo: 0.9s | ETA: 20min
+  Step 1090/2220 (49.1%) | Loss: 0.8748 | Tempo: 1.0s | ETA: 20min
+  Step 1100/2220 (49.5%) | Loss: 0.4214 | Tempo: 0.8s | ETA: 20min
+  Step 1110/2220 (50.0%) | Loss: 1.2281 | Tempo: 1.0s | ETA: 20min
+
+  Epoch 10/20 | Loss media: 0.8111 | Melhor: 0.4152 | Tempo: 19.9min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch10.pt
+  Step 1120/2220 (50.5%) | Loss: 0.6323 | Tempo: 0.9s | ETA: 20min
+  Step 1130/2220 (50.9%) | Loss: 0.8926 | Tempo: 0.7s | ETA: 19min
+  Step 1140/2220 (51.4%) | Loss: 0.6724 | Tempo: 0.9s | ETA: 19min
+  Step 1150/2220 (51.8%) | Loss: 1.2771 | Tempo: 0.9s | ETA: 19min
+  Step 1160/2220 (52.3%) | Loss: 0.6670 | Tempo: 0.7s | ETA: 19min
+  Step 1170/2220 (52.7%) | Loss: 0.7332 | Tempo: 1.3s | ETA: 19min
+  Step 1180/2220 (53.2%) | Loss: 0.8703 | Tempo: 1.1s | ETA: 18min
+  Step 1190/2220 (53.6%) | Loss: 0.8151 | Tempo: 0.8s | ETA: 18min
+  Step 1200/2220 (54.1%) | Loss: 0.6194 | Tempo: 0.9s | ETA: 18min
+  Step 1210/2220 (54.5%) | Loss: 0.8531 | Tempo: 0.9s | ETA: 18min
+  Step 1220/2220 (55.0%) | Loss: 0.5209 | Tempo: 0.8s | ETA: 18min
+
+  Epoch 11/20 | Loss media: 0.7523 | Melhor: 0.4152 | Tempo: 21.5min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch11.pt
+  Step 1230/2220 (55.4%) | Loss: 0.7643 | Tempo: 1.1s | ETA: 17min
+  Step 1240/2220 (55.9%) | Loss: 1.1212 | Tempo: 0.7s | ETA: 17min
+  Step 1250/2220 (56.3%) | Loss: 0.4601 | Tempo: 0.8s | ETA: 17min
+  Step 1260/2220 (56.8%) | Loss: 0.4850 | Tempo: 0.9s | ETA: 17min
+  Step 1270/2220 (57.2%) | Loss: 0.9107 | Tempo: 1.0s | ETA: 17min
+  Step 1280/2220 (57.7%) | Loss: 0.8728 | Tempo: 1.1s | ETA: 16min
+  Step 1290/2220 (58.1%) | Loss: 0.6018 | Tempo: 0.9s | ETA: 16min
+  Step 1300/2220 (58.6%) | Loss: 0.7736 | Tempo: 1.0s | ETA: 16min
+  Step 1310/2220 (59.0%) | Loss: 0.4533 | Tempo: 0.8s | ETA: 16min
+  Step 1320/2220 (59.5%) | Loss: 0.4334 | Tempo: 0.8s | ETA: 16min
+  Step 1330/2220 (59.9%) | Loss: 0.4990 | Tempo: 0.8s | ETA: 16min
+
+  Epoch 12/20 | Loss media: 0.7034 | Melhor: 0.2878 | Tempo: 23.2min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch12.pt
+  Step 1340/2220 (60.4%) | Loss: 1.0120 | Tempo: 0.8s | ETA: 15min
+  Step 1350/2220 (60.8%) | Loss: 0.6606 | Tempo: 0.9s | ETA: 15min
+  Step 1360/2220 (61.3%) | Loss: 0.7110 | Tempo: 0.8s | ETA: 15min
+  Step 1370/2220 (61.7%) | Loss: 0.5140 | Tempo: 0.9s | ETA: 15min
+  Step 1380/2220 (62.2%) | Loss: 0.3470 | Tempo: 0.7s | ETA: 15min
+  Step 1390/2220 (62.6%) | Loss: 1.0227 | Tempo: 0.9s | ETA: 14min
+  Step 1400/2220 (63.1%) | Loss: 0.5901 | Tempo: 0.8s | ETA: 14min
+  Step 1410/2220 (63.5%) | Loss: 0.5070 | Tempo: 0.8s | ETA: 14min
+  Step 1420/2220 (64.0%) | Loss: 0.3786 | Tempo: 0.7s | ETA: 14min
+  Step 1430/2220 (64.4%) | Loss: 0.7375 | Tempo: 0.8s | ETA: 14min
+  Step 1440/2220 (64.9%) | Loss: 0.3214 | Tempo: 0.8s | ETA: 13min
+
+  Epoch 13/20 | Loss media: 0.6659 | Melhor: 0.2734 | Tempo: 24.7min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch13.pt
+  Step 1450/2220 (65.3%) | Loss: 0.7206 | Tempo: 1.1s | ETA: 13min
+  Step 1460/2220 (65.8%) | Loss: 0.5596 | Tempo: 0.9s | ETA: 13min
+  Step 1470/2220 (66.2%) | Loss: 0.4838 | Tempo: 0.8s | ETA: 13min
+  Step 1480/2220 (66.7%) | Loss: 0.4529 | Tempo: 0.9s | ETA: 13min
+  Step 1490/2220 (67.1%) | Loss: 0.5849 | Tempo: 0.8s | ETA: 12min
+  Step 1500/2220 (67.6%) | Loss: 0.5898 | Tempo: 0.9s | ETA: 12min
+  Step 1510/2220 (68.0%) | Loss: 0.4290 | Tempo: 0.9s | ETA: 12min
+  Step 1520/2220 (68.5%) | Loss: 0.6230 | Tempo: 0.8s | ETA: 12min
+  Step 1530/2220 (68.9%) | Loss: 0.5487 | Tempo: 0.9s | ETA: 12min
+  Step 1540/2220 (69.4%) | Loss: 0.4302 | Tempo: 0.8s | ETA: 12min
+  Step 1550/2220 (69.8%) | Loss: 0.8793 | Tempo: 1.0s | ETA: 11min
+
+  Epoch 14/20 | Loss media: 0.6294 | Melhor: 0.2734 | Tempo: 26.4min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch14.pt
+  Step 1560/2220 (70.3%) | Loss: 0.4885 | Tempo: 1.4s | ETA: 11min
+  Step 1570/2220 (70.7%) | Loss: 0.4194 | Tempo: 1.0s | ETA: 11min
+  Step 1580/2220 (71.2%) | Loss: 0.6400 | Tempo: 0.9s | ETA: 11min
+  Step 1590/2220 (71.6%) | Loss: 0.4525 | Tempo: 0.9s | ETA: 11min
+  Step 1600/2220 (72.1%) | Loss: 0.4667 | Tempo: 0.9s | ETA: 10min
+  Step 1610/2220 (72.5%) | Loss: 0.3662 | Tempo: 0.9s | ETA: 10min
+  Step 1620/2220 (73.0%) | Loss: 0.5489 | Tempo: 1.0s | ETA: 10min
+  Step 1630/2220 (73.4%) | Loss: 0.5139 | Tempo: 0.9s | ETA: 10min
+  Step 1640/2220 (73.9%) | Loss: 0.7047 | Tempo: 1.0s | ETA: 10min
+  Step 1650/2220 (74.3%) | Loss: 0.9469 | Tempo: 0.8s | ETA: 10min
+  Step 1660/2220 (74.8%) | Loss: 0.3636 | Tempo: 0.8s | ETA: 9min
+
+  Epoch 15/20 | Loss media: 0.6122 | Melhor: 0.2734 | Tempo: 28.1min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch15.pt
+  Step 1670/2220 (75.2%) | Loss: 0.3779 | Tempo: 0.8s | ETA: 9min
+  Step 1680/2220 (75.7%) | Loss: 0.6307 | Tempo: 1.0s | ETA: 9min
+  Step 1690/2220 (76.1%) | Loss: 0.5021 | Tempo: 1.1s | ETA: 9min
+  Step 1700/2220 (76.6%) | Loss: 0.6880 | Tempo: 1.0s | ETA: 9min
+  Step 1710/2220 (77.0%) | Loss: 0.6042 | Tempo: 1.3s | ETA: 9min
+  Step 1720/2220 (77.5%) | Loss: 1.1490 | Tempo: 0.7s | ETA: 8min
+  Step 1730/2220 (77.9%) | Loss: 0.4233 | Tempo: 0.9s | ETA: 8min
+  Step 1740/2220 (78.4%) | Loss: 0.4449 | Tempo: 0.8s | ETA: 8min
+  Step 1750/2220 (78.8%) | Loss: 0.5015 | Tempo: 1.4s | ETA: 8min
+  Step 1760/2220 (79.3%) | Loss: 0.6307 | Tempo: 0.9s | ETA: 8min
+  Step 1770/2220 (79.7%) | Loss: 0.4490 | Tempo: 1.0s | ETA: 8min
+
+  Epoch 16/20 | Loss media: 0.5784 | Melhor: 0.2734 | Tempo: 29.7min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch16.pt
+  Step 1780/2220 (80.2%) | Loss: 0.5530 | Tempo: 0.8s | ETA: 7min
+  Step 1790/2220 (80.6%) | Loss: 0.5326 | Tempo: 0.9s | ETA: 7min
+  Step 1800/2220 (81.1%) | Loss: 0.7448 | Tempo: 0.8s | ETA: 7min
+  Step 1810/2220 (81.5%) | Loss: 0.5893 | Tempo: 0.9s | ETA: 7min
+  Step 1820/2220 (82.0%) | Loss: 0.6245 | Tempo: 0.8s | ETA: 7min
+  Step 1830/2220 (82.4%) | Loss: 0.4749 | Tempo: 0.9s | ETA: 6min
+  Step 1840/2220 (82.9%) | Loss: 0.5447 | Tempo: 0.8s | ETA: 6min
+  Step 1850/2220 (83.3%) | Loss: 0.5045 | Tempo: 0.9s | ETA: 6min
+  Step 1860/2220 (83.8%) | Loss: 0.4938 | Tempo: 0.8s | ETA: 6min
+  Step 1870/2220 (84.2%) | Loss: 0.4095 | Tempo: 0.7s | ETA: 6min
+  Step 1880/2220 (84.7%) | Loss: 0.5079 | Tempo: 0.8s | ETA: 6min
+
+  Epoch 17/20 | Loss media: 0.5672 | Melhor: 0.2734 | Tempo: 31.3min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch17.pt
+  Step 1890/2220 (85.1%) | Loss: 0.6033 | Tempo: 0.8s | ETA: 5min
+  Step 1900/2220 (85.6%) | Loss: 0.4204 | Tempo: 1.0s | ETA: 5min
+  Step 1910/2220 (86.0%) | Loss: 0.4688 | Tempo: 0.9s | ETA: 5min
+  Step 1920/2220 (86.5%) | Loss: 0.7084 | Tempo: 0.8s | ETA: 5min
+  Step 1930/2220 (86.9%) | Loss: 0.3812 | Tempo: 1.0s | ETA: 5min
+  Step 1940/2220 (87.4%) | Loss: 0.4457 | Tempo: 0.8s | ETA: 5min
+  Step 1950/2220 (87.8%) | Loss: 0.3697 | Tempo: 0.8s | ETA: 4min
+  Step 1960/2220 (88.3%) | Loss: 0.4822 | Tempo: 0.9s | ETA: 4min
+  Step 1970/2220 (88.7%) | Loss: 0.4087 | Tempo: 0.9s | ETA: 4min
+  Step 1980/2220 (89.2%) | Loss: 0.4703 | Tempo: 0.9s | ETA: 4min
+  Step 1990/2220 (89.6%) | Loss: 0.7709 | Tempo: 0.9s | ETA: 4min
+
+  Epoch 18/20 | Loss media: 0.5492 | Melhor: 0.2734 | Tempo: 32.9min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch18.pt
+  Step 2000/2220 (90.1%) | Loss: 0.7995 | Tempo: 0.9s | ETA: 4min
+  Step 2010/2220 (90.5%) | Loss: 0.3400 | Tempo: 0.8s | ETA: 3min
+  Step 2020/2220 (91.0%) | Loss: 0.4744 | Tempo: 0.8s | ETA: 3min
+  Step 2030/2220 (91.4%) | Loss: 0.4336 | Tempo: 0.8s | ETA: 3min
+  Step 2040/2220 (91.9%) | Loss: 0.3332 | Tempo: 0.8s | ETA: 3min
+  Step 2050/2220 (92.3%) | Loss: 0.4611 | Tempo: 0.8s | ETA: 3min
+  Step 2060/2220 (92.8%) | Loss: 0.5651 | Tempo: 0.8s | ETA: 3min
+  Step 2070/2220 (93.2%) | Loss: 0.7131 | Tempo: 0.8s | ETA: 2min
+  Step 2080/2220 (93.7%) | Loss: 0.5664 | Tempo: 1.1s | ETA: 2min
+  Step 2090/2220 (94.1%) | Loss: 0.4998 | Tempo: 0.8s | ETA: 2min
+  Step 2100/2220 (94.6%) | Loss: 0.6435 | Tempo: 0.9s | ETA: 2min
+
+  Epoch 19/20 | Loss media: 0.5438 | Melhor: 0.2734 | Tempo: 34.5min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch19.pt
+  Step 2110/2220 (95.0%) | Loss: 0.4660 | Tempo: 0.8s | ETA: 2min
+  Step 2120/2220 (95.5%) | Loss: 0.4711 | Tempo: 0.9s | ETA: 2min
+  Step 2130/2220 (95.9%) | Loss: 0.5122 | Tempo: 0.8s | ETA: 1min
+  Step 2140/2220 (96.4%) | Loss: 0.3389 | Tempo: 0.8s | ETA: 1min
+  Step 2150/2220 (96.8%) | Loss: 0.4504 | Tempo: 0.9s | ETA: 1min
+  Step 2160/2220 (97.3%) | Loss: 0.5271 | Tempo: 0.8s | ETA: 1min
+  Step 2170/2220 (97.7%) | Loss: 0.4538 | Tempo: 0.7s | ETA: 1min
+  Step 2180/2220 (98.2%) | Loss: 0.5122 | Tempo: 1.1s | ETA: 1min
+  Step 2190/2220 (98.6%) | Loss: 0.8160 | Tempo: 0.9s | ETA: 0min
+  Step 2200/2220 (99.1%) | Loss: 0.5592 | Tempo: 0.9s | ETA: 0min
+  Step 2210/2220 (99.5%) | Loss: 0.2982 | Tempo: 0.9s | ETA: 0min
+  Step 2220/2220 (100.0%) | Loss: 0.5336 | Tempo: 1.0s | ETA: 0min
+
+  Epoch 20/20 | Loss media: 0.5326 | Melhor: 0.2734 | Tempo: 36.1min
+  Checkpoint salvo: weights/bran9bpy_scratch\model_epoch20.pt
+
+==================================================
+TREINO CONCLUIDO!
+Tempo total: 36.1min (0.60h)
+Melhor loss: 0.2734
+Parametros: 5,025,536 (5.03M)
+Modelo: weights/bran9bpy_scratch\model_final.pt
+Tokenizer: weights/bran9bpy_scratch\tokenizer.json
+==================================================
+
+[6/6] Teste de geracao...
+  Input: oi
+  Output: ! beleza ? to na a ! funcao e ! voce ! voce ! ta rolando voce ! funciona ) falar do ' voce !
+
+  Input: me ensina python
+  Output: me a python eu quero to que eu tomo ! voce ! voce ! ? voce ! voce ! ta js voce ! voce ajudo a python fazendo ? criar
+
+  Input: como criar site
+  Output: como criar te ! uma , css criando hoje ! quero to ! com ! ! voce ! ta rolando ? o e isso passo com voce
+
+  Input: eu te amo
+  Output: eu te amo explicar de ? que ! voce ! da vai feliz arrumar voce passo ca ta toda print ( ' o vida ' ) saudade vida
+

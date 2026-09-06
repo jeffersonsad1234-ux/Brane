@@ -1,0 +1,1 @@
+Start-Process python -ArgumentList "train_lstm.py" -WorkingDirectory "D:\BRANPY-AI\from_scratch" -RedirectStandardOutput "D:\BRANPY-AI\from_scratch\train_out.log" -RedirectStandardError "D:\BRANPY-AI\from_scratch\train_err.log" -NoNewWindow
